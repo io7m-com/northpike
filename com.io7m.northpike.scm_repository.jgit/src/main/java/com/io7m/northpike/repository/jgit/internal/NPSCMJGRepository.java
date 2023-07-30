@@ -369,7 +369,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
   {
     final var span =
       this.telemetry.tracer()
-        .spanBuilder("RepositoryGC")
+        .spanBuilder("Update")
         .startSpan();
 
     try (var ignored = span.makeCurrent()) {
