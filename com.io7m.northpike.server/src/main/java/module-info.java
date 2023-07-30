@@ -14,6 +14,9 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.northpike.server.internal.telemetry.NPTelemetryServices;
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
+
 /**
  * Continuous integration (Server)
  */
@@ -27,8 +30,11 @@ module com.io7m.northpike.server
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.server.api;
   requires com.io7m.northpike.strings;
+  requires com.io7m.northpike.telemetry.api;
 
+  requires com.io7m.anethum.api;
   requires com.io7m.jmulticlose.core;
+  requires com.io7m.medrina.vanilla;
   requires com.io7m.repetoir.core;
   requires io.opentelemetry.api;
   requires io.opentelemetry.context;
@@ -40,8 +46,14 @@ module com.io7m.northpike.server
   requires io.opentelemetry.sdk;
   requires io.opentelemetry.semconv;
   requires org.slf4j;
-  requires com.io7m.anethum.api;
-  requires com.io7m.medrina.vanilla;
+
+  uses NPTelemetryServiceFactoryType;
+
+  provides NPTelemetryServiceFactoryType
+    with NPTelemetryServices;
 
   exports com.io7m.northpike.server;
+
+  exports com.io7m.northpike.server.internal.telemetry
+    to com.io7m.northpike.tests;
 }

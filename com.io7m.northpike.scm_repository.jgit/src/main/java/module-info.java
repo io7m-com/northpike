@@ -25,7 +25,11 @@ module com.io7m.northpike.scm_repository.jgit
 
   requires transitive com.io7m.northpike.strings;
   requires transitive com.io7m.northpike.scm_repository.spi;
+
   requires com.io7m.lanark.core;
+  requires com.io7m.northpike.telemetry.api;
+  requires io.opentelemetry.api;
+  requires io.opentelemetry.context;
   requires org.eclipse.jgit;
 
   exports com.io7m.northpike.repository.jgit;

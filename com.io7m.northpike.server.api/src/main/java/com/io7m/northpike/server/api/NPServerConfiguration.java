@@ -19,6 +19,7 @@ package com.io7m.northpike.server.api;
 import com.io7m.northpike.database.api.NPDatabaseConfiguration;
 import com.io7m.northpike.database.api.NPDatabaseFactoryType;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.telemetry.api.NPTelemetryConfiguration;
 
 import java.time.Clock;
 import java.util.Locale;
@@ -47,7 +48,7 @@ public record NPServerConfiguration(
   NPDatabaseConfiguration databaseConfiguration,
   NPServerIdstoreConfiguration idstoreConfiguration,
   NPServerLimitsConfiguration limitsConfiguration,
-  Optional<NPServerOpenTelemetryConfiguration> openTelemetry)
+  Optional<NPTelemetryConfiguration> openTelemetry)
 {
   /**
    * The configuration for a server.

@@ -14,7 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.server.api;
+package com.io7m.northpike.telemetry.api;
 
 import java.net.URI;
 import java.util.Objects;
@@ -29,7 +29,7 @@ import java.util.Optional;
  * @param traces             The configuration for OTLP traces
  */
 
-public record NPServerOpenTelemetryConfiguration(
+public record NPTelemetryConfiguration(
   String logicalServiceName,
   Optional<NPLogs> logs,
   Optional<NPMetrics> metrics,
@@ -44,7 +44,7 @@ public record NPServerOpenTelemetryConfiguration(
    * @param traces             The configuration for OTLP traces
    */
 
-  public NPServerOpenTelemetryConfiguration
+  public NPTelemetryConfiguration
   {
     Objects.requireNonNull(logicalServiceName, "logicalServiceName");
     Objects.requireNonNull(logs, "logs");

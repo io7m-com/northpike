@@ -15,18 +15,18 @@
  */
 
 /**
- * Continuous integration (Server API)
+ * Continuous integration (Telemetry service API)
  */
 
-module com.io7m.northpike.server.api
+module com.io7m.northpike.telemetry.api
 {
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
-  requires com.io7m.northpike.telemetry.api;
   requires com.io7m.northpike.model;
-  requires com.io7m.northpike.database.api;
-  requires com.io7m.northpike.strings;
 
-  exports com.io7m.northpike.server.api;
+  requires com.io7m.repetoir.core;
+  requires io.opentelemetry.api;
+
+  exports com.io7m.northpike.telemetry.api;
 }

@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.server.internal.telemetry;
 
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.logs.Logger;
 import io.opentelemetry.api.metrics.Meter;

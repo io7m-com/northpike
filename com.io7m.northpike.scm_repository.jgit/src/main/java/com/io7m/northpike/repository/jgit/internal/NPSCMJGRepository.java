@@ -34,7 +34,9 @@ import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryException;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryType;
 import com.io7m.northpike.strings.NPStringConstants;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
+import io.opentelemetry.api.trace.Span;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
@@ -62,8 +64,10 @@ import java.util.stream.Collectors;
 
 import static com.io7m.northpike.strings.NPStringConstants.ANALYZE;
 import static com.io7m.northpike.strings.NPStringConstants.CLONE;
+import static com.io7m.northpike.strings.NPStringConstants.ERROR_REPOSITORY_WRONG_PROVIDER;
 import static com.io7m.northpike.strings.NPStringConstants.GC;
 import static com.io7m.northpike.strings.NPStringConstants.PULL;
+import static com.io7m.northpike.telemetry.api.NPTelemetryServiceType.recordSpanException;
 import static java.time.ZoneOffset.UTC;
 
 /**
@@ -73,6 +77,7 @@ import static java.time.ZoneOffset.UTC;
 public final class NPSCMJGRepository implements NPSCMRepositoryType
 {
   private final NPStrings strings;
+  private final NPTelemetryServiceType telemetry;
   private final NPRepositoryDescription repositoryDescription;
   private final Path repoPath;
   private final HashMap<String, String> attributes;
@@ -81,11 +86,14 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
 
   private NPSCMJGRepository(
     final NPStrings inStrings,
+    final NPTelemetryServiceType inTelemetry,
     final NPRepositoryDescription inDescription,
     final Path inRepoPath)
   {
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
+    this.telemetry =
+      Objects.requireNonNull(inTelemetry, "telemetry");
     this.repositoryDescription =
       Objects.requireNonNull(inDescription, "description");
     this.repoPath =
@@ -104,15 +112,20 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
    * @param repository    The repository
    *
    * @return A new instance
+   *
+   * @throws NPSCMRepositoryException On errors
    */
 
   public static NPSCMRepositoryType create(
     final RPServiceDirectoryType services,
     final Path dataDirectory,
     final NPRepositoryDescription repository)
+    throws NPSCMRepositoryException
   {
     final var strings =
       services.requireService(NPStrings.class);
+    final var telemetry =
+      services.requireService(NPTelemetryServiceType.class);
 
     final var expected =
       NPSCMRepositoriesJGit.providerNameGet();
@@ -120,14 +133,20 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
       repository.provider();
 
     if (!Objects.equals(received, expected)) {
-      throw new IllegalStateException();
+      throw new NPSCMRepositoryException(
+        strings.format(ERROR_REPOSITORY_WRONG_PROVIDER),
+        NPStandardErrorCodes.errorApiMisuse(),
+        Map.of(),
+        Optional.empty()
+      );
     }
 
     final var scmDirectory =
       dataDirectory.resolve(expected.value());
     final var repos =
       scmDirectory.resolve(repository.id() + ".git");
-    return new NPSCMJGRepository(strings, repository, repos);
+
+    return new NPSCMJGRepository(strings, telemetry, repository, repos);
   }
 
   private static HashSet<NPCommitLink> processCommitLinks(
@@ -173,75 +192,93 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     final Set<NPCommitSummary> commits)
     throws NPSCMRepositoryException
   {
-    this.setupAttributes();
+    final var span =
+      this.telemetry.tracer()
+        .spanBuilder("CommitsSince")
+        .startSpan();
 
-    if (!Files.isDirectory(this.repoPath)) {
-      this.executeClone();
+    try (var ignored = span.makeCurrent()) {
+      this.setupAttributes();
+
+      if (!Files.isDirectory(this.repoPath)) {
+        this.executeClone();
+      }
+
+      this.executeUpdate();
+      return this.executeCalculateSince(commits);
+    } finally {
+      span.end();
     }
-
-    this.executeUpdate();
-    return this.executeCalculateSince(commits);
   }
 
   private NPSCMCommitSet executeCalculateSince(
     final Set<NPCommitSummary> commits)
     throws NPSCMRepositoryException
   {
-    final var task = new NPSCMJTask(this.events, ANALYZE);
+    final var span =
+      this.telemetry.tracer()
+        .spanBuilder("Analyze")
+        .startSpan();
 
-    try {
-      task.beginTask(null, commits.size());
+    try (var ignored = span.makeCurrent()) {
+      final var task = new NPSCMJTask(this.events, ANALYZE);
+      try {
+        task.beginTask(null, commits.size());
 
-      final var repositoryInstance =
-        this.git.getRepository();
+        final var repositoryInstance =
+          this.git.getRepository();
 
-      final var commitsById =
-        new HashMap<String, NPCommit>();
-      final var commitLinks =
-        new ArrayList<Map.Entry<String, String>>();
+        final var commitsById =
+          new HashMap<String, NPCommit>();
+        final var commitLinks =
+          new ArrayList<Map.Entry<String, String>>();
 
-      final var allRefs =
-        repositoryInstance.getRefDatabase()
-          .getRefs();
+        final var allRefs =
+          repositoryInstance.getRefDatabase()
+            .getRefs();
 
-      try (var revWalker = new RevWalk(repositoryInstance)) {
+        try (var revWalker = new RevWalk(repositoryInstance)) {
 
-        /*
-         * Start traversal at all the head commits.
-         */
+          /*
+           * Start traversal at all the head commits.
+           */
 
-        for (final var ref : allRefs) {
-          revWalker.markStart(revWalker.parseCommit(ref.getObjectId()));
+          for (final var ref : allRefs) {
+            revWalker.markStart(revWalker.parseCommit(ref.getObjectId()));
+          }
+
+          /*
+           * Mark all the given commits as "uninteresting". This ensures that
+           * graph traversal will go as far as those commits but no further,
+           * and the commits themselves will not be processed.
+           */
+
+          for (final var endCommit : commits) {
+            revWalker.markUninteresting(
+              revWalker.parseCommit(ObjectId.fromString(endCommit.id().value()))
+            );
+          }
+
+          this.processCommits(commitsById, commitLinks, revWalker);
         }
+        task.update(1);
 
-        /*
-         * Mark all the given commits as "uninteresting". This ensures that
-         * graph traversal will go as far as those commits but no further,
-         * and the commits themselves will not be processed.
-         */
+        final var createdLinks =
+          processCommitLinks(commitsById, commitLinks);
 
-        for (final var endCommit : commits) {
-          revWalker.markUninteresting(
-            revWalker.parseCommit(ObjectId.fromString(endCommit.id().value()))
-          );
-        }
-
-        this.processCommits(commitsById, commitLinks, revWalker);
+        task.onCompleted();
+        return new NPSCMCommitSet(
+          Set.copyOf(commitsById.values()),
+          NPCommitGraph.create(createdLinks)
+        );
+      } catch (final Exception e) {
+        recordSpanException(e);
+        final var ex = this.handleException(e);
+        task.onFailed(ex);
+        throw ex;
       }
-      task.update(1);
-
-      final var createdLinks =
-        processCommitLinks(commitsById, commitLinks);
-
-      task.onCompleted();
-      return new NPSCMCommitSet(
-        Set.copyOf(commitsById.values()),
-        NPCommitGraph.create(createdLinks)
-      );
-    } catch (final Exception e) {
-      final var ex = this.handleException(e);
-      task.onFailed(ex);
-      throw ex;
+    } finally {
+      span.end();
     }
   }
 
@@ -330,31 +367,71 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
   private void executeUpdate()
     throws NPSCMRepositoryException
   {
-    final var task0 = new NPSCMJTask(this.events, PULL);
-    try {
-      this.git = Git.open(this.repoPath.toFile());
-      this.git.fetch()
-        .setCredentialsProvider(this.createCredentialsProvider())
-        .setProgressMonitor(task0)
-        .call();
-      task0.onCompleted();
-    } catch (final Exception e) {
-      final var ex = this.handleException(e);
-      task0.onFailed(ex);
-      throw ex;
-    }
+    final var span =
+      this.telemetry.tracer()
+        .spanBuilder("RepositoryGC")
+        .startSpan();
 
-    final var task1 = new NPSCMJTask(this.events, GC);
-    try {
-      this.git.gc()
-        .setAggressive(true)
-        .setProgressMonitor(task1)
-        .call();
-      task1.onCompleted();
-    } catch (final Exception e) {
-      final var ex = this.handleException(e);
-      task1.onFailed(ex);
-      throw ex;
+    try (var ignored = span.makeCurrent()) {
+      this.executeUpdatePull();
+      this.executeUpdateGC();
+    } finally {
+      span.end();
+    }
+  }
+
+  private void executeUpdateGC()
+    throws NPSCMRepositoryException
+  {
+    final var span =
+      this.telemetry.tracer()
+        .spanBuilder("RepositoryGC")
+        .startSpan();
+
+    try (var ignored = span.makeCurrent()) {
+      final var task = new NPSCMJTask(this.events, GC);
+      try {
+        this.git.gc()
+          .setAggressive(true)
+          .setProgressMonitor(task)
+          .call();
+        task.onCompleted();
+      } catch (final Exception e) {
+        recordSpanException(e);
+        final var ex = this.handleException(e);
+        task.onFailed(ex);
+        throw ex;
+      }
+    } finally {
+      span.end();
+    }
+  }
+
+  private void executeUpdatePull()
+    throws NPSCMRepositoryException
+  {
+    final var span =
+      this.telemetry.tracer()
+        .spanBuilder("Pull")
+        .startSpan();
+
+    try (var ignored = span.makeCurrent()) {
+      final var task = new NPSCMJTask(this.events, PULL);
+      try {
+        this.git = Git.open(this.repoPath.toFile());
+        this.git.fetch()
+          .setCredentialsProvider(this.createCredentialsProvider())
+          .setProgressMonitor(task)
+          .call();
+        task.onCompleted();
+      } catch (final Exception e) {
+        recordSpanException(e);
+        final var ex = this.handleException(e);
+        task.onFailed(ex);
+        throw ex;
+      }
+    } finally {
+      span.end();
     }
   }
 
@@ -373,34 +450,52 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
   private void setupAttributes()
   {
     this.attributes.clear();
-    this.attributes.put(
+    this.setupAttribute(
       this.strings.format(NPStringConstants.REPOSITORY),
       this.repositoryDescription.id().toString()
     );
   }
 
+  private void setupAttribute(
+    final String key,
+    final String val)
+  {
+    this.attributes.put(key, val);
+    Span.current().setAttribute(key, val);
+  }
+
   private void executeClone()
     throws NPSCMRepositoryException
   {
-    final var task = new NPSCMJTask(this.events, CLONE);
-    try {
-      this.git =
-        Git.cloneRepository()
-          .setBare(true)
-          .setCloneAllBranches(true)
-          .setTagOption(TagOpt.FETCH_TAGS)
-          .setGitDir(this.repoPath.toFile())
-          .setMirror(true)
-          .setURI(this.repositoryDescription.url().normalize().toString())
-          .setCredentialsProvider(this.createCredentialsProvider())
-          .setProgressMonitor(task)
-          .call();
+    final var span =
+      this.telemetry.tracer()
+        .spanBuilder("Clone")
+        .startSpan();
 
-      task.onCompleted();
-    } catch (final Exception e) {
-      final var ex = this.handleException(e);
-      task.onFailed(ex);
-      throw ex;
+    try (var ignored = span.makeCurrent()) {
+      final var task = new NPSCMJTask(this.events, CLONE);
+      try {
+        this.git =
+          Git.cloneRepository()
+            .setBare(true)
+            .setCloneAllBranches(true)
+            .setTagOption(TagOpt.FETCH_TAGS)
+            .setGitDir(this.repoPath.toFile())
+            .setMirror(true)
+            .setURI(this.repositoryDescription.url().normalize().toString())
+            .setCredentialsProvider(this.createCredentialsProvider())
+            .setProgressMonitor(task)
+            .call();
+
+        task.onCompleted();
+      } catch (final Exception e) {
+        recordSpanException(e);
+        final var ex = this.handleException(e);
+        task.onFailed(ex);
+        throw ex;
+      }
+    } finally {
+      span.end();
     }
   }
 

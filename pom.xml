@@ -29,6 +29,7 @@
     <module>com.io7m.northpike.server.api</module>
     <module>com.io7m.northpike.server</module>
     <module>com.io7m.northpike.strings</module>
+    <module>com.io7m.northpike.telemetry.api</module>
     <module>com.io7m.northpike.tests.arbitraries</module>
     <module>com.io7m.northpike.tests</module>
   </modules>

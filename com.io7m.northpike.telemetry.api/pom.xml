@@ -11,11 +11,11 @@
     <groupId>com.io7m.northpike</groupId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>com.io7m.northpike.server.api</artifactId>
+  <artifactId>com.io7m.northpike.telemetry.api</artifactId>
 
   <packaging>jar</packaging>
-  <name>com.io7m.northpike.server.api</name>
-  <description>Continuous integration (Server API)</description>
+  <name>com.io7m.northpike.telemetry.api</name>
+  <description>Continuous integration (Telemetry API)</description>
   <url>https://www.io7m.com/software/northpike</url>
 
   <dependencies>
@@ -24,25 +24,14 @@
       <artifactId>com.io7m.northpike.model</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.strings</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.database.api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.telemetry.api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <dependency>
-      <groupId>com.io7m.idstore</groupId>
-      <artifactId>com.io7m.idstore.model</artifactId>
+      <groupId>com.io7m.repetoir</groupId>
+      <artifactId>com.io7m.repetoir.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-api</artifactId>
     </dependency>
 
     <dependency>

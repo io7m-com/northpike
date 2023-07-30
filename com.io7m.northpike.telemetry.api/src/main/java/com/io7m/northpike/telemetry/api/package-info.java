@@ -14,24 +14,13 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.server.internal.telemetry;
-
-import com.io7m.northpike.server.api.NPServerOpenTelemetryConfiguration;
-
 /**
- * A factory of telemetry services.
+ * Continuous integration (Telemetry service API)
  */
 
-public interface NPTelemetryServiceFactoryType
-{
-  /**
-   * Create a telemetry service.
-   *
-   * @param configuration The telemetry configuration
-   *
-   * @return A telemetry service
-   */
+@Export
+@Version("1.0.0")
+package com.io7m.northpike.telemetry.api;
 
-  NPTelemetryServiceType create(
-    NPServerOpenTelemetryConfiguration configuration);
-}
+import org.osgi.annotation.bundle.Export;
+import org.osgi.annotation.versioning.Version;

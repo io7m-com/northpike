@@ -8,6 +8,7 @@
   <entry key="error_duplicate">Object already exists.</entry>
   <entry key="error_duplicate_deleted">A previously deleted object exists with this ID.</entry>
   <entry key="error_nonexistent">Object does not exist.</entry>
+  <entry key="error_repository_wrong_provider">Incorrect repository provider.</entry>
   <entry key="gc">GC</entry>
   <entry key="pull">Pull</entry>
   <entry key="repository">Repository</entry>

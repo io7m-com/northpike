@@ -25,7 +25,9 @@ import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.scm_repository.spi.NPSCMEventType;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryException;
+import com.io7m.northpike.server.internal.telemetry.NPTelemetryNoOp;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -71,6 +73,7 @@ public final class NPSCMRepositoriesJGitTest
 
     this.services = new RPServiceDirectory();
     this.services.register(NPStrings.class, this.strings);
+    this.services.register(NPTelemetryServiceType.class, NPTelemetryNoOp.noop());
   }
 
   /**

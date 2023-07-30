@@ -14,7 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.server.internal.telemetry;
+package com.io7m.northpike.telemetry.api;
 
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;

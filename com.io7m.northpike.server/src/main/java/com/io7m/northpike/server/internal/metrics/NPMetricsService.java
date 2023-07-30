@@ -20,7 +20,7 @@ package com.io7m.northpike.server.internal.metrics;
 import com.io7m.jmulticlose.core.CloseableCollection;
 import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.jmulticlose.core.ClosingResourceFailedException;
-import com.io7m.northpike.server.internal.telemetry.NPTelemetryServiceType;
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import io.opentelemetry.api.metrics.LongCounter;
 
 import java.time.Duration;

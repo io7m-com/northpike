@@ -17,7 +17,9 @@
 package com.io7m.northpike.server.internal.telemetry;
 
 import com.io7m.northpike.model.NPVersion;
-import com.io7m.northpike.server.api.NPServerOpenTelemetryConfiguration;
+import com.io7m.northpike.telemetry.api.NPTelemetryConfiguration;
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
@@ -74,7 +76,7 @@ public final class NPTelemetryServices
 
   @Override
   public NPTelemetryServiceType create(
-    final NPServerOpenTelemetryConfiguration telemetryConfiguration)
+    final NPTelemetryConfiguration telemetryConfiguration)
   {
     Objects.requireNonNull(telemetryConfiguration, "configuration");
 
@@ -143,7 +145,7 @@ public final class NPTelemetryServices
 
   private static SdkMeterProvider createMeterProvider(
     final Resource resource,
-    final NPServerOpenTelemetryConfiguration.NPMetrics metrics)
+    final NPTelemetryConfiguration.NPMetrics metrics)
   {
     final var endpoint = metrics.endpoint().toString();
     LOG.info(
@@ -179,7 +181,7 @@ public final class NPTelemetryServices
 
   private static SdkLoggerProvider createLoggerProvider(
     final Resource resource,
-    final NPServerOpenTelemetryConfiguration.NPLogs logs)
+    final NPTelemetryConfiguration.NPLogs logs)
   {
     final var endpoint = logs.endpoint().toString();
     LOG.info(
@@ -214,7 +216,7 @@ public final class NPTelemetryServices
 
   private static SdkTracerProvider createTracerProvider(
     final Resource resource,
-    final NPServerOpenTelemetryConfiguration.NPTraces traces)
+    final NPTelemetryConfiguration.NPTraces traces)
   {
     final var endpoint = traces.endpoint().toString();
     LOG.info(
