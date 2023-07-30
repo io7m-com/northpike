@@ -30,7 +30,7 @@ import java.util.Set;
  * @param author         The commit author
  * @param messageSubject The commit message subject
  * @param messageBody    The commit message body
- * @param branch         The commit branch
+ * @param branches       The commit branches
  * @param tags           The tags applied to the commit
  */
 
@@ -38,10 +38,10 @@ public record NPCommit(
   NPCommitID id,
   OffsetDateTime timeCreated,
   OffsetDateTime timeReceived,
-  String author,
+  NPCommitAuthor author,
   String messageSubject,
   String messageBody,
-  String branch,
+  Set<String> branches,
   Set<String> tags)
 {
   /**
@@ -53,7 +53,7 @@ public record NPCommit(
    * @param author         The commit author
    * @param messageSubject The commit message subject
    * @param messageBody    The commit message body
-   * @param branch         The commit branch
+   * @param branches       The commit branches
    * @param tags           The tags applied to the commit
    */
 
@@ -65,7 +65,7 @@ public record NPCommit(
     Objects.requireNonNull(author, "author");
     Objects.requireNonNull(messageSubject, "messageSubject");
     Objects.requireNonNull(messageBody, "messageBody");
-    Objects.requireNonNull(branch, "branch");
+    Objects.requireNonNull(branches, "branches");
     Objects.requireNonNull(tags, "tags");
   }
 

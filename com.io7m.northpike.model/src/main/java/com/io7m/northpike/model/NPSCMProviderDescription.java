@@ -48,5 +48,8 @@ public record NPSCMProviderDescription(
     Objects.requireNonNull(name, "name");
     Objects.requireNonNull(description, "description");
     Objects.requireNonNull(uri, "uri");
+
+    uri = uri.normalize();
+    description = description.trim();
   }
 }

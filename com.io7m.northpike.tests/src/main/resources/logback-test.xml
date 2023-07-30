@@ -37,6 +37,9 @@
   <logger name="com.io7m.ervilla.native_exec"
           level="DEBUG"/>
 
+  <logger name="org.eclipse.jgit"
+          level="INFO"/>
+
   <root level="TRACE">
     <appender-ref ref="STDERR"/>
   </root>

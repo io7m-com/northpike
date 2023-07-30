@@ -18,6 +18,7 @@
 package com.io7m.northpike.tests.arbitraries;
 
 import com.io7m.northpike.model.NPCommit;
+import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitID;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
@@ -35,10 +36,10 @@ public final class NPArbCommit extends NPArbAbstract<NPCommit>
           Arbitraries.defaultFor(NPCommitID.class),
           Arbitraries.defaultFor(OffsetDateTime.class),
           Arbitraries.defaultFor(OffsetDateTime.class),
-          Arbitraries.strings(),
+          Arbitraries.defaultFor(NPCommitAuthor.class),
           Arbitraries.strings().ofMaxLength(80),
           Arbitraries.strings(),
-          Arbitraries.strings(),
+          Arbitraries.strings().set(),
           Arbitraries.strings().set()
         ).as(NPCommit::new);
       }

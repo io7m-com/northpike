@@ -20,7 +20,7 @@ package com.io7m.northpike.database.api;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitListParameters;
-import com.io7m.northpike.model.NPRepository;
+import com.io7m.northpike.model.NPRepositoryDescription;
 
 import java.net.URI;
 import java.util.Objects;
@@ -39,7 +39,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    */
 
   non-sealed interface PutType
-    extends NPDatabaseQueryType<NPRepository, NPDatabaseUnit>,
+    extends NPDatabaseQueryType<NPRepositoryDescription, NPDatabaseUnit>,
     NPDatabaseQueriesRepositoriesType
   {
 
@@ -50,7 +50,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    */
 
   non-sealed interface GetType
-    extends NPDatabaseQueryType<URI, Optional<NPRepository>>,
+    extends NPDatabaseQueryType<URI, Optional<NPRepositoryDescription>>,
     NPDatabaseQueriesRepositoriesType
   {
 

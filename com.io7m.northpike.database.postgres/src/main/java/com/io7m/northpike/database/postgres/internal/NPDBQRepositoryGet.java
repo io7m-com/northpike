@@ -14,14 +14,14 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
 package com.io7m.northpike.database.postgres.internal;
-
 
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.GetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
-import com.io7m.northpike.model.NPRepository;
+import com.io7m.northpike.model.NPRepositoryCredentialsNone;
+import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
+import com.io7m.northpike.model.NPRepositoryDescription;
 import org.jooq.DSLContext;
 
 import java.net.URI;
@@ -35,10 +35,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.SCM_PROVIDERS
  */
 
 public final class NPDBQRepositoryGet
-  extends NPDBQAbstract<URI, Optional<NPRepository>>
+  extends NPDBQAbstract<URI, Optional<NPRepositoryDescription>>
   implements GetType
 {
-  private static final Service<URI, Optional<NPRepository>, GetType> SERVICE =
+  private static final Service<URI, Optional<NPRepositoryDescription>, GetType> SERVICE =
     new Service<>(GetType.class, NPDBQRepositoryGet::new);
 
   /**
@@ -63,35 +63,48 @@ public final class NPDBQRepositoryGet
   }
 
   @Override
-  protected Optional<NPRepository> onExecute(
+  protected Optional<NPRepositoryDescription> onExecute(
     final DSLContext context,
     final URI name)
   {
     final var query =
       context.select(
-        REPOSITORIES.R_ID,
-        REPOSITORIES.R_URL,
-        REPOSITORIES.R_USER,
-        REPOSITORIES.R_PASSWORD,
-        SCM_PROVIDERS.SP_NAME
-      ).from(REPOSITORIES)
-      .join(SCM_PROVIDERS)
-      .on(SCM_PROVIDERS.SP_ID.eq(REPOSITORIES.R_PROVIDER))
-      .where(REPOSITORIES.R_URL.eq(name.toString()));
+          REPOSITORIES.R_ID,
+          REPOSITORIES.R_URL,
+          REPOSITORIES.R_CREDENTIALS_TYPE,
+          REPOSITORIES.R_CREDENTIALS_USERNAME,
+          REPOSITORIES.R_CREDENTIALS_PASSWORD,
+          SCM_PROVIDERS.SP_NAME
+        ).from(REPOSITORIES)
+        .join(SCM_PROVIDERS)
+        .on(SCM_PROVIDERS.SP_ID.eq(REPOSITORIES.R_PROVIDER))
+        .where(REPOSITORIES.R_URL.eq(name.toString()));
 
     recordQuery(query);
     return query.fetchOptional().map(NPDBQRepositoryGet::mapRepository);
   }
 
-  private static NPRepository mapRepository(
+  private static NPRepositoryDescription mapRepository(
     final org.jooq.Record r)
   {
-    return new NPRepository(
+    final var credentials =
+      switch (r.get(REPOSITORIES.R_CREDENTIALS_TYPE)) {
+        case REPOSITORY_CREDENTIALS_NONE -> {
+          yield NPRepositoryCredentialsNone.CREDENTIALS_NONE;
+        }
+        case REPOSITORY_CREDENTIALS_USERNAME_PASSWORD -> {
+          yield new NPRepositoryCredentialsUsernamePassword(
+            r.get(REPOSITORIES.R_CREDENTIALS_USERNAME),
+            r.get(REPOSITORIES.R_CREDENTIALS_PASSWORD)
+          );
+        }
+      };
+
+    return new NPRepositoryDescription(
       new RDottedName(r.get(SCM_PROVIDERS.SP_NAME)),
       r.get(REPOSITORIES.R_ID),
       URI.create(r.get(REPOSITORIES.R_URL)),
-      Optional.ofNullable(r.get(REPOSITORIES.R_USER)),
-      Optional.ofNullable(r.get(REPOSITORIES.R_PASSWORD))
+      credentials
     );
   }
 }

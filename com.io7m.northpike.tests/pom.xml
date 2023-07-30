@@ -44,6 +44,16 @@
       <artifactId>com.io7m.northpike.server</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.scm_repository.jgit</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.scm_repository.spi</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.io7m.idstore</groupId>
@@ -76,6 +86,10 @@
     <dependency>
       <groupId>net.jqwik</groupId>
       <artifactId>jqwik-engine</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
     </dependency>
 
     <dependency>

@@ -27,7 +27,6 @@ import java.util.UUID;
  * @param repository        Only return commits for this repository
  * @param sinceCreated      Only return commits created since this commit
  * @param sinceReceived     Only return commits received since this commit
- * @param branch            Only return commits on this branch
  * @param timeRangeCreated  Only return commits created within this time range
  * @param timeRangeReceived Only return commits received within this time range
  * @param pageSize          The page size
@@ -37,7 +36,6 @@ public record NPCommitListParameters(
   Optional<UUID> repository,
   Optional<NPCommitID> sinceCreated,
   Optional<NPCommitID> sinceReceived,
-  Optional<String> branch,
   NPTimeRange timeRangeCreated,
   NPTimeRange timeRangeReceived,
   long pageSize)
@@ -48,7 +46,6 @@ public record NPCommitListParameters(
    * @param repository        Only return commits for this repository
    * @param sinceCreated      Only return commits created since this commit
    * @param sinceReceived     Only return commits received since this commit
-   * @param branch            Only return commits on this branch
    * @param timeRangeCreated  Only return commits created within this time range
    * @param timeRangeReceived Only return commits received within this time range
    * @param pageSize          The page size
@@ -59,7 +56,6 @@ public record NPCommitListParameters(
     Objects.requireNonNull(repository, "repository");
     Objects.requireNonNull(sinceCreated, "sinceCreated");
     Objects.requireNonNull(sinceReceived, "sinceReceived");
-    Objects.requireNonNull(branch, "branch");
     Objects.requireNonNull(timeRangeCreated, "timeRangeCreated");
     Objects.requireNonNull(timeRangeReceived, "timeRangeReceived");
 

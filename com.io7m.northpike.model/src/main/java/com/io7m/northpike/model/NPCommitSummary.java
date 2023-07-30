@@ -50,5 +50,6 @@ public record NPCommitSummary(
     Objects.requireNonNull(timeCreated, "timeCreated");
     Objects.requireNonNull(timeReceived, "timeReceived");
     Objects.requireNonNull(messageSubject, "messageSubject");
+    messageSubject = messageSubject.trim();
   }
 }

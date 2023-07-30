@@ -21,42 +21,39 @@ import com.io7m.lanark.core.RDottedName;
 
 import java.net.URI;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
  * A repository.
  *
- * @param provider The SCM provider
- * @param id       The repository ID
- * @param url      The repository URL
- * @param userName The username
- * @param password The password
+ * @param provider    The SCM provider
+ * @param id          The repository ID
+ * @param url         The repository URL
+ * @param credentials The credentials
  */
 
-public record NPRepository(
+public record NPRepositoryDescription(
   RDottedName provider,
   UUID id,
   URI url,
-  Optional<String> userName,
-  Optional<String> password)
+  NPRepositoryCredentialsType credentials)
 {
   /**
    * A repository.
    *
-   * @param provider The SCM provider
-   * @param id       The repository ID
-   * @param url      The repository URL
-   * @param userName The username
-   * @param password The password
+   * @param provider    The SCM provider
+   * @param id          The repository ID
+   * @param url         The repository URL
+   * @param credentials The credentials
    */
 
-  public NPRepository
+  public NPRepositoryDescription
   {
     Objects.requireNonNull(provider, "provider");
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(url, "url");
-    Objects.requireNonNull(userName, "userName");
-    Objects.requireNonNull(password, "password");
+    Objects.requireNonNull(credentials, "credentials");
+
+    url = url.normalize();
   }
 }

@@ -24,6 +24,8 @@
     <module>com.io7m.northpike.database.api</module>
     <module>com.io7m.northpike.database.postgres</module>
     <module>com.io7m.northpike.model</module>
+    <module>com.io7m.northpike.scm_repository.jgit</module>
+    <module>com.io7m.northpike.scm_repository.spi</module>
     <module>com.io7m.northpike.server.api</module>
     <module>com.io7m.northpike.server</module>
     <module>com.io7m.northpike.strings</module>
@@ -65,6 +67,7 @@
     <org.apache.tika.version>2.8.0</org.apache.tika.version>
     <org.jline.version>3.23.0</org.jline.version>
     <slf4j.version>2.0.7</slf4j.version>
+    <jgit.version>6.6.0.202305301015-r</jgit.version>
 
     <containers.postgresql.version>15.2</containers.postgresql.version>
     <containers.idstore.version>${com.io7m.idstore.version}</containers.idstore.version>
@@ -182,6 +185,11 @@
         <version>1.10.0</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>1.23.0</version>
+      </dependency>
+      <dependency>
         <groupId>com.io7m.hibiscus</groupId>
         <artifactId>com.io7m.hibiscus.api</artifactId>
         <version>${com.io7m.hibiscus.version}</version>
@@ -225,6 +233,13 @@
         <groupId>com.io7m.jranges</groupId>
         <artifactId>com.io7m.jranges.core</artifactId>
         <version>5.0.0</version>
+      </dependency>
+
+      <!-- Git repository support. -->
+      <dependency>
+        <groupId>org.eclipse.jgit</groupId>
+        <artifactId>org.eclipse.jgit</artifactId>
+        <version>${jgit.version}</version>
       </dependency>
 
       <!-- Server security -->

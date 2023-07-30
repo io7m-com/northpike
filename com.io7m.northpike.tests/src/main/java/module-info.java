@@ -30,10 +30,13 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.database.postgres;
   requires com.io7m.northpike.model;
+  requires com.io7m.northpike.scm_repository.jgit;
+  requires com.io7m.northpike.scm_repository.spi;
   requires com.io7m.northpike.server.api;
   requires com.io7m.northpike.server;
   requires com.io7m.northpike.strings;
 
+  requires com.googlecode.javaewah;
   requires com.io7m.ervilla.api;
   requires com.io7m.ervilla.native_exec;
   requires com.io7m.ervilla.postgres;
@@ -53,6 +56,7 @@ open module com.io7m.northpike.tests
   requires net.bytebuddy.agent;
   requires net.bytebuddy;
   requires net.jqwik.api;
+  requires org.apache.commons.compress;
   requires org.mockito;
   requires org.postgresql.jdbc;
   requires org.slf4j;

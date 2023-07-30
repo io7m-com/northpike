@@ -106,11 +106,6 @@ public final class NPDBQRepositoryCommitsGet
         .leftOuterJoin(COMMITS_NEXT)
         .on(COMMITS_NEXT.RC_ID.eq(REPOSITORY_COMMIT_LINKS.RCL_COMMIT_NEXT));
 
-    final var branchIn =
-      description.branch()
-        .map(REPOSITORY_COMMITS.RC_COMMIT_BRANCH::eq)
-        .orElseGet(DSL::trueCondition);
-
     final var timeRangeCreated =
       description.timeRangeCreated();
     final var timeConditionCreatedLow =
@@ -170,8 +165,7 @@ public final class NPDBQRepositoryCommitsGet
         timeConditionReceivedHigh,
         timeConditionCreatedSince,
         timeConditionReceivedSince,
-        repositoryCondition,
-        branchIn
+        repositoryCondition
       );
 
     final var pages =

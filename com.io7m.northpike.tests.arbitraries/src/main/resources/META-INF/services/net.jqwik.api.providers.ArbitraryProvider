@@ -1,4 +1,5 @@
 com.io7m.northpike.tests.arbitraries.NPArbCommit
+com.io7m.northpike.tests.arbitraries.NPArbCommitAuthor
 com.io7m.northpike.tests.arbitraries.NPArbCommitID
 com.io7m.northpike.tests.arbitraries.NPArbDottedName
 com.io7m.northpike.tests.arbitraries.NPArbOffsetDateTime

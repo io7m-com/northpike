@@ -30,9 +30,12 @@ import org.jooq.impl.DSL;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Locale;
 
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
 import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_COMMITS;
+import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_COMMIT_AUTHORS;
+import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_COMMIT_BRANCHES;
 import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_COMMIT_LINKS;
 import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_COMMIT_TAGS;
 
@@ -80,17 +83,34 @@ public final class NPDBQRepositoryCommitsPut
       new ArrayList<Query>(commitGraph.linksByCommit().size());
 
     for (final var commit : description.commits()) {
+      queries.add(insertAuthor(context, commit));
       queries.add(insertCommit(context, commit));
       queries.addAll(insertCommitTags(context, commit));
+      queries.addAll(insertCommitBranches(context, commit));
     }
 
-    for (final var link : commitGraph.linksByCommit().values()) {
+    for (final var link : commitGraph.linksByCommit()) {
       queries.add(insertCommitLink(context, link));
     }
 
     recordQuery(queries);
     context.batch(queries).execute();
     return UNIT;
+  }
+
+  private static Query insertAuthor(
+    final DSLContext context,
+    final NPCommit commit)
+  {
+    final var author =
+      commit.author();
+    final var emailLower =
+      author.authorEmail().toLowerCase(Locale.ROOT);
+
+    return context.insertInto(REPOSITORY_COMMIT_AUTHORS)
+      .set(REPOSITORY_COMMIT_AUTHORS.RCA_EMAIL, emailLower)
+      .set(REPOSITORY_COMMIT_AUTHORS.RCA_NAME, author.authorName())
+      .onConflictDoNothing();
   }
 
   private static Collection<? extends Query> insertCommitTags(
@@ -117,6 +137,37 @@ public final class NPDBQRepositoryCommitsPut
         context.insertInto(REPOSITORY_COMMIT_TAGS)
           .set(REPOSITORY_COMMIT_TAGS.RCT_TAG, tag)
           .set(REPOSITORY_COMMIT_TAGS.RCT_COMMIT, commitSelect)
+      );
+    }
+
+    return queries;
+  }
+
+  private static Collection<? extends Query> insertCommitBranches(
+    final DSLContext context,
+    final NPCommit commit)
+  {
+    final var queries = new ArrayList<Query>();
+
+    final var commitSelect =
+      context.select(REPOSITORY_COMMITS.RC_ID)
+        .from(REPOSITORY_COMMITS)
+        .where(
+          REPOSITORY_COMMITS.RC_COMMIT_ID.eq(commit.id().value())
+            .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(commit.id().repository()))
+        );
+
+    queries.add(
+      context.deleteFrom(REPOSITORY_COMMIT_BRANCHES)
+        .where(REPOSITORY_COMMIT_BRANCHES.RCB_COMMIT.eq(commitSelect))
+    );
+
+    for (final var branch : commit.branches()) {
+      queries.add(
+        context.insertInto(REPOSITORY_COMMIT_BRANCHES)
+          .set(REPOSITORY_COMMIT_BRANCHES.RCB_COMMIT, commitSelect)
+          .set(REPOSITORY_COMMIT_BRANCHES.RCB_BRANCH, branch)
+          .onConflictDoNothing()
       );
     }
 
@@ -158,30 +209,33 @@ public final class NPDBQRepositoryCommitsPut
 
   private static Query insertCommit(
     final DSLContext context,
-    final NPCommit commit)
+    final NPCommit com)
   {
+    final var author = com.author();
+    final var authorSelect =
+      context.select(REPOSITORY_COMMIT_AUTHORS.RCA_ID)
+        .from(REPOSITORY_COMMIT_AUTHORS)
+        .where(
+          REPOSITORY_COMMIT_AUTHORS.RCA_EMAIL.eq(author.authorEmail())
+            .and(REPOSITORY_COMMIT_AUTHORS.RCA_NAME.eq(author.authorName()))
+        );
+
     return context.insertInto(REPOSITORY_COMMITS)
-      .set(REPOSITORY_COMMITS.RC_COMMIT_AUTHOR, commit.author())
-      .set(REPOSITORY_COMMITS.RC_COMMIT_BRANCH, commit.branch())
-      .set(REPOSITORY_COMMITS.RC_COMMIT_ID, commit.id().value())
-      .set(
-        REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_SUBJECT,
-        commit.messageSubject())
-      .set(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_BODY, commit.messageBody())
-      .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED, commit.timeCreated())
-      .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_RECEIVED, commit.timeReceived())
-      .set(REPOSITORY_COMMITS.RC_REPOSITORY, commit.id().repository())
+      .set(REPOSITORY_COMMITS.RC_COMMIT_AUTHOR, authorSelect)
+      .set(REPOSITORY_COMMITS.RC_COMMIT_ID, com.id().value())
+      .set(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_SUBJECT, com.messageSubject())
+      .set(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_BODY, com.messageBody())
+      .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED, com.timeCreated())
+      .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_RECEIVED, com.timeReceived())
+      .set(REPOSITORY_COMMITS.RC_REPOSITORY, com.id().repository())
       .onConflictOnConstraint(DSL.name("repository_commits_unique"))
       .doUpdate()
-      .set(REPOSITORY_COMMITS.RC_COMMIT_AUTHOR, commit.author())
-      .set(REPOSITORY_COMMITS.RC_COMMIT_BRANCH, commit.branch())
-      .set(REPOSITORY_COMMITS.RC_COMMIT_ID, commit.id().value())
-      .set(
-        REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_SUBJECT,
-        commit.messageSubject())
-      .set(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_BODY, commit.messageBody())
-      .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED, commit.timeCreated())
-      .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_RECEIVED, commit.timeReceived())
-      .set(REPOSITORY_COMMITS.RC_REPOSITORY, commit.id().repository());
+      .set(REPOSITORY_COMMITS.RC_COMMIT_AUTHOR, authorSelect)
+      .set(REPOSITORY_COMMITS.RC_COMMIT_ID, com.id().value())
+      .set(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_SUBJECT, com.messageSubject())
+      .set(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_BODY, com.messageBody())
+      .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED, com.timeCreated())
+      .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_RECEIVED, com.timeReceived())
+      .set(REPOSITORY_COMMITS.RC_REPOSITORY, com.id().repository());
   }
 }

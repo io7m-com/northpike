@@ -30,6 +30,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPCommit;
+import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitLink;
@@ -37,7 +38,7 @@ import com.io7m.northpike.model.NPCommitListParameters;
 import com.io7m.northpike.model.NPCommitSummaryLinked;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPPage;
-import com.io7m.northpike.model.NPRepository;
+import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPTimeRange;
 import com.io7m.northpike.tests.containers.NPTestContainers;
@@ -59,6 +60,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.model.NPRepositoryCredentialsNone.CREDENTIALS_NONE;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -124,12 +126,11 @@ public final class NPDatabaseRepositoriesTest
       );
 
     final var description =
-      new NPRepository(
+      new NPRepositoryDescription(
         scm.name(),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        Optional.of("user"),
-        Optional.of("password")
+        CREDENTIALS_NONE
       );
 
     putSCM.execute(scm);
@@ -153,12 +154,11 @@ public final class NPDatabaseRepositoriesTest
       this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
 
     final var description =
-      new NPRepository(
+      new NPRepositoryDescription(
         new RDottedName("x.y"),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        Optional.of("user"),
-        Optional.of("password")
+        CREDENTIALS_NONE
       );
 
     final var ex =
@@ -214,12 +214,11 @@ public final class NPDatabaseRepositoriesTest
       );
 
     final var repository =
-      new NPRepository(
+      new NPRepositoryDescription(
         scm.name(),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        Optional.of("user"),
-        Optional.of("password")
+        CREDENTIALS_NONE
       );
 
     putSCM.execute(scm);
@@ -243,7 +242,6 @@ public final class NPDatabaseRepositoriesTest
           Optional.empty(),
           Optional.empty(),
           Optional.empty(),
-          Optional.empty(),
           NPTimeRange.largest(),
           NPTimeRange.largest(),
           50L
@@ -259,150 +257,6 @@ public final class NPDatabaseRepositoriesTest
     assertEquals(3L, (long) pageCurrent.pageCount());
     assertEquals(0L, pageCurrent.pageFirstOffset());
     assertEquals(50L, (long) pageCurrent.items().size());
-  }
-
-  /**
-   * Searching by branch works.
-   *
-   * @throws Exception On errors
-   */
-
-  @Test
-  public void testRepositoryCommits1()
-    throws Exception
-  {
-    final var putSCM =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
-    final var put =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
-    final var putCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
-    final var getCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
-
-    final var scm =
-      new NPSCMProviderDescription(
-        new RDottedName("x.y"),
-        "A provider.",
-        URI.create("https://www.example.com/scm")
-      );
-
-    final var repository =
-      new NPRepository(
-        scm.name(),
-        UUID.randomUUID(),
-        URI.create("https://www.example.com"),
-        Optional.of("user"),
-        Optional.of("password")
-      );
-
-    putSCM.execute(scm);
-    put.execute(repository);
-
-    final var generated =
-      generateFakeCommits(repository.id());
-
-    putCommits.execute(
-      new Parameters(
-        Set.copyOf(generated.commits),
-        generated.graph
-      )
-    );
-
-    final var paged =
-      getCommits.execute(
-        new NPCommitListParameters(
-          Optional.empty(),
-          Optional.empty(),
-          Optional.empty(),
-          Optional.of("develop"),
-          NPTimeRange.largest(),
-          NPTimeRange.largest(),
-          50L
-        )
-      );
-
-    this.dumpAllPages(paged);
-
-    final NPPage<NPCommitSummaryLinked> pageCurrent =
-      paged.pageCurrent(this.transaction);
-
-    assertEquals(1L, (long) pageCurrent.pageIndex());
-    assertEquals(3L, (long) pageCurrent.pageCount());
-    assertEquals(0L, pageCurrent.pageFirstOffset());
-    assertEquals(50L, (long) pageCurrent.items().size());
-  }
-
-  /**
-   * Searching by branch works.
-   *
-   * @throws Exception On errors
-   */
-
-  @Test
-  public void testRepositoryCommits2()
-    throws Exception
-  {
-    final var putSCM =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
-    final var put =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
-    final var putCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
-    final var getCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
-
-    final var scm =
-      new NPSCMProviderDescription(
-        new RDottedName("x.y"),
-        "A provider.",
-        URI.create("https://www.example.com/scm")
-      );
-
-    final var repository =
-      new NPRepository(
-        scm.name(),
-        UUID.randomUUID(),
-        URI.create("https://www.example.com"),
-        Optional.of("user"),
-        Optional.of("password")
-      );
-
-    putSCM.execute(scm);
-    put.execute(repository);
-
-    final var generated =
-      generateFakeCommits(repository.id());
-
-    putCommits.execute(
-      new Parameters(
-        Set.copyOf(generated.commits),
-        generated.graph
-      )
-    );
-
-    final var paged =
-      getCommits.execute(
-        new NPCommitListParameters(
-          Optional.empty(),
-          Optional.empty(),
-          Optional.empty(),
-          Optional.of("alternative"),
-          NPTimeRange.largest(),
-          NPTimeRange.largest(),
-          50L
-        )
-      );
-
-    this.dumpAllPages(paged);
-
-    final NPPage<NPCommitSummaryLinked> pageCurrent =
-      paged.pageCurrent(this.transaction);
-
-    assertEquals(1L, (long) pageCurrent.pageIndex());
-    assertEquals(1L, (long) pageCurrent.pageCount());
-    assertEquals(0L, pageCurrent.pageFirstOffset());
-    assertEquals(0L, (long) pageCurrent.items().size());
   }
 
   /**
@@ -432,12 +286,11 @@ public final class NPDatabaseRepositoriesTest
       );
 
     final var repository =
-      new NPRepository(
+      new NPRepositoryDescription(
         scm.name(),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        Optional.of("user"),
-        Optional.of("password")
+        CREDENTIALS_NONE
       );
 
     putSCM.execute(scm);
@@ -458,7 +311,6 @@ public final class NPDatabaseRepositoriesTest
     final var paged =
       getCommits.execute(
         new NPCommitListParameters(
-          Optional.empty(),
           Optional.empty(),
           Optional.empty(),
           Optional.empty(),
@@ -509,12 +361,11 @@ public final class NPDatabaseRepositoriesTest
       );
 
     final var repository =
-      new NPRepository(
+      new NPRepositoryDescription(
         scm.name(),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        Optional.of("user"),
-        Optional.of("password")
+        CREDENTIALS_NONE
       );
 
     putSCM.execute(scm);
@@ -535,7 +386,6 @@ public final class NPDatabaseRepositoriesTest
     final var paged =
       getCommits.execute(
         new NPCommitListParameters(
-          Optional.empty(),
           Optional.empty(),
           Optional.empty(),
           Optional.empty(),
@@ -586,12 +436,11 @@ public final class NPDatabaseRepositoriesTest
       );
 
     final var repository =
-      new NPRepository(
+      new NPRepositoryDescription(
         scm.name(),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        Optional.of("user"),
-        Optional.of("password")
+        CREDENTIALS_NONE
       );
 
     putSCM.execute(scm);
@@ -614,7 +463,6 @@ public final class NPDatabaseRepositoriesTest
         new NPCommitListParameters(
           Optional.empty(),
           Optional.of(generated.commits.get(30).id()),
-          Optional.empty(),
           Optional.empty(),
           NPTimeRange.largest(),
           NPTimeRange.largest(),
@@ -660,12 +508,11 @@ public final class NPDatabaseRepositoriesTest
       );
 
     final var repository =
-      new NPRepository(
+      new NPRepositoryDescription(
         scm.name(),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        Optional.of("user"),
-        Optional.of("password")
+        CREDENTIALS_NONE
       );
 
     putSCM.execute(scm);
@@ -689,7 +536,6 @@ public final class NPDatabaseRepositoriesTest
           Optional.empty(),
           Optional.empty(),
           Optional.of(generated.commits.get(30).id()),
-          Optional.empty(),
           NPTimeRange.largest(),
           NPTimeRange.largest(),
           50L
@@ -727,10 +573,13 @@ public final class NPDatabaseRepositoriesTest
         new NPCommitID(UUID.randomUUID(), "a"),
         OffsetDateTime.now(),
         OffsetDateTime.now(),
-        "Author",
+        new NPCommitAuthor(
+          "Author",
+          "author@example.com"
+        ),
         "Subject",
         "Body",
-        "branch",
+        Set.of("branch"),
         Set.of()
       );
 
@@ -795,15 +644,27 @@ public final class NPDatabaseRepositoriesTest
     final var commits =
       new LinkedList<NPCommit>();
 
+    final var author0 =
+      new NPCommitAuthor(
+        "Author 0",
+        "author0@example.com"
+      );
+
+    final var author1 =
+      new NPCommitAuthor(
+        "Author 1",
+        "author1@example.com"
+      );
+
     for (int index = 0; index < 100; ++index) {
       final var commit = new NPCommit(
         new NPCommitID(repository, String.format("%x", Integer.valueOf(index))),
         startTime.plusHours(index),
         startTime.plusHours(index).minusYears(1L),
-        "Author",
+        index % 3 == 0 ? author1 : author0,
         "Commit " + index,
         "",
-        "develop",
+        Set.of("develop"),
         Set.of("Tag-" + index, "TagX-" + index)
       );
       commits.add(commit);

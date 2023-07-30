@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * The graph formed by a set of commits.
@@ -36,12 +34,12 @@ public final class NPCommitGraph
 {
   private final AsUnmodifiableGraph<NPCommitID, NPCommitLink> linksPrevious;
   private final AsUnmodifiableGraph<NPCommitID, NPCommitLink> linksNext;
-  private final Map<NPCommitID, NPCommitLink> linksByCommit;
+  private final Set<NPCommitLink> linksByCommit;
 
   private NPCommitGraph(
     final AsUnmodifiableGraph<NPCommitID, NPCommitLink> inLinksPrevious,
     final AsUnmodifiableGraph<NPCommitID, NPCommitLink> inLinksNext,
-    final Map<NPCommitID, NPCommitLink> inLinksByCommit)
+    final Set<NPCommitLink> inLinksByCommit)
   {
     this.linksPrevious =
       Objects.requireNonNull(inLinksPrevious, "linksPrevious");
@@ -73,7 +71,7 @@ public final class NPCommitGraph
    * @return The links by commit ID
    */
 
-  public Map<NPCommitID, NPCommitLink> linksByCommit()
+  public Set<NPCommitLink> linksByCommit()
   {
     return this.linksByCommit;
   }
@@ -120,14 +118,10 @@ public final class NPCommitGraph
       }
     }
 
-    final var byId =
-      links.stream()
-        .collect(Collectors.toMap(NPCommitLink::commit, Function.identity()));
-
     return new NPCommitGraph(
       new AsUnmodifiableGraph<>(graphPrev),
       new AsUnmodifiableGraph<>(graphNext),
-      byId
+      Set.copyOf(links)
     );
   }
 }

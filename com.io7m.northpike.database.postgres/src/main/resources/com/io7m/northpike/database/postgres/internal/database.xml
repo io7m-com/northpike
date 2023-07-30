@@ -108,12 +108,33 @@ CREATE TABLE scm_providers (
 ]]></Statement>
 
     <Statement><![CDATA[
+CREATE TYPE repository_credentials_type_t AS ENUM(
+  'REPOSITORY_CREDENTIALS_USERNAME_PASSWORD',
+  'REPOSITORY_CREDENTIALS_NONE'
+);
+]]></Statement>
+
+    <Statement><![CDATA[
 CREATE TABLE repositories (
-  r_id        UUID          NOT NULL,
-  r_provider  BIGINT        NOT NULL,
-  r_url       VARCHAR(8192) NOT NULL,
-  r_user      VARCHAR(8192) NOT NULL,
-  r_password  VARCHAR(8192) NOT NULL,
+  r_id                     UUID                           NOT NULL,
+  r_provider               BIGINT                         NOT NULL,
+  r_url                    VARCHAR(8192)                  NOT NULL,
+  r_credentials_type       repository_credentials_type_t  NOT NULL,
+  r_credentials_username   VARCHAR(8192),
+  r_credentials_password   VARCHAR(8192),
+
+  -- [jooq ignore start]
+  CONSTRAINT repositories_credentials_type_values_present CHECK (
+    CASE
+      WHEN r_credentials_type = 'REPOSITORY_CREDENTIALS_USERNAME_PASSWORD' THEN
+        ((r_credentials_username IS NOT NULL) AND (r_credentials_password IS NOT NULL))
+      WHEN r_credentials_type = 'REPOSITORY_CREDENTIALS_NONE' THEN
+        't'::boolean
+      ELSE
+        'f'::boolean
+    END
+  ),
+  -- [jooq ignore stop]
 
   CONSTRAINT repositories_primary_key
     PRIMARY KEY (r_id),
@@ -127,16 +148,33 @@ CREATE TABLE repositories (
 ]]></Statement>
 
     <Statement><![CDATA[
+CREATE TABLE repository_commit_authors (
+  rca_id     BIGINT   NOT NULL GENERATED ALWAYS AS IDENTITY,
+  rca_name   TEXT     NOT NULL,
+  rca_email  TEXT     NOT NULL,
+
+  CONSTRAINT repository_commit_authors_primary_key
+    PRIMARY KEY (rca_id)
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+-- [jooq ignore start]
+CREATE UNIQUE INDEX repository_commit_authors_unique
+  ON repository_commit_authors (rca_name, LOWER(rca_email))
+-- [jooq ignore stop]
+]]></Statement>
+
+    <Statement><![CDATA[
 CREATE TABLE repository_commits (
   rc_id                     BIGINT                    NOT NULL GENERATED ALWAYS AS IDENTITY,
   rc_repository             UUID                      NOT NULL,
   rc_commit_id              VARCHAR(8192)             NOT NULL,
   rc_commit_time_created    TIMESTAMP WITH TIME ZONE  NOT NULL,
   rc_commit_time_received   TIMESTAMP WITH TIME ZONE  NOT NULL,
-  rc_commit_author          TEXT                      NOT NULL,
+  rc_commit_author          BIGINT                    NOT NULL,
   rc_commit_message_subject TEXT                      NOT NULL,
   rc_commit_message_body    TEXT                      NOT NULL,
-  rc_commit_branch          TEXT                      NOT NULL,
 
   CONSTRAINT repository_commits_primary_key
     PRIMARY KEY (rc_id),
@@ -146,6 +184,9 @@ CREATE TABLE repository_commits (
 
   CONSTRAINT repository_commits_repository_exists
     FOREIGN KEY (rc_repository) REFERENCES repositories (r_id),
+
+  CONSTRAINT repository_commits_author_exists
+    FOREIGN KEY (rc_commit_author) REFERENCES repository_commit_authors (rca_id),
 
   CONSTRAINT repository_commits_id_valid
     CHECK (rc_commit_id ~ '^[a-f0-9]+$')
@@ -168,6 +209,25 @@ CREATE TABLE repository_commit_tags (
 
   CONSTRAINT repository_commit_tags_commit_exists
     FOREIGN KEY (rct_commit) REFERENCES repository_commits (rc_id)
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE repository_commit_branches (
+  rcb_id      BIGINT         NOT NULL GENERATED ALWAYS AS IDENTITY,
+  rcb_branch  VARCHAR(8192)  NOT NULL,
+  rcb_commit  BIGINT         NOT NULL,
+
+  CONSTRAINT repository_commit_branches_primary_key
+    PRIMARY KEY (rcb_id),
+
+  -- [jooq ignore start]
+  CONSTRAINT repository_commit_branches_unique
+    UNIQUE (rcb_branch, rcb_commit),
+  -- [jooq ignore stop]
+
+  CONSTRAINT repository_commit_branches_commit_exists
+    FOREIGN KEY (rcb_commit) REFERENCES repository_commits (rc_id)
 )
 ]]></Statement>
 

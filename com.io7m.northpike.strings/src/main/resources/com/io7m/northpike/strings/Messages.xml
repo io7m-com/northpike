@@ -3,9 +3,13 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 
 <properties>
+  <entry key="analyze">Analyze</entry>
+  <entry key="clone">Clone</entry>
   <entry key="error_duplicate">Object already exists.</entry>
   <entry key="error_duplicate_deleted">A previously deleted object exists with this ID.</entry>
   <entry key="error_nonexistent">Object does not exist.</entry>
+  <entry key="gc">GC</entry>
+  <entry key="pull">Pull</entry>
   <entry key="repository">Repository</entry>
   <entry key="scm_provider">SCM Provider</entry>
   <entry key="user">User</entry>
