@@ -1,0 +1,836 @@
+/*
+ * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+ * SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+ * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+package com.io7m.northpike.tests.database;
+
+import com.io7m.ervilla.api.EContainerSupervisorType;
+import com.io7m.ervilla.test_extension.ErvillaCloseAfterAll;
+import com.io7m.ervilla.test_extension.ErvillaConfiguration;
+import com.io7m.ervilla.test_extension.ErvillaExtension;
+import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.database.api.NPCommitSummaryLinkedPagedType;
+import com.io7m.northpike.database.api.NPDatabaseConnectionType;
+import com.io7m.northpike.database.api.NPDatabaseException;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsPutType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
+import com.io7m.northpike.database.api.NPDatabaseTransactionType;
+import com.io7m.northpike.database.api.NPDatabaseType;
+import com.io7m.northpike.model.NPCommit;
+import com.io7m.northpike.model.NPCommitGraph;
+import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.model.NPCommitLink;
+import com.io7m.northpike.model.NPCommitListParameters;
+import com.io7m.northpike.model.NPCommitSummaryLinked;
+import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPRepository;
+import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPTimeRange;
+import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.zelador.test_extension.CloseableResourcesType;
+import com.io7m.zelador.test_extension.ZeladorExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
+@ErvillaConfiguration(disabledIfUnsupported = true)
+public final class NPDatabaseRepositoriesTest
+{
+  private static final Logger LOG =
+    LoggerFactory.getLogger(NPDatabaseRepositoriesTest.class);
+
+  private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
+  private NPDatabaseConnectionType connection;
+  private NPDatabaseTransactionType transaction;
+  private NPDatabaseType database;
+
+  @BeforeAll
+  public static void setupOnce(
+    final @ErvillaCloseAfterAll EContainerSupervisorType containers)
+    throws Exception
+  {
+    DATABASE_FIXTURE =
+      NPTestContainers.createDatabase(containers, 15432);
+  }
+
+  @BeforeEach
+  public void setup(
+    final CloseableResourcesType closeables)
+    throws Exception
+  {
+    DATABASE_FIXTURE.reset();
+
+    this.database =
+      closeables.addPerTestResource(DATABASE_FIXTURE.createDatabase());
+    this.connection =
+      closeables.addPerTestResource(this.database.openConnection(NORTHPIKE));
+    this.transaction =
+      closeables.addPerTestResource(this.connection.openTransaction());
+  }
+
+  /**
+   * Creating repositories works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryCreate0()
+    throws Exception
+  {
+    final var putSCM =
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+    final var get =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.GetType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+
+    final var scm =
+      new NPSCMProviderDescription(
+        new RDottedName("x.y"),
+        "A provider.",
+        URI.create("https://www.example.com/scm")
+      );
+
+    final var description =
+      new NPRepository(
+        scm.name(),
+        UUID.randomUUID(),
+        URI.create("https://www.example.com"),
+        Optional.of("user"),
+        Optional.of("password")
+      );
+
+    putSCM.execute(scm);
+    put.execute(description);
+    assertEquals(description, get.execute(description.url()).orElseThrow());
+  }
+
+  /**
+   * Creating repositories fails for nonexistent SCM providers.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryCreateBadSCM0()
+    throws Exception
+  {
+    final var get =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.GetType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+
+    final var description =
+      new NPRepository(
+        new RDottedName("x.y"),
+        UUID.randomUUID(),
+        URI.create("https://www.example.com"),
+        Optional.of("user"),
+        Optional.of("password")
+      );
+
+    final var ex =
+      assertThrows(NPException.class, () -> {
+        put.execute(description);
+      });
+    assertEquals(errorNonexistent(), ex.errorCode());
+  }
+
+  /**
+   * Nonexistent repositories are nonexistent.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryGet0()
+    throws Exception
+  {
+    final var get =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.GetType.class);
+
+    assertEquals(
+      Optional.empty(),
+      get.execute(URI.create("https://www.example.com/scm"))
+    );
+  }
+
+  /**
+   * Creating repository commits works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryCommits0()
+    throws Exception
+  {
+    final var putSCM =
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+    final var putCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+    final var getCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+
+    final var scm =
+      new NPSCMProviderDescription(
+        new RDottedName("x.y"),
+        "A provider.",
+        URI.create("https://www.example.com/scm")
+      );
+
+    final var repository =
+      new NPRepository(
+        scm.name(),
+        UUID.randomUUID(),
+        URI.create("https://www.example.com"),
+        Optional.of("user"),
+        Optional.of("password")
+      );
+
+    putSCM.execute(scm);
+    put.execute(repository);
+
+    final var generated =
+      generateFakeCommits(repository.id());
+
+    putCommits.execute(
+      new Parameters(
+        Set.copyOf(generated.commits),
+        generated.graph
+      )
+    );
+
+    this.transaction.commit();
+
+    final var paged =
+      getCommits.execute(
+        new NPCommitListParameters(
+          Optional.empty(),
+          Optional.empty(),
+          Optional.empty(),
+          Optional.empty(),
+          NPTimeRange.largest(),
+          NPTimeRange.largest(),
+          50L
+        )
+      );
+
+    this.dumpAllPages(paged);
+
+    final NPPage<NPCommitSummaryLinked> pageCurrent =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(1L, (long) pageCurrent.pageIndex());
+    assertEquals(3L, (long) pageCurrent.pageCount());
+    assertEquals(0L, pageCurrent.pageFirstOffset());
+    assertEquals(50L, (long) pageCurrent.items().size());
+  }
+
+  /**
+   * Searching by branch works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryCommits1()
+    throws Exception
+  {
+    final var putSCM =
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+    final var putCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+    final var getCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+
+    final var scm =
+      new NPSCMProviderDescription(
+        new RDottedName("x.y"),
+        "A provider.",
+        URI.create("https://www.example.com/scm")
+      );
+
+    final var repository =
+      new NPRepository(
+        scm.name(),
+        UUID.randomUUID(),
+        URI.create("https://www.example.com"),
+        Optional.of("user"),
+        Optional.of("password")
+      );
+
+    putSCM.execute(scm);
+    put.execute(repository);
+
+    final var generated =
+      generateFakeCommits(repository.id());
+
+    putCommits.execute(
+      new Parameters(
+        Set.copyOf(generated.commits),
+        generated.graph
+      )
+    );
+
+    final var paged =
+      getCommits.execute(
+        new NPCommitListParameters(
+          Optional.empty(),
+          Optional.empty(),
+          Optional.empty(),
+          Optional.of("develop"),
+          NPTimeRange.largest(),
+          NPTimeRange.largest(),
+          50L
+        )
+      );
+
+    this.dumpAllPages(paged);
+
+    final NPPage<NPCommitSummaryLinked> pageCurrent =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(1L, (long) pageCurrent.pageIndex());
+    assertEquals(3L, (long) pageCurrent.pageCount());
+    assertEquals(0L, pageCurrent.pageFirstOffset());
+    assertEquals(50L, (long) pageCurrent.items().size());
+  }
+
+  /**
+   * Searching by branch works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryCommits2()
+    throws Exception
+  {
+    final var putSCM =
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+    final var putCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+    final var getCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+
+    final var scm =
+      new NPSCMProviderDescription(
+        new RDottedName("x.y"),
+        "A provider.",
+        URI.create("https://www.example.com/scm")
+      );
+
+    final var repository =
+      new NPRepository(
+        scm.name(),
+        UUID.randomUUID(),
+        URI.create("https://www.example.com"),
+        Optional.of("user"),
+        Optional.of("password")
+      );
+
+    putSCM.execute(scm);
+    put.execute(repository);
+
+    final var generated =
+      generateFakeCommits(repository.id());
+
+    putCommits.execute(
+      new Parameters(
+        Set.copyOf(generated.commits),
+        generated.graph
+      )
+    );
+
+    final var paged =
+      getCommits.execute(
+        new NPCommitListParameters(
+          Optional.empty(),
+          Optional.empty(),
+          Optional.empty(),
+          Optional.of("alternative"),
+          NPTimeRange.largest(),
+          NPTimeRange.largest(),
+          50L
+        )
+      );
+
+    this.dumpAllPages(paged);
+
+    final NPPage<NPCommitSummaryLinked> pageCurrent =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(1L, (long) pageCurrent.pageIndex());
+    assertEquals(1L, (long) pageCurrent.pageCount());
+    assertEquals(0L, pageCurrent.pageFirstOffset());
+    assertEquals(0L, (long) pageCurrent.items().size());
+  }
+
+  /**
+   * Searching by time works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryCommits3()
+    throws Exception
+  {
+    final var putSCM =
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+    final var putCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+    final var getCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+
+    final var scm =
+      new NPSCMProviderDescription(
+        new RDottedName("x.y"),
+        "A provider.",
+        URI.create("https://www.example.com/scm")
+      );
+
+    final var repository =
+      new NPRepository(
+        scm.name(),
+        UUID.randomUUID(),
+        URI.create("https://www.example.com"),
+        Optional.of("user"),
+        Optional.of("password")
+      );
+
+    putSCM.execute(scm);
+    put.execute(repository);
+
+    final var generated =
+      generateFakeCommits(repository.id());
+
+    putCommits.execute(
+      new Parameters(
+        Set.copyOf(generated.commits),
+        generated.graph
+      )
+    );
+
+    this.transaction.commit();
+
+    final var paged =
+      getCommits.execute(
+        new NPCommitListParameters(
+          Optional.empty(),
+          Optional.empty(),
+          Optional.empty(),
+          Optional.empty(),
+          new NPTimeRange(
+            generated.commits.get(75).timeCreated(),
+            NPTimeRange.largest().upper()
+          ),
+          NPTimeRange.largest(),
+          50L
+        )
+      );
+
+    this.dumpAllPages(paged);
+
+    final NPPage<NPCommitSummaryLinked> pageCurrent =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(1L, (long) pageCurrent.pageIndex());
+    assertEquals(1L, (long) pageCurrent.pageCount());
+    assertEquals(0L, pageCurrent.pageFirstOffset());
+    assertEquals(25L, (long) pageCurrent.items().size());
+  }
+
+  /**
+   * Searching by time works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryCommits4()
+    throws Exception
+  {
+    final var putSCM =
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+    final var putCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+    final var getCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+
+    final var scm =
+      new NPSCMProviderDescription(
+        new RDottedName("x.y"),
+        "A provider.",
+        URI.create("https://www.example.com/scm")
+      );
+
+    final var repository =
+      new NPRepository(
+        scm.name(),
+        UUID.randomUUID(),
+        URI.create("https://www.example.com"),
+        Optional.of("user"),
+        Optional.of("password")
+      );
+
+    putSCM.execute(scm);
+    put.execute(repository);
+
+    final var generated =
+      generateFakeCommits(repository.id());
+
+    putCommits.execute(
+      new Parameters(
+        Set.copyOf(generated.commits),
+        generated.graph
+      )
+    );
+
+    this.transaction.commit();
+
+    final var paged =
+      getCommits.execute(
+        new NPCommitListParameters(
+          Optional.empty(),
+          Optional.empty(),
+          Optional.empty(),
+          Optional.empty(),
+          NPTimeRange.largest(),
+          new NPTimeRange(
+            generated.commits.get(75).timeReceived(),
+            NPTimeRange.largest().upper()
+          ),
+          50L
+        )
+      );
+
+    this.dumpAllPages(paged);
+
+    final NPPage<NPCommitSummaryLinked> pageCurrent =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(1L, (long) pageCurrent.pageIndex());
+    assertEquals(1L, (long) pageCurrent.pageCount());
+    assertEquals(0L, pageCurrent.pageFirstOffset());
+    assertEquals(25L, (long) pageCurrent.items().size());
+  }
+
+  /**
+   * Searching "since commit" works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryCommits5()
+    throws Exception
+  {
+    final var putSCM =
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+    final var putCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+    final var getCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+
+    final var scm =
+      new NPSCMProviderDescription(
+        new RDottedName("x.y"),
+        "A provider.",
+        URI.create("https://www.example.com/scm")
+      );
+
+    final var repository =
+      new NPRepository(
+        scm.name(),
+        UUID.randomUUID(),
+        URI.create("https://www.example.com"),
+        Optional.of("user"),
+        Optional.of("password")
+      );
+
+    putSCM.execute(scm);
+    put.execute(repository);
+
+    final var generated =
+      generateFakeCommits(repository.id());
+
+    putCommits.execute(
+      new Parameters(
+        Set.copyOf(generated.commits),
+        generated.graph
+      )
+    );
+
+    this.transaction.commit();
+
+    final var paged =
+      getCommits.execute(
+        new NPCommitListParameters(
+          Optional.empty(),
+          Optional.of(generated.commits.get(30).id()),
+          Optional.empty(),
+          Optional.empty(),
+          NPTimeRange.largest(),
+          NPTimeRange.largest(),
+          50L
+        )
+      );
+
+    this.dumpAllPages(paged);
+
+    final NPPage<NPCommitSummaryLinked> pageCurrent =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(1L, (long) pageCurrent.pageIndex());
+    assertEquals(2L, (long) pageCurrent.pageCount());
+    assertEquals(0L, pageCurrent.pageFirstOffset());
+    assertEquals(50L, (long) pageCurrent.items().size());
+  }
+
+  /**
+   * Searching "since commit" works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryCommits6()
+    throws Exception
+  {
+    final var putSCM =
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+    final var putCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+    final var getCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+
+    final var scm =
+      new NPSCMProviderDescription(
+        new RDottedName("x.y"),
+        "A provider.",
+        URI.create("https://www.example.com/scm")
+      );
+
+    final var repository =
+      new NPRepository(
+        scm.name(),
+        UUID.randomUUID(),
+        URI.create("https://www.example.com"),
+        Optional.of("user"),
+        Optional.of("password")
+      );
+
+    putSCM.execute(scm);
+    put.execute(repository);
+
+    final var generated =
+      generateFakeCommits(repository.id());
+
+    putCommits.execute(
+      new Parameters(
+        Set.copyOf(generated.commits),
+        generated.graph
+      )
+    );
+
+    this.transaction.commit();
+
+    final var paged =
+      getCommits.execute(
+        new NPCommitListParameters(
+          Optional.empty(),
+          Optional.empty(),
+          Optional.of(generated.commits.get(30).id()),
+          Optional.empty(),
+          NPTimeRange.largest(),
+          NPTimeRange.largest(),
+          50L
+        )
+      );
+
+    this.dumpAllPages(paged);
+
+    final NPPage<NPCommitSummaryLinked> pageCurrent =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(1L, (long) pageCurrent.pageIndex());
+    assertEquals(2L, (long) pageCurrent.pageCount());
+    assertEquals(0L, pageCurrent.pageFirstOffset());
+    assertEquals(50L, (long) pageCurrent.items().size());
+  }
+
+  /**
+   * Creating repository commits works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryCommitsNoRepository()
+    throws Exception
+  {
+    final var putCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+    final var getCommits =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+
+    final var commit =
+      new NPCommit(
+        new NPCommitID(UUID.randomUUID(), "a"),
+        OffsetDateTime.now(),
+        OffsetDateTime.now(),
+        "Author",
+        "Subject",
+        "Body",
+        "branch",
+        Set.of()
+      );
+
+    final var graph =
+      NPCommitGraph.create(Set.of());
+
+    final var ex =
+      assertThrows(NPDatabaseException.class, () -> {
+        putCommits.execute(
+          new Parameters(
+            Set.of(commit),
+            graph
+          )
+        );
+      });
+
+    assertEquals(errorNonexistent(), ex.errorCode());
+  }
+
+  private void dumpAllPages(
+    final NPCommitSummaryLinkedPagedType paged)
+    throws NPDatabaseException
+  {
+    NPPage<NPCommitSummaryLinked> pageCurrent =
+      paged.pageCurrent(this.transaction);
+
+    for (int index = 1; index <= pageCurrent.pageCount(); ++index) {
+      for (final var item : pageCurrent.items()) {
+        LOG.debug(
+          "[{}/{}] {} -> {} ({})",
+          Integer.valueOf(index),
+          Integer.valueOf(pageCurrent.pageCount()),
+          item.link().commit(),
+          item.link().next(),
+          item.commit().messageSubject()
+        );
+      }
+      pageCurrent = paged.pageNext(this.transaction);
+    }
+
+    for (int index = pageCurrent.pageCount(); index >= 1; --index) {
+      for (final var item : pageCurrent.items()) {
+        LOG.debug(
+          "[{}/{}] {} -> {} ({})",
+          Integer.valueOf(index),
+          Integer.valueOf(pageCurrent.pageCount()),
+          item.link().commit(),
+          item.link().next(),
+          item.commit().messageSubject()
+        );
+      }
+      pageCurrent = paged.pagePrevious(this.transaction);
+    }
+  }
+
+  private static GeneratedCommits generateFakeCommits(
+    final UUID repository)
+    throws NPException
+  {
+    final var startTime =
+      OffsetDateTime.now();
+    final var commits =
+      new LinkedList<NPCommit>();
+
+    for (int index = 0; index < 100; ++index) {
+      final var commit = new NPCommit(
+        new NPCommitID(repository, String.format("%x", Integer.valueOf(index))),
+        startTime.plusHours(index),
+        startTime.plusHours(index).minusYears(1L),
+        "Author",
+        "Commit " + index,
+        "",
+        "develop",
+        Set.of("Tag-" + index, "TagX-" + index)
+      );
+      commits.add(commit);
+    }
+
+    final var links = new HashSet<NPCommitLink>(commits.size());
+    for (final var commit : commits) {
+      final var next =
+        commits.indexOf(commit) + 1;
+
+      final Optional<NPCommitID> nextCommit;
+      if (next < commits.size()) {
+        nextCommit = Optional.of(commits.get(next).id());
+      } else {
+        nextCommit = Optional.empty();
+      }
+
+      links.add(new NPCommitLink(commit.id(), nextCommit));
+    }
+
+    return new GeneratedCommits(commits, NPCommitGraph.create(links));
+  }
+
+  record GeneratedCommits(
+    LinkedList<NPCommit> commits,
+    NPCommitGraph graph)
+  {
+
+  }
+}

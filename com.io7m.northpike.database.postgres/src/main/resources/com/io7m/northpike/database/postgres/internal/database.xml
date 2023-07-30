@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Schemas xmlns="urn:com.io7m.trasco.database.statements:1:0">
+
+  <Parameters>
+    <Parameter name="search.language"
+               type="STRING"/>
+  </Parameters>
+
+  <Schema versionCurrent="0">
+    <Comment>
+      The northpike role is a least-privilege role that can perform only those
+      operations required to run the system and no others.
+    </Comment>
+
+    <Statement><![CDATA[
+DROP ROLE IF EXISTS northpike;
+]]></Statement>
+    <Statement><![CDATA[
+CREATE ROLE northpike WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN;
+]]></Statement>
+
+    <Comment>
+      The northpike_none role is a no-privilege role that cannot perform any
+      actions.
+    </Comment>
+
+    <Statement><![CDATA[
+DROP ROLE IF EXISTS northpike_none;
+]]></Statement>
+    <Statement><![CDATA[
+CREATE ROLE northpike_none WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN;
+]]></Statement>
+
+    <Comment>
+      The northpike_read_only role is a read-only role that cannot write to
+      anything.
+    </Comment>
+
+    <Statement><![CDATA[
+DROP ROLE IF EXISTS northpike_read_only;
+]]></Statement>
+    <Statement><![CDATA[
+CREATE ROLE northpike_read_only WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN;
+]]></Statement>
+
+    <Comment>
+      The schema version table stores the current version of the database
+      schema. Implementations are expected to query this table on connecting to
+      the database in order to ensure that the calling code is compatible with
+      the tables in the database.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE schema_version (
+  version_lock            CHAR(1) NOT NULL DEFAULT 'X',
+  version_application_id  TEXT    NOT NULL,
+  version_number          BIGINT  NOT NULL,
+
+  CONSTRAINT check_lock_primary
+    PRIMARY KEY (version_lock),
+
+  CONSTRAINT check_lock_locked
+    CHECK (version_lock = 'X')
+)
+]]>
+    </Statement>
+  </Schema>
+
+  <Schema versionCurrent="1">
+    <Comment>
+      The users table stores the current set of users. The name field is neither
+      authoritative, nor expected to be unique, because the external identity
+      server is the authoritative source for names.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE users (
+  id    UUID   NOT NULL PRIMARY KEY,
+  name  TEXT   NOT NULL,
+  roles TEXT[] NOT NULL
+)
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON users TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON users TO northpike_read_only
+    </Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE scm_providers (
+  sp_id           BIGINT        NOT NULL GENERATED ALWAYS AS IDENTITY,
+  sp_name         VARCHAR(1024) NOT NULL,
+  sp_description  TEXT          NOT NULL,
+  sp_url          TEXT          NOT NULL,
+
+  CONSTRAINT scm_providers_primary_key
+    PRIMARY KEY (sp_id),
+
+  CONSTRAINT scm_providers_name_unique
+    UNIQUE (sp_name),
+
+  CONSTRAINT scm_providers_name_valid
+    CHECK (sp_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$')
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE repositories (
+  r_id        UUID          NOT NULL,
+  r_provider  BIGINT        NOT NULL,
+  r_url       VARCHAR(8192) NOT NULL,
+  r_user      VARCHAR(8192) NOT NULL,
+  r_password  VARCHAR(8192) NOT NULL,
+
+  CONSTRAINT repositories_primary_key
+    PRIMARY KEY (r_id),
+
+  CONSTRAINT repositories_provider_exists
+    FOREIGN KEY (r_provider) REFERENCES scm_providers (sp_id),
+
+  CONSTRAINT repositories_url_unique
+    UNIQUE (r_url)
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE repository_commits (
+  rc_id                     BIGINT                    NOT NULL GENERATED ALWAYS AS IDENTITY,
+  rc_repository             UUID                      NOT NULL,
+  rc_commit_id              VARCHAR(8192)             NOT NULL,
+  rc_commit_time_created    TIMESTAMP WITH TIME ZONE  NOT NULL,
+  rc_commit_time_received   TIMESTAMP WITH TIME ZONE  NOT NULL,
+  rc_commit_author          TEXT                      NOT NULL,
+  rc_commit_message_subject TEXT                      NOT NULL,
+  rc_commit_message_body    TEXT                      NOT NULL,
+  rc_commit_branch          TEXT                      NOT NULL,
+
+  CONSTRAINT repository_commits_primary_key
+    PRIMARY KEY (rc_id),
+
+  CONSTRAINT repository_commits_unique
+    UNIQUE (rc_repository, rc_commit_id),
+
+  CONSTRAINT repository_commits_repository_exists
+    FOREIGN KEY (rc_repository) REFERENCES repositories (r_id),
+
+  CONSTRAINT repository_commits_id_valid
+    CHECK (rc_commit_id ~ '^[a-f0-9]+$')
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE repository_commit_tags (
+  rct_id      BIGINT         NOT NULL GENERATED ALWAYS AS IDENTITY,
+  rct_tag     VARCHAR(8192)  NOT NULL,
+  rct_commit  BIGINT         NOT NULL,
+
+  CONSTRAINT repository_commit_tags_primary_key
+    PRIMARY KEY (rct_id),
+
+  -- [jooq ignore start]
+  CONSTRAINT repository_commit_tags_unique
+    UNIQUE (rct_tag, rct_commit),
+  -- [jooq ignore stop]
+
+  CONSTRAINT repository_commit_tags_commit_exists
+    FOREIGN KEY (rct_commit) REFERENCES repository_commits (rc_id)
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE repository_commit_links (
+  rcl_commit       BIGINT NOT NULL,
+  rcl_commit_next  BIGINT,
+
+  CONSTRAINT repository_commit_links_primary_key
+    PRIMARY KEY (rcl_commit, rcl_commit_next),
+
+  CONSTRAINT repository_commit_links_commit_exists
+    FOREIGN KEY (rcl_commit) REFERENCES repository_commits (rc_id),
+
+  CONSTRAINT repository_commit_links_commit_next_exists
+    FOREIGN KEY (rcl_commit_next) REFERENCES repository_commits (rc_id),
+
+  CONSTRAINT repository_commit_links_next_well_formed
+    CHECK (rcl_commit <> rcl_commit_next)
+)
+]]></Statement>
+
+    <!--
+    <Statement><![CDATA[
+CREATE OR REPLACE FUNCTION repository_commit_lookup (
+  repository_url       TEXT,
+  repository_commit_id TEXT
+)
+  RETURNS BIGINT
+  LANGUAGE PLPGSQL
+AS $$
+  DECLARE
+    repository_id  UUID;
+    commit         BIGINT;
+  BEGIN
+    SELECT r.r_id INTO repository_id FROM repositories AS r
+      WHERE r.r_url = repository_url;
+
+    SELECT rc.rc_id INTO commit FROM repository_commits AS rc
+      WHERE rc.rc_commit_id  = repository_commit_id
+        AND rc.rc_repository = repository_id;
+
+    RETURN commit;
+  END;
+$$;
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE OR REPLACE FUNCTION repository_commit_links_descendants (initial_commit BIGINT)
+  RETURNS TABLE (
+    commit      BIGINT,
+    commit_next BIGINT
+  )
+  LANGUAGE PLPGSQL
+AS $$
+  DECLARE
+    commits_row repository_commit_links%ROWTYPE;
+  BEGIN
+    SELECT * INTO commits_row
+      FROM repository_commit_links
+        WHERE repository_commit_links.rcl_commit = initial_commit;
+
+    WHILE (commits_row IS NOT NULL) LOOP
+      commit      := commits_row.rcl_commit;
+      commit_next := commits_row.rcl_commit_next;
+
+      SELECT * INTO commits_row
+        FROM repository_commit_links
+          WHERE repository_commit_links.rcl_commit = commit_next;
+
+      RETURN NEXT;
+    END LOOP;
+
+    RETURN;
+  END;
+$$;
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE OR REPLACE FUNCTION repository_commit_links_descendants_lookup (
+  repository_url       TEXT,
+  repository_commit_id TEXT
+)
+  RETURNS TABLE (
+    commit      BIGINT,
+    commit_next BIGINT
+  )
+  LANGUAGE PLPGSQL
+AS $$
+  DECLARE
+    repository_id  BIGINT;
+    commit_initial BIGINT;
+  BEGIN
+    SELECT r.r_id INTO repository_id FROM repositories AS r
+      WHERE r.r_url = repository_url;
+
+    SELECT rc.rc_id INTO commit_initial FROM repository_commits AS rc
+      WHERE rc.rc_commit_id  = repository_commit_id
+        AND rc.rc_repository = repository_id;
+
+    RETURN QUERY SELECT * FROM repository_commit_links_descendants (commit_initial);
+  END;
+$$;
+]]></Statement>
+-->
+  </Schema>
+</Schemas>

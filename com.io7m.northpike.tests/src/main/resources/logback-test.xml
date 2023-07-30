@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration xmlns="http://ch.qos.logback/xml/ns/logback">
+
+  <appender name="STDERR"
+            class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%level %logger [%X{Container}] [%X{PID}] %X{Source}: %msg%n</pattern>
+    </encoder>
+    <target>System.err</target>
+  </appender>
+
+  <logger name="com.zaxxer.hikari"
+          level="INFO"/>
+
+  <logger name="com.io7m.jxe.core"
+          level="INFO"/>
+
+  <logger name="com.io7m.blackthorne"
+          level="INFO"/>
+
+  <logger name="com.io7m.trasco"
+          level="INFO"/>
+
+  <logger name="org.eclipse.jetty"
+          level="INFO"/>
+
+  <logger name="org.jooq"
+          level="INFO"/>
+
+  <logger name="com.io7m.idstore"
+          level="INFO"/>
+
+  <logger name="com.io7m.hibiscus"
+          level="INFO"/>
+
+  <logger name="com.io7m.ervilla.native_exec"
+          level="DEBUG"/>
+
+  <root level="TRACE">
+    <appender-ref ref="STDERR"/>
+  </root>
+
+</configuration>
