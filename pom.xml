@@ -24,6 +24,11 @@
     <module>com.io7m.northpike.database.api</module>
     <module>com.io7m.northpike.database.postgres</module>
     <module>com.io7m.northpike.model</module>
+    <module>com.io7m.northpike.protocol.agent.cb</module>
+    <module>com.io7m.northpike.protocol.agent</module>
+    <module>com.io7m.northpike.protocol.api</module>
+    <module>com.io7m.northpike.protocol.intro.cb</module>
+    <module>com.io7m.northpike.protocol.intro</module>
     <module>com.io7m.northpike.scm_repository.jgit</module>
     <module>com.io7m.northpike.scm_repository.spi</module>
     <module>com.io7m.northpike.server.api</module>

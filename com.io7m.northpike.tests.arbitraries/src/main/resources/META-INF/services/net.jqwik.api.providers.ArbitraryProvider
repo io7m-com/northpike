@@ -2,7 +2,17 @@ com.io7m.northpike.tests.arbitraries.NPArbCommit
 com.io7m.northpike.tests.arbitraries.NPArbCommitAuthor
 com.io7m.northpike.tests.arbitraries.NPArbCommitID
 com.io7m.northpike.tests.arbitraries.NPArbDottedName
+com.io7m.northpike.tests.arbitraries.NPArbErrorCode
+com.io7m.northpike.tests.arbitraries.NPArbKey
 com.io7m.northpike.tests.arbitraries.NPArbOffsetDateTime
 com.io7m.northpike.tests.arbitraries.NPArbRepository
 com.io7m.northpike.tests.arbitraries.NPArbSCMProviderDescription
 com.io7m.northpike.tests.arbitraries.NPArbTimeRange
+com.io7m.northpike.tests.arbitraries.protocol.agent.NPArbACommandLogin
+com.io7m.northpike.tests.arbitraries.protocol.agent.NPArbAMessage
+com.io7m.northpike.tests.arbitraries.protocol.agent.NPArbAResponseError
+com.io7m.northpike.tests.arbitraries.protocol.agent.NPArbAResponseLogin
+com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIError
+com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIMessage
+com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIProtocol
+com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIProtocolsAvailable

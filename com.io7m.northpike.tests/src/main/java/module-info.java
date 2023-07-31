@@ -30,12 +30,18 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.database.postgres;
   requires com.io7m.northpike.model;
+  requires com.io7m.northpike.protocol.intro.cb;
+  requires com.io7m.northpike.protocol.intro;
+  requires com.io7m.northpike.protocol.agent.cb;
+  requires com.io7m.northpike.protocol.agent;
+  requires com.io7m.northpike.protocol.api;
   requires com.io7m.northpike.scm_repository.jgit;
   requires com.io7m.northpike.scm_repository.spi;
   requires com.io7m.northpike.server.api;
   requires com.io7m.northpike.server;
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
+  requires com.io7m.northpike.tests.arbitraries;
 
   requires com.googlecode.javaewah;
   requires com.io7m.ervilla.api;

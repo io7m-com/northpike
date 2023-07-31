@@ -11,16 +11,12 @@
     <groupId>com.io7m.northpike</groupId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>com.io7m.northpike.tests.arbitraries</artifactId>
+  <artifactId>com.io7m.northpike.protocol.agent</artifactId>
 
   <packaging>jar</packaging>
-  <name>com.io7m.northpike.tests.arbitraries</name>
-  <description>Continuous integration (Arbitrary instances)</description>
+  <name>com.io7m.northpike.protocol.agent</name>
+  <description>Continuous integration (Agent Protocol)</description>
   <url>https://www.io7m.com/software/northpike</url>
-
-  <properties>
-    <checkstyle.skip>true</checkstyle.skip>
-  </properties>
 
   <dependencies>
     <dependency>
@@ -30,22 +26,8 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.protocol.agent</artifactId>
+      <artifactId>com.io7m.northpike.protocol.api</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.protocol.intro</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.io7m.lanark</groupId>
-      <artifactId>com.io7m.lanark.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>net.jqwik</groupId>
-      <artifactId>jqwik-api</artifactId>
     </dependency>
 
     <dependency>

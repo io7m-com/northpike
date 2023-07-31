@@ -1,0 +1,55 @@
+;
+; Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+;
+; Permission to use, copy, modify, and/or distribute this software for any
+; purpose with or without fee is hereby granted, provided that the above
+; copyright notice and this permission notice appear in all copies.
+;
+; THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+; WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+; MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+; SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+; WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+; ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+; IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+;
+
+[language cedarbridge 1 0]
+
+[package com.io7m.northpike.protocol.intro.cb]
+
+[import com.io7m.cedarbridge cb]
+[import com.io7m.cedarbridge.time ct]
+
+[documentation NPI1Protocol "A protocol ID and version."]
+[record NPI1Protocol
+  [documentation id "The protocol ID."]
+  [field id cb:UUID]
+  [documentation version "The protocol version."]
+  [field version cb:IntegerUnsigned32]
+]
+
+[documentation NPI1ProtocolsAvailable "A set of available protocols."]
+[record NPI1ProtocolsAvailable
+  [documentation protocols "The available protocols."]
+  [field protocols [cb:List NPI1Protocol]]
+]
+
+[documentation NPI1Error "An error message."]
+[record NPI1Error
+  [documentation errorCode "The error code."]
+  [field errorCode cb:String]
+  [documentation errorMessage "The error message."]
+  [field errorMessage cb:String]
+]
+
+[documentation NPI "The Intro protocol."]
+[protocol NPI
+  [version 1
+    [types-added
+      NPI1Protocol
+      NPI1ProtocolsAvailable
+      NPI1Error
+    ]
+  ]
+]
