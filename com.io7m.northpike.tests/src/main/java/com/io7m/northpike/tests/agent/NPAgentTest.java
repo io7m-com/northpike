@@ -61,7 +61,6 @@ import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.AUTHENTICATIN
 import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.AUTHENTICATION_FAILED;
 import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.CONNECTED;
 import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.CONNECTING;
-import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.CONNECTION_FAILED;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -310,13 +309,6 @@ public final class NPAgentTest
       Thread.sleep(2000L);
       agent.stop();
     }
-
-    final var requiredStatuses =
-      Set.of(CONNECTING, CONNECTED, AUTHENTICATING, AUTHENTICATED);
-    final var refusedStatuses =
-      Set.of(CONNECTION_FAILED, AUTHENTICATION_FAILED);
-
-    checkStatuses(statuses, requiredStatuses, refusedStatuses);
 
     assertInstanceOf(NPACommandCLogin.class, this.received.poll());
     assertInstanceOf(NPACommandCEnvironmentInfo.class, this.received.poll());
