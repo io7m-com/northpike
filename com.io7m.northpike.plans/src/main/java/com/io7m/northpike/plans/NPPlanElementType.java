@@ -14,23 +14,35 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.plans;
+
+import com.io7m.lanark.core.RDottedName;
+
+import java.util.List;
+
 /**
- * Continuous integration (Model)
+ * The elements that can appear in plans.
  */
 
-module com.io7m.northpike.model
+public sealed interface NPPlanElementType
+  permits NPPlanBarrierType, NPPlanTaskType
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * @return The name of the element
+   */
 
-  requires transitive com.io7m.idstore.model;
-  requires transitive com.io7m.lanark.core;
-  requires transitive com.io7m.medrina.api;
-  requires transitive com.io7m.seltzer.api;
-  requires transitive com.io7m.verona.core;
+  RDottedName name();
 
-  requires org.jgrapht.core;
-  requires com.io7m.jaffirm.core;
+  /**
+   * @return The description of the element
+   */
 
-  exports com.io7m.northpike.model;
+  String description();
+
+  /**
+   * @return The elements upon which this element depends
+   */
+
+  List<RDottedName> dependsOn();
 }

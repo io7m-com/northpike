@@ -14,23 +14,39 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.model;
+
+import com.io7m.lanark.core.RDottedName;
+import com.io7m.verona.core.Version;
+
+import java.util.Objects;
+
 /**
- * Continuous integration (Model)
+ * A named reference to a tool.
+ *
+ * @param name     The name
+ * @param toolName The tool name
+ * @param version  The tool version
  */
 
-module com.io7m.northpike.model
+public record NPToolReference(
+  RDottedName name,
+  RDottedName toolName,
+  Version version)
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * A named reference to a tool.
+   *
+   * @param name     The name
+   * @param toolName The tool name
+   * @param version  The tool version
+   */
 
-  requires transitive com.io7m.idstore.model;
-  requires transitive com.io7m.lanark.core;
-  requires transitive com.io7m.medrina.api;
-  requires transitive com.io7m.seltzer.api;
-  requires transitive com.io7m.verona.core;
-
-  requires org.jgrapht.core;
-  requires com.io7m.jaffirm.core;
-
-  exports com.io7m.northpike.model;
+  public NPToolReference
+  {
+    Objects.requireNonNull(name, "name");
+    Objects.requireNonNull(toolName, "toolName");
+    Objects.requireNonNull(version, "version");
+  }
 }

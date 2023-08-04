@@ -15,22 +15,20 @@
  */
 
 /**
- * Continuous integration (Model)
+ * Continuous integration (Plans)
  */
 
-module com.io7m.northpike.model
+module com.io7m.northpike.plans
 {
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
-  requires transitive com.io7m.idstore.model;
-  requires transitive com.io7m.lanark.core;
-  requires transitive com.io7m.medrina.api;
-  requires transitive com.io7m.seltzer.api;
-  requires transitive com.io7m.verona.core;
+  requires com.io7m.northpike.model;
+  requires com.io7m.northpike.strings;
 
+  requires com.io7m.lanark.core;
   requires org.jgrapht.core;
-  requires com.io7m.jaffirm.core;
 
-  exports com.io7m.northpike.model;
+  exports com.io7m.northpike.plans;
+  exports com.io7m.northpike.plans.internal;
 }

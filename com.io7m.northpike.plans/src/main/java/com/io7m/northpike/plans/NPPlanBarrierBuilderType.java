@@ -14,23 +14,24 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.northpike.plans;
+
+import com.io7m.lanark.core.RDottedName;
+
 /**
- * Continuous integration (Model)
+ * A mutable builder for barriers.
  */
 
-module com.io7m.northpike.model
+public interface NPPlanBarrierBuilderType
+  extends NPPlanElementBuilderType
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  @Override
+  NPPlanBarrierBuilderType setDescription(
+    String description)
+    throws NPPlanException;
 
-  requires transitive com.io7m.idstore.model;
-  requires transitive com.io7m.lanark.core;
-  requires transitive com.io7m.medrina.api;
-  requires transitive com.io7m.seltzer.api;
-  requires transitive com.io7m.verona.core;
-
-  requires org.jgrapht.core;
-  requires com.io7m.jaffirm.core;
-
-  exports com.io7m.northpike.model;
+  @Override
+  NPPlanBarrierBuilderType addDependsOn(
+    RDottedName target)
+    throws NPPlanException;
 }

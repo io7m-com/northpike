@@ -7,6 +7,7 @@
   <entry key="agent_id">Agent ID</entry>
   <entry key="agent_label">Agent Label</entry>
   <entry key="analyze">Analyze</entry>
+  <entry key="barrier">Barrier</entry>
   <entry key="clone">Clone</entry>
   <entry key="downloading">Downloading {0}</entry>
   <entry key="entry">Entry</entry>
@@ -15,9 +16,11 @@
   <entry key="error_hash_mismatch">Hash value mismatch.</entry>
   <entry key="error_http">HTTP server error.</entry>
   <entry key="error_io">I/O error.</entry>
+  <entry key="error_no_tool_execution">A task does not have a defined tool execution.</entry>
   <entry key="error_nonexistent">Object does not exist.</entry>
   <entry key="error_not_connected">Not connected.</entry>
   <entry key="error_parse">Parse error.</entry>
+  <entry key="error_plan_cyclic">Adding this dependency would create a cycle in the plan.</entry>
   <entry key="error_protocol">Protocol error.</entry>
   <entry key="error_read_short">Read fewer octets than were required.</entry>
   <entry key="error_repository_wrong_provider">Incorrect repository provider.</entry>
@@ -40,6 +43,10 @@
   <entry key="received">Received</entry>
   <entry key="repository">Repository</entry>
   <entry key="scm_provider">SCM Provider</entry>
+  <entry key="source">Source</entry>
+  <entry key="target">Target</entry>
+  <entry key="task">Task</entry>
+  <entry key="tool_reference">Tool Reference</entry>
   <entry key="uri">URI</entry>
   <entry key="user">User</entry>
   <entry key="user_id">User ID</entry>

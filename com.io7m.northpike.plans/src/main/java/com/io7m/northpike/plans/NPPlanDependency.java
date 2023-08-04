@@ -14,23 +14,32 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.plans;
+
+import java.util.Objects;
+
 /**
- * Continuous integration (Model)
+ * A dependency between two elements in a plan.
+ *
+ * @param source The source
+ * @param target The target
  */
 
-module com.io7m.northpike.model
+public record NPPlanDependency(
+  NPPlanElementType source,
+  NPPlanElementType target)
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * A dependency between two elements in a plan.
+   *
+   * @param source The source
+   * @param target The target
+   */
 
-  requires transitive com.io7m.idstore.model;
-  requires transitive com.io7m.lanark.core;
-  requires transitive com.io7m.medrina.api;
-  requires transitive com.io7m.seltzer.api;
-  requires transitive com.io7m.verona.core;
-
-  requires org.jgrapht.core;
-  requires com.io7m.jaffirm.core;
-
-  exports com.io7m.northpike.model;
+  public NPPlanDependency
+  {
+    Objects.requireNonNull(source, "source");
+    Objects.requireNonNull(target, "target");
+  }
 }

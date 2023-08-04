@@ -14,23 +14,39 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.plans;
+
+import com.io7m.lanark.core.RDottedName;
+
+import java.util.Objects;
+import java.util.Set;
+
 /**
- * Continuous integration (Model)
+ * A tool execution.
+ *
+ * @param name             The name of the tool
+ * @param argument         The name of the argument
+ * @param toolRequirements The required tools
  */
 
-module com.io7m.northpike.model
+public record NPPlanToolExecution(
+  RDottedName name,
+  RDottedName argument,
+  Set<RDottedName> toolRequirements)
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * A tool execution.
+   *
+   * @param name             The name of the tool
+   * @param argument         The name of the argument
+   * @param toolRequirements The required tools
+   */
 
-  requires transitive com.io7m.idstore.model;
-  requires transitive com.io7m.lanark.core;
-  requires transitive com.io7m.medrina.api;
-  requires transitive com.io7m.seltzer.api;
-  requires transitive com.io7m.verona.core;
-
-  requires org.jgrapht.core;
-  requires com.io7m.jaffirm.core;
-
-  exports com.io7m.northpike.model;
+  public NPPlanToolExecution
+  {
+    Objects.requireNonNull(name, "name");
+    Objects.requireNonNull(argument, "argument");
+    Objects.requireNonNull(toolRequirements, "toolRequirements");
+  }
 }

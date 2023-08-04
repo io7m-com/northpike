@@ -14,23 +14,39 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.plans;
+
+import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.plans.internal.NPPlanBuilder;
+import com.io7m.northpike.strings.NPStrings;
+
 /**
- * Continuous integration (Model)
+ * Functions to construct plans.
  */
 
-module com.io7m.northpike.model
+public final class NPPlans
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  private NPPlans()
+  {
 
-  requires transitive com.io7m.idstore.model;
-  requires transitive com.io7m.lanark.core;
-  requires transitive com.io7m.medrina.api;
-  requires transitive com.io7m.seltzer.api;
-  requires transitive com.io7m.verona.core;
+  }
 
-  requires org.jgrapht.core;
-  requires com.io7m.jaffirm.core;
+  /**
+   * Create a new plan builder.
+   *
+   * @param strings The string resources
+   * @param name    The plan name
+   * @param version The plan version
+   *
+   * @return A new plan builder
+   */
 
-  exports com.io7m.northpike.model;
+  public static NPPlanBuilderType builder(
+    final NPStrings strings,
+    final RDottedName name,
+    final long version)
+  {
+    return new NPPlanBuilder(strings, name, version);
+  }
 }

@@ -14,23 +14,48 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.plans;
+
+import com.io7m.lanark.core.RDottedName;
+
 /**
- * Continuous integration (Model)
+ * The type of mutable builders for plan elements.
  */
 
-module com.io7m.northpike.model
+public interface NPPlanElementBuilderType
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * @return The name of the element
+   */
 
-  requires transitive com.io7m.idstore.model;
-  requires transitive com.io7m.lanark.core;
-  requires transitive com.io7m.medrina.api;
-  requires transitive com.io7m.seltzer.api;
-  requires transitive com.io7m.verona.core;
+  RDottedName name();
 
-  requires org.jgrapht.core;
-  requires com.io7m.jaffirm.core;
+  /**
+   * Set the description of the element.
+   *
+   * @param description The description
+   *
+   * @return this
+   *
+   * @throws NPPlanException On errors
+   */
 
-  exports com.io7m.northpike.model;
+  NPPlanElementBuilderType setDescription(
+    String description)
+    throws NPPlanException;
+
+  /**
+   * Add a dependency on another element.
+   *
+   * @param target The target element
+   *
+   * @return this
+   *
+   * @throws NPPlanException On errors
+   */
+
+  NPPlanElementBuilderType addDependsOn(
+    RDottedName target)
+    throws NPPlanException;
 }

@@ -14,23 +14,15 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.plans;
+
 /**
- * Continuous integration (Model)
+ * A barrier within a plan.
  */
 
-module com.io7m.northpike.model
+public non-sealed interface NPPlanBarrierType
+  extends NPPlanElementType
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
 
-  requires transitive com.io7m.idstore.model;
-  requires transitive com.io7m.lanark.core;
-  requires transitive com.io7m.medrina.api;
-  requires transitive com.io7m.seltzer.api;
-  requires transitive com.io7m.verona.core;
-
-  requires org.jgrapht.core;
-  requires com.io7m.jaffirm.core;
-
-  exports com.io7m.northpike.model;
 }

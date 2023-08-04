@@ -29,6 +29,7 @@
     <module>com.io7m.northpike.database.postgres</module>
     <module>com.io7m.northpike.model</module>
     <module>com.io7m.northpike.parsers</module>
+    <module>com.io7m.northpike.plans</module>
     <module>com.io7m.northpike.protocol.agent.cb</module>
     <module>com.io7m.northpike.protocol.agent</module>
     <module>com.io7m.northpike.protocol.api</module>
@@ -43,8 +44,8 @@
     <module>com.io7m.northpike.tests.arbitraries</module>
     <module>com.io7m.northpike.tests</module>
     <module>com.io7m.northpike.tools.api</module>
-    <module>com.io7m.northpike.tools.maven</module>
     <module>com.io7m.northpike.tools.common</module>
+    <module>com.io7m.northpike.tools.maven</module>
   </modules>
 
   <properties>

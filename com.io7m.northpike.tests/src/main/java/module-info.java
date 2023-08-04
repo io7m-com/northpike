@@ -35,6 +35,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.database.postgres;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.parsers;
+  requires com.io7m.northpike.plans;
   requires com.io7m.northpike.protocol.agent.cb;
   requires com.io7m.northpike.protocol.agent;
   requires com.io7m.northpike.protocol.api;
@@ -75,6 +76,7 @@ open module com.io7m.northpike.tests
   requires net.bytebuddy;
   requires net.jqwik.api;
   requires org.apache.commons.compress;
+  requires org.jgrapht.core;
   requires org.mockito;
   requires org.postgresql.jdbc;
   requires org.slf4j;

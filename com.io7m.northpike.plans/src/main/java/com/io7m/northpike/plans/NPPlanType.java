@@ -14,23 +14,48 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.plans;
+
+import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPToolReference;
+import org.jgrapht.Graph;
+
+import java.util.Map;
+
 /**
- * Continuous integration (Model)
+ * An execution plan.
  */
 
-module com.io7m.northpike.model
+public interface NPPlanType
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * @return The name of the plan
+   */
 
-  requires transitive com.io7m.idstore.model;
-  requires transitive com.io7m.lanark.core;
-  requires transitive com.io7m.medrina.api;
-  requires transitive com.io7m.seltzer.api;
-  requires transitive com.io7m.verona.core;
+  RDottedName name();
 
-  requires org.jgrapht.core;
-  requires com.io7m.jaffirm.core;
+  /**
+   * @return The plan version
+   */
 
-  exports com.io7m.northpike.model;
+  long version();
+
+  /**
+   * @return The tools to which this plan refers
+   */
+
+  Map<RDottedName, NPToolReference> toolReferences();
+
+  /**
+   * @return The execution elements in this plan
+   */
+
+  Map<RDottedName, NPPlanElementType> elements();
+
+  /**
+   * @return The execution graph for this plan
+   */
+
+  Graph<NPPlanElementType, NPPlanDependency> graph();
 }
