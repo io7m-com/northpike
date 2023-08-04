@@ -14,8 +14,9 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
 package com.io7m.northpike.protocol.agent;
+
+import java.util.UUID;
 
 /**
  * The type of responses.
@@ -23,8 +24,11 @@ package com.io7m.northpike.protocol.agent;
 
 public sealed interface NPAResponseType
   extends NPAMessageType
-  permits NPAResponseError,
-  NPAResponseLogin
+  permits NPAResponseError, NPAResponseLatencyCheck, NPAResponseOK
 {
+  /**
+   * @return The ID of the message to which this message correlates
+   */
 
+  UUID correlationID();
 }

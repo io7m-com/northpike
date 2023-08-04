@@ -53,15 +53,20 @@ module com.io7m.northpike.database.postgres
   uses NPDBQueryProviderType;
 
   provides NPDBQueryProviderType with
-    com.io7m.northpike.database.postgres.internal.NPDBQRepositoryCommitsGet,
-    com.io7m.northpike.database.postgres.internal.NPDBQRepositoryCommitsPut,
-    com.io7m.northpike.database.postgres.internal.NPDBQRepositoryGet,
-    com.io7m.northpike.database.postgres.internal.NPDBQRepositoryPut,
-    com.io7m.northpike.database.postgres.internal.NPDBQSCMProviderGet,
-    com.io7m.northpike.database.postgres.internal.NPDBQSCMProviderPut,
-    com.io7m.northpike.database.postgres.internal.NPDBQMaintenance,
-    com.io7m.northpike.database.postgres.internal.NPDBQUserGet,
-    com.io7m.northpike.database.postgres.internal.NPDBQUserPut
+com.io7m.northpike.database.postgres.internal.NPDBQAgentGet,
+com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelGet,
+com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelPut,
+com.io7m.northpike.database.postgres.internal.NPDBQAgentList,
+com.io7m.northpike.database.postgres.internal.NPDBQAgentPut,
+com.io7m.northpike.database.postgres.internal.NPDBQMaintenance,
+com.io7m.northpike.database.postgres.internal.NPDBQRepositoryCommitsGet,
+com.io7m.northpike.database.postgres.internal.NPDBQRepositoryCommitsPut,
+com.io7m.northpike.database.postgres.internal.NPDBQRepositoryGet,
+com.io7m.northpike.database.postgres.internal.NPDBQRepositoryPut,
+com.io7m.northpike.database.postgres.internal.NPDBQSCMProviderGet,
+com.io7m.northpike.database.postgres.internal.NPDBQSCMProviderPut,
+com.io7m.northpike.database.postgres.internal.NPDBQUserGet,
+com.io7m.northpike.database.postgres.internal.NPDBQUserPut
     ;
 
   exports com.io7m.northpike.database.postgres;

@@ -3,16 +3,73 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 
 <properties>
+  <entry key="agent">Agent</entry>
+  <entry key="agent_id">Agent ID</entry>
+  <entry key="agent_label">Agent Label</entry>
   <entry key="analyze">Analyze</entry>
   <entry key="clone">Clone</entry>
+  <entry key="downloading">Downloading {0}</entry>
+  <entry key="entry">Entry</entry>
   <entry key="error_duplicate">Object already exists.</entry>
   <entry key="error_duplicate_deleted">A previously deleted object exists with this ID.</entry>
+  <entry key="error_hash_mismatch">Hash value mismatch.</entry>
+  <entry key="error_http">HTTP server error.</entry>
+  <entry key="error_io">I/O error.</entry>
   <entry key="error_nonexistent">Object does not exist.</entry>
+  <entry key="error_not_connected">Not connected.</entry>
+  <entry key="error_parse">Parse error.</entry>
+  <entry key="error_protocol">Protocol error.</entry>
+  <entry key="error_read_short">Read fewer octets than were required.</entry>
   <entry key="error_repository_wrong_provider">Incorrect repository provider.</entry>
+  <entry key="error_resource_closing">One or more resources could not be closed.</entry>
+  <entry key="error_server_failed_protocol_confirmation">Server refused protocol version confirmation.</entry>
+  <entry key="error_size_limit_exceeded">Exceeded message size limit.</entry>
+  <entry key="error_unsafe_archive_path">Unsafe archive path encountered; refusing to unpack.</entry>
+  <entry key="expected">Expected</entry>
+  <entry key="file">File</entry>
   <entry key="gc">GC</entry>
+  <entry key="hash_algo">Hash Algorithm</entry>
+  <entry key="hash_expected">Hash (Expected)</entry>
+  <entry key="hash_received">Hash (Received)</entry>
+  <entry key="http_message">HTTP Message</entry>
+  <entry key="http_status">HTTP Status</entry>
+  <entry key="installing">Installing {0}</entry>
+  <entry key="limit">Limit</entry>
+  <entry key="offset">Offset</entry>
   <entry key="pull">Pull</entry>
+  <entry key="received">Received</entry>
   <entry key="repository">Repository</entry>
   <entry key="scm_provider">SCM Provider</entry>
+  <entry key="uri">URI</entry>
   <entry key="user">User</entry>
   <entry key="user_id">User ID</entry>
+
+  <!--              -->
+  <!-- Agent Labels -->
+  <!--              -->
+
+  <entry key="syntax_agent_label_match_anylabel_name">Syntax (any-label)</entry>
+  <entry key="syntax_agent_label_match_anylabel">
+    <![CDATA[any-label]]>
+  </entry>
+
+  <entry key="syntax_agent_label_match_specific_name">Syntax (specific-label)</entry>
+  <entry key="syntax_agent_label_match_specific">
+    <![CDATA[(with-label <label-name>)]]>
+  </entry>
+
+  <entry key="syntax_agent_label_match_and_name">Syntax (and-label)</entry>
+  <entry key="syntax_agent_label_match_and">
+    <![CDATA[(and <agent-label-match> <agent-label-match>)]]>
+  </entry>
+
+  <entry key="syntax_agent_label_match_or_name">Syntax (or-label)</entry>
+  <entry key="syntax_agent_label_match_or">
+    <![CDATA[(or <agent-label-match> <agent-label-match>)]]>
+  </entry>
+
+  <entry key="syntax_agent_label_match_name">Syntax (agent-label-match)</entry>
+  <entry key="syntax_agent_label_match">
+    <![CDATA[<any-label> | <specific-label> | <and-label> | <or-label>]]>
+  </entry>
 </properties>

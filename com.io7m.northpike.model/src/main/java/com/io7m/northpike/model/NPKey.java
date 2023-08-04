@@ -32,7 +32,7 @@ public final class NPKey
   private static final HexFormat HEX =
     HexFormat.of();
   private static final Pattern VALID_KEY =
-    Pattern.compile("[0-9a-f]{32}");
+    Pattern.compile("[0-9a-f]{64}");
   private static final int KEY_SIZE = 32;
 
   private final byte[] data;

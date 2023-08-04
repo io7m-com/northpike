@@ -19,30 +19,44 @@ package com.io7m.northpike.protocol.agent;
 
 import com.io7m.northpike.model.NPErrorCode;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * An error occurred.
  *
- * @param errorCode The error code
- * @param message   The error message
+ * @param messageID     The message ID
+ * @param correlationID The command that prompted this response
+ * @param errorCode     The error code
+ * @param message       The error message
+ * @param attributes    The error attributes
  */
 
 public record NPAResponseError(
+  UUID messageID,
+  UUID correlationID,
   NPErrorCode errorCode,
-  String message)
+  String message,
+  Map<String, String> attributes)
   implements NPAResponseType
 {
   /**
    * An error occurred.
    *
-   * @param errorCode The error code
-   * @param message   The error message
+   * @param messageID     The message ID
+   * @param correlationID The command that prompted this response
+   * @param errorCode     The error code
+   * @param message       The error message
+   * @param attributes    The error attributes
    */
 
   public NPAResponseError
   {
+    Objects.requireNonNull(messageID, "messageID");
+    Objects.requireNonNull(correlationID, "correlationID");
     Objects.requireNonNull(errorCode, "errorCode");
     Objects.requireNonNull(message, "message");
+    Objects.requireNonNull(attributes, "attributes");
   }
 }

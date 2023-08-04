@@ -5,5 +5,7 @@
   "https://checkstyle.org/dtds/suppressions_1_0.dtd">
 
 <suppressions>
-
+  <!-- char[] to String -->
+  <suppress files="NPToolArchives.java"
+            checks="IllegalInstantiation"/>
 </suppressions>

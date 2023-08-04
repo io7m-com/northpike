@@ -250,6 +250,86 @@ CREATE TABLE repository_commit_links (
 )
 ]]></Statement>
 
+    <Statement><![CDATA[
+CREATE TABLE agents (
+  a_id           UUID   NOT NULL,
+  a_name         TEXT   NOT NULL,
+  a_access_key   TEXT   NOT NULL,
+
+  CONSTRAINT agents_primary_key
+    PRIMARY KEY (a_id),
+
+  -- [jooq ignore start]
+  CONSTRAINT agents_access_key_unique
+    UNIQUE (a_access_key),
+  -- [jooq ignore stop]
+
+  CONSTRAINT agents_access_key_valid
+    CHECK (a_access_key ~ '^[a-f0-9]{64}$')
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE agents_environments (
+  ae_id           UUID   NOT NULL,
+  ae_name         TEXT   NOT NULL,
+  ae_value        TEXT   NOT NULL,
+
+  -- [jooq ignore start]
+  CONSTRAINT agents_environments_primary_key
+    PRIMARY KEY (ae_id, ae_name),
+  -- [jooq ignore stop]
+
+  CONSTRAINT agents_environments_agent_exists
+    FOREIGN KEY (ae_id) REFERENCES agents (a_id)
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE agents_properties (
+  ap_id           UUID   NOT NULL,
+  ap_name         TEXT   NOT NULL,
+  ap_value        TEXT   NOT NULL,
+
+  -- [jooq ignore start]
+  CONSTRAINT agents_properties_primary_key
+    PRIMARY KEY (ap_id, ap_name),
+  -- [jooq ignore stop]
+
+  CONSTRAINT agents_properties_agent_exists
+    FOREIGN KEY (ap_id) REFERENCES agents (a_id)
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE agent_label_definitions (
+  ald_id            BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
+  ald_name          TEXT   NOT NULL,
+  ald_description   TEXT   NOT NULL,
+
+  CONSTRAINT agent_label_definitions_primary_key
+    PRIMARY KEY (ald_id),
+
+  -- [jooq ignore start]
+  CONSTRAINT agent_label_definitions_name_unique
+    UNIQUE (ald_name),
+  -- [jooq ignore stop]
+
+  CONSTRAINT agent_label_definitions_name_valid
+    CHECK (ald_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$')
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE agent_labels (
+  al_agent   UUID    NOT NULL,
+  al_label   BIGINT  NOT NULL,
+
+  CONSTRAINT agent_labels_primary_key
+    PRIMARY KEY (al_agent, al_label)
+)
+]]></Statement>
+
     <!--
     <Statement><![CDATA[
 CREATE OR REPLACE FUNCTION repository_commit_lookup (

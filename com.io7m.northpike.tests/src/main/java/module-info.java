@@ -27,14 +27,19 @@ open module com.io7m.northpike.tests
 
   uses ArbitraryProvider;
 
+  requires com.io7m.northpike.agent.api;
+  requires com.io7m.northpike.agent.configuration;
+  requires com.io7m.northpike.agent.main;
+  requires com.io7m.northpike.agent;
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.database.postgres;
   requires com.io7m.northpike.model;
-  requires com.io7m.northpike.protocol.intro.cb;
-  requires com.io7m.northpike.protocol.intro;
+  requires com.io7m.northpike.parsers;
   requires com.io7m.northpike.protocol.agent.cb;
   requires com.io7m.northpike.protocol.agent;
   requires com.io7m.northpike.protocol.api;
+  requires com.io7m.northpike.protocol.intro.cb;
+  requires com.io7m.northpike.protocol.intro;
   requires com.io7m.northpike.scm_repository.jgit;
   requires com.io7m.northpike.scm_repository.spi;
   requires com.io7m.northpike.server.api;
@@ -42,19 +47,25 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
   requires com.io7m.northpike.tests.arbitraries;
+  requires com.io7m.northpike.tools.api;
+  requires com.io7m.northpike.tools.maven;
 
   requires com.googlecode.javaewah;
+  requires com.io7m.anethum.api;
   requires com.io7m.ervilla.api;
   requires com.io7m.ervilla.native_exec;
   requires com.io7m.ervilla.postgres;
   requires com.io7m.ervilla.test_extension;
   requires com.io7m.idstore.admin_client.api;
   requires com.io7m.idstore.admin_client;
+  requires com.io7m.jattribute.core;
   requires com.io7m.junreachable.core;
   requires com.io7m.medrina.api;
+  requires com.io7m.quixote.core;
   requires com.io7m.repetoir.core;
   requires com.io7m.verdant.core.cb;
   requires com.io7m.verdant.core;
+  requires com.io7m.verona.core;
   requires com.io7m.zelador.test_extension;
   requires io.opentelemetry.api;
   requires java.net.http;

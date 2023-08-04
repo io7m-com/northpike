@@ -24,7 +24,7 @@ package com.io7m.northpike.protocol.agent;
  */
 
 public sealed interface NPACommandType<R extends NPAResponseType>
-  extends NPAMessageType permits NPACommandLogin
+  extends NPAMessageType permits NPACommandC2SType, NPACommandS2CType
 {
   /**
    * @return The response class

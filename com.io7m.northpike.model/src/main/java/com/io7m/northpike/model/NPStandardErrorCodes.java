@@ -155,6 +155,19 @@ public final class NPStandardErrorCodes
     return ERROR_OPERATION_NOT_PERMITTED;
   }
 
+  private static final NPErrorCode ERROR_PARSE =
+    new NPErrorCode("error-parse");
+
+  /**
+   * A parse error was encountered.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorParse()
+  {
+    return ERROR_PARSE;
+  }
+
   private static final NPErrorCode ERROR_PROTOCOL =
     new NPErrorCode("error-protocol");
 
@@ -285,69 +298,17 @@ public final class NPStandardErrorCodes
     return ERROR_TRASCO;
   }
 
-  private static final NPErrorCode ERROR_USER_NONEXISTENT =
-    new NPErrorCode("error-user-nonexistent");
+  private static final NPErrorCode ERROR_TYPE_CHECK_FAILED =
+    new NPErrorCode("error-type-check-failed");
 
   /**
-   * An attempt was made to reference a user that does not exist.
+   * Type checking failed.
    *
    * @return The error code
    */
-  public static NPErrorCode errorUserNonexistent()
+  public static NPErrorCode errorTypeCheckFailed()
   {
-    return ERROR_USER_NONEXISTENT;
-  }
-
-  private static final NPErrorCode ERROR_TYPE_SCALAR_REFERENCED =
-    new NPErrorCode("error-type-scalar-referenced");
-
-  /**
-   * The scalar type is referenced by one or more existing types/fields.
-   *
-   * @return The error code
-   */
-  public static NPErrorCode errorTypeScalarReferenced()
-  {
-    return ERROR_TYPE_SCALAR_REFERENCED;
-  }
-
-  private static final NPErrorCode ERROR_TYPE_FIELD_TYPE_NONEXISTENT =
-    new NPErrorCode("error-type-field-type-nonexistent");
-
-  /**
-   * A field in the type declaration refers to a nonexistent type.
-   *
-   * @return The error code
-   */
-  public static NPErrorCode errorTypeFieldTypeNonexistent()
-  {
-    return ERROR_TYPE_FIELD_TYPE_NONEXISTENT;
-  }
-
-  private static final NPErrorCode ERROR_TYPE_CHECK_FIELD_REQUIRED_MISSING =
-    new NPErrorCode("error-type-field-required-missing");
-
-  /**
-   * A field was required but is missing.
-   *
-   * @return The error code
-   */
-  public static NPErrorCode errorTypeCheckFieldRequiredMissing()
-  {
-    return ERROR_TYPE_CHECK_FIELD_REQUIRED_MISSING;
-  }
-
-  private static final NPErrorCode ERROR_TYPE_CHECK_FIELD_PATTERN_FAILURE =
-    new NPErrorCode("error-type-field-pattern-invalid");
-
-  /**
-   * A field pattern was invalid.
-   *
-   * @return The error code
-   */
-  public static NPErrorCode errorTypeCheckFieldPatternFailure()
-  {
-    return ERROR_TYPE_CHECK_FIELD_PATTERN_FAILURE;
+    return ERROR_TYPE_CHECK_FAILED;
   }
 
   private static final NPErrorCode ERROR_TYPE_CHECK_FIELD_INVALID =
@@ -363,17 +324,43 @@ public final class NPStandardErrorCodes
     return ERROR_TYPE_CHECK_FIELD_INVALID;
   }
 
-  private static final NPErrorCode ERROR_TYPE_CHECK_FAILED =
-    new NPErrorCode("error-type-check-failed");
+  private static final NPErrorCode ERROR_TYPE_CHECK_FIELD_PATTERN_FAILURE =
+    new NPErrorCode("error-type-field-pattern-invalid");
 
   /**
-   * Type checking failed.
+   * A field pattern was invalid.
    *
    * @return The error code
    */
-  public static NPErrorCode errorTypeCheckFailed()
+  public static NPErrorCode errorTypeCheckFieldPatternFailure()
   {
-    return ERROR_TYPE_CHECK_FAILED;
+    return ERROR_TYPE_CHECK_FIELD_PATTERN_FAILURE;
+  }
+
+  private static final NPErrorCode ERROR_TYPE_CHECK_FIELD_REQUIRED_MISSING =
+    new NPErrorCode("error-type-field-required-missing");
+
+  /**
+   * A field was required but is missing.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorTypeCheckFieldRequiredMissing()
+  {
+    return ERROR_TYPE_CHECK_FIELD_REQUIRED_MISSING;
+  }
+
+  private static final NPErrorCode ERROR_TYPE_FIELD_TYPE_NONEXISTENT =
+    new NPErrorCode("error-type-field-type-nonexistent");
+
+  /**
+   * A field in the type declaration refers to a nonexistent type.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorTypeFieldTypeNonexistent()
+  {
+    return ERROR_TYPE_FIELD_TYPE_NONEXISTENT;
   }
 
   private static final NPErrorCode ERROR_TYPE_REFERENCED =
@@ -389,17 +376,43 @@ public final class NPStandardErrorCodes
     return ERROR_TYPE_REFERENCED;
   }
 
-  private static final NPErrorCode ERROR_PARSE =
-    new NPErrorCode("error-parse");
+  private static final NPErrorCode ERROR_TYPE_SCALAR_REFERENCED =
+    new NPErrorCode("error-type-scalar-referenced");
 
   /**
-   * A parse error was encountered.
+   * The scalar type is referenced by one or more existing types/fields.
    *
    * @return The error code
    */
-  public static NPErrorCode errorParse()
+  public static NPErrorCode errorTypeScalarReferenced()
   {
-    return ERROR_PARSE;
+    return ERROR_TYPE_SCALAR_REFERENCED;
+  }
+
+  private static final NPErrorCode ERROR_UNSAFE_ARCHIVE_ENTRY =
+    new NPErrorCode("error-unsafe-archive-entry");
+
+  /**
+   * An unsafe archive entry was encountered.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorUnsafeArchiveEntry()
+  {
+    return ERROR_UNSAFE_ARCHIVE_ENTRY;
+  }
+
+  private static final NPErrorCode ERROR_USER_NONEXISTENT =
+    new NPErrorCode("error-user-nonexistent");
+
+  /**
+   * An attempt was made to reference a user that does not exist.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorUserNonexistent()
+  {
+    return ERROR_USER_NONEXISTENT;
   }
 }
 

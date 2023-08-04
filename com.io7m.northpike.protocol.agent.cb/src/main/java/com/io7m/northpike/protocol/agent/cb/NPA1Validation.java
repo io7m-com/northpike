@@ -17,19 +17,27 @@
 package com.io7m.northpike.protocol.agent.cb;
 
 
-import com.io7m.northpike.protocol.agent.NPACommandLogin;
+import com.io7m.northpike.protocol.agent.NPACommandCDisconnect;
+import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
+import com.io7m.northpike.protocol.agent.NPACommandCLogin;
+import com.io7m.northpike.protocol.agent.NPACommandSLatencyCheck;
 import com.io7m.northpike.protocol.agent.NPACommandType;
 import com.io7m.northpike.protocol.agent.NPAEventType;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.NPAResponseError;
-import com.io7m.northpike.protocol.agent.NPAResponseLogin;
+import com.io7m.northpike.protocol.agent.NPAResponseLatencyCheck;
+import com.io7m.northpike.protocol.agent.NPAResponseOK;
 import com.io7m.northpike.protocol.agent.NPAResponseType;
 import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 
-import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandLogin.COMMAND_LOGIN;
+import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandCDisconnect.COMMAND_DISCONNECT;
+import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandCEnvironmentInfo.COMMAND_ENVIRONMENT_INFO;
+import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandCLogin.COMMAND_LOGIN;
+import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandSLatencyCheck.COMMAND_LATENCY_CHECK;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVResponseError.RESPONSE_ERROR;
-import static com.io7m.northpike.protocol.agent.cb.internal.NPAVResponseLogin.RESPONSE_LOGIN;
+import static com.io7m.northpike.protocol.agent.cb.internal.NPAVResponseOK.RESPONSE_OK;
+import static com.io7m.northpike.protocol.agent.cb.internal.NPAVResponseSLatencyCheck.RESPONSE_LATENCY_CHECK;
 
 /**
  * Functions to translate between the core command set and the Agent v1
@@ -75,11 +83,14 @@ public final class NPA1Validation
   private static ProtocolNPAv1Type toWireResponse(
     final NPAResponseType response)
   {
-    if (response instanceof final NPAResponseLogin r) {
-      return RESPONSE_LOGIN.convertToWire(r);
+    if (response instanceof final NPAResponseOK r) {
+      return RESPONSE_OK.convertToWire(r);
     }
     if (response instanceof final NPAResponseError r) {
       return RESPONSE_ERROR.convertToWire(r);
+    }
+    if (response instanceof final NPAResponseLatencyCheck r) {
+      return RESPONSE_LATENCY_CHECK.convertToWire(r);
     }
 
     throw new IllegalStateException();
@@ -88,8 +99,17 @@ public final class NPA1Validation
   private static ProtocolNPAv1Type toWireCommand(
     final NPACommandType<?> command)
   {
-    if (command instanceof final NPACommandLogin c) {
+    if (command instanceof final NPACommandCLogin c) {
       return COMMAND_LOGIN.convertToWire(c);
+    }
+    if (command instanceof final NPACommandCEnvironmentInfo c) {
+      return COMMAND_ENVIRONMENT_INFO.convertToWire(c);
+    }
+    if (command instanceof final NPACommandCDisconnect c) {
+      return COMMAND_DISCONNECT.convertToWire(c);
+    }
+    if (command instanceof final NPACommandSLatencyCheck c) {
+      return COMMAND_LATENCY_CHECK.convertToWire(c);
     }
 
     throw new IllegalStateException();
@@ -99,15 +119,29 @@ public final class NPA1Validation
   public NPAMessageType convertFromWire(
     final ProtocolNPAv1Type message)
   {
-    if (message instanceof final NPA1CommandLogin c) {
+    if (message instanceof final NPA1CommandCLogin c) {
       return COMMAND_LOGIN.convertFromWire(c);
     }
+    if (message instanceof final NPA1CommandCEnvironmentInfo c) {
+      return COMMAND_ENVIRONMENT_INFO.convertFromWire(c);
+    }
+    if (message instanceof final NPA1CommandCDisconnect c) {
+      return COMMAND_DISCONNECT.convertFromWire(c);
+    }
+    if (message instanceof final NPA1CommandSLatencyCheck c) {
+      return COMMAND_LATENCY_CHECK.convertFromWire(c);
+    }
+
     if (message instanceof final NPA1ResponseError r) {
       return RESPONSE_ERROR.convertFromWire(r);
     }
-    if (message instanceof final NPA1ResponseLogin r) {
-      return RESPONSE_LOGIN.convertFromWire(r);
+    if (message instanceof final NPA1ResponseOK r) {
+      return RESPONSE_OK.convertFromWire(r);
     }
+    if (message instanceof final NPA1ResponseLatencyCheck r) {
+      return RESPONSE_LATENCY_CHECK.convertFromWire(r);
+    }
+
     throw new IllegalStateException();
   }
 }

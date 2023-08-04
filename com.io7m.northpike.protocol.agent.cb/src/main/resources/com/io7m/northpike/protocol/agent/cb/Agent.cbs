@@ -31,10 +31,36 @@
 ; Commands
 ;
 
-[documentation NPA1CommandLogin "A request to log in."]
-[record NPA1CommandLogin
+[documentation NPA1CommandCLogin "A request to log in."]
+[record NPA1CommandCLogin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
   [documentation key "The key."]
   [field key NPA1Key]
+]
+
+[documentation NPA1CommandCEnvironmentInfo "A command to supply environment information."]
+[record NPA1CommandCEnvironmentInfo
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation environmentVariables "The environment variables."]
+  [field environmentVariables [cb:Map cb:String cb:String]]
+  [documentation systemProperties "The system properties."]
+  [field systemProperties [cb:Map cb:String cb:String]]
+]
+
+[documentation NPA1CommandCDisconnect "A request to disconnect."]
+[record NPA1CommandCDisconnect
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPA1CommandSLatencyCheck "A command to request latency information."]
+[record NPA1CommandSLatencyCheck
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation timeCurrent "The current server time."]
+  [field timeCurrent ct:OffsetDateTime]
 ]
 
 ;
@@ -45,24 +71,51 @@
 ; Responses
 ;
 
-[documentation NPA1ResponseLogin "A login response."]
-[record NPA1ResponseLogin]
+[documentation NPA1ResponseOK "A generic confirmation response."]
+[record NPA1ResponseOK
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+]
 
 [documentation NPA1ResponseError "An error response."]
 [record NPA1ResponseError
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
   [documentation errorCode "The error code."]
   [field errorCode cb:String]
   [documentation message "The error message."]
   [field message cb:String]
+  [documentation attributes "The error attributes."]
+  [field attributes [cb:Map cb:String cb:String]]
+]
+
+[documentation NPA1ResponseLatencyCheck "A response to a latency check."]
+[record NPA1ResponseLatencyCheck
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation timeOriginal "The original server time."]
+  [field timeOriginal ct:OffsetDateTime]
+  [documentation timeClient "The current client time."]
+  [field timeClient ct:OffsetDateTime]
 ]
 
 [documentation NPA "The Agent protocol."]
 [protocol NPA
   [version 1
     [types-added
-      NPA1CommandLogin
-      NPA1ResponseLogin
+      NPA1CommandCDisconnect
+      NPA1CommandCEnvironmentInfo
+      NPA1CommandCLogin
+      NPA1CommandSLatencyCheck
       NPA1ResponseError
+      NPA1ResponseLatencyCheck
+      NPA1ResponseOK
     ]
   ]
 ]

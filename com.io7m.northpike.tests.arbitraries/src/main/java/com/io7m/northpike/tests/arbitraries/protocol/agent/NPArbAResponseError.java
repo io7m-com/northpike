@@ -23,6 +23,8 @@ import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 
+import java.util.UUID;
+
 public final class NPArbAResponseError extends NPArbAbstract<NPAResponseError>
 {
   public NPArbAResponseError()
@@ -31,8 +33,11 @@ public final class NPArbAResponseError extends NPArbAbstract<NPAResponseError>
       NPAResponseError.class,
       () -> {
         return Combinators.combine(
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.create(UUID::randomUUID),
           Arbitraries.defaultFor(NPErrorCode.class),
-          Arbitraries.strings()
+          Arbitraries.strings(),
+          Arbitraries.maps(Arbitraries.strings(), Arbitraries.strings())
         ).as(NPAResponseError::new);
       }
     );

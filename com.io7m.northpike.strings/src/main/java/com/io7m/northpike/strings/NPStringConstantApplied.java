@@ -44,6 +44,22 @@ public record NPStringConstantApplied(
     Objects.requireNonNull(args, "args");
   }
 
+  /**
+   * A string constant with format arguments included.
+   *
+   * @param constant The constant
+   * @param args     The arguments
+   *
+   * @return The applied constant
+   */
+
+  public static NPStringConstantApplied of(
+    final NPStringConstantType constant,
+    final Object... args)
+  {
+    return new NPStringConstantApplied(constant, args);
+  }
+
   @Override
   public String propertyName()
   {

@@ -18,6 +18,8 @@ package com.io7m.northpike.protocol.agent;
 
 import com.io7m.northpike.protocol.api.NPProtocolMessageType;
 
+import java.util.UUID;
+
 /**
  * The type of messages in the protocol.
  */
@@ -28,5 +30,9 @@ public sealed interface NPAMessageType
   NPAEventType,
   NPAResponseType
 {
+  /**
+   * @return The unique ID of this message
+   */
 
+  UUID messageID();
 }

@@ -17,10 +17,14 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.agent;
 
-import com.io7m.northpike.protocol.agent.NPACommandLogin;
+import com.io7m.northpike.protocol.agent.NPACommandCDisconnect;
+import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
+import com.io7m.northpike.protocol.agent.NPACommandCLogin;
+import com.io7m.northpike.protocol.agent.NPACommandSLatencyCheck;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.NPAResponseError;
-import com.io7m.northpike.protocol.agent.NPAResponseLogin;
+import com.io7m.northpike.protocol.agent.NPAResponseLatencyCheck;
+import com.io7m.northpike.protocol.agent.NPAResponseOK;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 
@@ -36,9 +40,13 @@ public final class NPArbAMessage extends NPArbAbstract<NPAMessageType>
       () -> {
         return Arbitraries.oneOf(
           Stream.of(
-              NPACommandLogin.class,
-              NPAResponseLogin.class,
-              NPAResponseError.class
+              NPACommandCDisconnect.class,
+              NPACommandCEnvironmentInfo.class,
+              NPACommandCLogin.class,
+              NPACommandSLatencyCheck.class,
+              NPAResponseError.class,
+              NPAResponseLatencyCheck.class,
+              NPAResponseOK.class
             ).map(Arbitraries::defaultFor)
             .collect(Collectors.toUnmodifiableList())
         );

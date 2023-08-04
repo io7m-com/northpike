@@ -1,0 +1,158 @@
+/*
+ * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+ * SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+ * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+package com.io7m.northpike.database.postgres.internal;
+
+import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.database.api.NPDatabaseException;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.GetType;
+import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
+import com.io7m.northpike.model.NPAgentDescription;
+import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPKey;
+import org.jooq.DSLContext;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import static com.io7m.northpike.database.postgres.internal.Tables.AGENTS_PROPERTIES;
+import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABELS;
+import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABEL_DEFINITIONS;
+import static com.io7m.northpike.database.postgres.internal.tables.Agents.AGENTS;
+import static com.io7m.northpike.database.postgres.internal.tables.AgentsEnvironments.AGENTS_ENVIRONMENTS;
+
+/**
+ * Retrieve an agent.
+ */
+
+public final class NPDBQAgentGet
+  extends NPDBQAbstract<NPAgentID, Optional<NPAgentDescription>>
+  implements GetType
+{
+  private static final Service<NPAgentID, Optional<NPAgentDescription>, GetType> SERVICE =
+    new Service<>(GetType.class, NPDBQAgentGet::new);
+
+  /**
+   * Construct a query.
+   *
+   * @param transaction The transaction
+   */
+
+  public NPDBQAgentGet(
+    final NPDatabaseTransaction transaction)
+  {
+    super(transaction);
+  }
+
+  /**
+   * @return A query provider
+   */
+
+  public static NPDBQueryProviderType provider()
+  {
+    return () -> SERVICE;
+  }
+
+  @Override
+  protected Optional<NPAgentDescription> onExecute(
+    final DSLContext context,
+    final NPAgentID id)
+    throws NPDatabaseException
+  {
+    final var query =
+      context.select(
+          AGENTS.A_ID,
+          AGENTS.A_NAME,
+          AGENTS.A_ACCESS_KEY,
+          AGENTS_ENVIRONMENTS.AE_NAME,
+          AGENTS_ENVIRONMENTS.AE_VALUE,
+          AGENTS_PROPERTIES.AP_NAME,
+          AGENTS_PROPERTIES.AP_VALUE,
+          AGENT_LABEL_DEFINITIONS.ALD_NAME,
+          AGENT_LABEL_DEFINITIONS.ALD_DESCRIPTION
+        ).from(AGENTS)
+        .leftOuterJoin(AGENTS_ENVIRONMENTS)
+        .on(AGENTS.A_ID.eq(AGENTS_ENVIRONMENTS.AE_ID))
+        .leftOuterJoin(AGENTS_PROPERTIES)
+        .on(AGENTS.A_ID.eq(AGENTS_PROPERTIES.AP_ID))
+        .leftOuterJoin(AGENT_LABELS)
+        .on(AGENTS.A_ID.eq(AGENT_LABELS.AL_AGENT))
+        .join(AGENT_LABEL_DEFINITIONS)
+        .on(AGENT_LABEL_DEFINITIONS.ALD_ID.eq(AGENT_LABELS.AL_LABEL));
+
+    recordQuery(query);
+    final var result = query.fetch();
+    if (result.isEmpty()) {
+      return Optional.empty();
+    }
+
+    String name = null;
+    NPKey key = null;
+
+    final var environment =
+      new HashMap<String, String>();
+    final var properties =
+      new HashMap<String, String>();
+    final var labels =
+      new HashMap<RDottedName, NPAgentLabel>();
+
+    boolean first = true;
+    for (final var record : result) {
+      if (first) {
+        name = record.get(AGENTS.A_NAME);
+        key = NPKey.parse(record.get(AGENTS.A_ACCESS_KEY));
+        first = false;
+      }
+
+      final var eName =
+        record.get(AGENTS_ENVIRONMENTS.AE_NAME);
+      final var eVal =
+        record.get(AGENTS_ENVIRONMENTS.AE_VALUE);
+      final var pName =
+        record.get(AGENTS_PROPERTIES.AP_NAME);
+      final var pVal =
+        record.get(AGENTS_PROPERTIES.AP_VALUE);
+      final var lName =
+        record.get(AGENT_LABEL_DEFINITIONS.ALD_NAME);
+      final var lDesc =
+        record.get(AGENT_LABEL_DEFINITIONS.ALD_DESCRIPTION);
+
+      if (eName != null) {
+        environment.put(eName, eVal);
+      }
+      if (pName != null) {
+        properties.put(pName, pVal);
+      }
+      if (lName != null) {
+        final var label = new NPAgentLabel(new RDottedName(lName), lDesc);
+        labels.put(label.name(), label);
+      }
+    }
+
+    return Optional.of(
+      new NPAgentDescription(
+        id,
+        name,
+        key,
+        Map.copyOf(environment),
+        Map.copyOf(properties),
+        Map.copyOf(labels)
+      )
+    );
+  }
+}

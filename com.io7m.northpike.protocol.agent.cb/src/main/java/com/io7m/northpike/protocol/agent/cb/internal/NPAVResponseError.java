@@ -17,6 +17,8 @@
 
 package com.io7m.northpike.protocol.agent.cb.internal;
 
+import com.io7m.cedarbridge.runtime.api.CBUUID;
+import com.io7m.cedarbridge.runtime.convenience.CBMaps;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.protocol.agent.NPAResponseError;
 import com.io7m.northpike.protocol.agent.cb.NPA1ResponseError;
@@ -42,8 +44,11 @@ public enum NPAVResponseError
     final NPAResponseError message)
   {
     return new NPA1ResponseError(
+      new CBUUID(message.messageID()),
+      new CBUUID(message.correlationID()),
       string(message.errorCode().id()),
-      string(message.message())
+      string(message.message()),
+      CBMaps.ofMapString(message.attributes())
     );
   }
 
@@ -52,8 +57,11 @@ public enum NPAVResponseError
     final NPA1ResponseError message)
   {
     return new NPAResponseError(
+      message.fieldMessageId().value(),
+      message.fieldCorrelationId().value(),
       new NPErrorCode(message.fieldErrorCode().value()),
-      message.fieldMessage().value()
+      message.fieldMessage().value(),
+      CBMaps.toMapString(message.fieldAttributes())
     );
   }
 }
