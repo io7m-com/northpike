@@ -65,6 +65,8 @@ com.io7m.northpike.database.postgres.internal.NPDBQRepositoryGet,
 com.io7m.northpike.database.postgres.internal.NPDBQRepositoryPut,
 com.io7m.northpike.database.postgres.internal.NPDBQSCMProviderGet,
 com.io7m.northpike.database.postgres.internal.NPDBQSCMProviderPut,
+com.io7m.northpike.database.postgres.internal.NPDBQToolArgumentsGet,
+com.io7m.northpike.database.postgres.internal.NPDBQToolArgumentsPut,
 com.io7m.northpike.database.postgres.internal.NPDBQUserGet,
 com.io7m.northpike.database.postgres.internal.NPDBQUserPut
     ;

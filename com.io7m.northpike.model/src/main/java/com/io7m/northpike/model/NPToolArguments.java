@@ -14,39 +14,39 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.database.api;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+package com.io7m.northpike.model;
 
-import static java.time.ZoneOffset.UTC;
+import com.io7m.lanark.core.RDottedName;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
- * The base type of query interfaces.
+ * Custom arguments for a tool.
+ *
+ * @param name      The name of the arguments
+ * @param toolName  The name of the tool for which these arguments are intended
+ * @param arguments The arguments
  */
 
-public sealed interface NPDatabaseQueriesType
-  permits NPDatabaseQueriesAgentsType,
-  NPDatabaseQueriesMaintenanceType,
-  NPDatabaseQueriesRepositoriesType,
-  NPDatabaseQueriesSCMProvidersType,
-  NPDatabaseQueriesToolsType,
-  NPDatabaseQueriesUsersType
+public record NPToolArguments(
+  RDottedName name,
+  RDottedName toolName,
+  List<String> arguments)
 {
   /**
-   * The earliest possible time considered by the server
+   * Custom arguments for a tool.
+   *
+   * @param name      The name of the arguments
+   * @param toolName  The name of the tool for which these arguments are intended
+   * @param arguments The arguments
    */
 
-  OffsetDateTime EARLIEST =
-    LocalDateTime.ofEpochSecond(0L, 0, UTC)
-      .atOffset(UTC);
-
-  /**
-   * @return The earliest possible time considered by the server
-   */
-
-  static OffsetDateTime earliest()
+  public NPToolArguments
   {
-    return EARLIEST;
+    Objects.requireNonNull(name, "name");
+    Objects.requireNonNull(toolName, "toolName");
+    Objects.requireNonNull(arguments, "arguments");
   }
 }

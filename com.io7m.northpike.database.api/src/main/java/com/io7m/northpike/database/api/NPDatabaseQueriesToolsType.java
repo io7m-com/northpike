@@ -16,37 +16,37 @@
 
 package com.io7m.northpike.database.api;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPToolArguments;
 
-import static java.time.ZoneOffset.UTC;
+import java.util.Optional;
 
 /**
- * The base type of query interfaces.
+ * The database queries involving tools.
  */
 
-public sealed interface NPDatabaseQueriesType
-  permits NPDatabaseQueriesAgentsType,
-  NPDatabaseQueriesMaintenanceType,
-  NPDatabaseQueriesRepositoriesType,
-  NPDatabaseQueriesSCMProvidersType,
-  NPDatabaseQueriesToolsType,
-  NPDatabaseQueriesUsersType
+public sealed interface NPDatabaseQueriesToolsType
+  extends NPDatabaseQueriesType
 {
   /**
-   * The earliest possible time considered by the server
+   * Update the given tool arguments.
    */
 
-  OffsetDateTime EARLIEST =
-    LocalDateTime.ofEpochSecond(0L, 0, UTC)
-      .atOffset(UTC);
+  non-sealed interface ArgumentsPutType
+    extends NPDatabaseQueryType<NPToolArguments, NPDatabaseUnit>,
+    NPDatabaseQueriesToolsType
+  {
+
+  }
 
   /**
-   * @return The earliest possible time considered by the server
+   * Retrieve tool arguments.
    */
 
-  static OffsetDateTime earliest()
+  non-sealed interface ArgumentsGetType
+    extends NPDatabaseQueryType<RDottedName, Optional<NPToolArguments>>,
+    NPDatabaseQueriesToolsType
   {
-    return EARLIEST;
+
   }
 }

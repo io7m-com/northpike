@@ -330,88 +330,27 @@ CREATE TABLE agent_labels (
 )
 ]]></Statement>
 
-    <!--
     <Statement><![CDATA[
-CREATE OR REPLACE FUNCTION repository_commit_lookup (
-  repository_url       TEXT,
-  repository_commit_id TEXT
+CREATE TABLE tool_arguments (
+  ta_id         BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
+  ta_name       TEXT   NOT NULL,
+  ta_tool_name  TEXT   NOT NULL,
+  ta_arguments  TEXT[] NOT NULL,
+
+  CONSTRAINT tool_arguments_primary_key
+    PRIMARY KEY (ta_id),
+
+  -- [jooq ignore start]
+  CONSTRAINT tool_arguments_name_unique
+    UNIQUE (ta_name),
+  -- [jooq ignore stop]
+
+  CONSTRAINT tool_arguments_name_valid
+    CHECK (ta_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$'),
+
+  CONSTRAINT tool_arguments_tool_name_valid
+    CHECK (ta_tool_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$')
 )
-  RETURNS BIGINT
-  LANGUAGE PLPGSQL
-AS $$
-  DECLARE
-    repository_id  UUID;
-    commit         BIGINT;
-  BEGIN
-    SELECT r.r_id INTO repository_id FROM repositories AS r
-      WHERE r.r_url = repository_url;
-
-    SELECT rc.rc_id INTO commit FROM repository_commits AS rc
-      WHERE rc.rc_commit_id  = repository_commit_id
-        AND rc.rc_repository = repository_id;
-
-    RETURN commit;
-  END;
-$$;
 ]]></Statement>
-
-    <Statement><![CDATA[
-CREATE OR REPLACE FUNCTION repository_commit_links_descendants (initial_commit BIGINT)
-  RETURNS TABLE (
-    commit      BIGINT,
-    commit_next BIGINT
-  )
-  LANGUAGE PLPGSQL
-AS $$
-  DECLARE
-    commits_row repository_commit_links%ROWTYPE;
-  BEGIN
-    SELECT * INTO commits_row
-      FROM repository_commit_links
-        WHERE repository_commit_links.rcl_commit = initial_commit;
-
-    WHILE (commits_row IS NOT NULL) LOOP
-      commit      := commits_row.rcl_commit;
-      commit_next := commits_row.rcl_commit_next;
-
-      SELECT * INTO commits_row
-        FROM repository_commit_links
-          WHERE repository_commit_links.rcl_commit = commit_next;
-
-      RETURN NEXT;
-    END LOOP;
-
-    RETURN;
-  END;
-$$;
-]]></Statement>
-
-    <Statement><![CDATA[
-CREATE OR REPLACE FUNCTION repository_commit_links_descendants_lookup (
-  repository_url       TEXT,
-  repository_commit_id TEXT
-)
-  RETURNS TABLE (
-    commit      BIGINT,
-    commit_next BIGINT
-  )
-  LANGUAGE PLPGSQL
-AS $$
-  DECLARE
-    repository_id  BIGINT;
-    commit_initial BIGINT;
-  BEGIN
-    SELECT r.r_id INTO repository_id FROM repositories AS r
-      WHERE r.r_url = repository_url;
-
-    SELECT rc.rc_id INTO commit_initial FROM repository_commits AS rc
-      WHERE rc.rc_commit_id  = repository_commit_id
-        AND rc.rc_repository = repository_id;
-
-    RETURN QUERY SELECT * FROM repository_commit_links_descendants (commit_initial);
-  END;
-$$;
-]]></Statement>
--->
   </Schema>
 </Schemas>
