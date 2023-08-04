@@ -56,7 +56,7 @@
     <com.io7m.idstore.version>1.0.0-beta0014</com.io7m.idstore.version>
     <com.io7m.jade.version>1.0.2</com.io7m.jade.version>
     <com.io7m.jbssio.version>2.0.0</com.io7m.jbssio.version>
-    <com.io7m.jdownload.version>0.0.1-SNAPSHOT</com.io7m.jdownload.version>
+    <com.io7m.jdownload.version>0.0.1</com.io7m.jdownload.version>
     <com.io7m.jqpage.version>0.0.3</com.io7m.jqpage.version>
     <com.io7m.jsx.version>3.1.1</com.io7m.jsx.version>
     <com.io7m.jwheatsheaf.version>4.0.0-beta0001</com.io7m.jwheatsheaf.version>
@@ -166,7 +166,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.12.0</version>
+        <version>3.13.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jproperties</groupId>
@@ -470,7 +470,7 @@
       <dependency>
         <groupId>com.squareup.okio</groupId>
         <artifactId>okio-jvm</artifactId>
-        <version>3.4.0</version>
+        <version>3.5.0</version>
       </dependency>
 
       <!-- Database -->
@@ -572,7 +572,7 @@
       <dependency>
         <groupId>nl.jqno.equalsverifier</groupId>
         <artifactId>equalsverifier</artifactId>
-        <version>3.15</version>
+        <version>3.15.1</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.ervilla</groupId>
