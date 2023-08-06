@@ -21,6 +21,7 @@ import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.plans.NPPlanToolExecution;
+import com.io7m.northpike.plans.NPPlanType;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluation;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType;
@@ -34,6 +35,7 @@ import com.io7m.northpike.plans.evaluation.NPPlanEvaluationUpdateType.AgentRepor
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationUpdateType.AgentReportedTaskSuccess;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.verona.core.Version;
+import org.jgrapht.traverse.TopologicalOrderIterator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -187,6 +189,8 @@ public final class NPPlanEvaluationTest
 
     final var plan =
       planBuilder.build();
+
+    dot(plan);
 
     final var execution =
       NPPlanEvaluation.create(this.clock, plan);
@@ -641,5 +645,32 @@ public final class NPPlanEvaluationTest
       this.events.add(e);
       this.eventTexts.add(e.toString());
     }
+  }
+
+  private static void dot(
+    final NPPlanType plan)
+  {
+    final var graph =
+      plan.graph();
+
+    final var topo = new TopologicalOrderIterator<>(graph);
+    System.out.println("digraph g {");
+
+    while (topo.hasNext()) {
+      final var next =
+        topo.next();
+      final var dependencies =
+        next.dependsOn();
+
+      for (final var dependency : dependencies) {
+        System.out.printf(
+          "  %s -> %s;%n",
+          dependency,
+          next.name()
+        );
+      }
+    }
+
+    System.out.println("}");
   }
 }
