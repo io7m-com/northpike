@@ -38,4 +38,10 @@ public record NPAgentID(UUID value)
   {
     Objects.requireNonNull(value, "value");
   }
+
+  @Override
+  public String toString()
+  {
+    return this.value.toString();
+  }
 }

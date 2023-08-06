@@ -53,7 +53,7 @@ public record NPStringConstantApplied(
    * @return The applied constant
    */
 
-  public static NPStringConstantApplied of(
+  public static NPStringConstantApplied applied(
     final NPStringConstantType constant,
     final Object... args)
   {

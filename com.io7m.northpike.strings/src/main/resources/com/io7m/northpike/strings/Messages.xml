@@ -51,6 +51,41 @@
   <entry key="user">User</entry>
   <entry key="user_id">User ID</entry>
 
+  <!--       -->
+  <!-- Plans -->
+  <!--       -->
+
+  <entry key="plan_explain_empty">
+    An empty plan will always succeed immediately.
+  </entry>
+  <entry key="plan_explain_task_becomes_ready_empty">
+    Because it has no dependencies, task {0} will be scheduled for execution immediately.
+  </entry>
+  <entry key="plan_explain_task_becomes_ready_dependencies">
+    Once dependencies [{0}] have completed, task {1} will be scheduled for execution.
+  </entry>
+  <entry key="plan_explain_barrier_becomes_ready_empty">
+    Because it has no dependencies, barrier {0} will complete immediately.
+  </entry>
+  <entry key="plan_explain_barrier_becomes_ready_dependencies">
+    Once dependencies [{0}] have completed, barrier {1} will complete.
+  </entry>
+  <entry key="plan_explain_task_requires_matching_agent">
+    Task {0} will require a hypothetical agent "{1}" matching the expression "{2}".
+  </entry>
+  <entry key="plan_explain_task_requires_specific_agent">
+    Task {0} will require the specific agent "{1}" that executed task "{2}" previously.
+  </entry>
+  <entry key="plan_explain_done">
+    Evaluation of the plan ends.
+  </entry>
+  <entry key="plan_explain_task_agent_timeout">
+    The task {0} will fail if it has to wait longer than {1} for the agent to become available.
+  </entry>
+  <entry key="plan_explain_task_execution_timeout">
+    The task {0} will be considered to have failed if execution on the agent takes longer than {1}.
+  </entry>
+
   <!--              -->
   <!-- Agent Labels -->
   <!--              -->

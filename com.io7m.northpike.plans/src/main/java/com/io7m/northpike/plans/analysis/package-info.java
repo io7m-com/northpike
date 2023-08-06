@@ -18,20 +18,9 @@
  * Continuous integration (Plans)
  */
 
-module com.io7m.northpike.plans
-{
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+@Export
+@Version("1.0.0")
+package com.io7m.northpike.plans.analysis;
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.strings;
-  requires com.io7m.northpike.parsers;
-
-  requires com.io7m.lanark.core;
-  requires org.jgrapht.core;
-
-  exports com.io7m.northpike.plans.analysis;
-  exports com.io7m.northpike.plans.evaluation;
-  exports com.io7m.northpike.plans.reporting;
-  exports com.io7m.northpike.plans;
-}
+import org.osgi.annotation.bundle.Export;
+import org.osgi.annotation.versioning.Version;

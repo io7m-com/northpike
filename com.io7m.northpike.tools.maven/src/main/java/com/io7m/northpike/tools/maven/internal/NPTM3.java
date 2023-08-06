@@ -230,7 +230,7 @@ public final class NPTM3 implements NPToolType
     LOG.debug("Download {}", fileTarget);
     LOG.debug("Checksum {}", checksumTarget);
 
-    this.createTask(NPStringConstantApplied.of(DOWNLOADING, BINARIES_URL));
+    this.createTask(NPStringConstantApplied.applied(DOWNLOADING, BINARIES_URL));
 
     final JDownloadRequestType request;
     try {

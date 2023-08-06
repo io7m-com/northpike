@@ -14,24 +14,24 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.plans.analysis;
+
+import com.io7m.northpike.strings.NPStringConstantType;
+
+import java.util.List;
+
 /**
- * Continuous integration (Plans)
+ * An explanation of a plan.
  */
 
-module com.io7m.northpike.plans
+public interface NPPlanExplanationType
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * The messages representing the actions that will occur during evaluation.
+   *
+   * @return The messages
+   */
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.strings;
-  requires com.io7m.northpike.parsers;
-
-  requires com.io7m.lanark.core;
-  requires org.jgrapht.core;
-
-  exports com.io7m.northpike.plans.analysis;
-  exports com.io7m.northpike.plans.evaluation;
-  exports com.io7m.northpike.plans.reporting;
-  exports com.io7m.northpike.plans;
+  List<NPStringConstantType> messages();
 }
