@@ -14,22 +14,13 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.northpike.plans.reporting;
+
 /**
- * Continuous integration (Plans)
+ * A report produced from the evaluation of a plan.
  */
 
-module com.io7m.northpike.plans
+public interface NPPlanReportType
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.strings;
-
-  requires com.io7m.lanark.core;
-  requires org.jgrapht.core;
-
-  exports com.io7m.northpike.plans;
-  exports com.io7m.northpike.plans.evaluation;
-  exports com.io7m.northpike.plans.reporting;
 }

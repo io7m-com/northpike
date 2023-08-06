@@ -14,22 +14,40 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/**
- * Continuous integration (Plans)
- */
 
-module com.io7m.northpike.plans
+package com.io7m.northpike.tests.plans;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+
+import static java.time.ZoneOffset.UTC;
+
+public final class NPFakeClock extends Clock
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  public Instant timeNow;
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.strings;
+  public NPFakeClock()
+  {
+    this.timeNow = Instant.EPOCH;
+  }
 
-  requires com.io7m.lanark.core;
-  requires org.jgrapht.core;
+  @Override
+  public ZoneId getZone()
+  {
+    return UTC;
+  }
 
-  exports com.io7m.northpike.plans;
-  exports com.io7m.northpike.plans.evaluation;
-  exports com.io7m.northpike.plans.reporting;
+  @Override
+  public Clock withZone(
+    final ZoneId zone)
+  {
+    return this;
+  }
+
+  @Override
+  public Instant instant()
+  {
+    return this.timeNow;
+  }
 }

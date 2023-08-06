@@ -26,8 +26,7 @@ import java.util.UUID;
  * @param value The ID value
  */
 
-public record NPAgentID(
-  UUID value)
+public record NPAgentID(UUID value)
 {
   /**
    * An agent ID.

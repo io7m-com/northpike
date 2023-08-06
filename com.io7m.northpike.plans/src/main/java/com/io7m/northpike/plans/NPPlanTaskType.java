@@ -20,6 +20,8 @@ package com.io7m.northpike.plans;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentLabelMatchType;
 
+import java.time.Duration;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -46,6 +48,35 @@ public non-sealed interface NPPlanTaskType
    */
 
   NPAgentLabelMatchType agentPreferWithLabel();
+
+  /**
+   * If specified, this task must be executed by the same agent that
+   * executed the given task.
+   *
+   * @return The task
+   */
+
+  Optional<NPPlanTaskType> agentMustBeSameAs();
+
+  /**
+   * The maximum duration that the task will wait between the task
+   * becoming ready, and having an agent assigned. If this duration elapses
+   * without an agent assigned, the task will be considered failed.
+   *
+   * @return The duration
+   */
+
+  Optional<Duration> agentAssignmentTimeout();
+
+  /**
+   * The maximum duration that the task will be allowed to execute.
+   * If this duration elapses without the task being reported as either
+   * having succeeded or failed, the task will be considered failed.
+   *
+   * @return The duration
+   */
+
+  Optional<Duration> executionTimeout();
 
   /**
    * @return The set of resources that will be locked on the agent during

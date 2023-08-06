@@ -19,6 +19,8 @@ package com.io7m.northpike.plans;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentLabelMatchType;
 
+import java.time.Duration;
+
 /**
  * A mutable builder for tasks.
  */
@@ -65,6 +67,24 @@ public interface NPPlanTaskBuilderType
     throws NPPlanException;
 
   /**
+   * Set a constraint that indicates that this task must be executed by the
+   * same agent that executed the given task. This adds an implicit execution
+   * dependency on the given task; this method behaves as if
+   * {@link #addDependsOn(RDottedName)}
+   * had been called on the given task.
+   *
+   * @param task The first task
+   *
+   * @return this
+   *
+   * @throws NPPlanException On errors
+   */
+
+  NPPlanTaskBuilderType setAgentMustBeSameAs(
+    NPPlanTaskBuilderType task)
+    throws NPPlanException;
+
+  /**
    * Add a resource that will be locked on the agent during execution of this
    * task.
    *
@@ -91,5 +111,37 @@ public interface NPPlanTaskBuilderType
 
   NPPlanTaskBuilderType setToolExecution(
     NPPlanToolExecution toolExecution)
+    throws NPPlanException;
+
+  /**
+   * Set the maximum duration that the task will wait between the task
+   * becoming ready, and having an agent assigned. If this duration elapses
+   * without an agent assigned, the task will be considered failed.
+   *
+   * @param duration The timeout duration
+   *
+   * @return this
+   *
+   * @throws NPPlanException On errors
+   */
+
+  NPPlanTaskBuilderType setAgentAssignmentTimeout(
+    Duration duration)
+    throws NPPlanException;
+
+  /**
+   * Set the maximum duration that the task will be allowed to execute.
+   * If this duration elapses without the task being reported as either
+   * having succeeded or failed, the task will be considered failed.
+   *
+   * @param duration The timeout duration
+   *
+   * @return this
+   *
+   * @throws NPPlanException On errors
+   */
+
+  NPPlanTaskBuilderType setExecutionTimeout(
+    Duration duration)
     throws NPPlanException;
 }

@@ -36,6 +36,7 @@ import org.jgrapht.graph.AsUnmodifiableGraph;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.graph.GraphCycleProhibitedException;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -102,7 +103,7 @@ public final class NPPlanBuilder
   {
     final var newElements = new HashMap<RDottedName, NPPlanElementType>();
     for (final var elementBuilder : this.elements.values()) {
-      newElements.put(elementBuilder.name(), elementBuilder.build());
+      newElements.put(elementBuilder.name(), elementBuilder.build(newElements));
     }
 
     final var newGraph =
@@ -246,7 +247,7 @@ public final class NPPlanBuilder
       }
     }
 
-    abstract NPPlanElementType build()
+    abstract NPPlanElementType build(HashMap<RDottedName, NPPlanElementType> newElements)
       throws NPPlanException;
   }
 
@@ -262,7 +263,8 @@ public final class NPPlanBuilder
     }
 
     @Override
-    NPPlanBarrier build()
+    NPPlanBarrier build(
+      final HashMap<RDottedName, NPPlanElementType> newElements)
     {
       return new NPPlanBarrier(
         this.name(),
@@ -335,6 +337,9 @@ public final class NPPlanBuilder
     private NPAgentLabelMatchType preferWithLabels;
     private NPAgentLabelMatchType requireWithLabels;
     private Optional<NPPlanToolExecution> toolExecution;
+    private Optional<RDottedName> sameAgentAs;
+    private Optional<Duration> agentAssignmentTimeout;
+    private Optional<Duration> executionTimeout;
 
     NPPlanTaskBuilder(
       final NPPlanBuilder inBuilder,
@@ -345,12 +350,21 @@ public final class NPPlanBuilder
       this.requireWithLabels = ANY_LABEL;
       this.lockAgentResources = new TreeSet<>();
       this.toolExecution = Optional.empty();
+      this.sameAgentAs = Optional.empty();
+      this.agentAssignmentTimeout = Optional.empty();
+      this.executionTimeout = Optional.empty();
     }
 
     @Override
-    NPPlanTaskType build()
+    NPPlanTaskType build(
+      final HashMap<RDottedName, NPPlanElementType> newElements)
       throws NPPlanException
     {
+      final var sameAs =
+        this.sameAgentAs
+          .flatMap(name -> Optional.ofNullable(newElements.get(name)))
+          .map(NPPlanTaskType.class::cast);
+
       if (this.toolExecution.isEmpty()) {
         throw NPPlanExceptions.errorNoToolExecution(
           this.builder().strings,
@@ -367,7 +381,10 @@ public final class NPPlanBuilder
         Collections.unmodifiableSortedSet(
           new TreeSet<>(this.lockAgentResources)
         ),
-        this.toolExecution.get()
+        sameAs,
+        this.toolExecution.get(),
+        this.agentAssignmentTimeout,
+        this.executionTimeout
       );
     }
 
@@ -405,6 +422,16 @@ public final class NPPlanBuilder
     }
 
     @Override
+    public NPPlanTaskBuilderType setAgentMustBeSameAs(
+      final NPPlanTaskBuilderType task)
+      throws NPPlanException
+    {
+      this.sameAgentAs = Optional.of(task.name());
+      this.addDependsOn(task.name());
+      return this;
+    }
+
+    @Override
     public NPPlanTaskBuilderType addLockAgentResource(
       final RDottedName name)
     {
@@ -438,6 +465,24 @@ public final class NPPlanBuilder
       this.toolExecution = Optional.of(newExecution);
       return this;
     }
+
+    @Override
+    public NPPlanTaskBuilderType setAgentAssignmentTimeout(
+      final Duration duration)
+    {
+      Objects.requireNonNull(duration, "duration");
+      this.agentAssignmentTimeout = Optional.of(duration);
+      return this;
+    }
+
+    @Override
+    public NPPlanTaskBuilderType setExecutionTimeout(
+      final Duration duration)
+    {
+      Objects.requireNonNull(duration, "duration");
+      this.executionTimeout = Optional.of(duration);
+      return this;
+    }
   }
 
   private static final class NPPlanTask implements NPPlanTaskType
@@ -449,6 +494,9 @@ public final class NPPlanBuilder
     private final NPAgentLabelMatchType agentPreferWithLabel;
     private final SortedSet<RDottedName> lockAgentResources;
     private final NPPlanToolExecution toolExecution;
+    private final Optional<NPPlanTaskType> agentMustBeSameAs;
+    private final Optional<Duration> agentAssignmentTimeout;
+    private final Optional<Duration> executionTimeout;
 
     NPPlanTask(
       final RDottedName inName,
@@ -457,7 +505,10 @@ public final class NPPlanBuilder
       final NPAgentLabelMatchType inAgentRequireWithLabel,
       final NPAgentLabelMatchType inAgentPreferWithLabel,
       final SortedSet<RDottedName> inLockAgentResources,
-      final NPPlanToolExecution inToolExecution)
+      final Optional<NPPlanTaskType> inAgentMustBeSameAs,
+      final NPPlanToolExecution inToolExecution,
+      final Optional<Duration> inAgentAssignmentTimeout,
+      final Optional<Duration> inExecutionTimeout)
     {
       this.name =
         Objects.requireNonNull(inName, "name");
@@ -473,8 +524,15 @@ public final class NPPlanBuilder
           inAgentPreferWithLabel, "agentPreferWithLabel");
       this.lockAgentResources =
         Objects.requireNonNull(inLockAgentResources, "lockAgentResources");
+      this.agentMustBeSameAs =
+        Objects.requireNonNull(inAgentMustBeSameAs, "inAgentMustBeSameAs");
       this.toolExecution =
         Objects.requireNonNull(inToolExecution, "toolExecution");
+      this.agentAssignmentTimeout =
+        Objects.requireNonNull(
+          inAgentAssignmentTimeout, "agentAssignmentTimeout");
+      this.executionTimeout =
+        Objects.requireNonNull(inExecutionTimeout, "inExecutionTimeout");
     }
 
     @Override
@@ -505,6 +563,24 @@ public final class NPPlanBuilder
     public NPAgentLabelMatchType agentPreferWithLabel()
     {
       return this.agentPreferWithLabel;
+    }
+
+    @Override
+    public Optional<NPPlanTaskType> agentMustBeSameAs()
+    {
+      return this.agentMustBeSameAs;
+    }
+
+    @Override
+    public Optional<Duration> agentAssignmentTimeout()
+    {
+      return this.agentAssignmentTimeout;
+    }
+
+    @Override
+    public Optional<Duration> executionTimeout()
+    {
+      return this.executionTimeout;
     }
 
     @Override

@@ -14,22 +14,25 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.plans.evaluation;
+
+import java.util.List;
+
 /**
- * Continuous integration (Plans)
+ * A stateful evaluation of a plan.
  */
 
-module com.io7m.northpike.plans
+public interface NPPlanEvaluationType
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * Take one step of evaluation.
+   *
+   * @param updates The updates to apply to this step of evaluation
+   *
+   * @return The new status of the evaluation
+   */
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.strings;
-
-  requires com.io7m.lanark.core;
-  requires org.jgrapht.core;
-
-  exports com.io7m.northpike.plans;
-  exports com.io7m.northpike.plans.evaluation;
-  exports com.io7m.northpike.plans.reporting;
+  NPPlanEvaluationStatusType step(
+    List<NPPlanEvaluationUpdateType> updates);
 }
