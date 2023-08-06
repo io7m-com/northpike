@@ -78,6 +78,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 import static java.time.ZoneOffset.UTC;
+import static org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode.YES;
 
 /**
  * JGit repository.
@@ -494,6 +495,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
         this.git.fetch()
           .setCredentialsProvider(this.createCredentialsProvider())
           .setProgressMonitor(task)
+          .setRecurseSubmodules(YES)
           .call();
         task.onCompleted();
       } catch (final Exception e) {
@@ -557,6 +559,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
             .setURI(this.repositoryDescription.url().normalize().toString())
             .setCredentialsProvider(this.createCredentialsProvider())
             .setProgressMonitor(task)
+            .setCloneSubmodules(true)
             .call();
 
         task.onCompleted();
