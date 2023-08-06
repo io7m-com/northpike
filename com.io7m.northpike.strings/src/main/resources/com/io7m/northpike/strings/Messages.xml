@@ -7,6 +7,7 @@
   <entry key="agent_id">Agent ID</entry>
   <entry key="agent_label">Agent Label</entry>
   <entry key="analyze">Analyze</entry>
+  <entry key="archive">Archive</entry>
   <entry key="barrier">Barrier</entry>
   <entry key="clone">Clone</entry>
   <entry key="downloading">Downloading {0}</entry>

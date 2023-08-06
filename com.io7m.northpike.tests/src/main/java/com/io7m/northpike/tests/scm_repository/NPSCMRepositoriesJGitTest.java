@@ -30,6 +30,7 @@ import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.examples.Expander;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,10 +50,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 
 import static com.io7m.northpike.model.NPRepositoryCredentialsNone.CREDENTIALS_NONE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class NPSCMRepositoriesJGitTest
 {
@@ -357,6 +361,75 @@ public final class NPSCMRepositoriesJGitTest
     }
 
     return reposDirectory.resolve("repos.git").toUri();
+  }
+
+  /**
+   * Producing an archive works.
+   *
+   * @param directory      The directory
+   * @param reposDirectory The repos directory
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testArchive0(
+    final @TempDir Path directory,
+    final @TempDir Path outputDirectory,
+    final @TempDir Path expandDirectory,
+    final @TempDir Path reposDirectory)
+    throws Exception
+  {
+    final var reposSource =
+      unpack("example.git.tar", reposDirectory);
+
+    final var repositoryDescription =
+      new NPRepositoryDescription(
+        new RDottedName("com.io7m.northpike.repository.jgit"),
+        UUID.randomUUID(),
+        reposSource,
+        CREDENTIALS_NONE
+      );
+
+    final var fileTmp =
+      outputDirectory.resolve("archive.tgz.tmp");
+    final var file =
+      outputDirectory.resolve("archive.tgz");
+
+    try (var repository =
+           this.repositories.createRepository(
+             this.services, directory, repositoryDescription)) {
+      repository.events().subscribe(new EventLogger());
+      repository.commitArchive(
+        new NPCommitID(
+          repositoryDescription.id(),
+          "b155d186fce6d0525b8348cc48dd778fda6c6a85"
+        ),
+        file,
+        fileTmp
+      );
+
+      assertTrue(Files.isRegularFile(file));
+      assertFalse(Files.isRegularFile(fileTmp));
+
+      expandArchive(expandDirectory, file);
+      assertTrue(Files.isRegularFile(expandDirectory.resolve(".gitmodules")));
+      assertTrue(Files.isDirectory(expandDirectory.resolve(".jenkins")));
+      assertTrue(Files.isRegularFile(expandDirectory.resolve("pom.xml")));
+    }
+  }
+
+  private static void expandArchive(
+    final Path expandDirectory,
+    final Path file)
+    throws IOException
+  {
+    try (var stream = new GZIPInputStream(Files.newInputStream(file))) {
+      try (var tar = new TarArchiveInputStream(stream)) {
+        final var expander = new Expander();
+        expander.expand(tar, expandDirectory);
+      }
+    }
   }
 
   private static final class EventLogger

@@ -37,8 +37,10 @@ import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 import io.opentelemetry.api.trace.Span;
+import org.eclipse.jgit.api.ArchiveCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.archive.TgzFormat;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -49,6 +51,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -63,11 +66,17 @@ import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Collectors;
 
 import static com.io7m.northpike.strings.NPStringConstants.ANALYZE;
+import static com.io7m.northpike.strings.NPStringConstants.ARCHIVE;
 import static com.io7m.northpike.strings.NPStringConstants.CLONE;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_REPOSITORY_WRONG_PROVIDER;
 import static com.io7m.northpike.strings.NPStringConstants.GC;
 import static com.io7m.northpike.strings.NPStringConstants.PULL;
 import static com.io7m.northpike.telemetry.api.NPTelemetryServiceType.recordSpanException;
+import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 import static java.time.ZoneOffset.UTC;
 
 /**
@@ -76,6 +85,7 @@ import static java.time.ZoneOffset.UTC;
 
 public final class NPSCMJGRepository implements NPSCMRepositoryType
 {
+  private static final OpenOption[] TEMPORARY_FILE_OPTIONS = {TRUNCATE_EXISTING, CREATE, WRITE};
   private final NPStrings strings;
   private final NPTelemetryServiceType telemetry;
   private final NPRepositoryDescription repositoryDescription;
@@ -145,8 +155,15 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
       dataDirectory.resolve(expected.value());
     final var repos =
       scmDirectory.resolve(repository.id() + ".git");
+    final var tmpDirectory =
+      scmDirectory.resolve("temporary");
 
-    return new NPSCMJGRepository(strings, telemetry, repository, repos);
+    return new NPSCMJGRepository(
+      strings,
+      telemetry,
+      repository,
+      repos
+    );
   }
 
   private static HashSet<NPCommitLink> processCommitLinks(
@@ -192,20 +209,75 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     final Set<NPCommitSummary> commits)
     throws NPSCMRepositoryException
   {
+    Objects.requireNonNull(commits, "commits");
+
     final var span =
       this.telemetry.tracer()
         .spanBuilder("CommitsSince")
         .startSpan();
 
     try (var ignored = span.makeCurrent()) {
-      this.setupAttributes();
-
-      if (!Files.isDirectory(this.repoPath)) {
-        this.executeClone();
-      }
-
-      this.executeUpdate();
+      this.ensureRepository();
       return this.executeCalculateSince(commits);
+    } finally {
+      span.end();
+    }
+  }
+
+  private void ensureRepository()
+    throws NPSCMRepositoryException
+  {
+    this.setupAttributes();
+    if (!Files.isDirectory(this.repoPath)) {
+      this.executeClone();
+    }
+    this.executeUpdate();
+  }
+
+  @Override
+  public void commitArchive(
+    final NPCommitID commit,
+    final Path outputFile,
+    final Path outputFileTmp)
+    throws NPSCMRepositoryException
+  {
+    Objects.requireNonNull(commit, "commit");
+    Objects.requireNonNull(outputFile, "outputFile");
+    Objects.requireNonNull(outputFileTmp, "outputFileTmp");
+
+    final var span =
+      this.telemetry.tracer()
+        .spanBuilder("Archive")
+        .startSpan();
+
+    try (var ignored0 = span.makeCurrent()) {
+      this.ensureRepository();
+
+      ArchiveCommand.registerFormat("tar.gz", new TgzFormat());
+      final var task = new NPSCMJTask(this.events, ARCHIVE);
+
+      try {
+        try (var output =
+               Files.newOutputStream(outputFileTmp, TEMPORARY_FILE_OPTIONS)) {
+
+          try (var out =
+                 this.git.archive()
+                   .setFormat("tar.gz")
+                   .setOutputStream(output)
+                   .setTree(ObjectId.fromString(commit.value()))
+                   .call()) {
+            out.flush();
+          }
+        }
+
+        Files.move(outputFileTmp, outputFile, REPLACE_EXISTING, ATOMIC_MOVE);
+        task.onCompleted();
+      } catch (final Exception e) {
+        recordSpanException(e);
+        final var ex = this.handleException(e);
+        task.onFailed(ex);
+        throw ex;
+      }
     } finally {
       span.end();
     }
