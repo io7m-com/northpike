@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:te="urn:com.io7m.northpike.toolexec:1"
+            targetNamespace="urn:com.io7m.northpike.toolexec:1">
+
+  <xsd:simpleType name="NameType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The type of Lanark dotted names.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:complexType name="ExpressionType"
+                   abstract="true">
+    <xsd:annotation>
+      <xsd:documentation>
+        The base type of expressions.
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:complexType>
+
+  <xsd:complexType name="NumberType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A numeric constant.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:ExpressionType">
+        <xsd:attribute name="Value"
+                       type="xsd:decimal"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="Number"
+               type="te:NumberType"/>
+
+  <xsd:complexType name="StringType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A string constant.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:ExpressionType">
+        <xsd:attribute name="Value"
+                       type="xsd:string"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="String"
+               type="te:StringType"/>
+
+  <xsd:complexType name="TrueType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A boolean "true" constant.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:ExpressionType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="True"
+               type="te:TrueType"/>
+
+  <xsd:complexType name="FalseType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A boolean "false" constant.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:ExpressionType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="False"
+               type="te:FalseType"/>
+
+  <xsd:complexType name="VariableBooleanType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Obtain the boolean value of the given named plan variable.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:ExpressionType">
+        <xsd:attribute name="Name"
+                       type="te:NameType"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="VariableBoolean"
+               type="te:VariableBooleanType"/>
+
+  <xsd:complexType name="VariableNumberType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Obtain the numeric value of the given named plan variable.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:ExpressionType">
+        <xsd:attribute name="Name"
+                       type="te:NameType"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="VariableNumber"
+               type="te:VariableNumberType"/>
+
+  <xsd:complexType name="VariableStringType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Obtain the string value of the given named plan variable.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:ExpressionType">
+        <xsd:attribute name="Name"
+                       type="te:NameType"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="VariableString"
+               type="te:VariableStringType"/>
+
+  <xsd:complexType name="IsEqualType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Evaluates to true if the two argument expressions evaluate to the same
+        value.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:ExpressionType">
+        <xsd:sequence>
+          <xsd:group ref="te:ExpressionGroup"/>
+          <xsd:group ref="te:ExpressionGroup"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="IsEqual"
+               type="te:IsEqualType"/>
+
+  <xsd:group name="ExpressionGroup">
+    <xsd:choice>
+      <xsd:element ref="te:False"/>
+      <xsd:element ref="te:IsEqual"/>
+      <xsd:element ref="te:Number"/>
+      <xsd:element ref="te:String"/>
+      <xsd:element ref="te:True"/>
+      <xsd:element ref="te:VariableBoolean"/>
+      <xsd:element ref="te:VariableNumber"/>
+      <xsd:element ref="te:VariableString"/>
+    </xsd:choice>
+  </xsd:group>
+
+  <xsd:complexType name="StatementType"
+                   abstract="true"/>
+
+  <xsd:complexType name="ArgumentAddType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Append a constant argument to the current list of arguments.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:StatementType">
+        <xsd:attribute name="Value"
+                       type="xsd:string"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="ArgumentAdd"
+               type="te:ArgumentAddType"/>
+
+  <xsd:complexType name="EnvironmentClearType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Clear the set of environment variables that will be used.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:StatementType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="EnvironmentClear"
+               type="te:EnvironmentClearType"/>
+
+  <xsd:complexType name="EnvironmentPassType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Specify that an environment variable will be present in the environment
+        of the executed tool if an environment variable with the same name is
+        defined in the environment of the agent.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:StatementType">
+        <xsd:attribute name="Name"
+                       type="xsd:string"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="EnvironmentPass"
+               type="te:EnvironmentPassType"/>
+
+  <xsd:complexType name="EnvironmentRemoveType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Specify that an environment variable will be not present in the
+        environment of the executed tool.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:StatementType">
+        <xsd:attribute name="Name"
+                       type="xsd:string"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="EnvironmentRemove"
+               type="te:EnvironmentRemoveType"/>
+
+  <xsd:complexType name="EnvironmentSetType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Specify that an environment variable will exist with the given name and
+        value in the environment of the executed tool.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:StatementType">
+        <xsd:attribute name="Name"
+                       type="xsd:string"
+                       use="required"/>
+        <xsd:attribute name="Value"
+                       type="xsd:string"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="EnvironmentSet"
+               type="te:EnvironmentSetType"/>
+
+  <xsd:element name="Then">
+    <xsd:annotation>
+      <xsd:documentation>
+        A series of statements evaluated if the enclosing condition's expression
+        evaluates to true.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence minOccurs="0"
+                    maxOccurs="unbounded">
+        <xsd:group ref="te:StatementGroup"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Else">
+    <xsd:annotation>
+      <xsd:documentation>
+        A series of statements evaluated if the enclosing condition's expression
+        evaluates to false.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence minOccurs="0"
+                    maxOccurs="unbounded">
+        <xsd:group ref="te:StatementGroup"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Condition">
+    <xsd:annotation>
+      <xsd:documentation>
+        The If statement's condition expression.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:group ref="te:ExpressionGroup"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="IfType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A conditional statement. If the given expression evaluates to true, the
+        statements within the Then element are executed. Otherwise, the
+        statements within the Else element (if provided) are executed.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:StatementType">
+        <xsd:sequence>
+          <xsd:element ref="te:Condition"/>
+          <xsd:element ref="te:Then"/>
+          <xsd:sequence minOccurs="0"
+                        maxOccurs="1">
+            <xsd:element ref="te:Else"/>
+          </xsd:sequence>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="If"
+               type="te:IfType"/>
+
+  <xsd:group name="StatementGroup">
+    <xsd:choice>
+      <xsd:element ref="te:ArgumentAdd"/>
+      <xsd:element ref="te:EnvironmentClear"/>
+      <xsd:element ref="te:EnvironmentPass"/>
+      <xsd:element ref="te:EnvironmentRemove"/>
+      <xsd:element ref="te:EnvironmentSet"/>
+      <xsd:element ref="te:If"/>
+    </xsd:choice>
+  </xsd:group>
+
+  <xsd:element name="ToolExecution">
+    <xsd:annotation>
+      <xsd:documentation>
+        A program that, when evaluated, will produce a set of environment
+        variables and a sequence of arguments that will be passed to the
+        relevant tool upon execution of the task.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence minOccurs="0"
+                    maxOccurs="unbounded">
+        <xsd:group ref="te:StatementGroup"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="Name"
+                     type="te:NameType"
+                     use="required"/>
+      <xsd:attribute name="Version"
+                     type="xsd:unsignedLong"
+                     use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+</xsd:schema>

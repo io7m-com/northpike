@@ -15,7 +15,7 @@
  */
 
 
-package com.io7m.northpike.agent.configuration;
+package com.io7m.northpike.toolexec.parser;
 
 import com.io7m.anethum.api.ParseSeverity;
 import com.io7m.anethum.api.ParseStatus;
@@ -24,9 +24,11 @@ import com.io7m.blackthorne.api.BTException;
 import com.io7m.blackthorne.api.BTParseError;
 import com.io7m.blackthorne.api.BTPreserveLexical;
 import com.io7m.blackthorne.jxe.BlackthorneJXE;
-import com.io7m.northpike.agent.api.NPAgentConfiguration;
-import com.io7m.northpike.agent.configuration.internal.v1.NPAv1ConfigurationParser;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.toolexec.NPTXDescription;
+import com.io7m.northpike.toolexec.NPTXPreserveLexical;
+import com.io7m.northpike.toolexec.NPTXSchemas;
+import com.io7m.northpike.toolexec.parser.v1.NPTX1Description;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -40,13 +42,14 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.io7m.northpike.agent.configuration.internal.v1.NPAv1.element;
+import static com.io7m.northpike.toolexec.parser.v1.NPTX1.element;
+import static java.util.Map.entry;
 
 /**
- * A parser of configurations.
+ * A parser of tool executions.
  */
 
-public final class NPAgentConfigurationFiles implements Closeable
+public final class NPTXDescriptionParser implements Closeable
 {
   private final NPStrings strings;
   private final URI source;
@@ -55,21 +58,21 @@ public final class NPAgentConfigurationFiles implements Closeable
   private final BTPreserveLexical preserveLexical;
 
   /**
-   * A parser of configurations.
+   * A parser of tool executions.
    *
    * @param inStrings        The string resources
    * @param inSource         The source
    * @param inStream         The stream
    * @param inStatusConsumer A status consumer
-   * @param inLexical        Whether to preserve lexical information
+   * @param lexical          Whether to preserve lexical information
    */
 
-  private NPAgentConfigurationFiles(
+  private NPTXDescriptionParser(
     final NPStrings inStrings,
     final URI inSource,
     final InputStream inStream,
     final Consumer<ParseStatus> inStatusConsumer,
-    final NPAgentPreserveLexical inLexical)
+    final NPTXPreserveLexical lexical)
   {
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
@@ -81,7 +84,7 @@ public final class NPAgentConfigurationFiles implements Closeable
       Objects.requireNonNull(inStatusConsumer, "statusConsumer");
 
     this.preserveLexical =
-      switch (inLexical) {
+      switch (lexical) {
         case DISCARD_LEXICAL_INFORMATION ->
           BTPreserveLexical.DISCARD_LEXICAL_INFORMATION;
         case PRESERVE_LEXICAL_INFORMATION ->
@@ -108,7 +111,7 @@ public final class NPAgentConfigurationFiles implements Closeable
   }
 
   /**
-   * Open the given configuration file.
+   * Open the given tool execution file.
    *
    * @param strings        The string resources
    * @param file           The file
@@ -119,7 +122,7 @@ public final class NPAgentConfigurationFiles implements Closeable
    * @throws IOException On errors
    */
 
-  public static NPAgentConfigurationFiles open(
+  public static NPTXDescriptionParser open(
     final NPStrings strings,
     final Path file,
     final Consumer<ParseStatus> statusConsumer)
@@ -129,13 +132,13 @@ public final class NPAgentConfigurationFiles implements Closeable
       strings,
       Files.newInputStream(file),
       file.toUri(),
-      NPAgentPreserveLexical.PRESERVE_LEXICAL_INFORMATION,
+      NPTXPreserveLexical.PRESERVE_LEXICAL_INFORMATION,
       statusConsumer
     );
   }
 
   /**
-   * Open the given configuration file.
+   * Open the given tool execution file.
    *
    * @param strings        The string resources
    * @param statusConsumer A consumer of error messages
@@ -146,14 +149,14 @@ public final class NPAgentConfigurationFiles implements Closeable
    * @return A parser
    */
 
-  public static NPAgentConfigurationFiles open(
+  public static NPTXDescriptionParser open(
     final NPStrings strings,
     final InputStream inputStream,
     final URI uri,
-    final NPAgentPreserveLexical lexical,
+    final NPTXPreserveLexical lexical,
     final Consumer<ParseStatus> statusConsumer)
   {
-    return new NPAgentConfigurationFiles(
+    return new NPTXDescriptionParser(
       strings,
       uri,
       inputStream,
@@ -170,21 +173,18 @@ public final class NPAgentConfigurationFiles implements Closeable
    * @throws ParsingException On errors
    */
 
-  public NPAgentConfiguration execute()
+  public NPTXDescription execute()
     throws ParsingException
   {
     try {
-      final NPAgentConfiguration configuration =
+      final NPTXDescription configuration =
         BlackthorneJXE.parse(
           this.source,
           this.stream,
           Map.ofEntries(
-            Map.entry(
-              element("Configuration"),
-              context -> new NPAv1ConfigurationParser(this.strings)
-            )
+            entry(element("ToolExecution"), NPTX1Description::new)
           ),
-          NPAgentConfigurationSchemas.schemas(),
+          NPTXSchemas.schemas(),
           this.preserveLexical
         );
 
@@ -193,7 +193,7 @@ public final class NPAgentConfigurationFiles implements Closeable
       final var statuses =
         e.errors()
           .stream()
-          .map(NPAgentConfigurationFiles::mapParseError)
+          .map(NPTXDescriptionParser::mapParseError)
           .collect(Collectors.toList());
 
       for (final var status : statuses) {

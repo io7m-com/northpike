@@ -48,11 +48,14 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
   requires com.io7m.northpike.tests.arbitraries;
+  requires com.io7m.northpike.toolexec;
   requires com.io7m.northpike.tools.api;
   requires com.io7m.northpike.tools.maven;
 
   requires com.googlecode.javaewah;
   requires com.io7m.anethum.api;
+  requires com.io7m.blackthorne.api;
+  requires com.io7m.blackthorne.jxe;
   requires com.io7m.ervilla.api;
   requires com.io7m.ervilla.native_exec;
   requires com.io7m.ervilla.postgres;
