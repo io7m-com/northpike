@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<ToolExecution xmlns="urn:com.io7m.northpike.toolexec:1"
+               Name="com.io7m.example"
+               Version="23">
+
+  <EnvironmentClear/>
+  <EnvironmentRemove Name="DISPLAY"/>
+  <EnvironmentPass Name="PATH"/>
+  <EnvironmentSet Name="EX0"
+                  Value="Value"/>
+
+  <ArgumentAdd Value="-C"/>
+  <ArgumentAdd Value="-e"/>
+  <ArgumentAdd Value="-U"/>
+
+  <If>
+    <Condition>
+      <And>
+        <VariableBoolean Name="com.io7m.northpike.scm.is-tagged"/>
+        <IsEqual>
+          <VariableString Name="com.io7m.northpike.scm.branch"/>
+          <String Value="master"/>
+        </IsEqual>
+      </And>
+    </Condition>
+    <Then>
+      <ArgumentAdd Value="-Drelease=true"/>
+    </Then>
+  </If>
+
+  <ArgumentAdd Value="clean"/>
+  <ArgumentAdd Value="deploy"/>
+  <ArgumentAdd Value="site"/>
+
+</ToolExecution>

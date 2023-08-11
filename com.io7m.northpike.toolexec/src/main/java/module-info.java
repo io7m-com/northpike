@@ -26,17 +26,23 @@ module com.io7m.northpike.toolexec
   requires com.io7m.northpike.strings;
 
   requires com.io7m.anethum.api;
-  requires com.io7m.blackthorne.api;
+  requires com.io7m.blackthorne.core;
   requires com.io7m.blackthorne.jxe;
+  requires com.io7m.jaffirm.core;
+  requires com.io7m.jdeferthrow.core;
   requires com.io7m.jlexing.core;
   requires com.io7m.jxe.core;
   requires com.io7m.lanark.core;
 
-  exports com.io7m.northpike.toolexec;
+  exports com.io7m.northpike.toolexec.checker;
+  exports com.io7m.northpike.toolexec.evaluator;
+  exports com.io7m.northpike.toolexec.model;
   exports com.io7m.northpike.toolexec.parser;
+  exports com.io7m.northpike.toolexec;
 
   exports com.io7m.northpike.toolexec.parser.v1
     to com.io7m.northpike.tests;
   exports com.io7m.northpike.toolexec.serializer.v1
     to com.io7m.northpike.tests;
+
 }

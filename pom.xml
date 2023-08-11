@@ -51,7 +51,7 @@
 
   <properties>
     <com.io7m.anethum.version>1.0.0</com.io7m.anethum.version>
-    <com.io7m.blackthorne.version>2.0.0-SNAPSHOT</com.io7m.blackthorne.version>
+    <com.io7m.blackthorne.version>2.0.0</com.io7m.blackthorne.version>
     <com.io7m.cedarbridge.version>1.2.0</com.io7m.cedarbridge.version>
     <com.io7m.ervilla.version>0.0.4</com.io7m.ervilla.version>
     <com.io7m.hibiscus.version>0.0.8</com.io7m.hibiscus.version>
@@ -69,7 +69,7 @@
     <com.io7m.seltzer.version>1.0.0</com.io7m.seltzer.version>
     <com.io7m.streamtime.version>0.0.1</com.io7m.streamtime.version>
     <com.io7m.tabla.version>0.0.2</com.io7m.tabla.version>
-    <com.io7m.trasco.version>1.1.0-SNAPSHOT</com.io7m.trasco.version>
+    <com.io7m.trasco.version>1.1.0</com.io7m.trasco.version>
     <com.io7m.verdant.version>1.0.0</com.io7m.verdant.version>
     <com.io7m.verona.version>1.0.0</com.io7m.verona.version>
     <com.io7m.xstructural.version>1.8.0</com.io7m.xstructural.version>
@@ -81,7 +81,7 @@
     <javafx.version>20.0.1</javafx.version>
     <jaxb.version>4.0.0</jaxb.version>
     <jetty.version>11.0.15</jetty.version>
-    <jooq.version>3.18.5</jooq.version>
+    <jooq.version>3.18.6</jooq.version>
     <jqwik.version>1.7.4</jqwik.version>
     <junit.version>5.10.0</junit.version>
     <opentelemetry.version>1.28.0</opentelemetry.version>
@@ -247,7 +247,7 @@
       </dependency>
       <dependency>
         <groupId>com.io7m.blackthorne</groupId>
-        <artifactId>com.io7m.blackthorne.api</artifactId>
+        <artifactId>com.io7m.blackthorne.core</artifactId>
         <version>${com.io7m.blackthorne.version}</version>
       </dependency>
       <dependency>
@@ -258,7 +258,7 @@
       <dependency>
         <groupId>com.io7m.jxe</groupId>
         <artifactId>com.io7m.jxe.core</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.2</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.verona</groupId>
@@ -441,7 +441,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.4.8</version>
+        <version>1.4.11</version>
       </dependency>
 
       <!-- jxstrand string resources -->

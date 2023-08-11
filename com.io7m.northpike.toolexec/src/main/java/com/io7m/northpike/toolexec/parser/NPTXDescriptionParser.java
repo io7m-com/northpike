@@ -20,14 +20,14 @@ package com.io7m.northpike.toolexec.parser;
 import com.io7m.anethum.api.ParseSeverity;
 import com.io7m.anethum.api.ParseStatus;
 import com.io7m.anethum.api.ParsingException;
-import com.io7m.blackthorne.api.BTException;
-import com.io7m.blackthorne.api.BTParseError;
-import com.io7m.blackthorne.api.BTPreserveLexical;
+import com.io7m.blackthorne.core.BTException;
+import com.io7m.blackthorne.core.BTParseError;
+import com.io7m.blackthorne.core.BTPreserveLexical;
 import com.io7m.blackthorne.jxe.BlackthorneJXE;
 import com.io7m.northpike.strings.NPStrings;
-import com.io7m.northpike.toolexec.NPTXDescription;
 import com.io7m.northpike.toolexec.NPTXPreserveLexical;
 import com.io7m.northpike.toolexec.NPTXSchemas;
+import com.io7m.northpike.toolexec.model.NPTXDescription;
 import com.io7m.northpike.toolexec.parser.v1.NPTX1Description;
 
 import java.io.Closeable;

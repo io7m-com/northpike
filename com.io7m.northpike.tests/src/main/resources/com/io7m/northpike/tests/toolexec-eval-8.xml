@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<ToolExecution xmlns="urn:com.io7m.northpike.toolexec:1"
+               Name="com.io7m.example"
+               Version="23">
+
+  <EnvironmentClear/>
+  <EnvironmentSet Name="x"
+                  Value="y"/>
+  <EnvironmentPass Name="y"/>
+  <EnvironmentRemove Name="z"/>
+  <ArgumentAdd Value="ok"/>
+
+</ToolExecution>

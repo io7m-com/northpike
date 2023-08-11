@@ -18,15 +18,18 @@
 package com.io7m.northpike.tests.arbitraries.toolexec;
 
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
-import com.io7m.northpike.toolexec.NPTXEFalse;
-import com.io7m.northpike.toolexec.NPTXEIsEqual;
-import com.io7m.northpike.toolexec.NPTXENumber;
-import com.io7m.northpike.toolexec.NPTXEString;
-import com.io7m.northpike.toolexec.NPTXETrue;
-import com.io7m.northpike.toolexec.NPTXEVariableBoolean;
-import com.io7m.northpike.toolexec.NPTXEVariableNumber;
-import com.io7m.northpike.toolexec.NPTXEVariableString;
-import com.io7m.northpike.toolexec.NPTXExpressionType;
+import com.io7m.northpike.toolexec.model.NPTXEAnd;
+import com.io7m.northpike.toolexec.model.NPTXEFalse;
+import com.io7m.northpike.toolexec.model.NPTXEIsEqual;
+import com.io7m.northpike.toolexec.model.NPTXENot;
+import com.io7m.northpike.toolexec.model.NPTXENumber;
+import com.io7m.northpike.toolexec.model.NPTXEOr;
+import com.io7m.northpike.toolexec.model.NPTXEString;
+import com.io7m.northpike.toolexec.model.NPTXETrue;
+import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
+import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
+import com.io7m.northpike.toolexec.model.NPTXEVariableString;
+import com.io7m.northpike.toolexec.model.NPTXExpressionType;
 import net.jqwik.api.Arbitraries;
 
 import java.util.List;
@@ -40,9 +43,12 @@ public final class NPArbExpressionType extends NPArbAbstract<NPTXExpressionType>
       () -> {
         return Arbitraries.oneOf(
           List.of(
+            Arbitraries.defaultFor(NPTXEAnd.class),
             Arbitraries.defaultFor(NPTXEFalse.class),
             Arbitraries.defaultFor(NPTXEIsEqual.class),
+            Arbitraries.defaultFor(NPTXENot.class),
             Arbitraries.defaultFor(NPTXENumber.class),
+            Arbitraries.defaultFor(NPTXEOr.class),
             Arbitraries.defaultFor(NPTXEString.class),
             Arbitraries.defaultFor(NPTXETrue.class),
             Arbitraries.defaultFor(NPTXEVariableBoolean.class),

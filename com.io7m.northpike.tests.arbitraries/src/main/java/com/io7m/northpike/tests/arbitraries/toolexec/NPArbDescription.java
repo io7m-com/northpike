@@ -19,8 +19,8 @@ package com.io7m.northpike.tests.arbitraries.toolexec;
 
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
-import com.io7m.northpike.toolexec.NPTXDescription;
-import com.io7m.northpike.toolexec.NPTXStatementType;
+import com.io7m.northpike.toolexec.model.NPTXDescription;
+import com.io7m.northpike.toolexec.model.NPTXStatementType;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 

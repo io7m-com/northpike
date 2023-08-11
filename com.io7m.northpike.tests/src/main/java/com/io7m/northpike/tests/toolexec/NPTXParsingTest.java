@@ -18,8 +18,8 @@
 package com.io7m.northpike.tests.toolexec;
 
 import com.io7m.northpike.strings.NPStrings;
-import com.io7m.northpike.toolexec.NPTXDescription;
 import com.io7m.northpike.toolexec.NPTXPreserveLexical;
+import com.io7m.northpike.toolexec.model.NPTXDescription;
 import com.io7m.northpike.toolexec.parser.NPTXDescriptionParser;
 import com.io7m.northpike.toolexec.serializer.v1.NPTX1Serializer;
 import net.jqwik.api.ForAll;

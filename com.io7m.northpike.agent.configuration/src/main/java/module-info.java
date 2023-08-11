@@ -28,7 +28,7 @@ module com.io7m.northpike.agent.configuration
   requires com.io7m.northpike.strings;
 
   requires com.io7m.anethum.api;
-  requires com.io7m.blackthorne.api;
+  requires com.io7m.blackthorne.core;
   requires com.io7m.blackthorne.jxe;
   requires com.io7m.jxe.core;
   requires java.xml;

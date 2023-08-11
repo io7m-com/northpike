@@ -19,11 +19,11 @@ package com.io7m.northpike.tests.arbitraries.toolexec;
 
 import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
-import com.io7m.northpike.toolexec.NPTXExpressionType;
-import com.io7m.northpike.toolexec.NPTXSEnvironmentClear;
-import com.io7m.northpike.toolexec.NPTXSEnvironmentPass;
-import com.io7m.northpike.toolexec.NPTXSIf;
-import com.io7m.northpike.toolexec.NPTXStatementType;
+import com.io7m.northpike.toolexec.model.NPTXExpressionType;
+import com.io7m.northpike.toolexec.model.NPTXSEnvironmentClear;
+import com.io7m.northpike.toolexec.model.NPTXSEnvironmentPass;
+import com.io7m.northpike.toolexec.model.NPTXSIf;
+import com.io7m.northpike.toolexec.model.NPTXStatementType;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 

@@ -37,7 +37,7 @@
 
     <dependency>
       <groupId>com.io7m.blackthorne</groupId>
-      <artifactId>com.io7m.blackthorne.api</artifactId>
+      <artifactId>com.io7m.blackthorne.core</artifactId>
     </dependency>
     <dependency>
       <groupId>com.io7m.blackthorne</groupId>

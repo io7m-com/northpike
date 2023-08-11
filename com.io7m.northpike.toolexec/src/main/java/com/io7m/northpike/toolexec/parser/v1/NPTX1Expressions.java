@@ -17,25 +17,28 @@
 
 package com.io7m.northpike.toolexec.parser.v1;
 
-import com.io7m.blackthorne.api.BTElementHandlerConstructorType;
-import com.io7m.blackthorne.api.BTElementHandlerType;
-import com.io7m.blackthorne.api.BTElementParsingContextType;
-import com.io7m.blackthorne.api.BTQualifiedName;
-import com.io7m.blackthorne.api.Blackthorne;
+import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
+import com.io7m.blackthorne.core.BTElementHandlerType;
+import com.io7m.blackthorne.core.BTElementParsingContextType;
+import com.io7m.blackthorne.core.BTQualifiedName;
+import com.io7m.blackthorne.core.Blackthorne;
 import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.toolexec.NPTXEFalse;
-import com.io7m.northpike.toolexec.NPTXEIsEqual;
-import com.io7m.northpike.toolexec.NPTXENumber;
-import com.io7m.northpike.toolexec.NPTXEString;
-import com.io7m.northpike.toolexec.NPTXETrue;
-import com.io7m.northpike.toolexec.NPTXEVariableBoolean;
-import com.io7m.northpike.toolexec.NPTXEVariableNumber;
-import com.io7m.northpike.toolexec.NPTXEVariableString;
-import com.io7m.northpike.toolexec.NPTXExpressionType;
+import com.io7m.northpike.toolexec.model.NPTXEAnd;
+import com.io7m.northpike.toolexec.model.NPTXEFalse;
+import com.io7m.northpike.toolexec.model.NPTXEIsEqual;
+import com.io7m.northpike.toolexec.model.NPTXENot;
+import com.io7m.northpike.toolexec.model.NPTXENumber;
+import com.io7m.northpike.toolexec.model.NPTXEOr;
+import com.io7m.northpike.toolexec.model.NPTXEString;
+import com.io7m.northpike.toolexec.model.NPTXETrue;
+import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
+import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
+import com.io7m.northpike.toolexec.model.NPTXEVariableString;
+import com.io7m.northpike.toolexec.model.NPTXExpressionType;
 import org.xml.sax.Locator;
 
-import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
@@ -54,6 +57,9 @@ public final class NPTX1Expressions
     BTElementHandlerConstructorType<?, ? extends NPTXExpressionType>>
     EXPRESSION_HANDLERS =
     Map.ofEntries(
+      entry(element("And"), exprAnd()),
+      entry(element("Or"), exprOr()),
+      entry(element("Not"), exprNot()),
       entry(element("False"), exprFalse()),
       entry(element("IsEqual"), exprIsEqual()),
       entry(element("Number"), exprNumber()),
@@ -115,7 +121,7 @@ public final class NPTX1Expressions
       (context, attributes) -> {
         return new NPTXENumber(
           lexical(context.documentLocator()),
-          new BigDecimal(attributes.getValue("Value"))
+          new BigInteger(attributes.getValue("Value"))
         );
       }
     );
@@ -198,6 +204,33 @@ public final class NPTX1Expressions
     return IsEqualHandler::new;
   }
 
+  /**
+   * @return The handler for And
+   */
+
+  public static BTElementHandlerConstructorType<?, NPTXEAnd> exprAnd()
+  {
+    return AndHandler::new;
+  }
+
+  /**
+   * @return The handler for Or
+   */
+
+  public static BTElementHandlerConstructorType<?, NPTXEOr> exprOr()
+  {
+    return OrHandler::new;
+  }
+
+  /**
+   * @return The handler for Not
+   */
+
+  public static BTElementHandlerConstructorType<?, NPTXENot> exprNot()
+  {
+    return NotHandler::new;
+  }
+
   static LexicalPosition<URI> lexical(
     final Locator locator)
   {
@@ -248,6 +281,132 @@ public final class NPTX1Expressions
         lexical(context.documentLocator()),
         this.e0,
         this.e1
+      );
+    }
+  }
+
+  private static final class AndHandler
+    implements BTElementHandlerType<NPTXExpressionType, NPTXEAnd>
+  {
+    private NPTXExpressionType e0;
+    private NPTXExpressionType e1;
+
+    AndHandler(
+      final BTElementParsingContextType context)
+    {
+
+    }
+
+    @Override
+    public Map<BTQualifiedName, BTElementHandlerConstructorType<?, ? extends NPTXExpressionType>>
+    onChildHandlersRequested(
+      final BTElementParsingContextType context)
+    {
+      return expressions();
+    }
+
+    @Override
+    public void onChildValueProduced(
+      final BTElementParsingContextType context,
+      final NPTXExpressionType newResult)
+    {
+      if (this.e0 == null) {
+        this.e0 = newResult;
+        return;
+      }
+      this.e1 = newResult;
+    }
+
+    @Override
+    public NPTXEAnd onElementFinished(
+      final BTElementParsingContextType context)
+    {
+      return new NPTXEAnd(
+        lexical(context.documentLocator()),
+        this.e0,
+        this.e1
+      );
+    }
+  }
+
+  private static final class OrHandler
+    implements BTElementHandlerType<NPTXExpressionType, NPTXEOr>
+  {
+    private NPTXExpressionType e0;
+    private NPTXExpressionType e1;
+
+    OrHandler(
+      final BTElementParsingContextType context)
+    {
+
+    }
+
+    @Override
+    public Map<BTQualifiedName, BTElementHandlerConstructorType<?, ? extends NPTXExpressionType>>
+    onChildHandlersRequested(
+      final BTElementParsingContextType context)
+    {
+      return expressions();
+    }
+
+    @Override
+    public void onChildValueProduced(
+      final BTElementParsingContextType context,
+      final NPTXExpressionType newResult)
+    {
+      if (this.e0 == null) {
+        this.e0 = newResult;
+        return;
+      }
+      this.e1 = newResult;
+    }
+
+    @Override
+    public NPTXEOr onElementFinished(
+      final BTElementParsingContextType context)
+    {
+      return new NPTXEOr(
+        lexical(context.documentLocator()),
+        this.e0,
+        this.e1
+      );
+    }
+  }
+
+  private static final class NotHandler
+    implements BTElementHandlerType<NPTXExpressionType, NPTXENot>
+  {
+    private NPTXExpressionType e0;
+
+    NotHandler(
+      final BTElementParsingContextType context)
+    {
+
+    }
+
+    @Override
+    public Map<BTQualifiedName, BTElementHandlerConstructorType<?, ? extends NPTXExpressionType>>
+    onChildHandlersRequested(
+      final BTElementParsingContextType context)
+    {
+      return expressions();
+    }
+
+    @Override
+    public void onChildValueProduced(
+      final BTElementParsingContextType context,
+      final NPTXExpressionType newResult)
+    {
+      this.e0 = newResult;
+    }
+
+    @Override
+    public NPTXENot onElementFinished(
+      final BTElementParsingContextType context)
+    {
+      return new NPTXENot(
+        lexical(context.documentLocator()),
+        this.e0
       );
     }
   }

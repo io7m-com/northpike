@@ -17,30 +17,37 @@
 
 package com.io7m.northpike.toolexec.serializer.v1;
 
-import com.io7m.northpike.toolexec.NPTXDescription;
-import com.io7m.northpike.toolexec.NPTXEFalse;
-import com.io7m.northpike.toolexec.NPTXEIsEqual;
-import com.io7m.northpike.toolexec.NPTXENumber;
-import com.io7m.northpike.toolexec.NPTXEString;
-import com.io7m.northpike.toolexec.NPTXETrue;
-import com.io7m.northpike.toolexec.NPTXEVariableBoolean;
-import com.io7m.northpike.toolexec.NPTXEVariableNumber;
-import com.io7m.northpike.toolexec.NPTXEVariableString;
-import com.io7m.northpike.toolexec.NPTXExpressionType;
-import com.io7m.northpike.toolexec.NPTXSArgumentAdd;
-import com.io7m.northpike.toolexec.NPTXSEnvironmentClear;
-import com.io7m.northpike.toolexec.NPTXSEnvironmentPass;
-import com.io7m.northpike.toolexec.NPTXSEnvironmentRemove;
-import com.io7m.northpike.toolexec.NPTXSEnvironmentSet;
-import com.io7m.northpike.toolexec.NPTXSIf;
 import com.io7m.northpike.toolexec.NPTXSchemas;
-import com.io7m.northpike.toolexec.NPTXStatementType;
+import com.io7m.northpike.toolexec.model.NPTXDescription;
+import com.io7m.northpike.toolexec.model.NPTXEAnd;
+import com.io7m.northpike.toolexec.model.NPTXEFalse;
+import com.io7m.northpike.toolexec.model.NPTXEIsEqual;
+import com.io7m.northpike.toolexec.model.NPTXENot;
+import com.io7m.northpike.toolexec.model.NPTXENumber;
+import com.io7m.northpike.toolexec.model.NPTXEOr;
+import com.io7m.northpike.toolexec.model.NPTXEString;
+import com.io7m.northpike.toolexec.model.NPTXETrue;
+import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
+import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
+import com.io7m.northpike.toolexec.model.NPTXEVariableString;
+import com.io7m.northpike.toolexec.model.NPTXExpressionType;
+import com.io7m.northpike.toolexec.model.NPTXSArgumentAdd;
+import com.io7m.northpike.toolexec.model.NPTXSEnvironmentClear;
+import com.io7m.northpike.toolexec.model.NPTXSEnvironmentPass;
+import com.io7m.northpike.toolexec.model.NPTXSEnvironmentRemove;
+import com.io7m.northpike.toolexec.model.NPTXSEnvironmentSet;
+import com.io7m.northpike.toolexec.model.NPTXSIf;
+import com.io7m.northpike.toolexec.model.NPTXStatementType;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
 import java.util.List;
+
+/**
+ * A serializer for toolexec v1 data.
+ */
 
 public final class NPTX1Serializer
 {
@@ -60,12 +67,30 @@ public final class NPTX1Serializer
       NPTXSchemas.schema1().namespace().toString();
   }
 
+  /**
+   * Create a serializer for toolexec v1 data.
+   *
+   * @param outputStream The output stream
+   *
+   * @return A serializer
+   *
+   * @throws XMLStreamException On errors
+   */
+
   public static NPTX1Serializer create(
     final OutputStream outputStream)
     throws XMLStreamException
   {
     return new NPTX1Serializer(outputStream);
   }
+
+  /**
+   * Execute the serializer.
+   *
+   * @param description The input description
+   *
+   * @throws XMLStreamException On errors
+   */
 
   public void serialize(
     final NPTXDescription description)
@@ -120,6 +145,8 @@ public final class NPTX1Serializer
       this.serializeStatementIf(s);
       return;
     }
+
+    throw new IllegalStateException();
   }
 
   private void serializeStatementIf(
@@ -244,6 +271,49 @@ public final class NPTX1Serializer
       this.serializeExpressionVariableString(e);
       return;
     }
+    if (expression instanceof final NPTXEAnd e) {
+      this.serializeExpressionAnd(e);
+      return;
+    }
+    if (expression instanceof final NPTXEOr e) {
+      this.serializeExpressionOr(e);
+      return;
+    }
+    if (expression instanceof final NPTXENot e) {
+      this.serializeExpressionNot(e);
+      return;
+    }
+
+    throw new IllegalStateException();
+  }
+
+  private void serializeExpressionNot(
+    final NPTXENot e)
+    throws XMLStreamException
+  {
+    this.output.writeStartElement(this.ns, "Not");
+    this.serializeExpression(e.e0());
+    this.output.writeEndElement();
+  }
+
+  private void serializeExpressionOr(
+    final NPTXEOr e)
+    throws XMLStreamException
+  {
+    this.output.writeStartElement(this.ns, "Or");
+    this.serializeExpression(e.e0());
+    this.serializeExpression(e.e1());
+    this.output.writeEndElement();
+  }
+
+  private void serializeExpressionAnd(
+    final NPTXEAnd e)
+    throws XMLStreamException
+  {
+    this.output.writeStartElement(this.ns, "And");
+    this.serializeExpression(e.e0());
+    this.serializeExpression(e.e1());
+    this.output.writeEndElement();
   }
 
   private void serializeExpressionIsEqual(

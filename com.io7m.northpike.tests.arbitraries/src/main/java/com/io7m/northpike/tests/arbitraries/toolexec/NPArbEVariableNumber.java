@@ -20,7 +20,7 @@ package com.io7m.northpike.tests.arbitraries.toolexec;
 import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
-import com.io7m.northpike.toolexec.NPTXEVariableNumber;
+import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 

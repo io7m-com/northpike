@@ -16,24 +16,24 @@
 
 package com.io7m.northpike.toolexec.parser.v1;
 
-import com.io7m.blackthorne.api.BTElementHandlerConstructorType;
-import com.io7m.blackthorne.api.BTElementHandlerType;
-import com.io7m.blackthorne.api.BTElementParsingContextType;
-import com.io7m.blackthorne.api.BTQualifiedName;
-import com.io7m.blackthorne.api.Blackthorne;
-import com.io7m.northpike.toolexec.NPTXExpressionType;
-import com.io7m.northpike.toolexec.NPTXSArgumentAdd;
-import com.io7m.northpike.toolexec.NPTXSEnvironmentClear;
-import com.io7m.northpike.toolexec.NPTXSEnvironmentPass;
-import com.io7m.northpike.toolexec.NPTXSEnvironmentRemove;
-import com.io7m.northpike.toolexec.NPTXSEnvironmentSet;
-import com.io7m.northpike.toolexec.NPTXSIf;
-import com.io7m.northpike.toolexec.NPTXStatementType;
+import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
+import com.io7m.blackthorne.core.BTElementHandlerType;
+import com.io7m.blackthorne.core.BTElementParsingContextType;
+import com.io7m.blackthorne.core.BTQualifiedName;
+import com.io7m.blackthorne.core.Blackthorne;
+import com.io7m.northpike.toolexec.model.NPTXExpressionType;
+import com.io7m.northpike.toolexec.model.NPTXSArgumentAdd;
+import com.io7m.northpike.toolexec.model.NPTXSEnvironmentClear;
+import com.io7m.northpike.toolexec.model.NPTXSEnvironmentPass;
+import com.io7m.northpike.toolexec.model.NPTXSEnvironmentRemove;
+import com.io7m.northpike.toolexec.model.NPTXSEnvironmentSet;
+import com.io7m.northpike.toolexec.model.NPTXSIf;
+import com.io7m.northpike.toolexec.model.NPTXStatementType;
 
 import java.util.List;
 import java.util.Map;
 
-import static com.io7m.blackthorne.api.BTIgnoreUnrecognizedElements.IGNORE_UNRECOGNIZED_ELEMENTS;
+import static com.io7m.blackthorne.core.BTIgnoreUnrecognizedElements.DO_NOT_IGNORE_UNRECOGNIZED_ELEMENTS;
 import static com.io7m.northpike.toolexec.parser.v1.NPTX1.element;
 import static com.io7m.northpike.toolexec.parser.v1.NPTX1Expressions.expressions;
 import static com.io7m.northpike.toolexec.parser.v1.NPTX1Expressions.lexical;
@@ -173,7 +173,7 @@ public final class NPTX1Statements
       return Blackthorne.forListPoly(
           element("Condition"),
           expressions(),
-          IGNORE_UNRECOGNIZED_ELEMENTS)
+          DO_NOT_IGNORE_UNRECOGNIZED_ELEMENTS)
         .create(context)
         .map(expressions -> {
           return new IfCondition(expressions.get(0));
@@ -191,7 +191,7 @@ public final class NPTX1Statements
       return Blackthorne.forListPoly(
         element("Else"),
         statements(),
-        IGNORE_UNRECOGNIZED_ELEMENTS)
+        DO_NOT_IGNORE_UNRECOGNIZED_ELEMENTS)
         .create(context)
         .map(Else::new);
     };
@@ -207,7 +207,7 @@ public final class NPTX1Statements
       return Blackthorne.forListPoly(
         element("Then"),
         statements(),
-        IGNORE_UNRECOGNIZED_ELEMENTS)
+        DO_NOT_IGNORE_UNRECOGNIZED_ELEMENTS)
         .create(context)
         .map(Then::new);
     };
@@ -249,7 +249,8 @@ public final class NPTX1Statements
     IfHandler(
       final BTElementParsingContextType context)
     {
-
+      this.rThen = new Then(List.of());
+      this.rElse = new Else(List.of());
     }
 
     @Override

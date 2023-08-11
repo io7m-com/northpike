@@ -26,6 +26,14 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.jaffirm</groupId>
+      <artifactId>com.io7m.jaffirm.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jdeferthrow</groupId>
+      <artifactId>com.io7m.jdeferthrow.core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.anethum</groupId>
       <artifactId>com.io7m.anethum.api</artifactId>
     </dependency>
@@ -35,7 +43,7 @@
     </dependency>
     <dependency>
       <groupId>com.io7m.blackthorne</groupId>
-      <artifactId>com.io7m.blackthorne.api</artifactId>
+      <artifactId>com.io7m.blackthorne.core</artifactId>
     </dependency>
     <dependency>
       <groupId>com.io7m.blackthorne</groupId>

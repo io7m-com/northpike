@@ -17,13 +17,13 @@
 
 package com.io7m.northpike.toolexec.parser.v1;
 
-import com.io7m.blackthorne.api.BTElementHandlerConstructorType;
-import com.io7m.blackthorne.api.BTElementHandlerType;
-import com.io7m.blackthorne.api.BTElementParsingContextType;
-import com.io7m.blackthorne.api.BTQualifiedName;
+import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
+import com.io7m.blackthorne.core.BTElementHandlerType;
+import com.io7m.blackthorne.core.BTElementParsingContextType;
+import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.toolexec.NPTXDescription;
-import com.io7m.northpike.toolexec.NPTXStatementType;
+import com.io7m.northpike.toolexec.model.NPTXDescription;
+import com.io7m.northpike.toolexec.model.NPTXStatementType;
 import org.xml.sax.Attributes;
 
 import java.util.ArrayList;

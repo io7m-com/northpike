@@ -19,7 +19,7 @@ package com.io7m.northpike.tests.arbitraries.toolexec;
 
 import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
-import com.io7m.northpike.toolexec.NPTXEString;
+import com.io7m.northpike.toolexec.model.NPTXEString;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 

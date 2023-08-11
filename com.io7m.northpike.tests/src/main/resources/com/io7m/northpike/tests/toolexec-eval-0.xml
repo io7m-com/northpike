@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<ToolExecution xmlns="urn:com.io7m.northpike.toolexec:1"
+               Name="com.io7m.example"
+               Version="23">
+
+  <If>
+    <Condition>
+      <Not>
+        <False/>
+      </Not>
+    </Condition>
+    <Then>
+      <ArgumentAdd Value="ok"/>
+    </Then>
+  </If>
+
+</ToolExecution>

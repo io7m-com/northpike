@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.agent.configuration.internal.v1;
 
-import com.io7m.blackthorne.api.BTElementHandlerType;
-import com.io7m.blackthorne.api.BTElementParsingContextType;
+import com.io7m.blackthorne.core.BTElementHandlerType;
+import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.northpike.agent.api.NPAgentConfiguration;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.strings.NPStrings;

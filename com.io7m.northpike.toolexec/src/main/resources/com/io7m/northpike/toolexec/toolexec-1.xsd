@@ -169,11 +169,71 @@
   <xsd:element name="IsEqual"
                type="te:IsEqualType"/>
 
+  <xsd:complexType name="AndType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Evaluates to the logical AND of both expressions.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:ExpressionType">
+        <xsd:sequence>
+          <xsd:group ref="te:ExpressionGroup"/>
+          <xsd:group ref="te:ExpressionGroup"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="And"
+               type="te:AndType"/>
+
+  <xsd:complexType name="OrType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Evaluates to the logical OR of both expressions.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:ExpressionType">
+        <xsd:sequence>
+          <xsd:group ref="te:ExpressionGroup"/>
+          <xsd:group ref="te:ExpressionGroup"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="Or"
+               type="te:OrType"/>
+
+  <xsd:complexType name="NotType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Evaluates to the logical NOT of the given expression.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:ExpressionType">
+        <xsd:group ref="te:ExpressionGroup"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="Not"
+               type="te:NotType"/>
+
   <xsd:group name="ExpressionGroup">
     <xsd:choice>
+      <xsd:element ref="te:And"/>
       <xsd:element ref="te:False"/>
       <xsd:element ref="te:IsEqual"/>
+      <xsd:element ref="te:Not"/>
       <xsd:element ref="te:Number"/>
+      <xsd:element ref="te:Or"/>
       <xsd:element ref="te:String"/>
       <xsd:element ref="te:True"/>
       <xsd:element ref="te:VariableBoolean"/>

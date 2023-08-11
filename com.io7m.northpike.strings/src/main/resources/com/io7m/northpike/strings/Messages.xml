@@ -52,6 +52,13 @@
   <entry key="user">User</entry>
   <entry key="user_id">User ID</entry>
 
+  <entry key="type_check_undefined_variable">Undefined variable.</entry>
+  <entry key="type_check_expression">An expression did not have the expected type.</entry>
+  <entry key="type_check_statement">A statement did not have the expected type.</entry>
+  <entry key="type_check_plan_variable">The given plan variable does not have the expected type.</entry>
+  <entry key="type_check_condition">The statement's condition does not evaluate to a boolean type.</entry>
+  <entry key="type_check_condition_branches">The branches of the if statement do not evaluate to the same type.</entry>
+
   <!--       -->
   <!-- Plans -->
   <!--       -->
