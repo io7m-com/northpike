@@ -18,9 +18,12 @@ package com.io7m.northpike.tests.plans;
 
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentLabelMatchType.Specific;
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.plans.NPPlanBarrierType;
+import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanException;
+import com.io7m.northpike.plans.NPPlanName;
 import com.io7m.northpike.plans.NPPlanTaskType;
 import com.io7m.northpike.plans.NPPlanToolExecution;
 import com.io7m.northpike.plans.NPPlans;
@@ -70,10 +73,10 @@ public final class NPPlansTest
     throws Exception
   {
     final var plan =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L)
+      NPPlans.builder(this.strings, "p", 1L)
         .build();
 
-    assertEquals(new RDottedName("p"), plan.name());
+    assertEquals(NPPlanName.of("p"), plan.name());
     assertEquals(1L, plan.version());
     assertEquals(Map.of(), plan.elements());
     assertEquals(Map.of(), plan.toolReferences());
@@ -90,7 +93,7 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     builder.addToolReference(
       new NPToolReference(
@@ -125,13 +128,13 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
-    builder.addBarrier(new RDottedName("x"));
+    builder.addBarrier("x");
 
     final var ex =
       assertThrows(NPPlanException.class, () -> {
-        builder.addBarrier(new RDottedName("x"));
+        builder.addBarrier("x");
       });
 
     assertEquals(errorDuplicate(), ex.errorCode());
@@ -148,13 +151,13 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
-    builder.addTask(new RDottedName("x"));
+    builder.addTask("x");
 
     final var ex =
       assertThrows(NPPlanException.class, () -> {
-        builder.addTask(new RDottedName("x"));
+        builder.addTask("x");
       });
 
     assertEquals(errorDuplicate(), ex.errorCode());
@@ -171,13 +174,13 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
-    builder.addBarrier(new RDottedName("x"));
+    builder.addBarrier("x");
 
     final var ex =
       assertThrows(NPPlanException.class, () -> {
-        builder.addTask(new RDottedName("x"));
+        builder.addTask("x");
       });
 
     assertEquals(errorDuplicate(), ex.errorCode());
@@ -194,13 +197,13 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
-    builder.addTask(new RDottedName("x"));
+    builder.addTask("x");
 
     final var ex =
       assertThrows(NPPlanException.class, () -> {
-        builder.addBarrier(new RDottedName("x"));
+        builder.addBarrier("x");
       });
 
     assertEquals(errorDuplicate(), ex.errorCode());
@@ -217,14 +220,14 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var b0 =
-      builder.addBarrier(new RDottedName("x"));
+      builder.addBarrier("x");
 
     final var ex =
       assertThrows(NPPlanException.class, () -> {
-        b0.addDependsOn(new RDottedName("x"));
+        b0.addDependsOn("x");
       });
 
     assertEquals(errorCyclic(), ex.errorCode());
@@ -241,18 +244,18 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var b0 =
-      builder.addBarrier(new RDottedName("x"));
+      builder.addBarrier("x");
     final var b1 =
-      builder.addBarrier(new RDottedName("y"));
+      builder.addBarrier("y");
 
-    b0.addDependsOn(new RDottedName("y"));
+    b0.addDependsOn("y");
 
     final var ex =
       assertThrows(NPPlanException.class, () -> {
-        b1.addDependsOn(new RDottedName("x"));
+        b1.addDependsOn("x");
       });
 
     assertEquals(errorCyclic(), ex.errorCode());
@@ -269,14 +272,14 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var b0 =
-      builder.addTask(new RDottedName("x"));
+      builder.addTask("x");
 
     final var ex =
       assertThrows(NPPlanException.class, () -> {
-        b0.addDependsOn(new RDottedName("x"));
+        b0.addDependsOn("x");
       });
 
     assertEquals(errorCyclic(), ex.errorCode());
@@ -293,18 +296,18 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var b0 =
-      builder.addTask(new RDottedName("x"));
+      builder.addTask("x");
     final var b1 =
-      builder.addTask(new RDottedName("y"));
+      builder.addTask("y");
 
-    b0.addDependsOn(new RDottedName("y"));
+    b0.addDependsOn("y");
 
     final var ex =
       assertThrows(NPPlanException.class, () -> {
-        b1.addDependsOn(new RDottedName("x"));
+        b1.addDependsOn("x");
       });
 
     assertEquals(errorCyclic(), ex.errorCode());
@@ -321,14 +324,14 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var barrierBuilder =
-      builder.addBarrier(new RDottedName("x"));
+      builder.addBarrier("x");
 
     final var ex =
       assertThrows(NPPlanException.class, () -> {
-        barrierBuilder.addDependsOn(new RDottedName("y"));
+        barrierBuilder.addDependsOn("y");
       });
 
     assertEquals(errorNonexistent(), ex.errorCode());
@@ -345,7 +348,7 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var t0 = new NPToolReference(
       new RDottedName("t0"),
@@ -364,12 +367,12 @@ public final class NPPlansTest
     builder.addToolReference(t1);
 
     final var b0 =
-      builder.addTask(new RDottedName("x"));
+      builder.addTask("x");
 
     final var toolExecution =
       new NPPlanToolExecution(
         new RDottedName("t0"),
-        new RDottedName("ta"),
+        NPToolExecutionIdentifier.of("ta", 1L),
         Set.of(new RDottedName("t1"))
       );
 
@@ -388,11 +391,11 @@ public final class NPPlansTest
     final var t =
       assertInstanceOf(
         NPPlanTaskType.class,
-        p.elements().get(new RDottedName("x"))
+        p.elements().get(NPPlanElementName.of("x"))
       );
 
     assertEquals("A task.", t.description());
-    assertEquals(new RDottedName("x"), t.name());
+    assertEquals(NPPlanElementName.of("x"), t.name());
     assertEquals(new Specific(new RDottedName("x")), t.agentPreferWithLabel());
     assertEquals(new Specific(new RDottedName("y")), t.agentRequireWithLabel());
     assertEquals(Set.of(
@@ -418,10 +421,14 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("single-barrier"), 1L);
+      NPPlans.builder(
+        this.strings,
+        NPPlanName.of("single-barrier"),
+        1L
+      );
 
     final var b0 =
-      builder.addBarrier(new RDottedName("x"));
+      builder.addBarrier("x");
 
     b0.setDescription("A barrier.");
 
@@ -429,11 +436,11 @@ public final class NPPlansTest
     final var t =
       assertInstanceOf(
         NPPlanBarrierType.class,
-        p.elements().get(new RDottedName("x"))
+        p.elements().get(NPPlanElementName.of("x"))
       );
 
     assertEquals("A barrier.", t.description());
-    assertEquals(new RDottedName("x"), t.name());
+    assertEquals(NPPlanElementName.of("x"), t.name());
     assertEquals(List.of(), t.dependsOn());
 
     new TopologicalOrderIterator<>(p.graph())
@@ -454,14 +461,14 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var b0 =
-      builder.addBarrier(new RDottedName("x"));
+      builder.addBarrier("x");
     final var b1 =
-      builder.addBarrier(new RDottedName("y"));
+      builder.addBarrier("y");
     final var b2 =
-      builder.addBarrier(new RDottedName("z"));
+      builder.addBarrier("z");
 
     b2.addDependsOn(b1.name());
     b1.addDependsOn(b0.name());
@@ -470,22 +477,22 @@ public final class NPPlansTest
     final var t0 =
       assertInstanceOf(
         NPPlanBarrierType.class,
-        p.elements().get(new RDottedName("x"))
+        p.elements().get(NPPlanElementName.of("x"))
       );
     final var t1 =
       assertInstanceOf(
         NPPlanBarrierType.class,
-        p.elements().get(new RDottedName("y"))
+        p.elements().get(NPPlanElementName.of("y"))
       );
     final var t2 =
       assertInstanceOf(
         NPPlanBarrierType.class,
-        p.elements().get(new RDottedName("z"))
+        p.elements().get(NPPlanElementName.of("z"))
       );
 
     assertEquals(List.of(), t0.dependsOn());
-    assertEquals(List.of(new RDottedName("x")), t1.dependsOn());
-    assertEquals(List.of(new RDottedName("y")), t2.dependsOn());
+    assertEquals(List.of(NPPlanElementName.of("x")), t1.dependsOn());
+    assertEquals(List.of(NPPlanElementName.of("y")), t2.dependsOn());
 
     new TopologicalOrderIterator<>(p.graph())
       .forEachRemaining(e -> LOG.debug("{}", e));
@@ -502,9 +509,9 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
-    builder.addTask(new RDottedName("x"));
+    builder.addTask("x");
 
     final var ex =
       assertThrows(NPPlanException.class, builder::build);
@@ -523,16 +530,16 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var b0 =
-      builder.addTask(new RDottedName("x"));
+      builder.addTask("x");
 
     final var ex =
       assertThrows(NPPlanException.class, () -> {
         b0.setToolExecution(new NPPlanToolExecution(
           new RDottedName("t"),
-          new RDottedName("y"),
+          NPToolExecutionIdentifier.of("y", 1L),
           Set.of()
         ));
       });
@@ -551,7 +558,7 @@ public final class NPPlansTest
     throws Exception
   {
     final var builder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     builder.addToolReference(
       new NPToolReference(
@@ -561,13 +568,13 @@ public final class NPPlansTest
     );
 
     final var b0 =
-      builder.addTask(new RDottedName("x"));
+      builder.addTask("x");
 
     final var ex =
       assertThrows(NPPlanException.class, () -> {
         b0.setToolExecution(new NPPlanToolExecution(
           new RDottedName("t"),
-          new RDottedName("y"),
+          NPToolExecutionIdentifier.of("y", 1L),
           Set.of(new RDottedName("k"))
         ));
       });

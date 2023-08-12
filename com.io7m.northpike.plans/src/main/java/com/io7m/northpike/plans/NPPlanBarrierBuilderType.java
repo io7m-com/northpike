@@ -16,8 +16,6 @@
 
 package com.io7m.northpike.plans;
 
-import com.io7m.lanark.core.RDottedName;
-
 /**
  * A mutable builder for barriers.
  */
@@ -32,6 +30,23 @@ public interface NPPlanBarrierBuilderType
 
   @Override
   NPPlanBarrierBuilderType addDependsOn(
-    RDottedName target)
+    NPPlanElementName target)
     throws NPPlanException;
+
+  /**
+   * Add a dependency on another element.
+   *
+   * @param target The target element
+   *
+   * @return this
+   *
+   * @throws NPPlanException On errors
+   */
+
+  default NPPlanBarrierBuilderType addDependsOn(
+    final String target)
+    throws NPPlanException
+  {
+    return this.addDependsOn(NPPlanElementName.of(target));
+  }
 }

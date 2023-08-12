@@ -23,15 +23,20 @@ module com.io7m.northpike.plans
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
+  requires com.io7m.northpike.agent.expressions;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.strings;
-  requires com.io7m.northpike.parsers;
+  requires com.io7m.northpike.toolexec;
 
+  requires com.io7m.jaffirm.core;
+  requires com.io7m.jdeferthrow.core;
   requires com.io7m.lanark.core;
   requires org.jgrapht.core;
 
   exports com.io7m.northpike.plans.analysis;
   exports com.io7m.northpike.plans.evaluation;
+  exports com.io7m.northpike.plans.preparation;
   exports com.io7m.northpike.plans.reporting;
+  exports com.io7m.northpike.plans.variables;
   exports com.io7m.northpike.plans;
 }

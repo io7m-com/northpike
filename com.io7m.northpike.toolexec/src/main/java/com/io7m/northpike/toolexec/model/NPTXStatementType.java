@@ -23,7 +23,8 @@ package com.io7m.northpike.toolexec.model;
 
 public sealed interface NPTXStatementType
   extends NPTXExecutableType
-  permits NPTXSArgumentAdd,
+  permits NPTXComment,
+  NPTXSArgumentAdd,
   NPTXSEnvironmentClear,
   NPTXSEnvironmentPass,
   NPTXSEnvironmentRemove,

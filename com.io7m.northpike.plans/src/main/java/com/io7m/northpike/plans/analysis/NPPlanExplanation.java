@@ -17,11 +17,11 @@
 
 package com.io7m.northpike.plans.analysis;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.agent.expressions.NPASerializer;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.parsers.NPAgentLabelMatchExpressions;
 import com.io7m.northpike.plans.NPPlanBarrierType;
+import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.plans.NPPlanTaskType;
 import com.io7m.northpike.plans.NPPlanType;
@@ -100,8 +100,6 @@ public final class NPPlanExplanation implements NPPlanExplanationType
         new ArrayList<NPPlanEvaluationUpdateType>();
       final var messages =
         new ArrayList<NPStringConstantType>();
-      final var matchExpressions =
-        new NPAgentLabelMatchExpressions(strings);
 
       NPPlanEvaluationStatusType status;
 
@@ -124,7 +122,6 @@ public final class NPPlanExplanation implements NPPlanExplanationType
           updates,
           updatesNext,
           messages,
-          matchExpressions,
           status
         );
 
@@ -148,7 +145,6 @@ public final class NPPlanExplanation implements NPPlanExplanationType
     final ArrayList<NPPlanEvaluationUpdateType> updates,
     final ArrayList<NPPlanEvaluationUpdateType> updatesNext,
     final ArrayList<NPStringConstantType> messages,
-    final NPAgentLabelMatchExpressions matchExpressions,
     final NPPlanEvaluationStatusType status)
     throws NPException
   {
@@ -163,7 +159,7 @@ public final class NPPlanExplanation implements NPPlanExplanationType
             final var dependencies =
               t.dependsOn()
                 .stream()
-                .map(RDottedName::value)
+                .map(NPPlanElementName::toString)
                 .collect(Collectors.joining(", "));
 
             messages.add(
@@ -186,7 +182,7 @@ public final class NPPlanExplanation implements NPPlanExplanationType
             final var dependencies =
               b.dependsOn()
                 .stream()
-                .map(RDottedName::value)
+                .map(NPPlanElementName::toString)
                 .collect(Collectors.joining(", "));
 
             messages.add(
@@ -212,9 +208,7 @@ public final class NPPlanExplanation implements NPPlanExplanationType
             PLAN_EXPLAIN_TASK_REQUIRES_MATCHING_AGENT,
             task.name(),
             agent,
-            matchExpressions.matchSerializeToString(
-              task.agentRequireWithLabel()
-            )
+            NPASerializer.serializeToString(task.agentRequireWithLabel())
           )
         );
 

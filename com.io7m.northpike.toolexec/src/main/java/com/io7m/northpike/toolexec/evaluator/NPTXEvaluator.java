@@ -25,14 +25,17 @@ import com.io7m.northpike.toolexec.model.NPTXENot;
 import com.io7m.northpike.toolexec.model.NPTXENumber;
 import com.io7m.northpike.toolexec.model.NPTXEOr;
 import com.io7m.northpike.toolexec.model.NPTXEString;
+import com.io7m.northpike.toolexec.model.NPTXEStringSetContains;
 import com.io7m.northpike.toolexec.model.NPTXETrue;
 import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
 import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
 import com.io7m.northpike.toolexec.model.NPTXEVariableString;
+import com.io7m.northpike.toolexec.model.NPTXEVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXExpressionType;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableBoolean;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableNumeric;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableString;
+import com.io7m.northpike.toolexec.model.NPTXPlanVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXSArgumentAdd;
 import com.io7m.northpike.toolexec.model.NPTXSEnvironmentClear;
 import com.io7m.northpike.toolexec.model.NPTXSEnvironmentPass;
@@ -46,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -181,6 +185,12 @@ public final class NPTXEvaluator
       return vv.value();
     }
 
+    if (expression instanceof final NPTXEVariableStringSet v) {
+      final var vv = (NPTXPlanVariableStringSet)
+        this.source.planVariables().variables().get(v.name());
+      return vv.value();
+    }
+
     if (expression instanceof final NPTXEVariableNumber v) {
       final var vv = (NPTXPlanVariableNumeric)
         this.source.planVariables().variables().get(v.name());
@@ -212,6 +222,11 @@ public final class NPTXEvaluator
     if (expression instanceof final NPTXENot not) {
       final var e0 = this.evaluateExpression(not.e0());
       return Boolean.valueOf(!((Boolean) e0).booleanValue());
+    }
+
+    if (expression instanceof final NPTXEStringSetContains sc) {
+      final Set<String> e0 = (Set<String>) this.evaluateExpression(sc.e0());
+      return Boolean.valueOf(e0.contains(sc.value()));
     }
 
     throw new IllegalStateException();

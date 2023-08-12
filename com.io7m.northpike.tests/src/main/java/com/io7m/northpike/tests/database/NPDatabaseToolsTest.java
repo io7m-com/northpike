@@ -22,11 +22,14 @@ import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.GetExecutionDescriptionType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.model.NPToolArguments;
+import com.io7m.northpike.model.NPToolExecutionDescription;
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.northpike.toolexec.NPTXFormats;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -34,7 +37,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.List;
 import java.util.Optional;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
@@ -74,44 +76,54 @@ public final class NPDatabaseToolsTest
   }
 
   /**
-   * Creating tool arguments works.
+   * Creating tool execution descriptions works.
    *
    * @throws Exception On errors
    */
 
   @Test
-  public void testToolCreate0()
+  public void testToolExecCreate0()
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesToolsType.ArgumentsGetType.class);
+      this.transaction.queries(GetExecutionDescriptionType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesToolsType.ArgumentsPutType.class);
+      this.transaction.queries(PutExecutionDescriptionType.class);
 
     final var tool =
-      new NPToolArguments(
-        new RDottedName("com.example.args"),
-        new RDottedName("com.example.tool"),
-        List.of("-v", "-y", "-z")
+      new NPToolExecutionDescription(
+        new NPToolExecutionIdentifier(
+          new RDottedName("com.io7m.example"),
+          23L
+        ),
+        new RDottedName("com.io7m.tool"),
+        NPTXFormats.nptx1(),
+        "Data."
       );
 
     put.execute(tool);
-    assertEquals(tool, get.execute(tool.name()).orElseThrow());
+    assertEquals(tool, get.execute(tool.identifier()).orElseThrow());
   }
 
   /**
-   * Nonexistent tool arguments are nonexistent.
+   * Nonexistent tool execution descriptions are nonexistent.
    *
    * @throws Exception On errors
    */
 
   @Test
-  public void testToolGet0()
+  public void testToolExecGet0()
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesToolsType.ArgumentsGetType.class);
+      this.transaction.queries(GetExecutionDescriptionType.class);
 
-    assertEquals(Optional.empty(), get.execute(new RDottedName("com.example.args")));
+    assertEquals(
+      Optional.empty(),
+      get.execute(new NPToolExecutionIdentifier(
+        new RDottedName("com.io7m.example"),
+        23L
+      ))
+    );
   }
 }

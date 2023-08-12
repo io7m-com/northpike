@@ -26,14 +26,17 @@ import com.io7m.northpike.toolexec.model.NPTXENot;
 import com.io7m.northpike.toolexec.model.NPTXENumber;
 import com.io7m.northpike.toolexec.model.NPTXEOr;
 import com.io7m.northpike.toolexec.model.NPTXEString;
+import com.io7m.northpike.toolexec.model.NPTXEStringSetContains;
 import com.io7m.northpike.toolexec.model.NPTXETrue;
 import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
 import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
 import com.io7m.northpike.toolexec.model.NPTXEVariableString;
+import com.io7m.northpike.toolexec.model.NPTXEVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXExpressionType;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableBoolean;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableNumeric;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableString;
+import com.io7m.northpike.toolexec.model.NPTXPlanVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableType;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariables;
 import com.io7m.northpike.toolexec.model.NPTXSArgumentAdd;
@@ -54,6 +57,7 @@ import static com.io7m.northpike.strings.NPStringConstants.TYPE_CHECK_UNDEFINED_
 import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_BOOLEAN;
 import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_NUMERIC;
 import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_STRING;
+import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_STRING_SET;
 import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_UNIT;
 
 /**
@@ -156,6 +160,9 @@ public final class NPTXChecker
     }
     if (v instanceof NPTXPlanVariableString) {
       return TYPE_STRING;
+    }
+    if (v instanceof NPTXPlanVariableStringSet) {
+      return TYPE_STRING_SET;
     }
     if (v instanceof NPTXPlanVariableNumeric) {
       return TYPE_NUMERIC;
@@ -333,6 +340,10 @@ public final class NPTXChecker
       return checkExpressionVariableString(variables, v);
     }
 
+    if (expression instanceof final NPTXEVariableStringSet v) {
+      return checkExpressionVariableStringSet(variables, v);
+    }
+
     if (expression instanceof final NPTXEIsEqual isEqual) {
       return checkExpressionIsEqual(variables, isEqual);
     }
@@ -349,7 +360,58 @@ public final class NPTXChecker
       return checkExpressionNot(variables, not);
     }
 
+    if (expression instanceof final NPTXEStringSetContains sc) {
+      return checkExpressionStringSetContains(variables, sc);
+    }
+
     throw new IllegalStateException();
+  }
+
+  private static NPTXType checkExpressionStringSetContains(
+    final NPTXPlanVariables variables,
+    final NPTXEStringSetContains sc)
+    throws NPTXCheckerException
+  {
+    final var t0 =
+      checkExpression(variables, sc.e0());
+
+    if (t0 != TYPE_STRING_SET) {
+      throw new NPTXCheckerException(
+        TYPE_CHECK_EXPRESSION,
+        sc.e0(),
+        TYPE_STRING_SET,
+        t0
+      );
+    }
+
+    return TYPE_BOOLEAN;
+  }
+
+  private static NPTXType checkExpressionVariableStringSet(
+    final NPTXPlanVariables variables,
+    final NPTXEVariableStringSet v)
+    throws NPTXCheckerException
+  {
+    final var pv = variables.variables().get(v.name());
+    if (pv == null) {
+      throw new NPTXCheckerException(
+        TYPE_CHECK_UNDEFINED_VARIABLE,
+        v,
+        TYPE_STRING_SET,
+        TYPE_UNIT
+      );
+    }
+
+    final var vType = typeOfVariable(pv);
+    if (vType != TYPE_STRING_SET) {
+      throw new NPTXCheckerException(
+        TYPE_CHECK_PLAN_VARIABLE,
+        v,
+        vType,
+        TYPE_STRING_SET
+      );
+    }
+    return TYPE_STRING_SET;
   }
 
   private static NPTXType checkExpressionNot(

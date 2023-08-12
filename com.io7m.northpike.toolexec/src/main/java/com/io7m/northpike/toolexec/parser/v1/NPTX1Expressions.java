@@ -31,11 +31,14 @@ import com.io7m.northpike.toolexec.model.NPTXENot;
 import com.io7m.northpike.toolexec.model.NPTXENumber;
 import com.io7m.northpike.toolexec.model.NPTXEOr;
 import com.io7m.northpike.toolexec.model.NPTXEString;
+import com.io7m.northpike.toolexec.model.NPTXEStringSetContains;
 import com.io7m.northpike.toolexec.model.NPTXETrue;
 import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
 import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
 import com.io7m.northpike.toolexec.model.NPTXEVariableString;
+import com.io7m.northpike.toolexec.model.NPTXEVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXExpressionType;
+import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 
 import java.math.BigInteger;
@@ -58,16 +61,18 @@ public final class NPTX1Expressions
     EXPRESSION_HANDLERS =
     Map.ofEntries(
       entry(element("And"), exprAnd()),
-      entry(element("Or"), exprOr()),
-      entry(element("Not"), exprNot()),
       entry(element("False"), exprFalse()),
       entry(element("IsEqual"), exprIsEqual()),
+      entry(element("Not"), exprNot()),
       entry(element("Number"), exprNumber()),
+      entry(element("Or"), exprOr()),
       entry(element("String"), exprString()),
+      entry(element("StringSetContains"), exprStringSetContains()),
       entry(element("True"), exprTrue()),
       entry(element("VariableBoolean"), exprVariableBoolean()),
       entry(element("VariableNumber"), exprVariableNumber()),
-      entry(element("VariableString"), exprVariableString())
+      entry(element("VariableString"), exprVariableString()),
+      entry(element("VariableStringSet"), exprVariableStringSet())
     );
 
   static Map<
@@ -162,6 +167,23 @@ public final class NPTX1Expressions
   }
 
   /**
+   * @return The handler for VariableStringSet
+   */
+
+  public static BTElementHandlerConstructorType<?, NPTXEVariableStringSet> exprVariableStringSet()
+  {
+    return Blackthorne.forScalarAttribute(
+      element("VariableStringSet"),
+      (context, attributes) -> {
+        return new NPTXEVariableStringSet(
+          lexical(context.documentLocator()),
+          new RDottedName(attributes.getValue("Name"))
+        );
+      }
+    );
+  }
+
+  /**
    * @return The handler for VariableNumber
    */
 
@@ -229,6 +251,15 @@ public final class NPTX1Expressions
   public static BTElementHandlerConstructorType<?, NPTXENot> exprNot()
   {
     return NotHandler::new;
+  }
+
+  /**
+   * @return The handler for StringSetContains
+   */
+
+  public static BTElementHandlerConstructorType<?, NPTXEStringSetContains> exprStringSetContains()
+  {
+    return StringSetContainsHandler::new;
   }
 
   static LexicalPosition<URI> lexical(
@@ -406,6 +437,54 @@ public final class NPTX1Expressions
     {
       return new NPTXENot(
         lexical(context.documentLocator()),
+        this.e0
+      );
+    }
+  }
+
+  private static final class StringSetContainsHandler
+    implements BTElementHandlerType<NPTXExpressionType, NPTXEStringSetContains>
+  {
+    private NPTXExpressionType e0;
+    private String value;
+
+    StringSetContainsHandler(
+      final BTElementParsingContextType context)
+    {
+
+    }
+
+    @Override
+    public Map<BTQualifiedName, BTElementHandlerConstructorType<?, ? extends NPTXExpressionType>>
+    onChildHandlersRequested(
+      final BTElementParsingContextType context)
+    {
+      return expressions();
+    }
+
+    @Override
+    public void onElementStart(
+      final BTElementParsingContextType context,
+      final Attributes attributes)
+    {
+      this.value = attributes.getValue("Value");
+    }
+
+    @Override
+    public void onChildValueProduced(
+      final BTElementParsingContextType context,
+      final NPTXExpressionType newResult)
+    {
+      this.e0 = newResult;
+    }
+
+    @Override
+    public NPTXEStringSetContains onElementFinished(
+      final BTElementParsingContextType context)
+    {
+      return new NPTXEStringSetContains(
+        lexical(context.documentLocator()),
+        this.value,
         this.e0
       );
     }

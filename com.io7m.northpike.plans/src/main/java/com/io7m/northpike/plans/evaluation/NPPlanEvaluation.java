@@ -17,10 +17,10 @@
 
 package com.io7m.northpike.plans.evaluation;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.plans.NPPlanBarrierType;
 import com.io7m.northpike.plans.NPPlanDependency;
+import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanElementType;
 import com.io7m.northpike.plans.NPPlanTaskType;
 import com.io7m.northpike.plans.NPPlanType;
@@ -73,7 +73,7 @@ public final class NPPlanEvaluation
   private final Set<NPPlanElementType> terminals;
   private final Graph<NPPlanElementType, NPPlanDependency> graph;
   private final LinkedList<NPPlanEvaluationEventType> stepEvents;
-  private final Map<RDottedName, ElementState> elements;
+  private final Map<NPPlanElementName, ElementState> elements;
 
   private static final class ElementState
   {
@@ -131,7 +131,7 @@ public final class NPPlanEvaluation
    * Create a new plan evaluation.
    *
    * @param clock The clock
-   * @param plan The plan
+   * @param plan  The plan
    *
    * @return The evaluation
    */

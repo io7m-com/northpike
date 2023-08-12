@@ -30,10 +30,12 @@ public sealed interface NPTXExpressionType
   NPTXENumber,
   NPTXEOr,
   NPTXEString,
+  NPTXEStringSetContains,
   NPTXETrue,
   NPTXEVariableBoolean,
   NPTXEVariableNumber,
-  NPTXEVariableString
+  NPTXEVariableString,
+  NPTXEVariableStringSet
 {
 
 }

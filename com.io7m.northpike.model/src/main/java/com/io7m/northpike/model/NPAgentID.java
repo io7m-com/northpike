@@ -44,4 +44,18 @@ public record NPAgentID(UUID value)
   {
     return this.value.toString();
   }
+
+  /**
+   * Parse an agent ID.
+   *
+   * @param text The ID text
+   *
+   * @return An agent ID
+   */
+
+  public static NPAgentID of(
+    final String text)
+  {
+    return new NPAgentID(UUID.fromString(text));
+  }
 }

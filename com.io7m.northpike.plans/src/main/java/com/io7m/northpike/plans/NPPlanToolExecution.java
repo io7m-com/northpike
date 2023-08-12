@@ -18,6 +18,7 @@
 package com.io7m.northpike.plans;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
 
 import java.util.Objects;
 import java.util.Set;
@@ -25,28 +26,28 @@ import java.util.Set;
 /**
  * A tool execution.
  *
- * @param name             The name of the tool
- * @param argument         The name of the argument
+ * @param name             The name of the tool as declared in the plan
+ * @param execution        The name of the tool execution
  * @param toolRequirements The required tools
  */
 
 public record NPPlanToolExecution(
   RDottedName name,
-  RDottedName argument,
+  NPToolExecutionIdentifier execution,
   Set<RDottedName> toolRequirements)
 {
   /**
    * A tool execution.
    *
-   * @param name             The name of the tool
-   * @param argument         The name of the argument
+   * @param name             The name of the tool as declared in the plan
+   * @param execution        The name of the tool execution
    * @param toolRequirements The required tools
    */
 
   public NPPlanToolExecution
   {
     Objects.requireNonNull(name, "name");
-    Objects.requireNonNull(argument, "argument");
+    Objects.requireNonNull(execution, "execution");
     Objects.requireNonNull(toolRequirements, "toolRequirements");
   }
 }

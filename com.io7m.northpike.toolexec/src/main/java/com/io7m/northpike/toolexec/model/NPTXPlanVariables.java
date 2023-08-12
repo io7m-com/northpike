@@ -20,8 +20,12 @@ package com.io7m.northpike.toolexec.model;
 import com.io7m.jaffirm.core.Preconditions;
 import com.io7m.lanark.core.RDottedName;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static java.util.function.Function.identity;
 
 /**
  * The set of plan variables.
@@ -57,5 +61,22 @@ public record NPTXPlanVariables(
     }
 
     variables = Map.copyOf(variables);
+  }
+
+  /**
+   * @param variables The variables
+   *
+   * @return A map of the given list of variables
+   */
+
+  public static NPTXPlanVariables ofList(
+    final List<NPTXPlanVariableType> variables)
+  {
+    Objects.requireNonNull(variables, "variables");
+
+    return new NPTXPlanVariables(
+      variables.stream()
+        .collect(Collectors.toMap(NPTXPlanVariableType::name, identity()))
+    );
   }
 }

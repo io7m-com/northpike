@@ -20,7 +20,9 @@ package com.io7m.northpike.plans.internal;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.plans.NPPlanDependency;
+import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanElementType;
+import com.io7m.northpike.plans.NPPlanName;
 import com.io7m.northpike.plans.NPPlanType;
 import org.jgrapht.Graph;
 
@@ -33,17 +35,17 @@ import java.util.Objects;
 
 public final class NPPlan implements NPPlanType
 {
-  private final RDottedName name;
+  private final NPPlanName name;
   private final long version;
   private final Map<RDottedName, NPToolReference> toolReferences;
-  private final Map<RDottedName, NPPlanElementType> elements;
+  private final Map<NPPlanElementName, NPPlanElementType> elements;
   private final Graph<NPPlanElementType, NPPlanDependency> graph;
 
   NPPlan(
-    final RDottedName inName,
+    final NPPlanName inName,
     final long inVersion,
     final Map<RDottedName, NPToolReference> inToolReferences,
-    final Map<RDottedName, NPPlanElementType> inElements,
+    final Map<NPPlanElementName, NPPlanElementType> inElements,
     final Graph<NPPlanElementType, NPPlanDependency> inGraph)
   {
     this.name =
@@ -59,7 +61,7 @@ public final class NPPlan implements NPPlanType
   }
 
   @Override
-  public RDottedName name()
+  public NPPlanName name()
   {
     return this.name;
   }
@@ -77,7 +79,7 @@ public final class NPPlan implements NPPlanType
   }
 
   @Override
-  public Map<RDottedName, NPPlanElementType> elements()
+  public Map<NPPlanElementName, NPPlanElementType> elements()
   {
     return this.elements;
   }
@@ -92,6 +94,6 @@ public final class NPPlan implements NPPlanType
   public String toString()
   {
     return "[Plan %s %s]"
-      .formatted(this.name.value(), Long.toUnsignedString(this.version));
+      .formatted(this.name, Long.toUnsignedString(this.version));
   }
 }

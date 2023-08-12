@@ -18,7 +18,6 @@
 package com.io7m.northpike.tests.toolexec;
 
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.toolexec.NPTXPreserveLexical;
 import com.io7m.northpike.toolexec.checker.NPTXChecker;
 import com.io7m.northpike.toolexec.checker.NPTXCheckerException;
@@ -53,7 +52,6 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import static com.io7m.jlexing.core.LexicalPositions.zero;
@@ -671,7 +669,6 @@ public final class NPTXCheckingTest
 
     final var parser =
       NPTXDescriptionParser.open(
-        NPStrings.create(Locale.ROOT),
         input,
         URI.create("urn:stdin"),
         NPTXPreserveLexical.DISCARD_LEXICAL_INFORMATION,
@@ -716,7 +713,6 @@ public final class NPTXCheckingTest
 
     final var parser =
       NPTXDescriptionParser.open(
-        NPStrings.create(Locale.ROOT),
         input,
         URI.create("urn:stdin"),
         NPTXPreserveLexical.DISCARD_LEXICAL_INFORMATION,

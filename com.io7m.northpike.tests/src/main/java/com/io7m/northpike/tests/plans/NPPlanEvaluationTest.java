@@ -19,7 +19,9 @@ package com.io7m.northpike.tests.plans;
 
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanToolExecution;
 import com.io7m.northpike.plans.NPPlanType;
 import com.io7m.northpike.plans.NPPlans;
@@ -47,7 +49,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -84,7 +85,7 @@ public final class NPPlanEvaluationTest
     throws Exception
   {
     final var plan =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L)
+      NPPlans.builder(this.strings, "p", 1L)
         .build();
 
     final var execution =
@@ -104,14 +105,14 @@ public final class NPPlanEvaluationTest
     throws Exception
   {
     final var planBuilder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var b0 =
-      planBuilder.addBarrier(new RDottedName("b0"));
+      planBuilder.addBarrier(NPPlanElementName.of("b0"));
     final var b1 =
-      planBuilder.addBarrier(new RDottedName("b1"));
+      planBuilder.addBarrier(NPPlanElementName.of("b1"));
     final var b2 =
-      planBuilder.addBarrier(new RDottedName("b2"));
+      planBuilder.addBarrier(NPPlanElementName.of("b2"));
 
     b2.addDependsOn(b1.name());
     b1.addDependsOn(b0.name());
@@ -148,40 +149,40 @@ public final class NPPlanEvaluationTest
     throws Exception
   {
     final var planBuilder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var b0_0 =
-      planBuilder.addBarrier(new RDottedName("b0_0"));
+      planBuilder.addBarrier(NPPlanElementName.of("b0_0"));
     final var b0_1 =
-      planBuilder.addBarrier(new RDottedName("b0_1"));
+      planBuilder.addBarrier(NPPlanElementName.of("b0_1"));
     final var b0_2 =
-      planBuilder.addBarrier(new RDottedName("b0_2"));
+      planBuilder.addBarrier(NPPlanElementName.of("b0_2"));
 
     b0_2.addDependsOn(b0_1.name());
     b0_1.addDependsOn(b0_0.name());
 
     final var b1_0 =
-      planBuilder.addBarrier(new RDottedName("b1_0"));
+      planBuilder.addBarrier(NPPlanElementName.of("b1_0"));
     final var b1_1 =
-      planBuilder.addBarrier(new RDottedName("b1_1"));
+      planBuilder.addBarrier(NPPlanElementName.of("b1_1"));
     final var b1_2 =
-      planBuilder.addBarrier(new RDottedName("b1_2"));
+      planBuilder.addBarrier(NPPlanElementName.of("b1_2"));
 
     b1_2.addDependsOn(b1_1.name());
     b1_1.addDependsOn(b1_0.name());
 
     final var b2_0 =
-      planBuilder.addBarrier(new RDottedName("b2_0"));
+      planBuilder.addBarrier(NPPlanElementName.of("b2_0"));
     final var b2_1 =
-      planBuilder.addBarrier(new RDottedName("b2_1"));
+      planBuilder.addBarrier(NPPlanElementName.of("b2_1"));
     final var b2_2 =
-      planBuilder.addBarrier(new RDottedName("b2_2"));
+      planBuilder.addBarrier(NPPlanElementName.of("b2_2"));
 
     b2_2.addDependsOn(b2_1.name());
     b2_1.addDependsOn(b2_0.name());
 
     final var b_end =
-      planBuilder.addBarrier(new RDottedName("b_end"));
+      planBuilder.addBarrier(NPPlanElementName.of("b_end"));
 
     b_end.addDependsOn(b0_2.name());
     b_end.addDependsOn(b1_2.name());
@@ -238,12 +239,12 @@ public final class NPPlanEvaluationTest
     throws Exception
   {
     final var planBuilder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var toolExec =
       new NPPlanToolExecution(
         new RDottedName("texec"),
-        new RDottedName("arg"),
+        NPToolExecutionIdentifier.of("te", 1L),
         Set.of()
       );
 
@@ -254,19 +255,19 @@ public final class NPPlanEvaluationTest
     ));
 
     final var t0 =
-      planBuilder.addTask(new RDottedName("t0"))
+      planBuilder.addTask(NPPlanElementName.of("t0"))
         .setToolExecution(toolExec);
 
     final var t1 =
-      planBuilder.addTask(new RDottedName("t1"))
+      planBuilder.addTask(NPPlanElementName.of("t1"))
         .setToolExecution(toolExec);
 
     t1.addDependsOn(t0.name());
 
     final var agent0 =
-      new NPAgentID(UUID.fromString("c170409e-ccf1-4c2b-99c0-bf77fc213c7a"));
+      NPAgentID.of("c170409e-ccf1-4c2b-99c0-bf77fc213c7a");
     final var agent1 =
-      new NPAgentID(UUID.fromString("6e034f18-a4ee-4161-8ce3-d86986064c65"));
+      NPAgentID.of("6e034f18-a4ee-4161-8ce3-d86986064c65");
 
     final var plan =
       planBuilder.build();
@@ -329,12 +330,12 @@ public final class NPPlanEvaluationTest
     throws Exception
   {
     final var planBuilder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var toolExec =
       new NPPlanToolExecution(
         new RDottedName("texec"),
-        new RDottedName("arg"),
+        NPToolExecutionIdentifier.of("te", 1L),
         Set.of()
       );
 
@@ -345,18 +346,18 @@ public final class NPPlanEvaluationTest
     ));
 
     final var t0 =
-      planBuilder.addTask(new RDottedName("t0"))
+      planBuilder.addTask(NPPlanElementName.of("t0"))
         .setToolExecution(toolExec);
 
     final var t1 =
-      planBuilder.addTask(new RDottedName("t1"))
+      planBuilder.addTask(NPPlanElementName.of("t1"))
         .setToolExecution(toolExec);
 
     t1.addDependsOn(t0.name());
     t1.setAgentMustBeSameAs(t0);
 
     final var agent0 =
-      new NPAgentID(UUID.fromString("c170409e-ccf1-4c2b-99c0-bf77fc213c7a"));
+      NPAgentID.of("c170409e-ccf1-4c2b-99c0-bf77fc213c7a");
 
     final var plan =
       planBuilder.build();
@@ -419,12 +420,12 @@ public final class NPPlanEvaluationTest
     throws Exception
   {
     final var planBuilder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var toolExec =
       new NPPlanToolExecution(
         new RDottedName("texec"),
-        new RDottedName("arg"),
+        NPToolExecutionIdentifier.of("te", 1L),
         Set.of()
       );
 
@@ -435,19 +436,19 @@ public final class NPPlanEvaluationTest
     ));
 
     final var t0 =
-      planBuilder.addTask(new RDottedName("t0"))
+      planBuilder.addTask(NPPlanElementName.of("t0"))
         .setToolExecution(toolExec);
 
     final var t1 =
-      planBuilder.addTask(new RDottedName("t1"))
+      planBuilder.addTask(NPPlanElementName.of("t1"))
         .setToolExecution(toolExec);
 
     t1.addDependsOn(t0.name());
 
     final var agent0 =
-      new NPAgentID(UUID.fromString("c170409e-ccf1-4c2b-99c0-bf77fc213c7a"));
+      NPAgentID.of("c170409e-ccf1-4c2b-99c0-bf77fc213c7a");
     final var agent1 =
-      new NPAgentID(UUID.fromString("6e034f18-a4ee-4161-8ce3-d86986064c65"));
+      NPAgentID.of("6e034f18-a4ee-4161-8ce3-d86986064c65");
 
     final var plan =
       planBuilder.build();
@@ -494,12 +495,12 @@ public final class NPPlanEvaluationTest
     throws Exception
   {
     final var planBuilder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var toolExec =
       new NPPlanToolExecution(
         new RDottedName("texec"),
-        new RDottedName("arg"),
+        NPToolExecutionIdentifier.of("te", 1L),
         Set.of()
       );
 
@@ -510,7 +511,7 @@ public final class NPPlanEvaluationTest
     ));
 
     final var t0 =
-      planBuilder.addTask(new RDottedName("t0"))
+      planBuilder.addTask(NPPlanElementName.of("t0"))
         .setToolExecution(toolExec)
         .setAgentAssignmentTimeout(Duration.ofSeconds(2L));
 
@@ -558,12 +559,12 @@ public final class NPPlanEvaluationTest
     throws Exception
   {
     final var planBuilder =
-      NPPlans.builder(this.strings, new RDottedName("p"), 1L);
+      NPPlans.builder(this.strings, "p", 1L);
 
     final var toolExec =
       new NPPlanToolExecution(
         new RDottedName("texec"),
-        new RDottedName("arg"),
+        NPToolExecutionIdentifier.of("te", 1L),
         Set.of()
       );
 
@@ -574,7 +575,7 @@ public final class NPPlanEvaluationTest
     ));
 
     final var t0 =
-      planBuilder.addTask(new RDottedName("t0"))
+      planBuilder.addTask(NPPlanElementName.of("t0"))
         .setToolExecution(toolExec)
         .setExecutionTimeout(Duration.ofSeconds(2L));
 
@@ -590,7 +591,7 @@ public final class NPPlanEvaluationTest
       assertInstanceOf(StatusInProgress.class, execution.step(List.of())));
 
     final var agent =
-      new NPAgentID(UUID.fromString("c170409e-ccf1-4c2b-99c0-bf77fc213c7a"));
+      NPAgentID.of("c170409e-ccf1-4c2b-99c0-bf77fc213c7a");
 
     this.recordEvents(
       assertInstanceOf(

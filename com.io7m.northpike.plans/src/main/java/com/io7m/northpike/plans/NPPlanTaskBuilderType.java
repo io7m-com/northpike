@@ -30,8 +30,25 @@ public interface NPPlanTaskBuilderType
 {
   @Override
   NPPlanTaskBuilderType addDependsOn(
-    RDottedName target)
+    NPPlanElementName target)
     throws NPPlanException;
+
+  /**
+   * Add a dependency on another element.
+   *
+   * @param target The target element
+   *
+   * @return this
+   *
+   * @throws NPPlanException On errors
+   */
+
+  default NPPlanTaskBuilderType addDependsOn(
+    final String target)
+    throws NPPlanException
+  {
+    return this.addDependsOn(NPPlanElementName.of(target));
+  }
 
   @Override
   NPPlanTaskBuilderType setDescription(
@@ -70,7 +87,7 @@ public interface NPPlanTaskBuilderType
    * Set a constraint that indicates that this task must be executed by the
    * same agent that executed the given task. This adds an implicit execution
    * dependency on the given task; this method behaves as if
-   * {@link #addDependsOn(RDottedName)}
+   * {@link #addDependsOn(NPPlanElementName)}
    * had been called on the given task.
    *
    * @param task The first task

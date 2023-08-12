@@ -25,7 +25,8 @@ import com.io7m.lanark.core.RDottedName;
 public sealed interface NPTXPlanVariableType
   permits NPTXPlanVariableBoolean,
   NPTXPlanVariableNumeric,
-  NPTXPlanVariableString
+  NPTXPlanVariableString,
+  NPTXPlanVariableStringSet
 {
   /**
    * @return The variable name

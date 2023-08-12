@@ -148,6 +148,25 @@
   <xsd:element name="VariableString"
                type="te:VariableStringType"/>
 
+  <xsd:complexType name="VariableStringSetType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Obtain the value of the given named plan variable.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:ExpressionType">
+        <xsd:attribute name="Name"
+                       type="te:NameType"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="VariableStringSet"
+               type="te:VariableStringSetType"/>
+
   <xsd:complexType name="IsEqualType">
     <xsd:annotation>
       <xsd:documentation>
@@ -226,6 +245,27 @@
   <xsd:element name="Not"
                type="te:NotType"/>
 
+  <xsd:complexType name="StringSetContainsType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Evaluates to true if the given string set expression contains the given
+        value.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="te:ExpressionType">
+        <xsd:group ref="te:ExpressionGroup"/>
+        <xsd:attribute name="Value"
+                       type="xsd:string"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="StringSetContains"
+               type="te:StringSetContainsType"/>
+
   <xsd:group name="ExpressionGroup">
     <xsd:choice>
       <xsd:element ref="te:And"/>
@@ -236,9 +276,11 @@
       <xsd:element ref="te:Or"/>
       <xsd:element ref="te:String"/>
       <xsd:element ref="te:True"/>
+      <xsd:element ref="te:StringSetContains"/>
       <xsd:element ref="te:VariableBoolean"/>
       <xsd:element ref="te:VariableNumber"/>
       <xsd:element ref="te:VariableString"/>
+      <xsd:element ref="te:VariableStringSet"/>
     </xsd:choice>
   </xsd:group>
 
@@ -263,6 +305,22 @@
 
   <xsd:element name="ArgumentAdd"
                type="te:ArgumentAddType"/>
+
+  <xsd:complexType name="CommentType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A non-executable comment that will not be lost by XML parsers and
+        serializers.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent mixed="true">
+      <xsd:extension base="te:StatementType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="Comment"
+               type="te:CommentType"/>
 
   <xsd:complexType name="EnvironmentClearType">
     <xsd:annotation>
@@ -416,6 +474,7 @@
   <xsd:group name="StatementGroup">
     <xsd:choice>
       <xsd:element ref="te:ArgumentAdd"/>
+      <xsd:element ref="te:Comment"/>
       <xsd:element ref="te:EnvironmentClear"/>
       <xsd:element ref="te:EnvironmentPass"/>
       <xsd:element ref="te:EnvironmentRemove"/>

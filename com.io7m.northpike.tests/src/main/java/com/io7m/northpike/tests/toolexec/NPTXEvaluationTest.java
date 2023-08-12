@@ -19,7 +19,6 @@ package com.io7m.northpike.tests.toolexec;
 
 import com.io7m.anethum.api.ParsingException;
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.toolexec.NPTXPreserveLexical;
 import com.io7m.northpike.toolexec.checker.NPTXChecker;
 import com.io7m.northpike.toolexec.checker.NPTXCheckerException;
@@ -27,6 +26,7 @@ import com.io7m.northpike.toolexec.evaluator.NPTXEvaluator;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableBoolean;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableNumeric;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableString;
+import com.io7m.northpike.toolexec.model.NPTXPlanVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariables;
 import com.io7m.northpike.toolexec.parser.NPTXDescriptionParser;
 import org.junit.jupiter.api.DynamicTest;
@@ -35,8 +35,8 @@ import org.junit.jupiter.api.TestFactory;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -47,7 +47,7 @@ public final class NPTXEvaluationTest
   @TestFactory
   public Stream<DynamicTest> testExamples()
   {
-    return IntStream.range(0, 13)
+    return IntStream.range(0, 14)
       .mapToObj(x -> {
         return DynamicTest.dynamicTest("Example" + x, () -> {
           final var vb =
@@ -56,14 +56,11 @@ public final class NPTXEvaluationTest
             new NPTXPlanVariableNumeric(new RDottedName("vn"), BigInteger.ONE);
           final var vs =
             new NPTXPlanVariableString(new RDottedName("vs"), "x");
+          final var vss =
+            new NPTXPlanVariableStringSet(new RDottedName("vss"), Set.of("X"));
 
           final var variables =
-            new NPTXPlanVariables(
-              Map.ofEntries(
-                Map.entry(vb.name(), vb),
-                Map.entry(vn.name(), vn),
-                Map.entry(vs.name(), vs)
-              ));
+            NPTXPlanVariables.ofList(List.of(vb, vn, vs, vss));
 
           checkOK("toolexec-eval-%d.xml".formatted(x), variables);
         });
@@ -81,7 +78,6 @@ public final class NPTXEvaluationTest
 
     final var parser =
       NPTXDescriptionParser.open(
-        NPStrings.create(Locale.ROOT),
         input,
         URI.create("urn:stdin"),
         NPTXPreserveLexical.DISCARD_LEXICAL_INFORMATION,

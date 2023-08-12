@@ -35,6 +35,7 @@ com.io7m.northpike.tests.arbitraries.toolexec.NPArbETrue
 com.io7m.northpike.tests.arbitraries.toolexec.NPArbEVariableBoolean
 com.io7m.northpike.tests.arbitraries.toolexec.NPArbEVariableNumber
 com.io7m.northpike.tests.arbitraries.toolexec.NPArbEVariableString
+com.io7m.northpike.tests.arbitraries.toolexec.NPArbEVariableStringSet
 com.io7m.northpike.tests.arbitraries.toolexec.NPArbExpressionType
 com.io7m.northpike.tests.arbitraries.toolexec.NPArbPlanVariable
 com.io7m.northpike.tests.arbitraries.toolexec.NPArbPlanVariableBoolean
@@ -42,6 +43,7 @@ com.io7m.northpike.tests.arbitraries.toolexec.NPArbPlanVariableNumeric
 com.io7m.northpike.tests.arbitraries.toolexec.NPArbPlanVariableString
 com.io7m.northpike.tests.arbitraries.toolexec.NPArbPlanVariables
 com.io7m.northpike.tests.arbitraries.toolexec.NPArbSArgumentAdd
+com.io7m.northpike.tests.arbitraries.toolexec.NPArbSComment
 com.io7m.northpike.tests.arbitraries.toolexec.NPArbSEnvironmentClear
 com.io7m.northpike.tests.arbitraries.toolexec.NPArbSEnvironmentPass
 com.io7m.northpike.tests.arbitraries.toolexec.NPArbSEnvironmentRemove

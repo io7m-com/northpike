@@ -17,8 +17,6 @@
 
 package com.io7m.northpike.plans;
 
-import com.io7m.lanark.core.RDottedName;
-
 import java.util.List;
 
 /**
@@ -32,7 +30,7 @@ public sealed interface NPPlanElementType
    * @return The name of the element
    */
 
-  RDottedName name();
+  NPPlanElementName name();
 
   /**
    * @return The description of the element
@@ -44,5 +42,5 @@ public sealed interface NPPlanElementType
    * @return The elements upon which this element depends
    */
 
-  List<RDottedName> dependsOn();
+  List<NPPlanElementName> dependsOn();
 }

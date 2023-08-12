@@ -23,12 +23,12 @@
   <modules>
     <module>com.io7m.northpike.agent.api</module>
     <module>com.io7m.northpike.agent.configuration</module>
+    <module>com.io7m.northpike.agent.expressions</module>
     <module>com.io7m.northpike.agent.main</module>
     <module>com.io7m.northpike.agent</module>
     <module>com.io7m.northpike.database.api</module>
     <module>com.io7m.northpike.database.postgres</module>
     <module>com.io7m.northpike.model</module>
-    <module>com.io7m.northpike.parsers</module>
     <module>com.io7m.northpike.plans</module>
     <module>com.io7m.northpike.protocol.agent.cb</module>
     <module>com.io7m.northpike.protocol.agent</module>

@@ -18,6 +18,7 @@
 package com.io7m.northpike.tests.arbitraries.toolexec;
 
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import com.io7m.northpike.toolexec.model.NPTXComment;
 import com.io7m.northpike.toolexec.model.NPTXSArgumentAdd;
 import com.io7m.northpike.toolexec.model.NPTXSEnvironmentClear;
 import com.io7m.northpike.toolexec.model.NPTXSEnvironmentPass;
@@ -36,6 +37,7 @@ public final class NPArbStatementType
       NPTXStatementType.class,
       () -> {
         return Arbitraries.oneOf(
+          Arbitraries.defaultFor(NPTXComment.class),
           Arbitraries.defaultFor(NPTXSArgumentAdd.class),
           Arbitraries.defaultFor(NPTXSEnvironmentClear.class),
           Arbitraries.defaultFor(NPTXSEnvironmentPass.class),

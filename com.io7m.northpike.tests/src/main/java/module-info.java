@@ -29,12 +29,12 @@ open module com.io7m.northpike.tests
 
   requires com.io7m.northpike.agent.api;
   requires com.io7m.northpike.agent.configuration;
+  requires com.io7m.northpike.agent.expressions;
   requires com.io7m.northpike.agent.main;
   requires com.io7m.northpike.agent;
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.database.postgres;
   requires com.io7m.northpike.model;
-  requires com.io7m.northpike.parsers;
   requires com.io7m.northpike.plans;
   requires com.io7m.northpike.protocol.agent.cb;
   requires com.io7m.northpike.protocol.agent;

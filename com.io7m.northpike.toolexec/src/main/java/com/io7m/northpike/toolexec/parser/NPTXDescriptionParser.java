@@ -24,7 +24,6 @@ import com.io7m.blackthorne.core.BTException;
 import com.io7m.blackthorne.core.BTParseError;
 import com.io7m.blackthorne.core.BTPreserveLexical;
 import com.io7m.blackthorne.jxe.BlackthorneJXE;
-import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.toolexec.NPTXPreserveLexical;
 import com.io7m.northpike.toolexec.NPTXSchemas;
 import com.io7m.northpike.toolexec.model.NPTXDescription;
@@ -51,7 +50,6 @@ import static java.util.Map.entry;
 
 public final class NPTXDescriptionParser implements Closeable
 {
-  private final NPStrings strings;
   private final URI source;
   private final InputStream stream;
   private final Consumer<ParseStatus> statusConsumer;
@@ -60,7 +58,6 @@ public final class NPTXDescriptionParser implements Closeable
   /**
    * A parser of tool executions.
    *
-   * @param inStrings        The string resources
    * @param inSource         The source
    * @param inStream         The stream
    * @param inStatusConsumer A status consumer
@@ -68,14 +65,11 @@ public final class NPTXDescriptionParser implements Closeable
    */
 
   private NPTXDescriptionParser(
-    final NPStrings inStrings,
     final URI inSource,
     final InputStream inStream,
     final Consumer<ParseStatus> inStatusConsumer,
     final NPTXPreserveLexical lexical)
   {
-    this.strings =
-      Objects.requireNonNull(inStrings, "strings");
     this.source =
       Objects.requireNonNull(inSource, "source");
     this.stream =
@@ -113,7 +107,6 @@ public final class NPTXDescriptionParser implements Closeable
   /**
    * Open the given tool execution file.
    *
-   * @param strings        The string resources
    * @param file           The file
    * @param statusConsumer A consumer of error messages
    *
@@ -123,13 +116,11 @@ public final class NPTXDescriptionParser implements Closeable
    */
 
   public static NPTXDescriptionParser open(
-    final NPStrings strings,
     final Path file,
     final Consumer<ParseStatus> statusConsumer)
     throws IOException
   {
     return open(
-      strings,
       Files.newInputStream(file),
       file.toUri(),
       NPTXPreserveLexical.PRESERVE_LEXICAL_INFORMATION,
@@ -140,7 +131,6 @@ public final class NPTXDescriptionParser implements Closeable
   /**
    * Open the given tool execution file.
    *
-   * @param strings        The string resources
    * @param statusConsumer A consumer of error messages
    * @param uri            The URI
    * @param inputStream    The input stream
@@ -150,14 +140,12 @@ public final class NPTXDescriptionParser implements Closeable
    */
 
   public static NPTXDescriptionParser open(
-    final NPStrings strings,
     final InputStream inputStream,
     final URI uri,
     final NPTXPreserveLexical lexical,
     final Consumer<ParseStatus> statusConsumer)
   {
     return new NPTXDescriptionParser(
-      strings,
       uri,
       inputStream,
       statusConsumer,

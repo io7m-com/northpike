@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.plans.evaluation;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.plans.NPPlanElementName;
 
 import java.util.Objects;
 
@@ -37,7 +37,7 @@ public sealed interface NPPlanEvaluationUpdateType
    */
 
   record AgentAcceptedTask(
-    RDottedName task,
+    NPPlanElementName task,
     NPAgentID agent)
     implements NPPlanEvaluationUpdateType
   {
@@ -61,7 +61,7 @@ public sealed interface NPPlanEvaluationUpdateType
    */
 
   record AgentReportedTaskSuccess(
-    RDottedName task,
+    NPPlanElementName task,
     NPAgentID agent)
     implements NPPlanEvaluationUpdateType
   {
@@ -85,7 +85,7 @@ public sealed interface NPPlanEvaluationUpdateType
    */
 
   record AgentReportedTaskFailure(
-    RDottedName task,
+    NPPlanElementName task,
     NPAgentID agent)
     implements NPPlanEvaluationUpdateType
   {

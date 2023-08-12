@@ -25,10 +25,12 @@ import com.io7m.northpike.toolexec.model.NPTXENot;
 import com.io7m.northpike.toolexec.model.NPTXENumber;
 import com.io7m.northpike.toolexec.model.NPTXEOr;
 import com.io7m.northpike.toolexec.model.NPTXEString;
+import com.io7m.northpike.toolexec.model.NPTXEStringSetContains;
 import com.io7m.northpike.toolexec.model.NPTXETrue;
 import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
 import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
 import com.io7m.northpike.toolexec.model.NPTXEVariableString;
+import com.io7m.northpike.toolexec.model.NPTXEVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXExpressionType;
 import net.jqwik.api.Arbitraries;
 
@@ -50,10 +52,12 @@ public final class NPArbExpressionType extends NPArbAbstract<NPTXExpressionType>
             Arbitraries.defaultFor(NPTXENumber.class),
             Arbitraries.defaultFor(NPTXEOr.class),
             Arbitraries.defaultFor(NPTXEString.class),
+            Arbitraries.defaultFor(NPTXEStringSetContains.class),
             Arbitraries.defaultFor(NPTXETrue.class),
             Arbitraries.defaultFor(NPTXEVariableBoolean.class),
             Arbitraries.defaultFor(NPTXEVariableNumber.class),
-            Arbitraries.defaultFor(NPTXEVariableString.class)
+            Arbitraries.defaultFor(NPTXEVariableString.class),
+            Arbitraries.defaultFor(NPTXEVariableStringSet.class)
           )
         );
       }

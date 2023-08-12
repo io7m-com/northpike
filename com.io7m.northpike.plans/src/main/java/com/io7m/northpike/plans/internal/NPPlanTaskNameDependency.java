@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.plans.internal;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.plans.NPPlanElementName;
 
 import java.util.Objects;
 
@@ -29,8 +29,8 @@ import java.util.Objects;
  */
 
 public record NPPlanTaskNameDependency(
-  RDottedName source,
-  RDottedName target)
+  NPPlanElementName source,
+  NPPlanElementName target)
 {
   /**
    * A dependency between two elements in a plan.

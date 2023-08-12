@@ -33,7 +33,7 @@ public interface NPPlanType
    * @return The name of the plan
    */
 
-  RDottedName name();
+  NPPlanName name();
 
   /**
    * @return The plan version
@@ -51,7 +51,7 @@ public interface NPPlanType
    * @return The execution elements in this plan
    */
 
-  Map<RDottedName, NPPlanElementType> elements();
+  Map<NPPlanElementName, NPPlanElementType> elements();
 
   /**
    * @return The execution graph for this plan

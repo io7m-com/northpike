@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.plans;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPToolReference;
 
 /**
@@ -62,8 +61,25 @@ public interface NPPlanBuilderType
    */
 
   NPPlanBarrierBuilderType addBarrier(
-    RDottedName name)
+    NPPlanElementName name)
     throws NPPlanException;
+
+  /**
+   * Add a barrier.
+   *
+   * @param name The name of the barrier
+   *
+   * @return A barrier builder
+   *
+   * @throws NPPlanException On errors
+   */
+
+  default NPPlanBarrierBuilderType addBarrier(
+    final String name)
+    throws NPPlanException
+  {
+    return this.addBarrier(NPPlanElementName.of(name));
+  }
 
   /**
    * Add a task.
@@ -76,6 +92,23 @@ public interface NPPlanBuilderType
    */
 
   NPPlanTaskBuilderType addTask(
-    RDottedName name)
+    NPPlanElementName name)
     throws NPPlanException;
+
+  /**
+   * Add a task.
+   *
+   * @param name The name of the task
+   *
+   * @return A task builder
+   *
+   * @throws NPPlanException On errors
+   */
+
+  default NPPlanTaskBuilderType addTask(
+    final String name)
+    throws NPPlanException
+  {
+    return this.addTask(NPPlanElementName.of(name));
+  }
 }

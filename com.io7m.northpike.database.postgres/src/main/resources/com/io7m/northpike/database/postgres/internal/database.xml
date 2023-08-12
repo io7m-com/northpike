@@ -331,25 +331,33 @@ CREATE TABLE agent_labels (
 ]]></Statement>
 
     <Statement><![CDATA[
-CREATE TABLE tool_arguments (
-  ta_id         BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
-  ta_name       TEXT   NOT NULL,
-  ta_tool_name  TEXT   NOT NULL,
-  ta_arguments  TEXT[] NOT NULL,
+CREATE TABLE tool_execution_descriptions (
+  ted_id         BIGINT  NOT NULL GENERATED ALWAYS AS IDENTITY,
+  ted_name       TEXT    NOT NULL,
+  ted_version    BIGINT  NOT NULL,
+  ted_tool_name  TEXT    NOT NULL,
+  ted_format     TEXT    NOT NULL,
+  ted_text       TEXT    NOT NULL,
 
-  CONSTRAINT tool_arguments_primary_key
-    PRIMARY KEY (ta_id),
+  CONSTRAINT tool_execution_descriptions_primary_key
+    PRIMARY KEY (ted_id),
 
   -- [jooq ignore start]
-  CONSTRAINT tool_arguments_name_unique
-    UNIQUE (ta_name),
+  CONSTRAINT tool_execution_descriptions_name_version_unique
+    UNIQUE (ted_name, ted_version),
   -- [jooq ignore stop]
 
-  CONSTRAINT tool_arguments_name_valid
-    CHECK (ta_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$'),
+  CONSTRAINT tool_execution_descriptions_version_valid
+    CHECK (ted_version >= 0),
 
-  CONSTRAINT tool_arguments_tool_name_valid
-    CHECK (ta_tool_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$')
+  CONSTRAINT tool_execution_descriptions_name_valid
+    CHECK (ted_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$'),
+
+  CONSTRAINT tool_execution_descriptions_format_name_valid
+    CHECK (ted_format ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$'),
+
+  CONSTRAINT tool_execution_descriptions_tool_name_valid
+    CHECK (ted_tool_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$')
 )
 ]]></Statement>
   </Schema>

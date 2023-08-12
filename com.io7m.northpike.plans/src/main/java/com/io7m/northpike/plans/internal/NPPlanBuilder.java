@@ -25,8 +25,10 @@ import com.io7m.northpike.plans.NPPlanBarrierType;
 import com.io7m.northpike.plans.NPPlanBuilderType;
 import com.io7m.northpike.plans.NPPlanDependency;
 import com.io7m.northpike.plans.NPPlanElementBuilderType;
+import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanElementType;
 import com.io7m.northpike.plans.NPPlanException;
+import com.io7m.northpike.plans.NPPlanName;
 import com.io7m.northpike.plans.NPPlanTaskBuilderType;
 import com.io7m.northpike.plans.NPPlanTaskType;
 import com.io7m.northpike.plans.NPPlanToolExecution;
@@ -64,11 +66,11 @@ public final class NPPlanBuilder
   implements NPPlanBuilderType
 {
   private final NPStrings strings;
-  private final RDottedName name;
+  private final NPPlanName name;
   private final long version;
-  private final DirectedAcyclicGraph<RDottedName, NPPlanTaskNameDependency> graph;
+  private final DirectedAcyclicGraph<NPPlanElementName, NPPlanTaskNameDependency> graph;
   private final HashMap<RDottedName, NPToolReference> toolReferences;
-  private final HashMap<RDottedName, NPPlanElementBuilder> elements;
+  private final HashMap<NPPlanElementName, NPPlanElementBuilder> elements;
 
   /**
    * A mutable plan builder.
@@ -80,7 +82,7 @@ public final class NPPlanBuilder
 
   public NPPlanBuilder(
     final NPStrings inStrings,
-    final RDottedName inName,
+    final NPPlanName inName,
     final long inVersion)
   {
     this.strings =
@@ -101,7 +103,7 @@ public final class NPPlanBuilder
   public NPPlanType build()
     throws NPPlanException
   {
-    final var newElements = new HashMap<RDottedName, NPPlanElementType>();
+    final var newElements = new HashMap<NPPlanElementName, NPPlanElementType>();
     for (final var elementBuilder : this.elements.values()) {
       newElements.put(elementBuilder.name(), elementBuilder.build(newElements));
     }
@@ -146,7 +148,7 @@ public final class NPPlanBuilder
 
   @Override
   public NPPlanBarrierBuilderType addBarrier(
-    final RDottedName barrierName)
+    final NPPlanElementName barrierName)
     throws NPPlanException
   {
     Objects.requireNonNull(barrierName, "name");
@@ -163,7 +165,7 @@ public final class NPPlanBuilder
 
   @Override
   public NPPlanTaskBuilderType addTask(
-    final RDottedName taskName)
+    final NPPlanElementName taskName)
     throws NPPlanException
   {
     Objects.requireNonNull(taskName, "name");
@@ -182,13 +184,13 @@ public final class NPPlanBuilder
     implements NPPlanElementBuilderType
   {
     private final NPPlanBuilder builder;
-    private final RDottedName name;
-    private final TreeSet<RDottedName> dependsOn;
+    private final NPPlanElementName name;
+    private final TreeSet<NPPlanElementName> dependsOn;
     private String description;
 
     NPPlanElementBuilder(
       final NPPlanBuilder inBuilder,
-      final RDottedName inName)
+      final NPPlanElementName inName)
     {
       this.builder = inBuilder;
       this.name = inName;
@@ -202,12 +204,12 @@ public final class NPPlanBuilder
     }
 
     @Override
-    public final RDottedName name()
+    public final NPPlanElementName name()
     {
       return this.name;
     }
 
-    protected final TreeSet<RDottedName> dependsOn()
+    protected final TreeSet<NPPlanElementName> dependsOn()
     {
       return this.dependsOn;
     }
@@ -225,7 +227,7 @@ public final class NPPlanBuilder
     }
 
     protected final void onAddDependsOn(
-      final RDottedName target)
+      final NPPlanElementName target)
       throws NPPlanException
     {
       try {
@@ -247,7 +249,7 @@ public final class NPPlanBuilder
       }
     }
 
-    abstract NPPlanElementType build(HashMap<RDottedName, NPPlanElementType> newElements)
+    abstract NPPlanElementType build(HashMap<NPPlanElementName, NPPlanElementType> newElements)
       throws NPPlanException;
   }
 
@@ -257,14 +259,14 @@ public final class NPPlanBuilder
   {
     NPPlanBarrierBuilder(
       final NPPlanBuilder inBuilder,
-      final RDottedName inName)
+      final NPPlanElementName inName)
     {
       super(inBuilder, inName);
     }
 
     @Override
     NPPlanBarrier build(
-      final HashMap<RDottedName, NPPlanElementType> newElements)
+      final HashMap<NPPlanElementName, NPPlanElementType> newElements)
     {
       return new NPPlanBarrier(
         this.name(),
@@ -283,7 +285,7 @@ public final class NPPlanBuilder
 
     @Override
     public NPPlanBarrierBuilderType addDependsOn(
-      final RDottedName target)
+      final NPPlanElementName target)
       throws NPPlanException
     {
       this.onAddDependsOn(target);
@@ -293,14 +295,14 @@ public final class NPPlanBuilder
 
   private static final class NPPlanBarrier implements NPPlanBarrierType
   {
-    private final RDottedName name;
-    private final List<RDottedName> dependsOn;
+    private final NPPlanElementName name;
+    private final List<NPPlanElementName> dependsOn;
     private final String description;
 
     NPPlanBarrier(
-      final RDottedName inName,
+      final NPPlanElementName inName,
       final String inDescription,
-      final List<RDottedName> inDependsOn)
+      final List<NPPlanElementName> inDependsOn)
     {
       this.name =
         Objects.requireNonNull(inName, "name");
@@ -311,7 +313,7 @@ public final class NPPlanBuilder
     }
 
     @Override
-    public RDottedName name()
+    public NPPlanElementName name()
     {
       return this.name;
     }
@@ -323,7 +325,7 @@ public final class NPPlanBuilder
     }
 
     @Override
-    public List<RDottedName> dependsOn()
+    public List<NPPlanElementName> dependsOn()
     {
       return this.dependsOn;
     }
@@ -337,13 +339,13 @@ public final class NPPlanBuilder
     private NPAgentLabelMatchType preferWithLabels;
     private NPAgentLabelMatchType requireWithLabels;
     private Optional<NPPlanToolExecution> toolExecution;
-    private Optional<RDottedName> sameAgentAs;
+    private Optional<NPPlanElementName> sameAgentAs;
     private Optional<Duration> agentAssignmentTimeout;
     private Optional<Duration> executionTimeout;
 
     NPPlanTaskBuilder(
       final NPPlanBuilder inBuilder,
-      final RDottedName inName)
+      final NPPlanElementName inName)
     {
       super(inBuilder, inName);
       this.preferWithLabels = ANY_LABEL;
@@ -357,7 +359,7 @@ public final class NPPlanBuilder
 
     @Override
     NPPlanTaskType build(
-      final HashMap<RDottedName, NPPlanElementType> newElements)
+      final HashMap<NPPlanElementName, NPPlanElementType> newElements)
       throws NPPlanException
     {
       final var sameAs =
@@ -390,7 +392,7 @@ public final class NPPlanBuilder
 
     @Override
     public NPPlanTaskBuilderType addDependsOn(
-      final RDottedName target)
+      final NPPlanElementName target)
       throws NPPlanException
     {
       this.onAddDependsOn(target);
@@ -487,9 +489,9 @@ public final class NPPlanBuilder
 
   private static final class NPPlanTask implements NPPlanTaskType
   {
-    private final RDottedName name;
+    private final NPPlanElementName name;
     private final String description;
-    private final List<RDottedName> dependsOn;
+    private final List<NPPlanElementName> dependsOn;
     private final NPAgentLabelMatchType agentRequireWithLabel;
     private final NPAgentLabelMatchType agentPreferWithLabel;
     private final SortedSet<RDottedName> lockAgentResources;
@@ -499,9 +501,9 @@ public final class NPPlanBuilder
     private final Optional<Duration> executionTimeout;
 
     NPPlanTask(
-      final RDottedName inName,
+      final NPPlanElementName inName,
       final String inDescription,
-      final List<RDottedName> inDependsOn,
+      final List<NPPlanElementName> inDependsOn,
       final NPAgentLabelMatchType inAgentRequireWithLabel,
       final NPAgentLabelMatchType inAgentPreferWithLabel,
       final SortedSet<RDottedName> inLockAgentResources,
@@ -536,7 +538,7 @@ public final class NPPlanBuilder
     }
 
     @Override
-    public RDottedName name()
+    public NPPlanElementName name()
     {
       return this.name;
     }
@@ -548,7 +550,7 @@ public final class NPPlanBuilder
     }
 
     @Override
-    public List<RDottedName> dependsOn()
+    public List<NPPlanElementName> dependsOn()
     {
       return this.dependsOn;
     }

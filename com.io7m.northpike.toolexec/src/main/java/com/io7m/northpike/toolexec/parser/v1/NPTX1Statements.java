@@ -21,6 +21,7 @@ import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.blackthorne.core.Blackthorne;
+import com.io7m.northpike.toolexec.model.NPTXComment;
 import com.io7m.northpike.toolexec.model.NPTXExpressionType;
 import com.io7m.northpike.toolexec.model.NPTXSArgumentAdd;
 import com.io7m.northpike.toolexec.model.NPTXSEnvironmentClear;
@@ -48,6 +49,7 @@ public final class NPTX1Statements
     STATEMENT_HANDLERS =
     Map.ofEntries(
       Map.entry(element("ArgumentAdd"), stArgumentAdd()),
+      Map.entry(element("Comment"), stComment()),
       Map.entry(element("EnvironmentClear"), stEnvironmentClear()),
       Map.entry(element("EnvironmentPass"), stEnvironmentPass()),
       Map.entry(element("EnvironmentRemove"), stEnvironmentRemove()),
@@ -93,6 +95,22 @@ public final class NPTX1Statements
         );
       }
     );
+  }
+
+  /**
+   * @return The handler for Comment
+   */
+
+  public static BTElementHandlerConstructorType<?, NPTXComment> stComment()
+  {
+    return Blackthorne.forScalar(
+      element("Comment"),
+      (context, characters, offset, length) -> {
+        return new NPTXComment(
+          lexical(context.documentLocator()),
+          new String(characters, offset, length)
+        );
+      });
   }
 
   /**
@@ -189,9 +207,9 @@ public final class NPTX1Statements
   {
     return context -> {
       return Blackthorne.forListPoly(
-        element("Else"),
-        statements(),
-        DO_NOT_IGNORE_UNRECOGNIZED_ELEMENTS)
+          element("Else"),
+          statements(),
+          DO_NOT_IGNORE_UNRECOGNIZED_ELEMENTS)
         .create(context)
         .map(Else::new);
     };
@@ -205,9 +223,9 @@ public final class NPTX1Statements
   {
     return context -> {
       return Blackthorne.forListPoly(
-        element("Then"),
-        statements(),
-        DO_NOT_IGNORE_UNRECOGNIZED_ELEMENTS)
+          element("Then"),
+          statements(),
+          DO_NOT_IGNORE_UNRECOGNIZED_ELEMENTS)
         .create(context)
         .map(Then::new);
     };

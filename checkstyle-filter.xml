@@ -20,5 +20,11 @@
   <!-- Lacking pattern matching. -->
   <suppress files="NPTXEvaluator.java"
             checks="NPathComplexity"/>
+  <suppress files="NPTXEvaluator.java"
+            checks="CyclomaticComplexity"/>
+
+  <!-- char[] -> String -->
+  <suppress files="NPTX1Statements.java"
+            checks="IllegalInstantiation"/>
 
 </suppressions>

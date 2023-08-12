@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.tests.toolexec;
 
-import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.toolexec.NPTXPreserveLexical;
 import com.io7m.northpike.toolexec.model.NPTXDescription;
 import com.io7m.northpike.toolexec.parser.NPTXDescriptionParser;
@@ -28,7 +27,6 @@ import net.jqwik.api.Property;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
-import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -51,7 +49,6 @@ public final class NPTXParsingTest
 
     final var parser =
       NPTXDescriptionParser.open(
-        NPStrings.create(Locale.ROOT),
         input,
         URI.create("urn:stdin"),
         NPTXPreserveLexical.DISCARD_LEXICAL_INFORMATION,

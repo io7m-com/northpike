@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.plans;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.plans.internal.NPPlanBuilder;
 import com.io7m.northpike.strings.NPStrings;
 
@@ -44,9 +43,27 @@ public final class NPPlans
 
   public static NPPlanBuilderType builder(
     final NPStrings strings,
-    final RDottedName name,
+    final NPPlanName name,
     final long version)
   {
     return new NPPlanBuilder(strings, name, version);
+  }
+
+  /**
+   * Create a new plan builder.
+   *
+   * @param strings The string resources
+   * @param name    The plan name
+   * @param version The plan version
+   *
+   * @return A new plan builder
+   */
+
+  public static NPPlanBuilderType builder(
+    final NPStrings strings,
+    final String name,
+    final long version)
+  {
+    return builder(strings, NPPlanName.of(name), version);
   }
 }

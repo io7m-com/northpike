@@ -20,6 +20,7 @@ package com.io7m.northpike.plans.internal;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.strings.NPStringConstants;
 import com.io7m.northpike.strings.NPStrings;
@@ -85,7 +86,7 @@ public final class NPPlanExceptions
 
   public static NPPlanException errorDuplicateElement(
     final NPStrings strings,
-    final RDottedName name,
+    final NPPlanElementName name,
     final NPStringConstants kind)
   {
     return new NPPlanException(
@@ -94,7 +95,7 @@ public final class NPPlanExceptions
       Map.ofEntries(
         Map.entry(
           strings.format(kind),
-          name.value()
+          name.toString()
         )
       ),
       Optional.empty()
@@ -115,8 +116,8 @@ public final class NPPlanExceptions
   public static NPPlanException errorCycle(
     final NPStrings strings,
     final Exception e,
-    final RDottedName source,
-    final RDottedName target)
+    final NPPlanElementName source,
+    final NPPlanElementName target)
   {
     return new NPPlanException(
       strings.format(ERROR_PLAN_CYCLIC),
@@ -125,11 +126,11 @@ public final class NPPlanExceptions
       Map.ofEntries(
         Map.entry(
           strings.format(SOURCE),
-          source.value()
+          source.toString()
         ),
         Map.entry(
           strings.format(TARGET),
-          target.value()
+          target.toString()
         )
       ),
       Optional.empty()
@@ -173,7 +174,7 @@ public final class NPPlanExceptions
 
   public static NPPlanException errorNoToolExecution(
     final NPStrings strings,
-    final RDottedName name)
+    final NPPlanElementName name)
   {
     return new NPPlanException(
       strings.format(ERROR_NO_TOOL_EXECUTION),
@@ -181,7 +182,7 @@ public final class NPPlanExceptions
       Map.ofEntries(
         Map.entry(
           strings.format(TASK),
-          name.value()
+          name.toString()
         )
       ),
       Optional.empty()
@@ -202,8 +203,8 @@ public final class NPPlanExceptions
   public static NPPlanException errorNonexistentElement(
     final NPStrings strings,
     final Exception e,
-    final RDottedName source,
-    final RDottedName target)
+    final NPPlanElementName source,
+    final NPPlanElementName target)
   {
     return new NPPlanException(
       strings.format(ERROR_NONEXISTENT),
@@ -212,11 +213,11 @@ public final class NPPlanExceptions
       Map.ofEntries(
         Map.entry(
           strings.format(SOURCE),
-          source.value()
+          source.toString()
         ),
         Map.entry(
           strings.format(TARGET),
-          target.value()
+          target.toString()
         )
       ),
       Optional.empty()

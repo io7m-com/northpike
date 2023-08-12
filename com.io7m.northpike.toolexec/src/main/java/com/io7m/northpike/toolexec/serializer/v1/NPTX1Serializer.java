@@ -18,6 +18,7 @@
 package com.io7m.northpike.toolexec.serializer.v1;
 
 import com.io7m.northpike.toolexec.NPTXSchemas;
+import com.io7m.northpike.toolexec.model.NPTXComment;
 import com.io7m.northpike.toolexec.model.NPTXDescription;
 import com.io7m.northpike.toolexec.model.NPTXEAnd;
 import com.io7m.northpike.toolexec.model.NPTXEFalse;
@@ -26,10 +27,12 @@ import com.io7m.northpike.toolexec.model.NPTXENot;
 import com.io7m.northpike.toolexec.model.NPTXENumber;
 import com.io7m.northpike.toolexec.model.NPTXEOr;
 import com.io7m.northpike.toolexec.model.NPTXEString;
+import com.io7m.northpike.toolexec.model.NPTXEStringSetContains;
 import com.io7m.northpike.toolexec.model.NPTXETrue;
 import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
 import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
 import com.io7m.northpike.toolexec.model.NPTXEVariableString;
+import com.io7m.northpike.toolexec.model.NPTXEVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXExpressionType;
 import com.io7m.northpike.toolexec.model.NPTXSArgumentAdd;
 import com.io7m.northpike.toolexec.model.NPTXSEnvironmentClear;
@@ -145,8 +148,21 @@ public final class NPTX1Serializer
       this.serializeStatementIf(s);
       return;
     }
+    if (statement instanceof final NPTXComment s) {
+      this.serializeComment(s);
+      return;
+    }
 
     throw new IllegalStateException();
+  }
+
+  private void serializeComment(
+    final NPTXComment statement)
+    throws XMLStreamException
+  {
+    this.output.writeStartElement(this.ns, "Comment");
+    this.output.writeCharacters(statement.text());
+    this.output.writeEndElement();
   }
 
   private void serializeStatementIf(
@@ -271,6 +287,10 @@ public final class NPTX1Serializer
       this.serializeExpressionVariableString(e);
       return;
     }
+    if (expression instanceof final NPTXEVariableStringSet e) {
+      this.serializeExpressionVariableStringSet(e);
+      return;
+    }
     if (expression instanceof final NPTXEAnd e) {
       this.serializeExpressionAnd(e);
       return;
@@ -283,8 +303,22 @@ public final class NPTX1Serializer
       this.serializeExpressionNot(e);
       return;
     }
+    if (expression instanceof final NPTXEStringSetContains e) {
+      this.serializeExpressionStringSetContains(e);
+      return;
+    }
 
     throw new IllegalStateException();
+  }
+
+  private void serializeExpressionStringSetContains(
+    final NPTXEStringSetContains e)
+    throws XMLStreamException
+  {
+    this.output.writeStartElement(this.ns, "StringSetContains");
+    this.output.writeAttribute("Value", e.value());
+    this.serializeExpression(e.e0());
+    this.output.writeEndElement();
   }
 
   private void serializeExpressionNot(
@@ -367,6 +401,15 @@ public final class NPTX1Serializer
     throws XMLStreamException
   {
     this.output.writeStartElement(this.ns, "VariableString");
+    this.output.writeAttribute("Name", e.name().value());
+    this.output.writeEndElement();
+  }
+
+  private void serializeExpressionVariableStringSet(
+    final NPTXEVariableStringSet e)
+    throws XMLStreamException
+  {
+    this.output.writeStartElement(this.ns, "VariableStringSet");
     this.output.writeAttribute("Name", e.name().value());
     this.output.writeEndElement();
   }

@@ -16,8 +16,8 @@
 
 package com.io7m.northpike.database.api;
 
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.model.NPToolArguments;
+import com.io7m.northpike.model.NPToolExecutionDescription;
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
 
 import java.util.Optional;
 
@@ -29,22 +29,22 @@ public sealed interface NPDatabaseQueriesToolsType
   extends NPDatabaseQueriesType
 {
   /**
-   * Update the given tool arguments.
+   * Update the given tool execution description.
    */
 
-  non-sealed interface ArgumentsPutType
-    extends NPDatabaseQueryType<NPToolArguments, NPDatabaseUnit>,
+  non-sealed interface PutExecutionDescriptionType
+    extends NPDatabaseQueryType<NPToolExecutionDescription, NPDatabaseUnit>,
     NPDatabaseQueriesToolsType
   {
 
   }
 
   /**
-   * Retrieve tool arguments.
+   * Retrieve a tool execution description.
    */
 
-  non-sealed interface ArgumentsGetType
-    extends NPDatabaseQueryType<RDottedName, Optional<NPToolArguments>>,
+  non-sealed interface GetExecutionDescriptionType
+    extends NPDatabaseQueryType<NPToolExecutionIdentifier, Optional<NPToolExecutionDescription>>,
     NPDatabaseQueriesToolsType
   {
 

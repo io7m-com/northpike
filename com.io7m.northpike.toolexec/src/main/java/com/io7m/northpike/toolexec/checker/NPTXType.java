@@ -30,6 +30,12 @@ public enum NPTXType
   TYPE_STRING,
 
   /**
+   * The string-set type.
+   */
+
+  TYPE_STRING_SET,
+
+  /**
    * The numeric type.
    */
 

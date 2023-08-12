@@ -17,8 +17,6 @@
 
 package com.io7m.northpike.plans;
 
-import com.io7m.lanark.core.RDottedName;
-
 /**
  * The type of mutable builders for plan elements.
  */
@@ -29,7 +27,7 @@ public interface NPPlanElementBuilderType
    * @return The name of the element
    */
 
-  RDottedName name();
+  NPPlanElementName name();
 
   /**
    * Set the description of the element.
@@ -56,6 +54,6 @@ public interface NPPlanElementBuilderType
    */
 
   NPPlanElementBuilderType addDependsOn(
-    RDottedName target)
+    NPPlanElementName target)
     throws NPPlanException;
 }
