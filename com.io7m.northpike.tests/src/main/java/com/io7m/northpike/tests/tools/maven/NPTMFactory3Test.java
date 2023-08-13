@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
@@ -200,16 +199,17 @@ public final class NPTMFactory3Test implements Flow.Subscriber<NPToolEventType>
       tool.events().subscribe(this);
       tool.install();
       assertTrue(tool.isInstalled());
+
+      final var root =
+        directory.getRoot();
       final var result =
-        tool.execute(
-          FileSystems.getDefault().getRootDirectories().iterator().next(),
-          List.of("--version")
-        );
+        tool.execute(root, List.of("--version"));
 
       assertEquals(0, result.exitCode());
       assertTrue(String.join("\n", result.output()).contains("3.9.4"));
     }
   }
+
 
   private static InputStream resource(
     final String name)
