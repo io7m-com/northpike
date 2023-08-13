@@ -28,6 +28,7 @@ module com.io7m.northpike.scm_repository.jgit
 
   requires com.io7m.northpike.telemetry.api;
 
+  requires com.io7m.jmulticlose.core;
   requires com.io7m.lanark.core;
   requires io.opentelemetry.api;
   requires io.opentelemetry.context;

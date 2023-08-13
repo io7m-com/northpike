@@ -17,12 +17,15 @@
 
 package com.io7m.northpike.repository.jgit.internal;
 
+import com.io7m.jmulticlose.core.CloseableCollection;
+import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitLink;
 import com.io7m.northpike.model.NPCommitSummary;
+import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
 import com.io7m.northpike.model.NPRepositoryDescription;
@@ -86,7 +89,9 @@ import static org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode.YE
 
 public final class NPSCMJGRepository implements NPSCMRepositoryType
 {
-  private static final OpenOption[] TEMPORARY_FILE_OPTIONS = {TRUNCATE_EXISTING, CREATE, WRITE};
+  private static final OpenOption[] TEMPORARY_FILE_OPTIONS =
+    {TRUNCATE_EXISTING, CREATE, WRITE};
+
   private final NPStrings strings;
   private final NPTelemetryServiceType telemetry;
   private final NPRepositoryDescription repositoryDescription;
@@ -94,6 +99,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
   private final HashMap<String, String> attributes;
   private final SubmissionPublisher<NPSCMEventType> events;
   private Git git;
+  private final CloseableCollectionType<NPSCMRepositoryException> resources;
 
   private NPSCMJGRepository(
     final NPStrings inStrings,
@@ -111,8 +117,17 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
       Objects.requireNonNull(inRepoPath, "repoPath");
     this.attributes =
       new HashMap<>();
+    this.resources =
+      CloseableCollection.create(() -> {
+        return new NPSCMRepositoryException(
+          "One or more resources could not be closed.",
+          new NPErrorCode("resource"),
+          Map.of(),
+          Optional.empty()
+        );
+      });
     this.events =
-      new SubmissionPublisher<>();
+      this.resources.add(new SubmissionPublisher<>());
   }
 
   /**
@@ -156,8 +171,6 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
       dataDirectory.resolve(expected.value());
     final var repos =
       scmDirectory.resolve(repository.id() + ".git");
-    final var tmpDirectory =
-      scmDirectory.resolve("temporary");
 
     return new NPSCMJGRepository(
       strings,
@@ -491,7 +504,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     try (var ignored = span.makeCurrent()) {
       final var task = new NPSCMJTask(this.events, PULL);
       try {
-        this.git = Git.open(this.repoPath.toFile());
+        this.git = this.resources.add(Git.open(this.repoPath.toFile()));
         this.git.fetch()
           .setCredentialsProvider(this.createCredentialsProvider())
           .setProgressMonitor(task)
@@ -550,17 +563,19 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
       final var task = new NPSCMJTask(this.events, CLONE);
       try {
         this.git =
-          Git.cloneRepository()
-            .setBare(true)
-            .setCloneAllBranches(true)
-            .setTagOption(TagOpt.FETCH_TAGS)
-            .setGitDir(this.repoPath.toFile())
-            .setMirror(true)
-            .setURI(this.repositoryDescription.url().normalize().toString())
-            .setCredentialsProvider(this.createCredentialsProvider())
-            .setProgressMonitor(task)
-            .setCloneSubmodules(true)
-            .call();
+          this.resources.add(
+            Git.cloneRepository()
+              .setBare(true)
+              .setCloneAllBranches(true)
+              .setTagOption(TagOpt.FETCH_TAGS)
+              .setGitDir(this.repoPath.toFile())
+              .setMirror(true)
+              .setURI(this.repositoryDescription.url().normalize().toString())
+              .setCredentialsProvider(this.createCredentialsProvider())
+              .setProgressMonitor(task)
+              .setCloneSubmodules(true)
+              .call()
+          );
 
         task.onCompleted();
       } catch (final Exception e) {
@@ -594,7 +609,8 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
 
   @Override
   public void close()
+    throws NPSCMRepositoryException
   {
-    this.events.close();
+    this.resources.close();
   }
 }

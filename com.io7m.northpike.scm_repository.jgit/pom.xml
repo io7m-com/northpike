@@ -50,6 +50,10 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.jmulticlose</groupId>
+      <artifactId>com.io7m.jmulticlose.core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.repetoir</groupId>
       <artifactId>com.io7m.repetoir.core</artifactId>
     </dependency>
