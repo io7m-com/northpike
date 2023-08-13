@@ -98,8 +98,8 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
   private final Path repoPath;
   private final HashMap<String, String> attributes;
   private final SubmissionPublisher<NPSCMEventType> events;
-  private Git git;
   private final CloseableCollectionType<NPSCMRepositoryException> resources;
+  private Git git;
 
   private NPSCMJGRepository(
     final NPStrings inStrings,
@@ -504,7 +504,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     try (var ignored = span.makeCurrent()) {
       final var task = new NPSCMJTask(this.events, PULL);
       try {
-        this.git = this.resources.add(Git.open(this.repoPath.toFile()));
+        this.git = this.exchangeGit(Git.open(this.repoPath.toFile()));
         this.git.fetch()
           .setCredentialsProvider(this.createCredentialsProvider())
           .setProgressMonitor(task)
@@ -563,7 +563,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
       final var task = new NPSCMJTask(this.events, CLONE);
       try {
         this.git =
-          this.resources.add(
+          this.exchangeGit(
             Git.cloneRepository()
               .setBare(true)
               .setCloneAllBranches(true)
@@ -587,6 +587,17 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     } finally {
       span.end();
     }
+  }
+
+  private Git exchangeGit(
+    final Git newGit)
+  {
+    final var oldGit = this.git;
+    if (oldGit != null) {
+      oldGit.close();
+    }
+    this.git = this.resources.add(newGit);
+    return this.git;
   }
 
   private CredentialsProvider createCredentialsProvider()
