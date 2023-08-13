@@ -165,6 +165,10 @@
       <groupId>com.io7m.quixote</groupId>
       <artifactId>com.io7m.quixote.core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.io7m.percentpass</groupId>
+      <artifactId>com.io7m.percentpass.extension</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>

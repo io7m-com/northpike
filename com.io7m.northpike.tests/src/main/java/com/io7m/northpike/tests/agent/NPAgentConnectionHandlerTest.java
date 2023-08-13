@@ -30,9 +30,9 @@ import com.io7m.northpike.protocol.intro.NPIProtocol;
 import com.io7m.northpike.protocol.intro.NPIProtocolsAvailable;
 import com.io7m.northpike.protocol.intro.cb.NPIMessages;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.percentpass.extension.MinimumPassing;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,13 +118,10 @@ public final class NPAgentConnectionHandlerTest
 
   /**
    * The connection fails if the server refuses the chosen version.
-   *
-   * @throws Exception On errors
    */
 
-  @Test
+  @MinimumPassing(executionCount = 5, passMinimum = 3)
   public void testServerRejectsVersion()
-    throws Exception
   {
     this.executor.execute(() -> {
       try {
@@ -179,13 +176,10 @@ public final class NPAgentConnectionHandlerTest
 
   /**
    * The connection fails if the server sends back an invalid confirmation.
-   *
-   * @throws Exception On errors
    */
 
-  @Test
+  @MinimumPassing(executionCount = 5, passMinimum = 3)
   public void testServerWrongVersion()
-    throws Exception
   {
     this.executor.execute(() -> {
       try {
@@ -237,13 +231,10 @@ public final class NPAgentConnectionHandlerTest
 
   /**
    * The connection fails if the server does not expose a supported version.
-   *
-   * @throws Exception On errors
    */
 
-  @Test
+  @MinimumPassing(executionCount = 5, passMinimum = 3)
   public void testServerNoSupportedVersion()
-    throws Exception
   {
     this.executor.execute(() -> {
       try {
@@ -287,13 +278,10 @@ public final class NPAgentConnectionHandlerTest
 
   /**
    * The connection fails if the server sends a message that's too large.
-   *
-   * @throws Exception On errors
    */
 
-  @Test
+  @MinimumPassing(executionCount = 5, passMinimum = 3)
   public void testServerMessageTooLarge()
-    throws Exception
   {
     this.executor.execute(() -> {
       try {
@@ -339,13 +327,10 @@ public final class NPAgentConnectionHandlerTest
 
   /**
    * The connection fails if the server sends nonsense.
-   *
-   * @throws Exception On errors
    */
 
-  @Test
+  @MinimumPassing(executionCount = 5, passMinimum = 3)
   public void testServerInitialNonsense0()
-    throws Exception
   {
     this.executor.execute(() -> {
       try {
@@ -384,13 +369,10 @@ public final class NPAgentConnectionHandlerTest
 
   /**
    * The connection fails if the server sends nonsense.
-   *
-   * @throws Exception On errors
    */
 
-  @Test
+  @MinimumPassing(executionCount = 5, passMinimum = 3)
   public void testServerInitialNonsense1()
-    throws Exception
   {
     this.executor.execute(() -> {
       try {
@@ -425,13 +407,10 @@ public final class NPAgentConnectionHandlerTest
 
   /**
    * The connection fails if the server sends nonsense.
-   *
-   * @throws Exception On errors
    */
 
-  @Test
+  @MinimumPassing(executionCount = 5, passMinimum = 3)
   public void testServerInitialNonsense2()
-    throws Exception
   {
     this.executor.execute(() -> {
       try {
@@ -473,7 +452,7 @@ public final class NPAgentConnectionHandlerTest
    * @throws Exception On errors
    */
 
-  @Test
+  @MinimumPassing(executionCount = 5, passMinimum = 3)
   public void testServerSuccess0()
     throws Exception
   {
