@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.agent.main.internal;
 
+import com.io7m.anethum.slf4j.ParseStatusLogging;
 import com.io7m.northpike.agent.NPAgents;
 import com.io7m.northpike.agent.api.NPAgentConfiguration;
 import com.io7m.northpike.agent.configuration.NPAgentConfigurationFiles;
@@ -100,34 +101,7 @@ public final class NPACmdRun implements QCommandType
            NPAgentConfigurationFiles.open(
              strings,
              configurationFile,
-             parseStatus -> {
-               switch (parseStatus.severity()) {
-                 case PARSE_INFO -> {
-                   LOG.info(
-                     "{}:{}: {}",
-                     Integer.valueOf(parseStatus.lexical().line()),
-                     Integer.valueOf(parseStatus.lexical().column()),
-                     parseStatus.message()
-                   );
-                 }
-                 case PARSE_WARNING -> {
-                   LOG.warn(
-                     "{}:{}: {}",
-                     Integer.valueOf(parseStatus.lexical().line()),
-                     Integer.valueOf(parseStatus.lexical().column()),
-                     parseStatus.message()
-                   );
-                 }
-                 case PARSE_ERROR -> {
-                   LOG.error(
-                     "{}:{}: {}",
-                     Integer.valueOf(parseStatus.lexical().line()),
-                     Integer.valueOf(parseStatus.lexical().column()),
-                     parseStatus.message()
-                   );
-                 }
-               }
-             })) {
+             status -> ParseStatusLogging.logMinimal(LOG, status))) {
       configuration = files.execute();
     }
 

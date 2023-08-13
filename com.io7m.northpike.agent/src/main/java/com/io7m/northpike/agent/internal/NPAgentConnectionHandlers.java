@@ -151,7 +151,7 @@ public final class NPAgentConnectionHandlers
         solvedEndpoint.supported.version().versionMajor().longValue()
       );
 
-    sendMessage(outputStream, chosen);
+    sendMessage(configuration.strings(), outputStream, chosen);
 
     final var confirmed =
       readNPIMessageOfType(
@@ -175,6 +175,21 @@ public final class NPAgentConnectionHandlers
         inputStream,
         outputStream
       );
+  }
+
+  private static void sendMessage(
+    final NPStrings strings,
+    final OutputStream outputStream,
+    final NPIProtocol message)
+    throws NPAgentException
+  {
+    try {
+      NPI_MESSAGES.writeLengthPrefixed(outputStream, message);
+    } catch (final NPProtocolException e) {
+      throw NPAgentExceptions.errorProtocol(e);
+    } catch (final IOException e) {
+      throw NPAgentExceptions.errorIO(strings, e);
+    }
   }
 
   private static GenProtocolSolved<NPAgentConnectionHandlerFactoryType, NPServerEndpoint>
@@ -222,22 +237,6 @@ public final class NPAgentConnectionHandlers
       );
     }
     return solved;
-  }
-
-  private static void sendMessage(
-    final OutputStream outputStream,
-    final NPIMessageType message)
-    throws IOException
-  {
-    final var messageData = NPI_MESSAGES.serialize(message);
-    final var sizeBytes = new byte[4];
-    final var sizeBuffer = ByteBuffer.wrap(sizeBytes);
-    sizeBuffer.order(ByteOrder.BIG_ENDIAN);
-    sizeBuffer.putInt(0, messageData.length);
-
-    outputStream.write(sizeBytes);
-    outputStream.write(messageData);
-    outputStream.flush();
   }
 
   private static <M extends NPIMessageType> M readNPIMessageOfType(

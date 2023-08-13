@@ -35,8 +35,8 @@ import java.util.Optional;
  * @param databases             The factory of databases that will be used for
  *                              the server
  * @param locale                The locale
- * @param limitsConfiguration   The limits configuration
  * @param idstoreConfiguration  The idstore configuration
+ * @param agentConfiguration    The agent service configuration
  * @param openTelemetry         The OpenTelemetry configuration
  */
 
@@ -47,7 +47,7 @@ public record NPServerConfiguration(
   NPDatabaseFactoryType databases,
   NPDatabaseConfiguration databaseConfiguration,
   NPServerIdstoreConfiguration idstoreConfiguration,
-  NPServerLimitsConfiguration limitsConfiguration,
+  NPServerAgentConfiguration agentConfiguration,
   Optional<NPTelemetryConfiguration> openTelemetry)
 {
   /**
@@ -59,8 +59,8 @@ public record NPServerConfiguration(
    * @param databases             The factory of databases that will be used for
    *                              the server
    * @param locale                The locale
-   * @param limitsConfiguration   The limits configuration
    * @param idstoreConfiguration  The idstore configuration
+   * @param agentConfiguration    The agent service configuration
    * @param openTelemetry         The OpenTelemetry configuration
    */
 
@@ -71,7 +71,7 @@ public record NPServerConfiguration(
     Objects.requireNonNull(databaseConfiguration, "databaseConfiguration");
     Objects.requireNonNull(databases, "databases");
     Objects.requireNonNull(idstoreConfiguration, "idstoreConfiguration");
-    Objects.requireNonNull(limitsConfiguration, "limitsConfiguration");
+    Objects.requireNonNull(agentConfiguration, "agentConfiguration");
     Objects.requireNonNull(locale, "locale");
     Objects.requireNonNull(openTelemetry, "openTelemetry");
   }

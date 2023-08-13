@@ -27,4 +27,8 @@
   <suppress files="NPTX1Statements.java"
             checks="IllegalInstantiation"/>
 
+  <!-- Lots of injected services. -->
+  <suppress files="NPAgentService.java"
+            checks="ParameterNumber"/>
+
 </suppressions>

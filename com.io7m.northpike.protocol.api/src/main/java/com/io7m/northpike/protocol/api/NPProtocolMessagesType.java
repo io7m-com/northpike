@@ -151,15 +151,19 @@ public interface NPProtocolMessagesType<T extends NPProtocolMessageType>
    * @param stream  The output stream
    * @param message The message
    *
+   * @return The number of serialized bytes
+   *
    * @throws NPProtocolException On errors
    * @throws IOException         On errors
    */
 
-  default void writeLengthPrefixed(
+  default int writeLengthPrefixed(
     final OutputStream stream,
     final T message)
     throws NPProtocolException, IOException
   {
-    stream.write(this.serializeLengthPrefixed(message));
+    final var data = this.serializeLengthPrefixed(message);
+    stream.write(data);
+    return data.length;
   }
 }

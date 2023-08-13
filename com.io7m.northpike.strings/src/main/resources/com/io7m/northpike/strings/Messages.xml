@@ -12,6 +12,7 @@
   <entry key="clone">Clone</entry>
   <entry key="downloading">Downloading {0}</entry>
   <entry key="entry">Entry</entry>
+  <entry key="error_authentication">Authentication failed.</entry>
   <entry key="error_duplicate">Object already exists.</entry>
   <entry key="error_duplicate_deleted">A previously deleted object exists with this ID.</entry>
   <entry key="error_hash_mismatch">Hash value mismatch.</entry>
@@ -23,6 +24,7 @@
   <entry key="error_parse">Parse error.</entry>
   <entry key="error_plan_cyclic">Adding this dependency would create a cycle in the plan.</entry>
   <entry key="error_protocol">Protocol error.</entry>
+  <entry key="error_protocol_unsupported">Unsupported protocol.</entry>
   <entry key="error_read_short">Read fewer octets than were required.</entry>
   <entry key="error_repository_wrong_provider">Incorrect repository provider.</entry>
   <entry key="error_resource_closing">One or more resources could not be closed.</entry>

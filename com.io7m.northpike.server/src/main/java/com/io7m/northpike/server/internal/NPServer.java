@@ -16,9 +16,7 @@
 
 package com.io7m.northpike.server.internal;
 
-
 import com.io7m.idstore.model.IdName;
-import com.io7m.jmulticlose.core.CloseableCollection;
 import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseException;
@@ -30,11 +28,19 @@ import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.api.NPServerType;
+import com.io7m.northpike.server.internal.agents.NPAgentService;
+import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
+import com.io7m.northpike.server.internal.clock.NPClock;
+import com.io7m.northpike.server.internal.clock.NPClockServiceType;
+import com.io7m.northpike.server.internal.configuration.NPConfigurationService;
+import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
+import com.io7m.northpike.server.internal.events.NPEventService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
 import com.io7m.northpike.server.internal.telemetry.NPTelemetryNoOp;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.repetoir.core.RPServiceDirectory;
@@ -42,6 +48,7 @@ import com.io7m.repetoir.core.RPServiceDirectoryType;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 
+import java.time.Clock;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,6 +57,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.telemetry.api.NPTelemetryServiceType.recordSpanException;
 import static java.lang.Integer.toUnsignedString;
 
 /**
@@ -76,23 +84,9 @@ public final class NPServer implements NPServerType
     this.configuration =
       Objects.requireNonNull(inConfiguration, "configuration");
     this.resources =
-      createResourceCollection();
+      NPServerResources.createResources();
     this.stopped =
       new AtomicBoolean(true);
-  }
-
-  private static CloseableCollectionType<NPServerException> createResourceCollection()
-  {
-    return CloseableCollection.create(
-      () -> {
-        return new NPServerException(
-          "Server creation failed.",
-          new NPErrorCode("server-creation"),
-          Map.of(),
-          Optional.empty()
-        );
-      }
-    );
   }
 
   @Override
@@ -101,7 +95,7 @@ public final class NPServer implements NPServerType
   {
     try {
       if (this.stopped.compareAndSet(true, false)) {
-        this.resources = createResourceCollection();
+        this.resources = NPServerResources.createResources();
         this.telemetry = this.createTelemetry();
 
         final var startupSpan =
@@ -110,51 +104,8 @@ public final class NPServer implements NPServerType
             .setSpanKind(SpanKind.INTERNAL)
             .startSpan();
 
-        try {
-          this.database =
-            this.resources.add(
-              this.createDatabase(
-                new NPDatabaseTelemetry(
-                  this.telemetry.isNoOp(),
-                  this.telemetry.meter(),
-                  this.telemetry.tracer()
-                )
-              )
-            );
-
-          final var services =
-            this.resources.add(this.createServiceDirectory(this.database));
-
-        } catch (final NPDatabaseException e) {
-          startupSpan.recordException(e);
-
-          try {
-            this.close();
-          } catch (final NPServerException ex) {
-            e.addSuppressed(ex);
-          }
-          throw new NPServerException(
-            e.getMessage(),
-            e,
-            new NPErrorCode("database"),
-            e.attributes(),
-            e.remediatingAction()
-          );
-        } catch (final Exception e) {
-          startupSpan.recordException(e);
-
-          try {
-            this.close();
-          } catch (final NPServerException ex) {
-            e.addSuppressed(ex);
-          }
-          throw new NPServerException(
-            e.getMessage(),
-            e,
-            new NPErrorCode("startup"),
-            Map.of(),
-            Optional.empty()
-          );
+        try (var ignored = startupSpan.makeCurrent()) {
+          this.startInSpan();
         } finally {
           startupSpan.end();
         }
@@ -162,6 +113,62 @@ public final class NPServer implements NPServerType
     } catch (final Throwable e) {
       this.close();
       throw e;
+    }
+  }
+
+  private void startInSpan()
+    throws NPServerException
+  {
+    try {
+      final var dbTelemetry =
+        new NPDatabaseTelemetry(
+          this.telemetry.isNoOp(),
+          this.telemetry.meter(),
+          this.telemetry.tracer()
+        );
+
+      this.database =
+        this.resources.add(this.createDatabase(dbTelemetry));
+      final var services =
+        this.resources.add(this.createServiceDirectory(this.database));
+
+      final var agents =
+        services.requireService(NPAgentServiceType.class);
+
+      agents.start();
+    } catch (final NPDatabaseException e) {
+      recordSpanException(e);
+
+      try {
+        this.close();
+      } catch (final NPServerException ex) {
+        e.addSuppressed(ex);
+      }
+
+      throw new NPServerException(
+        e.getMessage(),
+        e,
+        new NPErrorCode("database"),
+        Map.of(),
+        Optional.empty()
+      );
+
+    } catch (final Exception e) {
+      recordSpanException(e);
+
+      try {
+        this.close();
+      } catch (final NPServerException ex) {
+        e.addSuppressed(ex);
+      }
+
+      throw new NPServerException(
+        e.getMessage(),
+        e,
+        new NPErrorCode("startup"),
+        Map.of(),
+        Optional.empty()
+      );
     }
   }
 
@@ -177,6 +184,19 @@ public final class NPServer implements NPServerType
 
     final var metrics = new NPMetricsService(this.telemetry);
     services.register(NPMetricsServiceType.class, metrics);
+
+    final var events = NPEventService.create(this.telemetry);
+    services.register(NPEventServiceType.class, events);
+
+    final var clock = new NPClock(Clock.systemUTC());
+    services.register(NPClockServiceType.class, clock);
+
+    final var config =
+      NPConfigurationService.create(this.configuration);
+    services.register(NPConfigurationServiceType.class, config);
+
+    final var agents = NPAgentService.create(services);
+    services.register(NPAgentServiceType.class, agents);
     return services;
   }
 

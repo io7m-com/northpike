@@ -80,7 +80,8 @@ public final class NPAgentConnectionHandler1
     throws NPAgentException
   {
     try {
-      if (this.input.available() <= 4) {
+      final var available = this.input.available();
+      if (available <= 4) {
         return Optional.empty();
       }
 

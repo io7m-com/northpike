@@ -17,41 +17,15 @@
 
 package com.io7m.northpike.agent.internal;
 
-import com.io7m.northpike.agent.api.NPAgentException;
+import com.io7m.northpike.connections.NPMessageHandlerType;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
-
-import java.util.Optional;
 
 /**
  * The type of handlers for sending and receiving versioned messages.
  */
 
 public interface NPAgentConnectionHandlerType
-  extends AutoCloseable
+  extends NPMessageHandlerType<NPAMessageType>
 {
-  /**
-   * Send a message.
-   *
-   * @param message The message
-   *
-   * @throws NPAgentException On errors
-   */
 
-  void send(NPAMessageType message)
-    throws NPAgentException;
-
-  /**
-   * Check to see if a message is available.
-   *
-   * @return The message, if any
-   *
-   * @throws NPAgentException On errors
-   */
-
-  Optional<NPAMessageType> receive()
-    throws NPAgentException;
-
-  @Override
-  void close()
-    throws NPAgentException;
 }

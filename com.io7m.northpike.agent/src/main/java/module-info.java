@@ -29,6 +29,7 @@ module com.io7m.northpike.agent
   requires org.slf4j;
 
   requires com.io7m.northpike.agent.api;
+  requires com.io7m.northpike.connections;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.protocol.agent.cb;
   requires com.io7m.northpike.protocol.agent;

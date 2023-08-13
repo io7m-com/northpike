@@ -38,6 +38,7 @@ import java.util.Optional;
  * @param clock              A clock for time retrievals
  * @param strings            The string resources
  * @param language           The language used for databases (such as 'english')
+ * @param useTLS             {@code true} if TLS should be used for database connections
  */
 
 public record NPDatabaseConfiguration(
@@ -50,6 +51,7 @@ public record NPDatabaseConfiguration(
   String databaseName,
   NPDatabaseCreate create,
   NPDatabaseUpgrade upgrade,
+  boolean useTLS,
   String language,
   Clock clock,
   NPStrings strings)
@@ -73,6 +75,7 @@ public record NPDatabaseConfiguration(
    * @param strings            The string resources
    * @param language           The language used for databases
    *                           (such as 'english')
+   * @param useTLS             {@code true} if TLS should be used for database connections
    */
 
   public NPDatabaseConfiguration
@@ -107,6 +110,7 @@ public record NPDatabaseConfiguration(
       this.databaseName,
       NPDatabaseCreate.DO_NOT_CREATE_DATABASE,
       NPDatabaseUpgrade.DO_NOT_UPGRADE_DATABASE,
+      this.useTLS,
       this.language,
       this.clock,
       this.strings

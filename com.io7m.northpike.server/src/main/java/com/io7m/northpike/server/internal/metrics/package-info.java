@@ -15,9 +15,8 @@
  */
 
 /**
- * Continuous integration (Server API)
+ * Continuous integration (Server)
  */
-
 
 @Version("1.0.0")
 package com.io7m.northpike.server.internal.metrics;

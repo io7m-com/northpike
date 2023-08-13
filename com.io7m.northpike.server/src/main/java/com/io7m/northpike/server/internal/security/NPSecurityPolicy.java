@@ -16,8 +16,8 @@
 
 package com.io7m.northpike.server.internal.security;
 
-import com.io7m.anethum.api.ParseStatus;
 import com.io7m.anethum.api.ParsingException;
+import com.io7m.anethum.slf4j.ParseStatusLogging;
 import com.io7m.medrina.api.MPolicy;
 import com.io7m.medrina.api.MRoleName;
 import com.io7m.medrina.vanilla.MPolicyParsers;
@@ -75,57 +75,11 @@ public final class NPSecurityPolicy
              parsers.createParser(
                source,
                stream,
-               NPSecurityPolicy::logStatus)) {
+               status -> ParseStatusLogging.logWithAll(LOG, status))) {
         return parser.execute();
       } catch (final ParsingException e) {
         LOG.error("One or more parse errors were encountered.");
         throw new IOException(e.getMessage(), e);
-      }
-    }
-  }
-
-  private static void logStatus(
-    final ParseStatus status)
-  {
-    switch (status.severity()) {
-      case PARSE_ERROR -> {
-        LOG.error(
-          "{}:{}: {}: {}",
-          Integer.valueOf(status.lexical().line()),
-          Integer.valueOf(status.lexical().column()),
-          status.errorCode(),
-          status.message()
-        );
-
-        for (final var entry : status.attributes().entrySet()) {
-          LOG.error("  {}: {}", entry.getKey(), entry.getValue());
-        }
-      }
-      case PARSE_WARNING -> {
-        LOG.warn(
-          "{}:{}: {}: {}",
-          Integer.valueOf(status.lexical().line()),
-          Integer.valueOf(status.lexical().column()),
-          status.errorCode(),
-          status.message()
-        );
-
-        for (final var entry : status.attributes().entrySet()) {
-          LOG.warn("  {}: {}", entry.getKey(), entry.getValue());
-        }
-      }
-      case PARSE_INFO -> {
-        LOG.info(
-          "{}:{}: {}: {}",
-          Integer.valueOf(status.lexical().line()),
-          Integer.valueOf(status.lexical().column()),
-          status.errorCode(),
-          status.message()
-        );
-
-        for (final var entry : status.attributes().entrySet()) {
-          LOG.info("  {}: {}", entry.getKey(), entry.getValue());
-        }
       }
     }
   }

@@ -14,18 +14,13 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.server.api;
-
 /**
- * Configuration information for limits.
- *
- * @param maximumFileUploadSizeOctets The maximum permitted size of uploaded files (in octets).
- * @param maximumCommandSizeOctets    The maximum permitted size of ordinary commands (in octets).
+ * Continuous integration (Server Configuration)
  */
 
-public record NPServerLimitsConfiguration(
-  long maximumFileUploadSizeOctets,
-  long maximumCommandSizeOctets)
-{
+@Export
+@Version("1.0.0")
+package com.io7m.northpike.server.configuration;
 
-}
+import org.osgi.annotation.bundle.Export;
+import org.osgi.annotation.versioning.Version;

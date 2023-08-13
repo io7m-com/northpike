@@ -92,7 +92,7 @@ public final class NPDBQAgentGet
         .on(AGENTS.A_ID.eq(AGENTS_PROPERTIES.AP_ID))
         .leftOuterJoin(AGENT_LABELS)
         .on(AGENTS.A_ID.eq(AGENT_LABELS.AL_AGENT))
-        .join(AGENT_LABEL_DEFINITIONS)
+        .leftOuterJoin(AGENT_LABEL_DEFINITIONS)
         .on(AGENT_LABEL_DEFINITIONS.ALD_ID.eq(AGENT_LABELS.AL_LABEL));
 
     recordQuery(query);

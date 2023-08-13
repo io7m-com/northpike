@@ -44,6 +44,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.scm_repository.jgit;
   requires com.io7m.northpike.scm_repository.spi;
   requires com.io7m.northpike.server.api;
+  requires com.io7m.northpike.server.configuration;
   requires com.io7m.northpike.server;
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
@@ -54,6 +55,7 @@ open module com.io7m.northpike.tests
 
   requires com.googlecode.javaewah;
   requires com.io7m.anethum.api;
+  requires com.io7m.anethum.slf4j;
   requires com.io7m.blackthorne.core;
   requires com.io7m.blackthorne.jxe;
   requires com.io7m.ervilla.api;

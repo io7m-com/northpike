@@ -27,6 +27,7 @@ import com.io7m.northpike.agent.api.NPAgentConnectionStatus;
 import com.io7m.northpike.agent.api.NPAgentException;
 import com.io7m.northpike.agent.api.NPAgentType;
 import com.io7m.northpike.model.NPErrorCode;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
 import com.io7m.northpike.protocol.agent.NPACommandS2CType;
 import com.io7m.northpike.protocol.agent.NPACommandSLatencyCheck;
@@ -40,7 +41,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -55,7 +55,7 @@ import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.CONNECTING;
  */
 
 public final class NPAgent implements NPAgentType,
-  Flow.Subscriber<NPAgentException>
+  Flow.Subscriber<NPException>
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(NPAgent.class);
@@ -170,9 +170,7 @@ public final class NPAgent implements NPAgentType,
 
   private void run()
   {
-    try (var connection =
-           NPAgentConnection.open(this.configuration)) {
-
+    try (var connection = new NPAgentConnection(this.configuration)) {
       connection.exceptions()
         .subscribe(this);
 
@@ -187,7 +185,7 @@ public final class NPAgent implements NPAgentType,
       while (this.running.get()) {
         runHandleMessages(connection);
       }
-    } catch (final NPAgentException e) {
+    } catch (final NPException e) {
       LOG.warn("Closing connection: ", e);
     }
   }
@@ -199,19 +197,7 @@ public final class NPAgent implements NPAgentType,
       connection.takeReceivedMessages();
 
     for (final var message : messages) {
-      final var future =
-        runHandleMessage(connection, message);
-
-      future.handle((o, throwable) -> {
-        if (throwable != null) {
-          LOG.error(
-            "Error handling message {}: ",
-            message.messageID(),
-            throwable
-          );
-        }
-        return o;
-      });
+      runHandleMessage(connection, message);
     }
   }
 
@@ -228,34 +214,32 @@ public final class NPAgent implements NPAgentType,
       });
   }
 
-  private static CompletableFuture<?> runHandleMessage(
+  private static void runHandleMessage(
     final NPAgentConnectionType connection,
     final NPAMessageType message)
   {
     if (message instanceof final NPACommandS2CType<?> s2c) {
-      return runHandleS2CCommand(connection, s2c);
+      runHandleS2CCommand(connection, s2c);
+      return;
     }
-
-    return CompletableFuture.completedFuture(null);
   }
 
-  private static CompletableFuture<?> runHandleS2CCommand(
+  private static void runHandleS2CCommand(
     final NPAgentConnectionType connection,
     final NPACommandS2CType<?> s2c)
   {
     if (s2c instanceof final NPACommandSLatencyCheck c) {
-      return runHandleCommandLatencyCheck(connection, c);
+      runHandleCommandLatencyCheck(connection, c);
+      return;
     }
-
-    return CompletableFuture.completedFuture(null);
   }
 
-  private static CompletableFuture<Void> runHandleCommandLatencyCheck(
+  private static void runHandleCommandLatencyCheck(
     final NPAgentConnectionType connection,
     final NPACommandSLatencyCheck c)
   {
     LOG.debug("Responding to latency check.");
-    return connection.submitResponse(
+    connection.submitResponse(
       new NPAResponseLatencyCheck(
         UUID.randomUUID(),
         c.messageID(),
@@ -283,7 +267,7 @@ public final class NPAgent implements NPAgentType,
 
   @Override
   public void onNext(
-    final NPAgentException item)
+    final NPException item)
   {
     LOG.error("Connection raised exception: ", item);
   }

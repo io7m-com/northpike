@@ -18,8 +18,6 @@ package com.io7m.northpike.server.internal.metrics;
 
 import com.io7m.repetoir.core.RPServiceType;
 
-import java.time.Duration;
-
 /**
  * The interface exposed by the metrics service.
  */
@@ -27,69 +25,10 @@ import java.time.Duration;
 public interface NPMetricsServiceType extends AutoCloseable, RPServiceType
 {
   /**
-   * An HTTP request was received.
-   */
-
-  void onHttpRequested();
-
-  /**
-   * An HTTP request resulted in a 5xx error.
-   */
-
-  void onHttp5xx();
-
-  /**
-   * An HTTP request resulted in a 2xx success.
-   */
-
-  void onHttp2xx();
-
-  /**
-   * An HTTP request resulted in a 4xx error.
-   */
-
-  void onHttp4xx();
-
-  /**
-   * An HTTP request was received of a given size.
+   * Set the number of connected agents.
    *
-   * @param size The size
+   * @param count The number of connected agents
    */
 
-  void onHttpRequestSize(
-    long size);
-
-  /**
-   * An HTTP response was produced of a given size.
-   *
-   * @param size The size
-   */
-
-  void onHttpResponseSize(
-    long size);
-
-  /**
-   * An HTTP response was produced in the given time.
-   *
-   * @param time The time
-   */
-
-  void onHttpResponseTime(
-    Duration time);
-
-  /**
-   * A login session was created.
-   *
-   * @param sizeNow The number of active sessions now
-   */
-
-  void onLogin(long sizeNow);
-
-  /**
-   * A login session was closed.
-   *
-   * @param sizeNow The number of active sessions now
-   */
-
-  void onLoginClosed(long sizeNow);
+  void setAgentsConnected(int count);
 }

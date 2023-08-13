@@ -44,4 +44,19 @@ public record NPAResponseOK(
     Objects.requireNonNull(messageID, "messageID");
     Objects.requireNonNull(correlationID, "correlationID");
   }
+
+  /**
+   * Create a generic response with a random message ID, with a correlation
+   * ID matched to the given command.
+   *
+   * @param command The command
+   *
+   * @return An OK response
+   */
+
+  public static NPAResponseOK createCorrelated(
+    final NPACommandType<?> command)
+  {
+    return new NPAResponseOK(UUID.randomUUID(), command.messageID());
+  }
 }

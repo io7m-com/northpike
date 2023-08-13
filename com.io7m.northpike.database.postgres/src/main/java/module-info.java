@@ -53,6 +53,7 @@ module com.io7m.northpike.database.postgres
   uses NPDBQueryProviderType;
 
   provides NPDBQueryProviderType with
+com.io7m.northpike.database.postgres.internal.NPDBQAgentGetByKey,
 com.io7m.northpike.database.postgres.internal.NPDBQAgentGet,
 com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelGet,
 com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelPut,

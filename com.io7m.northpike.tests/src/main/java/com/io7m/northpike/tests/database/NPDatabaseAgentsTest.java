@@ -475,4 +475,66 @@ public final class NPDatabaseAgentsTest
     }
     return agents;
   }
+
+  /**
+   * Retrieving an agent by key works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentGetByKey0()
+    throws Exception
+  {
+    final var get =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.GetByKeyType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+
+    final var agent =
+      new NPAgentDescription(
+        new NPAgentID(UUID.randomUUID()),
+        "Agent 0",
+        NPKey.generate(SecureRandom.getInstanceStrong()),
+        Map.of(),
+        Map.of(),
+        Map.of()
+      );
+
+    put.execute(agent);
+    this.transaction.commit();
+
+    assertEquals(agent, get.execute(agent.accessKey()).orElseThrow());
+  }
+
+  /**
+   * Retrieving an agent by works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentGet1()
+    throws Exception
+  {
+    final var get =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+
+    final var agent =
+      new NPAgentDescription(
+        new NPAgentID(UUID.randomUUID()),
+        "Agent 0",
+        NPKey.generate(SecureRandom.getInstanceStrong()),
+        Map.of(),
+        Map.of(),
+        Map.of()
+      );
+
+    put.execute(agent);
+    this.transaction.commit();
+
+    assertEquals(agent, get.execute(agent.id()).orElseThrow());
+  }
 }

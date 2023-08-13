@@ -21,6 +21,11 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.connections</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.model</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -42,6 +47,31 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.telemetry.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.protocol.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.protocol.agent</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.protocol.agent.cb</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.protocol.intro</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.protocol.intro.cb</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -66,12 +96,12 @@
       <artifactId>com.io7m.medrina.vanilla</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.io7m.jlexing</groupId>
-      <artifactId>com.io7m.jlexing.core</artifactId>
+      <groupId>com.io7m.anethum</groupId>
+      <artifactId>com.io7m.anethum.api</artifactId>
     </dependency>
     <dependency>
       <groupId>com.io7m.anethum</groupId>
-      <artifactId>com.io7m.anethum.api</artifactId>
+      <artifactId>com.io7m.anethum.slf4j</artifactId>
     </dependency>
     <dependency>
       <groupId>com.io7m.jmulticlose</groupId>

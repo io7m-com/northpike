@@ -26,13 +26,19 @@ module com.io7m.northpike.server
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
+  requires com.io7m.northpike.connections;
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.model;
+  requires com.io7m.northpike.protocol.agent.cb;
+  requires com.io7m.northpike.protocol.agent;
+  requires com.io7m.northpike.protocol.intro.cb;
+  requires com.io7m.northpike.protocol.intro;
   requires com.io7m.northpike.server.api;
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
 
   requires com.io7m.anethum.api;
+  requires com.io7m.anethum.slf4j;
   requires com.io7m.jmulticlose.core;
   requires com.io7m.medrina.vanilla;
   requires com.io7m.repetoir.core;
@@ -55,5 +61,17 @@ module com.io7m.northpike.server
   exports com.io7m.northpike.server;
 
   exports com.io7m.northpike.server.internal.telemetry
+    to com.io7m.northpike.tests;
+  exports com.io7m.northpike.server.internal.agents
+    to com.io7m.northpike.tests;
+  exports com.io7m.northpike.server.internal.configuration
+    to com.io7m.northpike.tests;
+  exports com.io7m.northpike.server.internal.clock
+    to com.io7m.northpike.tests;
+  exports com.io7m.northpike.server.internal.events
+    to com.io7m.northpike.tests;
+  exports com.io7m.northpike.server.internal.metrics
+    to com.io7m.northpike.tests;
+  exports com.io7m.northpike.server.internal
     to com.io7m.northpike.tests;
 }

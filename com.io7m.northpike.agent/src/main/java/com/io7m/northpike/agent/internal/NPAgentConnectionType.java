@@ -19,15 +19,13 @@ package com.io7m.northpike.agent.internal;
 
 import com.io7m.jattribute.core.AttributeReadableType;
 import com.io7m.northpike.agent.api.NPAgentConnectionStatus;
-import com.io7m.northpike.agent.api.NPAgentException;
+import com.io7m.northpike.connections.NPMessageConnectionType;
 import com.io7m.northpike.protocol.agent.NPACommandType;
 import com.io7m.northpike.protocol.agent.NPAEventType;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.NPAResponseType;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Flow;
 
 /**
  * A connection to a server, exposing asynchronous I/O operations and
@@ -35,7 +33,8 @@ import java.util.concurrent.Flow;
  * connection failures.
  */
 
-public interface NPAgentConnectionType extends AutoCloseable
+public interface NPAgentConnectionType
+  extends NPMessageConnectionType<NPAMessageType, NPAResponseType>
 {
   /**
    * @return The status of the connection
@@ -57,44 +56,22 @@ public interface NPAgentConnectionType extends AutoCloseable
     NPACommandType<R> command);
 
   /**
-   * Submit a response. The returned future is completed as soon as the message
-   * is written to the underlying network transport.
+   * Submit a response. The method blocks until the message is written to the
+   * underlying network transport.
    *
    * @param response The response
-   *
-   * @return The operation in progress
    */
 
-  CompletableFuture<Void> submitResponse(
+  void submitResponse(
     NPAResponseType response);
 
   /**
-   * Submit an event. The returned future is completed as soon as the message
-   * is written to the underlying network transport.
+   * Submit an event. The method blocks until the message is written to the
+   * underlying network transport.
    *
    * @param event The event
-   *
-   * @return The operation in progress
    */
 
-  CompletableFuture<Void> submitEvent(
+  void submitEvent(
     NPAEventType event);
-
-  /**
-   * Receive messages.
-   *
-   * @return The messages received since the last call to {{@link #takeReceivedMessages()}}
-   */
-
-  List<NPAMessageType> takeReceivedMessages();
-
-  /**
-   * @return A stream of events produced by the connection
-   */
-
-  Flow.Publisher<NPAgentException> exceptions();
-
-  @Override
-  void close()
-    throws NPAgentException;
 }

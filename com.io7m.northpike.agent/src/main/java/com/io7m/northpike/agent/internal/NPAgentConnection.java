@@ -17,15 +17,16 @@
 
 package com.io7m.northpike.agent.internal;
 
-import com.io7m.jattribute.core.AttributeReadableType;
 import com.io7m.jattribute.core.AttributeType;
 import com.io7m.jattribute.core.Attributes;
 import com.io7m.jmulticlose.core.CloseableCollection;
-import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.agent.api.NPAgentConfiguration;
 import com.io7m.northpike.agent.api.NPAgentConnectionStatus;
 import com.io7m.northpike.agent.api.NPAgentException;
+import com.io7m.northpike.connections.NPMessageConnectionAbstract;
+import com.io7m.northpike.connections.NPMessageHandlerType;
 import com.io7m.northpike.model.NPErrorCode;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.protocol.agent.NPACommandCLogin;
 import com.io7m.northpike.protocol.agent.NPACommandType;
 import com.io7m.northpike.protocol.agent.NPAEventType;
@@ -37,20 +38,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Flow;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.SubmissionPublisher;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.AUTHENTICATED;
 import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.AUTHENTICATING;
@@ -61,43 +53,36 @@ import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.CONNECTION_FA
 import static com.io7m.northpike.agent.internal.NPAgentExceptions.errorUnexpectedMessage;
 
 /**
- * A durable agent connection.
+ * An agent connection.
  */
 
-public final class NPAgentConnection implements NPAgentConnectionType
+public final class NPAgentConnection
+  extends NPMessageConnectionAbstract<NPAMessageType, NPAResponseType>
+  implements NPAgentConnectionType
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(NPAgentConnection.class);
 
-  private final NPAgentConfiguration configuration;
-  private final CloseableCollectionType<NPAgentException> resources;
-  private final AtomicBoolean closed;
-  private final LinkedBlockingQueue<NPSendQueueElementType> sendQueue;
-  private final HashMap<UUID, NPCommandAwaitingResponse> sentCommands;
-  private final LinkedBlockingQueue<NPAMessageType> receiveQueue;
   private final AttributeType<NPAgentConnectionStatus> status;
-  private final SubmissionPublisher<NPAgentException> exceptions;
-  private volatile NPAgentConnectionHandlerType handler;
+  private final NPAgentConfiguration configuration;
 
-  private NPAgentConnection(
-    final NPAgentConfiguration inConfiguration,
-    final CloseableCollectionType<NPAgentException> inResources)
+  NPAgentConnection(
+    final NPAgentConfiguration inConfiguration)
   {
-    this.configuration =
-      Objects.requireNonNull(inConfiguration, "configuration");
-    this.resources =
-      Objects.requireNonNull(inResources, "resources");
-    this.closed =
-      new AtomicBoolean(false);
+    super(
+      LOG,
+      CloseableCollection.create(() -> {
+        return new NPAgentException(
+          "One or more resources could not be closed.",
+          new NPErrorCode("resources"),
+          Map.of(),
+          Optional.empty()
+        );
+      })
+    );
 
-    this.sendQueue =
-      new LinkedBlockingQueue<>();
-    this.sentCommands =
-      new HashMap<>();
-    this.receiveQueue =
-      new LinkedBlockingQueue<>();
-    this.exceptions =
-      new SubmissionPublisher<>();
+    this.configuration =
+      Objects.requireNonNull(inConfiguration, "inConfiguration");
 
     this.status =
       Attributes.create(e -> LOG.error("Event handling error: ", e))
@@ -108,82 +93,51 @@ public final class NPAgentConnection implements NPAgentConnectionType
     });
   }
 
-  /**
-   * Open a connection to the server.
-   *
-   * @param configuration The agent configuration
-   *
-   * @return The connection
-   */
-
-  public static NPAgentConnectionType open(
-    final NPAgentConfiguration configuration)
+  @Override
+  public AttributeType<NPAgentConnectionStatus> status()
   {
-    final var resources =
-      CloseableCollection.create(() -> new NPAgentException(
-        "One or more resources could not be closed.",
-        new NPErrorCode("resources"),
-        Map.of(),
-        Optional.empty()
-      ));
-
-    final var executor =
-      Executors.newSingleThreadExecutor(runnable -> {
-        final var t = new Thread(runnable);
-        t.setName(
-          "com.io7m.northpike.agent.connection[%d]"
-            .formatted(Long.valueOf(t.getId()))
-        );
-        return t;
-      });
-
-    resources.add(executor::shutdown);
-
-    final var connection =
-      new NPAgentConnection(configuration, resources);
-
-    executor.execute(connection::start);
-    return connection;
+    return this.status;
   }
 
-  private void start()
+  @Override
+  public <R extends NPAResponseType> CompletableFuture<R> submitCommand(
+    final NPACommandType<R> command)
   {
-    while (!this.closed.get()) {
-      try {
-        this.reconnect();
-      } catch (final NPAgentException e) {
-        LOG.warn("Pausing for reconnection.");
-        try {
-          Thread.sleep(1_000L);
-        } catch (final InterruptedException ex) {
-          Thread.currentThread().interrupt();
-        }
-        continue;
-      }
-      this.runLoop();
-    }
+    return this.submitExpectingResponse(command)
+      .thenApply(x -> (R) x);
   }
 
-  private void runLoop()
+  @Override
+  public void submitResponse(
+    final NPAResponseType response)
   {
-    while (!this.closed.get()) {
-      try {
-        this.sendPendingMessage();
-      } catch (final InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
-
-      try {
-        this.readPendingMessage();
-      } catch (final NPAgentException e) {
-        this.status.set(CONNECTION_FAILED);
-        this.exceptions.submit(e);
-      }
-    }
+    this.submitExpectingNoResponse(response);
   }
 
-  private void reconnect()
-    throws NPAgentException
+  @Override
+  public void submitEvent(
+    final NPAEventType event)
+  {
+    this.submitExpectingNoResponse(event);
+  }
+
+  @Override
+  protected UUID onFindMessageID(
+    final NPAMessageType message)
+  {
+    return message.messageID();
+  }
+
+  @Override
+  protected UUID onFindCorrelationID(
+    final NPAResponseType message)
+  {
+    return message.correlationID();
+  }
+
+  @Override
+  protected NPMessageHandlerType<NPAMessageType> onConnect()
+    throws NPException
   {
     this.status.set(CONNECTING);
     LOG.info(
@@ -201,11 +155,11 @@ public final class NPAgentConnection implements NPAgentConnectionType
       throw NPAgentExceptions.errorIO(strings, e);
     }
 
-    this.resources.add(newHandler);
+    this.resources().add(newHandler);
     this.status.set(CONNECTED);
 
-    final var oldHandler = this.handler;
-    this.handler = newHandler;
+    final var oldHandler =
+      this.existingHandler();
 
     try {
       if (oldHandler != null) {
@@ -213,14 +167,14 @@ public final class NPAgentConnection implements NPAgentConnectionType
       }
     } catch (final NPAgentException e) {
       LOG.warn("Unable to close old connection: ", e);
-      this.exceptions.submit(e);
+      this.exceptionsPublisher().submit(e);
     }
 
     this.status.set(AUTHENTICATING);
-    this.handler.send(NPACommandCLogin.of(this.configuration.accessKey()));
+    newHandler.send(NPACommandCLogin.of(this.configuration.accessKey()));
 
-    while (!this.closed.get()) {
-      final var responseOpt = this.handler.receive();
+    while (!this.isClosed()) {
+      final var responseOpt = newHandler.receive();
       if (responseOpt.isPresent()) {
         final var response = responseOpt.get();
         if (response instanceof final NPAResponseError error) {
@@ -235,152 +189,24 @@ public final class NPAgentConnection implements NPAgentConnectionType
 
         if (response instanceof NPAResponseOK) {
           this.status.set(AUTHENTICATED);
-          return;
+          return newHandler;
         }
 
         this.status.set(AUTHENTICATION_FAILED);
         throw errorUnexpectedMessage(strings, NPAResponseOK.class, response);
       }
     }
+
+    return null;
   }
 
-  private void readPendingMessage()
-    throws NPAgentException
+  @Override
+  protected NPAResponseType onCheckIfMessageIsResponse(
+    final NPAMessageType message)
   {
-    final var messageOpt = this.handler.receive();
-    if (messageOpt.isEmpty()) {
-      return;
-    }
-
-    final var message = messageOpt.get();
-    this.receiveQueue.add(message);
-
     if (message instanceof final NPAResponseType response) {
-      final var command =
-        this.sentCommands.get(response.correlationID());
-
-      command.future.complete(response);
-      return;
+      return response;
     }
-  }
-
-  private void sendPendingMessage()
-    throws InterruptedException
-  {
-    final var toSend =
-      this.sendQueue.poll(1L, TimeUnit.MILLISECONDS);
-
-    if (toSend != null) {
-      if (toSend instanceof final NPCommandAwaitingResponse command) {
-        this.sentCommands.put(
-          command.message.messageID(),
-          command
-        );
-
-        try {
-          this.handler.send(toSend.message());
-        } catch (final NPAgentException e) {
-          this.exceptions.submit(e);
-          this.sentCommands.remove(toSend.message().messageID());
-          command.future.completeExceptionally(e);
-        }
-      }
-
-      if (toSend instanceof final NPNonCommandMessage message) {
-        try {
-          this.handler.send(toSend.message());
-          message.future.complete(null);
-        } catch (final NPAgentException e) {
-          this.exceptions.submit(e);
-          message.future.completeExceptionally(e);
-        }
-      }
-    }
-  }
-
-  @Override
-  public AttributeReadableType<NPAgentConnectionStatus> status()
-  {
-    return this.status;
-  }
-
-  @Override
-  public <R extends NPAResponseType> CompletableFuture<R> submitCommand(
-    final NPACommandType<R> command)
-  {
-    final var awaiting =
-      new NPCommandAwaitingResponse(command, new CompletableFuture<>());
-    this.sendQueue.add(awaiting);
-    return (CompletableFuture<R>) (Object) awaiting.future;
-  }
-
-  @Override
-  public CompletableFuture<Void> submitResponse(
-    final NPAResponseType response)
-  {
-    final var awaiting =
-      new NPNonCommandMessage(response, new CompletableFuture<>());
-    this.sendQueue.add(awaiting);
-    return awaiting.future;
-  }
-
-  @Override
-  public CompletableFuture<Void> submitEvent(
-    final NPAEventType event)
-  {
-    final var awaiting =
-      new NPNonCommandMessage(event, new CompletableFuture<>());
-    this.sendQueue.add(awaiting);
-    return awaiting.future;
-  }
-
-  @Override
-  public List<NPAMessageType> takeReceivedMessages()
-  {
-    final var results =
-      new ArrayList<NPAMessageType>(this.receiveQueue.size());
-
-    while (!this.receiveQueue.isEmpty()) {
-      final var m = this.receiveQueue.poll();
-      results.add(m);
-    }
-
-    return List.copyOf(results);
-  }
-
-  @Override
-  public Flow.Publisher<NPAgentException> exceptions()
-  {
-    return this.exceptions;
-  }
-
-  @Override
-  public void close()
-    throws NPAgentException
-  {
-    if (this.closed.compareAndSet(false, true)) {
-      this.resources.close();
-    }
-  }
-
-  sealed interface NPSendQueueElementType
-  {
-    NPAMessageType message();
-  }
-
-  private record NPCommandAwaitingResponse(
-    NPACommandType<?> message,
-    CompletableFuture<Object> future)
-    implements NPSendQueueElementType
-  {
-
-  }
-
-  private record NPNonCommandMessage(
-    NPAMessageType message,
-    CompletableFuture<Void> future)
-    implements NPSendQueueElementType
-  {
-
+    return null;
   }
 }

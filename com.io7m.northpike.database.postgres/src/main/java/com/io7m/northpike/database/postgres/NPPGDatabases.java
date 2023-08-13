@@ -196,6 +196,8 @@ public final class NPPGDatabases implements NPDatabaseFactoryType
     url.append(configuration.port());
     url.append('/');
     url.append(configuration.databaseName());
+    url.append("?ssl=");
+    url.append(configuration.useTLS());
 
     final var config = new HikariConfig();
     config.setJdbcUrl(url.toString());

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Configuration xmlns="urn:com.io7m.northpike.server.configuration:1">
+
+  <AgentService ListenAddress="example.com"
+                ListenPort="20048"
+                UseTLS="true"
+                MaximumCommandSizeOctets="1000000"/>
+
+  <Database Kind="POSTGRESQL"
+            OwnerRoleName="northpike_install"
+            OwnerRolePassword="12345678"
+            WorkerRolePassword="abcdefgh"
+            Address="db.example.com"
+            Port="5432"
+            Name="northpike"
+            Create="true"
+            Upgrade="true"
+            Language="english"/>
+
+  <IdStore BaseURI="https://idstore.example.com"
+           PasswordResetURI="https://idstore.example.com"/>
+
+  <OpenTelemetry LogicalServiceName="northpike">
+    <Logs Endpoint="http://logs.telemetry.example.com:4317"
+          Protocol="GRPC"/>
+    <Metrics Endpoint="http://metrics.telemetry.example.com:4317"
+             Protocol="GRPC"/>
+    <Traces Endpoint="http://traces.telemetry.example.com:4317"
+            Protocol="GRPC"/>
+  </OpenTelemetry>
+
+</Configuration>

@@ -21,6 +21,7 @@ import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentLabel;
 import com.io7m.northpike.model.NPAgentListParameters;
+import com.io7m.northpike.model.NPKey;
 
 import java.util.Optional;
 
@@ -48,6 +49,17 @@ public sealed interface NPDatabaseQueriesAgentsType
 
   non-sealed interface GetType
     extends NPDatabaseQueryType<NPAgentID, Optional<NPAgentDescription>>,
+    NPDatabaseQueriesAgentsType
+  {
+
+  }
+
+  /**
+   * Retrieve an agent by shared key.
+   */
+
+  non-sealed interface GetByKeyType
+    extends NPDatabaseQueryType<NPKey, Optional<NPAgentDescription>>,
     NPDatabaseQueriesAgentsType
   {
 

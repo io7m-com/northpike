@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+  SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+  IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:c="urn:com.io7m.northpike.server.configuration:1"
+            targetNamespace="urn:com.io7m.northpike.server.configuration:1">
+
+  <xsd:annotation>
+    <xsd:documentation>
+      The schema for server configuration files.
+    </xsd:documentation>
+  </xsd:annotation>
+
+  <xsd:simpleType name="DatabaseKind">
+    <xsd:annotation>
+      <xsd:documentation>
+        The kind of the target database. Currently, only PostgreSQL is
+        supported.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="POSTGRESQL">
+        <xsd:annotation>
+          <xsd:documentation>
+            The database is PostgreSQL.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:element name="IdStore">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration for the idstore server that will be used for user identity
+        information.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="BaseURI"
+                     type="xsd:anyURI"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The base URI of the idstore user API.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="PasswordResetURI"
+                     type="xsd:anyURI"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The password reset URI to which to redirect users who want to reset
+            their password.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:simpleType name="OpenTelemetryProtocol">
+    <xsd:annotation>
+      <xsd:documentation>
+        The protocol used to deliver OpenTelemetry data.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="GRPC">
+        <xsd:annotation>
+          <xsd:documentation>
+            The data will be sent using gRPC.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="HTTP">
+        <xsd:annotation>
+          <xsd:documentation>
+            The data will be sent using HTTP(s).
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:element name="Logs">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for OpenTelemetry logs.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Endpoint"
+                     use="required"
+                     type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>
+            The endpoint to which OTLP log data will be sent.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Protocol"
+                     use="required"
+                     type="c:OpenTelemetryProtocol">
+        <xsd:annotation>
+          <xsd:documentation>
+            The protocol used to send log data.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Metrics">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for OpenTelemetry metrics.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Endpoint"
+                     use="required"
+                     type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>
+            The endpoint to which OTLP metrics data will be sent.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Protocol"
+                     use="required"
+                     type="c:OpenTelemetryProtocol">
+        <xsd:annotation>
+          <xsd:documentation>
+            The protocol used to send metrics data.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Traces">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for OpenTelemetry traces.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Endpoint"
+                     use="required"
+                     type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>
+            The endpoint to which OTLP trace data will be sent.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Protocol"
+                     use="required"
+                     type="c:OpenTelemetryProtocol">
+        <xsd:annotation>
+          <xsd:documentation>
+            The protocol used to send trace data.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="OpenTelemetry">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for OpenTelemetry.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="c:Logs"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+        <xsd:element ref="c:Metrics"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+        <xsd:element ref="c:Traces"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="LogicalServiceName"
+                     use="required"
+                     type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            The logical name of the service as it will appear in OpenTelemetry.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Database">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for the database.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Kind"
+                     type="c:DatabaseKind"
+                     use="required"/>
+
+      <xsd:attribute name="OwnerRoleName"
+                     use="required"
+                     type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            The name of the role that owns the database. This is used for the
+            initial database setup, and for upgrades.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="OwnerRolePassword"
+                     use="required"
+                     type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            The password of the role that owns the database.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="WorkerRolePassword"
+                     use="required"
+                     type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            The password of the role used for normal database operation. This is
+            an unprivileged role that does not have the ability to perform DDL
+            or other database-changing operations.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="ReaderRolePassword"
+                     use="optional"
+                     type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            The password of the role used for read-only database operation. If
+            this attribute is not specified, the read-only role is not allowed
+            to log in.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Address"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The address of the database.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Port"
+                     type="xsd:integer"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The port used to connect to the database.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Name"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The name of the database.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Create"
+                     type="xsd:boolean"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            If set to true, the database and tables will be created if they do
+            not already exist.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Upgrade"
+                     type="xsd:boolean"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            If set to true, the database and tables will be upgraded to the
+            latest supported schema version.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Language"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The language used for database search indexes (such as 'english').
+            See https://www.postgresql.org/docs/current/locale.html.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="AgentService">
+    <xsd:complexType>
+      <xsd:attribute name="ListenAddress"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The address upon which the Agent service will listen.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="ListenPort"
+                     type="xsd:integer"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The port upon which the Agent service will listen.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="UseTLS"
+                     type="xsd:boolean"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            Whether to use TLS for the Agent service.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="MaximumCommandSizeOctets"
+                     type="xsd:unsignedLong"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The maximum permitted size of ordinary commands (in octets).
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Configuration">
+    <xsd:annotation>
+      <xsd:documentation>
+        The top-level configuration element.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="c:AgentService"/>
+        <xsd:element ref="c:Database"/>
+        <xsd:element ref="c:IdStore"/>
+        <xsd:element ref="c:OpenTelemetry"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+</xsd:schema>

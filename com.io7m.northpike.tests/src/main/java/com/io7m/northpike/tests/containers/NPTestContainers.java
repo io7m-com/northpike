@@ -42,17 +42,18 @@ import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.api.NPDatabaseUpgrade;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
 import com.io7m.northpike.server.NPServers;
+import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.api.NPServerFactoryType;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
-import com.io7m.northpike.server.api.NPServerLimitsConfiguration;
 import com.io7m.northpike.server.api.NPServerType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.NPTestProperties;
 import io.opentelemetry.api.OpenTelemetry;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -176,6 +177,7 @@ public final class NPTestContainers
         "northpike",
         NPDatabaseCreate.CREATE_DATABASE,
         NPDatabaseUpgrade.UPGRADE_DATABASE,
+        false,
         "english",
         Clock.systemUTC(),
         NPStrings.create(Locale.ROOT)
@@ -219,6 +221,7 @@ public final class NPTestContainers
         "northpike",
         NPDatabaseCreate.CREATE_DATABASE,
         NPDatabaseUpgrade.UPGRADE_DATABASE,
+        false,
         "english",
         Clock.systemUTC(),
         NPStrings.create(Locale.ROOT)
@@ -476,9 +479,11 @@ public final class NPTestContainers
           URI.create("http://localhost:" + idstoreFixture.userAPIPort),
           URI.create("http://localhost:" + idstoreFixture.userAPIPort)
         ),
-        new NPServerLimitsConfiguration(
-          10_000_000L,
-          1_000_000L
+        new NPServerAgentConfiguration(
+          InetAddress.getLocalHost(),
+          apiPort,
+          false,
+          1_000_000
         ),
         Optional.empty()
       );

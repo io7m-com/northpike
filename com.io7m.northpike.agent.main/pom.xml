@@ -66,8 +66,8 @@
     </dependency>
 
     <dependency>
-      <groupId>com.io7m.jlexing</groupId>
-      <artifactId>com.io7m.jlexing.core</artifactId>
+      <groupId>com.io7m.anethum</groupId>
+      <artifactId>com.io7m.anethum.slf4j</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

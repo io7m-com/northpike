@@ -17,6 +17,7 @@
 package com.io7m.northpike.model;
 
 import java.nio.ByteBuffer;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HexFormat;
@@ -64,6 +65,20 @@ public final class NPKey
     final var data = new byte[KEY_SIZE];
     rng.nextBytes(data);
     return new NPKey(data);
+  }
+
+  /**
+   * Generate a shared secret key.
+   *
+   * @return A new key
+   *
+   * @throws NoSuchAlgorithmException If no strong RNG is available
+   */
+
+  public static NPKey generate()
+    throws NoSuchAlgorithmException
+  {
+    return generate(SecureRandom.getInstanceStrong());
   }
 
   /**
