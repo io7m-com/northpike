@@ -41,6 +41,7 @@ import com.io7m.northpike.tools.common.NPToolHTTPClients;
 import com.io7m.northpike.tools.common.NPToolResources;
 import com.io7m.streamtime.core.STTransferStatistics;
 import com.io7m.verona.core.Version;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -293,8 +294,13 @@ public final class NPTM3 implements NPToolType
       this.directory.resolve(formattedDirectoryName);
     final var binDir =
       mvnBaseDir.resolve("bin");
-    final var mvnFile =
-      binDir.resolve("mvn");
+
+    final Path mvnFile;
+    if (SystemUtils.IS_OS_WINDOWS) {
+      mvnFile = binDir.resolve("mvn.cmd");
+    } else {
+      mvnFile = binDir.resolve("mvn");
+    }
 
     return mvnFile.toAbsolutePath().normalize();
   }

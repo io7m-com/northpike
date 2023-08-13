@@ -37,6 +37,7 @@ module com.io7m.northpike.tools.maven
   requires com.io7m.streamtime.core;
   requires com.io7m.verona.core;
   requires org.apache.commons.compress;
+  requires org.apache.commons.lang3;
   requires org.slf4j;
 
   exports com.io7m.northpike.tools.maven;
