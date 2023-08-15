@@ -19,7 +19,7 @@ package com.io7m.northpike.tests.server.agents;
 
 import com.io7m.northpike.agent.NPAgents;
 import com.io7m.northpike.agent.api.NPAgentConfiguration;
-import com.io7m.northpike.agent.api.NPAgentConnectionStatus;
+import com.io7m.northpike.agent.api.NPAgentStatus;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseFactoryType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
@@ -60,14 +60,14 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.AUTHENTICATED;
-import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.AUTHENTICATION_FAILED;
+import static com.io7m.northpike.agent.api.NPAgentStatus.CONNECTED;
+import static com.io7m.northpike.agent.api.NPAgentStatus.CONNECTION_FAILED;
 import static com.io7m.northpike.tests.server.NPServerConfigurations.createFakeServerConfiguration;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
-public final class NPAAgentServiceTest
+public final class NPAgentServiceTest
 {
   private RPServiceDirectory services;
   private NPAgentServiceType service;
@@ -86,7 +86,7 @@ public final class NPAAgentServiceTest
   private NPDatabaseQueriesAgentsType.GetType agentGet;
   private NPDatabaseQueriesAgentsType.GetByKeyType agentGetByKey;
   private NPDatabaseQueriesAgentsType.PutType agentPut;
-  private HashSet<NPAgentConnectionStatus> agentEvents;
+  private HashSet<NPAgentStatus> agentEvents;
   private NPAgentDescription agent0;
   private NPServerSocketServiceType sockets;
   private NPEventServiceType events;
@@ -220,12 +220,12 @@ public final class NPAAgentServiceTest
       .thenReturn(Optional.empty());
 
     try (var agent = this.agents.createAgent(this.agentConfiguration0)) {
-      agent.connectionStatus()
+      agent.status()
         .subscribe((oldValue, newValue) -> this.agentEvents.add(newValue));
       agent.start();
 
       Thread.sleep(1000L);
-      this.assertConnectionStatus(AUTHENTICATION_FAILED);
+      this.assertConnectionStatus(CONNECTION_FAILED);
     }
   }
 
@@ -251,12 +251,12 @@ public final class NPAAgentServiceTest
       .thenReturn(Optional.of(this.agent0));
 
     try (var agent = this.agents.createAgent(this.agentConfiguration0)) {
-      agent.connectionStatus()
+      agent.status()
         .subscribe((oldValue, newValue) -> this.agentEvents.add(newValue));
       agent.start();
 
       Thread.sleep(3L * 1000L);
-      this.assertConnectionStatus(AUTHENTICATED);
+      this.assertConnectionStatus(CONNECTED);
     }
   }
 
@@ -289,7 +289,7 @@ public final class NPAAgentServiceTest
   }
 
   private void assertConnectionStatus(
-    final NPAgentConnectionStatus status)
+    final NPAgentStatus status)
   {
     assertTrue(
       this.agentEvents.contains(status),

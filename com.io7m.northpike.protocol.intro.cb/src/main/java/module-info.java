@@ -30,6 +30,7 @@ module com.io7m.northpike.protocol.intro.cb
   requires com.io7m.cedarbridge.runtime.convenience;
   requires com.io7m.jbssio.vanilla;
   requires com.io7m.repetoir.core;
+  requires com.io7m.northpike.model;
 
   exports com.io7m.northpike.protocol.intro.cb;
 }

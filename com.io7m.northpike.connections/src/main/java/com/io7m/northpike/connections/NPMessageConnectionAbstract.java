@@ -14,262 +14,124 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
 package com.io7m.northpike.connections;
 
-import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.model.NPException;
-import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Flow;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.SubmissionPublisher;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A durable connection.
+ * An abstract implementation of the message connection interface.
  *
  * @param <M> The type of messages
- * @param <R> The type of responses
+ * @param <R> The subset of messages that are responses
  */
 
 public abstract class NPMessageConnectionAbstract<M, R extends M>
   implements NPMessageConnectionType<M, R>
 {
-  private final CloseableCollectionType<NPException> resources;
-  private final AtomicBoolean closed;
-  private final LinkedBlockingQueue<AwaitingResponse<M, ?>> sendQueue;
-  private final LinkedBlockingQueue<M> receiveQueue;
-  private final SubmissionPublisher<NPException> exceptions;
-  private final NPMessageCorrelator<M, R> messageCorrelator;
-  private final Logger logger;
-  private final ExecutorService executor;
-  private NPMessageHandlerType<M> handler;
+  private final NPMessageConnectionHandlerType<M> handler;
+  private final LinkedList<M> received;
 
   protected NPMessageConnectionAbstract(
-    final Logger inLogger,
-    final CloseableCollectionType<NPException> inResources)
+    final NPMessageConnectionHandlerType<M> inHandler)
   {
-    this.logger =
-      Objects.requireNonNull(inLogger, "inLogger");
-    this.resources =
-      Objects.requireNonNull(inResources, "resources");
-    this.closed =
-      new AtomicBoolean(false);
-
-    this.sendQueue =
-      new LinkedBlockingQueue<>();
-    this.messageCorrelator =
-      this.resources.add(
-        new NPMessageCorrelator<>(
-          this::onFindMessageID,
-          this::onFindCorrelationID
-        )
-      );
-    this.receiveQueue =
-      new LinkedBlockingQueue<>();
-    this.exceptions =
-      new SubmissionPublisher<>();
-
-    this.executor =
-      Executors.newSingleThreadExecutor(runnable -> {
-        final var thread = new Thread(runnable);
-        thread.setName(
-          "com.io7m.northpike.connection[%d]"
-            .formatted(Long.valueOf(thread.getId()))
-        );
-        return thread;
-      });
-
-    this.resources.add(this.executor::shutdown);
-    this.executor.execute(this::start);
+    this.handler =
+      Objects.requireNonNull(inHandler, "handler");
+    this.received =
+      new LinkedList<>();
   }
 
-  protected final NPMessageHandlerType<M> existingHandler()
-  {
-    return this.handler;
-  }
+  /**
+   * Determine if a message is a response.
+   *
+   * @param message The message
+   *
+   * @return The message as a value of {@code R}, or null if the message is
+   * not a response
+   */
 
-  protected final boolean isClosed()
-  {
-    return this.closed.get();
-  }
+  protected abstract R isResponse(
+    M message);
 
-  protected final CloseableCollectionType<NPException> resources()
-  {
-    return this.resources;
-  }
+  /**
+   * @param message The message
+   *
+   * @return The ID of the message
+   */
 
-  protected final SubmissionPublisher<NPException> exceptionsPublisher()
-  {
-    return this.exceptions;
-  }
+  protected abstract UUID messageID(
+    M message);
+
+  /**
+   * @param message The message
+   *
+   * @return The correlation ID of the message (the ID of the message to
+   * which this response is a response)
+   */
+
+  protected abstract UUID correlationID(
+    R message);
 
   @Override
-  public final CompletableFuture<R> submitExpectingResponse(
+  public final void send(
     final M message)
+    throws NPException, IOException
   {
-    final var future =
-      this.messageCorrelator.onSend(message);
-
-    this.sendQueue.add(
-      new AwaitingResponse<>(message, new CompletableFuture<>())
-    );
-
-    return (CompletableFuture<R>) future;
+    this.handler.send(message);
   }
 
   @Override
-  public final void submitExpectingNoResponse(
+  public final R ask(
     final M message)
+    throws NPException, InterruptedException, IOException
   {
-    final var awaiting =
-      new AwaitingResponse<>(message, new CompletableFuture<Void>());
+    final var id = this.messageID(message);
+    this.handler.send(message);
 
-    this.sendQueue.add(awaiting);
-    try {
-      awaiting.future.get();
-    } catch (final Exception e) {
-      this.logger.debug("submitExpectingNoResponse: ", e);
+    while (!Thread.interrupted()) {
+      final var responseOpt = this.handler.receive();
+      if (responseOpt.isPresent()) {
+        final var response = responseOpt.get();
+        final var actual = this.isResponse(response);
+        if (actual != null) {
+          if (Objects.equals(this.correlationID(actual), id)) {
+            return actual;
+          }
+        }
+        this.received.add(response);
+      }
     }
+
+    throw new InterruptedException();
   }
 
   @Override
-  public final List<M> takeReceivedMessages()
+  public final Optional<M> read()
+    throws NPException, IOException
   {
-    final var results = new ArrayList<M>(this.receiveQueue.size());
-    while (!this.receiveQueue.isEmpty()) {
-      final var m = this.receiveQueue.poll();
-      results.add(m);
+    final var m = this.received.poll();
+    if (m != null) {
+      return Optional.of(m);
     }
-    return List.copyOf(results);
-  }
-
-  @Override
-  public final Optional<M> peekReceivedMessage()
-  {
-    return Optional.ofNullable(this.receiveQueue.peek());
-  }
-
-  @Override
-  public final Optional<M> takeReceivedMessage()
-  {
-    return Optional.ofNullable(this.receiveQueue.poll());
-  }
-
-  @Override
-  public final Flow.Publisher<NPException> exceptions()
-  {
-    return this.exceptions;
-  }
-
-  protected abstract UUID onFindMessageID(M message);
-
-  protected abstract UUID onFindCorrelationID(R message);
-
-  protected abstract NPMessageHandlerType<M> onConnect()
-    throws NPException;
-
-  protected abstract R onCheckIfMessageIsResponse(M message);
-
-  private void start()
-  {
-    while (!this.closed.get()) {
-      try {
-        this.handler = this.onConnect();
-      } catch (final Exception e) {
-        this.logger.warn("Pausing for reconnection.");
-        pauseBriefly();
-        continue;
-      }
-      this.runLoop();
-    }
-  }
-
-  private static void pauseBriefly()
-  {
-    try {
-      Thread.sleep(250L);
-    } catch (final InterruptedException ex) {
-      Thread.currentThread().interrupt();
-    }
-  }
-
-  private void runLoop()
-  {
-    while (!this.closed.get()) {
-      try {
-        this.sendPendingMessage();
-      } catch (final InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
-
-      try {
-        this.readPendingMessage();
-      } catch (final NPException e) {
-        this.exceptions.submit(e);
-      }
-    }
-  }
-
-  private void readPendingMessage()
-    throws NPException
-  {
-    final var messageOpt = this.handler.receive();
-    if (messageOpt.isEmpty()) {
-      return;
-    }
-
-    final var message =
-      messageOpt.get();
-    final var response =
-      this.onCheckIfMessageIsResponse(message);
-
-    if (response != null) {
-      this.messageCorrelator.onReceive(response);
-    } else {
-      this.receiveQueue.add(message);
-    }
-  }
-
-  private void sendPendingMessage()
-    throws InterruptedException
-  {
-    final var toSend =
-      this.sendQueue.poll(1L, TimeUnit.MILLISECONDS);
-
-    if (toSend != null) {
-      try {
-        this.handler.send(toSend.message());
-        toSend.future.complete(null);
-      } catch (final NPException e) {
-        this.exceptions.submit(e);
-        toSend.future.completeExceptionally(e);
-      }
-    }
+    return this.handler.receive();
   }
 
   @Override
   public final void close()
-    throws NPException
+    throws IOException
   {
-    if (this.closed.compareAndSet(false, true)) {
-      this.resources.close();
-    }
+    this.handler.close();
   }
 
-  private record AwaitingResponse<M, T>(
-    M message,
-    CompletableFuture<T> future)
+  @Override
+  public final boolean isClosed()
   {
-
+    return this.handler.isClosed();
   }
 }

@@ -65,6 +65,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.idstore.admin_client.api;
   requires com.io7m.idstore.admin_client;
   requires com.io7m.jattribute.core;
+  requires com.io7m.jmulticlose.core;
   requires com.io7m.junreachable.core;
   requires com.io7m.medrina.api;
   requires com.io7m.percentpass.extension;

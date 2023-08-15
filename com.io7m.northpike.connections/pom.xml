@@ -24,18 +24,20 @@
       <artifactId>com.io7m.northpike.model</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
-      <groupId>com.io7m.jaffirm</groupId>
-      <artifactId>com.io7m.jaffirm.core</artifactId>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.protocol.api</artifactId>
+      <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.strings</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>com.io7m.jmulticlose</groupId>
       <artifactId>com.io7m.jmulticlose.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
     </dependency>
 
     <dependency>

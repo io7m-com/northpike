@@ -17,33 +17,24 @@
 package com.io7m.northpike.agent.internal;
 
 import com.io7m.northpike.agent.api.NPAgentConfiguration;
-import com.io7m.northpike.agent.api.NPAgentException;
+import com.io7m.northpike.connections.NPMessageConnectionHandlerAbstract;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.cb.NPA1Messages;
-import com.io7m.northpike.protocol.api.NPProtocolException;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * The agent handler for protocol version 1.
  */
 
 public final class NPAgentConnectionHandler1
-  extends NPAgentConnectionHandlerAbstract
+  extends NPMessageConnectionHandlerAbstract<NPAMessageType>
+  implements NPAgentConnectionHandlerType
 {
   private static final NPA1Messages MESSAGES =
     new NPA1Messages();
-
-  private final Socket socket;
-  private final OutputStream output;
-  private final InputStream input;
 
   NPAgentConnectionHandler1(
     final NPAgentConfiguration configuration,
@@ -51,80 +42,14 @@ public final class NPAgentConnectionHandler1
     final InputStream inInputStream,
     final OutputStream inOutputStream)
   {
-    super(configuration);
-
-    this.socket =
-      Objects.requireNonNull(inSocket, "socket");
-    this.input =
-      Objects.requireNonNull(inInputStream, "inOutput");
-    this.output =
-      Objects.requireNonNull(inOutputStream, "inInput");
+    super(
+      MESSAGES,
+      configuration.strings(),
+      configuration.messageSizeLimit(),
+      inSocket,
+      inInputStream,
+      inOutputStream
+    );
   }
 
-  @Override
-  public void send(
-    final NPAMessageType message)
-    throws NPAgentException
-  {
-    try {
-      MESSAGES.writeLengthPrefixed(this.output, message);
-    } catch (final IOException e) {
-      throw NPAgentExceptions.errorIO(this.strings(), e);
-    } catch (final NPProtocolException e) {
-      throw NPAgentExceptions.errorProtocol(e);
-    }
-  }
-
-  @Override
-  public Optional<NPAMessageType> receive()
-    throws NPAgentException
-  {
-    try {
-      final var available = this.input.available();
-      if (available <= 4) {
-        return Optional.empty();
-      }
-
-      final var sizeBytes = this.input.readNBytes(4);
-      if (sizeBytes.length != 4) {
-        throw NPAgentExceptions.errorShortRead(
-          this.strings(),
-          4,
-          sizeBytes.length
-        );
-      }
-
-      final var sizeData = ByteBuffer.wrap(sizeBytes);
-      sizeData.order(ByteOrder.BIG_ENDIAN);
-
-      final var messageSize = sizeData.getInt(0);
-      if (messageSize > this.configuration().messageSizeLimit()) {
-        throw NPAgentExceptions.errorTooLarge(
-          this.strings(),
-          messageSize,
-          this.configuration().messageSizeLimit()
-        );
-      }
-
-      final var messageData =
-        this.input.readNBytes(messageSize);
-
-      return Optional.of(MESSAGES.parse(messageData));
-    } catch (final NPProtocolException e) {
-      throw NPAgentExceptions.errorProtocol(e);
-    } catch (final IOException e) {
-      throw NPAgentExceptions.errorIO(this.strings(), e);
-    }
-  }
-
-  @Override
-  public void close()
-    throws NPAgentException
-  {
-    try {
-      this.socket.close();
-    } catch (final IOException e) {
-      throw NPAgentExceptions.errorIO(this.strings(), e);
-    }
-  }
 }

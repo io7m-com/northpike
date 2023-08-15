@@ -23,7 +23,8 @@ module com.io7m.northpike.protocol.api
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
-  requires transitive com.io7m.northpike.model;
+  requires com.io7m.northpike.model;
+  requires com.io7m.northpike.strings;
 
   exports com.io7m.northpike.protocol.api;
 }

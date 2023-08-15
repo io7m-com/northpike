@@ -28,10 +28,7 @@ import java.util.Optional;
 
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_IO;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_PROTOCOL;
-import static com.io7m.northpike.strings.NPStringConstants.ERROR_READ_SHORT;
-import static com.io7m.northpike.strings.NPStringConstants.ERROR_SIZE_LIMIT_EXCEEDED;
 import static com.io7m.northpike.strings.NPStringConstants.EXPECTED;
-import static com.io7m.northpike.strings.NPStringConstants.LIMIT;
 import static com.io7m.northpike.strings.NPStringConstants.RECEIVED;
 
 /**
@@ -43,50 +40,6 @@ final class NPAgentExceptions
   private NPAgentExceptions()
   {
 
-  }
-
-  static NPAgentException errorTooLarge(
-    final NPStrings strings,
-    final int messageSize,
-    final int messageLimit)
-  {
-    return new NPAgentException(
-      strings.format(ERROR_SIZE_LIMIT_EXCEEDED),
-      NPStandardErrorCodes.errorIo(),
-      Map.ofEntries(
-        Map.entry(
-          strings.format(LIMIT),
-          Integer.toUnsignedString(messageLimit)
-        ),
-        Map.entry(
-          strings.format(RECEIVED),
-          Integer.toUnsignedString(messageSize)
-        )
-      ),
-      Optional.empty()
-    );
-  }
-
-  static NPAgentException errorShortRead(
-    final NPStrings strings,
-    final int expected,
-    final int received)
-  {
-    return new NPAgentException(
-      strings.format(ERROR_READ_SHORT),
-      NPStandardErrorCodes.errorIo(),
-      Map.ofEntries(
-        Map.entry(
-          strings.format(EXPECTED),
-          Integer.toUnsignedString(expected)
-        ),
-        Map.entry(
-          strings.format(RECEIVED),
-          Integer.toUnsignedString(received)
-        )
-      ),
-      Optional.empty()
-    );
   }
 
   static NPAgentException errorIO(

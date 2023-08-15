@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.agent.internal;
 
-import com.io7m.northpike.connections.NPMessageHandlerType;
+import com.io7m.northpike.connections.NPMessageConnectionHandlerType;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 
 /**
@@ -25,7 +25,7 @@ import com.io7m.northpike.protocol.agent.NPAMessageType;
  */
 
 public interface NPAgentConnectionHandlerType
-  extends NPMessageHandlerType<NPAMessageType>
+  extends NPMessageConnectionHandlerType<NPAMessageType>
 {
 
 }

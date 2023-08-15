@@ -49,7 +49,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.io7m.northpike.agent.internal.NPAgentConnectionHandlers.openConnection;
+import static com.io7m.northpike.agent.internal.NPAgentConnectionHandlers.openConnectionHandler;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -145,7 +145,11 @@ public final class NPAgentConnectionHandlerTest
         );
 
         final NPIProtocol received0 =
-          (NPIProtocol) NPI_MESSAGES.readLengthPrefixed(inputStream);
+          (NPIProtocol) NPI_MESSAGES.readLengthPrefixed(
+            this.strings,
+            1000000,
+            inputStream
+          );
 
         NPI_MESSAGES.writeLengthPrefixed(
           outputStream,
@@ -167,7 +171,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnection(this.configuration);
+        openConnectionHandler(this.configuration);
       });
 
     assertEquals("go-away", ex.errorCode().id());
@@ -203,7 +207,11 @@ public final class NPAgentConnectionHandlerTest
         );
 
         final NPIProtocol received0 =
-          (NPIProtocol) NPI_MESSAGES.readLengthPrefixed(inputStream);
+          (NPIProtocol) NPI_MESSAGES.readLengthPrefixed(
+            this.strings,
+            1000000,
+            inputStream
+          );
 
         NPI_MESSAGES.writeLengthPrefixed(
           outputStream,
@@ -222,7 +230,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnection(this.configuration);
+        openConnectionHandler(this.configuration);
       });
 
     assertEquals("error-io", ex.errorCode().id());
@@ -270,7 +278,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnection(this.configuration);
+        openConnectionHandler(this.configuration);
       });
 
     assertEquals("error-no-supported-protocols", ex.errorCode().id());
@@ -318,11 +326,43 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnection(this.configuration);
+        openConnectionHandler(this.configuration);
+      });
+
+    assertEquals("error-protocol", ex.errorCode().id());
+    assertEquals("Exceeded message size limit.", ex.getMessage());
+  }
+
+  /**
+   * The connection fails if the server sends nothing.
+   */
+
+  @MinimumPassing(executionCount = 5, passMinimum = 3)
+  public void testServerNothing0()
+  {
+    this.executor.execute(() -> {
+      try {
+        LOG.info("Waiting for connection...");
+        this.serverAcceptLatch.countDown();
+        final var clientSocket = this.socket.accept();
+        LOG.info("Connected: {}", clientSocket);
+        clientSocket.close();
+      } catch (final Exception e) {
+        LOG.error("", e);
+      } finally {
+        this.serverCloseLatch.countDown();
+      }
+    });
+
+    this.serverAcceptLatch.countDown();
+
+    final var ex =
+      assertThrows(NPAgentException.class, () -> {
+        openConnectionHandler(this.configuration);
       });
 
     assertEquals("error-io", ex.errorCode().id());
-    assertEquals("Exceeded message size limit.", ex.getMessage());
+    assertEquals("Read fewer octets than were required.", ex.getMessage());
   }
 
   /**
@@ -360,7 +400,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnection(this.configuration);
+        openConnectionHandler(this.configuration);
       });
 
     assertEquals("error-protocol", ex.errorCode().id());
@@ -398,7 +438,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnection(this.configuration);
+        openConnectionHandler(this.configuration);
       });
 
     assertEquals("error-io", ex.errorCode().id());
@@ -440,7 +480,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnection(this.configuration);
+        openConnectionHandler(this.configuration);
       });
 
     assertEquals("error-io", ex.errorCode().id());
@@ -478,7 +518,8 @@ public final class NPAgentConnectionHandlerTest
         );
 
         final NPIProtocol received0 =
-          (NPIProtocol) NPI_MESSAGES.readLengthPrefixed(inputStream);
+          (NPIProtocol) NPI_MESSAGES.readLengthPrefixed(
+            this.strings, 1000000, inputStream);
 
         NPI_MESSAGES.writeLengthPrefixed(
           outputStream,
@@ -487,7 +528,8 @@ public final class NPAgentConnectionHandlerTest
 
         final var received1 =
           (NPACommandCEnvironmentInfo)
-            NPA1_MESSAGES.readLengthPrefixed(inputStream);
+            NPA1_MESSAGES.readLengthPrefixed(
+              this.strings, 1000000, inputStream);
 
         NPA1_MESSAGES.writeLengthPrefixed(
           outputStream,
@@ -499,7 +541,8 @@ public final class NPAgentConnectionHandlerTest
 
         final var received2 =
           (NPACommandCDisconnect)
-            NPA1_MESSAGES.readLengthPrefixed(inputStream);
+            NPA1_MESSAGES.readLengthPrefixed(
+              this.strings, 1000000, inputStream);
 
         NPA1_MESSAGES.writeLengthPrefixed(
           outputStream,
@@ -519,7 +562,7 @@ public final class NPAgentConnectionHandlerTest
 
     this.serverAcceptLatch.countDown();
 
-    try (var connection = openConnection(this.configuration)) {
+    try (var connection = openConnectionHandler(this.configuration)) {
       connection.send(NPACommandCEnvironmentInfo.of());
       connection.send(NPACommandCDisconnect.of());
     }

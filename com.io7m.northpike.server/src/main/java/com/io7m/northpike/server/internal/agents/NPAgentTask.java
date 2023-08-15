@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.server.internal.agents;
 
-import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
@@ -31,18 +30,20 @@ import com.io7m.northpike.protocol.agent.NPACommandSLatencyCheck;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.NPAResponseError;
 import com.io7m.northpike.protocol.agent.NPAResponseLatencyCheck;
-import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
-import com.io7m.northpike.server.internal.NPServerResources;
+import com.io7m.northpike.server.internal.NPServerExceptions;
 import com.io7m.northpike.server.internal.clock.NPClockServiceType;
+import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
+import com.io7m.repetoir.core.RPServiceDirectoryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -50,10 +51,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
@@ -71,76 +69,102 @@ public final class NPAgentTask
   private static final Logger LOG =
     LoggerFactory.getLogger(NPAgentTask.class);
 
-  private final NPStrings strings;
-  private final NPTelemetryServiceType telemetry;
-  private final NPClockServiceType clock;
-  private final AtomicBoolean closed;
   private final NPAgentServerConnectionType connection;
-  private final CloseableCollectionType<NPServerException> resources;
-  private final ScheduledExecutorService periodics;
-  private final HashMap<String, String> attributes;
+  private final NPStrings strings;
+  private final NPClockServiceType clock;
   private final NPDatabaseType database;
   private final NPEventServiceType events;
+  private final NPTelemetryServiceType telemetry;
+  private final ConcurrentLinkedQueue<InternalCommandType> enqueuedCommands;
+  private final HashMap<String, String> attributes;
   private NPAgentID agentId;
   private NPAMessageType messageCurrent;
 
-  NPAgentTask(
+  private NPAgentTask(
+    final NPAgentServerConnectionType inConnection,
     final NPStrings inStrings,
-    final NPTelemetryServiceType inTelemetry,
     final NPClockServiceType inClock,
     final NPDatabaseType inDatabase,
     final NPEventServiceType inEvents,
-    final NPServerAgentConfiguration agentConfiguration,
-    final Socket inSocket)
-    throws Exception
+    final NPTelemetryServiceType inTelemetry)
   {
+    this.connection =
+      Objects.requireNonNull(inConnection, "connection");
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
-    this.telemetry =
-      Objects.requireNonNull(inTelemetry, "telemetry");
     this.clock =
       Objects.requireNonNull(inClock, "clock");
     this.database =
-      Objects.requireNonNull(inDatabase, "access");
+      Objects.requireNonNull(inDatabase, "database");
     this.events =
       Objects.requireNonNull(inEvents, "events");
+    this.telemetry =
+      Objects.requireNonNull(inTelemetry, "telemetry");
+    this.enqueuedCommands =
+      new ConcurrentLinkedQueue<>();
+    this.attributes =
+      new HashMap<>();
+  }
 
-    this.resources = NPServerResources.createResources();
+  /**
+   * Create a new agent task for the given socket.
+   *
+   * @param services The service directory
+   * @param socket   The socket
+   *
+   * @return A new agent task
+   *
+   * @throws NPServerException On errors
+   * @throws IOException       On errors
+   */
+
+  public static NPAgentTask create(
+    final RPServiceDirectoryType services,
+    final Socket socket)
+    throws NPException, IOException
+  {
+    final var strings =
+      services.requireService(NPStrings.class);
+    final var configuration =
+      services.requireService(NPConfigurationServiceType.class);
+    final var database =
+      services.requireService(NPDatabaseType.class);
+    final var events =
+      services.requireService(NPEventServiceType.class);
+    final var telemetry =
+      services.requireService(NPTelemetryServiceType.class);
+    final var clock =
+      services.requireService(NPClockServiceType.class);
+
+    final var sizeLimit =
+      configuration.configuration()
+        .agentConfiguration()
+        .messageSizeLimit();
 
     try {
-      this.attributes = new HashMap<>();
-      this.closed = new AtomicBoolean(false);
-      this.resources.add(inSocket);
-      this.periodics = createPeriodicExecutor();
-      this.resources.add(this.periodics::shutdown);
-      this.connection =
-        this.resources.add(
-          new NPAgentServerConnection(this.strings, agentConfiguration, inSocket)
-        );
-    } catch (final Exception e) {
-      this.resources.close();
+      return new NPAgentTask(
+        NPAgentServerConnection.open(strings, sizeLimit, socket),
+        strings,
+        clock,
+        database,
+        events,
+        telemetry
+      );
+    } catch (final NPException | IOException e) {
+      try {
+        socket.close();
+      } catch (final IOException ex) {
+        throw NPServerExceptions.errorIO(strings, ex);
+      }
       throw e;
     }
   }
 
-  private static ScheduledExecutorService createPeriodicExecutor()
-  {
-    return Executors.newSingleThreadScheduledExecutor(runnable -> {
-      final var thread = new Thread(runnable);
-      thread.setName(
-        "com.io7m.northpike.agent.periodic[%d]"
-          .formatted(Long.valueOf(thread.getId()))
-      );
-      thread.setDaemon(true);
-      return thread;
-    });
-  }
-
   @Override
   public void close()
-    throws NPException
+    throws IOException
   {
-    if (this.closed.compareAndSet(false, true)) {
+    if (!this.isClosed()) {
       this.events.emit(
         new NPAgentDisconnected(
           this.connection.remoteAddress().getAddress(),
@@ -148,9 +172,7 @@ public final class NPAgentTask
           Optional.ofNullable(this.agentId)
         )
       );
-
-      LOG.debug("Close: {}", this);
-      this.resources.close();
+      this.connection.close();
     }
   }
 
@@ -160,46 +182,58 @@ public final class NPAgentTask
     try {
       MDC.put("Client", this.connection.remoteAddress().toString());
 
-      while (!this.closed.get()) {
-        final var received =
-          this.connection.takeReceivedMessages();
+      while (!this.isClosed()) {
+        final var receivedOpt = this.connection.read();
+        if (receivedOpt.isPresent()) {
+          final var received = receivedOpt.get();
+          this.processReceivedMessageTimed(received);
+        }
 
-        for (final var message : received) {
-          this.processReceivedMessageTimed(message);
+        while (!this.enqueuedCommands.isEmpty()) {
+          this.processCommand(this.enqueuedCommands.poll());
         }
       }
-    } catch (final NPException e) {
+    } catch (final Exception e) {
       LOG.debug("Fatal: ", e);
       this.closeQuietly();
     }
   }
 
-  private void doLatencyCheck()
+  private void processCommand(
+    final InternalCommandType command)
+    throws InterruptedException, NPException, IOException
+  {
+    if (command instanceof InternalCommandType.LatencyCheck) {
+      this.processCommandLatencyCheck();
+      return;
+    }
+
+    throw new IllegalStateException(
+      "Unrecognized command: %s".formatted(command.getClass())
+    );
+  }
+
+  private void processCommandLatencyCheck()
+    throws InterruptedException, NPException, IOException
   {
     LOG.debug("Latency: Performing check.");
 
-    try {
-      final var timeSent =
-        OffsetDateTime.now(this.clock.clock());
+    final var command =
+      new NPACommandSLatencyCheck(
+        UUID.randomUUID(),
+        OffsetDateTime.now(this.clock.clock())
+      );
 
-      final var future =
-        this.connection.submitExpectingResponse(
-          new NPACommandSLatencyCheck(UUID.randomUUID(), timeSent)
-        );
+    final var response =
+      this.connection.ask(command);
+    final var timeNow =
+      OffsetDateTime.now(this.clock.clock());
 
-      future.thenAccept(response -> {
-        final var timeNow =
-          OffsetDateTime.now(this.clock.clock());
+    if (response instanceof final NPAResponseLatencyCheck latency) {
+      final var duration =
+        Duration.between(command.timeCurrent(), timeNow);
 
-        if (response instanceof final NPAResponseLatencyCheck latency) {
-          final var duration =
-            Duration.between(timeSent, timeNow);
-
-          LOG.debug("Latency: RTT {}", duration);
-        }
-      });
-    } catch (final Exception e) {
-      LOG.debug("Latency: ", e);
+      LOG.debug("Latency: RTT {}", duration);
     }
   }
 
@@ -207,14 +241,14 @@ public final class NPAgentTask
   {
     try {
       this.close();
-    } catch (final NPException ex) {
+    } catch (final Exception ex) {
       LOG.debug("Close: ", ex);
     }
   }
 
   private void processReceivedMessageTimed(
     final NPAMessageType message)
-    throws NPException
+    throws NPException, InterruptedException, IOException
   {
     final var span =
       this.telemetry.tracer()
@@ -236,7 +270,7 @@ public final class NPAgentTask
 
   private void processReceivedMessage(
     final NPAMessageType message)
-    throws NPException
+    throws NPException, InterruptedException, IOException
   {
     this.attributes.clear();
 
@@ -245,7 +279,7 @@ public final class NPAgentTask
         this.attributes.put(this.strings.format(AGENT_ID), agent.toString());
       });
 
-    this.connection.submitExpectingNoResponse(
+    this.connection.send(
       new NPACmd().execute(this, message)
     );
   }
@@ -273,20 +307,12 @@ public final class NPAgentTask
     final NPAgentDescription agent)
   {
     this.agentId = agent.id();
-
     this.events.emit(
       new NPAgentAuthenticated(
         this.connection.remoteAddress().getAddress(),
         this.connection.remoteAddress().getPort(),
         this.agentId
       )
-    );
-
-    this.periodics.scheduleAtFixedRate(
-      this::doLatencyCheck,
-      100L,
-      1000L,
-      TimeUnit.MILLISECONDS
     );
   }
 
@@ -295,22 +321,28 @@ public final class NPAgentTask
     final NPStringConstantType errorMessage,
     final NPErrorCode errorCode)
   {
-    this.connection.submitExpectingNoResponse(
-      new NPAResponseError(
-        UUID.randomUUID(),
-        this.messageCurrent.messageID(),
-        errorCode,
+    final var exception =
+      new NPServerException(
         this.strings.format(errorMessage),
-        this.attributes
-      )
-    );
+        errorCode,
+        this.attributes,
+        Optional.empty()
+      );
 
-    return new NPServerException(
-      this.strings.format(errorMessage),
-      errorCode,
-      this.attributes,
-      Optional.empty()
-    );
+    try {
+      this.connection.send(
+        new NPAResponseError(
+          UUID.randomUUID(),
+          this.messageCurrent.messageID(),
+          errorCode,
+          this.strings.format(errorMessage),
+          this.attributes
+        )
+      );
+    } catch (final Exception e) {
+      exception.addSuppressed(e);
+    }
+    return exception;
   }
 
   @Override
@@ -365,6 +397,27 @@ public final class NPAgentTask
   @Override
   public boolean isClosed()
   {
-    return this.closed.get();
+    return this.connection.isClosed();
+  }
+
+  /**
+   * Schedule a latency check.
+   */
+
+  public void runLatencyCheck()
+  {
+    this.enqueuedCommands.add(InternalCommandType.LatencyCheck.LATENCY_CHECK);
+  }
+
+  private sealed interface InternalCommandType
+  {
+    /**
+     * Run a latency check.
+     */
+
+    enum LatencyCheck implements InternalCommandType
+    {
+      LATENCY_CHECK
+    }
   }
 }

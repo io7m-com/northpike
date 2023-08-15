@@ -26,6 +26,7 @@ module com.io7m.northpike.agent.api
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.model;
 
+  requires com.io7m.jmulticlose.core;
   requires com.io7m.jattribute.core;
 
   exports com.io7m.northpike.agent.api;

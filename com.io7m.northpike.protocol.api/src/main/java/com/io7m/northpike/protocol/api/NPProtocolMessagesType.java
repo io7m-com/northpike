@@ -17,12 +17,20 @@
 
 package com.io7m.northpike.protocol.api;
 
+import com.io7m.northpike.strings.NPStrings;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.function.Function;
+import java.util.Map;
+import java.util.Optional;
+
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorIo;
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorProtocol;
+import static com.io7m.northpike.strings.NPStringConstants.ERROR_READ_SHORT;
+import static com.io7m.northpike.strings.NPStringConstants.ERROR_SIZE_LIMIT_EXCEEDED;
 
 /**
  * The interface exposed by protocol message handlers.
@@ -46,48 +54,14 @@ public interface NPProtocolMessagesType<T extends NPProtocolMessageType>
     throws NPProtocolException;
 
   /**
-   * A convenience method to parse a message from a length-prefixed byte array.
-   * The first four bytes of the array denote a big-endian unsigned 32-bit
-   * integer length, and the bytes that constitute the message data follow
-   * directly.
-   *
-   * @param data       The byte array
-   * @param exceptions A function that produces an exception message
-   *
-   * @return A parsed message
-   *
-   * @throws NPProtocolException On errors
-   */
-
-  default T parseLengthPrefixed(
-    final byte[] data,
-    final Function<byte[], NPProtocolException> exceptions)
-    throws NPProtocolException
-  {
-    if (data.length < 4) {
-      throw exceptions.apply(data);
-    }
-
-    final var dataBuffer = ByteBuffer.wrap(data);
-    dataBuffer.order(ByteOrder.BIG_ENDIAN);
-
-    final var length = dataBuffer.getInt(0);
-    if ((data.length - 4) < length) {
-      throw exceptions.apply(data);
-    }
-
-    final var dataCopy = new byte[length];
-    System.arraycopy(data, 4, dataCopy, 0, length);
-    return this.parse(dataCopy);
-  }
-
-  /**
    * A convenience method to read a message from an input stream.
    * The first four bytes of the stream denote a big-endian unsigned 32-bit
    * integer length, and the bytes that constitute the message data follow
-   * directly.
+   * directly. Messages larger than the given size limit will be rejected.
    *
-   * @param stream The input stream
+   * @param strings   The string resources
+   * @param stream    The input stream
+   * @param sizeLimit The size limit
    *
    * @return A parsed message
    *
@@ -96,13 +70,32 @@ public interface NPProtocolMessagesType<T extends NPProtocolMessageType>
    */
 
   default T readLengthPrefixed(
+    final NPStrings strings,
+    final int sizeLimit,
     final InputStream stream)
     throws NPProtocolException, IOException
   {
     final var size = stream.readNBytes(4);
+    if (size.length < 4) {
+      throw new NPProtocolException(
+        strings.format(ERROR_READ_SHORT),
+        errorIo(),
+        Map.of(),
+        Optional.empty()
+      );
+    }
+
     final var sizeBuffer = ByteBuffer.wrap(size);
     sizeBuffer.order(ByteOrder.BIG_ENDIAN);
     final var length = sizeBuffer.getInt(0);
+    if (length > sizeLimit) {
+      throw new NPProtocolException(
+        strings.format(ERROR_SIZE_LIMIT_EXCEEDED),
+        errorProtocol(),
+        Map.of(),
+        Optional.empty()
+      );
+    }
     return this.parse(stream.readNBytes(length));
   }
 

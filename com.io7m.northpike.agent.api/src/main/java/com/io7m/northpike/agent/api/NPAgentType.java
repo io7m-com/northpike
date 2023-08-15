@@ -17,12 +17,13 @@
 package com.io7m.northpike.agent.api;
 
 import com.io7m.jattribute.core.AttributeReadableType;
+import com.io7m.jmulticlose.core.CloseableType;
 
 /**
  * An agent.
  */
 
-public interface NPAgentType extends AutoCloseable
+public interface NPAgentType extends CloseableType
 {
   /**
    * Start the agent. The method returns when the agent is fully started up.
@@ -45,10 +46,10 @@ public interface NPAgentType extends AutoCloseable
     throws NPAgentException, InterruptedException;
 
   /**
-   * @return The current connection status
+   * @return The current status
    */
 
-  AttributeReadableType<NPAgentConnectionStatus> connectionStatus();
+  AttributeReadableType<NPAgentStatus> status();
 
   @Override
   void close()

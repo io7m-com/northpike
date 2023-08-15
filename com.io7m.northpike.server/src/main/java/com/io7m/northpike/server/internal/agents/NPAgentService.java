@@ -18,18 +18,13 @@
 package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.jmulticlose.core.CloseableCollectionType;
-import com.io7m.jmulticlose.core.CloseableTrackerType;
-import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerResources;
 import com.io7m.northpike.server.internal.NPServerSocketServiceType;
-import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
-import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
-import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +35,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -53,64 +51,55 @@ public final class NPAgentService implements NPAgentServiceType
   private static final Logger LOG =
     LoggerFactory.getLogger(NPAgentService.class);
 
+  private final RPServiceDirectoryType services;
   private final CloseableCollectionType<NPServerException> resources;
-  private final NPStrings strings;
   private final NPServerConfiguration configuration;
-  private final NPClockServiceType clock;
   private final NPEventServiceType events;
-  private final NPTelemetryServiceType telemetry;
   private final NPMetricsServiceType metrics;
-  private final NPDatabaseType database;
   private final NPServerSocketServiceType sockets;
   private final ExecutorService agentExecutor;
   private final AtomicBoolean closed;
   private final ExecutorService mainExecutor;
+  private final ScheduledExecutorService agentTicker;
   private final CompletableFuture<Void> future;
-  private final CloseableTrackerType<NPServerException> tasks;
+  private final ConcurrentHashMap.KeySetView<NPAgentTask, Boolean> agentTasks;
   private ServerSocket socket;
 
   private NPAgentService(
+    final RPServiceDirectoryType inServices,
     final CloseableCollectionType<NPServerException> inResources,
-    final CloseableTrackerType<NPServerException> inTasks,
-    final NPStrings inStrings,
     final NPServerConfiguration inConfiguration,
-    final NPClockServiceType inClock,
     final NPEventServiceType inEvents,
-    final NPTelemetryServiceType inTelemetry,
     final NPMetricsServiceType inMetrics,
-    final NPDatabaseType inDatabase,
     final NPServerSocketServiceType inSockets,
     final ExecutorService inMainExecutor,
-    final ExecutorService inAgentExecutor)
+    final ExecutorService inAgentExecutor,
+    final ScheduledExecutorService inAgentTicker)
   {
+    this.services =
+      Objects.requireNonNull(inServices, "services");
     this.resources =
       Objects.requireNonNull(inResources, "resources");
-    this.tasks =
-      Objects.requireNonNull(inTasks, "inTasks");
-    this.strings =
-      Objects.requireNonNull(inStrings, "strings");
     this.configuration =
       Objects.requireNonNull(inConfiguration, "configuration");
-    this.clock =
-      Objects.requireNonNull(inClock, "clock");
     this.events =
       Objects.requireNonNull(inEvents, "events");
-    this.telemetry =
-      Objects.requireNonNull(inTelemetry, "telemetry");
     this.metrics =
       Objects.requireNonNull(inMetrics, "metrics");
-    this.database =
-      Objects.requireNonNull(inDatabase, "database");
     this.sockets =
       Objects.requireNonNull(inSockets, "sockets");
     this.agentExecutor =
       Objects.requireNonNull(inAgentExecutor, "agentExecutor");
     this.mainExecutor =
       Objects.requireNonNull(inMainExecutor, "inMainExecutor");
+    this.agentTicker =
+      Objects.requireNonNull(inAgentTicker, "agentTicker");
     this.closed =
       new AtomicBoolean(true);
     this.future =
       new CompletableFuture<>();
+    this.agentTasks =
+      ConcurrentHashMap.newKeySet();
   }
 
   /**
@@ -130,14 +119,6 @@ public final class NPAgentService implements NPAgentServiceType
       services.requireService(NPConfigurationServiceType.class);
     final var events =
       services.requireService(NPEventServiceType.class);
-    final var strings =
-      services.requireService(NPStrings.class);
-    final var telemetry =
-      services.requireService(NPTelemetryServiceType.class);
-    final var database =
-      services.requireService(NPDatabaseType.class);
-    final var clock =
-      services.requireService(NPClockServiceType.class);
     final var sockets =
       services.requireService(NPServerSocketServiceType.class);
     final var metrics =
@@ -174,19 +155,29 @@ public final class NPAgentService implements NPAgentServiceType
 
     resources.add(agentExecutor::shutdown);
 
+    final var agentTicker =
+      Executors.newSingleThreadScheduledExecutor(runnable -> {
+        final var thread = new Thread(runnable);
+        thread.setName(
+          "com.io7m.northpike.agent.periodic[%d]"
+            .formatted(Long.valueOf(thread.getId()))
+        );
+        thread.setDaemon(true);
+        return thread;
+      });
+
+    resources.add(agentTicker::shutdown);
+
     return new NPAgentService(
+      services,
       resources,
-      tracker,
-      strings,
       configuration.configuration(),
-      clock,
       events,
-      telemetry,
       metrics,
-      database,
       sockets,
       mainExecutor,
-      agentExecutor
+      agentExecutor,
+      agentTicker
     );
   }
 
@@ -216,7 +207,18 @@ public final class NPAgentService implements NPAgentServiceType
       Integer.valueOf(this.configuration.agentConfiguration().localPort())
     );
 
+    /*
+     * Schedule a task that will instruct all connected agents to perform a
+     * latency check periodically.
+     */
+
     this.metrics.setAgentsConnected(0);
+    this.agentTicker.scheduleAtFixedRate(
+      this::onAgentTasksMeasureLatency,
+      1L,
+      1L,
+      TimeUnit.SECONDS
+    );
 
     while (!this.closed.get()) {
 
@@ -258,38 +260,40 @@ public final class NPAgentService implements NPAgentServiceType
     }
   }
 
+  private void onAgentTasksMeasureLatency()
+  {
+    this.agentTasks.forEach(task -> {
+      if (!task.isClosed()) {
+        task.runLatencyCheck();
+      }
+    });
+  }
+
   private void createAndRunAgentTask(
     final Socket clientSocket)
   {
-    final NPAgentTask task;
-    try {
-      task = new NPAgentTask(
-        this.strings,
-        this.telemetry,
-        this.clock,
-        this.database,
-        this.events,
-        this.configuration.agentConfiguration(),
-        clientSocket
-      );
-    } catch (final Exception e) {
-      LOG.debug("Agent Creation: ", e);
-      try {
-        clientSocket.close();
-      } catch (final IOException ex) {
-        LOG.debug("Close: ", ex);
-      }
-      return;
-    }
-
-    this.tasks.add(task);
-    this.metrics.setAgentsConnected(this.tasks.size());
-
-    try (task) {
+    try (var task = NPAgentTask.create(this.services, clientSocket)) {
+      this.onAgentTaskCreated(task);
       task.run();
     } catch (final Exception e) {
       LOG.debug("Agent: ", e);
+    } finally {
+      this.onAgentTaskClosed();
     }
+  }
+
+  private void onAgentTaskClosed()
+  {
+    this.agentTasks.removeIf(NPAgentTask::isClosed);
+    this.metrics.setAgentsConnected(this.agentTasks.size());
+  }
+
+  private void onAgentTaskCreated(
+    final NPAgentTask task)
+  {
+    this.agentTasks.add(task);
+    this.agentTasks.removeIf(NPAgentTask::isClosed);
+    this.metrics.setAgentsConnected(this.agentTasks.size());
   }
 
   private ServerSocket openSocket()

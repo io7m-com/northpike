@@ -23,8 +23,8 @@ import com.io7m.jattribute.core.Attributes;
 import com.io7m.jmulticlose.core.CloseableCollection;
 import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.agent.api.NPAgentConfiguration;
-import com.io7m.northpike.agent.api.NPAgentConnectionStatus;
 import com.io7m.northpike.agent.api.NPAgentException;
+import com.io7m.northpike.agent.api.NPAgentStatus;
 import com.io7m.northpike.agent.api.NPAgentType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
@@ -36,46 +36,46 @@ import com.io7m.northpike.protocol.agent.NPAResponseLatencyCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Flow;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.CONNECTING;
+import static com.io7m.northpike.agent.api.NPAgentStatus.CONNECTED;
+import static com.io7m.northpike.agent.api.NPAgentStatus.CONNECTING;
+import static com.io7m.northpike.agent.api.NPAgentStatus.CONNECTION_FAILED;
 
 /**
  * A basic agent.
  */
 
-public final class NPAgent implements NPAgentType,
-  Flow.Subscriber<NPException>
+public final class NPAgent implements NPAgentType
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(NPAgent.class);
 
   private final NPAgentConfiguration configuration;
-  private final AtomicBoolean running;
+  private final AtomicBoolean closed;
   private CloseableCollectionType<NPAgentException> resources;
   private ThreadPoolExecutor buildExecutor;
   private ThreadPoolExecutor mainExecutor;
-  private AttributeType<NPAgentConnectionStatus> connectionStatus;
-  private Flow.Subscription subscription;
+  private AttributeType<NPAgentStatus> status;
 
   private NPAgent(
     final NPAgentConfiguration inConfiguration)
   {
     this.configuration =
       Objects.requireNonNull(inConfiguration, "configuration");
-    this.running =
-      new AtomicBoolean(false);
-    this.connectionStatus =
+    this.closed =
+      new AtomicBoolean(true);
+    this.status =
       Attributes.create(throwable -> {
         LOG.error("Exception raised during event handling: ", throwable);
       }).create(CONNECTING);
@@ -95,11 +95,71 @@ public final class NPAgent implements NPAgentType,
     return new NPAgent(configuration);
   }
 
+  private static void runHandleMessages(
+    final NPAgentConnectionType connection)
+    throws InterruptedException, NPException, IOException
+  {
+    while (true) {
+      final var messageOpt = connection.read();
+      if (messageOpt.isPresent()) {
+        runHandleMessage(connection, messageOpt.get());
+      } else {
+        break;
+      }
+    }
+  }
+
+  private static void runSendEnvironmentInfo(
+    final NPAgentConnectionType connection)
+    throws InterruptedException, NPException, IOException
+  {
+    LOG.debug("Sending environment information.");
+    connection.ask(NPACommandCEnvironmentInfo.of());
+  }
+
+  private static void runHandleMessage(
+    final NPAgentConnectionType connection,
+    final NPAMessageType message)
+    throws InterruptedException, NPException, IOException
+  {
+    if (message instanceof final NPACommandS2CType<?> s2c) {
+      runHandleS2CCommand(connection, s2c);
+      return;
+    }
+  }
+
+  private static void runHandleS2CCommand(
+    final NPAgentConnectionType connection,
+    final NPACommandS2CType<?> s2c)
+    throws InterruptedException, NPException, IOException
+  {
+    if (s2c instanceof final NPACommandSLatencyCheck c) {
+      runHandleCommandLatencyCheck(connection, c);
+      return;
+    }
+  }
+
+  private static void runHandleCommandLatencyCheck(
+    final NPAgentConnectionType connection,
+    final NPACommandSLatencyCheck c)
+    throws InterruptedException, NPException, IOException
+  {
+    LOG.debug("Responding to latency check.");
+    connection.send(
+      new NPAResponseLatencyCheck(
+        UUID.randomUUID(),
+        c.messageID(),
+        c.timeCurrent(),
+        OffsetDateTime.now()
+      )
+    );
+  }
+
   @Override
   public void start()
     throws InterruptedException
   {
-    if (this.running.compareAndSet(false, true)) {
+    if (this.closed.compareAndSet(true, false)) {
       this.resources =
         CloseableCollection.create(() -> new NPAgentException(
           "One or more resources could not be closed.",
@@ -145,10 +205,7 @@ public final class NPAgent implements NPAgentType,
       this.resources.add(this.mainExecutor::shutdown);
 
       final var bootLatch = new CountDownLatch(1);
-      this.mainExecutor.execute(() -> {
-        bootLatch.countDown();
-        this.run();
-      });
+      this.mainExecutor.execute(() -> this.run(bootLatch));
       bootLatch.await();
     }
   }
@@ -157,96 +214,40 @@ public final class NPAgent implements NPAgentType,
   public void stop()
     throws NPAgentException
   {
-    if (this.running.compareAndSet(true, false)) {
+    if (this.closed.compareAndSet(false, true)) {
       this.resources.close();
     }
   }
 
   @Override
-  public AttributeReadableType<NPAgentConnectionStatus> connectionStatus()
+  public AttributeReadableType<NPAgentStatus> status()
   {
-    return this.connectionStatus;
+    return this.status;
   }
 
-  private void run()
+  private void run(
+    final CountDownLatch bootLatch)
   {
-    try (var connection = new NPAgentConnection(this.configuration)) {
-      connection.exceptions()
-        .subscribe(this);
+    bootLatch.countDown();
 
-      this.resources.add(
-        connection.status()
-          .subscribe((oldValue, newValue) -> {
-            this.connectionStatus.set(newValue);
-          })
-      );
+    while (!this.isClosed()) {
+      this.status.set(CONNECTING);
 
-      runSendEnvironmentInfo(connection);
-      while (this.running.get()) {
-        runHandleMessages(connection);
-      }
-    } catch (final NPException e) {
-      LOG.warn("Closing connection: ", e);
-    }
-  }
+      try (var connection = NPAgentConnection.open(this.configuration)) {
+        this.status.set(CONNECTED);
+        runSendEnvironmentInfo(connection);
 
-  private static void runHandleMessages(
-    final NPAgentConnectionType connection)
-  {
-    final var messages =
-      connection.takeReceivedMessages();
-
-    for (final var message : messages) {
-      runHandleMessage(connection, message);
-    }
-  }
-
-  private static void runSendEnvironmentInfo(
-    final NPAgentConnectionType connection)
-  {
-    LOG.debug("Sending environment information.");
-    connection.submitCommand(NPACommandCEnvironmentInfo.of())
-      .handle((r, throwable) -> {
-        if (throwable != null) {
-          LOG.error("Failed to send environment information: ", throwable);
+        while (!this.isClosed()) {
+          runHandleMessages(connection);
         }
-        return r;
-      });
-  }
-
-  private static void runHandleMessage(
-    final NPAgentConnectionType connection,
-    final NPAMessageType message)
-  {
-    if (message instanceof final NPACommandS2CType<?> s2c) {
-      runHandleS2CCommand(connection, s2c);
-      return;
+      } catch (final InterruptedException e) {
+        this.status.set(CONNECTION_FAILED);
+        Thread.currentThread().interrupt();
+      } catch (final NPException | IOException e) {
+        this.status.set(CONNECTION_FAILED);
+        LOG.error("", e);
+      }
     }
-  }
-
-  private static void runHandleS2CCommand(
-    final NPAgentConnectionType connection,
-    final NPACommandS2CType<?> s2c)
-  {
-    if (s2c instanceof final NPACommandSLatencyCheck c) {
-      runHandleCommandLatencyCheck(connection, c);
-      return;
-    }
-  }
-
-  private static void runHandleCommandLatencyCheck(
-    final NPAgentConnectionType connection,
-    final NPACommandSLatencyCheck c)
-  {
-    LOG.debug("Responding to latency check.");
-    connection.submitResponse(
-      new NPAResponseLatencyCheck(
-        UUID.randomUUID(),
-        c.messageID(),
-        c.timeCurrent(),
-        OffsetDateTime.now()
-      )
-    );
   }
 
   @Override
@@ -257,31 +258,8 @@ public final class NPAgent implements NPAgentType,
   }
 
   @Override
-  public void onSubscribe(
-    final Flow.Subscription newSubscription)
+  public boolean isClosed()
   {
-    this.subscription = newSubscription;
-    this.resources.add(newSubscription::cancel);
-    newSubscription.request(Long.MAX_VALUE);
-  }
-
-  @Override
-  public void onNext(
-    final NPException item)
-  {
-    LOG.error("Connection raised exception: ", item);
-  }
-
-  @Override
-  public void onError(
-    final Throwable throwable)
-  {
-    LOG.error("Event handling exception: ", throwable);
-  }
-
-  @Override
-  public void onComplete()
-  {
-    this.subscription.cancel();
+    return this.closed.get();
   }
 }

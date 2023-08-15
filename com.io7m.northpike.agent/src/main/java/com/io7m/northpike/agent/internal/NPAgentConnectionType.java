@@ -17,61 +17,16 @@
 
 package com.io7m.northpike.agent.internal;
 
-import com.io7m.jattribute.core.AttributeReadableType;
-import com.io7m.northpike.agent.api.NPAgentConnectionStatus;
 import com.io7m.northpike.connections.NPMessageConnectionType;
-import com.io7m.northpike.protocol.agent.NPACommandType;
-import com.io7m.northpike.protocol.agent.NPAEventType;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.NPAResponseType;
 
-import java.util.concurrent.CompletableFuture;
-
 /**
- * A connection to a server, exposing asynchronous I/O operations and
- * providing transparent authentication and re-connection in the case of
- * connection failures.
+ * The type of channels from the agent to the server.
  */
 
 public interface NPAgentConnectionType
   extends NPMessageConnectionType<NPAMessageType, NPAResponseType>
 {
-  /**
-   * @return The status of the connection
-   */
 
-  AttributeReadableType<NPAgentConnectionStatus> status();
-
-  /**
-   * Submit a command. The returned future is completed when an appropriate
-   * response is returned by the server.
-   *
-   * @param command The command
-   * @param <R>     The type of responses
-   *
-   * @return The operation in progress
-   */
-
-  <R extends NPAResponseType> CompletableFuture<R> submitCommand(
-    NPACommandType<R> command);
-
-  /**
-   * Submit a response. The method blocks until the message is written to the
-   * underlying network transport.
-   *
-   * @param response The response
-   */
-
-  void submitResponse(
-    NPAResponseType response);
-
-  /**
-   * Submit an event. The method blocks until the message is written to the
-   * underlying network transport.
-   *
-   * @param event The event
-   */
-
-  void submitEvent(
-    NPAEventType event);
 }

@@ -30,7 +30,6 @@ import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
 import java.sql.SQLException;
-import java.time.Clock;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -145,11 +144,6 @@ final class NPDatabaseTransaction
     final var settings =
       this.connection.database().settings();
     return DSL.using(sqlConnection, POSTGRES, settings);
-  }
-
-  public Clock clock()
-  {
-    return this.connection.database().clock();
   }
 
   @Override

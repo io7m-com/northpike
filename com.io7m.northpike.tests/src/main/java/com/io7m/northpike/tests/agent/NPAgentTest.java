@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.agent;
 
 import com.io7m.northpike.agent.api.NPAgentConfiguration;
-import com.io7m.northpike.agent.api.NPAgentConnectionStatus;
+import com.io7m.northpike.agent.api.NPAgentStatus;
 import com.io7m.northpike.agent.internal.NPAgent;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPKey;
@@ -56,11 +56,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.AUTHENTICATED;
-import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.AUTHENTICATING;
-import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.AUTHENTICATION_FAILED;
-import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.CONNECTED;
-import static com.io7m.northpike.agent.api.NPAgentConnectionStatus.CONNECTING;
+import static com.io7m.northpike.agent.api.NPAgentStatus.CONNECTED;
+import static com.io7m.northpike.agent.api.NPAgentStatus.CONNECTING;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -90,11 +87,11 @@ public final class NPAgentTest
   private LinkedBlockingQueue<NPAMessageType> received;
 
   private static void checkStatuses(
-    final HashSet<NPAgentConnectionStatus> statuses,
-    final Set<NPAgentConnectionStatus> requiredStatuses,
-    final Set<NPAgentConnectionStatus> refusedStatuses)
+    final HashSet<NPAgentStatus> statuses,
+    final Set<NPAgentStatus> requiredStatuses,
+    final Set<NPAgentStatus> refusedStatuses)
   {
-    for (final var status : NPAgentConnectionStatus.values()) {
+    for (final var status : NPAgentStatus.values()) {
       if (requiredStatuses.contains(status)) {
         assertTrue(
           statuses.contains(status),
@@ -186,7 +183,8 @@ public final class NPAgentTest
         );
 
         final var received0 =
-          (NPIProtocol) NPI_MESSAGES.readLengthPrefixed(inputStream);
+          (NPIProtocol) NPI_MESSAGES.readLengthPrefixed(
+            this.strings, 1000000, inputStream);
 
         NPI_MESSAGES.writeLengthPrefixed(
           outputStream,
@@ -206,9 +204,9 @@ public final class NPAgentTest
 
     this.serverAcceptLatch.countDown();
 
-    final var statuses = new HashSet<NPAgentConnectionStatus>();
+    final var statuses = new HashSet<NPAgentStatus>();
     try (var agent = NPAgent.open(this.configuration)) {
-      agent.connectionStatus()
+      agent.status()
         .subscribe((oldValue, newValue) -> statuses.add(newValue));
 
       agent.start();
@@ -219,7 +217,7 @@ public final class NPAgentTest
     final var requiredStatuses =
       Set.of(CONNECTING);
     final var refusedStatuses =
-      Set.of(CONNECTED, AUTHENTICATING, AUTHENTICATED, AUTHENTICATION_FAILED);
+      Set.of(CONNECTED);
 
     checkStatuses(statuses, requiredStatuses, refusedStatuses);
   }
@@ -256,12 +254,14 @@ public final class NPAgentTest
         );
 
         final var received0 =
-          (NPIProtocol) NPI_MESSAGES.readLengthPrefixed(inputStream);
+          (NPIProtocol) NPI_MESSAGES.readLengthPrefixed(
+            this.strings, 1000000, inputStream);
 
         NPI_MESSAGES.writeLengthPrefixed(outputStream, received0);
 
         final var received1 =
-          (NPACommandCLogin) NPA1_MESSAGES.readLengthPrefixed(inputStream);
+          (NPACommandCLogin) NPA1_MESSAGES.readLengthPrefixed(
+            this.strings, 1000000, inputStream);
         this.received.add(received1);
 
         NPA1_MESSAGES.writeLengthPrefixed(
@@ -270,7 +270,8 @@ public final class NPAgentTest
         );
 
         final var received2 =
-          (NPACommandCEnvironmentInfo) NPA1_MESSAGES.readLengthPrefixed(inputStream);
+          (NPACommandCEnvironmentInfo) NPA1_MESSAGES.readLengthPrefixed(
+            this.strings, 1000000, inputStream);
         this.received.add(received2);
 
         NPA1_MESSAGES.writeLengthPrefixed(
@@ -287,7 +288,8 @@ public final class NPAgentTest
         );
 
         final var received3 =
-          (NPAResponseLatencyCheck) NPA1_MESSAGES.readLengthPrefixed(inputStream);
+          (NPAResponseLatencyCheck) NPA1_MESSAGES.readLengthPrefixed(
+            this.strings, 1000000, inputStream);
         this.received.add(received3);
 
         clientSocket.close();
@@ -300,9 +302,9 @@ public final class NPAgentTest
 
     this.serverAcceptLatch.countDown();
 
-    final var statuses = new HashSet<NPAgentConnectionStatus>();
+    final var statuses = new HashSet<NPAgentStatus>();
     try (var agent = NPAgent.open(this.configuration)) {
-      agent.connectionStatus()
+      agent.status()
         .subscribe((oldValue, newValue) -> statuses.add(newValue));
 
       agent.start();

@@ -16,112 +16,40 @@
 
 package com.io7m.northpike.server.internal.agents;
 
-import com.io7m.northpike.connections.NPMessageHandlerType;
+import com.io7m.northpike.connections.NPMessageConnectionHandlerAbstract;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.cb.NPA1Messages;
-import com.io7m.northpike.protocol.api.NPProtocolException;
-import com.io7m.northpike.server.api.NPServerException;
-import com.io7m.northpike.server.internal.NPServerExceptions;
 import com.io7m.northpike.strings.NPStrings;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Objects;
-import java.util.Optional;
+import java.net.Socket;
 
 /**
  * The server handler for protocol version 1.
  */
 
 public final class NPAgentServerConnectionHandler1
-  implements NPMessageHandlerType<NPAMessageType>
+  extends NPMessageConnectionHandlerAbstract<NPAMessageType>
+  implements NPAgentServerConnectionHandlerType
 {
   private static final NPA1Messages MESSAGES =
     new NPA1Messages();
 
-  private final OutputStream output;
-  private final int messageSizeLimit;
-  private final NPStrings strings;
-  private final InputStream input;
-
   NPAgentServerConnectionHandler1(
     final int inMessageSizeLimit,
     final NPStrings inStrings,
+    final Socket inSocket,
     final InputStream inInputStream,
     final OutputStream inOutputStream)
   {
-    this.messageSizeLimit =
-      inMessageSizeLimit;
-    this.strings =
-      Objects.requireNonNull(inStrings, "inStrings");
-    this.input =
-      Objects.requireNonNull(inInputStream, "inOutput");
-    this.output =
-      Objects.requireNonNull(inOutputStream, "inInput");
-  }
-
-  @Override
-  public Optional<NPAMessageType> receive()
-    throws NPServerException
-  {
-    try {
-      final var available = this.input.available();
-      if (available <= 4) {
-        return Optional.empty();
-      }
-
-      final var sizeBytes = this.input.readNBytes(4);
-      if (sizeBytes.length != 4) {
-        throw NPServerExceptions.errorShortRead(
-          this.strings,
-          4,
-          sizeBytes.length
-        );
-      }
-
-      final var sizeData = ByteBuffer.wrap(sizeBytes);
-      sizeData.order(ByteOrder.BIG_ENDIAN);
-
-      final var messageSize = sizeData.getInt(0);
-      if (messageSize > this.messageSizeLimit) {
-        throw NPServerExceptions.errorTooLarge(
-          this.strings,
-          messageSize,
-          this.messageSizeLimit
-        );
-      }
-
-      final var messageData =
-        this.input.readNBytes(messageSize);
-
-      return Optional.of(MESSAGES.parse(messageData));
-    } catch (final NPProtocolException e) {
-      throw NPServerExceptions.errorProtocol(e);
-    } catch (final IOException e) {
-      throw NPServerExceptions.errorIO(this.strings, e);
-    }
-  }
-
-  @Override
-  public void send(
-    final NPAMessageType message)
-    throws NPServerException
-  {
-    try {
-      MESSAGES.writeLengthPrefixed(this.output, message);
-    } catch (final NPProtocolException e) {
-      throw NPServerExceptions.errorProtocol(e);
-    } catch (final IOException e) {
-      throw NPServerExceptions.errorIO(this.strings, e);
-    }
-  }
-
-  @Override
-  public void close()
-  {
-
+    super(
+      MESSAGES,
+      inStrings,
+      inMessageSizeLimit,
+      inSocket,
+      inInputStream,
+      inOutputStream
+    );
   }
 }

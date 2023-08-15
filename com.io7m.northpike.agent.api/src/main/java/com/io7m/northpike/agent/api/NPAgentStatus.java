@@ -14,36 +14,30 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.agent.internal;
 
-import com.io7m.northpike.agent.api.NPAgentConfiguration;
-import com.io7m.northpike.strings.NPStrings;
-
-import java.util.Objects;
+package com.io7m.northpike.agent.api;
 
 /**
- * The abstract base class for handlers.
+ * The status of an agent.
  */
 
-public abstract class NPAgentConnectionHandlerAbstract
-  implements NPAgentConnectionHandlerType
+public enum NPAgentStatus
 {
-  private final NPAgentConfiguration configuration;
+  /**
+   * The agent is in the process of connecting to the server.
+   */
 
-  protected NPAgentConnectionHandlerAbstract(
-    final NPAgentConfiguration inConfiguration)
-  {
-    this.configuration =
-      Objects.requireNonNull(inConfiguration, "configuration");
-  }
+  CONNECTING,
 
-  protected final NPStrings strings()
-  {
-    return this.configuration.strings();
-  }
+  /**
+   * The agent connection failed. Reconnection will be attempted soon.
+   */
 
-  protected final NPAgentConfiguration configuration()
-  {
-    return this.configuration;
-  }
+  CONNECTION_FAILED,
+
+  /**
+   * The agent is connected.
+   */
+
+  CONNECTED
 }

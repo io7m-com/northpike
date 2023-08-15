@@ -15,48 +15,48 @@
  */
 
 
-package com.io7m.northpike.agent.api;
+package com.io7m.northpike.connections;
+
+import com.io7m.jmulticlose.core.CloseableType;
+import com.io7m.northpike.model.NPException;
+
+import java.io.IOException;
+import java.util.Optional;
 
 /**
- * The status of a connection.
+ * The type of handlers for sending and receiving versioned messages.
+ *
+ * @param <M> The type of messages
  */
 
-public enum NPAgentConnectionStatus
+public interface NPMessageConnectionHandlerType<M>
+  extends CloseableType
 {
   /**
-   * The connection is in the process of connecting to the server.
+   * Receive a message, if one is available.
+   *
+   * @return The message
+   *
+   * @throws NPException On errors
+   * @throws IOException On errors
    */
 
-  CONNECTING,
+  Optional<M> receive()
+    throws NPException, IOException;
 
   /**
-   * The connection failed. Reconnection will be attempted soon.
+   * Send a message.
+   *
+   * @param message The message
+   *
+   * @throws NPException On errors
+   * @throws IOException On errors
    */
 
-  CONNECTION_FAILED,
+  void send(M message)
+    throws NPException, IOException;
 
-  /**
-   * The connection is connected but not authenticated. Authentication will
-   * be attempted soon.
-   */
-
-  CONNECTED,
-
-  /**
-   * The connection is in the process of authenticating.
-   */
-
-  AUTHENTICATING,
-
-  /**
-   * The connection is connected and authenticated.
-   */
-
-  AUTHENTICATED,
-
-  /**
-   * Authentication failed. Reconnection will be attempted soon.
-   */
-
-  AUTHENTICATION_FAILED
+  @Override
+  void close()
+    throws IOException;
 }

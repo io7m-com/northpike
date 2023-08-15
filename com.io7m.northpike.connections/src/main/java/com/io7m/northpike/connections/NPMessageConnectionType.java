@@ -17,75 +17,67 @@
 
 package com.io7m.northpike.connections;
 
+import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.model.NPException;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Flow;
 
 /**
- * A connection between two peers, exposing asynchronous I/O operations and
- * providing transparent re-connection in the case of connection failures.
+ * The type of synchronous, blocking message connections.
  *
  * @param <M> The type of messages
- * @param <R> The type of responses
+ * @param <R> The type of messages that are responses
  */
 
 public interface NPMessageConnectionType<M, R extends M>
-  extends AutoCloseable
+  extends CloseableType
 {
   /**
-   * Submit a message that expects a response. The returned future is completed
-   * when an appropriate response is returned from the peer.
+   * Send a message and block until the message is written to the underlying
+   * network transport.
    *
    * @param message The message
    *
-   * @return The operation in progress
+   * @throws NPException          On errors
+   * @throws InterruptedException On interruption
+   * @throws IOException          On errors
    */
 
-  CompletableFuture<R> submitExpectingResponse(M message);
+  void send(M message)
+    throws NPException, InterruptedException, IOException;
 
   /**
-   * Submit a message that does not expect a response. The method blocks
-   * until the message is written to the network transport.
+   * Send a message and wait until the response to that message comes back,
+   * and return the response.
    *
    * @param message The message
-   */
-
-  void submitExpectingNoResponse(M message);
-
-  /**
-   * Receive messages.
    *
-   * @return The messages received since the last call to {{@link #takeReceivedMessages()}}
-   */
-
-  List<M> takeReceivedMessages();
-
-  /**
-   * Peek at the most recently received message.
+   * @return The response
    *
-   * @return The messages received since the last call to {{@link #takeReceivedMessages()}}
+   * @throws NPException          On errors
+   * @throws InterruptedException On interruption
+   * @throws IOException          On errors
    */
 
-  Optional<M> peekReceivedMessage();
+  R ask(M message)
+    throws NPException, InterruptedException, IOException;
 
   /**
-   * Take the most recently received message.
+   * Retrieve a message if one is available. The method will block until
+   * the underlying network transport indicates that a message is available.
    *
-   * @return The messages received since the last call to {{@link #takeReceivedMessages()}}
+   * @return The message, if any
+   *
+   * @throws NPException          On errors
+   * @throws InterruptedException On interruption
+   * @throws IOException          On errors
    */
 
-  Optional<M> takeReceivedMessage();
-
-  /**
-   * @return A stream of events produced by the connection
-   */
-
-  Flow.Publisher<NPException> exceptions();
+  Optional<M> read()
+    throws NPException, InterruptedException, IOException;
 
   @Override
   void close()
-    throws NPException;
+    throws IOException;
 }

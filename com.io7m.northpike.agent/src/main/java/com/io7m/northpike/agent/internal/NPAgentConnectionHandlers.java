@@ -39,12 +39,9 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -76,19 +73,18 @@ public final class NPAgentConnectionHandlers
   }
 
   /**
-   * Open a new connection.
+   * Open a new connection handler.
    *
    * @param configuration The configuration
    *
-   * @return A new connection
+   * @return A new connection handler
    *
    * @throws NPAgentException On errors
-   * @throws IOException      On errors
    */
 
-  public static NPAgentConnectionHandlerType openConnection(
+  public static NPAgentConnectionHandlerType openConnectionHandler(
     final NPAgentConfiguration configuration)
-    throws NPAgentException, IOException
+    throws NPAgentException
   {
     final var socketAddress =
       new InetSocketAddress(
@@ -96,19 +92,25 @@ public final class NPAgentConnectionHandlers
         configuration.remotePort()
       );
 
-    final var socket =
-      configuration.useTLS()
-        ? SOCKETS_TLS.createSocket()
-        : SOCKETS.createSocket();
-
     try {
-      socket.setTcpNoDelay(true);
-      socket.setPerformancePreferences(1, 2, 0);
-      socket.connect(socketAddress, 10);
-      return negotiateVersion(configuration, socket);
-    } catch (final Exception e) {
-      socket.close();
-      throw e;
+      final var socket =
+        configuration.useTLS()
+          ? SOCKETS_TLS.createSocket()
+          : SOCKETS.createSocket();
+
+      try {
+        socket.setTcpNoDelay(true);
+        socket.setPerformancePreferences(1, 2, 0);
+        socket.connect(socketAddress, 10);
+        return negotiateVersion(configuration, socket);
+      } catch (final IOException | NPProtocolException e) {
+        socket.close();
+        throw e;
+      }
+    } catch (final IOException e) {
+      throw NPAgentExceptions.errorIO(configuration.strings(), e);
+    } catch (final NPProtocolException e) {
+      throw NPAgentExceptions.errorProtocol(e);
     }
   }
 
@@ -125,7 +127,7 @@ public final class NPAgentConnectionHandlers
   private static NPAgentConnectionHandlerType negotiateVersion(
     final NPAgentConfiguration configuration,
     final Socket socket)
-    throws IOException, NPAgentException
+    throws IOException, NPAgentException, NPProtocolException
   {
     final var inputStream =
       socket.getInputStream();
@@ -151,7 +153,7 @@ public final class NPAgentConnectionHandlers
         solvedEndpoint.supported.version().versionMajor().longValue()
       );
 
-    sendMessage(configuration.strings(), outputStream, chosen);
+    NPI_MESSAGES.writeLengthPrefixed(outputStream, chosen);
 
     final var confirmed =
       readNPIMessageOfType(
@@ -175,21 +177,6 @@ public final class NPAgentConnectionHandlers
         inputStream,
         outputStream
       );
-  }
-
-  private static void sendMessage(
-    final NPStrings strings,
-    final OutputStream outputStream,
-    final NPIProtocol message)
-    throws NPAgentException
-  {
-    try {
-      NPI_MESSAGES.writeLengthPrefixed(outputStream, message);
-    } catch (final NPProtocolException e) {
-      throw NPAgentExceptions.errorProtocol(e);
-    } catch (final IOException e) {
-      throw NPAgentExceptions.errorIO(strings, e);
-    }
   }
 
   private static GenProtocolSolved<NPAgentConnectionHandlerFactoryType, NPServerEndpoint>
@@ -243,12 +230,16 @@ public final class NPAgentConnectionHandlers
     final NPAgentConfiguration configuration,
     final InputStream inputStream,
     final Class<M> clazz)
-    throws IOException, NPAgentException
+    throws IOException, NPAgentException, NPProtocolException
   {
     final var strings =
       configuration.strings();
     final var message =
-      readNPIMessage(configuration, inputStream);
+      NPI_MESSAGES.readLengthPrefixed(
+        strings,
+        configuration.messageSizeLimit(),
+        inputStream
+      );
 
     if (message instanceof final NPIError error) {
       throw new NPAgentException(
@@ -264,39 +255,6 @@ public final class NPAgentConnectionHandlers
     }
 
     return clazz.cast(message);
-  }
-
-  private static NPIMessageType readNPIMessage(
-    final NPAgentConfiguration configuration,
-    final InputStream inputStream)
-    throws IOException, NPAgentException
-  {
-    final var strings = configuration.strings();
-    final var sizeBytes = inputStream.readNBytes(4);
-    if (sizeBytes.length != 4) {
-      throw NPAgentExceptions.errorShortRead(strings, 4, sizeBytes.length);
-    }
-
-    final var sizeData = ByteBuffer.wrap(sizeBytes);
-    sizeData.order(ByteOrder.BIG_ENDIAN);
-
-    final var messageSize = sizeData.getInt(0);
-    if (messageSize > configuration.messageSizeLimit()) {
-      throw NPAgentExceptions.errorTooLarge(
-        strings,
-        messageSize,
-        configuration.messageSizeLimit()
-      );
-    }
-
-    final var messageData =
-      inputStream.readNBytes(messageSize);
-
-    try {
-      return NPI_MESSAGES.parse(messageData);
-    } catch (final NPProtocolException e) {
-      throw NPAgentExceptions.errorProtocol(e);
-    }
   }
 
   private static NPAgentException errorServerFailedConfirmation(

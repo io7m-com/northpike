@@ -24,6 +24,7 @@ module com.io7m.northpike.protocol.intro
   requires static org.osgi.annotation.versioning;
 
   requires transitive com.io7m.northpike.protocol.api;
+  requires com.io7m.northpike.model;
 
   exports com.io7m.northpike.protocol.intro;
 }

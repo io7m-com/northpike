@@ -24,10 +24,10 @@ module com.io7m.northpike.connections
   requires static org.osgi.annotation.versioning;
 
   requires com.io7m.northpike.model;
+  requires com.io7m.northpike.protocol.api;
+  requires com.io7m.northpike.strings;
 
-  requires com.io7m.jaffirm.core;
   requires com.io7m.jmulticlose.core;
-  requires org.slf4j;
 
   exports com.io7m.northpike.connections;
 }
