@@ -28,12 +28,9 @@ import com.io7m.northpike.model.NPPreserveLexical;
 import com.io7m.northpike.plans.parsers.v1.NPP1;
 import com.io7m.northpike.plans.parsers.v1.NPP1Handlers;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,7 +41,7 @@ import java.util.stream.Collectors;
  * A parser of plans.
  */
 
-public final class NPPlanParser implements Closeable
+public final class NPPlanParser implements NPPlanParserType
 {
   private final URI source;
   private final InputStream stream;
@@ -103,30 +100,6 @@ public final class NPPlanParser implements Closeable
   /**
    * Open the given plan file.
    *
-   * @param file           The file
-   * @param statusConsumer A consumer of error messages
-   *
-   * @return A parser
-   *
-   * @throws IOException On errors
-   */
-
-  public static NPPlanParser open(
-    final Path file,
-    final Consumer<ParseStatus> statusConsumer)
-    throws IOException
-  {
-    return open(
-      Files.newInputStream(file),
-      file.toUri(),
-      NPPreserveLexical.PRESERVE_LEXICAL_INFORMATION,
-      statusConsumer
-    );
-  }
-
-  /**
-   * Open the given plan file.
-   *
    * @param statusConsumer A consumer of error messages
    * @param uri            The URI
    * @param inputStream    The input stream
@@ -149,14 +122,7 @@ public final class NPPlanParser implements Closeable
     );
   }
 
-  /**
-   * Execute the parser.
-   *
-   * @return A configuration
-   *
-   * @throws ParsingException On errors
-   */
-
+  @Override
   public NPPlanDescription execute()
     throws ParsingException
   {

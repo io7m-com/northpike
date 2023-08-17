@@ -31,7 +31,7 @@ import com.io7m.northpike.plans.NPPlanTaskType;
 import com.io7m.northpike.plans.NPPlanToolExecution;
 import com.io7m.northpike.plans.NPPlanType;
 import com.io7m.northpike.plans.NPPlans;
-import com.io7m.northpike.plans.parsers.NPPlanParser;
+import com.io7m.northpike.plans.parsers.NPPlanParsers;
 import com.io7m.northpike.plans.parsers.NPPlanSerializer;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.verona.core.Version;
@@ -636,7 +636,7 @@ public final class NPPlansTest
       new NPToolReference(
         new RDottedName("t"),
         new RDottedName("t0"),
-        Version.of(1,0,0))
+        Version.of(1, 0, 0))
     );
 
     final var b0 =
@@ -675,16 +675,15 @@ public final class NPPlansTest
 
     LOG.debug("{}", text);
 
-    final var parser =
-      NPPlanParser.open(
-        new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)),
-        URI.create("urn:stdin"),
-        NPPreserveLexical.DISCARD_LEXICAL_INFORMATION,
-        status -> ParseStatusLogging.logWithAll(LOG, status)
-      );
-
     final var planAfter =
-      parser.execute().toPlan(this.strings);
+      new NPPlanParsers()
+        .createParserWithContext(
+          NPPreserveLexical.DISCARD_LEXICAL_INFORMATION,
+          URI.create("urn:stdin"),
+          new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)),
+          status -> ParseStatusLogging.logWithAll(LOG, status)
+        ).execute()
+        .toPlan(this.strings);
 
     assertEquals(planBefore.identifier(), planAfter.identifier());
     assertEquals(planBefore.toolReferences(), planAfter.toolReferences());

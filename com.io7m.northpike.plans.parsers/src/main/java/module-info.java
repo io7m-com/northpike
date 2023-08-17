@@ -14,6 +14,9 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
+import com.io7m.northpike.plans.parsers.NPPlanParsers;
+
 /**
  * Continuous integration (Plans)
  */
@@ -38,6 +41,9 @@ module com.io7m.northpike.plans.parsers
   requires com.io7m.lanark.core;
   requires com.io7m.verona.core;
   requires org.jgrapht.core;
+
+  provides NPPlanParserFactoryType
+    with NPPlanParsers;
 
   exports com.io7m.northpike.plans.parsers;
 }
