@@ -28,9 +28,6 @@ module com.io7m.northpike.plans
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.toolexec;
 
-  requires com.io7m.anethum.api;
-  requires com.io7m.blackthorne.core;
-  requires com.io7m.blackthorne.jxe;
   requires com.io7m.jaffirm.core;
   requires com.io7m.jdeferthrow.core;
   requires com.io7m.jxe.core;

@@ -41,14 +41,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.io7m.verona</groupId>
-      <artifactId>com.io7m.verona.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.jxe</groupId>
-      <artifactId>com.io7m.jxe.core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.io7m.jdeferthrow</groupId>
       <artifactId>com.io7m.jdeferthrow.core</artifactId>
     </dependency>
@@ -63,22 +55,6 @@
     <dependency>
       <groupId>org.jgrapht</groupId>
       <artifactId>jgrapht-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.anethum</groupId>
-      <artifactId>com.io7m.anethum.api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.jlexing</groupId>
-      <artifactId>com.io7m.jlexing.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.blackthorne</groupId>
-      <artifactId>com.io7m.blackthorne.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.blackthorne</groupId>
-      <artifactId>com.io7m.blackthorne.jxe</artifactId>
     </dependency>
 
     <dependency>
