@@ -15,38 +15,26 @@
  */
 
 
-package com.io7m.northpike.model;
+package com.io7m.northpike.plans.parsers.v1;
 
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.verona.core.Version;
+import com.io7m.northpike.model.NPAgentLabelMatchType;
 
 import java.util.Objects;
 
 /**
- * A named reference to a tool.
- *
- * @param referenceName The name of the reference
- * @param toolName      The tool name
- * @param version       The tool version
+ * A "prefer" agent match expression.
+ * @param match The expression
  */
 
-public record NPToolReference(
-  RDottedName referenceName,
-  RDottedName toolName,
-  Version version)
+public record NPP1AgentPreferWithLabelsMatchingExpression(
+  NPAgentLabelMatchType match)
 {
   /**
-   * A named reference to a tool.
-   *
-   * @param referenceName The name of the reference
-   * @param toolName      The tool name
-   * @param version       The tool version
+   * A "prefer" agent match expression.
+   * @param match The expression
    */
 
-  public NPToolReference
-  {
-    Objects.requireNonNull(referenceName, "name");
-    Objects.requireNonNull(toolName, "toolName");
-    Objects.requireNonNull(version, "version");
+  public NPP1AgentPreferWithLabelsMatchingExpression {
+    Objects.requireNonNull(match, "match");
   }
 }

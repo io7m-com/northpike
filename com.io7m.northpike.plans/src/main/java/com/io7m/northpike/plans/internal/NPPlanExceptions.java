@@ -67,7 +67,7 @@ public final class NPPlanExceptions
       Map.ofEntries(
         Map.entry(
           strings.format(TOOL_REFERENCE),
-          reference.name().value()
+          reference.referenceName().value()
         )
       ),
       Optional.empty()

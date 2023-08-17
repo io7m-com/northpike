@@ -15,38 +15,36 @@
  */
 
 
-package com.io7m.northpike.model;
+package com.io7m.northpike.plans.parsers.v1;
 
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.verona.core.Version;
-
-import java.util.Objects;
+import com.io7m.blackthorne.core.BTQualifiedName;
+import com.io7m.northpike.plans.parsers.NPPlanSchemas;
 
 /**
- * A named reference to a tool.
- *
- * @param referenceName The name of the reference
- * @param toolName      The tool name
- * @param version       The tool version
+ * Functions over v1 elements.
  */
 
-public record NPToolReference(
-  RDottedName referenceName,
-  RDottedName toolName,
-  Version version)
+public final class NPP1
 {
+  private NPP1()
+  {
+
+  }
+
   /**
-   * A named reference to a tool.
+   * The element with the given name.
    *
-   * @param referenceName The name of the reference
-   * @param toolName      The tool name
-   * @param version       The tool version
+   * @param localName The local name
+   *
+   * @return The qualified name
    */
 
-  public NPToolReference
+  public static BTQualifiedName element(
+    final String localName)
   {
-    Objects.requireNonNull(referenceName, "name");
-    Objects.requireNonNull(toolName, "toolName");
-    Objects.requireNonNull(version, "version");
+    return BTQualifiedName.of(
+      NPPlanSchemas.plans1().namespace().toString(),
+      localName
+    );
   }
 }

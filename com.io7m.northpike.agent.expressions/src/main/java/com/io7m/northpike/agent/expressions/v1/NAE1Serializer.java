@@ -28,6 +28,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
+import java.util.Objects;
 
 /**
  * A serializer for agent label expressions (v1) data.
@@ -35,20 +36,21 @@ import java.io.OutputStream;
 
 public final class NAE1Serializer
 {
-  private final XMLOutputFactory outputs;
+  private final boolean standalone;
   private final XMLStreamWriter output;
   private final String ns;
 
   private NAE1Serializer(
-    final OutputStream outputStream)
-    throws XMLStreamException
+    final boolean inStandalone,
+    final XMLStreamWriter inOutput,
+    final String inNs)
   {
-    this.outputs =
-      XMLOutputFactory.newFactory();
+    this.standalone =
+      inStandalone;
     this.output =
-      this.outputs.createXMLStreamWriter(outputStream, "UTF-8");
+      Objects.requireNonNull(inOutput, "output");
     this.ns =
-      NAESchemas.labelExpressions1().namespace().toString();
+      Objects.requireNonNull(inNs, "ns");
   }
 
   /**
@@ -65,7 +67,34 @@ public final class NAE1Serializer
     final OutputStream outputStream)
     throws XMLStreamException
   {
-    return new NAE1Serializer(outputStream);
+    return new NAE1Serializer(
+      true,
+      XMLOutputFactory.newFactory()
+        .createXMLStreamWriter(outputStream, "UTF-8"),
+      NAESchemas.labelExpressions1()
+        .namespace()
+        .toString()
+    );
+  }
+
+  /**
+   * A serializer for agent label expressions (v1) data.
+   *
+   * @param writer The output writer
+   *
+   * @return A serializer
+   */
+
+  public static NAE1Serializer createFromWriter(
+    final XMLStreamWriter writer)
+  {
+    return new NAE1Serializer(
+      false,
+      writer,
+      NAESchemas.labelExpressions1()
+        .namespace()
+        .toString()
+    );
   }
 
   /**
@@ -80,9 +109,15 @@ public final class NAE1Serializer
     final NPAgentLabelMatchType expression)
     throws XMLStreamException
   {
-    this.output.writeStartDocument("UTF-8", "1.0");
+    if (this.standalone) {
+      this.output.writeStartDocument("UTF-8", "1.0");
+    }
+
     this.serializeExpression(true, expression);
-    this.output.writeEndDocument();
+
+    if (this.standalone) {
+      this.output.writeEndDocument();
+    }
   }
 
   private void serializeExpression(

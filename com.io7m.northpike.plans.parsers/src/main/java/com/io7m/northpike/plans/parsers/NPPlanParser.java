@@ -15,20 +15,18 @@
  */
 
 
-package com.io7m.northpike.agent.expressions;
+package com.io7m.northpike.plans.parsers;
 
 import com.io7m.anethum.api.ParseSeverity;
 import com.io7m.anethum.api.ParseStatus;
 import com.io7m.anethum.api.ParsingException;
-import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
 import com.io7m.blackthorne.core.BTException;
 import com.io7m.blackthorne.core.BTParseError;
 import com.io7m.blackthorne.core.BTPreserveLexical;
-import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.blackthorne.jxe.BlackthorneJXE;
-import com.io7m.northpike.agent.expressions.v1.NAE1Expressions;
-import com.io7m.northpike.model.NPAgentLabelMatchType;
 import com.io7m.northpike.model.NPPreserveLexical;
+import com.io7m.northpike.plans.parsers.v1.NPP1;
+import com.io7m.northpike.plans.parsers.v1.NPP1Handlers;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -36,7 +34,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,10 +41,10 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
- * A parser of agent match expressions.
+ * A parser of plans.
  */
 
-public final class NPAEParser implements Closeable
+public final class NPPlanParser implements Closeable
 {
   private final URI source;
   private final InputStream stream;
@@ -55,7 +52,7 @@ public final class NPAEParser implements Closeable
   private final BTPreserveLexical preserveLexical;
 
   /**
-   * A parser of agent match expressions.
+   * A parser of plans.
    *
    * @param inSource         The source
    * @param inStream         The stream
@@ -63,7 +60,7 @@ public final class NPAEParser implements Closeable
    * @param lexical          Whether to preserve lexical information
    */
 
-  private NPAEParser(
+  private NPPlanParser(
     final URI inSource,
     final InputStream inStream,
     final Consumer<ParseStatus> inStatusConsumer,
@@ -104,7 +101,7 @@ public final class NPAEParser implements Closeable
   }
 
   /**
-   * Open the given agent match expression file.
+   * Open the given plan file.
    *
    * @param file           The file
    * @param statusConsumer A consumer of error messages
@@ -114,7 +111,7 @@ public final class NPAEParser implements Closeable
    * @throws IOException On errors
    */
 
-  public static NPAEParser open(
+  public static NPPlanParser open(
     final Path file,
     final Consumer<ParseStatus> statusConsumer)
     throws IOException
@@ -128,7 +125,7 @@ public final class NPAEParser implements Closeable
   }
 
   /**
-   * Open the given agent match expression file.
+   * Open the given plan file.
    *
    * @param statusConsumer A consumer of error messages
    * @param uri            The URI
@@ -138,13 +135,13 @@ public final class NPAEParser implements Closeable
    * @return A parser
    */
 
-  public static NPAEParser open(
+  public static NPPlanParser open(
     final InputStream inputStream,
     final URI uri,
     final NPPreserveLexical lexical,
     final Consumer<ParseStatus> statusConsumer)
   {
-    return new NPAEParser(
+    return new NPPlanParser(
       uri,
       inputStream,
       statusConsumer,
@@ -160,28 +157,18 @@ public final class NPAEParser implements Closeable
    * @throws ParsingException On errors
    */
 
-  public NPAgentLabelMatchType execute()
+  public NPPlanDescription execute()
     throws ParsingException
   {
     try {
-      final Map<
-        BTQualifiedName,
-        BTElementHandlerConstructorType<?, NPAgentLabelMatchType>> roots =
-        new HashMap<>();
-
-      for (final var entry : NAE1Expressions.expressions().entrySet()) {
-        roots.put(
-          entry.getKey(),
-          (BTElementHandlerConstructorType<?, NPAgentLabelMatchType>) entry.getValue()
-        );
-      }
-
-      final NPAgentLabelMatchType configuration =
+      final NPPlanDescription configuration =
         BlackthorneJXE.parse(
           this.source,
           this.stream,
-          roots,
-          NAESchemas.labelExpressions(),
+          Map.ofEntries(
+            Map.entry(NPP1.element("Plan"), NPP1Handlers.plan())
+          ),
+          NPPlanSchemas.plans(),
           this.preserveLexical
         );
 
@@ -190,7 +177,7 @@ public final class NPAEParser implements Closeable
       final var statuses =
         e.errors()
           .stream()
-          .map(NPAEParser::mapParseError)
+          .map(NPPlanParser::mapParseError)
           .collect(Collectors.toList());
 
       for (final var status : statuses) {

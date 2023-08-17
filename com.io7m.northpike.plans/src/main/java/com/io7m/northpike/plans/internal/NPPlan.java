@@ -22,7 +22,7 @@ import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.plans.NPPlanDependency;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanElementType;
-import com.io7m.northpike.plans.NPPlanName;
+import com.io7m.northpike.plans.NPPlanIdentifier;
 import com.io7m.northpike.plans.NPPlanType;
 import org.jgrapht.Graph;
 
@@ -35,23 +35,19 @@ import java.util.Objects;
 
 public final class NPPlan implements NPPlanType
 {
-  private final NPPlanName name;
-  private final long version;
+  private final NPPlanIdentifier identifier;
   private final Map<RDottedName, NPToolReference> toolReferences;
   private final Map<NPPlanElementName, NPPlanElementType> elements;
   private final Graph<NPPlanElementType, NPPlanDependency> graph;
 
   NPPlan(
-    final NPPlanName inName,
-    final long inVersion,
+    final NPPlanIdentifier inIdentifier,
     final Map<RDottedName, NPToolReference> inToolReferences,
     final Map<NPPlanElementName, NPPlanElementType> inElements,
     final Graph<NPPlanElementType, NPPlanDependency> inGraph)
   {
-    this.name =
-      Objects.requireNonNull(inName, "name");
-    this.version =
-      inVersion;
+    this.identifier =
+      Objects.requireNonNull(inIdentifier, "identifier");
     this.toolReferences =
       Objects.requireNonNull(inToolReferences, "toolReferences");
     this.elements =
@@ -61,15 +57,9 @@ public final class NPPlan implements NPPlanType
   }
 
   @Override
-  public NPPlanName name()
+  public NPPlanIdentifier identifier()
   {
-    return this.name;
-  }
-
-  @Override
-  public long version()
-  {
-    return this.version;
+    return this.identifier;
   }
 
   @Override
@@ -94,6 +84,9 @@ public final class NPPlan implements NPPlanType
   public String toString()
   {
     return "[Plan %s %s]"
-      .formatted(this.name, Long.toUnsignedString(this.version));
+      .formatted(
+        this.identifier.name(),
+        Long.toUnsignedString(this.identifier.version())
+      );
   }
 }

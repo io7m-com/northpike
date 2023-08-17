@@ -15,38 +15,26 @@
  */
 
 
-package com.io7m.northpike.model;
+package com.io7m.northpike.plans.parsers;
 
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.verona.core.Version;
-
-import java.util.Objects;
+import com.io7m.northpike.plans.NPPlanElementName;
 
 /**
- * A named reference to a tool.
- *
- * @param referenceName The name of the reference
- * @param toolName      The tool name
- * @param version       The tool version
+ * The type of descriptions of plan elements.
  */
 
-public record NPToolReference(
-  RDottedName referenceName,
-  RDottedName toolName,
-  Version version)
+public sealed interface NPPlanElementDescriptionType
+  permits NPPlanBarrierDescription, NPPlanTaskDescription
 {
   /**
-   * A named reference to a tool.
-   *
-   * @param referenceName The name of the reference
-   * @param toolName      The tool name
-   * @param version       The tool version
+   * @return The plan element name
    */
 
-  public NPToolReference
-  {
-    Objects.requireNonNull(referenceName, "name");
-    Objects.requireNonNull(toolName, "toolName");
-    Objects.requireNonNull(version, "version");
-  }
+  NPPlanElementName name();
+
+  /**
+   * @return The plan element descriptive text
+   */
+
+  String description();
 }

@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+  SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+  IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:np="urn:com.io7m.northpike.plans:1"
+            xmlns:le="urn:com.io7m.northpike.agent.label_expressions:1"
+            targetNamespace="urn:com.io7m.northpike.plans:1">
+
+  <xsd:import namespace="urn:com.io7m.northpike.agent.label_expressions:1"/>
+
+  <xsd:simpleType name="NameType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:element name="Tool">
+    <xsd:complexType>
+      <xsd:attribute name="ReferenceName"
+                     use="required"
+                     type="np:NameType"/>
+      <xsd:attribute name="ToolName"
+                     use="required"
+                     type="np:NameType"/>
+      <xsd:attribute name="ToolVersion"
+                     use="required"
+                     type="xsd:string"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Tools">
+    <xsd:complexType>
+      <xsd:sequence minOccurs="1"
+                    maxOccurs="unbounded">
+        <xsd:element ref="np:Tool"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="PlanElementType"
+                   abstract="true">
+    <xsd:attribute type="np:NameType"
+                   name="Name"
+                   use="required"/>
+    <xsd:attribute type="xsd:string"
+                   name="Description"
+                   use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="AgentPreferenceType"
+                   abstract="true"/>
+
+  <xsd:complexType name="AgentPreferWithLabelsMatchingType">
+    <xsd:complexContent>
+      <xsd:extension base="np:AgentPreferenceType">
+        <xsd:group ref="le:ExpressionGroup"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="AgentPreferWithLabelsMatching"
+               type="np:AgentPreferWithLabelsMatchingType"/>
+
+  <xsd:group name="AgentPreferGroup">
+    <xsd:choice>
+      <xsd:element ref="np:AgentPreferWithLabelsMatching"/>
+    </xsd:choice>
+  </xsd:group>
+
+  <xsd:complexType name="AgentRequirementType"
+                   abstract="true"/>
+
+  <xsd:complexType name="AgentRequireWithLabelsMatchingType">
+    <xsd:complexContent>
+      <xsd:extension base="np:AgentRequirementType">
+        <xsd:group ref="le:ExpressionGroup"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="AgentRequireWithLabelsMatching"
+               type="np:AgentRequireWithLabelsMatchingType"/>
+
+  <xsd:complexType name="AgentRequireSameAsUsedForType">
+    <xsd:complexContent>
+      <xsd:extension base="np:AgentRequirementType">
+        <xsd:attribute use="required"
+                       type="np:NameType"
+                       name="Task"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="AgentRequireSameAsUsedFor"
+               type="np:AgentRequireSameAsUsedForType"/>
+
+  <xsd:group name="AgentRequireGroup">
+    <xsd:choice>
+      <xsd:element ref="np:AgentRequireWithLabelsMatching"/>
+      <xsd:element ref="np:AgentRequireSameAsUsedFor"/>
+    </xsd:choice>
+  </xsd:group>
+
+  <xsd:element name="Resource">
+    <xsd:complexType>
+      <xsd:attribute name="Name"
+                     type="np:NameType"
+                     use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="AgentLockResources">
+    <xsd:complexType>
+      <xsd:sequence minOccurs="0"
+                    maxOccurs="unbounded">
+        <xsd:element ref="np:Resource"/>
+      </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:unique name="AgentLockResourcesUnique">
+      <xsd:selector xpath="np:AgentLockResource"/>
+      <xsd:field xpath="@Resource"/>
+    </xsd:unique>
+  </xsd:element>
+
+  <xsd:element name="DependsOn">
+    <xsd:complexType>
+      <xsd:attribute name="Task"
+                     use="required"
+                     type="np:NameType"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="ToolRequirement">
+    <xsd:complexType>
+      <xsd:attribute name="ToolName"
+                     use="required"
+                     type="np:NameType"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="ToolExecution">
+    <xsd:complexType>
+      <xsd:sequence minOccurs="0"
+                    maxOccurs="unbounded">
+        <xsd:element ref="np:ToolRequirement"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="ReferenceName"
+                     use="required"
+                     type="np:NameType"/>
+      <xsd:attribute name="ExecutionName"
+                     use="required"
+                     type="np:NameType"/>
+      <xsd:attribute name="ExecutionVersion"
+                     use="required"
+                     type="xsd:unsignedLong"/>
+    </xsd:complexType>
+
+    <xsd:unique name="ToolRequirementUnique">
+      <xsd:selector xpath="np:ToolRequirement"/>
+      <xsd:field xpath="@ToolName"/>
+    </xsd:unique>
+  </xsd:element>
+
+  <xsd:complexType name="TaskType">
+    <xsd:complexContent>
+      <xsd:extension base="np:PlanElementType">
+        <xsd:sequence>
+          <xsd:sequence minOccurs="0"
+                        maxOccurs="unbounded">
+            <xsd:group ref="np:AgentRequireGroup"/>
+          </xsd:sequence>
+          <xsd:sequence minOccurs="0"
+                        maxOccurs="1">
+            <xsd:group ref="np:AgentPreferGroup"/>
+          </xsd:sequence>
+          <xsd:element ref="np:AgentLockResources"
+                       minOccurs="0"
+                       maxOccurs="1"/>
+          <xsd:sequence minOccurs="0"
+                        maxOccurs="unbounded">
+            <xsd:element ref="np:DependsOn"/>
+          </xsd:sequence>
+          <xsd:element ref="np:ToolExecution"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="Task"
+               type="np:TaskType"/>
+
+  <xsd:complexType name="BarrierType">
+    <xsd:complexContent>
+      <xsd:extension base="np:PlanElementType">
+        <xsd:sequence>
+          <xsd:sequence minOccurs="0"
+                        maxOccurs="unbounded">
+            <xsd:element ref="np:DependsOn"/>
+          </xsd:sequence>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="Barrier"
+               type="np:BarrierType"/>
+
+  <xsd:group name="PlanElementGroup">
+    <xsd:choice>
+      <xsd:element ref="np:Task"/>
+      <xsd:element ref="np:Barrier"/>
+    </xsd:choice>
+  </xsd:group>
+
+  <xsd:element name="Plan">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="np:Tools"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+
+        <xsd:sequence minOccurs="0"
+                      maxOccurs="unbounded">
+          <xsd:group ref="np:PlanElementGroup"/>
+        </xsd:sequence>
+      </xsd:sequence>
+
+      <xsd:attribute name="Name"
+                     use="required"
+                     type="np:NameType"/>
+      <xsd:attribute name="Version"
+                     use="required"
+                     type="xsd:unsignedLong"/>
+    </xsd:complexType>
+
+    <xsd:key name="PlanElementNameKey">
+      <xsd:selector xpath="np:Task|np:Barrier"/>
+      <xsd:field xpath="@Name"/>
+    </xsd:key>
+
+    <xsd:key name="ToolKey">
+      <xsd:selector xpath="np:Tools/np:Tool"/>
+      <xsd:field xpath="@ReferenceName"/>
+    </xsd:key>
+
+    <xsd:keyref name="AgentUsedForTaskExists"
+                refer="np:PlanElementNameKey">
+      <xsd:selector xpath="*/np:AgentUsedFor"/>
+      <xsd:field xpath="@Task"/>
+    </xsd:keyref>
+
+    <xsd:keyref name="DependsOnTaskExists"
+                refer="np:PlanElementNameKey">
+      <xsd:selector xpath="*/np:DependsOn"/>
+      <xsd:field xpath="@Task"/>
+    </xsd:keyref>
+
+    <xsd:keyref name="ToolExists"
+                refer="np:ToolKey">
+      <xsd:selector xpath="*/np:ToolExecution"/>
+      <xsd:field xpath="@Tool"/>
+    </xsd:keyref>
+
+    <xsd:keyref name="ToolRequirementExists"
+                refer="np:ToolKey">
+      <xsd:selector xpath="*/np:ToolExecution/np:ToolRequirement"/>
+      <xsd:field xpath="@ReferenceName"/>
+    </xsd:keyref>
+  </xsd:element>
+
+</xsd:schema>

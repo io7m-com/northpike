@@ -17,36 +17,23 @@
 
 package com.io7m.northpike.model;
 
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.verona.core.Version;
-
-import java.util.Objects;
-
 /**
- * A named reference to a tool.
- *
- * @param referenceName The name of the reference
- * @param toolName      The tool name
- * @param version       The tool version
+ * Whether lexical information from parsing should be preserved. If
+ * lexical information is discarded, all line and column numbers will be
+ * set to zero.
  */
 
-public record NPToolReference(
-  RDottedName referenceName,
-  RDottedName toolName,
-  Version version)
+public enum NPPreserveLexical
 {
   /**
-   * A named reference to a tool.
-   *
-   * @param referenceName The name of the reference
-   * @param toolName      The tool name
-   * @param version       The tool version
+   * Discard lexical information.
    */
 
-  public NPToolReference
-  {
-    Objects.requireNonNull(referenceName, "name");
-    Objects.requireNonNull(toolName, "toolName");
-    Objects.requireNonNull(version, "version");
-  }
+  DISCARD_LEXICAL_INFORMATION,
+
+  /**
+   * Preserve lexical information.
+   */
+
+  PRESERVE_LEXICAL_INFORMATION
 }

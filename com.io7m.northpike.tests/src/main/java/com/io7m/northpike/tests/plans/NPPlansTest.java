@@ -16,8 +16,11 @@
 
 package com.io7m.northpike.tests.plans;
 
+import com.io7m.anethum.api.ParsingException;
+import com.io7m.anethum.slf4j.ParseStatusLogging;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentLabelMatchType.Specific;
+import com.io7m.northpike.model.NPPreserveLexical;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.plans.NPPlanBarrierType;
@@ -26,7 +29,10 @@ import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.plans.NPPlanName;
 import com.io7m.northpike.plans.NPPlanTaskType;
 import com.io7m.northpike.plans.NPPlanToolExecution;
+import com.io7m.northpike.plans.NPPlanType;
 import com.io7m.northpike.plans.NPPlans;
+import com.io7m.northpike.plans.parsers.NPPlanParser;
+import com.io7m.northpike.plans.parsers.NPPlanSerializer;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.verona.core.Version;
 import org.jgrapht.traverse.TopologicalOrderIterator;
@@ -35,6 +41,9 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -76,10 +85,12 @@ public final class NPPlansTest
       NPPlans.builder(this.strings, "p", 1L)
         .build();
 
-    assertEquals(NPPlanName.of("p"), plan.name());
-    assertEquals(1L, plan.version());
+    assertEquals(NPPlanName.of("p"), plan.identifier().name());
+    assertEquals(1L, plan.identifier().version());
     assertEquals(Map.of(), plan.elements());
     assertEquals(Map.of(), plan.toolReferences());
+
+    this.parserRoundTrip(plan);
   }
 
   /**
@@ -385,8 +396,8 @@ public final class NPPlansTest
       .setToolExecution(toolExecution);
 
     final var p = builder.build();
-    assertEquals(t0, p.toolReferences().get(t0.name()));
-    assertEquals(t1, p.toolReferences().get(t1.name()));
+    assertEquals(t0, p.toolReferences().get(t0.referenceName()));
+    assertEquals(t1, p.toolReferences().get(t1.referenceName()));
 
     final var t =
       assertInstanceOf(
@@ -408,6 +419,63 @@ public final class NPPlansTest
 
     new TopologicalOrderIterator<>(p.graph())
       .forEachRemaining(e -> LOG.debug("{}", e));
+
+    this.parserRoundTrip(p);
+  }
+
+  /**
+   * Two tasks with a "same as" agent constraint.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testTaskAgentSameAs()
+    throws Exception
+  {
+    final var builder =
+      NPPlans.builder(this.strings, "p", 1L);
+
+    final var t0 = new NPToolReference(
+      new RDottedName("t0"),
+      new RDottedName("tk0"),
+      Version.of(1, 0, 0)
+    );
+
+    builder.addToolReference(t0);
+
+    final var b0 =
+      builder.addTask("x");
+
+    final var b1 =
+      builder.addTask("y");
+
+    final var toolExecution =
+      new NPPlanToolExecution(
+        new RDottedName("t0"),
+        NPToolExecutionIdentifier.of("ta", 1L),
+        Set.of()
+      );
+
+    b0.setDescription("A task.")
+      .setToolExecution(toolExecution);
+
+    b1.setDescription("A task.")
+      .setAgentMustBeSameAs(b0)
+      .setToolExecution(toolExecution);
+
+    final var p = builder.build();
+    assertEquals(t0, p.toolReferences().get(t0.referenceName()));
+
+    new TopologicalOrderIterator<>(p.graph())
+      .forEachRemaining(e -> LOG.debug("{}", e));
+
+    assertEquals(
+      List.of(b0.name()),
+      p.elements().get(b1.name()).dependsOn()
+    );
+
+    this.parserRoundTrip(p);
   }
 
   /**
@@ -448,6 +516,8 @@ public final class NPPlansTest
 
     assertTrue(p.toString().contains("single-barrier"));
     assertTrue(p.toString().contains("1"));
+
+    this.parserRoundTrip(p);
   }
 
   /**
@@ -496,6 +566,8 @@ public final class NPPlansTest
 
     new TopologicalOrderIterator<>(p.graph())
       .forEachRemaining(e -> LOG.debug("{}", e));
+
+    this.parserRoundTrip(p);
   }
 
   /**
@@ -580,5 +652,44 @@ public final class NPPlansTest
       });
 
     assertEquals(errorNonexistent(), ex.errorCode());
+  }
+
+  private void parserRoundTrip(
+    final NPPlanType planBefore)
+    throws Exception
+  {
+    this.parserRoundTripN(2, planBefore);
+  }
+
+  private void parserRoundTripN(
+    final int index,
+    final NPPlanType planBefore)
+    throws NPPlanException, ParsingException
+  {
+    if (index == 0) {
+      return;
+    }
+
+    final var text =
+      NPPlanSerializer.serializeToString(planBefore);
+
+    LOG.debug("{}", text);
+
+    final var parser =
+      NPPlanParser.open(
+        new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)),
+        URI.create("urn:stdin"),
+        NPPreserveLexical.DISCARD_LEXICAL_INFORMATION,
+        status -> ParseStatusLogging.logWithAll(LOG, status)
+      );
+
+    final var planAfter =
+      parser.execute().toPlan(this.strings);
+
+    assertEquals(planBefore.identifier(), planAfter.identifier());
+    assertEquals(planBefore.toolReferences(), planAfter.toolReferences());
+    assertEquals(planBefore.elements(), planAfter.elements());
+
+    this.parserRoundTripN(index - 1, planAfter);
   }
 }

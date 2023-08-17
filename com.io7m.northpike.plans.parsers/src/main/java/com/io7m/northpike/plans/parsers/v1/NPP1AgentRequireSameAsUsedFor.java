@@ -15,38 +15,48 @@
  */
 
 
-package com.io7m.northpike.model;
+package com.io7m.northpike.plans.parsers.v1;
 
+import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
+import com.io7m.blackthorne.core.Blackthorne;
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.verona.core.Version;
 
 import java.util.Objects;
 
+import static com.io7m.northpike.plans.parsers.v1.NPP1.element;
+
 /**
- * A named reference to a tool.
+ * A "require same agent as" constraint.
  *
- * @param referenceName The name of the reference
- * @param toolName      The tool name
- * @param version       The tool version
+ * @param name The task
  */
 
-public record NPToolReference(
-  RDottedName referenceName,
-  RDottedName toolName,
-  Version version)
+public record NPP1AgentRequireSameAsUsedFor(RDottedName name)
 {
   /**
-   * A named reference to a tool.
+   * A "require same agent as" constraint.
    *
-   * @param referenceName The name of the reference
-   * @param toolName      The tool name
-   * @param version       The tool version
+   * @param name The task
    */
 
-  public NPToolReference
+  public NPP1AgentRequireSameAsUsedFor
   {
-    Objects.requireNonNull(referenceName, "name");
-    Objects.requireNonNull(toolName, "toolName");
-    Objects.requireNonNull(version, "version");
+    Objects.requireNonNull(name, "name");
+  }
+
+  /**
+   * @return A handler for parsing these expressions
+   */
+
+  public static BTElementHandlerConstructorType<?, NPP1AgentRequireSameAsUsedFor> handler()
+  {
+    return Blackthorne.forScalarAttribute(
+      element("AgentRequireSameAsUsedFor"),
+      (context, attributes) -> {
+        return new NPP1AgentRequireSameAsUsedFor(
+          new RDottedName(attributes.getValue("Task"))
+        );
+      }
+    );
   }
 }

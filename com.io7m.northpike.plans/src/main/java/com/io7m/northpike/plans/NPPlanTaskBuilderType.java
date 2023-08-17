@@ -97,8 +97,29 @@ public interface NPPlanTaskBuilderType
    * @throws NPPlanException On errors
    */
 
-  NPPlanTaskBuilderType setAgentMustBeSameAs(
+  default NPPlanTaskBuilderType setAgentMustBeSameAs(
     NPPlanTaskBuilderType task)
+    throws NPPlanException
+  {
+    return this.setAgentMustBeSameAs(task.name());
+  }
+
+  /**
+   * Set a constraint that indicates that this task must be executed by the
+   * same agent that executed the given task. This adds an implicit execution
+   * dependency on the given task; this method behaves as if
+   * {@link #addDependsOn(NPPlanElementName)}
+   * had been called on the given task.
+   *
+   * @param task The first task
+   *
+   * @return this
+   *
+   * @throws NPPlanException On errors
+   */
+
+  NPPlanTaskBuilderType setAgentMustBeSameAs(
+    NPPlanElementName task)
     throws NPPlanException;
 
   /**

@@ -15,38 +15,30 @@
  */
 
 
-package com.io7m.northpike.model;
+package com.io7m.northpike.plans.parsers.v1;
 
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.verona.core.Version;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
- * A named reference to a tool.
+ * The set of resources locked on an agent.
  *
- * @param referenceName The name of the reference
- * @param toolName      The tool name
- * @param version       The tool version
+ * @param resources The resources
  */
 
-public record NPToolReference(
-  RDottedName referenceName,
-  RDottedName toolName,
-  Version version)
+public record NPP1AgentLockResourcesExpression(
+  Set<RDottedName> resources)
 {
   /**
-   * A named reference to a tool.
+   * The set of resources locked on an agent.
    *
-   * @param referenceName The name of the reference
-   * @param toolName      The tool name
-   * @param version       The tool version
+   * @param resources The resources
    */
 
-  public NPToolReference
+  public NPP1AgentLockResourcesExpression
   {
-    Objects.requireNonNull(referenceName, "name");
-    Objects.requireNonNull(toolName, "toolName");
-    Objects.requireNonNull(version, "version");
+    Objects.requireNonNull(resources, "resources");
   }
 }

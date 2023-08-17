@@ -30,16 +30,10 @@ import java.util.Map;
 public interface NPPlanType
 {
   /**
-   * @return The name of the plan
+   * @return The plan identifier
    */
 
-  NPPlanName name();
-
-  /**
-   * @return The plan version
-   */
-
-  long version();
+  NPPlanIdentifier identifier();
 
   /**
    * @return The tools to which this plan refers

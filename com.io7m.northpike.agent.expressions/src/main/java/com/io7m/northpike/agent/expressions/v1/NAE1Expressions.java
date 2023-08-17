@@ -49,6 +49,7 @@ public final class NAE1Expressions
     EXPRESSION_HANDLERS =
     Map.ofEntries(
       entry(element("And"), exprAnd()),
+      entry(element("AnyLabel"), exprAnyLabel()),
       entry(element("Or"), exprOr()),
       entry(element("WithLabel"), exprWithLabel())
     );

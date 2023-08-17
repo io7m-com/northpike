@@ -17,53 +17,47 @@
 
 package com.io7m.northpike.plans;
 
-import com.io7m.northpike.plans.internal.NPPlanBuilder;
-import com.io7m.northpike.strings.NPStrings;
+import java.util.Objects;
 
 /**
- * Functions to construct plans.
+ * The unique identifier for a plan.
+ *
+ * @param name    The plan name
+ * @param version The plan version
  */
 
-public final class NPPlans
+public record NPPlanIdentifier(
+  NPPlanName name,
+  long version)
 {
-  private NPPlans()
-  {
+  /**
+   * The unique identifier for a plan.
+   *
+   * @param name    The plan name
+   * @param version The plan version
+   */
 
+  public NPPlanIdentifier
+  {
+    Objects.requireNonNull(name, "name");
   }
 
   /**
-   * Create a new plan builder.
+   * Parse an identifier.
    *
-   * @param strings The string resources
-   * @param name    The plan name
-   * @param version The plan version
+   * @param name    The name string
+   * @param version The version
    *
-   * @return A new plan builder
+   * @return An identifier
    */
 
-  public static NPPlanBuilderType builder(
-    final NPStrings strings,
-    final NPPlanName name,
-    final long version)
-  {
-    return new NPPlanBuilder(strings, new NPPlanIdentifier(name, version));
-  }
-
-  /**
-   * Create a new plan builder.
-   *
-   * @param strings The string resources
-   * @param name    The plan name
-   * @param version The plan version
-   *
-   * @return A new plan builder
-   */
-
-  public static NPPlanBuilderType builder(
-    final NPStrings strings,
+  public static NPPlanIdentifier of(
     final String name,
     final long version)
   {
-    return builder(strings, NPPlanName.of(name), version);
+    return new NPPlanIdentifier(
+      NPPlanName.of(name),
+      version
+    );
   }
 }

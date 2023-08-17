@@ -14,39 +14,13 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
-package com.io7m.northpike.model;
-
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.verona.core.Version;
-
-import java.util.Objects;
-
 /**
- * A named reference to a tool.
- *
- * @param referenceName The name of the reference
- * @param toolName      The tool name
- * @param version       The tool version
+ * Continuous integration (Plans)
  */
 
-public record NPToolReference(
-  RDottedName referenceName,
-  RDottedName toolName,
-  Version version)
-{
-  /**
-   * A named reference to a tool.
-   *
-   * @param referenceName The name of the reference
-   * @param toolName      The tool name
-   * @param version       The tool version
-   */
+@Export
+@Version("1.0.0")
+package com.io7m.northpike.plans.parsers;
 
-  public NPToolReference
-  {
-    Objects.requireNonNull(referenceName, "name");
-    Objects.requireNonNull(toolName, "toolName");
-    Objects.requireNonNull(version, "version");
-  }
-}
+import org.osgi.annotation.bundle.Export;
+import org.osgi.annotation.versioning.Version;

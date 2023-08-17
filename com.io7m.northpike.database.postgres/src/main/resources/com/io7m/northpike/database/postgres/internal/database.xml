@@ -361,5 +361,55 @@ CREATE TABLE tool_execution_descriptions (
     CHECK (ted_tool_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$')
 )
 ]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE plans (
+  p_id        BIGINT  NOT NULL GENERATED ALWAYS AS IDENTITY,
+  p_name      TEXT    NOT NULL,
+  p_version   BIGINT  NOT NULL,
+  p_format    TEXT    NOT NULL,
+  p_data      BYTEA   NOT NULL,
+
+  -- [jooq ignore start]
+  CONSTRAINT plans_name_version_unique
+    UNIQUE (p_name, p_version),
+  -- [jooq ignore stop]
+
+  CONSTRAINT plans_primary_key
+    PRIMARY KEY (p_id),
+
+  CONSTRAINT plans_version_valid
+    CHECK (p_version >= 0),
+
+  CONSTRAINT plans_format_name_valid
+    CHECK (p_format ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$'),
+
+  CONSTRAINT plans_name_valid
+    CHECK (p_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$')
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE assignments (
+  a_id          BIGINT  NOT NULL GENERATED ALWAYS AS IDENTITY,
+  a_name        TEXT    NOT NULL,
+  a_repository  UUID    NOT NULL,
+  a_plan        BIGINT  NOT NULL,
+
+  -- [jooq ignore start]
+  CONSTRAINT assignments_name_unique
+    UNIQUE (a_name),
+  -- [jooq ignore stop]
+
+  CONSTRAINT assignments_primary_key
+    PRIMARY KEY (a_id),
+
+  CONSTRAINT assignments_repository_exists
+    FOREIGN KEY (a_repository) REFERENCES repositories (r_id),
+
+  CONSTRAINT assignments_plan_exists
+    FOREIGN KEY (a_plan) REFERENCES plans (p_id)
+)
+]]></Statement>
   </Schema>
 </Schemas>

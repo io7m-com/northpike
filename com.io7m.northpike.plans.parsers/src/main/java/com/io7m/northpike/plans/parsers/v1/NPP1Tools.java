@@ -15,38 +15,29 @@
  */
 
 
-package com.io7m.northpike.model;
+package com.io7m.northpike.plans.parsers.v1;
 
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.verona.core.Version;
+import com.io7m.northpike.model.NPToolReference;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
- * A named reference to a tool.
+ * A set of tool references
  *
- * @param referenceName The name of the reference
- * @param toolName      The tool name
- * @param version       The tool version
+ * @param tools The references
  */
 
-public record NPToolReference(
-  RDottedName referenceName,
-  RDottedName toolName,
-  Version version)
+public record NPP1Tools(List<NPToolReference> tools)
 {
   /**
-   * A named reference to a tool.
+   * A set of tool references
    *
-   * @param referenceName The name of the reference
-   * @param toolName      The tool name
-   * @param version       The tool version
+   * @param tools The references
    */
 
-  public NPToolReference
+  public NPP1Tools
   {
-    Objects.requireNonNull(referenceName, "name");
-    Objects.requireNonNull(toolName, "toolName");
-    Objects.requireNonNull(version, "version");
+    Objects.requireNonNull(tools, "tools");
   }
 }

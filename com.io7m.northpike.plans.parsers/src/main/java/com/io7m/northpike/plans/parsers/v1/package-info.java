@@ -14,26 +14,11 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
-package com.io7m.northpike.agent.expressions;
-
 /**
- * Whether lexical information from the parse should be preserved. If
- * lexical information is discarded, all line and column numbers will be
- * set to zero.
+ * Continuous integration (Plans)
  */
 
-public enum NPAEPreserveLexical
-{
-  /**
-   * Preserve lexical information.
-   */
+@Version("1.0.0")
+package com.io7m.northpike.plans.parsers.v1;
 
-  PRESERVE_LEXICAL_INFORMATION,
-
-  /**
-   * Discard lexical information.
-   */
-
-  DISCARD_LEXICAL_INFORMATION
-}
+import org.osgi.annotation.versioning.Version;

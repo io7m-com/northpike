@@ -14,39 +14,30 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
-package com.io7m.northpike.model;
-
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.verona.core.Version;
-
-import java.util.Objects;
-
 /**
- * A named reference to a tool.
- *
- * @param referenceName The name of the reference
- * @param toolName      The tool name
- * @param version       The tool version
+ * Continuous integration (Plans)
  */
 
-public record NPToolReference(
-  RDottedName referenceName,
-  RDottedName toolName,
-  Version version)
+module com.io7m.northpike.plans.parsers
 {
-  /**
-   * A named reference to a tool.
-   *
-   * @param referenceName The name of the reference
-   * @param toolName      The tool name
-   * @param version       The tool version
-   */
+  requires static org.osgi.annotation.bundle;
+  requires static org.osgi.annotation.versioning;
 
-  public NPToolReference
-  {
-    Objects.requireNonNull(referenceName, "name");
-    Objects.requireNonNull(toolName, "toolName");
-    Objects.requireNonNull(version, "version");
-  }
+  requires com.io7m.northpike.agent.expressions;
+  requires com.io7m.northpike.model;
+  requires com.io7m.northpike.plans;
+  requires com.io7m.northpike.strings;
+  requires com.io7m.northpike.toolexec;
+
+  requires com.io7m.anethum.api;
+  requires com.io7m.blackthorne.core;
+  requires com.io7m.blackthorne.jxe;
+  requires com.io7m.jaffirm.core;
+  requires com.io7m.jdeferthrow.core;
+  requires com.io7m.jxe.core;
+  requires com.io7m.lanark.core;
+  requires com.io7m.verona.core;
+  requires org.jgrapht.core;
+
+  exports com.io7m.northpike.plans.parsers;
 }

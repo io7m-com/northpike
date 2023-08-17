@@ -28,7 +28,7 @@ import com.io7m.northpike.plans.NPPlanElementBuilderType;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanElementType;
 import com.io7m.northpike.plans.NPPlanException;
-import com.io7m.northpike.plans.NPPlanName;
+import com.io7m.northpike.plans.NPPlanIdentifier;
 import com.io7m.northpike.plans.NPPlanTaskBuilderType;
 import com.io7m.northpike.plans.NPPlanTaskType;
 import com.io7m.northpike.plans.NPPlanToolExecution;
@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -66,31 +65,26 @@ public final class NPPlanBuilder
   implements NPPlanBuilderType
 {
   private final NPStrings strings;
-  private final NPPlanName name;
-  private final long version;
   private final DirectedAcyclicGraph<NPPlanElementName, NPPlanTaskNameDependency> graph;
   private final HashMap<RDottedName, NPToolReference> toolReferences;
   private final HashMap<NPPlanElementName, NPPlanElementBuilder> elements;
+  private final NPPlanIdentifier identifier;
 
   /**
    * A mutable plan builder.
    *
-   * @param inStrings The string resources
-   * @param inName    The plan name
-   * @param inVersion The plan version
+   * @param inStrings    The string resources
+   * @param inIdentifier The plan identifier
    */
 
   public NPPlanBuilder(
     final NPStrings inStrings,
-    final NPPlanName inName,
-    final long inVersion)
+    final NPPlanIdentifier inIdentifier)
   {
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
-    this.name =
-      Objects.requireNonNull(inName, "name");
-    this.version =
-      inVersion;
+    this.identifier =
+      Objects.requireNonNull(inIdentifier, "identifier");
     this.graph =
       new DirectedAcyclicGraph<>(NPPlanTaskNameDependency.class);
     this.elements =
@@ -123,8 +117,7 @@ public final class NPPlanBuilder
     }
 
     return new NPPlan(
-      this.name,
-      this.version,
+      this.identifier,
       Map.copyOf(this.toolReferences),
       Map.copyOf(newElements),
       new AsUnmodifiableGraph<>(newGraph)
@@ -138,11 +131,11 @@ public final class NPPlanBuilder
   {
     Objects.requireNonNull(reference, "reference");
 
-    if (this.toolReferences.containsKey(reference.name())) {
+    if (this.toolReferences.containsKey(reference.referenceName())) {
       throw errorDuplicateToolReference(this.strings, reference);
     }
 
-    this.toolReferences.put(reference.name(), reference);
+    this.toolReferences.put(reference.referenceName(), reference);
     return this;
   }
 
@@ -226,7 +219,7 @@ public final class NPPlanBuilder
         Objects.requireNonNull(newDescription, "description");
     }
 
-    protected final void onAddDependsOn(
+    protected final void opAddDependsOn(
       final NPPlanElementName target)
       throws NPPlanException
     {
@@ -270,8 +263,8 @@ public final class NPPlanBuilder
     {
       return new NPPlanBarrier(
         this.name(),
-        this.description(),
-        List.copyOf(this.dependsOn())
+        List.copyOf(this.dependsOn()),
+        this.description()
       );
     }
 
@@ -288,46 +281,22 @@ public final class NPPlanBuilder
       final NPPlanElementName target)
       throws NPPlanException
     {
-      this.onAddDependsOn(target);
+      this.opAddDependsOn(target);
       return this;
     }
   }
 
-  private static final class NPPlanBarrier implements NPPlanBarrierType
+  private record NPPlanBarrier(
+    NPPlanElementName name,
+    List<NPPlanElementName> dependsOn,
+    String description)
+    implements NPPlanBarrierType
   {
-    private final NPPlanElementName name;
-    private final List<NPPlanElementName> dependsOn;
-    private final String description;
-
-    NPPlanBarrier(
-      final NPPlanElementName inName,
-      final String inDescription,
-      final List<NPPlanElementName> inDependsOn)
+    NPPlanBarrier
     {
-      this.name =
-        Objects.requireNonNull(inName, "name");
-      this.description =
-        Objects.requireNonNull(inDescription, "inDescription");
-      this.dependsOn =
-        Objects.requireNonNull(inDependsOn, "rDottedNames");
-    }
-
-    @Override
-    public NPPlanElementName name()
-    {
-      return this.name;
-    }
-
-    @Override
-    public String description()
-    {
-      return this.description;
-    }
-
-    @Override
-    public List<NPPlanElementName> dependsOn()
-    {
-      return this.dependsOn;
+      Objects.requireNonNull(name, "name");
+      Objects.requireNonNull(description, "description");
+      Objects.requireNonNull(dependsOn, "dependsOn");
     }
   }
 
@@ -383,8 +352,8 @@ public final class NPPlanBuilder
         Collections.unmodifiableSortedSet(
           new TreeSet<>(this.lockAgentResources)
         ),
-        sameAs,
         this.toolExecution.get(),
+        sameAs,
         this.agentAssignmentTimeout,
         this.executionTimeout
       );
@@ -395,7 +364,7 @@ public final class NPPlanBuilder
       final NPPlanElementName target)
       throws NPPlanException
     {
-      this.onAddDependsOn(target);
+      this.opAddDependsOn(target);
       return this;
     }
 
@@ -425,11 +394,11 @@ public final class NPPlanBuilder
 
     @Override
     public NPPlanTaskBuilderType setAgentMustBeSameAs(
-      final NPPlanTaskBuilderType task)
+      final NPPlanElementName task)
       throws NPPlanException
     {
-      this.sameAgentAs = Optional.of(task.name());
-      this.addDependsOn(task.name());
+      this.sameAgentAs = Optional.of(task);
+      this.addDependsOn(task);
       return this;
     }
 
@@ -487,114 +456,31 @@ public final class NPPlanBuilder
     }
   }
 
-  private static final class NPPlanTask implements NPPlanTaskType
+  private record NPPlanTask(
+    NPPlanElementName name,
+    String description,
+    List<NPPlanElementName> dependsOn,
+    NPAgentLabelMatchType agentRequireWithLabel,
+    NPAgentLabelMatchType agentPreferWithLabel,
+    SortedSet<RDottedName> lockAgentResources,
+    NPPlanToolExecution toolExecution,
+    Optional<NPPlanTaskType> agentMustBeSameAs,
+    Optional<Duration> agentAssignmentTimeout,
+    Optional<Duration> executionTimeout)
+    implements NPPlanTaskType
   {
-    private final NPPlanElementName name;
-    private final String description;
-    private final List<NPPlanElementName> dependsOn;
-    private final NPAgentLabelMatchType agentRequireWithLabel;
-    private final NPAgentLabelMatchType agentPreferWithLabel;
-    private final SortedSet<RDottedName> lockAgentResources;
-    private final NPPlanToolExecution toolExecution;
-    private final Optional<NPPlanTaskType> agentMustBeSameAs;
-    private final Optional<Duration> agentAssignmentTimeout;
-    private final Optional<Duration> executionTimeout;
-
-    NPPlanTask(
-      final NPPlanElementName inName,
-      final String inDescription,
-      final List<NPPlanElementName> inDependsOn,
-      final NPAgentLabelMatchType inAgentRequireWithLabel,
-      final NPAgentLabelMatchType inAgentPreferWithLabel,
-      final SortedSet<RDottedName> inLockAgentResources,
-      final Optional<NPPlanTaskType> inAgentMustBeSameAs,
-      final NPPlanToolExecution inToolExecution,
-      final Optional<Duration> inAgentAssignmentTimeout,
-      final Optional<Duration> inExecutionTimeout)
+    NPPlanTask
     {
-      this.name =
-        Objects.requireNonNull(inName, "name");
-      this.description =
-        Objects.requireNonNull(inDescription, "description");
-      this.dependsOn =
-        Objects.requireNonNull(inDependsOn, "dependsOn");
-      this.agentRequireWithLabel =
-        Objects.requireNonNull(
-          inAgentRequireWithLabel, "agentRequireWithLabel");
-      this.agentPreferWithLabel =
-        Objects.requireNonNull(
-          inAgentPreferWithLabel, "agentPreferWithLabel");
-      this.lockAgentResources =
-        Objects.requireNonNull(inLockAgentResources, "lockAgentResources");
-      this.agentMustBeSameAs =
-        Objects.requireNonNull(inAgentMustBeSameAs, "inAgentMustBeSameAs");
-      this.toolExecution =
-        Objects.requireNonNull(inToolExecution, "toolExecution");
-      this.agentAssignmentTimeout =
-        Objects.requireNonNull(
-          inAgentAssignmentTimeout, "agentAssignmentTimeout");
-      this.executionTimeout =
-        Objects.requireNonNull(inExecutionTimeout, "inExecutionTimeout");
-    }
-
-    @Override
-    public NPPlanElementName name()
-    {
-      return this.name;
-    }
-
-    @Override
-    public String description()
-    {
-      return this.description;
-    }
-
-    @Override
-    public List<NPPlanElementName> dependsOn()
-    {
-      return this.dependsOn;
-    }
-
-    @Override
-    public NPAgentLabelMatchType agentRequireWithLabel()
-    {
-      return this.agentRequireWithLabel;
-    }
-
-    @Override
-    public NPAgentLabelMatchType agentPreferWithLabel()
-    {
-      return this.agentPreferWithLabel;
-    }
-
-    @Override
-    public Optional<NPPlanTaskType> agentMustBeSameAs()
-    {
-      return this.agentMustBeSameAs;
-    }
-
-    @Override
-    public Optional<Duration> agentAssignmentTimeout()
-    {
-      return this.agentAssignmentTimeout;
-    }
-
-    @Override
-    public Optional<Duration> executionTimeout()
-    {
-      return this.executionTimeout;
-    }
-
-    @Override
-    public Set<RDottedName> lockAgentResources()
-    {
-      return this.lockAgentResources;
-    }
-
-    @Override
-    public NPPlanToolExecution toolExecution()
-    {
-      return this.toolExecution;
+      Objects.requireNonNull(name, "name");
+      Objects.requireNonNull(description, "description");
+      Objects.requireNonNull(dependsOn, "dependsOn");
+      Objects.requireNonNull(agentRequireWithLabel, "agentRequireWithLabel");
+      Objects.requireNonNull(agentPreferWithLabel, "agentPreferWithLabel");
+      Objects.requireNonNull(lockAgentResources, "lockAgentResources");
+      Objects.requireNonNull(agentMustBeSameAs, "inAgentMustBeSameAs");
+      Objects.requireNonNull(toolExecution, "toolExecution");
+      Objects.requireNonNull(agentAssignmentTimeout, "agentAssignmentTimeout");
+      Objects.requireNonNull(executionTimeout, "inExecutionTimeout");
     }
   }
 }

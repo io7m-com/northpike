@@ -32,4 +32,5 @@ module com.io7m.northpike.agent.expressions
   requires com.io7m.lanark.core;
 
   exports com.io7m.northpike.agent.expressions;
+  exports com.io7m.northpike.agent.expressions.v1;
 }

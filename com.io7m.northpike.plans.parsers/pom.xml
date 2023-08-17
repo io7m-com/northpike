@@ -11,11 +11,11 @@
     <groupId>com.io7m.northpike</groupId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>com.io7m.northpike.plans</artifactId>
+  <artifactId>com.io7m.northpike.plans.parsers</artifactId>
 
   <packaging>jar</packaging>
-  <name>com.io7m.northpike.plans</name>
-  <description>Continuous integration (Plans)</description>
+  <name>com.io7m.northpike.plans.parsers</name>
+  <description>Continuous integration (Plans parsers)</description>
   <url>https://www.io7m.com/software/northpike</url>
 
   <dependencies>
@@ -31,12 +31,12 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.toolexec</artifactId>
+      <artifactId>com.io7m.northpike.agent.expressions</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.agent.expressions</artifactId>
+      <artifactId>com.io7m.northpike.plans</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -47,14 +47,6 @@
     <dependency>
       <groupId>com.io7m.jxe</groupId>
       <artifactId>com.io7m.jxe.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.jdeferthrow</groupId>
-      <artifactId>com.io7m.jdeferthrow.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.jaffirm</groupId>
-      <artifactId>com.io7m.jaffirm.core</artifactId>
     </dependency>
     <dependency>
       <groupId>com.io7m.lanark</groupId>
