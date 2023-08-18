@@ -507,7 +507,7 @@ public final class NPPlanExplanationTest
       planBuilder.addTask("t0")
         .setToolExecution(toolExec)
         .setExecutionTimeout(Duration.ofSeconds(3L))
-        .setAgentAssignmentTimeout(Duration.ofSeconds(5L));
+        .setAgentSelectionTimeout(Duration.ofSeconds(5L));
 
     final var plan =
       planBuilder.build();
@@ -577,7 +577,7 @@ public final class NPPlanExplanationTest
         .setToolExecution(toolExec)
         .setAgentMustBeSameAs(t0)
         .setExecutionTimeout(Duration.ofSeconds(3L))
-        .setAgentAssignmentTimeout(Duration.ofSeconds(5L));
+        .setAgentSelectionTimeout(Duration.ofSeconds(5L));
 
     final var plan =
       planBuilder.build();

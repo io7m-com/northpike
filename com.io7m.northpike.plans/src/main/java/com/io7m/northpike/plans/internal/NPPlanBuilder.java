@@ -309,7 +309,7 @@ public final class NPPlanBuilder
     private NPAgentLabelMatchType requireWithLabels;
     private Optional<NPPlanToolExecution> toolExecution;
     private Optional<NPPlanElementName> sameAgentAs;
-    private Optional<Duration> agentAssignmentTimeout;
+    private Optional<Duration> agentSelectionTimeout;
     private Optional<Duration> executionTimeout;
 
     NPPlanTaskBuilder(
@@ -322,7 +322,7 @@ public final class NPPlanBuilder
       this.lockAgentResources = new TreeSet<>();
       this.toolExecution = Optional.empty();
       this.sameAgentAs = Optional.empty();
-      this.agentAssignmentTimeout = Optional.empty();
+      this.agentSelectionTimeout = Optional.empty();
       this.executionTimeout = Optional.empty();
     }
 
@@ -354,7 +354,7 @@ public final class NPPlanBuilder
         ),
         this.toolExecution.get(),
         sameAs,
-        this.agentAssignmentTimeout,
+        this.agentSelectionTimeout,
         this.executionTimeout
       );
     }
@@ -438,11 +438,11 @@ public final class NPPlanBuilder
     }
 
     @Override
-    public NPPlanTaskBuilderType setAgentAssignmentTimeout(
+    public NPPlanTaskBuilderType setAgentSelectionTimeout(
       final Duration duration)
     {
       Objects.requireNonNull(duration, "duration");
-      this.agentAssignmentTimeout = Optional.of(duration);
+      this.agentSelectionTimeout = Optional.of(duration);
       return this;
     }
 
@@ -465,7 +465,7 @@ public final class NPPlanBuilder
     SortedSet<RDottedName> lockAgentResources,
     NPPlanToolExecution toolExecution,
     Optional<NPPlanTaskType> agentMustBeSameAs,
-    Optional<Duration> agentAssignmentTimeout,
+    Optional<Duration> agentSelectionTimeout,
     Optional<Duration> executionTimeout)
     implements NPPlanTaskType
   {
@@ -479,7 +479,7 @@ public final class NPPlanBuilder
       Objects.requireNonNull(lockAgentResources, "lockAgentResources");
       Objects.requireNonNull(agentMustBeSameAs, "inAgentMustBeSameAs");
       Objects.requireNonNull(toolExecution, "toolExecution");
-      Objects.requireNonNull(agentAssignmentTimeout, "agentAssignmentTimeout");
+      Objects.requireNonNull(agentSelectionTimeout, "agentSelectionTimeout");
       Objects.requireNonNull(executionTimeout, "inExecutionTimeout");
     }
   }

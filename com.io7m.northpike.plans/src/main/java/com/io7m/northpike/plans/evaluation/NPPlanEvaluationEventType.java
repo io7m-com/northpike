@@ -23,7 +23,7 @@ import com.io7m.northpike.plans.NPPlanTaskType;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.ElementBecameReady;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.ElementFailed;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.ElementSucceeded;
-import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.TaskAgentAssignmentTimedOut;
+import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.TaskAgentSelectionTimedOut;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.TaskExecutionTimedOut;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.TaskRequiresMatchingAgent;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.TaskRequiresSpecificAgent;
@@ -38,7 +38,7 @@ public sealed interface NPPlanEvaluationEventType
   permits ElementBecameReady,
   ElementFailed,
   ElementSucceeded,
-  TaskAgentAssignmentTimedOut,
+  TaskAgentSelectionTimedOut,
   TaskExecutionTimedOut,
   TaskRequiresMatchingAgent,
   TaskRequiresSpecificAgent
@@ -178,20 +178,20 @@ public sealed interface NPPlanEvaluationEventType
   }
 
   /**
-   * A task timed out waiting for an agent to be assigned.
+   * A task timed out waiting for an agent to be selected.
    *
    * @param task The task
    */
 
-  record TaskAgentAssignmentTimedOut(
+  record TaskAgentSelectionTimedOut(
     NPPlanTaskType task)
     implements NPPlanEvaluationEventType
   {
     /**
-     * A task timed out waiting for an agent to be assigned.
+     * A task timed out waiting for an agent to be selected.
      */
 
-    public TaskAgentAssignmentTimedOut
+    public TaskAgentSelectionTimedOut
     {
       Objects.requireNonNull(task, "element");
     }
@@ -199,7 +199,7 @@ public sealed interface NPPlanEvaluationEventType
     @Override
     public String toString()
     {
-      return "[TaskAgentAssignmentTimedOut %s]".formatted(this.task.name());
+      return "[TaskAgentSelectionTimedOut %s]".formatted(this.task.name());
     }
   }
 

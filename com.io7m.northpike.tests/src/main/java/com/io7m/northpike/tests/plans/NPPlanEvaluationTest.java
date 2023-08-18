@@ -513,7 +513,7 @@ public final class NPPlanEvaluationTest
     final var t0 =
       planBuilder.addTask(NPPlanElementName.of("t0"))
         .setToolExecution(toolExec)
-        .setAgentAssignmentTimeout(Duration.ofSeconds(2L));
+        .setAgentSelectionTimeout(Duration.ofSeconds(2L));
 
     final var plan =
       planBuilder.build();
@@ -541,7 +541,7 @@ public final class NPPlanEvaluationTest
         "[ElementBecameReady t0]",
         "[TaskRequiresMatchingAgent t0]",
         "[TaskRequiresMatchingAgent t0]",
-        "[TaskAgentAssignmentTimedOut t0]",
+        "[TaskAgentSelectionTimedOut t0]",
         "[ElementFailed t0]"
       ),
       this.eventTexts

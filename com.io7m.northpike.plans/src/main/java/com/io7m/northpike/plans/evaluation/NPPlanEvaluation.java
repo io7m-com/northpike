@@ -27,7 +27,7 @@ import com.io7m.northpike.plans.NPPlanType;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.ElementBecameReady;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.ElementFailed;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.ElementSucceeded;
-import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.TaskAgentAssignmentTimedOut;
+import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.TaskAgentSelectionTimedOut;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.TaskExecutionTimedOut;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.TaskRequiresMatchingAgent;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.TaskRequiresSpecificAgent;
@@ -54,9 +54,9 @@ import java.util.stream.Collectors;
 
 import static com.io7m.northpike.plans.evaluation.NPPlanElementStatus.FAILED;
 import static com.io7m.northpike.plans.evaluation.NPPlanElementStatus.FAILED_TIMED_OUT_EXECUTION;
-import static com.io7m.northpike.plans.evaluation.NPPlanElementStatus.FAILED_TIMED_OUT_WAITING_AGENT_ASSIGNMENT;
+import static com.io7m.northpike.plans.evaluation.NPPlanElementStatus.FAILED_TIMED_OUT_WAITING_AGENT_SELECTION;
 import static com.io7m.northpike.plans.evaluation.NPPlanElementStatus.IN_PROGRESS_EXECUTING;
-import static com.io7m.northpike.plans.evaluation.NPPlanElementStatus.IN_PROGRESS_WAITING_FOR_AGENT_ASSIGNMENT;
+import static com.io7m.northpike.plans.evaluation.NPPlanElementStatus.IN_PROGRESS_WAITING_FOR_AGENT_SELECTION;
 import static com.io7m.northpike.plans.evaluation.NPPlanElementStatus.IN_PROGRESS_WAITING_NOT_READY;
 import static com.io7m.northpike.plans.evaluation.NPPlanElementStatus.IN_PROGRESS_WAITING_READY;
 import static com.io7m.northpike.plans.evaluation.NPPlanElementStatus.SUCEEDED;
@@ -219,8 +219,8 @@ public final class NPPlanEvaluation
         case IN_PROGRESS_WAITING_READY -> {
           this.evaluateElementWaitingReady(state);
         }
-        case IN_PROGRESS_WAITING_FOR_AGENT_ASSIGNMENT -> {
-          this.evaluateElementWaitingForAgentAssignment(state);
+        case IN_PROGRESS_WAITING_FOR_AGENT_SELECTION -> {
+          this.evaluateElementWaitingForAgentSelection(state);
         }
         case IN_PROGRESS_EXECUTING -> {
           this.evaluateElementExecuting(state);
@@ -231,7 +231,7 @@ public final class NPPlanEvaluation
         case FAILED -> {
 
         }
-        case FAILED_TIMED_OUT_WAITING_AGENT_ASSIGNMENT -> {
+        case FAILED_TIMED_OUT_WAITING_AGENT_SELECTION -> {
 
         }
         case FAILED_TIMED_OUT_EXECUTION -> {
@@ -267,13 +267,13 @@ public final class NPPlanEvaluation
     }
   }
 
-  private void evaluateElementWaitingForAgentAssignment(
+  private void evaluateElementWaitingForAgentSelection(
     final ElementState state)
   {
     final var task = (NPPlanTaskType) state.element;
 
     final var timeoutOpt =
-      task.agentAssignmentTimeout();
+      task.agentSelectionTimeout();
 
     if (timeoutOpt.isPresent()) {
       final var timeout =
@@ -284,15 +284,15 @@ public final class NPPlanEvaluation
         Duration.between(state.timeStartWaitAgent, timeNow);
 
       if (waiting.compareTo(timeout) > 0) {
-        state.status = FAILED_TIMED_OUT_WAITING_AGENT_ASSIGNMENT;
+        state.status = FAILED_TIMED_OUT_WAITING_AGENT_SELECTION;
         state.timeFinished = timeNow;
-        this.stepEvents.add(new TaskAgentAssignmentTimedOut(task));
+        this.stepEvents.add(new TaskAgentSelectionTimedOut(task));
         this.stepEvents.add(new ElementFailed(state.element));
         return;
       }
     }
 
-    this.publishWantAgentAssignmentEvent(task);
+    this.publishWantAgentSelectionEvent(task);
   }
 
   private void evaluateElementWaitingReady(
@@ -300,9 +300,9 @@ public final class NPPlanEvaluation
   {
     final var element = state.element;
     if (element instanceof final NPPlanTaskType task) {
-      state.status = IN_PROGRESS_WAITING_FOR_AGENT_ASSIGNMENT;
+      state.status = IN_PROGRESS_WAITING_FOR_AGENT_SELECTION;
       state.timeStartWaitAgent = this.clock.instant();
-      this.publishWantAgentAssignmentEvent(task);
+      this.publishWantAgentSelectionEvent(task);
       return;
     }
 
@@ -314,7 +314,7 @@ public final class NPPlanEvaluation
     }
   }
 
-  private void publishWantAgentAssignmentEvent(
+  private void publishWantAgentSelectionEvent(
     final NPPlanTaskType task)
   {
     final var sameOpt = task.agentMustBeSameAs();

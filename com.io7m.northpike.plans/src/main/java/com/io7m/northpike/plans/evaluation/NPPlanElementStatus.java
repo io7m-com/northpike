@@ -24,7 +24,7 @@ package com.io7m.northpike.plans.evaluation;
 public enum NPPlanElementStatus
 {
   /**
-   * The given element is not ready as it is waiting on one or mor dependencies.
+   * The given element is not ready as it is waiting on one or more dependencies.
    */
 
   IN_PROGRESS_WAITING_NOT_READY,
@@ -36,11 +36,11 @@ public enum NPPlanElementStatus
   IN_PROGRESS_WAITING_READY,
 
   /**
-   * The given element is ready to execute but has not yet been assigned
-   * an agent.
+   * The given element is ready to execute but has not yet had an agent
+   * selected.
    */
 
-  IN_PROGRESS_WAITING_FOR_AGENT_ASSIGNMENT,
+  IN_PROGRESS_WAITING_FOR_AGENT_SELECTION,
 
   /**
    * The given element is executing now.
@@ -61,11 +61,11 @@ public enum NPPlanElementStatus
   FAILED,
 
   /**
-   * The given element timed out waiting for an agent to be assigned to
+   * The given element timed out waiting for an agent to be selected to
    * execute it.
    */
 
-  FAILED_TIMED_OUT_WAITING_AGENT_ASSIGNMENT,
+  FAILED_TIMED_OUT_WAITING_AGENT_SELECTION,
 
   /**
    * The given element exceeded its execution timeout limit.
@@ -82,10 +82,10 @@ public enum NPPlanElementStatus
     return switch (this) {
       case IN_PROGRESS_WAITING_NOT_READY,
         IN_PROGRESS_EXECUTING,
-        IN_PROGRESS_WAITING_FOR_AGENT_ASSIGNMENT,
+        IN_PROGRESS_WAITING_FOR_AGENT_SELECTION,
         IN_PROGRESS_WAITING_READY -> true;
       case SUCEEDED,
-        FAILED_TIMED_OUT_WAITING_AGENT_ASSIGNMENT,
+        FAILED_TIMED_OUT_WAITING_AGENT_SELECTION,
         FAILED_TIMED_OUT_EXECUTION,
         FAILED -> false;
     };
@@ -100,10 +100,10 @@ public enum NPPlanElementStatus
     return switch (this) {
       case IN_PROGRESS_WAITING_NOT_READY,
         FAILED,
-        FAILED_TIMED_OUT_WAITING_AGENT_ASSIGNMENT,
+        FAILED_TIMED_OUT_WAITING_AGENT_SELECTION,
         FAILED_TIMED_OUT_EXECUTION,
         IN_PROGRESS_EXECUTING,
-        IN_PROGRESS_WAITING_FOR_AGENT_ASSIGNMENT,
+        IN_PROGRESS_WAITING_FOR_AGENT_SELECTION,
         IN_PROGRESS_WAITING_READY -> false;
       case SUCEEDED -> true;
     };
@@ -119,10 +119,10 @@ public enum NPPlanElementStatus
       case IN_PROGRESS_WAITING_NOT_READY,
         SUCEEDED,
         IN_PROGRESS_EXECUTING,
-        IN_PROGRESS_WAITING_FOR_AGENT_ASSIGNMENT,
+        IN_PROGRESS_WAITING_FOR_AGENT_SELECTION,
         IN_PROGRESS_WAITING_READY -> false;
       case FAILED,
-        FAILED_TIMED_OUT_WAITING_AGENT_ASSIGNMENT,
+        FAILED_TIMED_OUT_WAITING_AGENT_SELECTION,
         FAILED_TIMED_OUT_EXECUTION -> true;
     };
   }

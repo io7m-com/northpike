@@ -32,16 +32,16 @@ import java.util.Set;
 /**
  * A raw, parsed task description.
  *
- * @param name                   The task name
- * @param description            The task description
- * @param agentRequireWithLabel  The "require agent" expression
- * @param agentPreferWithLabel   The "prefer agent" expression
- * @param agentMustBeSameAs      The "same as" agent constraint
- * @param agentAssignmentTimeout The timeout value for assignment
- * @param executionTimeout       The execution timeout
- * @param lockAgentResources     The resources locked on the agent
- * @param toolExecution          The tool execution
- * @param dependsOn              The tasks/barriers upon which this task depends
+ * @param name                  The task name
+ * @param description           The task description
+ * @param agentRequireWithLabel The "require agent" expression
+ * @param agentPreferWithLabel  The "prefer agent" expression
+ * @param agentMustBeSameAs     The "same as" agent constraint
+ * @param agentSelectionTimeout The timeout value for agent selection
+ * @param executionTimeout      The execution timeout
+ * @param lockAgentResources    The resources locked on the agent
+ * @param toolExecution         The tool execution
+ * @param dependsOn             The tasks/barriers upon which this task depends
  */
 
 public record NPPlanTaskDescription(
@@ -50,7 +50,7 @@ public record NPPlanTaskDescription(
   NPAgentLabelMatchType agentRequireWithLabel,
   NPAgentLabelMatchType agentPreferWithLabel,
   Optional<RDottedName> agentMustBeSameAs,
-  Optional<Duration> agentAssignmentTimeout,
+  Optional<Duration> agentSelectionTimeout,
   Optional<Duration> executionTimeout,
   Set<RDottedName> lockAgentResources,
   NPPlanToolExecution toolExecution,
@@ -60,16 +60,16 @@ public record NPPlanTaskDescription(
   /**
    * A raw, parsed task description.
    *
-   * @param name                   The task name
-   * @param description            The task description
-   * @param agentRequireWithLabel  The "require agent" expression
-   * @param agentPreferWithLabel   The "prefer agent" expression
-   * @param agentMustBeSameAs      The "same as" agent constraint
-   * @param agentAssignmentTimeout The timeout value for assignment
-   * @param executionTimeout       The execution timeout
-   * @param lockAgentResources     The resources locked on the agent
-   * @param toolExecution          The tool execution
-   * @param dependsOn              The tasks/barriers upon which this task depends
+   * @param name                  The task name
+   * @param description           The task description
+   * @param agentRequireWithLabel The "require agent" expression
+   * @param agentPreferWithLabel  The "prefer agent" expression
+   * @param agentMustBeSameAs     The "same as" agent constraint
+   * @param agentSelectionTimeout The timeout value for agent selection
+   * @param executionTimeout      The execution timeout
+   * @param lockAgentResources    The resources locked on the agent
+   * @param toolExecution         The tool execution
+   * @param dependsOn             The tasks/barriers upon which this task depends
    */
 
   public NPPlanTaskDescription
@@ -79,7 +79,7 @@ public record NPPlanTaskDescription(
     Objects.requireNonNull(agentRequireWithLabel, "agentRequireWithLabel");
     Objects.requireNonNull(agentPreferWithLabel, "agentPreferWithLabel");
     Objects.requireNonNull(agentMustBeSameAs, "agentMustBeSameAs");
-    Objects.requireNonNull(agentAssignmentTimeout, "agentAssignmentTimeout");
+    Objects.requireNonNull(agentSelectionTimeout, "agentSelectionTimeout");
     Objects.requireNonNull(executionTimeout, "executionTimeout");
     Objects.requireNonNull(lockAgentResources, "lockAgentResources");
     Objects.requireNonNull(toolExecution, "toolExecution");
@@ -106,8 +106,8 @@ public record NPPlanTaskDescription(
       final var same = this.agentMustBeSameAs.get();
       taskBuilder.setAgentMustBeSameAs(new NPPlanElementName(same));
     }
-    if (this.agentAssignmentTimeout.isPresent()) {
-      taskBuilder.setAgentAssignmentTimeout(this.agentAssignmentTimeout.get());
+    if (this.agentSelectionTimeout.isPresent()) {
+      taskBuilder.setAgentSelectionTimeout(this.agentSelectionTimeout.get());
     }
     if (this.executionTimeout.isPresent()) {
       taskBuilder.setExecutionTimeout(this.executionTimeout.get());

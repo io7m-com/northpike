@@ -60,13 +60,13 @@ public non-sealed interface NPPlanTaskType
 
   /**
    * The maximum duration that the task will wait between the task
-   * becoming ready, and having an agent assigned. If this duration elapses
-   * without an agent assigned, the task will be considered failed.
+   * becoming ready, and having an agent selected. If this duration elapses
+   * without an agent selected, the task will be considered failed.
    *
    * @return The duration
    */
 
-  Optional<Duration> agentAssignmentTimeout();
+  Optional<Duration> agentSelectionTimeout();
 
   /**
    * The maximum duration that the task will be allowed to execute.

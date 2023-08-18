@@ -57,7 +57,7 @@ public final class NPP1Task
   private Optional<NPP1AgentRequireSameAsUsedFor> sameAsUsedFor =
     Optional.empty();
 
-  private Optional<Duration> agentAssignmentTimeout =
+  private Optional<Duration> agentSelectionTimeout =
     Optional.empty();
 
   private Optional<Duration> executionTimeout =
@@ -140,7 +140,7 @@ public final class NPP1Task
       this.requireWithLabels.match(),
       this.preferWithLabels.match(),
       this.sameAsUsedFor.map(NPP1AgentRequireSameAsUsedFor::name),
-      this.agentAssignmentTimeout,
+      this.agentSelectionTimeout,
       this.executionTimeout,
       this.lockAgentResources,
       this.toolExecution,

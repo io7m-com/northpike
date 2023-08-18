@@ -212,7 +212,7 @@ public final class NPPlanExplanation implements NPPlanExplanationType
           )
         );
 
-        task.agentAssignmentTimeout().ifPresent(duration -> {
+        task.agentSelectionTimeout().ifPresent(duration -> {
           messages.add(
             applied(
               PLAN_EXPLAIN_TASK_AGENT_TIMEOUT,
@@ -257,7 +257,7 @@ public final class NPPlanExplanation implements NPPlanExplanationType
           )
         );
 
-        task.agentAssignmentTimeout().ifPresent(duration -> {
+        task.agentSelectionTimeout().ifPresent(duration -> {
           messages.add(
             applied(
               PLAN_EXPLAIN_TASK_AGENT_TIMEOUT,
