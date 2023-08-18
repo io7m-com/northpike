@@ -14,22 +14,42 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.plans.parsers;
+
+import com.io7m.northpike.model.NPFormatName;
+
+import java.util.Set;
+
 /**
- * Continuous integration (Database API)
+ * The available plan formats.
  */
 
-module com.io7m.northpike.database.api
+public final class NPPlanFormats
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  private static final NPFormatName XML_V1 =
+    NPFormatName.of("com.io7m.northpike.plans.parsers.v1");
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.plans.parsers;
-  requires com.io7m.northpike.plans;
-  requires com.io7m.northpike.strings;
+  private NPPlanFormats()
+  {
 
-  requires com.io7m.repetoir.core;
-  requires io.opentelemetry.api;
+  }
 
-  exports com.io7m.northpike.database.api;
+  /**
+   * @return The XML v1 format
+   */
+
+  public static NPFormatName xml1()
+  {
+    return XML_V1;
+  }
+
+  /**
+   * @return The supported formats
+   */
+
+  public static Set<NPFormatName> formats()
+  {
+    return Set.of(xml1());
+  }
 }

@@ -14,22 +14,44 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.plans.parsers;
+
+import com.io7m.northpike.model.NPFormatName;
+import com.io7m.northpike.model.NPPreserveLexical;
+
+import java.io.OutputStream;
+import java.net.URI;
+import java.util.Set;
+
 /**
- * Continuous integration (Database API)
+ * A factory of plan parsers.
  */
 
-module com.io7m.northpike.database.api
+public final class NPPlanSerializers
+  implements NPPlanSerializerFactoryType
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * A factory of plan parsers.
+   */
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.plans.parsers;
-  requires com.io7m.northpike.plans;
-  requires com.io7m.northpike.strings;
+  public NPPlanSerializers()
+  {
 
-  requires com.io7m.repetoir.core;
-  requires io.opentelemetry.api;
+  }
 
-  exports com.io7m.northpike.database.api;
+  @Override
+  public Set<NPFormatName> formats()
+  {
+    return NPPlanFormats.formats();
+  }
+
+  @Override
+  public NPPlanSerializerType createSerializerWithContext(
+    final NPPreserveLexical context,
+    final URI target,
+    final OutputStream stream)
+  {
+    return NPPlanSerializer.create(stream);
+  }
 }

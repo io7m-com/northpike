@@ -28,6 +28,7 @@ import static java.time.ZoneOffset.UTC;
 public sealed interface NPDatabaseQueriesType
   permits NPDatabaseQueriesAgentsType,
   NPDatabaseQueriesMaintenanceType,
+  NPDatabaseQueriesPlansType,
   NPDatabaseQueriesRepositoriesType,
   NPDatabaseQueriesSCMProvidersType,
   NPDatabaseQueriesToolsType,

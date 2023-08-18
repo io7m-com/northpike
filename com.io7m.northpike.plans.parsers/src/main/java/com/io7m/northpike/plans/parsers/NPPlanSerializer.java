@@ -17,6 +17,8 @@
 
 package com.io7m.northpike.plans.parsers;
 
+import com.io7m.anethum.api.SerializationException;
+import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.plans.NPPlanType;
 import com.io7m.northpike.plans.parsers.v1.NPP1Serializer;
 
@@ -24,7 +26,6 @@ import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -33,7 +34,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * A serializer for plans.
  */
 
-public final class NPPlanSerializer
+public final class NPPlanSerializer implements NPPlanSerializerType
 {
   private final OutputStream outputStream;
 
@@ -63,15 +64,19 @@ public final class NPPlanSerializer
    *
    * @param plan The plan
    *
-   * @throws XMLStreamException On errors
+   * @throws SerializationException On errors
    */
 
+  @Override
   public void execute(
     final NPPlanType plan)
-    throws XMLStreamException
+    throws SerializationException
   {
-    NPP1Serializer.create(this.outputStream)
-      .serialize(plan);
+    try {
+      NPP1Serializer.create(this.outputStream).serialize(plan);
+    } catch (final XMLStreamException e) {
+      throw new SerializationException(e.getMessage(), e);
+    }
   }
 
   /**
@@ -80,16 +85,32 @@ public final class NPPlanSerializer
    * @param plan The plan
    *
    * @return The serialized plan
+   *
+   * @throws SerializationException On errors
    */
 
   public static String serializeToString(
     final NPPlanType plan)
+    throws SerializationException
   {
     try (var output = new ByteArrayOutputStream()) {
       create(output).execute(plan);
       return output.toString(UTF_8);
-    } catch (final IOException | XMLStreamException e) {
-      throw new UncheckedIOException(new IOException(e));
+    } catch (final IOException e) {
+      throw new SerializationException(e.getMessage(), e);
     }
+  }
+
+  @Override
+  public void close()
+    throws IOException
+  {
+    this.outputStream.close();
+  }
+
+  @Override
+  public NPFormatName format()
+  {
+    return NPPlanFormats.xml1();
   }
 }

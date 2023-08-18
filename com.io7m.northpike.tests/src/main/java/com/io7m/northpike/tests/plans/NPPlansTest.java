@@ -16,7 +16,6 @@
 
 package com.io7m.northpike.tests.plans;
 
-import com.io7m.anethum.api.ParsingException;
 import com.io7m.anethum.slf4j.ParseStatusLogging;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentLabelMatchType.Specific;
@@ -664,7 +663,7 @@ public final class NPPlansTest
   private void parserRoundTripN(
     final int index,
     final NPPlanType planBefore)
-    throws NPPlanException, ParsingException
+    throws Exception
   {
     if (index == 0) {
       return;

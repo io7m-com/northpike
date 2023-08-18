@@ -14,22 +14,23 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.plans.parsers;
+
+import com.io7m.anethum.api.SerializerType;
+import com.io7m.northpike.model.NPFormatName;
+import com.io7m.northpike.plans.NPPlanType;
+
 /**
- * Continuous integration (Database API)
+ * The type of plan serializers.
  */
 
-module com.io7m.northpike.database.api
+public interface NPPlanSerializerType
+  extends SerializerType<NPPlanType>
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * @return The format used for this particular serializer
+   */
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.plans.parsers;
-  requires com.io7m.northpike.plans;
-  requires com.io7m.northpike.strings;
-
-  requires com.io7m.repetoir.core;
-  requires io.opentelemetry.api;
-
-  exports com.io7m.northpike.database.api;
+  NPFormatName format();
 }

@@ -29,12 +29,13 @@ module com.io7m.northpike.database.postgres
 
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.model;
+  requires com.io7m.northpike.plans;
   requires com.io7m.northpike.strings;
 
-  requires com.io7m.jqpage.core;
   requires com.io7m.anethum.api;
   requires com.io7m.jaffirm.core;
   requires com.io7m.jmulticlose.core;
+  requires com.io7m.jqpage.core;
   requires com.io7m.trasco.api;
   requires com.io7m.trasco.vanilla;
   requires com.zaxxer.hikari;
@@ -46,6 +47,7 @@ module com.io7m.northpike.database.postgres
   requires org.jooq;
   requires org.postgresql.jdbc;
   requires org.slf4j;
+  requires com.io7m.northpike.plans.parsers;
 
   provides NPDatabaseFactoryType
     with NPPGDatabases;
@@ -53,23 +55,26 @@ module com.io7m.northpike.database.postgres
   uses NPDBQueryProviderType;
 
   provides NPDBQueryProviderType with
-com.io7m.northpike.database.postgres.internal.NPDBQAgentGetByKey,
 com.io7m.northpike.database.postgres.internal.NPDBQAgentGet,
+com.io7m.northpike.database.postgres.internal.NPDBQAgentGetByKey,
 com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelGet,
 com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelPut,
 com.io7m.northpike.database.postgres.internal.NPDBQAgentList,
 com.io7m.northpike.database.postgres.internal.NPDBQAgentPut,
 com.io7m.northpike.database.postgres.internal.NPDBQMaintenance,
+com.io7m.northpike.database.postgres.internal.NPDBQPlanGet,
+com.io7m.northpike.database.postgres.internal.NPDBQPlanGetRaw,
+com.io7m.northpike.database.postgres.internal.NPDBQPlanPut,
 com.io7m.northpike.database.postgres.internal.NPDBQRepositoryCommitsGet,
 com.io7m.northpike.database.postgres.internal.NPDBQRepositoryCommitsPut,
 com.io7m.northpike.database.postgres.internal.NPDBQRepositoryGet,
 com.io7m.northpike.database.postgres.internal.NPDBQRepositoryPut,
 com.io7m.northpike.database.postgres.internal.NPDBQSCMProviderGet,
 com.io7m.northpike.database.postgres.internal.NPDBQSCMProviderPut,
-com.io7m.northpike.database.postgres.internal.NPDBQUserGet,
-com.io7m.northpike.database.postgres.internal.NPDBQUserPut,
 com.io7m.northpike.database.postgres.internal.NPDBQToolExecutionDescriptionGet,
-com.io7m.northpike.database.postgres.internal.NPDBQToolExecutionDescriptionPut
+com.io7m.northpike.database.postgres.internal.NPDBQToolExecutionDescriptionPut,
+com.io7m.northpike.database.postgres.internal.NPDBQUserGet,
+com.io7m.northpike.database.postgres.internal.NPDBQUserPut
     ;
 
   exports com.io7m.northpike.database.postgres;

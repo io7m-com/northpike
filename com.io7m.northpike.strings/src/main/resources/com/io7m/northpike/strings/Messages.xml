@@ -15,6 +15,7 @@
   <entry key="error_authentication">Authentication failed.</entry>
   <entry key="error_duplicate">Object already exists.</entry>
   <entry key="error_duplicate_deleted">A previously deleted object exists with this ID.</entry>
+  <entry key="error_format_unsupported">Unsupported format.</entry>
   <entry key="error_hash_mismatch">Hash value mismatch.</entry>
   <entry key="error_http">HTTP server error.</entry>
   <entry key="error_io">I/O error.</entry>
@@ -33,6 +34,7 @@
   <entry key="error_unsafe_archive_path">Unsafe archive path encountered; refusing to unpack.</entry>
   <entry key="expected">Expected</entry>
   <entry key="file">File</entry>
+  <entry key="format">Format</entry>
   <entry key="gc">GC</entry>
   <entry key="hash_algo">Hash Algorithm</entry>
   <entry key="hash_expected">Hash (Expected)</entry>

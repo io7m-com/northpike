@@ -369,6 +369,7 @@ CREATE TABLE plans (
   p_version   BIGINT  NOT NULL,
   p_format    TEXT    NOT NULL,
   p_data      BYTEA   NOT NULL,
+  p_encoding  TEXT    NOT NULL,
 
   -- [jooq ignore start]
   CONSTRAINT plans_name_version_unique

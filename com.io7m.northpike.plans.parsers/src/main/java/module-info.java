@@ -16,6 +16,8 @@
 
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanParsers;
+import com.io7m.northpike.plans.parsers.NPPlanSerializerFactoryType;
+import com.io7m.northpike.plans.parsers.NPPlanSerializers;
 
 /**
  * Continuous integration (Plans)
@@ -44,6 +46,9 @@ module com.io7m.northpike.plans.parsers
 
   provides NPPlanParserFactoryType
     with NPPlanParsers;
+
+  provides NPPlanSerializerFactoryType
+    with NPPlanSerializers;
 
   exports com.io7m.northpike.plans.parsers;
 }

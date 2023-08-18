@@ -33,14 +33,8 @@ import static com.io7m.northpike.model.NPPreserveLexical.PRESERVE_LEXICAL_INFORM
  * A factory of plan parsers.
  */
 
-public final class NPPlanParsers
-  implements NPPlanParserFactoryType
+public final class NPPlanParsers implements NPPlanParserFactoryType
 {
-  private static final Set<NPFormatName> FORMATS =
-    Set.of(
-      NPFormatName.of("com.io7m.northpike.plans.parsers.v1")
-    );
-
   /**
    * A factory of plan parsers.
    */
@@ -70,6 +64,7 @@ public final class NPPlanParsers
   @Override
   public Set<NPFormatName> formats()
   {
-    return FORMATS;
+    return NPPlanFormats.formats();
   }
+
 }

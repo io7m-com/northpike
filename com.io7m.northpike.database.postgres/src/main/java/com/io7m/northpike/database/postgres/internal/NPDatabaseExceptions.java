@@ -18,18 +18,23 @@
 package com.io7m.northpike.database.postgres.internal;
 
 
+import com.io7m.anethum.api.ParseStatusType;
+import com.io7m.anethum.api.ParsingException;
+import com.io7m.anethum.api.SerializationException;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import org.jooq.exception.DataAccessException;
 import org.postgresql.util.PSQLException;
 import org.postgresql.util.ServerErrorMessage;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import static com.io7m.northpike.strings.NPStringConstants.ERROR_IO;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
 
 
@@ -292,5 +297,65 @@ public final class NPDatabaseExceptions
         );
       }
     };
+  }
+
+  static NPDatabaseException ofIOError(
+    final NPDatabaseTransaction transaction,
+    final Map<String, String> attributes,
+    final IOException e)
+  {
+    return new NPDatabaseException(
+      transaction.localize(ERROR_IO),
+      e,
+      NPStandardErrorCodes.errorIo(),
+      attributes,
+      Optional.empty()
+    );
+  }
+
+  static NPDatabaseException ofSerializationError(
+    final Map<String, String> attributes,
+    final SerializationException e)
+  {
+    return new NPDatabaseException(
+      e.getMessage(),
+      e,
+      NPStandardErrorCodes.errorIo(),
+      attributes,
+      Optional.empty()
+    );
+  }
+
+  static NPDatabaseException ofParseError(
+    final Map<String, String> attributes,
+    final ParsingException e)
+  {
+    final var newAttributes = new TreeMap<>(attributes);
+    final var errors = e.statusValues();
+    for (int index = 0; index < errors.size(); ++index) {
+      final var status = errors.get(index);
+      final var name = "Status %d".formatted(Integer.valueOf(index));
+      newAttributes.put(name, formatStatus(status));
+    }
+
+    return new NPDatabaseException(
+      e.getMessage(),
+      e,
+      NPStandardErrorCodes.errorIo(),
+      newAttributes,
+      Optional.empty()
+    );
+  }
+
+  private static String formatStatus(
+    final ParseStatusType status)
+  {
+    return String.format(
+      "%d:%d %s %s",
+      Integer.valueOf(status.lexical().line()),
+      Integer.valueOf(status.lexical().column()),
+      status.errorCode(),
+      status.message()
+    );
   }
 }
