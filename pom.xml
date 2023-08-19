@@ -87,7 +87,7 @@
     <jackson.version>2.14.2</jackson.version>
     <javafx.version>20.0.1</javafx.version>
     <jaxb.version>4.0.0</jaxb.version>
-    <jetty.version>11.0.15</jetty.version>
+    <jetty.version>12.0.0</jetty.version>
     <jgit.version>6.6.0.202305301015-r</jgit.version>
     <jooq.version>3.18.6</jooq.version>
     <jqwik.version>1.7.4</jqwik.version>
@@ -662,6 +662,28 @@
         <artifactId>com.io7m.quarrel.ext.xstructural</artifactId>
         <version>${com.io7m.quarrel.version}</version>
       </dependency>
+
+      <!-- Archive service -->
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-server</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-util</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-io</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-http</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -680,12 +702,6 @@
           <groupId>com.io7m.stmp</groupId>
           <artifactId>string-template-maven-plugin</artifactId>
           <version>1.2.0</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>jaxb2-maven-plugin</artifactId>
-          <version>3.1.0</version>
         </plugin>
 
         <plugin>

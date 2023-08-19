@@ -10,6 +10,7 @@
   <entry key="archive">Archive</entry>
   <entry key="barrier">Barrier</entry>
   <entry key="clone">Clone</entry>
+  <entry key="commit">Commit</entry>
   <entry key="downloading">Downloading {0}</entry>
   <entry key="entry">Entry</entry>
   <entry key="error_authentication">Authentication failed.</entry>

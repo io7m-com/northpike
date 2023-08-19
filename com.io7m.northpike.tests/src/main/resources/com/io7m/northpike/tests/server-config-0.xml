@@ -18,6 +18,11 @@
     </t:TLSEnabled>
   </c:AgentService>
 
+  <c:ArchiveService ListenAddress="example.com"
+                    ListenPort="20049">
+    <t:TLSDisabled/>
+  </c:ArchiveService>
+
   <c:Database Kind="POSTGRESQL"
               OwnerRoleName="northpike_install"
               OwnerRolePassword="12345678"
@@ -29,7 +34,8 @@
               Upgrade="true"
               Language="english"/>
 
-  <c:Directories RepositoryDirectory="/tmp/repositories"/>
+  <c:Directories RepositoryDirectory="/tmp/repositories"
+                 ArchiveDirectory="/tmp/archive"/>
 
   <c:IdStore BaseURI="https://idstore.example.com"
              PasswordResetURI="https://idstore.example.com"/>

@@ -53,6 +53,7 @@ module com.io7m.northpike.server
   requires io.opentelemetry.sdk.trace;
   requires io.opentelemetry.sdk;
   requires io.opentelemetry.semconv;
+  requires org.eclipse.jetty.server;
   requires org.slf4j;
 
   uses NPTelemetryServiceFactoryType;
@@ -62,6 +63,8 @@ module com.io7m.northpike.server
 
   exports com.io7m.northpike.server;
 
+  exports com.io7m.northpike.server.internal.archives
+    to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.telemetry
     to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.agents

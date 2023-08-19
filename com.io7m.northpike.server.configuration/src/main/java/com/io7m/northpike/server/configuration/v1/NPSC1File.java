@@ -21,6 +21,7 @@ import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
+import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
 import com.io7m.northpike.server.configuration.NPSCDatabase;
@@ -45,6 +46,7 @@ public final class NPSC1File
   private NPTelemetryConfiguration telemetry;
   private NPSCDatabase database;
   private NPServerDirectoryConfiguration directories;
+  private NPServerArchiveConfiguration archive;
 
   /**
    * A parser for {@link NPSCFile}
@@ -65,6 +67,7 @@ public final class NPSC1File
   {
     return Map.ofEntries(
       entry(element("AgentService"), NPSC1AgentService::new),
+      entry(element("ArchiveService"), NPSC1ArchiveService::new),
       entry(element("Database"), NPSC1Database::new),
       entry(element("Directories"), NPSC1Directories::new),
       entry(element("IdStore"), NPSC1Idstore::new),
@@ -79,6 +82,10 @@ public final class NPSC1File
   {
     if (result instanceof final NPServerAgentConfiguration e) {
       this.agent = e;
+      return;
+    }
+    if (result instanceof final NPServerArchiveConfiguration e) {
+      this.archive = e;
       return;
     }
     if (result instanceof final NPServerIdstoreConfiguration e) {
@@ -108,6 +115,7 @@ public final class NPSC1File
       this.directories,
       this.idstore,
       this.agent,
+      this.archive,
       Optional.ofNullable(this.telemetry)
     );
   }

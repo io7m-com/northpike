@@ -33,6 +33,7 @@ public final class NPSC1Directories
   implements BTElementHandlerType<Object, NPServerDirectoryConfiguration>
 {
   private Path reposDirectory;
+  private Path archiveDirectory;
 
   /**
    * A parser for {@link NPServerDirectoryConfiguration}
@@ -53,6 +54,8 @@ public final class NPSC1Directories
   {
     this.reposDirectory =
       Paths.get(attributes.getValue("RepositoryDirectory"));
+    this.archiveDirectory =
+      Paths.get(attributes.getValue("ArchiveDirectory"));
   }
 
   @Override
@@ -60,7 +63,8 @@ public final class NPSC1Directories
     final BTElementParsingContextType context)
   {
     return new NPServerDirectoryConfiguration(
-      this.reposDirectory
+      this.reposDirectory,
+      this.archiveDirectory
     );
   }
 }

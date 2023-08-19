@@ -16,32 +16,35 @@
 
 package com.io7m.northpike.server.api;
 
-import java.nio.file.Path;
+import com.io7m.northpike.tls.NPTLSConfigurationType;
+
+import java.net.InetAddress;
 import java.util.Objects;
 
 /**
- * Configuration information for directories used by the server.
+ * Configuration information for the archive service.
  *
- * @param repositoryDirectory The directory used to store cloned repositories
- * @param archiveDirectory The directory used to store archives for builds
+ * @param localAddress The local address used for the archive service
+ * @param localPort    The local port used for the archive service
+ * @param tls          The TLS configuration
  */
 
-public record NPServerDirectoryConfiguration(
-  Path repositoryDirectory, Path archiveDirectory)
+public record NPServerArchiveConfiguration(
+  InetAddress localAddress,
+  int localPort,
+  NPTLSConfigurationType tls)
 {
   /**
-   * Configuration information for {@code idstore}.
+   * Configuration information for the archive service.
    *
-   * @param repositoryDirectory The directory used to store cloned repositories
-   * @param archiveDirectory The directory used to store archives for builds
+   * @param localAddress The local address used for the archive service
+   * @param localPort    The local port used for the archive service
+   * @param tls          The TLS configuration
    */
 
-  public NPServerDirectoryConfiguration
+  public NPServerArchiveConfiguration
   {
-    Objects.requireNonNull(repositoryDirectory, "repositoryDirectory");
-    Objects.requireNonNull(archiveDirectory, "archiveDirectory");
-
-    repositoryDirectory = repositoryDirectory.toAbsolutePath().normalize();
-    archiveDirectory = archiveDirectory.toAbsolutePath().normalize();
+    Objects.requireNonNull(localAddress, "localAddress");
+    Objects.requireNonNull(tls, "tls");
   }
 }

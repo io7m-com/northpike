@@ -22,6 +22,7 @@ import com.io7m.northpike.database.api.NPDatabaseCreate;
 import com.io7m.northpike.database.api.NPDatabaseFactoryType;
 import com.io7m.northpike.database.api.NPDatabaseUpgrade;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
+import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
@@ -73,8 +74,8 @@ public final class NPServerConfigurations
         strings
       ),
       new NPServerDirectoryConfiguration(
-        Paths.get("")
-      ),
+        Paths.get("repositories"),
+        Paths.get("archives")),
       new NPServerIdstoreConfiguration(
         URI.create("http://localhost:30000"),
         URI.create("http://localhost:30000")
@@ -84,6 +85,11 @@ public final class NPServerConfigurations
         20048,
         TLS_DISABLED,
         1000000
+      ),
+      new NPServerArchiveConfiguration(
+        InetAddress.getLocalHost(),
+        40001,
+        TLS_DISABLED
       ),
       Optional.empty()
     );

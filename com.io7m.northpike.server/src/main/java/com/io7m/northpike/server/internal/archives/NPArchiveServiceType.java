@@ -14,41 +14,26 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.database.api;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+package com.io7m.northpike.server.internal.archives;
 
-import static java.time.ZoneOffset.UTC;
+import com.io7m.jmulticlose.core.CloseableType;
+import com.io7m.repetoir.core.RPServiceType;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
- * The base type of query interfaces.
+ * The service to which agents obtain archives.
  */
 
-public sealed interface NPDatabaseQueriesType
-  permits NPDatabaseQueriesAgentsType,
-  NPDatabaseQueriesArchivesType,
-  NPDatabaseQueriesMaintenanceType,
-  NPDatabaseQueriesPlansType,
-  NPDatabaseQueriesRepositoriesType,
-  NPDatabaseQueriesSCMProvidersType,
-  NPDatabaseQueriesToolsType,
-  NPDatabaseQueriesUsersType
+public interface NPArchiveServiceType
+  extends CloseableType, RPServiceType
 {
   /**
-   * The earliest possible time considered by the server
+   * Start the service running.
+   *
+   * @return A future representing the service startup
    */
 
-  OffsetDateTime EARLIEST =
-    LocalDateTime.ofEpochSecond(0L, 0, UTC)
-      .atOffset(UTC);
-
-  /**
-   * @return The earliest possible time considered by the server
-   */
-
-  static OffsetDateTime earliest()
-  {
-    return EARLIEST;
-  }
+  CompletableFuture<Void> start();
 }

@@ -30,6 +30,8 @@ import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.api.NPServerType;
 import com.io7m.northpike.server.internal.agents.NPAgentService;
 import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
+import com.io7m.northpike.server.internal.archives.NPArchiveService;
+import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
 import com.io7m.northpike.server.internal.clock.NPClock;
 import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationService;
@@ -140,10 +142,13 @@ public final class NPServer implements NPServerType
         services.requireService(NPAgentServiceType.class);
       final var repository =
         services.requireService(NPRepositoryServiceType.class);
+      final var archive =
+        services.requireService(NPArchiveServiceType.class);
 
       final var all =
         CompletableFuture.allOf(
           repository.start(),
+          archive.start(),
           agents.start()
         );
 
@@ -206,6 +211,9 @@ public final class NPServer implements NPServerType
     final var config =
       NPConfigurationService.create(this.configuration);
     services.register(NPConfigurationServiceType.class, config);
+
+    final var archive = NPArchiveService.create(services);
+    services.register(NPArchiveServiceType.class, archive);
 
     final var repository = NPRepositoryService.create(services);
     services.register(NPRepositoryServiceType.class, repository);

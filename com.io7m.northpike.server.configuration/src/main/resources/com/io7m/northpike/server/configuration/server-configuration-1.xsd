@@ -366,6 +366,45 @@
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
+
+      <xsd:attribute name="ArchiveDirectory"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The directory that will be used to store archives of commits
+            used during builds.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="ArchiveService">
+    <xsd:complexType>
+      <xsd:sequence minOccurs="1" maxOccurs="1">
+        <xsd:group ref="t:TLSGroup"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="ListenAddress"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The address upon which the Archive service will listen.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="ListenPort"
+                     type="xsd:integer"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The port upon which the Archive service will listen.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
     </xsd:complexType>
   </xsd:element>
 
@@ -417,6 +456,7 @@
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="c:AgentService"/>
+        <xsd:element ref="c:ArchiveService"/>
         <xsd:element ref="c:Database"/>
         <xsd:element ref="c:Directories"/>
         <xsd:element ref="c:IdStore"/>

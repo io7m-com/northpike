@@ -14,41 +14,51 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.database.api;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+package com.io7m.northpike.model;
 
-import static java.time.ZoneOffset.UTC;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
- * The base type of query interfaces.
+ * A unique token.
+ *
+ * @param value The token value
  */
 
-public sealed interface NPDatabaseQueriesType
-  permits NPDatabaseQueriesAgentsType,
-  NPDatabaseQueriesArchivesType,
-  NPDatabaseQueriesMaintenanceType,
-  NPDatabaseQueriesPlansType,
-  NPDatabaseQueriesRepositoriesType,
-  NPDatabaseQueriesSCMProvidersType,
-  NPDatabaseQueriesToolsType,
-  NPDatabaseQueriesUsersType
+public record NPToken(String value)
+  implements Comparable<NPToken>
 {
-  /**
-   * The earliest possible time considered by the server
-   */
-
-  OffsetDateTime EARLIEST =
-    LocalDateTime.ofEpochSecond(0L, 0, UTC)
-      .atOffset(UTC);
+  private static final Pattern VALID_VALUE =
+    Pattern.compile("[A-F0-9]{64}");
 
   /**
-   * @return The earliest possible time considered by the server
+   * A unique token.
+   *
+   * @param value The token value
    */
 
-  static OffsetDateTime earliest()
+  public NPToken
   {
-    return EARLIEST;
+    Objects.requireNonNull(value, "value");
+
+    if (!VALID_VALUE.matcher(value).matches()) {
+      throw new NPValidityException(
+        "Token must match the pattern %s".formatted(VALID_VALUE)
+      );
+    }
+  }
+
+  @Override
+  public String toString()
+  {
+    return this.value;
+  }
+
+  @Override
+  public int compareTo(
+    final NPToken other)
+  {
+    return this.value.compareTo(other.value);
   }
 }

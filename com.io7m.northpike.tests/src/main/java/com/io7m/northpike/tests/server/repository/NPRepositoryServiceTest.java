@@ -34,6 +34,7 @@ import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryFactoryType;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
+import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
@@ -116,7 +117,8 @@ public final class NPRepositoryServiceTest
   @BeforeEach
   public void setup(
     final CloseableResourcesType closeables,
-    final @TempDir Path reposDirectory)
+    final @TempDir Path reposDirectory,
+    final @TempDir Path archiveDirectory)
     throws Exception
   {
     DATABASE_FIXTURE.reset();
@@ -173,7 +175,8 @@ public final class NPRepositoryServiceTest
           new NPPGDatabases(),
           DATABASE_FIXTURE.configuration(),
           new NPServerDirectoryConfiguration(
-            reposDirectory
+            reposDirectory,
+            archiveDirectory
           ),
           new NPServerIdstoreConfiguration(
             URI.create("http://example.com:30000/"),
@@ -184,6 +187,11 @@ public final class NPRepositoryServiceTest
             40000,
             TLS_DISABLED,
             1_000_000
+          ),
+          new NPServerArchiveConfiguration(
+            InetAddress.getLocalHost(),
+            40001,
+            TLS_DISABLED
           ),
           Optional.empty()
         )

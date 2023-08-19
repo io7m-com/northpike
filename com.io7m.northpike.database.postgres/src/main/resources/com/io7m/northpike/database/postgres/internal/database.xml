@@ -413,5 +413,33 @@ CREATE TABLE assignments (
     FOREIGN KEY (a_plan) REFERENCES plans (p_id)
 )
 ]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE archives (
+  ar_id            BIGINT                    NOT NULL GENERATED ALWAYS AS IDENTITY,
+  ar_token         TEXT                      NOT NULL,
+  ar_commit        BIGINT                    NOT NULL,
+  ar_hash_algo     TEXT                      NOT NULL,
+  ar_hash_value    TEXT                      NOT NULL,
+  ar_created       TIMESTAMP WITH TIME ZONE  NOT NULL,
+
+  -- [jooq ignore start]
+  CONSTRAINT archives_token_unique
+    UNIQUE (ar_token),
+  -- [jooq ignore stop]
+
+  CONSTRAINT archives_primary_key
+    PRIMARY KEY (ar_id),
+
+  CONSTRAINT archives_token_valid
+    CHECK (ar_token ~ '^[A-F0-9]{64}$'),
+
+  CONSTRAINT archives_hash_value_valid
+    CHECK (ar_hash_value ~ '^[A-F0-9]{64,128}$'),
+
+  CONSTRAINT archives_commit_exists
+    FOREIGN KEY (ar_commit) REFERENCES repository_commits (rc_id)
+)
+]]></Statement>
   </Schema>
 </Schemas>

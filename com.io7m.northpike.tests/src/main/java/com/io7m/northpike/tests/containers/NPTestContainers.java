@@ -43,6 +43,7 @@ import com.io7m.northpike.database.api.NPDatabaseUpgrade;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
 import com.io7m.northpike.server.NPServers;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
+import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
@@ -479,8 +480,8 @@ public final class NPTestContainers
         DATABASES,
         databaseFixture.configuration,
         new NPServerDirectoryConfiguration(
-          baseDirectory.resolve("repositories")
-        ),
+          baseDirectory.resolve("repositories"),
+          baseDirectory.resolve("archives")),
         new NPServerIdstoreConfiguration(
           URI.create("http://localhost:" + idstoreFixture.userAPIPort),
           URI.create("http://localhost:" + idstoreFixture.userAPIPort)
@@ -490,6 +491,11 @@ public final class NPTestContainers
           apiPort,
           TLS_DISABLED,
           1_000_000
+        ),
+        new NPServerArchiveConfiguration(
+          InetAddress.getLocalHost(),
+          40001,
+          TLS_DISABLED
         ),
         Optional.empty()
       );

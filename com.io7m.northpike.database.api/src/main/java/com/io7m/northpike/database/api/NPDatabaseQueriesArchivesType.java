@@ -16,39 +16,38 @@
 
 package com.io7m.northpike.database.api;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
-import static java.time.ZoneOffset.UTC;
+import com.io7m.northpike.model.NPArchive;
+import com.io7m.northpike.model.NPToken;
+
+import java.util.Optional;
 
 /**
- * The base type of query interfaces.
+ * The database queries involving archives.
  */
 
-public sealed interface NPDatabaseQueriesType
-  permits NPDatabaseQueriesAgentsType,
-  NPDatabaseQueriesArchivesType,
-  NPDatabaseQueriesMaintenanceType,
-  NPDatabaseQueriesPlansType,
-  NPDatabaseQueriesRepositoriesType,
-  NPDatabaseQueriesSCMProvidersType,
-  NPDatabaseQueriesToolsType,
-  NPDatabaseQueriesUsersType
+public sealed interface NPDatabaseQueriesArchivesType
+  extends NPDatabaseQueriesType
 {
   /**
-   * The earliest possible time considered by the server
+   * Update the given archive.
    */
 
-  OffsetDateTime EARLIEST =
-    LocalDateTime.ofEpochSecond(0L, 0, UTC)
-      .atOffset(UTC);
+  non-sealed interface PutType
+    extends NPDatabaseQueryType<NPArchive, NPDatabaseUnit>,
+    NPDatabaseQueriesArchivesType
+  {
+
+  }
 
   /**
-   * @return The earliest possible time considered by the server
+   * Retrieve an archive.
    */
 
-  static OffsetDateTime earliest()
+  non-sealed interface GetType
+    extends NPDatabaseQueryType<NPToken, Optional<NPArchive>>,
+    NPDatabaseQueriesArchivesType
   {
-    return EARLIEST;
+
   }
 }

@@ -14,41 +14,11 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.database.api;
-
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-
-import static java.time.ZoneOffset.UTC;
-
 /**
- * The base type of query interfaces.
+ * Continuous integration (Server)
  */
 
-public sealed interface NPDatabaseQueriesType
-  permits NPDatabaseQueriesAgentsType,
-  NPDatabaseQueriesArchivesType,
-  NPDatabaseQueriesMaintenanceType,
-  NPDatabaseQueriesPlansType,
-  NPDatabaseQueriesRepositoriesType,
-  NPDatabaseQueriesSCMProvidersType,
-  NPDatabaseQueriesToolsType,
-  NPDatabaseQueriesUsersType
-{
-  /**
-   * The earliest possible time considered by the server
-   */
+@Version("1.0.0")
+package com.io7m.northpike.server.internal.archives;
 
-  OffsetDateTime EARLIEST =
-    LocalDateTime.ofEpochSecond(0L, 0, UTC)
-      .atOffset(UTC);
-
-  /**
-   * @return The earliest possible time considered by the server
-   */
-
-  static OffsetDateTime earliest()
-  {
-    return EARLIEST;
-  }
-}
+import org.osgi.annotation.versioning.Version;
