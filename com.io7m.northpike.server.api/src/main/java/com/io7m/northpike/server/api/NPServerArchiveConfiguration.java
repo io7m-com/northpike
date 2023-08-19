@@ -19,6 +19,7 @@ package com.io7m.northpike.server.api;
 import com.io7m.northpike.tls.NPTLSConfigurationType;
 
 import java.net.InetAddress;
+import java.net.URI;
 import java.util.Objects;
 
 /**
@@ -27,12 +28,14 @@ import java.util.Objects;
  * @param localAddress The local address used for the archive service
  * @param localPort    The local port used for the archive service
  * @param tls          The TLS configuration
+ * @param advertiseURI The base URI advertised to agents
  */
 
 public record NPServerArchiveConfiguration(
   InetAddress localAddress,
   int localPort,
-  NPTLSConfigurationType tls)
+  NPTLSConfigurationType tls,
+  URI advertiseURI)
 {
   /**
    * Configuration information for the archive service.
@@ -40,11 +43,13 @@ public record NPServerArchiveConfiguration(
    * @param localAddress The local address used for the archive service
    * @param localPort    The local port used for the archive service
    * @param tls          The TLS configuration
+   * @param advertiseURI The base URI advertised to agents
    */
 
   public NPServerArchiveConfiguration
   {
     Objects.requireNonNull(localAddress, "localAddress");
     Objects.requireNonNull(tls, "tls");
+    Objects.requireNonNull(advertiseURI, "advertiseURI");
   }
 }

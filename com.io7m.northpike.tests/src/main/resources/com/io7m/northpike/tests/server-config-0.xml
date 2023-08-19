@@ -19,7 +19,8 @@
   </c:AgentService>
 
   <c:ArchiveService ListenAddress="example.com"
-                    ListenPort="20049">
+                    ListenPort="20049"
+                    AdvertiseURI="https://archives.example.com/">
     <t:TLSDisabled/>
   </c:ArchiveService>
 

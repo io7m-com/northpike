@@ -27,6 +27,7 @@ import com.io7m.northpike.tls.NPTLSConfigurationType;
 import org.xml.sax.Attributes;
 
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Objects;
@@ -41,6 +42,7 @@ public final class NPSC1ArchiveService
   private InetAddress localAddress;
   private int localPort;
   private NPTLSConfigurationType tls;
+  private URI advertiseURI;
 
   /**
    * A parser for {@link NPServerArchiveConfiguration}
@@ -82,6 +84,8 @@ public final class NPSC1ArchiveService
     this.localPort =
       Integer.parseUnsignedInt(
         attributes.getValue("ListenPort"));
+    this.advertiseURI =
+      URI.create(attributes.getValue("AdvertiseURI"));
   }
 
   @Override
@@ -91,7 +95,8 @@ public final class NPSC1ArchiveService
     return new NPServerArchiveConfiguration(
       this.localAddress,
       this.localPort,
-      this.tls
+      this.tls,
+      this.advertiseURI
     );
   }
 }

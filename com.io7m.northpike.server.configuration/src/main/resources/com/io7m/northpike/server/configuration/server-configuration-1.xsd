@@ -405,6 +405,17 @@
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
+
+      <xsd:attribute name="AdvertiseURI"
+                     type="xsd:anyURI"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The base URI advertised to agents in order to serve them
+            archives.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
     </xsd:complexType>
   </xsd:element>
 

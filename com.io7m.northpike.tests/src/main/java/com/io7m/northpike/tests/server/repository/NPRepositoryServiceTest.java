@@ -191,7 +191,8 @@ public final class NPRepositoryServiceTest
           new NPServerArchiveConfiguration(
             InetAddress.getLocalHost(),
             40001,
-            TLS_DISABLED
+            TLS_DISABLED,
+            URI.create("https://archives.example.com/")
           ),
           Optional.empty()
         )
