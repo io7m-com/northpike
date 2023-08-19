@@ -37,6 +37,8 @@ import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceTy
 import com.io7m.northpike.server.internal.events.NPEventService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryService;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
 import com.io7m.northpike.server.internal.telemetry.NPTelemetryNoOp;
 import com.io7m.northpike.strings.NPStrings;
@@ -54,6 +56,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
@@ -134,8 +138,16 @@ public final class NPServer implements NPServerType
 
       final var agents =
         services.requireService(NPAgentServiceType.class);
+      final var repository =
+        services.requireService(NPRepositoryServiceType.class);
 
-      agents.start();
+      final var all =
+        CompletableFuture.allOf(
+          repository.start(),
+          agents.start()
+        );
+
+      all.get(60L, TimeUnit.SECONDS);
     } catch (final NPDatabaseException e) {
       recordSpanException(e);
 
@@ -194,6 +206,9 @@ public final class NPServer implements NPServerType
     final var config =
       NPConfigurationService.create(this.configuration);
     services.register(NPConfigurationServiceType.class, config);
+
+    final var repository = NPRepositoryService.create(services);
+    services.register(NPRepositoryServiceType.class, repository);
 
     final var agents = NPAgentService.create(services);
     services.register(NPAgentServiceType.class, agents);

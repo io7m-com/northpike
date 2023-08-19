@@ -27,4 +27,5 @@ TYPE_FIELD_TYPE_NONEXISTENT|type-field-type-nonexistent|A field in the type decl
 TYPE_REFERENCED|type-referenced|The type is referenced by one or more existing items.
 TYPE_SCALAR_REFERENCED|type-scalar-referenced|The scalar type is referenced by one or more existing types/fields.
 UNSAFE_ARCHIVE_ENTRY|unsafe-archive-entry|An unsafe archive entry was encountered.
+UNSUPPORTED|unsupported|An operation was unsupported.
 USER_NONEXISTENT|user-nonexistent|An attempt was made to reference a user that does not exist.

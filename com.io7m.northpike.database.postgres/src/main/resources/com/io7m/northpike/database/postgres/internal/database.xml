@@ -116,12 +116,13 @@ CREATE TYPE repository_credentials_type_t AS ENUM(
 
     <Statement><![CDATA[
 CREATE TABLE repositories (
-  r_id                     UUID                           NOT NULL,
-  r_provider               BIGINT                         NOT NULL,
-  r_url                    VARCHAR(8192)                  NOT NULL,
-  r_credentials_type       repository_credentials_type_t  NOT NULL,
-  r_credentials_username   VARCHAR(8192),
-  r_credentials_password   VARCHAR(8192),
+  r_id                       UUID                           NOT NULL,
+  r_provider                 BIGINT                         NOT NULL,
+  r_url                      VARCHAR(8192)                  NOT NULL,
+  r_credentials_type         repository_credentials_type_t  NOT NULL,
+  r_credentials_username     VARCHAR(8192),
+  r_credentials_password     VARCHAR(8192),
+  r_last_successful_update   TIMESTAMP WITH TIME ZONE,
 
   -- [jooq ignore start]
   CONSTRAINT repositories_credentials_type_values_present CHECK (

@@ -23,11 +23,13 @@ import com.io7m.northpike.database.api.NPDatabaseFactoryType;
 import com.io7m.northpike.database.api.NPDatabaseUpgrade;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.server.api.NPServerConfiguration;
+import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
 import com.io7m.northpike.strings.NPStrings;
 
 import java.net.InetAddress;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.Locale;
 import java.util.Optional;
@@ -67,6 +69,9 @@ public final class NPServerConfigurations
         "english",
         Clock.systemUTC(),
         strings
+      ),
+      new NPServerDirectoryConfiguration(
+        Paths.get("")
       ),
       new NPServerIdstoreConfiguration(
         URI.create("http://localhost:30000"),

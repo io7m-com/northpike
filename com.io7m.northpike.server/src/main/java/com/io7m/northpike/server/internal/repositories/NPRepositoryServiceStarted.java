@@ -14,26 +14,41 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.northpike.server.internal.repositories;
 
-package com.io7m.northpike.server.internal.agents;
+import com.io7m.northpike.telemetry.api.NPEventSeverity;
+import com.io7m.northpike.telemetry.api.NPEventType;
 
-import com.io7m.jmulticlose.core.CloseableType;
-import com.io7m.repetoir.core.RPServiceType;
-
-import java.util.concurrent.CompletableFuture;
+import java.util.Map;
 
 /**
- * The service to which agents connect.
+ * The repository service started.
  */
 
-public interface NPAgentServiceType
-  extends CloseableType, RPServiceType
+public record NPRepositoryServiceStarted()
+  implements NPEventType
 {
-  /**
-   * Start the service running.
-   *
-   * @return A future representing the service startup
-   */
+  @Override
+  public NPEventSeverity severity()
+  {
+    return NPEventSeverity.INFO;
+  }
 
-  CompletableFuture<Void> start();
+  @Override
+  public String name()
+  {
+    return "RepositoryServiceStarted";
+  }
+
+  @Override
+  public String message()
+  {
+    return "Started";
+  }
+
+  @Override
+  public Map<String, String> asAttributes()
+  {
+    return Map.of();
+  }
 }

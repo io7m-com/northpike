@@ -20,12 +20,13 @@ package com.io7m.northpike.database.api;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitListParameters;
+import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPRepositoryDescription;
 
-import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * The database queries involving repositories.
@@ -50,7 +51,18 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    */
 
   non-sealed interface GetType
-    extends NPDatabaseQueryType<URI, Optional<NPRepositoryDescription>>,
+    extends NPDatabaseQueryType<UUID, Optional<NPRepositoryDescription>>,
+    NPDatabaseQueriesRepositoriesType
+  {
+
+  }
+
+  /**
+   * List repositories.
+   */
+
+  non-sealed interface ListType
+    extends NPDatabaseQueryType<NPDatabaseUnit, NPRepositoriesPagedType>,
     NPDatabaseQueriesRepositoriesType
   {
 
@@ -93,6 +105,17 @@ public sealed interface NPDatabaseQueriesRepositoriesType
 
   non-sealed interface CommitsGetType
     extends NPDatabaseQueryType<NPCommitListParameters, NPCommitSummaryLinkedPagedType>,
+    NPDatabaseQueriesRepositoriesType
+  {
+
+  }
+
+  /**
+   * Get the most recently received commit in the repository.
+   */
+
+  non-sealed interface CommitsGetMostRecentlyReceivedType
+    extends NPDatabaseQueryType<UUID, Optional<NPCommitSummary>>,
     NPDatabaseQueriesRepositoriesType
   {
 

@@ -44,10 +44,13 @@ import org.eclipse.jgit.api.ArchiveCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.archive.TgzFormat;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.TagOpt;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
@@ -623,5 +626,80 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     throws NPSCMRepositoryException
   {
     this.resources.close();
+  }
+
+  @Override
+  public NPSCMCommitSet commitsSinceTime(
+    final Optional<OffsetDateTime> since)
+    throws NPSCMRepositoryException
+  {
+    Objects.requireNonNull(since, "since");
+
+    final var span =
+      this.telemetry.tracer()
+        .spanBuilder("CommitsReceivedSinceTime")
+        .startSpan();
+
+    try (var ignored = span.makeCurrent()) {
+      this.ensureRepository();
+      return this.executeCalculateSinceTime(since);
+    } finally {
+      span.end();
+    }
+  }
+
+  private NPSCMCommitSet executeCalculateSinceTime(
+    final Optional<OffsetDateTime> since)
+    throws NPSCMRepositoryException
+  {
+    final var span =
+      this.telemetry.tracer()
+        .spanBuilder("Analyze")
+        .startSpan();
+
+    try (var ignored = span.makeCurrent()) {
+      final var task = new NPSCMJTask(this.events, ANALYZE);
+      try {
+        task.beginTask(null, 0);
+
+        final var repositoryInstance =
+          this.git.getRepository();
+
+        final var commitsById =
+          new HashMap<String, NPCommit>();
+        final var commitLinks =
+          new ArrayList<Map.Entry<String, String>>();
+
+        try (var walk = new RevWalk(repositoryInstance)) {
+          walk.markStart(walk.parseCommit(repositoryInstance.resolve(Constants.HEAD)));
+          walk.sort(RevSort.REVERSE);
+
+          since.ifPresent(time -> {
+            walk.setRevFilter(CommitTimeRevFilter.after(
+              time.toInstant().toEpochMilli() - 1000L
+            ));
+          });
+
+          this.processCommits(commitsById, commitLinks, walk);
+        }
+        task.update(1);
+
+        final var createdLinks =
+          processCommitLinks(commitsById, commitLinks);
+
+        task.onCompleted();
+        return new NPSCMCommitSet(
+          Set.copyOf(commitsById.values()),
+          NPCommitGraph.create(createdLinks)
+        );
+      } catch (final Exception e) {
+        recordSpanException(e);
+        final var ex = this.handleException(e);
+        task.onFailed(ex);
+        throw ex;
+      }
+    } finally {
+      span.end();
+    }
   }
 }

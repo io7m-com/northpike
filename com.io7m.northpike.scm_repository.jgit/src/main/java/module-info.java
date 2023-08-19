@@ -14,6 +14,9 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
+import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryFactoryType;
+
 /**
  * Continuous integration (Repository JGit)
  */
@@ -34,6 +37,9 @@ module com.io7m.northpike.scm_repository.jgit
   requires io.opentelemetry.context;
   requires org.eclipse.jgit.archive;
   requires org.eclipse.jgit;
+
+  provides NPSCMRepositoryFactoryType
+    with NPSCMRepositoriesJGit;
 
   exports com.io7m.northpike.repository.jgit;
 }

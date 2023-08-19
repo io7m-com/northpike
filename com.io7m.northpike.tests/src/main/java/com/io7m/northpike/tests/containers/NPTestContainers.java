@@ -44,6 +44,7 @@ import com.io7m.northpike.database.postgres.NPPGDatabases;
 import com.io7m.northpike.server.NPServers;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.server.api.NPServerConfiguration;
+import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.api.NPServerFactoryType;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
@@ -465,6 +466,7 @@ public final class NPTestContainers
   public static NPServerFixture createServer(
     final NPIdstoreFixture idstoreFixture,
     final NPDatabaseFixture databaseFixture,
+    final Path baseDirectory,
     final int apiPort)
     throws IOException, NPServerException
   {
@@ -475,6 +477,9 @@ public final class NPTestContainers
         NPStrings.create(Locale.ROOT),
         DATABASES,
         databaseFixture.configuration,
+        new NPServerDirectoryConfiguration(
+          baseDirectory.resolve("repositories")
+        ),
         new NPServerIdstoreConfiguration(
           URI.create("http://localhost:" + idstoreFixture.userAPIPort),
           URI.create("http://localhost:" + idstoreFixture.userAPIPort)

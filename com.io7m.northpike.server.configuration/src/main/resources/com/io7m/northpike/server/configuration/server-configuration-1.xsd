@@ -346,6 +346,26 @@
     </xsd:complexType>
   </xsd:element>
 
+  <xsd:element name="Directories">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for the directories.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="RepositoryDirectory"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The directory that will be used to store repository data.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
   <xsd:element name="AgentService">
     <xsd:complexType>
       <xsd:attribute name="ListenAddress"
@@ -401,6 +421,7 @@
       <xsd:sequence>
         <xsd:element ref="c:AgentService"/>
         <xsd:element ref="c:Database"/>
+        <xsd:element ref="c:Directories"/>
         <xsd:element ref="c:IdStore"/>
         <xsd:element ref="c:OpenTelemetry"
                      minOccurs="0"

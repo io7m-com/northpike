@@ -29,6 +29,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.Commits
 import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
+import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
@@ -38,6 +39,7 @@ import com.io7m.northpike.model.NPCommitListParameters;
 import com.io7m.northpike.model.NPCommitSummaryLinked;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPTimeRange;
@@ -135,7 +137,7 @@ public final class NPDatabaseRepositoriesTest
 
     putSCM.execute(scm);
     put.execute(description);
-    assertEquals(description, get.execute(description.url()).orElseThrow());
+    assertEquals(description, get.execute(description.id()).orElseThrow());
   }
 
   /**
@@ -183,7 +185,7 @@ public final class NPDatabaseRepositoriesTest
 
     assertEquals(
       Optional.empty(),
-      get.execute(URI.create("https://www.example.com/scm"))
+      get.execute(UUID.randomUUID())
     );
   }
 
@@ -597,6 +599,79 @@ public final class NPDatabaseRepositoriesTest
       });
 
     assertEquals(errorNonexistent(), ex.errorCode());
+  }
+
+  /**
+   * Listing repositories works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryList0()
+    throws Exception
+  {
+    final var putSCM =
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+    final var list =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.ListType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+
+    final var scm =
+      new NPSCMProviderDescription(
+        new RDottedName("x.y"),
+        "A provider.",
+        URI.create("https://www.example.com/scm")
+      );
+
+    putSCM.execute(scm);
+
+    final var usernamePassword =
+      new NPRepositoryCredentialsUsernamePassword(
+        "example", "12345678"
+      );
+
+    for (int index = 0; index < 1000; ++index) {
+      final var description =
+        new NPRepositoryDescription(
+          scm.name(),
+          UUID.randomUUID(),
+          URI.create("https://www.example.com/%04d".formatted(index)),
+          index % 2 == 0 ? CREDENTIALS_NONE : usernamePassword
+        );
+
+      put.execute(description);
+    }
+
+    this.transaction.commit();
+
+    final var paged =
+      list.execute(NPDatabaseUnit.UNIT);
+
+    var uriIndex = 0;
+    for (int pageIndex = 0; pageIndex < 10; ++pageIndex) {
+      final var page =
+        paged.pageCurrent(this.transaction);
+
+      for (int index = 0; index < 100; ++index) {
+        final var uri =
+          URI.create("https://www.example.com/%04d".formatted(uriIndex));
+        final var item =
+          page.items().get(index);
+
+        if (uriIndex % 2 == 0) {
+          assertEquals(CREDENTIALS_NONE, item.credentials());
+        } else {
+          assertEquals(usernamePassword, item.credentials());
+        }
+
+        assertEquals(uri, item.url());
+        ++uriIndex;
+      }
+
+      paged.pageNext(this.transaction);
+    }
   }
 
   private void dumpAllPages(

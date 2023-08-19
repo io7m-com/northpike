@@ -77,7 +77,7 @@ public final class NPACmdRun implements QCommandType
   {
     this.metadata = new QCommandMetadata(
       "run",
-      new QStringType.QConstant("Start the agent."),
+      new QStringType.QConstant("Start the server."),
       Optional.empty()
     );
   }
@@ -140,6 +140,7 @@ public final class NPACmdRun implements QCommandType
         strings,
         new NPPGDatabases(),
         databaseConfiguration,
+        configuration.directoryConfiguration(),
         configuration.idstoreConfiguration(),
         configuration.agentConfiguration(),
         configuration.openTelemetry()

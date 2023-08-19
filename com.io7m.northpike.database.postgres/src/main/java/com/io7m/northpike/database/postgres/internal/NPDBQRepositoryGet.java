@@ -26,6 +26,7 @@ import org.jooq.DSLContext;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORIES;
 import static com.io7m.northpike.database.postgres.internal.Tables.SCM_PROVIDERS;
@@ -35,10 +36,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.SCM_PROVIDERS
  */
 
 public final class NPDBQRepositoryGet
-  extends NPDBQAbstract<URI, Optional<NPRepositoryDescription>>
+  extends NPDBQAbstract<UUID, Optional<NPRepositoryDescription>>
   implements GetType
 {
-  private static final Service<URI, Optional<NPRepositoryDescription>, GetType> SERVICE =
+  private static final Service<UUID, Optional<NPRepositoryDescription>, GetType> SERVICE =
     new Service<>(GetType.class, NPDBQRepositoryGet::new);
 
   /**
@@ -65,7 +66,7 @@ public final class NPDBQRepositoryGet
   @Override
   protected Optional<NPRepositoryDescription> onExecute(
     final DSLContext context,
-    final URI name)
+    final UUID name)
   {
     final var query =
       context.select(
@@ -78,7 +79,7 @@ public final class NPDBQRepositoryGet
         ).from(REPOSITORIES)
         .join(SCM_PROVIDERS)
         .on(SCM_PROVIDERS.SP_ID.eq(REPOSITORIES.R_PROVIDER))
-        .where(REPOSITORIES.R_URL.eq(name.toString()));
+        .where(REPOSITORIES.R_ID.eq(name));
 
     recordQuery(query);
     return query.fetchOptional().map(NPDBQRepositoryGet::mapRepository);

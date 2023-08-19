@@ -21,6 +21,7 @@ import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
+import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
 import com.io7m.northpike.server.configuration.NPSCDatabase;
 import com.io7m.northpike.server.configuration.NPSCFile;
@@ -43,6 +44,7 @@ public final class NPSC1File
   private NPServerIdstoreConfiguration idstore;
   private NPTelemetryConfiguration telemetry;
   private NPSCDatabase database;
+  private NPServerDirectoryConfiguration directories;
 
   /**
    * A parser for {@link NPSCFile}
@@ -64,6 +66,7 @@ public final class NPSC1File
     return Map.ofEntries(
       entry(element("AgentService"), NPSC1AgentService::new),
       entry(element("Database"), NPSC1Database::new),
+      entry(element("Directories"), NPSC1Directories::new),
       entry(element("IdStore"), NPSC1Idstore::new),
       entry(element("OpenTelemetry"), NPSC1OpenTelemetry::new)
     );
@@ -73,7 +76,6 @@ public final class NPSC1File
   public void onChildValueProduced(
     final BTElementParsingContextType context,
     final Object result)
-    throws Exception
   {
     if (result instanceof final NPServerAgentConfiguration e) {
       this.agent = e;
@@ -85,6 +87,10 @@ public final class NPSC1File
     }
     if (result instanceof final NPTelemetryConfiguration e) {
       this.telemetry = e;
+      return;
+    }
+    if (result instanceof final NPServerDirectoryConfiguration e) {
+      this.directories = e;
       return;
     }
     if (result instanceof final NPSCDatabase e) {
@@ -99,6 +105,7 @@ public final class NPSC1File
   {
     return new NPSCFile(
       this.database,
+      this.directories,
       this.idstore,
       this.agent,
       Optional.ofNullable(this.telemetry)

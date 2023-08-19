@@ -18,6 +18,8 @@
             Upgrade="true"
             Language="english"/>
 
+  <Directories RepositoryDirectory="/tmp/repositories"/>
+
   <IdStore BaseURI="https://idstore.example.com"
            PasswordResetURI="https://idstore.example.com"/>
 

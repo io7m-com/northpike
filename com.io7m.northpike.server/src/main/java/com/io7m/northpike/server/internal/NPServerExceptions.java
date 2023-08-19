@@ -17,15 +17,22 @@
 
 package com.io7m.northpike.server.internal;
 
+import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.server.api.NPServerException;
+import com.io7m.northpike.strings.NPStringConstants;
 import com.io7m.northpike.strings.NPStrings;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_IO;
+import static com.io7m.northpike.strings.NPStringConstants.ERROR_REPOSITORY_UNSUPPORTED_PROVIDER;
+import static com.io7m.northpike.strings.NPStringConstants.REPOSITORY;
 
 /**
  * Functions to create server exceptions.
@@ -57,6 +64,68 @@ public final class NPServerExceptions
       NPStandardErrorCodes.errorIo(),
       Map.of(),
       Optional.empty()
+    );
+  }
+
+  /**
+   * An unsupported SCM repository configuration was encountered.
+   *
+   * @param strings  The string resources
+   * @param uri      The URI
+   * @param id       The repository ID
+   * @param provider The repository provider
+   *
+   * @return An exception
+   */
+
+  public static NPServerException errorUnsupportedSCMProvider(
+    final NPStrings strings,
+    final UUID id,
+    final URI uri,
+    final RDottedName provider)
+  {
+    return new NPServerException(
+      strings.format(ERROR_REPOSITORY_UNSUPPORTED_PROVIDER),
+      NPStandardErrorCodes.errorUnsupported(),
+      Map.ofEntries(
+        Map.entry(
+          strings.format(REPOSITORY),
+          id.toString()
+        ),
+        Map.entry(
+          strings.format(NPStringConstants.URI),
+          uri.toString()
+        ),
+        Map.entry(
+          strings.format(NPStringConstants.SCM_PROVIDER),
+          provider.toString()
+        )
+      ),
+      Optional.empty()
+    );
+  }
+
+  /**
+   * Wrap the given exception as a server exception.
+   *
+   * @param e The exception
+   *
+   * @return A server exception
+   */
+
+  public static NPServerException wrap(
+    final NPException e)
+  {
+    if (e instanceof final NPServerException es) {
+      return es;
+    }
+
+    return new NPServerException(
+      e.getMessage(),
+      e,
+      e.errorCode(),
+      e.attributes(),
+      e.remediatingAction()
     );
   }
 }

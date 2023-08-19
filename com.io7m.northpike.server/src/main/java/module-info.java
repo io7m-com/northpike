@@ -36,6 +36,7 @@ module com.io7m.northpike.server
   requires com.io7m.northpike.server.api;
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
+  requires com.io7m.northpike.scm_repository.spi;
 
   requires com.io7m.anethum.api;
   requires com.io7m.anethum.slf4j;
@@ -63,6 +64,8 @@ module com.io7m.northpike.server
   exports com.io7m.northpike.server.internal.telemetry
     to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.agents
+    to com.io7m.northpike.tests;
+  exports com.io7m.northpike.server.internal.repositories
     to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.configuration
     to com.io7m.northpike.tests;

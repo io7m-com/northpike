@@ -15,25 +15,16 @@
  */
 
 
-package com.io7m.northpike.server.internal.agents;
+package com.io7m.northpike.database.api;
 
-import com.io7m.jmulticlose.core.CloseableType;
-import com.io7m.repetoir.core.RPServiceType;
-
-import java.util.concurrent.CompletableFuture;
+import com.io7m.northpike.model.NPRepositoryDescription;
 
 /**
- * The service to which agents connect.
+ * A paged query that returns repository descriptions.
  */
 
-public interface NPAgentServiceType
-  extends CloseableType, RPServiceType
+public interface NPRepositoriesPagedType
+  extends NPDatabasePagedQueryType<NPRepositoryDescription>
 {
-  /**
-   * Start the service running.
-   *
-   * @return A future representing the service startup
-   */
 
-  CompletableFuture<Void> start();
 }

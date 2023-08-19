@@ -22,6 +22,8 @@ import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPRepositoryDescription;
 
 import java.nio.file.Path;
+import java.time.OffsetDateTime;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Flow;
 
@@ -77,5 +79,20 @@ public interface NPSCMRepositoryType extends AutoCloseable
 
   @Override
   void close()
+    throws NPSCMRepositoryException;
+
+  /**
+   * Determine the set of commits that have been received since the given
+   * received time. If no time is passed in, all commits will be returned.
+   *
+   * @param since The last received time
+   *
+   * @return The set of new commits
+   *
+   * @throws NPSCMRepositoryException On errors
+   */
+
+  NPSCMCommitSet commitsSinceTime(
+    Optional<OffsetDateTime> since)
     throws NPSCMRepositoryException;
 }

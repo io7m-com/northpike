@@ -18,6 +18,7 @@
 package com.io7m.northpike.server.configuration;
 
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
+import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
 import com.io7m.northpike.telemetry.api.NPTelemetryConfiguration;
 
@@ -27,14 +28,16 @@ import java.util.Optional;
 /**
  * A configuration file.
  *
- * @param databaseConfiguration The database configuration
- * @param idstoreConfiguration  The idstore configuration
- * @param agentConfiguration    The agent configuration
- * @param openTelemetry         The telemetry configuration
+ * @param databaseConfiguration  The database configuration
+ * @param directoryConfiguration The directory configuration
+ * @param idstoreConfiguration   The idstore configuration
+ * @param agentConfiguration     The agent configuration
+ * @param openTelemetry          The telemetry configuration
  */
 
 public record NPSCFile(
   NPSCDatabase databaseConfiguration,
+  NPServerDirectoryConfiguration directoryConfiguration,
   NPServerIdstoreConfiguration idstoreConfiguration,
   NPServerAgentConfiguration agentConfiguration,
   Optional<NPTelemetryConfiguration> openTelemetry)
@@ -42,17 +45,19 @@ public record NPSCFile(
   /**
    * A configuration file.
    *
-   * @param databaseConfiguration The database configuration
-   * @param idstoreConfiguration  The idstore configuration
-   * @param agentConfiguration    The agent configuration
-   * @param openTelemetry         The telemetry configuration
+   * @param databaseConfiguration  The database configuration
+   * @param directoryConfiguration The directory configuration
+   * @param idstoreConfiguration   The idstore configuration
+   * @param agentConfiguration     The agent configuration
+   * @param openTelemetry          The telemetry configuration
    */
 
   public NPSCFile
   {
-    Objects.requireNonNull(databaseConfiguration, "databaseConfiguration");
-    Objects.requireNonNull(idstoreConfiguration, "idstoreConfiguration");
     Objects.requireNonNull(agentConfiguration, "agentConfiguration");
+    Objects.requireNonNull(databaseConfiguration, "databaseConfiguration");
+    Objects.requireNonNull(directoryConfiguration, "directoryConfiguration");
+    Objects.requireNonNull(idstoreConfiguration, "idstoreConfiguration");
     Objects.requireNonNull(openTelemetry, "openTelemetry");
   }
 }

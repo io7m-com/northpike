@@ -15,45 +15,55 @@
  */
 
 
-package com.io7m.northpike.model;
+package com.io7m.northpike.server.internal.repositories;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.telemetry.api.NPEventSeverity;
+import com.io7m.northpike.telemetry.api.NPEventType;
 
 import java.net.URI;
-import java.util.Objects;
+import java.util.Map;
 import java.util.UUID;
 
 /**
- * A repository.
+ * A repository was configured.
  *
- * @param provider             The SCM provider
- * @param id                   The repository ID
- * @param url                  The repository URL
- * @param credentials          The credentials
+ * @param id       The ID
+ * @param url      The URL
+ * @param provider The provider
  */
 
-public record NPRepositoryDescription(
-  RDottedName provider,
+public record NPRepositoryConfigured(
   UUID id,
   URI url,
-  NPRepositoryCredentialsType credentials)
+  RDottedName provider)
+  implements NPEventType
 {
-  /**
-   * A repository.
-   *
-   * @param provider             The SCM provider
-   * @param id                   The repository ID
-   * @param url                  The repository URL
-   * @param credentials          The credentials
-   */
-
-  public NPRepositoryDescription
+  @Override
+  public NPEventSeverity severity()
   {
-    Objects.requireNonNull(provider, "provider");
-    Objects.requireNonNull(id, "id");
-    Objects.requireNonNull(url, "url");
-    Objects.requireNonNull(credentials, "credentials");
+    return NPEventSeverity.INFO;
+  }
 
-    url = url.normalize();
+  @Override
+  public String name()
+  {
+    return "RepositoryConfigured";
+  }
+
+  @Override
+  public String message()
+  {
+    return "Configured";
+  }
+
+  @Override
+  public Map<String, String> asAttributes()
+  {
+    return Map.ofEntries(
+      Map.entry("RepositoryID", this.id.toString()),
+      Map.entry("RepositoryProvider", this.provider.value()),
+      Map.entry("RepositoryURL", this.url.toString())
+    );
   }
 }

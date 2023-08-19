@@ -34,6 +34,7 @@ import java.util.Optional;
  * @param databaseConfiguration The database configuration for the server
  * @param databases             The factory of databases that will be used for
  *                              the server
+ * @param directories           The server directories
  * @param locale                The locale
  * @param idstoreConfiguration  The idstore configuration
  * @param agentConfiguration    The agent service configuration
@@ -46,6 +47,7 @@ public record NPServerConfiguration(
   NPStrings strings,
   NPDatabaseFactoryType databases,
   NPDatabaseConfiguration databaseConfiguration,
+  NPServerDirectoryConfiguration directories,
   NPServerIdstoreConfiguration idstoreConfiguration,
   NPServerAgentConfiguration agentConfiguration,
   Optional<NPTelemetryConfiguration> openTelemetry)
@@ -58,6 +60,7 @@ public record NPServerConfiguration(
    * @param databaseConfiguration The database configuration for the server
    * @param databases             The factory of databases that will be used for
    *                              the server
+   * @param directories           The server directories
    * @param locale                The locale
    * @param idstoreConfiguration  The idstore configuration
    * @param agentConfiguration    The agent service configuration
@@ -66,13 +69,14 @@ public record NPServerConfiguration(
 
   public NPServerConfiguration
   {
+    Objects.requireNonNull(agentConfiguration, "agentConfiguration");
     Objects.requireNonNull(clock, "clock");
-    Objects.requireNonNull(strings, "strings");
     Objects.requireNonNull(databaseConfiguration, "databaseConfiguration");
     Objects.requireNonNull(databases, "databases");
+    Objects.requireNonNull(directories, "directories");
     Objects.requireNonNull(idstoreConfiguration, "idstoreConfiguration");
-    Objects.requireNonNull(agentConfiguration, "agentConfiguration");
     Objects.requireNonNull(locale, "locale");
     Objects.requireNonNull(openTelemetry, "openTelemetry");
+    Objects.requireNonNull(strings, "strings");
   }
 }

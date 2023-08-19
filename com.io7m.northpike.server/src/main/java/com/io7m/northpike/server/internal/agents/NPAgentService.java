@@ -126,10 +126,6 @@ public final class NPAgentService implements NPAgentServiceType
 
     final var resources =
       NPServerResources.createResources();
-    final var tracker =
-      NPServerResources.createTracker();
-
-    resources.add(tracker);
 
     final var mainExecutor =
       Executors.newSingleThreadExecutor(runnable -> {
@@ -340,5 +336,11 @@ public final class NPAgentService implements NPAgentServiceType
   {
     return "[NPAgentService 0x%s]"
       .formatted(Integer.toUnsignedString(this.hashCode(), 16));
+  }
+
+  @Override
+  public boolean isClosed()
+  {
+    return this.closed.get();
   }
 }

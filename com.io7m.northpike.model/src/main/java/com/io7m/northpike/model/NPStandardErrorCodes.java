@@ -402,6 +402,19 @@ public final class NPStandardErrorCodes
     return ERROR_UNSAFE_ARCHIVE_ENTRY;
   }
 
+  private static final NPErrorCode ERROR_UNSUPPORTED =
+    new NPErrorCode("error-unsupported");
+
+  /**
+   * An operation was unsupported.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorUnsupported()
+  {
+    return ERROR_UNSUPPORTED;
+  }
+
   private static final NPErrorCode ERROR_USER_NONEXISTENT =
     new NPErrorCode("error-user-nonexistent");
 

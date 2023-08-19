@@ -14,26 +14,11 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
-package com.io7m.northpike.server.internal.agents;
-
-import com.io7m.jmulticlose.core.CloseableType;
-import com.io7m.repetoir.core.RPServiceType;
-
-import java.util.concurrent.CompletableFuture;
-
 /**
- * The service to which agents connect.
+ * Continuous integration (Server)
  */
 
-public interface NPAgentServiceType
-  extends CloseableType, RPServiceType
-{
-  /**
-   * Start the service running.
-   *
-   * @return A future representing the service startup
-   */
+@Version("1.0.0")
+package com.io7m.northpike.server.internal.repositories;
 
-  CompletableFuture<Void> start();
-}
+import org.osgi.annotation.versioning.Version;

@@ -27,6 +27,7 @@
   <entry key="error_protocol">Protocol error.</entry>
   <entry key="error_protocol_unsupported">Unsupported protocol.</entry>
   <entry key="error_read_short">Read fewer octets than were required.</entry>
+  <entry key="error_repository_unsupported_provider">Unsupported repository provider.</entry>
   <entry key="error_repository_wrong_provider">Incorrect repository provider.</entry>
   <entry key="error_resource_closing">One or more resources could not be closed.</entry>
   <entry key="error_server_failed_protocol_confirmation">Server refused protocol version confirmation.</entry>

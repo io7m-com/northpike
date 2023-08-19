@@ -14,26 +14,30 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.northpike.server.api;
 
-package com.io7m.northpike.server.internal.agents;
-
-import com.io7m.jmulticlose.core.CloseableType;
-import com.io7m.repetoir.core.RPServiceType;
-
-import java.util.concurrent.CompletableFuture;
+import java.nio.file.Path;
+import java.util.Objects;
 
 /**
- * The service to which agents connect.
+ * Configuration information for directories used by the server.
+ *
+ * @param repositoryDirectory The directory used to store cloned repositories
  */
 
-public interface NPAgentServiceType
-  extends CloseableType, RPServiceType
+public record NPServerDirectoryConfiguration(
+  Path repositoryDirectory)
 {
   /**
-   * Start the service running.
+   * Configuration information for {@code idstore}.
    *
-   * @return A future representing the service startup
+   * @param repositoryDirectory The directory used to store cloned repositories
    */
 
-  CompletableFuture<Void> start();
+  public NPServerDirectoryConfiguration
+  {
+    Objects.requireNonNull(repositoryDirectory, "repositoryDirectory");
+
+    repositoryDirectory = repositoryDirectory.toAbsolutePath().normalize();
+  }
 }

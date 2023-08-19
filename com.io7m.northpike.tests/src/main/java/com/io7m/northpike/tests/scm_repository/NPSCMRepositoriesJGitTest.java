@@ -29,7 +29,6 @@ import com.io7m.northpike.server.internal.telemetry.NPTelemetryNoOp;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.repetoir.core.RPServiceDirectory;
-import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.examples.Expander;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.junit.jupiter.api.BeforeEach;
@@ -324,10 +323,10 @@ public final class NPSCMRepositoriesJGitTest
     }
   }
 
-  private static URI unpack(
+  public static URI unpack(
     final String name,
     final Path reposDirectory)
-    throws IOException, ArchiveException
+    throws Exception
   {
     final var output =
       reposDirectory.resolve("repos.tar");

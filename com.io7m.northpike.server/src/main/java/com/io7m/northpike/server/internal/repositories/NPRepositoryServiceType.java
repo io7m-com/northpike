@@ -15,7 +15,7 @@
  */
 
 
-package com.io7m.northpike.server.internal.agents;
+package com.io7m.northpike.server.internal.repositories;
 
 import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.repetoir.core.RPServiceType;
@@ -23,10 +23,10 @@ import com.io7m.repetoir.core.RPServiceType;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * The service to which agents connect.
+ * The repository service.
  */
 
-public interface NPAgentServiceType
+public interface NPRepositoryServiceType
   extends CloseableType, RPServiceType
 {
   /**
@@ -36,4 +36,13 @@ public interface NPAgentServiceType
    */
 
   CompletableFuture<Void> start();
+
+  /**
+   * Check all repositories.
+   *
+   * @return A future representing the operation in progress
+   */
+
+  CompletableFuture<Void> check();
+
 }
