@@ -17,9 +17,11 @@
 
 package com.io7m.northpike.scm_repository.spi;
 
+import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPToken;
 
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
@@ -65,14 +67,18 @@ public interface NPSCMRepositoryType extends AutoCloseable
    * Produce an archive of the given commit as a compressed tarball.
    *
    * @param commit        The commit
+   * @param token         The token
    * @param outputFile    The output file
    * @param outputFileTmp The temporary output file
+   *
+   * @return The archive
    *
    * @throws NPSCMRepositoryException On errors
    */
 
-  void commitArchive(
+  NPArchive commitArchive(
     NPCommitID commit,
+    NPToken token,
     Path outputFile,
     Path outputFileTmp)
     throws NPSCMRepositoryException;

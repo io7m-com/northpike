@@ -22,6 +22,7 @@ import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPStandardErrorCodes;
+import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.scm_repository.spi.NPSCMEventType;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryException;
@@ -404,6 +405,7 @@ public final class NPSCMRepositoriesJGitTest
           repositoryDescription.id(),
           "b155d186fce6d0525b8348cc48dd778fda6c6a85"
         ),
+        new NPToken("0000000000000000000000000000000000000000000000000000000000000000"),
         file,
         fileTmp
       );

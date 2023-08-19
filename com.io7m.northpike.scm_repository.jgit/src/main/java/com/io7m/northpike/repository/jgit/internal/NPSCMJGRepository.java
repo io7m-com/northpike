@@ -19,6 +19,7 @@ package com.io7m.northpike.repository.jgit.internal;
 
 import com.io7m.jmulticlose.core.CloseableCollection;
 import com.io7m.jmulticlose.core.CloseableCollectionType;
+import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
@@ -26,10 +27,12 @@ import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitLink;
 import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPErrorCode;
+import com.io7m.northpike.model.NPHash;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPStandardErrorCodes;
+import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.scm_repository.spi.NPSCMCommitSet;
 import com.io7m.northpike.scm_repository.spi.NPSCMEventType;
@@ -56,13 +59,18 @@ import org.eclipse.jgit.transport.TagOpt;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.HexFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -252,13 +260,15 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
   }
 
   @Override
-  public void commitArchive(
+  public NPArchive commitArchive(
     final NPCommitID commit,
+    final NPToken token,
     final Path outputFile,
     final Path outputFileTmp)
     throws NPSCMRepositoryException
   {
     Objects.requireNonNull(commit, "commit");
+    Objects.requireNonNull(token, "token");
     Objects.requireNonNull(outputFile, "outputFile");
     Objects.requireNonNull(outputFileTmp, "outputFileTmp");
 
@@ -287,8 +297,16 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
           }
         }
 
+        final var hash = sha256Of(outputFileTmp);
+
         Files.move(outputFileTmp, outputFile, REPLACE_EXISTING, ATOMIC_MOVE);
         task.onCompleted();
+        return new NPArchive(
+          token,
+          commit,
+          new NPHash("SHA-256", hash),
+          OffsetDateTime.now()
+        );
       } catch (final Exception e) {
         recordSpanException(e);
         final var ex = this.handleException(e);
@@ -298,6 +316,22 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     } finally {
       span.end();
     }
+  }
+
+  private static String sha256Of(
+    final Path file)
+    throws NoSuchAlgorithmException, IOException
+  {
+    final var digest =
+      MessageDigest.getInstance("SHA-256");
+
+    final var nullOut = OutputStream.nullOutputStream();
+    try (var outputStream = new DigestOutputStream(nullOut, digest)) {
+      try (var inputStream = Files.newInputStream(file)) {
+        inputStream.transferTo(outputStream);
+      }
+    }
+    return HexFormat.of().withUpperCase().formatHex(digest.digest());
   }
 
   private NPSCMCommitSet executeCalculateSince(
