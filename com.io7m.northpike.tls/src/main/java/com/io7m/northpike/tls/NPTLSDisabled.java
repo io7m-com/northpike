@@ -15,24 +15,17 @@
  */
 
 
-package com.io7m.northpike.server.internal;
-
-import com.io7m.repetoir.core.RPServiceType;
-
-import java.io.IOException;
-import java.net.ServerSocket;
+package com.io7m.northpike.tls;
 
 /**
- * An easily-mocked service used to supply server sockets.
+ * TLS is disabled.
  */
 
-public interface NPServerSocketServiceType
-  extends RPServiceType
+public enum NPTLSDisabled implements NPTLSConfigurationType
 {
   /**
-   * @return An unbound socket
+   * TLS is disabled.
    */
 
-  ServerSocket createSocket()
-    throws IOException;
+  TLS_DISABLED
 }

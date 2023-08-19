@@ -67,6 +67,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.io7m.ervilla.api.EPortProtocol.TCP;
+import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.util.Optional.empty;
@@ -487,7 +488,7 @@ public final class NPTestContainers
         new NPServerAgentConfiguration(
           InetAddress.getLocalHost(),
           apiPort,
-          false,
+          TLS_DISABLED,
           1_000_000
         ),
         Optional.empty()

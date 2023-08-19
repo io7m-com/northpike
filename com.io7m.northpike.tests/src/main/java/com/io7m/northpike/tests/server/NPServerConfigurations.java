@@ -34,6 +34,8 @@ import java.time.Clock;
 import java.util.Locale;
 import java.util.Optional;
 
+import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
+
 /**
  * Fake server configurations for tests.
  */
@@ -80,7 +82,7 @@ public final class NPServerConfigurations
       new NPServerAgentConfiguration(
         InetAddress.getLocalHost(),
         20048,
-        false,
+        TLS_DISABLED,
         1000000
       ),
       Optional.empty()

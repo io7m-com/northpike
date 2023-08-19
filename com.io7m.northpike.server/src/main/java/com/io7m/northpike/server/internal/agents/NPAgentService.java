@@ -21,7 +21,6 @@ import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerResources;
-import com.io7m.northpike.server.internal.NPServerSocketServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
@@ -56,7 +55,7 @@ public final class NPAgentService implements NPAgentServiceType
   private final NPServerConfiguration configuration;
   private final NPEventServiceType events;
   private final NPMetricsServiceType metrics;
-  private final NPServerSocketServiceType sockets;
+  private final NPAgentServerSocketServiceType sockets;
   private final ExecutorService agentExecutor;
   private final AtomicBoolean closed;
   private final ExecutorService mainExecutor;
@@ -71,7 +70,7 @@ public final class NPAgentService implements NPAgentServiceType
     final NPServerConfiguration inConfiguration,
     final NPEventServiceType inEvents,
     final NPMetricsServiceType inMetrics,
-    final NPServerSocketServiceType inSockets,
+    final NPAgentServerSocketServiceType inSockets,
     final ExecutorService inMainExecutor,
     final ExecutorService inAgentExecutor,
     final ScheduledExecutorService inAgentTicker)
@@ -120,7 +119,7 @@ public final class NPAgentService implements NPAgentServiceType
     final var events =
       services.requireService(NPEventServiceType.class);
     final var sockets =
-      services.requireService(NPServerSocketServiceType.class);
+      services.requireService(NPAgentServerSocketServiceType.class);
     final var metrics =
       services.requireService(NPMetricsServiceType.class);
 
@@ -299,9 +298,7 @@ public final class NPAgentService implements NPAgentServiceType
       this.configuration.agentConfiguration();
 
     final var newSocket =
-      c.useTLS()
-        ? this.sockets.createTLSSocket()
-        : this.sockets.createPlainSocket();
+      this.sockets.createSocket();
 
     try {
       newSocket.setReuseAddress(true);

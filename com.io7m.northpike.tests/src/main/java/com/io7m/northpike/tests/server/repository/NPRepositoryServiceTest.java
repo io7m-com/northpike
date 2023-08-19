@@ -79,6 +79,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.tests.scm_repository.NPSCMRepositoriesJGitTest.unpack;
+import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
@@ -181,7 +182,7 @@ public final class NPRepositoryServiceTest
           new NPServerAgentConfiguration(
             InetAddress.getLocalHost(),
             40000,
-            false,
+            TLS_DISABLED,
             1_000_000
           ),
           Optional.empty()

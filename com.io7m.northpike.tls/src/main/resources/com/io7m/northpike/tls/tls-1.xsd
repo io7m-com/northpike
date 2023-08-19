@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+  SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+  IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="urn:com.io7m.northpike.tls:1"
+            xmlns:nt="urn:com.io7m.northpike.tls:1">
+
+  <xsd:complexType name="StoreType"
+                   abstract="true">
+    <xsd:attribute name="Type"
+                   type="xsd:string"
+                   use="required"/>
+    <xsd:attribute name="Provider"
+                   type="xsd:string"
+                   use="required"/>
+    <xsd:attribute name="Password"
+                   type="xsd:string"
+                   use="required"/>
+    <xsd:attribute name="File"
+                   type="xsd:string"
+                   use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="KeyStoreType">
+    <xsd:complexContent>
+      <xsd:extension base="nt:StoreType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="TrustStoreType">
+    <xsd:complexContent>
+      <xsd:extension base="nt:StoreType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="KeyStore"
+               type="nt:KeyStoreType"/>
+
+  <xsd:element name="TrustStore"
+               type="nt:TrustStoreType"/>
+
+  <xsd:complexType name="TLSType"
+                   abstract="true"/>
+
+  <xsd:complexType name="TLSDisabledType">
+    <xsd:complexContent>
+      <xsd:extension base="nt:TLSType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="TLSDisabled"
+               type="nt:TLSDisabledType"/>
+
+  <xsd:complexType name="TLSEnabledType">
+    <xsd:complexContent>
+      <xsd:extension base="nt:TLSType">
+        <xsd:sequence>
+          <xsd:element ref="nt:KeyStore"/>
+          <xsd:element ref="nt:TrustStore"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="TLSEnabled"
+               type="nt:TLSEnabledType"/>
+
+  <xsd:group name="TLSGroup">
+    <xsd:choice>
+      <xsd:element ref="nt:TLSDisabled"/>
+      <xsd:element ref="nt:TLSEnabled"/>
+    </xsd:choice>
+  </xsd:group>
+
+</xsd:schema>

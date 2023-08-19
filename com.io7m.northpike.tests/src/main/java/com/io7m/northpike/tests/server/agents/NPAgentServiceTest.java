@@ -28,7 +28,7 @@ import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPKey;
-import com.io7m.northpike.server.internal.NPServerSocketServiceType;
+import com.io7m.northpike.server.internal.agents.NPAgentServerSocketServiceType;
 import com.io7m.northpike.server.internal.agents.NPAgentService;
 import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
 import com.io7m.northpike.server.internal.clock.NPClock;
@@ -88,7 +88,7 @@ public final class NPAgentServiceTest
   private NPDatabaseQueriesAgentsType.PutType agentPut;
   private HashSet<NPAgentStatus> agentEvents;
   private NPAgentDescription agent0;
-  private NPServerSocketServiceType sockets;
+  private NPAgentServerSocketServiceType sockets;
   private NPEventServiceType events;
   private NPMetricsServiceType metrics;
 
@@ -115,7 +115,7 @@ public final class NPAgentServiceTest
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
     this.sockets =
-      Mockito.mock(NPServerSocketServiceType.class);
+      Mockito.mock(NPAgentServerSocketServiceType.class);
     this.events =
       NPEventService.create(NPTelemetryNoOp.noop());
     this.metrics =
@@ -151,7 +151,7 @@ public final class NPAgentServiceTest
     this.services.register(
       NPDatabaseType.class, this.database);
     this.services.register(
-      NPServerSocketServiceType.class, this.sockets);
+      NPAgentServerSocketServiceType.class, this.sockets);
     this.services.register(
       NPEventServiceType.class, this.events);
     this.services.register(
@@ -211,7 +211,7 @@ public final class NPAgentServiceTest
   public void testAuthenticationFails()
     throws Exception
   {
-    Mockito.when(this.sockets.createPlainSocket())
+    Mockito.when(this.sockets.createSocket())
       .thenReturn(ServerSocketFactory.getDefault().createServerSocket());
 
     this.service.start().get(5L, TimeUnit.SECONDS);
@@ -240,7 +240,7 @@ public final class NPAgentServiceTest
   public void testAuthenticationSucceeds()
     throws Exception
   {
-    Mockito.when(this.sockets.createPlainSocket())
+    Mockito.when(this.sockets.createSocket())
       .thenReturn(ServerSocketFactory.getDefault().createServerSocket());
 
     this.service.start().get(5L, TimeUnit.SECONDS);
@@ -273,7 +273,7 @@ public final class NPAgentServiceTest
   {
     final var socket =
       Mockito.mock(ServerSocket.class);
-    Mockito.when(this.sockets.createPlainSocket())
+    Mockito.when(this.sockets.createSocket())
       .thenReturn(socket);
 
     Mockito.doThrow(new IOException())

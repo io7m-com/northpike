@@ -26,11 +26,12 @@ module com.io7m.northpike.server.configuration
   requires com.io7m.northpike.server.api;
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
+  requires com.io7m.northpike.tls;
 
   requires com.io7m.anethum.api;
   requires com.io7m.blackthorne.core;
-  requires com.io7m.jxe.core;
   requires com.io7m.blackthorne.jxe;
+  requires com.io7m.jxe.core;
 
   exports com.io7m.northpike.server.configuration;
 }

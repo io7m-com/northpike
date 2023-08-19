@@ -17,25 +17,31 @@
 
 package com.io7m.northpike.server.configuration.v1;
 
+import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
 import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
+import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
+import com.io7m.northpike.tls.NPTLS;
+import com.io7m.northpike.tls.NPTLSConfigurationType;
 import org.xml.sax.Attributes;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * A parser for {@link NPServerAgentConfiguration}
  */
 
 public final class NPSC1AgentService
-  implements BTElementHandlerType<Object, NPServerAgentConfiguration>
+  implements BTElementHandlerType<NPTLSConfigurationType, NPServerAgentConfiguration>
 {
   private InetAddress localAddress;
   private int localPort;
-  private boolean useTLS;
   private int messageSizeLimit;
+  private NPTLSConfigurationType tls;
 
   /**
    * A parser for {@link NPServerAgentConfiguration}
@@ -50,6 +56,22 @@ public final class NPSC1AgentService
   }
 
   @Override
+  public Map<BTQualifiedName, BTElementHandlerConstructorType<?, ? extends NPTLSConfigurationType>>
+  onChildHandlersRequested(
+    final BTElementParsingContextType context)
+  {
+    return NPTLS.configurationElements();
+  }
+
+  @Override
+  public void onChildValueProduced(
+    final BTElementParsingContextType context,
+    final NPTLSConfigurationType result)
+  {
+    this.tls = Objects.requireNonNull(result, "result");
+  }
+
+  @Override
   public void onElementStart(
     final BTElementParsingContextType context,
     final Attributes attributes)
@@ -61,9 +83,6 @@ public final class NPSC1AgentService
     this.localPort =
       Integer.parseUnsignedInt(
         attributes.getValue("ListenPort"));
-    this.useTLS =
-      Boolean.parseBoolean(
-        attributes.getValue("UseTLS"));
     this.messageSizeLimit =
       Integer.parseUnsignedInt(
         attributes.getValue("MaximumCommandSizeOctets"));
@@ -76,7 +95,7 @@ public final class NPSC1AgentService
     return new NPServerAgentConfiguration(
       this.localAddress,
       this.localPort,
-      this.useTLS,
+      this.tls,
       this.messageSizeLimit
     );
   }

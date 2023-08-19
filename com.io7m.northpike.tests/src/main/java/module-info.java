@@ -35,8 +35,8 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.database.postgres;
   requires com.io7m.northpike.model;
-  requires com.io7m.northpike.plans;
   requires com.io7m.northpike.plans.parsers;
+  requires com.io7m.northpike.plans;
   requires com.io7m.northpike.protocol.agent.cb;
   requires com.io7m.northpike.protocol.agent;
   requires com.io7m.northpike.protocol.api;
@@ -50,6 +50,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
   requires com.io7m.northpike.tests.arbitraries;
+  requires com.io7m.northpike.tls;
   requires com.io7m.northpike.toolexec;
   requires com.io7m.northpike.tools.api;
   requires com.io7m.northpike.tools.maven;

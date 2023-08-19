@@ -15,32 +15,30 @@
  */
 
 
-package com.io7m.northpike.server.configuration;
+package com.io7m.northpike.tls;
 
 import com.io7m.jxe.core.JXESchemaDefinition;
 import com.io7m.jxe.core.JXESchemaResolutionMappings;
-import com.io7m.northpike.tls.NPTLSSchemas;
 
 import java.net.URI;
 
 /**
- * Configuration XML schemas.
+ * XML schemas.
  */
 
-public final class NPSCSchemas
+public final class NPTLSSchemas
 {
   private static final JXESchemaDefinition SCHEMA_1 =
     JXESchemaDefinition.builder()
-      .setFileIdentifier("server-configuration-1.xsd")
-      .setLocation(NPSCSchemas.class.getResource(
-        "/com/io7m/northpike/server/configuration/server-configuration-1.xsd"))
-      .setNamespace(URI.create("urn:com.io7m.northpike.server.configuration:1"))
+      .setFileIdentifier("tls-1.xsd")
+      .setLocation(NPTLSSchemas.class.getResource(
+        "/com/io7m/northpike/tls/tls-1.xsd"))
+      .setNamespace(URI.create("urn:com.io7m.northpike.tls:1"))
       .build();
 
   private static final JXESchemaResolutionMappings SCHEMA_MAPPINGS =
     JXESchemaResolutionMappings.builder()
       .putMappings(SCHEMA_1.namespace(), SCHEMA_1)
-      .putMappings(NPTLSSchemas.schema1().namespace(), NPTLSSchemas.schema1())
       .build();
 
   /**
@@ -61,7 +59,7 @@ public final class NPSCSchemas
     return SCHEMA_MAPPINGS;
   }
 
-  private NPSCSchemas()
+  private NPTLSSchemas()
   {
 
   }

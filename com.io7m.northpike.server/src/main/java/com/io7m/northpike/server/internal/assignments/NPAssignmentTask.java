@@ -15,24 +15,30 @@
  */
 
 
-package com.io7m.northpike.server.internal;
+package com.io7m.northpike.server.internal.assignments;
 
-import com.io7m.repetoir.core.RPServiceType;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
 
-import java.io.IOException;
-import java.net.ServerSocket;
+import java.util.Objects;
 
 /**
- * An easily-mocked service used to supply server sockets.
+ * A task controlling the full execution of a single assignment.
  */
 
-public interface NPServerSocketServiceType
-  extends RPServiceType
+public final class NPAssignmentTask implements Runnable
 {
-  /**
-   * @return An unbound socket
-   */
+  private final NPRepositoryServiceType repositories;
 
-  ServerSocket createSocket()
-    throws IOException;
+  private NPAssignmentTask(
+    final NPRepositoryServiceType inRepositories)
+  {
+    this.repositories =
+      Objects.requireNonNull(inRepositories, "repositories");
+  }
+
+  @Override
+  public void run()
+  {
+
+  }
 }

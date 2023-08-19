@@ -16,6 +16,8 @@
 
 package com.io7m.northpike.server.api;
 
+import com.io7m.northpike.tls.NPTLSConfigurationType;
+
 import java.net.InetAddress;
 import java.util.Objects;
 
@@ -25,13 +27,13 @@ import java.util.Objects;
  * @param localAddress     The local address used for the agent service
  * @param localPort        The local port used for the agent service
  * @param messageSizeLimit The message size limit for agents
- * @param useTLS           {@code true} if TLS should be used
+ * @param tls              The TLS configuration
  */
 
 public record NPServerAgentConfiguration(
   InetAddress localAddress,
   int localPort,
-  boolean useTLS,
+  NPTLSConfigurationType tls,
   int messageSizeLimit)
 {
   /**
@@ -40,11 +42,12 @@ public record NPServerAgentConfiguration(
    * @param localAddress     The local address used for the agent service
    * @param localPort        The local port used for the agent service
    * @param messageSizeLimit The message size limit for agents
-   * @param useTLS           {@code true} if TLS should be used
+   * @param tls              The TLS configuration
    */
 
   public NPServerAgentConfiguration
   {
     Objects.requireNonNull(localAddress, "localAddress");
+    Objects.requireNonNull(tls, "tls");
   }
 }

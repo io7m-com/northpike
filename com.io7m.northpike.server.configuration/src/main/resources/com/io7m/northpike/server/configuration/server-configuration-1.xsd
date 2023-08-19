@@ -18,7 +18,10 @@
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns:c="urn:com.io7m.northpike.server.configuration:1"
+            xmlns:t="urn:com.io7m.northpike.tls:1"
             targetNamespace="urn:com.io7m.northpike.server.configuration:1">
+
+  <xsd:import namespace="urn:com.io7m.northpike.tls:1"/>
 
   <xsd:annotation>
     <xsd:documentation>
@@ -368,6 +371,10 @@
 
   <xsd:element name="AgentService">
     <xsd:complexType>
+      <xsd:sequence minOccurs="1" maxOccurs="1">
+        <xsd:group ref="t:TLSGroup"/>
+      </xsd:sequence>
+
       <xsd:attribute name="ListenAddress"
                      type="xsd:string"
                      use="required">
@@ -384,16 +391,6 @@
         <xsd:annotation>
           <xsd:documentation>
             The port upon which the Agent service will listen.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-
-      <xsd:attribute name="UseTLS"
-                     type="xsd:boolean"
-                     use="required">
-        <xsd:annotation>
-          <xsd:documentation>
-            Whether to use TLS for the Agent service.
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>

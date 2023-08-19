@@ -15,24 +15,32 @@
  */
 
 
-package com.io7m.northpike.server.internal;
+package com.io7m.northpike.tls;
 
-import com.io7m.repetoir.core.RPServiceType;
-
-import java.io.IOException;
-import java.net.ServerSocket;
+import java.util.Objects;
 
 /**
- * An easily-mocked service used to supply server sockets.
+ * TLS is enabled.
+ *
+ * @param keyStore   The key store
+ * @param trustStore The trust store
  */
 
-public interface NPServerSocketServiceType
-  extends RPServiceType
+public record NPTLSEnabled(
+  NPTLSStoreConfiguration keyStore,
+  NPTLSStoreConfiguration trustStore)
+  implements NPTLSConfigurationType
 {
   /**
-   * @return An unbound socket
+   * TLS is enabled.
+   *
+   * @param keyStore   The key store
+   * @param trustStore The trust store
    */
 
-  ServerSocket createSocket()
-    throws IOException;
+  public NPTLSEnabled
+  {
+    Objects.requireNonNull(keyStore, "keyStore");
+    Objects.requireNonNull(trustStore, "trustStore");
+  }
 }

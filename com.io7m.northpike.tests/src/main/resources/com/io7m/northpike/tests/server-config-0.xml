@@ -1,35 +1,46 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Configuration xmlns="urn:com.io7m.northpike.server.configuration:1">
+<c:Configuration xmlns:c="urn:com.io7m.northpike.server.configuration:1"
+                 xmlns:t="urn:com.io7m.northpike.tls:1">
 
-  <AgentService ListenAddress="example.com"
-                ListenPort="20048"
-                UseTLS="true"
-                MaximumCommandSizeOctets="1000000"/>
+  <c:AgentService ListenAddress="example.com"
+                  ListenPort="20048"
+                  MaximumCommandSizeOctets="1000000">
+    <t:TLSEnabled>
+      <t:KeyStore Type="CANONMILL"
+                  Provider="CANONMILL"
+                  Password=""
+                  File="keys.xml"/>
+      <t:TrustStore Type="CANONMILL"
+                    Provider="CANONMILL"
+                    Password=""
+                    File="trust.xml"/>
+    </t:TLSEnabled>
+  </c:AgentService>
 
-  <Database Kind="POSTGRESQL"
-            OwnerRoleName="northpike_install"
-            OwnerRolePassword="12345678"
-            WorkerRolePassword="abcdefgh"
-            Address="db.example.com"
-            Port="5432"
-            Name="northpike"
-            Create="true"
-            Upgrade="true"
-            Language="english"/>
+  <c:Database Kind="POSTGRESQL"
+              OwnerRoleName="northpike_install"
+              OwnerRolePassword="12345678"
+              WorkerRolePassword="abcdefgh"
+              Address="db.example.com"
+              Port="5432"
+              Name="northpike"
+              Create="true"
+              Upgrade="true"
+              Language="english"/>
 
-  <Directories RepositoryDirectory="/tmp/repositories"/>
+  <c:Directories RepositoryDirectory="/tmp/repositories"/>
 
-  <IdStore BaseURI="https://idstore.example.com"
-           PasswordResetURI="https://idstore.example.com"/>
+  <c:IdStore BaseURI="https://idstore.example.com"
+             PasswordResetURI="https://idstore.example.com"/>
 
-  <OpenTelemetry LogicalServiceName="northpike">
-    <Logs Endpoint="http://logs.telemetry.example.com:4317"
-          Protocol="GRPC"/>
-    <Metrics Endpoint="http://metrics.telemetry.example.com:4317"
-             Protocol="GRPC"/>
-    <Traces Endpoint="http://traces.telemetry.example.com:4317"
+  <c:OpenTelemetry LogicalServiceName="northpike">
+    <c:Logs Endpoint="http://logs.telemetry.example.com:4317"
             Protocol="GRPC"/>
-  </OpenTelemetry>
+    <c:Metrics Endpoint="http://metrics.telemetry.example.com:4317"
+               Protocol="GRPC"/>
+    <c:Traces Endpoint="http://traces.telemetry.example.com:4317"
+              Protocol="GRPC"/>
+  </c:OpenTelemetry>
 
-</Configuration>
+</c:Configuration>

@@ -15,24 +15,16 @@
  */
 
 
-package com.io7m.northpike.server.internal;
+package com.io7m.northpike.server.internal.agents;
 
-import com.io7m.repetoir.core.RPServiceType;
-
-import java.io.IOException;
-import java.net.ServerSocket;
+import com.io7m.northpike.server.internal.NPServerSocketServiceType;
 
 /**
  * An easily-mocked service used to supply server sockets.
  */
 
-public interface NPServerSocketServiceType
-  extends RPServiceType
+public interface NPAgentServerSocketServiceType
+  extends NPServerSocketServiceType
 {
-  /**
-   * @return An unbound socket
-   */
 
-  ServerSocket createSocket()
-    throws IOException;
 }

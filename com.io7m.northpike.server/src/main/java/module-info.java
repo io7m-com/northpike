@@ -33,10 +33,11 @@ module com.io7m.northpike.server
   requires com.io7m.northpike.protocol.agent;
   requires com.io7m.northpike.protocol.intro.cb;
   requires com.io7m.northpike.protocol.intro;
+  requires com.io7m.northpike.scm_repository.spi;
   requires com.io7m.northpike.server.api;
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
-  requires com.io7m.northpike.scm_repository.spi;
+  requires com.io7m.northpike.tls;
 
   requires com.io7m.anethum.api;
   requires com.io7m.anethum.slf4j;

@@ -14,25 +14,17 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
-package com.io7m.northpike.server.internal;
-
-import com.io7m.repetoir.core.RPServiceType;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-
 /**
- * An easily-mocked service used to supply server sockets.
+ * Continuous integration (TLS)
  */
 
-public interface NPServerSocketServiceType
-  extends RPServiceType
+module com.io7m.northpike.tls
 {
-  /**
-   * @return An unbound socket
-   */
+  requires static org.osgi.annotation.bundle;
+  requires static org.osgi.annotation.versioning;
 
-  ServerSocket createSocket()
-    throws IOException;
+  requires com.io7m.blackthorne.core;
+  requires com.io7m.jxe.core;
+
+  exports com.io7m.northpike.tls;
 }

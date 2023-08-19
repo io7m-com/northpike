@@ -15,24 +15,43 @@
  */
 
 
-package com.io7m.northpike.server.internal;
+package com.io7m.northpike.tls;
 
-import com.io7m.repetoir.core.RPServiceType;
+import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
+import com.io7m.blackthorne.core.BTQualifiedName;
+import com.io7m.northpike.tls.v1.NPTLS1;
 
-import java.io.IOException;
-import java.net.ServerSocket;
+import java.util.Map;
 
 /**
- * An easily-mocked service used to supply server sockets.
+ * Access to TLS configuration element parsers.
  */
 
-public interface NPServerSocketServiceType
-  extends RPServiceType
+public final class NPTLS
 {
+  private NPTLS()
+  {
+
+  }
+
   /**
-   * @return An unbound socket
+   * @return A parser for TLS configuration elements.
    */
 
-  ServerSocket createSocket()
-    throws IOException;
+  public static BTElementHandlerConstructorType<?, NPTLSConfigurationType> configuration()
+  {
+    return NPTLS1.configuration();
+  }
+
+  /**
+   * @return A parser for TLS configuration elements.
+   */
+
+  public static Map<
+    BTQualifiedName,
+    BTElementHandlerConstructorType<?, ? extends NPTLSConfigurationType>>
+  configurationElements()
+  {
+    return NPTLS1.configurationElements();
+  }
 }
