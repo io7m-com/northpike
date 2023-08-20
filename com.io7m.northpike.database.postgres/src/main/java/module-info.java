@@ -27,6 +27,7 @@ module com.io7m.northpike.database.postgres
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
+  requires com.io7m.northpike.assignments;
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.plans;
@@ -63,6 +64,8 @@ com.io7m.northpike.database.postgres.internal.NPDBQAgentList,
 com.io7m.northpike.database.postgres.internal.NPDBQAgentPut,
 com.io7m.northpike.database.postgres.internal.NPDBQArchiveGet,
 com.io7m.northpike.database.postgres.internal.NPDBQArchivePut,
+com.io7m.northpike.database.postgres.internal.NPDBQAssignmentGet,
+com.io7m.northpike.database.postgres.internal.NPDBQAssignmentPut,
 com.io7m.northpike.database.postgres.internal.NPDBQMaintenance,
 com.io7m.northpike.database.postgres.internal.NPDBQPlanGet,
 com.io7m.northpike.database.postgres.internal.NPDBQPlanGetRaw,

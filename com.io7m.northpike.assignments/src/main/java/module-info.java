@@ -14,36 +14,18 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
-package com.io7m.northpike.server.internal.assignments;
-
-import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
-import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
-
-import java.util.Objects;
-
 /**
- * A task controlling the full execution of a single assignment.
+ * Continuous integration (Assignments)
  */
 
-public final class NPAssignmentTask implements Runnable
+module com.io7m.northpike.assignments
 {
-  private final NPRepositoryServiceType repositories;
-  private final NPAgentServiceType agents;
+  requires static org.osgi.annotation.bundle;
+  requires static org.osgi.annotation.versioning;
 
-  private NPAssignmentTask(
-    final NPAgentServiceType inAgents,
-    final NPRepositoryServiceType inRepositories)
-  {
-    this.agents =
-      Objects.requireNonNull(inAgents, "inAgents");
-    this.repositories =
-      Objects.requireNonNull(inRepositories, "repositories");
-  }
+  requires com.io7m.northpike.plans;
 
-  @Override
-  public void run()
-  {
+  requires com.io7m.lanark.core;
 
-  }
+  exports com.io7m.northpike.assignments;
 }

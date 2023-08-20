@@ -14,35 +14,39 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.northpike.database.api;
 
-package com.io7m.northpike.server.internal.assignments;
 
-import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
-import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
+import com.io7m.northpike.assignments.NPAssignment;
+import com.io7m.northpike.assignments.NPAssignmentName;
 
-import java.util.Objects;
+import java.util.Optional;
 
 /**
- * A task controlling the full execution of a single assignment.
+ * The database queries involving assignments.
  */
 
-public final class NPAssignmentTask implements Runnable
+public sealed interface NPDatabaseQueriesAssignmentsType
+  extends NPDatabaseQueriesType
 {
-  private final NPRepositoryServiceType repositories;
-  private final NPAgentServiceType agents;
+  /**
+   * Update the given assignments.
+   */
 
-  private NPAssignmentTask(
-    final NPAgentServiceType inAgents,
-    final NPRepositoryServiceType inRepositories)
+  non-sealed interface PutType
+    extends NPDatabaseQueryType<NPAssignment, NPDatabaseUnit>,
+    NPDatabaseQueriesAssignmentsType
   {
-    this.agents =
-      Objects.requireNonNull(inAgents, "inAgents");
-    this.repositories =
-      Objects.requireNonNull(inRepositories, "repositories");
+
   }
 
-  @Override
-  public void run()
+  /**
+   * Retrieve an assignment.
+   */
+
+  non-sealed interface GetType
+    extends NPDatabaseQueryType<NPAssignmentName, Optional<NPAssignment>>,
+    NPDatabaseQueriesAssignmentsType
   {
 
   }

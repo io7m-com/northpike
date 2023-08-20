@@ -410,7 +410,10 @@ CREATE TABLE assignments (
     FOREIGN KEY (a_repository) REFERENCES repositories (r_id),
 
   CONSTRAINT assignments_plan_exists
-    FOREIGN KEY (a_plan) REFERENCES plans (p_id)
+    FOREIGN KEY (a_plan) REFERENCES plans (p_id),
+
+  CONSTRAINT assignments_name_valid
+    CHECK (a_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$')
 )
 ]]></Statement>
 

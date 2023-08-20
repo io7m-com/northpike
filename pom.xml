@@ -26,6 +26,7 @@
     <module>com.io7m.northpike.agent.expressions</module>
     <module>com.io7m.northpike.agent.main</module>
     <module>com.io7m.northpike.agent</module>
+    <module>com.io7m.northpike.assignments</module>
     <module>com.io7m.northpike.connections</module>
     <module>com.io7m.northpike.database.api</module>
     <module>com.io7m.northpike.database.postgres</module>

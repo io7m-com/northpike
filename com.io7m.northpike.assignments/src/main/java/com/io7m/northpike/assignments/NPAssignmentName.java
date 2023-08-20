@@ -14,36 +14,57 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.northpike.assignments;
 
-package com.io7m.northpike.server.internal.assignments;
-
-import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
-import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
+import com.io7m.lanark.core.RDottedName;
 
 import java.util.Objects;
 
 /**
- * A task controlling the full execution of a single assignment.
+ * The type of assignment names.
+ *
+ * @param value The value
  */
 
-public final class NPAssignmentTask implements Runnable
+public record NPAssignmentName(
+  RDottedName value)
+  implements Comparable<NPAssignmentName>
 {
-  private final NPRepositoryServiceType repositories;
-  private final NPAgentServiceType agents;
+  /**
+   * The type of assignment names.
+   *
+   * @param value The value
+   */
 
-  private NPAssignmentTask(
-    final NPAgentServiceType inAgents,
-    final NPRepositoryServiceType inRepositories)
+  public NPAssignmentName
   {
-    this.agents =
-      Objects.requireNonNull(inAgents, "inAgents");
-    this.repositories =
-      Objects.requireNonNull(inRepositories, "repositories");
+    Objects.requireNonNull(value, "value");
   }
 
   @Override
-  public void run()
+  public String toString()
   {
+    return this.value.value();
+  }
 
+  @Override
+  public int compareTo(
+    final NPAssignmentName other)
+  {
+    return this.value.compareTo(other.value);
+  }
+
+  /**
+   * Parse an assignment name.
+   *
+   * @param name The raw name
+   *
+   * @return An assignment name
+   */
+
+  public static NPAssignmentName of(
+    final String name)
+  {
+    return new NPAssignmentName(new RDottedName(name));
   }
 }

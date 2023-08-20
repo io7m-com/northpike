@@ -15,35 +15,38 @@
  */
 
 
-package com.io7m.northpike.server.internal.assignments;
+package com.io7m.northpike.assignments;
 
-import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
-import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
+import com.io7m.northpike.plans.NPPlanIdentifier;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
- * A task controlling the full execution of a single assignment.
+ * An assignment.
+ *
+ * @param name         The assignment name
+ * @param repositoryId The repository ID
+ * @param plan         The plan identifier
  */
 
-public final class NPAssignmentTask implements Runnable
+public record NPAssignment(
+  NPAssignmentName name,
+  UUID repositoryId,
+  NPPlanIdentifier plan)
 {
-  private final NPRepositoryServiceType repositories;
-  private final NPAgentServiceType agents;
+  /**
+   * An assignment.
+   *
+   * @param name         The assignment name
+   * @param repositoryId The repository ID
+   * @param plan         The plan identifier
+   */
 
-  private NPAssignmentTask(
-    final NPAgentServiceType inAgents,
-    final NPRepositoryServiceType inRepositories)
+  public NPAssignment
   {
-    this.agents =
-      Objects.requireNonNull(inAgents, "inAgents");
-    this.repositories =
-      Objects.requireNonNull(inRepositories, "repositories");
-  }
-
-  @Override
-  public void run()
-  {
-
+    Objects.requireNonNull(name, "name");
+    Objects.requireNonNull(repositoryId, "repositoryId");
+    Objects.requireNonNull(plan, "plan");
   }
 }
