@@ -17,6 +17,9 @@
 
 package com.io7m.northpike.model;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.HexFormat;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -47,6 +50,54 @@ public record NPToken(String value)
         "Token must match the pattern %s".formatted(VALID_VALUE)
       );
     }
+  }
+
+  /**
+   * Generate a random token.
+   *
+   * @return The token
+   *
+   * @throws NoSuchAlgorithmException If no secure RNG is available
+   */
+
+  public static NPToken generate()
+    throws NoSuchAlgorithmException
+  {
+    return generate(SecureRandom.getInstanceStrong());
+  }
+
+  /**
+   * Generate a random token.
+   *
+   * @param random The RNG
+   *
+   * @return The token
+   */
+
+  public static NPToken generate(
+    final SecureRandom random)
+  {
+    final var bytes = new byte[32];
+    random.nextBytes(bytes);
+    return of(bytes);
+  }
+
+  /**
+   * Construct a token from the given bytes.
+   *
+   * @param bytes An array of 32 bytes
+   *
+   * @return The token
+   */
+
+  public static NPToken of(
+    final byte[] bytes)
+  {
+    return new NPToken(
+      HexFormat.of()
+        .withUpperCase()
+        .formatHex(bytes)
+    );
   }
 
   @Override

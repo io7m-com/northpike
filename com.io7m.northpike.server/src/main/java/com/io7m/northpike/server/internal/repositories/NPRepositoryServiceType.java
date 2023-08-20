@@ -18,6 +18,8 @@
 package com.io7m.northpike.server.internal.repositories;
 
 import com.io7m.jmulticlose.core.CloseableType;
+import com.io7m.northpike.model.NPArchive;
+import com.io7m.northpike.model.NPCommitID;
 import com.io7m.repetoir.core.RPServiceType;
 
 import java.util.concurrent.CompletableFuture;
@@ -45,4 +47,13 @@ public interface NPRepositoryServiceType
 
   CompletableFuture<Void> check();
 
+  /**
+   * Create an archive for the given commit.
+   *
+   * @param commit The commit
+   *
+   * @return A future representing the operation in progress
+   */
+
+  CompletableFuture<NPArchive> createArchiveFor(NPCommitID commit);
 }

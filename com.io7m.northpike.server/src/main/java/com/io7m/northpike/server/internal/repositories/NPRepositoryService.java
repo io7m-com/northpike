@@ -19,21 +19,28 @@ package com.io7m.northpike.server.internal.repositories;
 
 import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
+import com.io7m.northpike.database.api.NPDatabaseQueriesArchivesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsGetMostRecentlyReceivedType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsPutType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
+import com.io7m.northpike.model.NPArchive;
+import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPStandardErrorCodes;
+import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryException;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryFactoryType;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryType;
+import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerExceptions;
 import com.io7m.northpike.server.internal.NPServerResources;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
+import com.io7m.northpike.strings.NPStringConstants;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
@@ -41,11 +48,12 @@ import com.io7m.repetoir.core.RPServiceDirectoryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -79,7 +87,7 @@ public final class NPRepositoryService
   private final List<? extends NPSCMRepositoryFactoryType> scmFactories;
   private final NPStrings strings;
   private final HashMap<UUID, NPSCMRepositoryType> repositories;
-  private final Path dataDirectory;
+  private final NPServerDirectoryConfiguration directories;
 
   private NPRepositoryService(
     final RPServiceDirectoryType inServices,
@@ -90,7 +98,7 @@ public final class NPRepositoryService
     final NPTelemetryServiceType inTelemetry,
     final List<? extends NPSCMRepositoryFactoryType> inScmFactories,
     final NPStrings inStrings,
-    final Path inDataDirectory)
+    final NPServerDirectoryConfiguration inDirectories)
   {
     this.services =
       Objects.requireNonNull(inServices, "services");
@@ -108,8 +116,8 @@ public final class NPRepositoryService
       Objects.requireNonNull(inScmFactories, "scmFactories");
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
-    this.dataDirectory =
-      Objects.requireNonNull(inDataDirectory, "dataDirectory");
+    this.directories =
+      Objects.requireNonNull(inDirectories, "directories");
     this.closed =
       new AtomicBoolean(true);
     this.future =
@@ -117,7 +125,7 @@ public final class NPRepositoryService
     this.commands =
       new LinkedBlockingQueue<>();
     this.repositories =
-      new HashMap<UUID, NPSCMRepositoryType>();
+      new HashMap<>();
   }
 
   /**
@@ -171,7 +179,7 @@ public final class NPRepositoryService
       telemetry,
       scmFactories,
       strings,
-      configuration.directories().repositoryDirectory()
+      configuration.directories()
     );
   }
 
@@ -188,6 +196,15 @@ public final class NPRepositoryService
   public CompletableFuture<Void> check()
   {
     final var command = new CheckAll(new CompletableFuture<>());
+    this.commands.add(command);
+    return command.future;
+  }
+
+  @Override
+  public CompletableFuture<NPArchive> createArchiveFor(
+    final NPCommitID commit)
+  {
+    final var command = new CreateArchive(new CompletableFuture<>(), commit);
     this.commands.add(command);
     return command.future;
   }
@@ -238,6 +255,79 @@ public final class NPRepositoryService
       this.processCommandCheckAll(check);
       return;
     }
+    if (command instanceof final CreateArchive createArchive) {
+      this.processCommandCreateArchive(createArchive);
+      return;
+    }
+  }
+
+  private void processCommandCreateArchive(
+    final CreateArchive createArchive)
+  {
+    try {
+      final var repositoryDescriptions =
+        this.repositoriesLoadDescriptions();
+
+      final var repositoryId =
+        createArchive.commit.repository();
+      final var repositoryDescription =
+        repositoryDescriptions.get(repositoryId);
+
+      if (repositoryDescription == null) {
+        throw this.errorNoSuchRepository(repositoryId);
+      }
+
+      final var repository =
+        this.repositoryConfigure(repositoryDescription);
+
+      this.repositoryUpdate(repository);
+
+      final var token =
+        NPToken.generate();
+
+      final var outputFile =
+        this.directories.archiveDirectory()
+          .resolve(token.value() + ".tgz");
+      final var outputFileTmp =
+        this.directories.archiveDirectory()
+          .resolve(token.value() + ".tgz.tmp");
+
+      final var archive =
+        repository.commitArchive(
+          createArchive.commit,
+          token,
+          outputFile,
+          outputFileTmp
+        );
+
+      try (var connection = this.database.openConnection(NORTHPIKE)) {
+        try (var transaction = connection.openTransaction()) {
+          transaction.queries(NPDatabaseQueriesArchivesType.PutType.class)
+            .execute(archive);
+          transaction.commit();
+        }
+      }
+
+      createArchive.future.complete(archive);
+    } catch (final Throwable e) {
+      createArchive.future.completeExceptionally(e);
+    }
+  }
+
+  private NPServerException errorNoSuchRepository(
+    final UUID repositoryId)
+  {
+    return new NPServerException(
+      this.strings.format(NPStringConstants.ERROR_NONEXISTENT),
+      NPStandardErrorCodes.errorNonexistent(),
+      Map.ofEntries(
+        Map.entry(
+          this.strings.format(NPStringConstants.REPOSITORY),
+          repositoryId.toString()
+        )
+      ),
+      Optional.empty()
+    );
   }
 
   private void processCommandCheckAll(
@@ -370,15 +460,22 @@ public final class NPRepositoryService
     final HashMap<UUID, NPRepositoryDescription> repositoryDescriptions)
   {
     for (final var description : repositoryDescriptions.values()) {
-      this.repositoryConfigure(description);
+      try {
+        this.repositoryConfigure(description);
+      } catch (final NPServerException e) {
+        // Ignore here
+      }
     }
   }
 
-  private void repositoryConfigure(
+  private NPSCMRepositoryType repositoryConfigure(
     final NPRepositoryDescription description)
+    throws NPServerException
   {
-    if (this.repositories.containsKey(description.id())) {
-      return;
+    final var existing =
+      this.repositories.get(description.id());
+    if (existing != null) {
+      return existing;
     }
 
     try {
@@ -405,7 +502,7 @@ public final class NPRepositoryService
       try {
         scm = scmFactory.createRepository(
           this.services,
-          this.dataDirectory,
+          this.directories.repositoryDirectory(),
           description
         );
       } catch (final NPSCMRepositoryException e) {
@@ -419,6 +516,7 @@ public final class NPRepositoryService
         description.url(),
         description.provider()
       ));
+      return scm;
     } catch (final NPServerException e) {
       recordSpanException(e);
       this.events.emit(new NPRepositoryConfigureFailed(
@@ -427,6 +525,7 @@ public final class NPRepositoryService
         description.provider(),
         e
       ));
+      throw e;
     }
   }
 
@@ -496,6 +595,14 @@ public final class NPRepositoryService
 
   record CheckAll(
     CompletableFuture<Void> future)
+    implements NPRepositoryCommandType
+  {
+
+  }
+
+  record CreateArchive(
+    CompletableFuture<NPArchive> future,
+    NPCommitID commit)
     implements NPRepositoryCommandType
   {
 

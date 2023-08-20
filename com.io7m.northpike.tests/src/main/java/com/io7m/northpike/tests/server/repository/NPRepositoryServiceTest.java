@@ -28,6 +28,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
+import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPSCMProviderDescription;
@@ -83,6 +84,7 @@ import static com.io7m.northpike.tests.scm_repository.NPSCMRepositoriesJGitTest.
 import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
 @ErvillaConfiguration(disabledIfUnsupported = true)
@@ -224,7 +226,7 @@ public final class NPRepositoryServiceTest
   }
 
   /**
-   * If there are no configured repositories, nothing happens.
+   * A single repository works.
    *
    * @throws Exception On errors
    */
@@ -342,5 +344,161 @@ public final class NPRepositoryServiceTest
 
     assertInstanceOf(NPRepositoryServiceStarted.class, eventQueue.poll());
     assertInstanceOf(NPRepositoryConfigureFailed.class, eventQueue.poll());
+  }
+
+  /**
+   * Creating an archive of a commit works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testArchiveCommit(
+    final @TempDir Path reposDirectory)
+    throws Exception
+  {
+    final var reposSource =
+      unpack("example.git.tar", reposDirectory);
+
+    this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class)
+      .execute(new NPSCMProviderDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        "SCM",
+        URI.create("http://www.example.com")
+      ));
+
+    final var repositoryDescription =
+      new NPRepositoryDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        UUID.randomUUID(),
+        reposSource,
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+      );
+
+    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
+      .execute(repositoryDescription);
+
+    this.transaction.commit();
+
+    this.service.start().get(1L, TimeUnit.SECONDS);
+
+    final var commit =
+      new NPCommitID(
+        repositoryDescription.id(),
+        "11e4ee346c9a8708688acc4f32beac8955714b6c"
+      );
+
+    final var archive =
+      this.service.createArchiveFor(commit)
+        .get(10L, TimeUnit.SECONDS);
+
+    assertEquals(commit, archive.commit());
+
+    final var eventQueue = this.events.events();
+
+    assertInstanceOf(NPRepositoryServiceStarted.class, eventQueue.poll());
+    assertInstanceOf(NPRepositoryConfigured.class, eventQueue.poll());
+
+    {
+      final var e =
+        assertInstanceOf(NPRepositoryUpdated.class, eventQueue.poll());
+      assertEquals(13L, e.commits());
+    }
+  }
+
+  /**
+   * Creating an archive of a nonexistent commit works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testArchiveCommitNonexistent(
+    final @TempDir Path reposDirectory)
+    throws Exception
+  {
+    final var reposSource =
+      unpack("example.git.tar", reposDirectory);
+
+    this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class)
+      .execute(new NPSCMProviderDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        "SCM",
+        URI.create("http://www.example.com")
+      ));
+
+    final var repositoryDescription =
+      new NPRepositoryDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        UUID.randomUUID(),
+        reposSource,
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+      );
+
+    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
+      .execute(repositoryDescription);
+
+    this.transaction.commit();
+
+    this.service.start().get(1L, TimeUnit.SECONDS);
+
+    final var commit =
+      new NPCommitID(
+        repositoryDescription.id(),
+        "a5830879c9a5536e811df8ac4710d19e712a1232"
+      );
+
+    assertThrows(Exception.class, () -> {
+      this.service.createArchiveFor(commit)
+        .get(10L, TimeUnit.SECONDS);
+    });
+  }
+
+  /**
+   * Creating an archive of a nonexistent repository works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testArchiveCommitNonexistentRepository(
+    final @TempDir Path reposDirectory)
+    throws Exception
+  {
+    final var reposSource =
+      unpack("example.git.tar", reposDirectory);
+
+    this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class)
+      .execute(new NPSCMProviderDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        "SCM",
+        URI.create("http://www.example.com")
+      ));
+
+    final var repositoryDescription =
+      new NPRepositoryDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        UUID.randomUUID(),
+        reposSource,
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+      );
+
+    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
+      .execute(repositoryDescription);
+
+    this.transaction.commit();
+
+    this.service.start().get(1L, TimeUnit.SECONDS);
+
+    final var commit =
+      new NPCommitID(
+        UUID.randomUUID(),
+        "11e4ee346c9a8708688acc4f32beac8955714b6c"
+      );
+
+    assertThrows(Exception.class, () -> {
+      this.service.createArchiveFor(commit)
+        .get(10L, TimeUnit.SECONDS);
+    });
   }
 }
