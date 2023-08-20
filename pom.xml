@@ -58,6 +58,7 @@
   <properties>
     <com.io7m.anethum.version>1.1.0</com.io7m.anethum.version>
     <com.io7m.blackthorne.version>2.0.0</com.io7m.blackthorne.version>
+    <com.io7m.canonmill.version>1.0.0</com.io7m.canonmill.version>
     <com.io7m.cedarbridge.version>1.2.0</com.io7m.cedarbridge.version>
     <com.io7m.ervilla.version>0.0.4</com.io7m.ervilla.version>
     <com.io7m.hibiscus.version>0.0.8</com.io7m.hibiscus.version>
@@ -277,6 +278,13 @@
         <groupId>com.io7m.streamtime</groupId>
         <artifactId>com.io7m.streamtime.core</artifactId>
         <version>${com.io7m.streamtime.version}</version>
+      </dependency>
+
+      <!-- TLS -->
+      <dependency>
+        <groupId>com.io7m.canonmill</groupId>
+        <artifactId>com.io7m.canonmill.core</artifactId>
+        <version>${com.io7m.canonmill.version}</version>
       </dependency>
 
       <!-- Git repository support. -->
@@ -639,12 +647,12 @@
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy-agent</artifactId>
-        <version>1.14.5</version>
+        <version>1.14.6</version>
       </dependency>
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
-        <version>1.14.5</version>
+        <version>1.14.6</version>
       </dependency>
 
       <!-- CLI -->

@@ -81,4 +81,6 @@ module com.io7m.northpike.server
     to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal
     to com.io7m.northpike.tests;
+  exports com.io7m.northpike.server.internal.tls
+    to com.io7m.northpike.tests;
 }

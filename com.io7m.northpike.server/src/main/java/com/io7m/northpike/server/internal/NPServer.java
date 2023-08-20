@@ -43,6 +43,8 @@ import com.io7m.northpike.server.internal.repositories.NPRepositoryService;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
 import com.io7m.northpike.server.internal.telemetry.NPTelemetryNoOp;
+import com.io7m.northpike.server.internal.tls.NPTLSContextService;
+import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
@@ -211,6 +213,9 @@ public final class NPServer implements NPServerType
     final var config =
       NPConfigurationService.create(this.configuration);
     services.register(NPConfigurationServiceType.class, config);
+
+    final var tls = NPTLSContextService.create(services);
+    services.register(NPTLSContextServiceType.class, tls);
 
     final var archive = NPArchiveService.create(services);
     services.register(NPArchiveServiceType.class, archive);

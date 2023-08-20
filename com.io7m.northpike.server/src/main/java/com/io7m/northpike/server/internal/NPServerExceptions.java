@@ -26,6 +26,7 @@ import com.io7m.northpike.strings.NPStrings;
 
 import java.io.IOException;
 import java.net.URI;
+import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -126,6 +127,26 @@ public final class NPServerExceptions
       e.errorCode(),
       e.attributes(),
       e.remediatingAction()
+    );
+  }
+
+  /**
+   * Wrap the given exception as a server exception.
+   *
+   * @param e The exception
+   *
+   * @return A server exception
+   */
+
+  public static NPServerException errorSecurity(
+    final GeneralSecurityException e)
+  {
+    return new NPServerException(
+      e.getMessage(),
+      e,
+      NPStandardErrorCodes.errorIo(),
+      Map.of(),
+      Optional.empty()
     );
   }
 }

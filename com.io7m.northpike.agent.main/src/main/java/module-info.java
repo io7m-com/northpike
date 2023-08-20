@@ -28,6 +28,7 @@ module com.io7m.northpike.agent.main
   requires com.io7m.northpike.agent;
   requires com.io7m.northpike.strings;
 
+  requires com.io7m.canonmill.core;
   requires com.io7m.anethum.slf4j;
   requires com.io7m.anethum.api;
   requires com.io7m.quarrel.core;

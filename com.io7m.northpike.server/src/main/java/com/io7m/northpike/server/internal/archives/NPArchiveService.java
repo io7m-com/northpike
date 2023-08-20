@@ -24,6 +24,7 @@ import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerResources;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.server.internal.tls.NPTLSContext;
+import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
 import com.io7m.northpike.tls.NPTLSDisabled;
 import com.io7m.northpike.tls.NPTLSEnabled;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
@@ -43,11 +44,9 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -67,15 +66,18 @@ public final class NPArchiveService implements NPArchiveServiceType
   private final AtomicBoolean closed;
   private final ExecutorService executor;
   private final NPDatabaseType database;
+  private final NPTLSContextServiceType tlsService;
   private CompletableFuture<Void> future;
   private NPServerConfiguration configuration;
   private final CloseableCollectionType<NPServerException> resources;
+  private NPTLSContext tlsContext;
 
   private NPArchiveService(
     final NPServerConfiguration inConfiguration,
     final CloseableCollectionType<NPServerException> inResources,
     final ExecutorService inMainExecutor,
-    final NPDatabaseType inDatabase)
+    final NPDatabaseType inDatabase,
+    final NPTLSContextServiceType inTlsService)
   {
     this.configuration =
       Objects.requireNonNull(inConfiguration, "configuration");
@@ -85,6 +87,8 @@ public final class NPArchiveService implements NPArchiveServiceType
       Objects.requireNonNull(inMainExecutor, "mainExecutor");
     this.database =
       Objects.requireNonNull(inDatabase, "database");
+    this.tlsService =
+      Objects.requireNonNull(inTlsService, "tlsService");
     this.closed =
       new AtomicBoolean(true);
     this.future =
@@ -104,6 +108,8 @@ public final class NPArchiveService implements NPArchiveServiceType
   {
     final var configurations =
       services.requireService(NPConfigurationServiceType.class);
+    final var tlsService =
+      services.requireService(NPTLSContextServiceType.class);
     final var database =
       services.requireService(NPDatabaseType.class);
 
@@ -126,7 +132,8 @@ public final class NPArchiveService implements NPArchiveServiceType
       configurations.configuration(),
       resources,
       mainExecutor,
-      database
+      database,
+      tlsService
     );
   }
 
@@ -175,7 +182,7 @@ public final class NPArchiveService implements NPArchiveServiceType
 
   private Connector createConnector(
     final Server server)
-    throws GeneralSecurityException, IOException
+    throws NPServerException
   {
     final var archiveConfiguration =
       this.configuration.archiveConfiguration();
@@ -198,13 +205,14 @@ public final class NPArchiveService implements NPArchiveServiceType
       httpsConfig.setSendServerVersion(false);
       httpsConfig.setSendXPoweredBy(false);
 
-      sslContextFactory.setSslContext(
-        NPTLSContext.create(
+      this.tlsContext =
+        this.tlsService.create(
           "ArchiveService",
           config.keyStore(),
           config.trustStore()
-        )
-      );
+        );
+
+      sslContextFactory.setSslContext(this.tlsContext.context());
 
       final var sslConnectionFactory =
         new SslConnectionFactory(

@@ -45,6 +45,7 @@ import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceTy
 import com.io7m.northpike.server.internal.events.NPEventService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
 import com.io7m.northpike.server.internal.telemetry.NPTelemetryNoOp;
+import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
@@ -100,6 +101,7 @@ public final class NPArchiveServiceTest
   private NPDatabaseFactoryType databases;
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
+  private NPTLSContextServiceType tls;
 
   @BeforeEach
   public void setup(
@@ -132,6 +134,8 @@ public final class NPArchiveServiceTest
       Mockito.mock(NPDatabaseConnectionType.class);
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
+    this.tls =
+      Mockito.mock(NPTLSContextServiceType.class);
 
     Mockito.when(this.database.openConnection(any()))
       .thenReturn(this.connection);
@@ -152,6 +156,8 @@ public final class NPArchiveServiceTest
       NPMetricsServiceType.class, this.metrics);
     this.services.register(
       NPDatabaseType.class, this.database);
+    this.services.register(
+      NPTLSContextServiceType.class, this.tls);
 
     Mockito.when(this.configuration.configuration())
       .thenReturn(

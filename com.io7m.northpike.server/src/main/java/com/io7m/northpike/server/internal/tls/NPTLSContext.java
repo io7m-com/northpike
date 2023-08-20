@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.SecureRandom;
+import java.util.Objects;
 
 /**
  * Functions to create custom SSL contexts.
@@ -39,9 +40,35 @@ public final class NPTLSContext
   private static final Logger LOG =
     LoggerFactory.getLogger(NPTLSContext.class);
 
-  private NPTLSContext()
-  {
+  private final String user;
+  private final NPTLSStoreConfiguration keyStoreConfiguration;
+  private final KeyStore keyStore;
+  private final NPTLSStoreConfiguration trustStoreConfiguration;
+  private final KeyStore trustStore;
+  private final SSLContext context;
 
+  private NPTLSContext(
+    final String inUser,
+    final NPTLSStoreConfiguration inKeyStoreConfiguration,
+    final KeyStore inKeyStore,
+    final NPTLSStoreConfiguration inTrustStoreConfiguration,
+    final KeyStore inTrustStore,
+    final SSLContext inContext)
+  {
+    this.user =
+      Objects.requireNonNull(inUser, "user");
+    this.keyStoreConfiguration =
+      Objects.requireNonNull(inKeyStoreConfiguration, "keyStoreConfiguration");
+    this.keyStore =
+      Objects.requireNonNull(inKeyStore, "keyStore");
+    this.trustStoreConfiguration =
+      Objects.requireNonNull(
+        inTrustStoreConfiguration,
+        "trustStoreConfiguration");
+    this.trustStore =
+      Objects.requireNonNull(inTrustStore, "trustStore");
+    this.context =
+      Objects.requireNonNull(inContext, "context");
   }
 
   /**
@@ -57,7 +84,7 @@ public final class NPTLSContext
    * @throws GeneralSecurityException On security errors
    */
 
-  public static SSLContext create(
+  static NPTLSContext create(
     final String user,
     final NPTLSStoreConfiguration keyStoreConfiguration,
     final NPTLSStoreConfiguration trustStoreConfiguration)
@@ -79,46 +106,6 @@ public final class NPTLSContext
       trustStoreConfiguration.storeType()
     );
 
-    final var keyManagerFactory =
-      createKeyManagerFactory(keyStoreConfiguration);
-    final var trustManagerFactory =
-      createTrustManagerFactory(trustStoreConfiguration);
-
-    final var context = SSLContext.getInstance("TLSv1.3");
-    context.init(
-      keyManagerFactory.getKeyManagers(),
-      trustManagerFactory.getTrustManagers(),
-      SecureRandom.getInstanceStrong()
-    );
-    return context;
-  }
-
-  private static TrustManagerFactory createTrustManagerFactory(
-    final NPTLSStoreConfiguration trustStoreConfiguration)
-    throws IOException, GeneralSecurityException
-  {
-    final var trustStore =
-      KeyStore.getInstance(
-        trustStoreConfiguration.storeType(),
-        trustStoreConfiguration.storeProvider()
-      );
-
-    try (var stream =
-           Files.newInputStream(trustStoreConfiguration.storePath())) {
-      trustStore.load(stream, null);
-    }
-
-    final var trustManagerFactory =
-      TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-
-    trustManagerFactory.init(trustStore);
-    return trustManagerFactory;
-  }
-
-  private static KeyManagerFactory createKeyManagerFactory(
-    final NPTLSStoreConfiguration keyStoreConfiguration)
-    throws IOException, GeneralSecurityException
-  {
     final var keyStore =
       KeyStore.getInstance(
         keyStoreConfiguration.storeType(),
@@ -134,10 +121,123 @@ public final class NPTLSContext
       keyStore.load(stream, keyStorePassChars);
     }
 
+    final var trustStore =
+      KeyStore.getInstance(
+        trustStoreConfiguration.storeType(),
+        trustStoreConfiguration.storeProvider()
+      );
+
+    final var trustStorePassChars =
+      trustStoreConfiguration.storePassword().toCharArray();
+
+    try (var stream = Files.newInputStream(trustStoreConfiguration.storePath())) {
+      trustStore.load(stream, trustStorePassChars);
+    }
+
+    final var keyManagerFactory =
+      createKeyManagerFactory(keyStore, keyStorePassChars);
+    final var trustManagerFactory =
+      createTrustManagerFactory(trustStore);
+
+    final var context =
+      SSLContext.getInstance("TLSv1.3");
+
+    context.init(
+      keyManagerFactory.getKeyManagers(),
+      trustManagerFactory.getTrustManagers(),
+      SecureRandom.getInstanceStrong()
+    );
+
+    return new NPTLSContext(
+      user,
+      keyStoreConfiguration,
+      keyStore,
+      trustStoreConfiguration,
+      trustStore,
+      context
+    );
+  }
+
+  private static TrustManagerFactory createTrustManagerFactory(
+    final KeyStore trustStore)
+    throws GeneralSecurityException
+  {
+    final var trustManagerFactory =
+      TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+
+    trustManagerFactory.init(trustStore);
+    return trustManagerFactory;
+  }
+
+  private static KeyManagerFactory createKeyManagerFactory(
+    final KeyStore keyStore,
+    final char[] keyStorePassChars)
+    throws GeneralSecurityException
+  {
     final var keyManagerFactory =
       KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 
     keyManagerFactory.init(keyStore, keyStorePassChars);
     return keyManagerFactory;
+  }
+
+  /**
+   * Reload the key stores and associated SSL context.
+   *
+   * @throws IOException              On I/O errors
+   * @throws GeneralSecurityException On security errors
+   */
+
+  public void reload()
+    throws IOException, GeneralSecurityException
+  {
+    LOG.info(
+      "KeyStore [{}] {} reloading",
+      this.user,
+      this.keyStoreConfiguration.storePath()
+    );
+
+    final var keyStorePassChars =
+      this.keyStoreConfiguration.storePassword()
+        .toCharArray();
+
+    try (var stream =
+           Files.newInputStream(this.keyStoreConfiguration.storePath())) {
+      this.keyStore.load(stream, keyStorePassChars);
+    }
+
+    LOG.info(
+      "TrustStore [{}] {} reloading",
+      this.user,
+      this.keyStoreConfiguration.storePath()
+    );
+
+    final var trustStorePassChars =
+      this.trustStoreConfiguration.storePassword().toCharArray();
+
+    try (var stream =
+           Files.newInputStream(this.trustStoreConfiguration.storePath())) {
+      this.trustStore.load(stream, trustStorePassChars);
+    }
+
+    final var keyManagerFactory =
+      createKeyManagerFactory(this.keyStore, keyStorePassChars);
+    final var trustManagerFactory =
+      createTrustManagerFactory(this.trustStore);
+
+    this.context.init(
+      keyManagerFactory.getKeyManagers(),
+      trustManagerFactory.getTrustManagers(),
+      SecureRandom.getInstanceStrong()
+    );
+  }
+
+  /**
+   * @return The SSL context
+   */
+
+  public SSLContext context()
+  {
+    return this.context;
   }
 }

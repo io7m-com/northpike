@@ -18,6 +18,7 @@
 package com.io7m.northpike.server.main.internal;
 
 import com.io7m.anethum.slf4j.ParseStatusLogging;
+import com.io7m.canonmill.core.CMKeyStoreProvider;
 import com.io7m.northpike.database.api.NPDatabaseConfiguration;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
 import com.io7m.northpike.server.NPServers;
@@ -37,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.security.Security;
 import java.time.Clock;
 import java.util.List;
 import java.util.Locale;
@@ -97,6 +99,8 @@ public final class NPACmdRun implements QCommandType
     throws Exception
   {
     QLogback.configure(context);
+
+    Security.addProvider(new CMKeyStoreProvider());
 
     final var configurationFile =
       context.parameterValue(CONFIGURATION_FILE);

@@ -66,6 +66,10 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.canonmill</groupId>
+      <artifactId>com.io7m.canonmill.core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.anethum</groupId>
       <artifactId>com.io7m.anethum.slf4j</artifactId>
     </dependency>
