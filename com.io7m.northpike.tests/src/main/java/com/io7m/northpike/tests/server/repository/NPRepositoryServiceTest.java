@@ -44,6 +44,7 @@ import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.server.internal.events.NPEventService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryArchiveCreated;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryConfigureFailed;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryConfigured;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryService;
@@ -404,6 +405,8 @@ public final class NPRepositoryServiceTest
         assertInstanceOf(NPRepositoryUpdated.class, eventQueue.poll());
       assertEquals(13L, e.commits());
     }
+
+    assertInstanceOf(NPRepositoryArchiveCreated.class, eventQueue.poll());
   }
 
   /**

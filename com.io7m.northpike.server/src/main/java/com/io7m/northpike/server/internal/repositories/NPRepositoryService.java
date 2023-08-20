@@ -48,6 +48,7 @@ import com.io7m.repetoir.core.RPServiceDirectoryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -265,53 +266,86 @@ public final class NPRepositoryService
     final CreateArchive createArchive)
   {
     try {
-      final var repositoryDescriptions =
-        this.repositoriesLoadDescriptions();
-
-      final var repositoryId =
-        createArchive.commit.repository();
-      final var repositoryDescription =
-        repositoryDescriptions.get(repositoryId);
-
-      if (repositoryDescription == null) {
-        throw this.errorNoSuchRepository(repositoryId);
-      }
-
       final var repository =
-        this.repositoryConfigure(repositoryDescription);
-
-      this.repositoryUpdate(repository);
-
-      final var token =
-        NPToken.generate();
-
-      final var outputFile =
-        this.directories.archiveDirectory()
-          .resolve(token.value() + ".tgz");
-      final var outputFileTmp =
-        this.directories.archiveDirectory()
-          .resolve(token.value() + ".tgz.tmp");
+        this.archiveCreateSetupRepository(createArchive);
 
       final var archive =
-        repository.commitArchive(
-          createArchive.commit,
-          token,
-          outputFile,
-          outputFileTmp
-        );
+        this.archiveCreateFile(createArchive, repository);
 
-      try (var connection = this.database.openConnection(NORTHPIKE)) {
-        try (var transaction = connection.openTransaction()) {
-          transaction.queries(NPDatabaseQueriesArchivesType.PutType.class)
-            .execute(archive);
-          transaction.commit();
-        }
-      }
-
+      this.archiveSaveInDatabase(archive);
       createArchive.future.complete(archive);
     } catch (final Throwable e) {
       createArchive.future.completeExceptionally(e);
     }
+  }
+
+  private void archiveSaveInDatabase(
+    final NPArchive archive)
+    throws NPDatabaseException
+  {
+    try (var connection = this.database.openConnection(NORTHPIKE)) {
+      try (var transaction = connection.openTransaction()) {
+        transaction.queries(NPDatabaseQueriesArchivesType.PutType.class)
+          .execute(archive);
+        transaction.commit();
+      }
+    }
+  }
+
+  private NPArchive archiveCreateFile(
+    final CreateArchive createArchive,
+    final NPSCMRepositoryType repository)
+    throws NoSuchAlgorithmException, NPSCMRepositoryException
+  {
+    final var token =
+      NPToken.generate();
+
+    final var outputFile =
+      this.directories.archiveDirectory()
+        .resolve(token.value() + ".tgz");
+    final var outputFileTmp =
+      this.directories.archiveDirectory()
+        .resolve(token.value() + ".tgz.tmp");
+
+    final var archive =
+      repository.commitArchive(
+        createArchive.commit,
+        token,
+        outputFile,
+        outputFileTmp
+      );
+
+    final var description = repository.description();
+    this.events.emit(new NPRepositoryArchiveCreated(
+      description.id(),
+      description.url(),
+      description.provider(),
+      outputFile
+    ));
+    return archive;
+  }
+
+  private NPSCMRepositoryType archiveCreateSetupRepository(
+    final CreateArchive createArchive)
+    throws NPDatabaseException, NPServerException
+  {
+    final var repositoryDescriptions =
+      this.repositoriesLoadDescriptions();
+
+    final var repositoryId =
+      createArchive.commit.repository();
+    final var repositoryDescription =
+      repositoryDescriptions.get(repositoryId);
+
+    if (repositoryDescription == null) {
+      throw this.errorNoSuchRepository(repositoryId);
+    }
+
+    final var repository =
+      this.repositoryConfigure(repositoryDescription);
+
+    this.repositoryUpdate(repository);
+    return repository;
   }
 
   private NPServerException errorNoSuchRepository(
@@ -545,7 +579,7 @@ public final class NPRepositoryService
           paged.pageCurrent(transaction);
 
         final var pageCount = pageInitial.pageCount();
-        for (int pageIndex = pageInitial.pageIndex(); pageIndex <= pageCount; ++pageIndex) {
+        for (var pageIndex = pageInitial.pageIndex(); pageIndex <= pageCount; ++pageIndex) {
           final var page =
             paged.pageCurrent(transaction);
 
