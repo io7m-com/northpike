@@ -392,6 +392,34 @@ CREATE TABLE plans (
 ]]></Statement>
 
     <Statement><![CDATA[
+CREATE TABLE archives (
+  ar_id            BIGINT                    NOT NULL GENERATED ALWAYS AS IDENTITY,
+  ar_token         TEXT                      NOT NULL,
+  ar_commit        BIGINT                    NOT NULL,
+  ar_hash_algo     TEXT                      NOT NULL,
+  ar_hash_value    TEXT                      NOT NULL,
+  ar_created       TIMESTAMP WITH TIME ZONE  NOT NULL,
+
+  -- [jooq ignore start]
+  CONSTRAINT archives_token_unique
+    UNIQUE (ar_token),
+  -- [jooq ignore stop]
+
+  CONSTRAINT archives_primary_key
+    PRIMARY KEY (ar_id),
+
+  CONSTRAINT archives_token_valid
+    CHECK (ar_token ~ '^[A-F0-9]{64}$'),
+
+  CONSTRAINT archives_hash_value_valid
+    CHECK (ar_hash_value ~ '^[A-F0-9]{64,128}$'),
+
+  CONSTRAINT archives_commit_exists
+    FOREIGN KEY (ar_commit) REFERENCES repository_commits (rc_id)
+)
+]]></Statement>
+
+    <Statement><![CDATA[
 CREATE TABLE assignments (
   a_id          BIGINT  NOT NULL GENERATED ALWAYS AS IDENTITY,
   a_name        TEXT    NOT NULL,
@@ -418,30 +446,49 @@ CREATE TABLE assignments (
 ]]></Statement>
 
     <Statement><![CDATA[
-CREATE TABLE archives (
-  ar_id            BIGINT                    NOT NULL GENERATED ALWAYS AS IDENTITY,
-  ar_token         TEXT                      NOT NULL,
-  ar_commit        BIGINT                    NOT NULL,
-  ar_hash_algo     TEXT                      NOT NULL,
-  ar_hash_value    TEXT                      NOT NULL,
-  ar_created       TIMESTAMP WITH TIME ZONE  NOT NULL,
+CREATE TYPE assignment_execution_status_t AS ENUM(
+  'ASSIGNMENT_EXECUTION_CREATED',
+  'ASSIGNMENT_EXECUTION_RUNNING',
+  'ASSIGNMENT_EXECUTION_SUCCEEDED',
+  'ASSIGNMENT_EXECUTION_FAILED'
+);
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE assignment_executions (
+  ae_id          UUID                           NOT NULL,
+  ae_assignment  BIGINT                         NOT NULL,
+  ae_commit      BIGINT                         NOT NULL,
+  ae_created     TIMESTAMP WITH TIME ZONE       NOT NULL,
+  ae_started     TIMESTAMP WITH TIME ZONE,
+  ae_ended       TIMESTAMP WITH TIME ZONE,
+  ae_status      assignment_execution_status_t  NOT NULL,
 
   -- [jooq ignore start]
-  CONSTRAINT archives_token_unique
-    UNIQUE (ar_token),
+  CONSTRAINT assignment_executions_status_values_present CHECK (
+    CASE
+      WHEN ae_status = 'ASSIGNMENT_EXECUTION_CREATED' THEN
+        ((ae_started IS NULL) AND (ae_ended IS NULL))
+      WHEN ae_status = 'ASSIGNMENT_EXECUTION_RUNNING' THEN
+        ((ae_started IS NOT NULL) AND (ae_ended IS NULL))
+      WHEN ae_status = 'ASSIGNMENT_EXECUTION_SUCCEEDED' THEN
+        ((ae_started IS NOT NULL) AND (ae_ended IS NOT NULL))
+      WHEN ae_status = 'ASSIGNMENT_EXECUTION_FAILED' THEN
+        ((ae_started IS NOT NULL) AND (ae_ended IS NOT NULL))
+      ELSE
+        'f'::boolean
+    END
+  ),
   -- [jooq ignore stop]
 
-  CONSTRAINT archives_primary_key
-    PRIMARY KEY (ar_id),
+  CONSTRAINT assignment_executions_primary_key
+    PRIMARY KEY (ae_id),
 
-  CONSTRAINT archives_token_valid
-    CHECK (ar_token ~ '^[A-F0-9]{64}$'),
+  CONSTRAINT assignment_executions_assignment_exists
+    FOREIGN KEY (ae_assignment) REFERENCES assignments (a_id),
 
-  CONSTRAINT archives_hash_value_valid
-    CHECK (ar_hash_value ~ '^[A-F0-9]{64,128}$'),
-
-  CONSTRAINT archives_commit_exists
-    FOREIGN KEY (ar_commit) REFERENCES repository_commits (rc_id)
+  CONSTRAINT assignment_executions_commit_exists
+    FOREIGN KEY (ae_commit) REFERENCES repository_commits (rc_id)
 )
 ]]></Statement>
   </Schema>

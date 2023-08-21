@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.server.internal.assignments;
 
+import com.io7m.northpike.assignments.NPAssignment;
 import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
 
@@ -29,16 +30,20 @@ import java.util.Objects;
 public final class NPAssignmentTask implements Runnable
 {
   private final NPRepositoryServiceType repositories;
+  private final NPAssignment assignment;
   private final NPAgentServiceType agents;
 
   private NPAssignmentTask(
     final NPAgentServiceType inAgents,
-    final NPRepositoryServiceType inRepositories)
+    final NPRepositoryServiceType inRepositories,
+    final NPAssignment inAssignment)
   {
     this.agents =
       Objects.requireNonNull(inAgents, "inAgents");
     this.repositories =
       Objects.requireNonNull(inRepositories, "repositories");
+    this.assignment =
+      Objects.requireNonNull(inAssignment, "inAssignment");
   }
 
   @Override

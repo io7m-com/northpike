@@ -14,20 +14,28 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.assignments;
+
+import java.time.OffsetDateTime;
+
 /**
- * Continuous integration (Assignments)
+ * The set of status values that indicate that execution has ended.
  */
 
-module com.io7m.northpike.assignments
+public sealed interface NPAssignmentExecutionStatusCompletedType
+  extends NPAssignmentExecutionStatusType
+  permits NPAssignmentExecutionFailed, NPAssignmentExecutionSucceeded
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * @return The time that execution started
+   */
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.plans;
+  OffsetDateTime timeStarted();
 
-  requires com.io7m.jaffirm.core;
-  requires com.io7m.lanark.core;
+  /**
+   * @return The time that execution ended
+   */
 
-  exports com.io7m.northpike.assignments;
+  OffsetDateTime timeEnded();
 }

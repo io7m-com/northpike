@@ -21,10 +21,19 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.model</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.plans</artifactId>
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.io7m.jaffirm</groupId>
+      <artifactId>com.io7m.jaffirm.core</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.io7m.lanark</groupId>
       <artifactId>com.io7m.lanark.core</artifactId>

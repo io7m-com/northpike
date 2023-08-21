@@ -18,9 +18,11 @@ package com.io7m.northpike.database.api;
 
 
 import com.io7m.northpike.assignments.NPAssignment;
+import com.io7m.northpike.assignments.NPAssignmentExecution;
 import com.io7m.northpike.assignments.NPAssignmentName;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * The database queries involving assignments.
@@ -46,6 +48,28 @@ public sealed interface NPDatabaseQueriesAssignmentsType
 
   non-sealed interface GetType
     extends NPDatabaseQueryType<NPAssignmentName, Optional<NPAssignment>>,
+    NPDatabaseQueriesAssignmentsType
+  {
+
+  }
+
+  /**
+   * Update the given assignment execution.
+   */
+
+  non-sealed interface ExecutionPutType
+    extends NPDatabaseQueryType<NPAssignmentExecution, NPDatabaseUnit>,
+    NPDatabaseQueriesAssignmentsType
+  {
+
+  }
+
+  /**
+   * Retrieve an assignment execution.
+   */
+
+  non-sealed interface ExecutionGetType
+    extends NPDatabaseQueryType<UUID, Optional<NPAssignmentExecution>>,
     NPDatabaseQueriesAssignmentsType
   {
 

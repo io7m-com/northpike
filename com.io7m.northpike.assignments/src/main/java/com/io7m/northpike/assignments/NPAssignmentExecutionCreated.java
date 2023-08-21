@@ -14,20 +14,30 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.assignments;
+
+import java.time.OffsetDateTime;
+import java.util.Objects;
+
 /**
- * Continuous integration (Assignments)
+ * An assignment was created but not yet started.
+ *
+ * @param timeCreated The time created
  */
 
-module com.io7m.northpike.assignments
+public record NPAssignmentExecutionCreated(
+  OffsetDateTime timeCreated)
+  implements NPAssignmentExecutionStatusType
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * An assignment was created but not yet started.
+   *
+   * @param timeCreated The time created
+   */
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.plans;
-
-  requires com.io7m.jaffirm.core;
-  requires com.io7m.lanark.core;
-
-  exports com.io7m.northpike.assignments;
+  public NPAssignmentExecutionCreated
+  {
+    Objects.requireNonNull(timeCreated, "timeCreated");
+  }
 }
