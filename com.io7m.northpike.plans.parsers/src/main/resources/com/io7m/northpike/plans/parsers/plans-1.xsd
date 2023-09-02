@@ -29,6 +29,79 @@
     </xsd:restriction>
   </xsd:simpleType>
 
+  <xsd:complexType name="FailurePolicyType"
+                   abstract="true">
+    <xsd:annotation>
+      <xsd:documentation>
+        The base type of failure policies.
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:complexType>
+
+  <xsd:complexType name="FailurePolicyFailType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A failure policy that indicates that a task failure should be considered
+        failure.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="np:FailurePolicyType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="FailurePolicyIgnoreType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A failure policy that indicates that a task failure should be ignored
+        and treated as success.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="np:FailurePolicyType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="FailurePolicyRetryType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A failure policy that indicates that a task failure should be retried up
+        to a given number of times.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="np:FailurePolicyType">
+        <xsd:attribute name="RetryCount"
+                       type="xsd:unsignedInt"
+                       use="required">
+          <xsd:annotation>
+            <xsd:documentation>
+              The maximum number of times a task can be retried.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="FailurePolicyFail"
+               type="np:FailurePolicyFailType"/>
+  <xsd:element name="FailurePolicyIgnore"
+               type="np:FailurePolicyIgnoreType"/>
+  <xsd:element name="FailurePolicyRetry"
+               type="np:FailurePolicyRetryType"/>
+
+  <xsd:group name="FailurePolicyGroup">
+    <xsd:choice>
+      <xsd:element ref="np:FailurePolicyFail"/>
+      <xsd:element ref="np:FailurePolicyIgnore"/>
+      <xsd:element ref="np:FailurePolicyRetry"/>
+    </xsd:choice>
+  </xsd:group>
+
   <xsd:element name="Timeouts">
     <xsd:complexType>
       <xsd:attribute name="AgentSelection"
@@ -380,6 +453,16 @@
             </xsd:annotation>
             <xsd:element ref="np:DependsOn"/>
           </xsd:sequence>
+
+          <xsd:group ref="np:FailurePolicyGroup"
+                     minOccurs="0"
+                     maxOccurs="1">
+            <xsd:annotation>
+              <xsd:documentation>
+                The failure policy for the task.
+              </xsd:documentation>
+            </xsd:annotation>
+          </xsd:group>
 
           <xsd:element ref="np:ToolExecution">
             <xsd:annotation>

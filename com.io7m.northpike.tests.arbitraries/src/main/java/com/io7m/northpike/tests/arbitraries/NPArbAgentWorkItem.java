@@ -19,6 +19,7 @@ package com.io7m.northpike.tests.arbitraries;
 
 import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.model.NPAgentWorkItem;
+import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPToolExecutionEvaluated;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
@@ -44,7 +45,8 @@ public final class NPArbAgentWorkItem extends NPArbAbstract<NPAgentWorkItem>
           Arbitraries.defaultFor(NPToolExecutionEvaluated.class),
           Arbitraries.defaultFor(NPAgentResourceName.class)
             .set()
-            .ofMaxSize(8)
+            .ofMaxSize(8),
+          Arbitraries.defaultFor(NPFailurePolicyType.class)
         ).as(NPAgentWorkItem::new)
     );
   }

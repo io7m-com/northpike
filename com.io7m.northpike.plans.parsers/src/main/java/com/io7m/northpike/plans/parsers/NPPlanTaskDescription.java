@@ -19,6 +19,7 @@ package com.io7m.northpike.plans.parsers;
 
 import com.io7m.northpike.model.NPAgentLabelMatchType;
 import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.plans.NPPlanTaskBuilderType;
@@ -42,6 +43,7 @@ import java.util.Set;
  * @param lockAgentResources    The resources locked on the agent
  * @param toolExecution         The tool execution
  * @param dependsOn             The tasks/barriers upon which this task depends
+ *                              @param failurePolicy The failure policy
  */
 
 public record NPPlanTaskDescription(
@@ -54,7 +56,8 @@ public record NPPlanTaskDescription(
   Optional<Duration> executionTimeout,
   Set<NPAgentResourceName> lockAgentResources,
   NPPlanToolExecution toolExecution,
-  Set<NPPlanElementName> dependsOn)
+  Set<NPPlanElementName> dependsOn,
+  NPFailurePolicyType failurePolicy)
   implements NPPlanElementDescriptionType
 {
   /**
@@ -70,6 +73,7 @@ public record NPPlanTaskDescription(
    * @param lockAgentResources    The resources locked on the agent
    * @param toolExecution         The tool execution
    * @param dependsOn             The tasks/barriers upon which this task depends
+   * @param failurePolicy The failure policy
    */
 
   public NPPlanTaskDescription
@@ -84,6 +88,7 @@ public record NPPlanTaskDescription(
     Objects.requireNonNull(lockAgentResources, "lockAgentResources");
     Objects.requireNonNull(toolExecution, "toolExecution");
     Objects.requireNonNull(dependsOn, "dependsOn");
+    Objects.requireNonNull(failurePolicy, "failurePolicy");
   }
 
   /**
@@ -116,6 +121,7 @@ public record NPPlanTaskDescription(
       taskBuilder.addLockAgentResource(lock);
     }
     taskBuilder.setToolExecution(this.toolExecution);
+    taskBuilder.setFailurePolicy(this.failurePolicy);
 
     for (final var depends : this.dependsOn) {
       taskBuilder.addDependsOn(depends);

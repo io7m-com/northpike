@@ -19,6 +19,10 @@ package com.io7m.northpike.plans.parsers.v1;
 
 import com.io7m.northpike.agent.expressions.v1.NAE1Serializer;
 import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.NPFailureFail;
+import com.io7m.northpike.model.NPFailureIgnore;
+import com.io7m.northpike.model.NPFailurePolicyType;
+import com.io7m.northpike.model.NPFailureRetry;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.plans.NPPlanBarrierType;
@@ -190,8 +194,35 @@ public final class NPP1Serializer
     this.serializePlanTaskAgentPrefer(task);
     this.serializePlanTaskAgentLockResources(task.lockAgentResources());
     this.serializeDependsOn(task.dependsOn());
+    this.serializeFailurePolicy(task.failurePolicy());
     this.serializeToolExecution(task.toolExecution());
     this.output.writeEndElement();
+  }
+
+  private void serializeFailurePolicy(
+    final NPFailurePolicyType failurePolicy)
+    throws XMLStreamException
+  {
+    if (failurePolicy instanceof NPFailureFail) {
+      this.output.writeEmptyElement("FailurePolicyFail");
+      return;
+    }
+
+    if (failurePolicy instanceof NPFailureIgnore) {
+      this.output.writeEmptyElement("FailurePolicyIgnore");
+      return;
+    }
+
+    if (failurePolicy instanceof final NPFailureRetry retry) {
+      this.output.writeStartElement("FailurePolicyRetry");
+      this.output.writeAttribute("RetryCount", Integer.toUnsignedString(retry.retryCount()));
+      this.output.writeEndElement();
+      return;
+    }
+
+    throw new IllegalStateException(
+      "Unrecognized failure policy: %s".formatted(failurePolicy)
+    );
   }
 
   private void serializeToolExecution(

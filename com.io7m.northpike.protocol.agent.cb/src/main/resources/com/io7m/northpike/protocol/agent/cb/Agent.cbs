@@ -63,6 +63,13 @@
   [field arguments [cb:List cb:String]]
 ]
 
+[documentation NPA1FailurePolicy "A failure policy."]
+[variant NPA1FailurePolicy
+  [case Ignore]
+  [case Fail]
+  [case Retry [field retryCount cb:IntegerUnsigned32]]
+]
+
 [documentation NPA1AgentWorkItem "A work item."]
 [record NPA1AgentWorkItem
   [documentation identifier "The work item identifier"]
@@ -75,6 +82,8 @@
   [field toolExecution NPA1ToolExecutionEvaluated]
   [documentation lockResources "The set of resources that must be locked"]
   [field lockResources [cb:List cb:String]]
+  [documentation failurePolicy "The failure policy"]
+  [field failurePolicy NPA1FailurePolicy]
 ]
 
 ;

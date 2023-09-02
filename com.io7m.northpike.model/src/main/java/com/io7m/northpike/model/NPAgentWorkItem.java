@@ -29,6 +29,7 @@ import java.util.Set;
  * @param toolsRequired The required tools
  * @param toolExecution The tool execution
  * @param lockResources The resources on the agent that must be locked
+ * @param failurePolicy The failure policy
  */
 
 public record NPAgentWorkItem(
@@ -36,7 +37,8 @@ public record NPAgentWorkItem(
   Map<String, String> metadata,
   Set<NPToolReference> toolsRequired,
   NPToolExecutionEvaluated toolExecution,
-  Set<NPAgentResourceName> lockResources)
+  Set<NPAgentResourceName> lockResources,
+  NPFailurePolicyType failurePolicy)
 {
   /**
    * A single, complete item of work for an agent to execute.
@@ -46,6 +48,7 @@ public record NPAgentWorkItem(
    * @param toolsRequired The required tools
    * @param toolExecution The tool execution
    * @param lockResources The resources on the agent that must be locked
+   * @param failurePolicy The failure policy
    */
 
   public NPAgentWorkItem
@@ -54,6 +57,7 @@ public record NPAgentWorkItem(
     Objects.requireNonNull(toolsRequired, "toolsRequired");
     Objects.requireNonNull(toolExecution, "toolExecution");
     Objects.requireNonNull(lockResources, "lockResources");
+    Objects.requireNonNull(failurePolicy, "failurePolicy");
 
     metadata = Map.copyOf(metadata);
     toolsRequired = Set.copyOf(toolsRequired);

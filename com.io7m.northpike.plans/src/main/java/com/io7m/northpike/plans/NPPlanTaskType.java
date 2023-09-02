@@ -19,6 +19,7 @@ package com.io7m.northpike.plans;
 
 import com.io7m.northpike.model.NPAgentLabelMatchType;
 import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
 
@@ -101,4 +102,10 @@ public non-sealed interface NPPlanTaskType
 
   Optional<NPToolReference> toolByReferenceName(
     NPToolReferenceName name);
+
+  /**
+   * @return The task failure policy
+   */
+
+  NPFailurePolicyType failurePolicy();
 }

@@ -24,6 +24,7 @@ import com.io7m.northpike.model.NPAgentWorkItem;
 import com.io7m.northpike.protocol.agent.cb.NPA1AgentWorkItem;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 
+import static com.io7m.northpike.protocol.agent.cb.internal.NPAVFailurePolicy.FAILURE_POLICY;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVToolExecutionEvaluated.TOOL_EXECUTION_EVALUATED;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVToolReference.TOOL_REFERENCE;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVWorkItemIdentifier.WORK_ITEM_IDENTIFIER;
@@ -57,7 +58,8 @@ public enum NPAVAgentWorkItem
         message.lockResources()
           .stream()
           .map(NPAgentResourceName::toString)
-          .toList())
+          .toList()),
+      FAILURE_POLICY.convertToWire(message.failurePolicy())
     );
   }
 
@@ -76,7 +78,8 @@ public enum NPAVAgentWorkItem
       CBSets.toSet(
         message.fieldLockResources(),
         s -> NPAgentResourceName.of(s.value())
-      )
+      ),
+      FAILURE_POLICY.convertFromWire(message.fieldFailurePolicy())
     );
   }
 }

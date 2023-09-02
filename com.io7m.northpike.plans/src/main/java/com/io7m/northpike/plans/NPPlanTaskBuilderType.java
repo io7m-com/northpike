@@ -18,6 +18,7 @@ package com.io7m.northpike.plans;
 
 import com.io7m.northpike.model.NPAgentLabelMatchType;
 import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.NPFailurePolicyType;
 
 import java.time.Duration;
 
@@ -181,5 +182,19 @@ public interface NPPlanTaskBuilderType
 
   NPPlanTaskBuilderType setExecutionTimeout(
     Duration duration)
+    throws NPPlanException;
+
+  /**
+   * Set the failure policy for the task.
+   *
+   * @param failurePolicy The failure policy
+   *
+   * @return this
+   *
+   * @throws NPPlanException On errors
+   */
+
+  NPPlanTaskBuilderType setFailurePolicy(
+    NPFailurePolicyType failurePolicy)
     throws NPPlanException;
 }

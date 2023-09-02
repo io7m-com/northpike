@@ -23,6 +23,8 @@ import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.blackthorne.core.Blackthorne;
 import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.NPFailurePolicyType;
+import com.io7m.northpike.model.NPFailureRetry;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanToolExecution;
 import com.io7m.northpike.plans.parsers.NPPlanElementDescriptionType;
@@ -36,6 +38,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static com.io7m.northpike.model.NPAgentLabelMatchType.AnyLabel.ANY_LABEL;
+import static com.io7m.northpike.model.NPFailureFail.FAIL;
+import static com.io7m.northpike.model.NPFailureIgnore.IGNORE_FAILURE;
 import static com.io7m.northpike.plans.parsers.v1.NPP1.element;
 
 /**
@@ -70,6 +74,9 @@ public final class NPP1Task
 
   private Set<NPPlanElementName> dependsOn =
     new TreeSet<>();
+
+  private NPFailurePolicyType failurePolicy =
+    FAIL;
 
   /**
    * A task parser.
@@ -115,6 +122,29 @@ public final class NPP1Task
           element("DependsOn"),
           (c, a) -> new NPP1DependsOn(NPPlanElementName.of(a.getValue("Task")))
         )
+      ),
+      Map.entry(
+        element("FailurePolicyFail"),
+        Blackthorne.forScalarAttribute(
+          element("FailurePolicyFail"),
+          (c, a) -> FAIL
+        )
+      ),
+      Map.entry(
+        element("FailurePolicyIgnore"),
+        Blackthorne.forScalarAttribute(
+          element("FailurePolicyIgnore"),
+          (c, a) -> IGNORE_FAILURE
+        )
+      ),
+      Map.entry(
+        element("FailurePolicyRetry"),
+        Blackthorne.forScalarAttribute(
+          element("FailurePolicyRetry"),
+          (c, a) -> new NPFailureRetry(
+            Integer.parseUnsignedInt(a.getValue("RetryCount"))
+          )
+        )
       )
     );
   }
@@ -152,7 +182,8 @@ public final class NPP1Task
       this.executionTimeout,
       this.lockAgentResources,
       this.toolExecution,
-      this.dependsOn
+      this.dependsOn,
+      this.failurePolicy
     );
   }
 
@@ -183,6 +214,10 @@ public final class NPP1Task
     }
     if (result instanceof final NPP1DependsOn e) {
       this.dependsOn.add(e.task());
+      return;
+    }
+    if (result instanceof final NPFailurePolicyType e) {
+      this.failurePolicy = e;
       return;
     }
 

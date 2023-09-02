@@ -118,6 +118,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.model.NPFailureFail.FAIL;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorApiMisuse;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPWorkItemStatus.WORK_ITEM_ACCEPTED;
@@ -350,7 +351,8 @@ public final class NPAgentTaskTest
           Map.of(),
           List.of()
         ),
-        Set.of()
+        Set.of(),
+        FAIL
       );
 
     this.workItem0 =

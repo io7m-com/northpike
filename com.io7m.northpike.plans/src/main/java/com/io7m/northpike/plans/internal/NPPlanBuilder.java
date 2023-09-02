@@ -19,6 +19,8 @@ package com.io7m.northpike.plans.internal;
 
 import com.io7m.northpike.model.NPAgentLabelMatchType;
 import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.NPFailureFail;
+import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.plans.NPPlanBarrierBuilderType;
@@ -259,7 +261,8 @@ public final class NPPlanBuilder
           this.builder.strings,
           e,
           this.name,
-          target);
+          target
+        );
       }
     }
 
@@ -329,6 +332,7 @@ public final class NPPlanBuilder
     implements NPPlanTaskBuilderType
   {
     private final TreeSet<NPAgentResourceName> lockAgentResources;
+    private NPFailurePolicyType failurePolicy;
     private NPAgentLabelMatchType preferWithLabels;
     private NPAgentLabelMatchType requireWithLabels;
     private Optional<NPPlanToolExecution> toolExecution;
@@ -348,6 +352,7 @@ public final class NPPlanBuilder
       this.sameAgentAs = Optional.empty();
       this.agentSelectionTimeout = Optional.empty();
       this.executionTimeout = Optional.empty();
+      this.failurePolicy = NPFailureFail.FAIL;
     }
 
     @Override
@@ -381,7 +386,8 @@ public final class NPPlanBuilder
         sameAs,
         this.agentSelectionTimeout,
         this.executionTimeout,
-        toolReferences
+        toolReferences,
+        this.failurePolicy
       );
     }
 
@@ -480,6 +486,15 @@ public final class NPPlanBuilder
       this.executionTimeout = Optional.of(duration);
       return this;
     }
+
+    @Override
+    public NPPlanTaskBuilderType setFailurePolicy(
+      final NPFailurePolicyType newFailurePolicy)
+    {
+      this.failurePolicy =
+        Objects.requireNonNull(newFailurePolicy, "failurePolicy");
+      return this;
+    }
   }
 
   private record NPPlanTask(
@@ -493,7 +508,8 @@ public final class NPPlanBuilder
     Optional<NPPlanTaskType> agentMustBeSameAs,
     Optional<Duration> agentSelectionTimeout,
     Optional<Duration> executionTimeout,
-    Map<NPToolReferenceName, NPToolReference> toolReferences)
+    Map<NPToolReferenceName, NPToolReference> toolReferences,
+    NPFailurePolicyType failurePolicy)
     implements NPPlanTaskType
   {
     NPPlanTask
@@ -508,6 +524,7 @@ public final class NPPlanBuilder
       Objects.requireNonNull(toolExecution, "toolExecution");
       Objects.requireNonNull(agentSelectionTimeout, "agentSelectionTimeout");
       Objects.requireNonNull(executionTimeout, "inExecutionTimeout");
+      Objects.requireNonNull(failurePolicy, "failurePolicy");
     }
 
     @Override

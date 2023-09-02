@@ -666,7 +666,8 @@ public final class NPAssignmentTask
         evaluated.environment(),
         evaluated.arguments()
       ),
-      task.lockAgentResources()
+      task.lockAgentResources(),
+      task.failurePolicy()
     );
   }
 
