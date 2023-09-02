@@ -137,7 +137,7 @@ public final class NPAssignmentToolExecutionCompiler
       );
       errors.put(
         this.strings.format(LOCATION_NUMBERED, Integer.valueOf(index)),
-        this.strings.format(Integer.toUnsignedString(x.lexical().line()))
+        Integer.toUnsignedString(x.lexical().line())
       );
     }
 
@@ -242,7 +242,7 @@ public final class NPAssignmentToolExecutionCompiler
       );
       errors.put(
         this.strings.format(LOCATION_NUMBERED, Integer.valueOf(index)),
-        this.strings.format(Integer.toUnsignedString(x.lexical().line()))
+        Integer.toUnsignedString(x.lexical().line())
       );
     }
 

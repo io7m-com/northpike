@@ -21,17 +21,20 @@ import com.io7m.ervilla.test_extension.ErvillaCloseAfterAll;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.assignments.NPAssignment;
 import com.io7m.northpike.assignments.NPAssignmentExecutionCreated;
 import com.io7m.northpike.assignments.NPAssignmentExecutionFailed;
 import com.io7m.northpike.assignments.NPAssignmentExecutionRunning;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStatusType;
 import com.io7m.northpike.assignments.NPAssignmentExecutionSucceeded;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentWorkItem;
 import com.io7m.northpike.model.NPArchiveLinks;
+import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
@@ -1079,6 +1082,248 @@ public final class NPAssignmentTaskTest
 
     assertInstanceOf(
       NPAssignmentExecutionSucceeded.class,
+      e.execution().status()
+    );
+  }
+
+  /**
+   * An unparseable plan fails.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanInvalid0()
+    throws Exception
+  {
+    final var plan =
+      createPlanOneTask();
+    final var assignment =
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(plan);
+
+    final var transaction = ASSIGNMENT_FIXTURE.transaction();
+    transaction.queries(NPDatabaseQueriesPlansType.PutType.class)
+      .execute(new NPDatabaseQueriesPlansType.PutType.Parameters(
+        plan,
+        new NPGarbageSerializers()
+      ));
+
+    final var agent =
+      NPAgentID.of(UUID.randomUUID().toString());
+
+    transaction.queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .execute(new NPAgentDescription(
+        agent,
+        "Agent",
+        NPKey.generate(),
+        Map.of(),
+        Map.of(),
+        Map.of()
+      ));
+
+    transaction.commit();
+    runSimpleFailure(assignment, agent);
+  }
+
+  /**
+   * A plan with an unparseable tool execution fails.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanToolExecutionInvalid0()
+    throws Exception
+  {
+    final var assignment =
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(createPlanOneTask());
+
+    final var transaction = ASSIGNMENT_FIXTURE.transaction();
+    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+      .execute(new NPToolExecutionDescription(
+        TOOL_EXECUTION_DESCRIPTION.identifier(),
+        TOOL_EXECUTION_DESCRIPTION.tool(),
+        TOOL_EXECUTION_DESCRIPTION.format(),
+        """
+          <?xml version="1.0" encoding="UTF-8" ?>
+          <ToolExecution xmlns="urn:com.io7m.northpike.toolexec:1"
+                         Name="run"
+                         Version="1">
+            <What/>
+            <Else/>
+          </ToolExecution>
+                         """
+      ));
+
+    final var agent =
+      NPAgentID.of(UUID.randomUUID().toString());
+
+    transaction
+      .queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .execute(new NPAgentDescription(
+        agent,
+        "Agent",
+        NPKey.generate(),
+        Map.of(),
+        Map.of(),
+        Map.of()
+      ));
+
+    transaction.commit();
+    runSimpleFailure(assignment, agent);
+  }
+
+  /**
+   * A plan with an ill-typed tool execution fails.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanToolExecutionInvalid1()
+    throws Exception
+  {
+    final var assignment =
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(createPlanOneTask());
+
+    final var transaction = ASSIGNMENT_FIXTURE.transaction();
+    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+      .execute(new NPToolExecutionDescription(
+        TOOL_EXECUTION_DESCRIPTION.identifier(),
+        TOOL_EXECUTION_DESCRIPTION.tool(),
+        TOOL_EXECUTION_DESCRIPTION.format(),
+        """
+          <?xml version="1.0" encoding="UTF-8" ?>
+          <ToolExecution xmlns="urn:com.io7m.northpike.toolexec:1"
+                         Name="run"
+                         Version="1">
+            <If>
+              <Condition>
+                <IsEqual>
+                  <Number Value="23"/>
+                  <String Value="x"/>
+                </IsEqual>
+              </Condition>
+              <Then>
+                <ArgumentAdd Value="ok"/>
+              </Then>
+            </If>
+          </ToolExecution>
+                         """
+      ));
+
+    final var agent =
+      NPAgentID.of(UUID.randomUUID().toString());
+
+    transaction
+      .queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .execute(new NPAgentDescription(
+        agent,
+        "Agent",
+        NPKey.generate(),
+        Map.of(),
+        Map.of(),
+        Map.of()
+      ));
+
+    transaction.commit();
+    runSimpleFailure(assignment, agent);
+  }
+
+  /**
+   * A plan with an unsupported tool execution fails.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanToolExecutionInvalid2()
+    throws Exception
+  {
+    final var assignment =
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(createPlanOneTask());
+
+    final var transaction = ASSIGNMENT_FIXTURE.transaction();
+    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+      .execute(new NPToolExecutionDescription(
+        TOOL_EXECUTION_DESCRIPTION.identifier(),
+        TOOL_EXECUTION_DESCRIPTION.tool(),
+        NPFormatName.of("x.y.z"),
+        TOOL_EXECUTION_DESCRIPTION.text()
+      ));
+
+    final var agent =
+      NPAgentID.of(UUID.randomUUID().toString());
+
+    transaction
+      .queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .execute(new NPAgentDescription(
+        agent,
+        "Agent",
+        NPKey.generate(),
+        Map.of(),
+        Map.of(),
+        Map.of()
+      ));
+
+    transaction.commit();
+    runSimpleFailure(assignment, agent);
+  }
+
+  private static void runSimpleFailure(
+    final NPAssignment assignment,
+    final NPAgentID agent)
+  {
+    Mockito.when(
+      ASSIGNMENT_FIXTURE.mockArchiveService()
+        .linksForArchive(any())
+    ).thenReturn(
+      new NPArchiveLinks(
+        URI.create("https://www.example.com/file.tgz"),
+        URI.create("https://www.example.com/file.tgz.sha256")
+      )
+    );
+
+    Mockito.when(
+      ASSIGNMENT_FIXTURE.mockAgentService()
+        .findSuitableAgentsFor(any(), any())
+    ).thenReturn(
+      new NPAgentServiceType.NPSuitableAgents(
+        Set.of(agent),
+        Set.of(agent)
+      )
+    );
+
+    Mockito.when(
+      Boolean.valueOf(
+        ASSIGNMENT_FIXTURE.mockAgentService()
+          .offerWorkItem(any(), any())
+      )
+    ).thenReturn(TRUE);
+
+    Mockito.when(
+      Boolean.valueOf(
+        ASSIGNMENT_FIXTURE.mockAgentService()
+          .sendWorkItem(any(), any())
+      )
+    ).thenReturn(TRUE);
+
+    try (var task = NPAssignmentTask.create(
+      ASSIGNMENT_FIXTURE.services(),
+      assignment,
+      ASSIGNMENT_FIXTURE.commit()
+    )) {
+      task.run();
+    }
+
+    final var eQ = ASSIGNMENT_FIXTURE.events();
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    final var e =
+      assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertEquals(0, eQ.size());
+
+    assertInstanceOf(
+      NPAssignmentExecutionFailed.class,
       e.execution().status()
     );
   }
