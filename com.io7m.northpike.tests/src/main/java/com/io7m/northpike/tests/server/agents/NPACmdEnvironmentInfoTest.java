@@ -83,7 +83,7 @@ public final class NPACmdEnvironmentInfoTest
   {
     final var handler = new NPACmdEnvironmentInfo();
 
-    Mockito.when(this.context.authenticationRequire())
+    Mockito.when(this.context.onAuthenticationRequire())
       .thenThrow(new NPPlanException(
         ERROR_AUTHENTICATION.name(),
         errorAuthentication(),
@@ -130,7 +130,7 @@ public final class NPACmdEnvironmentInfoTest
     final var agentId =
       NPAgentID.of("ab27f114-6b29-5ab2-a528-b41ef98abe76");
 
-    Mockito.when(this.context.authenticationRequire())
+    Mockito.when(this.context.onAuthenticationRequire())
       .thenReturn(agentId);
     Mockito.when(this.context.agentFindForId(any()))
       .thenReturn(Optional.empty());

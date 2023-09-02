@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.plans.parsers;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.plans.NPPlanTaskBuilderType;
@@ -49,12 +49,12 @@ public record NPPlanTaskDescription(
   String description,
   NPAgentLabelMatchType agentRequireWithLabel,
   NPAgentLabelMatchType agentPreferWithLabel,
-  Optional<RDottedName> agentMustBeSameAs,
+  Optional<NPPlanElementName> agentMustBeSameAs,
   Optional<Duration> agentSelectionTimeout,
   Optional<Duration> executionTimeout,
-  Set<RDottedName> lockAgentResources,
+  Set<NPAgentResourceName> lockAgentResources,
   NPPlanToolExecution toolExecution,
-  Set<RDottedName> dependsOn)
+  Set<NPPlanElementName> dependsOn)
   implements NPPlanElementDescriptionType
 {
   /**
@@ -104,7 +104,7 @@ public record NPPlanTaskDescription(
 
     if (this.agentMustBeSameAs.isPresent()) {
       final var same = this.agentMustBeSameAs.get();
-      taskBuilder.setAgentMustBeSameAs(new NPPlanElementName(same));
+      taskBuilder.setAgentMustBeSameAs(same);
     }
     if (this.agentSelectionTimeout.isPresent()) {
       taskBuilder.setAgentSelectionTimeout(this.agentSelectionTimeout.get());
@@ -118,7 +118,7 @@ public record NPPlanTaskDescription(
     taskBuilder.setToolExecution(this.toolExecution);
 
     for (final var depends : this.dependsOn) {
-      taskBuilder.addDependsOn(new NPPlanElementName(depends));
+      taskBuilder.addDependsOn(depends);
     }
   }
 }

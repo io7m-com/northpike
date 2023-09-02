@@ -21,6 +21,10 @@ import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.protocol.agent.NPACommandCDisconnect;
 import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
 import com.io7m.northpike.protocol.agent.NPACommandCLogin;
+import com.io7m.northpike.protocol.agent.NPACommandCWorkItemFailed;
+import com.io7m.northpike.protocol.agent.NPACommandCWorkItemOutput;
+import com.io7m.northpike.protocol.agent.NPACommandCWorkItemStarted;
+import com.io7m.northpike.protocol.agent.NPACommandCWorkItemSucceeded;
 import com.io7m.northpike.protocol.agent.NPACommandType;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.NPAResponseType;
@@ -69,7 +73,20 @@ public final class NPACmd
       if (command instanceof final NPACommandCDisconnect c) {
         return new NPACmdDisconnect().execute(context, c);
       }
+      if (command instanceof final NPACommandCWorkItemStarted c) {
+        return new NPACmdWorkItemStarted().execute(context, c);
+      }
+      if (command instanceof final NPACommandCWorkItemOutput c) {
+        return new NPACmdWorkItemOutput().execute(context, c);
+      }
+      if (command instanceof final NPACommandCWorkItemSucceeded c) {
+        return new NPACmdWorkItemSucceeded().execute(context, c);
+      }
+      if (command instanceof final NPACommandCWorkItemFailed c) {
+        return new NPACmdWorkItemFailed().execute(context, c);
+      }
     }
+
     throw context.fail(ERROR_PROTOCOL, errorProtocol());
   }
 }

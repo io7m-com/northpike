@@ -18,17 +18,24 @@
 package com.io7m.northpike.tests.plans;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPArchive;
+import com.io7m.northpike.model.NPArchiveLinks;
+import com.io7m.northpike.model.NPArchiveWithLinks;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPErrorCode;
+import com.io7m.northpike.model.NPHash;
+import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.plans.NPPlanToolExecution;
+import com.io7m.northpike.plans.NPPlanToolExecutionCompilerType;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.preparation.NPPlanPreparation;
-import com.io7m.northpike.plans.preparation.NPPlanPreparationResourcesType;
 import com.io7m.northpike.plans.variables.NPPlanStandardVariables;
 import com.io7m.northpike.plans.variables.NPPlanVariableString;
 import com.io7m.northpike.plans.variables.NPPlanVariableStringSet;
@@ -67,6 +74,23 @@ public final class NPPlanPreparationTest
       Set.of("t")
     );
 
+  private static final NPArchiveWithLinks ARCHIVE =
+    new NPArchiveWithLinks(
+      new NPArchive(
+        new NPToken("cc8ce020992d9d4a1cc83a1ea465d7f5fbe2e54fb3f4c815dc33c236633cb283"),
+        COMMIT.id(),
+        new NPHash(
+          "SHA-256",
+          "da28353fcdba28e253da6f2ebfd04058c256addb87005dc8b694ebff17921848"
+        ),
+        OffsetDateTime.now()
+      ),
+      new NPArchiveLinks(
+        URI.create("https://www.example.com/archive.tgz"),
+        URI.create("https://www.example.com/archive.tgz.sha512")
+      )
+    );
+
   /**
    * The default plan variables appear in prepared plans.
    *
@@ -78,23 +102,14 @@ public final class NPPlanPreparationTest
     throws Exception
   {
     final var resources =
-      Mockito.mock(NPPlanPreparationResourcesType.class);
+      Mockito.mock(NPPlanToolExecutionCompilerType.class);
 
     final var plan =
       NPPlans.builder(NPStrings.create(Locale.ROOT), "p", 1L)
         .build();
 
-    final var archive =
-      new NPPlanPreparationResourcesType.Archive(
-        URI.create("https://www.example.com/archive.tgz"),
-        URI.create("https://www.example.com/archive.tgz.sha512")
-      );
-
-    Mockito.when(resources.archiveForCommit(COMMIT))
-      .thenReturn(archive);
-
     final var preparation =
-      NPPlanPreparation.forCommit(resources, COMMIT, plan);
+      NPPlanPreparation.forCommit(resources, COMMIT, ARCHIVE, plan);
 
     assertEquals(Map.of(), preparation.toolExecutions());
     assertEquals(plan, preparation.plan());
@@ -139,34 +154,25 @@ public final class NPPlanPreparationTest
     throws Exception
   {
     final var resources =
-      Mockito.mock(NPPlanPreparationResourcesType.class);
+      Mockito.mock(NPPlanToolExecutionCompilerType.class);
 
     final var planBuilder =
       NPPlans.builder(NPStrings.create(Locale.ROOT), "p", 1L)
         .addToolReference(new NPToolReference(
-          new RDottedName("t"),
-          new RDottedName("tn"),
+          NPToolReferenceName.of("t"),
+          NPToolName.of("tn"),
           Version.of(1, 0, 0)
         ));
 
     planBuilder.addTask("t")
       .setToolExecution(new NPPlanToolExecution(
-        new RDottedName("t"),
+        NPToolReferenceName.of("t"),
         NPToolExecutionIdentifier.of("x", 1L),
         Set.of()
       ));
 
     final var plan =
       planBuilder.build();
-
-    final var archive =
-      new NPPlanPreparationResourcesType.Archive(
-        URI.create("https://www.example.com/archive.tgz"),
-        URI.create("https://www.example.com/archive.tgz.sha512")
-      );
-
-    Mockito.when(resources.archiveForCommit(COMMIT))
-      .thenReturn(archive);
 
     Mockito.when(resources.toolCompile(any(), any()))
       .thenThrow(new NPPlanException(
@@ -178,7 +184,7 @@ public final class NPPlanPreparationTest
 
     final var ex =
       assertThrows(NPPlanException.class, () -> {
-        NPPlanPreparation.forCommit(resources, COMMIT, plan);
+        NPPlanPreparation.forCommit(resources, COMMIT, ARCHIVE, plan);
       });
 
     assertEquals("Tool compilation failed.", ex.getMessage());
@@ -205,20 +211,20 @@ public final class NPPlanPreparationTest
       );
 
     final var resources =
-      Mockito.mock(NPPlanPreparationResourcesType.class);
+      Mockito.mock(NPPlanToolExecutionCompilerType.class);
 
     final var planBuilder =
       NPPlans.builder(NPStrings.create(Locale.ROOT), "p", 1L)
         .addToolReference(new NPToolReference(
-          new RDottedName("t"),
-          new RDottedName("tn"),
+          NPToolReferenceName.of("t"),
+          NPToolName.of("tn"),
           Version.of(1, 0, 0)
         ));
 
     final var taskBuilder =
       planBuilder.addTask("t")
         .setToolExecution(new NPPlanToolExecution(
-          new RDottedName("t"),
+          NPToolReferenceName.of("t"),
           NPToolExecutionIdentifier.of("x", 1L),
           Set.of()
         ));
@@ -226,20 +232,11 @@ public final class NPPlanPreparationTest
     final var plan =
       planBuilder.build();
 
-    final var archive =
-      new NPPlanPreparationResourcesType.Archive(
-        URI.create("https://www.example.com/archive.tgz"),
-        URI.create("https://www.example.com/archive.tgz.sha512")
-      );
-
-    Mockito.when(resources.archiveForCommit(COMMIT))
-      .thenReturn(archive);
-
     Mockito.when(resources.toolCompile(any(), any()))
       .thenReturn(checked);
 
     final var preparation =
-      NPPlanPreparation.forCommit(resources, COMMIT, plan);
+      NPPlanPreparation.forCommit(resources, COMMIT, ARCHIVE, plan);
 
     assertEquals(
       checked,

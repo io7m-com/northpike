@@ -22,7 +22,6 @@ import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.blackthorne.core.Blackthorne;
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.parsers.NPPlanBarrierDescription;
 import com.io7m.northpike.plans.parsers.NPPlanElementDescriptionType;
@@ -44,7 +43,7 @@ public final class NPP1Barrier
   private NPPlanElementName name;
   private String description;
 
-  private Set<RDottedName> dependsOn =
+  private Set<NPPlanElementName> dependsOn =
     new TreeSet<>();
 
   /**
@@ -69,7 +68,7 @@ public final class NPP1Barrier
         element("DependsOn"),
         Blackthorne.forScalarAttribute(
           element("DependsOn"),
-          (c, a) -> new NPP1DependsOn(new RDottedName(a.getValue("Task")))
+          (c, a) -> new NPP1DependsOn(NPPlanElementName.of(a.getValue("Task")))
         )
       )
     );

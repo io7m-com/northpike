@@ -24,7 +24,11 @@ import java.util.UUID;
 
 public sealed interface NPAResponseType
   extends NPAMessageType
-  permits NPAResponseError, NPAResponseLatencyCheck, NPAResponseOK
+  permits NPAResponseError,
+  NPAResponseLatencyCheck,
+  NPAResponseOK,
+  NPAResponseWorkOffered,
+  NPAResponseWorkSent
 {
   /**
    * @return The ID of the message to which this message correlates

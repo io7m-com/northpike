@@ -33,7 +33,7 @@ public record NPHash(
   implements Comparable<NPHash>
 {
   private static final Pattern VALID_VALUE =
-    Pattern.compile("[A-F0-9]{64,128}");
+    Pattern.compile("[a-f0-9]{64,128}");
 
   /**
    * A hash value.

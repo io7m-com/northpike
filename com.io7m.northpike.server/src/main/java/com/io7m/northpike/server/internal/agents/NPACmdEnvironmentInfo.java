@@ -48,7 +48,7 @@ public final class NPACmdEnvironmentInfo
     throws NPException
   {
     final var agentId =
-      context.authenticationRequire();
+      context.onAuthenticationRequire();
     final var agentOpt =
       context.agentFindForId(agentId);
 

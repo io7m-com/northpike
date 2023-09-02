@@ -18,6 +18,9 @@
 package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.jmulticlose.core.CloseableCollectionType;
+import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentWorkItem;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerResources;
@@ -32,6 +35,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -192,6 +196,75 @@ public final class NPAgentService implements NPAgentServiceType
       this.mainExecutor.execute(this::run);
     }
     return this.future;
+  }
+
+  @Override
+  public NPSuitableAgents findSuitableAgentsFor(
+    final NPAgentLabelMatchType require,
+    final NPAgentLabelMatchType prefer)
+  {
+    Objects.requireNonNull(require, "require");
+    Objects.requireNonNull(prefer, "prefer");
+
+    final var available =
+      new HashSet<NPAgentID>();
+    final var preferred =
+      new HashSet<NPAgentID>();
+
+    for (final var task : this.agentTasks) {
+      if (task.matches(require)) {
+        available.add(task.agentId());
+        if (task.matches(prefer)) {
+          preferred.add(task.agentId());
+        }
+      }
+    }
+
+    return new NPSuitableAgents(available, preferred);
+  }
+
+  @Override
+  public boolean offerWorkItem(
+    final NPAgentID agent,
+    final NPAgentWorkItem workItem)
+  {
+    Objects.requireNonNull(agent, "agent");
+    Objects.requireNonNull(workItem, "workItem");
+
+    final var tasksForAgent =
+      this.agentTasks.stream()
+        .filter(t -> Objects.equals(t.agentId(), agent))
+        .toList();
+
+    for (final var task : tasksForAgent) {
+      if (task.offerWorkItem(workItem)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  @Override
+  public boolean sendWorkItem(
+    final NPAgentID agent,
+    final NPAgentWorkItem workItem)
+  {
+    Objects.requireNonNull(agent, "agent");
+    Objects.requireNonNull(workItem, "workItem");
+
+    final var tasksForAgent =
+      this.agentTasks.stream()
+        .filter(t -> Objects.equals(t.agentId(), agent))
+        .toList();
+
+    for (final var task : tasksForAgent) {
+      if (task.sendWorkItem(workItem)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private void run()

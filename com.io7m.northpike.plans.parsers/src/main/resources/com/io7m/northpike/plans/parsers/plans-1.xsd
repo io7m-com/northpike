@@ -29,21 +29,79 @@
     </xsd:restriction>
   </xsd:simpleType>
 
+  <xsd:element name="Timeouts">
+    <xsd:complexType>
+      <xsd:attribute name="AgentSelection"
+                     type="xsd:duration"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The default maximum duration that can elapse before a task is
+            considered failed because no agent could be selected.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="TaskExecution"
+                     type="xsd:duration"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The default maximum duration that can elapse before a task is
+            considered failed because it took too long to execute.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
   <xsd:element name="Tool">
+    <xsd:annotation>
+      <xsd:documentation>
+        A named reference to a tool.
+      </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:complexType>
       <xsd:attribute name="ReferenceName"
                      use="required"
-                     type="np:NameType"/>
+                     type="np:NameType">
+        <xsd:annotation>
+          <xsd:documentation>
+            The name of the reference.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
       <xsd:attribute name="ToolName"
                      use="required"
-                     type="np:NameType"/>
+                     type="np:NameType">
+        <xsd:annotation>
+          <xsd:documentation>
+            The name of the tool (such as "org.apache.maven").
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
       <xsd:attribute name="ToolVersion"
                      use="required"
-                     type="xsd:string"/>
+                     type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            The tool version (such as "3.4.8").
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="Tools">
+    <xsd:annotation>
+      <xsd:documentation>
+        A set of tools.
+      </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:complexType>
       <xsd:sequence minOccurs="1"
                     maxOccurs="unbounded">
@@ -54,18 +112,43 @@
 
   <xsd:complexType name="PlanElementType"
                    abstract="true">
+    <xsd:annotation>
+      <xsd:documentation>
+        The base type of plan elements.
+      </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:attribute type="np:NameType"
                    name="Name"
-                   use="required"/>
+                   use="required">
+      <xsd:annotation>
+        <xsd:documentation>
+          The name of the plan element.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+
     <xsd:attribute type="xsd:string"
                    name="Description"
-                   use="required"/>
+                   use="required">
+      <xsd:annotation>
+        <xsd:documentation>
+          A humanly-readable description of the plan element.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
   </xsd:complexType>
 
   <xsd:complexType name="AgentPreferenceType"
                    abstract="true"/>
 
   <xsd:complexType name="AgentPreferWithLabelsMatchingType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The type of expressions that match "preferred" agents.
+      </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:complexContent>
       <xsd:extension base="np:AgentPreferenceType">
         <xsd:group ref="le:ExpressionGroup"/>
@@ -86,6 +169,12 @@
                    abstract="true"/>
 
   <xsd:complexType name="AgentRequireWithLabelsMatchingType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The type of expressions that match "required" agents.
+      </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:complexContent>
       <xsd:extension base="np:AgentRequirementType">
         <xsd:group ref="le:ExpressionGroup"/>
@@ -117,14 +206,34 @@
   </xsd:group>
 
   <xsd:element name="Resource">
+    <xsd:annotation>
+      <xsd:documentation>
+        A named resource that is locked on an agent when it executes a
+        particular task.
+      </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:complexType>
       <xsd:attribute name="Name"
                      type="np:NameType"
-                     use="required"/>
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The resource name.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="AgentLockResources">
+    <xsd:annotation>
+      <xsd:documentation>
+        The set of resources that are locked on an agent when it executes a
+        particular task.
+      </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:complexType>
       <xsd:sequence minOccurs="0"
                     maxOccurs="unbounded">
@@ -147,58 +256,161 @@
   </xsd:element>
 
   <xsd:element name="ToolRequirement">
+    <xsd:annotation>
+      <xsd:documentation>
+        A requirement upon a specific tool.
+      </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:complexType>
-      <xsd:attribute name="ToolName"
+      <xsd:attribute name="ReferenceName"
                      use="required"
                      type="np:NameType"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="ToolExecution">
+    <xsd:annotation>
+      <xsd:documentation>
+        A tool execution.
+      </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:complexType>
       <xsd:sequence minOccurs="0"
                     maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>
+            The set of (extra) tools upon which this execution depends.
+          </xsd:documentation>
+        </xsd:annotation>
+
         <xsd:element ref="np:ToolRequirement"/>
       </xsd:sequence>
 
       <xsd:attribute name="ReferenceName"
                      use="required"
-                     type="np:NameType"/>
+                     type="np:NameType">
+        <xsd:annotation>
+          <xsd:documentation>
+            The name of the tool reference.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
       <xsd:attribute name="ExecutionName"
                      use="required"
-                     type="np:NameType"/>
+                     type="np:NameType">
+        <xsd:annotation>
+          <xsd:documentation>
+            The name of the execution.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
       <xsd:attribute name="ExecutionVersion"
                      use="required"
-                     type="xsd:unsignedLong"/>
+                     type="xsd:unsignedLong">
+        <xsd:annotation>
+          <xsd:documentation>
+            The version of the tool execution.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
     </xsd:complexType>
 
     <xsd:unique name="ToolRequirementUnique">
       <xsd:selector xpath="np:ToolRequirement"/>
-      <xsd:field xpath="@ToolName"/>
+      <xsd:field xpath="@ReferenceName"/>
     </xsd:unique>
   </xsd:element>
 
   <xsd:complexType name="TaskType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The definition of a task. A task performs work on an agent.
+      </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:complexContent>
       <xsd:extension base="np:PlanElementType">
         <xsd:sequence>
           <xsd:sequence minOccurs="0"
                         maxOccurs="unbounded">
+            <xsd:annotation>
+              <xsd:documentation>
+                The set of expressions that defines the agents upon which this
+                task depends.
+              </xsd:documentation>
+            </xsd:annotation>
             <xsd:group ref="np:AgentRequireGroup"/>
           </xsd:sequence>
+
           <xsd:sequence minOccurs="0"
                         maxOccurs="1">
+            <xsd:annotation>
+              <xsd:documentation>
+                The set of expressions that defines the agents that are
+                preferred for execution if more than one agent is matched by the
+                requirements.
+              </xsd:documentation>
+            </xsd:annotation>
             <xsd:group ref="np:AgentPreferGroup"/>
           </xsd:sequence>
+
           <xsd:element ref="np:AgentLockResources"
                        minOccurs="0"
-                       maxOccurs="1"/>
+                       maxOccurs="1">
+            <xsd:annotation>
+              <xsd:documentation>
+                The set of resources that are locked on the agent during the
+                execution of this task.
+              </xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+
           <xsd:sequence minOccurs="0"
                         maxOccurs="unbounded">
+            <xsd:annotation>
+              <xsd:documentation>
+                The set of plan elements upon which this task depends. The
+                execution of this task will not begin until all of its
+                dependencies have completed.
+              </xsd:documentation>
+            </xsd:annotation>
             <xsd:element ref="np:DependsOn"/>
           </xsd:sequence>
-          <xsd:element ref="np:ToolExecution"/>
+
+          <xsd:element ref="np:ToolExecution">
+            <xsd:annotation>
+              <xsd:documentation>
+                The tool execution for this task.
+              </xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
         </xsd:sequence>
+
+        <xsd:attribute name="AgentSelectionTimeout"
+                       type="xsd:duration"
+                       use="optional">
+          <xsd:annotation>
+            <xsd:documentation>
+              The default maximum duration that can elapse before this task is
+              considered failed because no agent could be selected.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+
+        <xsd:attribute name="ExecutionTimeout"
+                       type="xsd:duration"
+                       use="optional">
+          <xsd:annotation>
+            <xsd:documentation>
+              The default maximum duration that can elapse before this task is
+              considered failed because it took too long to execute.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
@@ -207,11 +419,25 @@
                type="np:TaskType"/>
 
   <xsd:complexType name="BarrierType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The definition of a barrier. A barrier is immediately marked as having
+        completed when all of its dependencies are completed.
+      </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:complexContent>
       <xsd:extension base="np:PlanElementType">
         <xsd:sequence>
           <xsd:sequence minOccurs="0"
                         maxOccurs="unbounded">
+            <xsd:annotation>
+              <xsd:documentation>
+                The set of plan elements upon which this barrier depends. The
+                barrier will not complete until all of its dependencies have
+                completed.
+              </xsd:documentation>
+            </xsd:annotation>
             <xsd:element ref="np:DependsOn"/>
           </xsd:sequence>
         </xsd:sequence>
@@ -223,6 +449,12 @@
                type="np:BarrierType"/>
 
   <xsd:group name="PlanElementGroup">
+    <xsd:annotation>
+      <xsd:documentation>
+        The set of elements that are executed in plans.
+      </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:choice>
       <xsd:element ref="np:Task"/>
       <xsd:element ref="np:Barrier"/>
@@ -230,24 +462,64 @@
   </xsd:group>
 
   <xsd:element name="Plan">
+    <xsd:annotation>
+      <xsd:documentation>
+        The definition of a plan.
+      </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:complexType>
       <xsd:sequence>
+        <xsd:element ref="np:Timeouts"
+                     minOccurs="1"
+                     maxOccurs="1">
+          <xsd:annotation>
+            <xsd:documentation>
+              The default timeout values.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+
         <xsd:element ref="np:Tools"
                      minOccurs="0"
-                     maxOccurs="1"/>
+                     maxOccurs="1">
+          <xsd:annotation>
+            <xsd:documentation>
+              The tool references used in this plan.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
 
         <xsd:sequence minOccurs="0"
                       maxOccurs="unbounded">
+          <xsd:annotation>
+            <xsd:documentation>
+              The set of executable plan elements.
+            </xsd:documentation>
+          </xsd:annotation>
           <xsd:group ref="np:PlanElementGroup"/>
         </xsd:sequence>
       </xsd:sequence>
 
       <xsd:attribute name="Name"
                      use="required"
-                     type="np:NameType"/>
+                     type="np:NameType">
+        <xsd:annotation>
+          <xsd:documentation>
+            The name of the plan.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
       <xsd:attribute name="Version"
                      use="required"
-                     type="xsd:unsignedLong"/>
+                     type="xsd:unsignedLong">
+        <xsd:annotation>
+          <xsd:documentation>
+            The version of the plan.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
     </xsd:complexType>
 
     <xsd:key name="PlanElementNameKey">

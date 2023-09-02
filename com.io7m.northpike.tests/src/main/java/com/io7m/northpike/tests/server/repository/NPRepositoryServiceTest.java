@@ -260,7 +260,7 @@ public final class NPRepositoryServiceTest
     this.service.start().get(1L, TimeUnit.SECONDS);
     this.service.check().get(10L, TimeUnit.SECONDS);
 
-    final var eventQueue = this.events.events();
+    final var eventQueue = this.events.eventQueue();
 
     assertInstanceOf(NPRepositoryServiceStarted.class, eventQueue.poll());
     assertInstanceOf(NPRepositoryConfigured.class, eventQueue.poll());
@@ -303,7 +303,7 @@ public final class NPRepositoryServiceTest
     this.service.start().get(1L, TimeUnit.SECONDS);
     this.service.check().get(10L, TimeUnit.SECONDS);
 
-    final var eventQueue = this.events.events();
+    final var eventQueue = this.events.eventQueue();
 
     assertInstanceOf(NPRepositoryServiceStarted.class, eventQueue.poll());
     assertInstanceOf(NPRepositoryConfigured.class, eventQueue.poll());
@@ -341,7 +341,7 @@ public final class NPRepositoryServiceTest
     this.service.start().get(1L, TimeUnit.SECONDS);
     this.service.check().get(10L, TimeUnit.SECONDS);
 
-    final var eventQueue = this.events.events();
+    final var eventQueue = this.events.eventQueue();
 
     assertInstanceOf(NPRepositoryServiceStarted.class, eventQueue.poll());
     assertInstanceOf(NPRepositoryConfigureFailed.class, eventQueue.poll());
@@ -395,7 +395,7 @@ public final class NPRepositoryServiceTest
 
     assertEquals(commit, archive.commit());
 
-    final var eventQueue = this.events.events();
+    final var eventQueue = this.events.eventQueue();
 
     assertInstanceOf(NPRepositoryServiceStarted.class, eventQueue.poll());
     assertInstanceOf(NPRepositoryConfigured.class, eventQueue.poll());

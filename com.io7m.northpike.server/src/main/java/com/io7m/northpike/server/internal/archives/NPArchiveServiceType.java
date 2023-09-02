@@ -18,6 +18,8 @@
 package com.io7m.northpike.server.internal.archives;
 
 import com.io7m.jmulticlose.core.CloseableType;
+import com.io7m.northpike.model.NPArchive;
+import com.io7m.northpike.model.NPArchiveLinks;
 import com.io7m.repetoir.core.RPServiceType;
 
 import java.util.concurrent.CompletableFuture;
@@ -36,4 +38,14 @@ public interface NPArchiveServiceType
    */
 
   CompletableFuture<Void> start();
+
+  /**
+   * Obtain the links for the given archive.
+   *
+   * @param archive The archive
+   *
+   * @return The links
+   */
+
+  NPArchiveLinks linksForArchive(NPArchive archive);
 }

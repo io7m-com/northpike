@@ -20,7 +20,6 @@ import com.io7m.ervilla.api.EContainerSupervisorType;
 import com.io7m.ervilla.test_extension.ErvillaCloseAfterAll;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.GetExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
@@ -28,6 +27,8 @@ import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPToolExecutionName;
+import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.tests.containers.NPTestContainers;
 import com.io7m.northpike.toolexec.NPTXFormats;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
@@ -93,10 +94,10 @@ public final class NPDatabaseToolsTest
     final var tool =
       new NPToolExecutionDescription(
         new NPToolExecutionIdentifier(
-          new RDottedName("com.io7m.example"),
+          NPToolExecutionName.of("com.io7m.example"),
           23L
         ),
-        new RDottedName("com.io7m.tool"),
+        NPToolName.of("com.io7m.tool"),
         NPTXFormats.nptx1(),
         "Data."
       );
@@ -121,7 +122,7 @@ public final class NPDatabaseToolsTest
     assertEquals(
       Optional.empty(),
       get.execute(new NPToolExecutionIdentifier(
-        new RDottedName("com.io7m.example"),
+        NPToolExecutionName.of("com.io7m.example"),
         23L
       ))
     );

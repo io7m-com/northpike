@@ -21,8 +21,9 @@ import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
 import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPToolExecutionName;
+import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.plans.NPPlanToolExecution;
 import org.xml.sax.Attributes;
 
@@ -36,11 +37,11 @@ import static com.io7m.northpike.plans.parsers.v1.NPP1.element;
  */
 
 public final class NPP1ToolExecution
-  implements BTElementHandlerType<RDottedName, NPPlanToolExecution>
+  implements BTElementHandlerType<NPToolReferenceName, NPPlanToolExecution>
 {
-  private final TreeSet<RDottedName> requirements;
-  private RDottedName referenceName;
-  private RDottedName executionName;
+  private final TreeSet<NPToolReferenceName> requirements;
+  private NPToolReferenceName referenceName;
+  private NPToolExecutionName executionName;
   private long executionVersion;
 
   /**
@@ -56,12 +57,15 @@ public final class NPP1ToolExecution
   }
 
   @Override
-  public Map<BTQualifiedName, BTElementHandlerConstructorType<?, ? extends RDottedName>>
+  public Map<BTQualifiedName, BTElementHandlerConstructorType<?, ? extends NPToolReferenceName>>
   onChildHandlersRequested(
     final BTElementParsingContextType context)
   {
     return Map.ofEntries(
-      Map.entry(element("ToolRequirement"), NPP1Handlers.toolRequirement())
+      Map.entry(
+        element("ToolRequirement"),
+        NPP1Handlers.toolRequirement()
+      )
     );
   }
 
@@ -71,9 +75,9 @@ public final class NPP1ToolExecution
     final Attributes attributes)
   {
     this.referenceName =
-      new RDottedName(attributes.getValue("ReferenceName"));
+      NPToolReferenceName.of(attributes.getValue("ReferenceName"));
     this.executionName =
-      new RDottedName(attributes.getValue("ExecutionName"));
+      NPToolExecutionName.of(attributes.getValue("ExecutionName"));
     this.executionVersion =
       Long.parseUnsignedLong(attributes.getValue("ExecutionVersion"));
   }
@@ -95,7 +99,7 @@ public final class NPP1ToolExecution
   @Override
   public void onChildValueProduced(
     final BTElementParsingContextType context,
-    final RDottedName result)
+    final NPToolReferenceName result)
   {
     this.requirements.add(result);
   }

@@ -207,6 +207,8 @@ public final class NPDatabaseRepositoriesTest
       this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
     final var getCommits =
       this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+    final var getCommit =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitGetType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -237,6 +239,10 @@ public final class NPDatabaseRepositoriesTest
     );
 
     this.transaction.commit();
+
+    for (final var c : generated.commits) {
+      assertEquals(c, getCommit.execute(c.id()).orElseThrow());
+    }
 
     final var paged =
       getCommits.execute(
@@ -556,7 +562,7 @@ public final class NPDatabaseRepositoriesTest
   }
 
   /**
-   * Creating repository commits works.
+   * Creating repository commits fails if the repository doesn't exist.
    *
    * @throws Exception On errors
    */
@@ -567,8 +573,6 @@ public final class NPDatabaseRepositoriesTest
   {
     final var putCommits =
       this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
-    final var getCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
 
     final var commit =
       new NPCommit(
@@ -734,8 +738,8 @@ public final class NPDatabaseRepositoriesTest
     for (int index = 0; index < 100; ++index) {
       final var commit = new NPCommit(
         new NPCommitID(repository, String.format("%x", Integer.valueOf(index))),
-        startTime.plusHours(index),
-        startTime.plusHours(index).minusYears(1L),
+        startTime.plusHours(index).withNano(0),
+        startTime.plusHours(index).minusYears(1L).withNano(0),
         index % 3 == 0 ? author1 : author0,
         "Commit " + index,
         "",

@@ -17,7 +17,11 @@
 
 package com.io7m.northpike.toolexec.serializer.v1;
 
+import com.io7m.anethum.api.SerializationException;
+import com.io7m.northpike.model.NPFormatName;
+import com.io7m.northpike.toolexec.NPTXFormats;
 import com.io7m.northpike.toolexec.NPTXSchemas;
+import com.io7m.northpike.toolexec.NPTXSerializerType;
 import com.io7m.northpike.toolexec.model.NPTXComment;
 import com.io7m.northpike.toolexec.model.NPTXDescription;
 import com.io7m.northpike.toolexec.model.NPTXEAnd;
@@ -45,6 +49,7 @@ import com.io7m.northpike.toolexec.model.NPTXStatementType;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
@@ -52,7 +57,7 @@ import java.util.List;
  * A serializer for toolexec v1 data.
  */
 
-public final class NPTX1Serializer
+public final class NPTX1Serializer implements NPTXSerializerType
 {
   private final XMLOutputFactory outputs;
   private final XMLStreamWriter output;
@@ -76,48 +81,16 @@ public final class NPTX1Serializer
    * @param outputStream The output stream
    *
    * @return A serializer
-   *
-   * @throws XMLStreamException On errors
    */
 
   public static NPTX1Serializer create(
     final OutputStream outputStream)
-    throws XMLStreamException
   {
-    return new NPTX1Serializer(outputStream);
-  }
-
-  /**
-   * Execute the serializer.
-   *
-   * @param description The input description
-   *
-   * @throws XMLStreamException On errors
-   */
-
-  public void serialize(
-    final NPTXDescription description)
-    throws XMLStreamException
-  {
-    this.output.writeStartDocument("UTF-8", "1.0");
-    this.output.writeStartElement("ToolExecution");
-    this.output.writeDefaultNamespace(this.ns);
-
-    this.output.writeAttribute(
-      "Name",
-      description.name().value()
-    );
-    this.output.writeAttribute(
-      "Version",
-      Long.toUnsignedString(description.version())
-    );
-
-    for (final var statement : description.statements()) {
-      this.serializeStatement(statement);
+    try {
+      return new NPTX1Serializer(outputStream);
+    } catch (final XMLStreamException e) {
+      throw new IllegalStateException(e);
     }
-
-    this.output.writeEndElement();
-    this.output.writeEndDocument();
   }
 
   private void serializeStatement(
@@ -426,5 +399,52 @@ public final class NPTX1Serializer
     throws XMLStreamException
   {
     this.output.writeEmptyElement(this.ns, "True");
+  }
+
+  @Override
+  public NPFormatName format()
+  {
+    return NPTXFormats.nptx1();
+  }
+
+  @Override
+  public void execute(
+    final NPTXDescription description)
+    throws SerializationException
+  {
+    try {
+      this.output.writeStartDocument("UTF-8", "1.0");
+      this.output.writeStartElement("ToolExecution");
+      this.output.writeDefaultNamespace(this.ns);
+
+      this.output.writeAttribute(
+        "Name",
+        description.name().value()
+      );
+      this.output.writeAttribute(
+        "Version",
+        Long.toUnsignedString(description.version())
+      );
+
+      for (final var statement : description.statements()) {
+        this.serializeStatement(statement);
+      }
+
+      this.output.writeEndElement();
+      this.output.writeEndDocument();
+    } catch (final XMLStreamException e) {
+      throw new SerializationException(e.getMessage(), e);
+    }
+  }
+
+  @Override
+  public void close()
+    throws IOException
+  {
+    try {
+      this.output.close();
+    } catch (final XMLStreamException e) {
+      throw new IOException(e);
+    }
   }
 }

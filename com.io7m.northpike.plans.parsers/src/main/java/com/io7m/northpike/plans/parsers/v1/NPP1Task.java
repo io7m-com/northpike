@@ -22,7 +22,7 @@ import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.blackthorne.core.Blackthorne;
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanToolExecution;
 import com.io7m.northpike.plans.parsers.NPPlanElementDescriptionType;
@@ -63,12 +63,12 @@ public final class NPP1Task
   private Optional<Duration> executionTimeout =
     Optional.empty();
 
-  private Set<RDottedName> lockAgentResources =
+  private Set<NPAgentResourceName> lockAgentResources =
     new TreeSet<>();
 
   private NPPlanToolExecution toolExecution;
 
-  private Set<RDottedName> dependsOn =
+  private Set<NPPlanElementName> dependsOn =
     new TreeSet<>();
 
   /**
@@ -113,7 +113,7 @@ public final class NPP1Task
         element("DependsOn"),
         Blackthorne.forScalarAttribute(
           element("DependsOn"),
-          (c, a) -> new NPP1DependsOn(new RDottedName(a.getValue("Task")))
+          (c, a) -> new NPP1DependsOn(NPPlanElementName.of(a.getValue("Task")))
         )
       )
     );
@@ -128,6 +128,14 @@ public final class NPP1Task
       NPPlanElementName.of(attributes.getValue("Name"));
     this.description =
       attributes.getValue("Description");
+
+    this.executionTimeout =
+      Optional.ofNullable(attributes.getValue("ExecutionTimeout"))
+        .map(Duration::parse);
+
+    this.agentSelectionTimeout =
+      Optional.ofNullable(attributes.getValue("AgentSelectionTimeout"))
+        .map(Duration::parse);
   }
 
   @Override

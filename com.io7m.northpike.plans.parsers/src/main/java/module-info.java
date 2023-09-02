@@ -41,6 +41,7 @@ module com.io7m.northpike.plans.parsers
   requires com.io7m.jdeferthrow.core;
   requires com.io7m.jxe.core;
   requires com.io7m.lanark.core;
+  requires com.io7m.repetoir.core;
   requires com.io7m.verona.core;
   requires org.jgrapht.core;
 

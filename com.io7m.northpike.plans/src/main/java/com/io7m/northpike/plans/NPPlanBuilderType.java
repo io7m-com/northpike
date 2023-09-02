@@ -37,6 +37,20 @@ public interface NPPlanBuilderType
     throws NPPlanException;
 
   /**
+   * Set the default plan timeouts.
+   *
+   * @param timeouts The timeouts
+   *
+   * @return this
+   *
+   * @throws NPPlanException On errors
+   */
+
+  NPPlanBuilderType setTimeouts(
+    NPPlanTimeouts timeouts)
+    throws NPPlanException;
+
+  /**
    * Add a tool reference.
    *
    * @param reference The reference

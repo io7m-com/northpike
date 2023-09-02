@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.tests.toolexec;
 
-import com.io7m.northpike.toolexec.NPTXPreserveLexical;
+import com.io7m.northpike.model.NPPreserveLexical;
 import com.io7m.northpike.toolexec.model.NPTXDescription;
 import com.io7m.northpike.toolexec.parser.NPTXDescriptionParser;
 import com.io7m.northpike.toolexec.serializer.v1.NPTX1Serializer;
@@ -42,7 +42,7 @@ public final class NPTXParsingTest
     final var serializer =
       NPTX1Serializer.create(output);
 
-    serializer.serialize(description);
+    serializer.execute(description);
 
     final var input =
       new ByteArrayInputStream(output.toByteArray());
@@ -51,7 +51,7 @@ public final class NPTXParsingTest
       NPTXDescriptionParser.open(
         input,
         URI.create("urn:stdin"),
-        NPTXPreserveLexical.DISCARD_LEXICAL_INFORMATION,
+        NPPreserveLexical.DISCARD_LEXICAL_INFORMATION,
         parseStatus -> {
 
         });

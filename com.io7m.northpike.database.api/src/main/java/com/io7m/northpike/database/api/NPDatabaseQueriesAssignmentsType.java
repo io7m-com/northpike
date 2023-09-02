@@ -20,7 +20,10 @@ package com.io7m.northpike.database.api;
 import com.io7m.northpike.assignments.NPAssignment;
 import com.io7m.northpike.assignments.NPAssignmentExecution;
 import com.io7m.northpike.assignments.NPAssignmentName;
+import com.io7m.northpike.model.NPWorkItem;
+import com.io7m.northpike.model.NPWorkItemIdentifier;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -73,5 +76,58 @@ public sealed interface NPDatabaseQueriesAssignmentsType
     NPDatabaseQueriesAssignmentsType
   {
 
+  }
+
+  /**
+   * Update the given work item.
+   */
+
+  non-sealed interface WorkItemPutType
+    extends NPDatabaseQueryType<NPWorkItem, NPDatabaseUnit>,
+    NPDatabaseQueriesAssignmentsType
+  {
+
+  }
+
+  /**
+   * Retrieve a work item.
+   */
+
+  non-sealed interface WorkItemGetType
+    extends NPDatabaseQueryType<NPWorkItemIdentifier, Optional<NPWorkItem>>,
+    NPDatabaseQueriesAssignmentsType
+  {
+
+  }
+
+  /**
+   * Add a line of output to the given work item.
+   */
+
+  non-sealed interface WorkItemLogAddType
+    extends NPDatabaseQueryType<WorkItemLogAddType.Parameters, NPDatabaseUnit>,
+    NPDatabaseQueriesAssignmentsType
+  {
+    /**
+     * The log parameters.
+     *
+     * @param identifier The work item identifier
+     * @param line       The line of output
+     */
+
+    record Parameters(
+      NPWorkItemIdentifier identifier,
+      String line)
+    {
+      /**
+       * The log parameters.
+       */
+
+      public Parameters
+      {
+        Objects.requireNonNull(identifier, "identifier");
+        Objects.requireNonNull(line, "line");
+      }
+    }
   }
 }

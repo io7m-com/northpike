@@ -17,10 +17,11 @@
 
 package com.io7m.northpike.tests.plans;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.plans.NPPlanToolExecution;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.analysis.NPPlanExplanation;
@@ -145,7 +146,9 @@ public final class NPPlanExplanationTest
     final NPPlanExplanationType explanation)
   {
     final var messages = explanation.messages();
-    messages.forEach(msg -> LOG.debug("message: {}", this.strings.format(msg).trim()));
+    messages.forEach(msg -> LOG.debug(
+      "message: {}",
+      this.strings.format(msg).trim()));
     return messages;
   }
 
@@ -277,14 +280,14 @@ public final class NPPlanExplanationTest
 
     final var toolExec =
       new NPPlanToolExecution(
-        new RDottedName("texec"),
+        NPToolReferenceName.of("texec"),
         NPToolExecutionIdentifier.of("te", 1L),
         Set.of()
       );
 
     planBuilder.addToolReference(new NPToolReference(
-      new RDottedName("texec"),
-      new RDottedName("arg"),
+      NPToolReferenceName.of("texec"),
+      NPToolName.of("arg"),
       Version.of(1, 0, 0)
     ));
 
@@ -350,14 +353,14 @@ public final class NPPlanExplanationTest
 
     final var toolExec =
       new NPPlanToolExecution(
-        new RDottedName("texec"),
+        NPToolReferenceName.of("texec"),
         NPToolExecutionIdentifier.of("te", 1L),
         Set.of()
       );
 
     planBuilder.addToolReference(new NPToolReference(
-      new RDottedName("texec"),
-      new RDottedName("arg"),
+      NPToolReferenceName.of("texec"),
+      NPToolName.of("arg"),
       Version.of(1, 0, 0)
     ));
 
@@ -419,14 +422,14 @@ public final class NPPlanExplanationTest
 
     final var toolExec =
       new NPPlanToolExecution(
-        new RDottedName("texec"),
+        NPToolReferenceName.of("texec"),
         NPToolExecutionIdentifier.of("te", 1L),
         Set.of()
       );
 
     planBuilder.addToolReference(new NPToolReference(
-      new RDottedName("texec"),
-      new RDottedName("arg"),
+      NPToolReferenceName.of("texec"),
+      NPToolName.of("arg"),
       Version.of(1, 0, 0)
     ));
 
@@ -492,14 +495,14 @@ public final class NPPlanExplanationTest
 
     final var toolExec =
       new NPPlanToolExecution(
-        new RDottedName("texec"),
+        NPToolReferenceName.of("texec"),
         NPToolExecutionIdentifier.of("te", 1L),
         Set.of()
       );
 
     planBuilder.addToolReference(new NPToolReference(
-      new RDottedName("texec"),
-      new RDottedName("arg"),
+      NPToolReferenceName.of("texec"),
+      NPToolName.of("arg"),
       Version.of(1, 0, 0)
     ));
 
@@ -557,14 +560,14 @@ public final class NPPlanExplanationTest
 
     final var toolExec =
       new NPPlanToolExecution(
-        new RDottedName("texec"),
+        NPToolReferenceName.of("texec"),
         NPToolExecutionIdentifier.of("te", 1L),
         Set.of()
       );
 
     planBuilder.addToolReference(new NPToolReference(
-      new RDottedName("texec"),
-      new RDottedName("arg"),
+      NPToolReferenceName.of("texec"),
+      NPToolName.of("arg"),
       Version.of(1, 0, 0)
     ));
 

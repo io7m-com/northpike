@@ -67,16 +67,16 @@ public final class NPDBQToolExecutionDescriptionPut
   {
     final var id = d.identifier();
     context.insertInto(TOOL_EXECUTION_DESCRIPTIONS)
-      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_NAME, id.name().value())
+      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_NAME, id.name().toString())
       .set(TOOL_EXECUTION_DESCRIPTIONS.TED_VERSION, Long.valueOf(id.version()))
-      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_FORMAT, d.format().value())
-      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME, d.tool().value())
+      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_FORMAT, d.format().toString())
+      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME, d.tool().toString())
       .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TEXT, d.text())
       .onConflictOnConstraint(
         DSL.name("tool_execution_descriptions_name_version_unique"))
       .doUpdate()
-      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_FORMAT, d.format().value())
-      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME, d.tool().value())
+      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_FORMAT, d.format().toString())
+      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME, d.tool().toString())
       .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TEXT, d.text())
       .execute();
     return UNIT;

@@ -178,6 +178,9 @@ public final class NPPlanEvaluation
   {
     if (update instanceof final AgentAcceptedTask accepted) {
       final var state = this.elements.get(accepted.task());
+      if (state.status == IN_PROGRESS_EXECUTING) {
+        return;
+      }
       state.status = IN_PROGRESS_EXECUTING;
       state.timeStartExecute = this.clock.instant();
       state.agent = Optional.of(accepted.agent());
@@ -245,24 +248,20 @@ public final class NPPlanEvaluation
     final ElementState state)
   {
     if (state.element instanceof final NPPlanTaskType task) {
-      final var timeoutOpt =
-        task.executionTimeout();
+      final var timeout =
+        task.executionTimeout()
+          .orElse(this.plan.timeouts().taskExecution());
 
-      if (timeoutOpt.isPresent()) {
-        final var timeout =
-          timeoutOpt.get();
-        final var timeNow =
-          this.clock.instant();
-        final var waiting =
-          Duration.between(state.timeStartExecute, timeNow);
+      final var timeNow =
+        this.clock.instant();
+      final var waiting =
+        Duration.between(state.timeStartExecute, timeNow);
 
-        if (waiting.compareTo(timeout) > 0) {
-          state.status = FAILED_TIMED_OUT_EXECUTION;
-          state.timeFinished = timeNow;
-          this.stepEvents.add(new TaskExecutionTimedOut(task));
-          this.stepEvents.add(new ElementFailed(state.element));
-          return;
-        }
+      if (waiting.compareTo(timeout) > 0) {
+        state.status = FAILED_TIMED_OUT_EXECUTION;
+        state.timeFinished = timeNow;
+        this.stepEvents.add(new TaskExecutionTimedOut(task));
+        this.stepEvents.add(new ElementFailed(state.element));
       }
     }
   }
@@ -272,24 +271,21 @@ public final class NPPlanEvaluation
   {
     final var task = (NPPlanTaskType) state.element;
 
-    final var timeoutOpt =
-      task.agentSelectionTimeout();
+    final var timeout =
+      task.agentSelectionTimeout()
+        .orElse(this.plan.timeouts().agentSelection());
 
-    if (timeoutOpt.isPresent()) {
-      final var timeout =
-        timeoutOpt.get();
-      final var timeNow =
-        this.clock.instant();
-      final var waiting =
-        Duration.between(state.timeStartWaitAgent, timeNow);
+    final var timeNow =
+      this.clock.instant();
+    final var waiting =
+      Duration.between(state.timeStartWaitAgent, timeNow);
 
-      if (waiting.compareTo(timeout) > 0) {
-        state.status = FAILED_TIMED_OUT_WAITING_AGENT_SELECTION;
-        state.timeFinished = timeNow;
-        this.stepEvents.add(new TaskAgentSelectionTimedOut(task));
-        this.stepEvents.add(new ElementFailed(state.element));
-        return;
-      }
+    if (waiting.compareTo(timeout) > 0) {
+      state.status = FAILED_TIMED_OUT_WAITING_AGENT_SELECTION;
+      state.timeFinished = timeNow;
+      this.stepEvents.add(new TaskAgentSelectionTimedOut(task));
+      this.stepEvents.add(new ElementFailed(state.element));
+      return;
     }
 
     this.publishWantAgentSelectionEvent(task);

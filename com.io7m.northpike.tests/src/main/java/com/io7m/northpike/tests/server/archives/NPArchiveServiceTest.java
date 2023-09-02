@@ -242,7 +242,7 @@ public final class NPArchiveServiceTest
       HttpClient.newHttpClient();
     final var request =
       HttpRequest.newBuilder(URI.create(
-          "http://localhost:40001/454349E422F05297191EAD13E21D3DB520E5ABEF52055E4964B82FB213F593A1"))
+          "http://localhost:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"))
         .build();
     final var response =
       client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -267,14 +267,14 @@ public final class NPArchiveServiceTest
     final var archive =
       new NPArchive(
         new NPToken(
-          "454349E422F05297191EAD13E21D3DB520E5ABEF52055E4964B82FB213F593A1"),
+          "454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"),
         new NPCommitID(
           UUID.randomUUID(),
           "432a852395d4d587440e508a9da46f3d05ab67dd6b784d7bef84a50ce25e9e16"
         ),
         new NPHash(
           "SHA-256",
-          "6B7050550B90418DD615C9C7182ECD31189BC6CC3226F56D90A5A2A70EEE03A2"
+          "6b7050550b90418dd615c9c7182ecd31189bc6cc3226f56d90a5a2a70eee03a2"
         ),
         OffsetDateTime.now().withNano(0)
       );
@@ -292,7 +292,7 @@ public final class NPArchiveServiceTest
       HttpClient.newHttpClient();
     final var request =
       HttpRequest.newBuilder(URI.create(
-          "http://localhost:40001/454349E422F05297191EAD13E21D3DB520E5ABEF52055E4964B82FB213F593A1"))
+          "http://localhost:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"))
         .build();
     final var response =
       client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -320,7 +320,7 @@ public final class NPArchiveServiceTest
         .directories()
         .archiveDirectory()
         .resolve(
-          "454349E422F05297191EAD13E21D3DB520E5ABEF52055E4964B82FB213F593A1.tgz"),
+          "454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1.tgz"),
       data
     );
 
@@ -330,14 +330,14 @@ public final class NPArchiveServiceTest
     final var archive =
       new NPArchive(
         new NPToken(
-          "454349E422F05297191EAD13E21D3DB520E5ABEF52055E4964B82FB213F593A1"),
+          "454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"),
         new NPCommitID(
           UUID.randomUUID(),
           "432a852395d4d587440e508a9da46f3d05ab67dd6b784d7bef84a50ce25e9e16"
         ),
         new NPHash(
           "SHA-256",
-          "6B7050550B90418DD615C9C7182ECD31189BC6CC3226F56D90A5A2A70EEE03A2"
+          "6b7050550b90418dd615c9c7182ecd31189bc6cc3226f56d90a5a2a70eee03a2"
         ),
         OffsetDateTime.now().withNano(0)
       );
@@ -355,7 +355,7 @@ public final class NPArchiveServiceTest
       HttpClient.newHttpClient();
     final var request =
       HttpRequest.newBuilder(URI.create(
-          "http://localhost:40001/454349E422F05297191EAD13E21D3DB520E5ABEF52055E4964B82FB213F593A1"))
+          "http://localhost:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"))
         .build();
     final var response =
       client.send(request, HttpResponse.BodyHandlers.ofByteArray());

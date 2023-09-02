@@ -33,4 +33,29 @@ public sealed interface NPAssignmentExecutionStatusType
    */
 
   OffsetDateTime timeCreated();
+
+  /**
+   * @param time The time of failure
+   *
+   * @return A new failure status based on this status
+   */
+
+  NPAssignmentExecutionFailed fail(
+    OffsetDateTime time);
+
+  /**
+   * @return The name of the status value
+   */
+
+  String name();
+
+  /**
+   * @param time The time of success
+   *
+   * @return A new success status based on this status
+   */
+
+  NPAssignmentExecutionSucceeded succeed(
+    OffsetDateTime time);
+
 }

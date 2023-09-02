@@ -17,13 +17,15 @@
 
 package com.io7m.northpike.plans.parsers.v1;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.expressions.v1.NAE1Serializer;
+import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.plans.NPPlanBarrierType;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanElementType;
 import com.io7m.northpike.plans.NPPlanTaskType;
+import com.io7m.northpike.plans.NPPlanTimeouts;
 import com.io7m.northpike.plans.NPPlanToolExecution;
 import com.io7m.northpike.plans.NPPlanType;
 import com.io7m.northpike.plans.parsers.NPPlanSchemas;
@@ -112,6 +114,8 @@ public final class NPP1Serializer
       Long.toUnsignedString(plan.identifier().version())
     );
 
+    this.serializeTimeouts(plan.timeouts());
+
     final var tools = plan.toolReferences();
     if (!tools.isEmpty()) {
       this.serializeTools(tools);
@@ -126,6 +130,22 @@ public final class NPP1Serializer
       this.serializePlanElement(iterator.next());
     }
 
+    this.output.writeEndElement();
+  }
+
+  private void serializeTimeouts(
+    final NPPlanTimeouts timeouts)
+    throws XMLStreamException
+  {
+    this.output.writeStartElement("Timeouts");
+    this.output.writeAttribute(
+      "AgentSelection",
+      timeouts.agentSelection().toString()
+    );
+    this.output.writeAttribute(
+      "TaskExecution",
+      timeouts.taskExecution().toString()
+    );
     this.output.writeEndElement();
   }
 
@@ -148,6 +168,23 @@ public final class NPP1Serializer
     throws XMLStreamException
   {
     this.output.writeStartElement("Task");
+
+    final var etOpt = task.executionTimeout();
+    if (etOpt.isPresent()) {
+      this.output.writeAttribute(
+        "ExecutionTimeout",
+        etOpt.get().toString()
+      );
+    }
+
+    final var asOpt = task.agentSelectionTimeout();
+    if (asOpt.isPresent()) {
+      this.output.writeAttribute(
+        "AgentSelectionTimeout",
+        asOpt.get().toString()
+      );
+    }
+
     this.serializePlanElementCommon(task);
     this.serializePlanTaskAgentRequire(task);
     this.serializePlanTaskAgentPrefer(task);
@@ -164,11 +201,11 @@ public final class NPP1Serializer
     this.output.writeStartElement("ToolExecution");
     this.output.writeAttribute(
       "ReferenceName",
-      execution.name().value()
+      execution.name().toString()
     );
     this.output.writeAttribute(
       "ExecutionName",
-      execution.execution().name().value()
+      execution.execution().name().toString()
     );
     this.output.writeAttribute(
       "ExecutionVersion",
@@ -177,7 +214,7 @@ public final class NPP1Serializer
 
     for (final var requirement : execution.toolRequirements()) {
       this.output.writeStartElement("ToolRequirement");
-      this.output.writeAttribute("ToolName", requirement.value());
+      this.output.writeAttribute("ReferenceName", requirement.toString());
       this.output.writeEndElement();
     }
     this.output.writeEndElement();
@@ -198,7 +235,7 @@ public final class NPP1Serializer
   }
 
   private void serializePlanTaskAgentLockResources(
-    final Set<RDottedName> names)
+    final Set<NPAgentResourceName> names)
     throws XMLStreamException
   {
     this.output.writeStartElement("AgentLockResources");
@@ -208,7 +245,7 @@ public final class NPP1Serializer
 
     for (final var name : namesSorted) {
       this.output.writeStartElement("Resource");
-      this.output.writeAttribute("Name", name.value());
+      this.output.writeAttribute("Name", name.toString());
       this.output.writeEndElement();
     }
 
@@ -271,7 +308,7 @@ public final class NPP1Serializer
   }
 
   private void serializeTools(
-    final Map<RDottedName, NPToolReference> tools)
+    final Map<NPToolReferenceName, NPToolReference> tools)
     throws XMLStreamException
   {
     final var refs = new ArrayList<>(tools.values());
@@ -280,8 +317,8 @@ public final class NPP1Serializer
     this.output.writeStartElement("Tools");
     for (final var ref : refs) {
       this.output.writeStartElement("Tool");
-      this.output.writeAttribute("ReferenceName", ref.referenceName().value());
-      this.output.writeAttribute("ToolName", ref.toolName().value());
+      this.output.writeAttribute("ReferenceName", ref.referenceName().toString());
+      this.output.writeAttribute("ToolName", ref.toolName().toString());
       this.output.writeAttribute("ToolVersion", ref.version().toString());
       this.output.writeEndElement();
     }

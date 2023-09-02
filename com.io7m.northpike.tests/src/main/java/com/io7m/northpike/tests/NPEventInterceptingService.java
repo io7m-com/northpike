@@ -17,12 +17,14 @@
 
 package com.io7m.northpike.tests;
 
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPEventType;
 
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Flow;
 
 public final class NPEventInterceptingService implements NPEventServiceType
 {
@@ -47,12 +49,25 @@ public final class NPEventInterceptingService implements NPEventServiceType
   }
 
   @Override
+  public Flow.Publisher<NPEventType> events()
+  {
+    return this.delegate.events();
+  }
+
+  @Override
+  public void close()
+    throws NPException
+  {
+    this.delegate.close();
+  }
+
+  @Override
   public String description()
   {
     return this.delegate.description();
   }
 
-  public Queue<NPEventType> events()
+  public Queue<NPEventType> eventQueue()
   {
     return this.events;
   }

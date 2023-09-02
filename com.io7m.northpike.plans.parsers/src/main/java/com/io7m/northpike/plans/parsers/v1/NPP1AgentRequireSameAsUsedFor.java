@@ -19,7 +19,7 @@ package com.io7m.northpike.plans.parsers.v1;
 
 import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
 import com.io7m.blackthorne.core.Blackthorne;
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.plans.NPPlanElementName;
 
 import java.util.Objects;
 
@@ -31,7 +31,8 @@ import static com.io7m.northpike.plans.parsers.v1.NPP1.element;
  * @param name The task
  */
 
-public record NPP1AgentRequireSameAsUsedFor(RDottedName name)
+public record NPP1AgentRequireSameAsUsedFor(
+  NPPlanElementName name)
 {
   /**
    * A "require same agent as" constraint.
@@ -54,7 +55,7 @@ public record NPP1AgentRequireSameAsUsedFor(RDottedName name)
       element("AgentRequireSameAsUsedFor"),
       (context, attributes) -> {
         return new NPP1AgentRequireSameAsUsedFor(
-          new RDottedName(attributes.getValue("Task"))
+          NPPlanElementName.of(attributes.getValue("Task"))
         );
       }
     );

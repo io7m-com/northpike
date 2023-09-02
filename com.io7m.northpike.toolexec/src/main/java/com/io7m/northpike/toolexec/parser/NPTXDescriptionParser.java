@@ -24,12 +24,12 @@ import com.io7m.blackthorne.core.BTException;
 import com.io7m.blackthorne.core.BTParseError;
 import com.io7m.blackthorne.core.BTPreserveLexical;
 import com.io7m.blackthorne.jxe.BlackthorneJXE;
-import com.io7m.northpike.toolexec.NPTXPreserveLexical;
+import com.io7m.northpike.model.NPPreserveLexical;
+import com.io7m.northpike.toolexec.NPTXParserType;
 import com.io7m.northpike.toolexec.NPTXSchemas;
 import com.io7m.northpike.toolexec.model.NPTXDescription;
 import com.io7m.northpike.toolexec.parser.v1.NPTX1Description;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -48,7 +48,7 @@ import static java.util.Map.entry;
  * A parser of tool executions.
  */
 
-public final class NPTXDescriptionParser implements Closeable
+public final class NPTXDescriptionParser implements NPTXParserType
 {
   private final URI source;
   private final InputStream stream;
@@ -68,7 +68,7 @@ public final class NPTXDescriptionParser implements Closeable
     final URI inSource,
     final InputStream inStream,
     final Consumer<ParseStatus> inStatusConsumer,
-    final NPTXPreserveLexical lexical)
+    final NPPreserveLexical lexical)
   {
     this.source =
       Objects.requireNonNull(inSource, "source");
@@ -123,7 +123,7 @@ public final class NPTXDescriptionParser implements Closeable
     return open(
       Files.newInputStream(file),
       file.toUri(),
-      NPTXPreserveLexical.PRESERVE_LEXICAL_INFORMATION,
+      NPPreserveLexical.PRESERVE_LEXICAL_INFORMATION,
       statusConsumer
     );
   }
@@ -142,7 +142,7 @@ public final class NPTXDescriptionParser implements Closeable
   public static NPTXDescriptionParser open(
     final InputStream inputStream,
     final URI uri,
-    final NPTXPreserveLexical lexical,
+    final NPPreserveLexical lexical,
     final Consumer<ParseStatus> statusConsumer)
   {
     return new NPTXDescriptionParser(

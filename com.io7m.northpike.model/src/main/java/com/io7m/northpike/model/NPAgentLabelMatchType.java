@@ -18,6 +18,7 @@ package com.io7m.northpike.model;
 
 import com.io7m.lanark.core.RDottedName;
 
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -26,6 +27,14 @@ import java.util.Objects;
 
 public sealed interface NPAgentLabelMatchType
 {
+  /**
+   * @param labels The labels
+   *
+   * @return {@code true} if this expression matches the given labels
+   */
+
+  boolean matches(Collection<NPAgentLabel> labels);
+
   /**
    * An expression that matches any label.
    */
@@ -36,7 +45,14 @@ public sealed interface NPAgentLabelMatchType
      * An expression that matches any label.
      */
 
-    ANY_LABEL
+    ANY_LABEL;
+
+    @Override
+    public boolean matches(
+      final Collection<NPAgentLabel> labels)
+    {
+      return true;
+    }
   }
 
   /**
@@ -64,6 +80,13 @@ public sealed interface NPAgentLabelMatchType
       Objects.requireNonNull(e0, "e0");
       Objects.requireNonNull(e1, "e1");
     }
+
+    @Override
+    public boolean matches(
+      final Collection<NPAgentLabel> labels)
+    {
+      return this.e0.matches(labels) && this.e1.matches(labels);
+    }
   }
 
   /**
@@ -89,6 +112,13 @@ public sealed interface NPAgentLabelMatchType
       Objects.requireNonNull(e0, "e0");
       Objects.requireNonNull(e1, "e1");
     }
+
+    @Override
+    public boolean matches(
+      final Collection<NPAgentLabel> labels)
+    {
+      return this.e0.matches(labels) || this.e1.matches(labels);
+    }
   }
 
   /**
@@ -107,6 +137,13 @@ public sealed interface NPAgentLabelMatchType
     public Specific
     {
       Objects.requireNonNull(name, "name");
+    }
+
+    @Override
+    public boolean matches(
+      final Collection<NPAgentLabel> labels)
+    {
+      return labels.stream().anyMatch(l -> Objects.equals(l.name(), this.name));
     }
   }
 }

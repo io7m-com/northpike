@@ -17,8 +17,10 @@
 
 package com.io7m.northpike.plans;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -83,11 +85,20 @@ public non-sealed interface NPPlanTaskType
    * task execution
    */
 
-  Set<RDottedName> lockAgentResources();
+  Set<NPAgentResourceName> lockAgentResources();
 
   /**
    * @return The tool execution for this task
    */
 
   NPPlanToolExecution toolExecution();
+
+  /**
+   * @param name The reference name
+   *
+   * @return The tool named by the given reference
+   */
+
+  Optional<NPToolReference> toolByReferenceName(
+    NPToolReferenceName name);
 }

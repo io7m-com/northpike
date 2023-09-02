@@ -24,6 +24,7 @@
   <entry key="error_no_tool_execution">A task does not have a defined tool execution.</entry>
   <entry key="error_nonexistent">Object does not exist.</entry>
   <entry key="error_not_connected">Not connected.</entry>
+  <entry key="error_numbered">Error {0}</entry>
   <entry key="error_parse">Parse error.</entry>
   <entry key="error_plan_cyclic">Adding this dependency would create a cycle in the plan.</entry>
   <entry key="error_protocol">Protocol error.</entry>
@@ -35,6 +36,10 @@
   <entry key="error_server_failed_protocol_confirmation">Server refused protocol version confirmation.</entry>
   <entry key="error_size_limit_exceeded">Exceeded message size limit.</entry>
   <entry key="error_unsafe_archive_path">Unsafe archive path encountered; refusing to unpack.</entry>
+  <entry key="error_work_item_not_accepted">You cannot start a work item that you did not previously accept.</entry>
+  <entry key="error_work_item_not_executed">You cannot report status for work item that you did not execute.</entry>
+  <entry key="error_work_item_not_yours">This work item has a different selected agent.</entry>
+  <entry key="error_work_item_not_created">This work item is not in the CREATED state.</entry>
   <entry key="expected">Expected</entry>
   <entry key="file">File</entry>
   <entry key="format">Format</entry>
@@ -46,7 +51,10 @@
   <entry key="http_status">HTTP Status</entry>
   <entry key="installing">Installing {0}</entry>
   <entry key="limit">Limit</entry>
+  <entry key="location_numbered">Location {0}</entry>
   <entry key="offset">Offset</entry>
+  <entry key="plan">Plan</entry>
+  <entry key="plan_version">Plan Version</entry>
   <entry key="pull">Pull</entry>
   <entry key="received">Received</entry>
   <entry key="repository">Repository</entry>
@@ -54,6 +62,9 @@
   <entry key="source">Source</entry>
   <entry key="target">Target</entry>
   <entry key="task">Task</entry>
+  <entry key="tool_execution">Tool Execution</entry>
+  <entry key="tool_execution_format">Tool Execution Format</entry>
+  <entry key="tool_execution_version">Tool Execution Version</entry>
   <entry key="tool_reference">Tool Reference</entry>
   <entry key="uri">URI</entry>
   <entry key="user">User</entry>
@@ -101,32 +112,4 @@
     The task {0} will be considered to have failed if execution on the agent takes longer than {1}.
   </entry>
 
-  <!--              -->
-  <!-- Agent Labels -->
-  <!--              -->
-
-  <entry key="syntax_agent_label_match_anylabel_name">Syntax (any-label)</entry>
-  <entry key="syntax_agent_label_match_anylabel">
-    <![CDATA[any-label]]>
-  </entry>
-
-  <entry key="syntax_agent_label_match_specific_name">Syntax (specific-label)</entry>
-  <entry key="syntax_agent_label_match_specific">
-    <![CDATA[(with-label <label-name>)]]>
-  </entry>
-
-  <entry key="syntax_agent_label_match_and_name">Syntax (and-label)</entry>
-  <entry key="syntax_agent_label_match_and">
-    <![CDATA[(and <agent-label-match> <agent-label-match>)]]>
-  </entry>
-
-  <entry key="syntax_agent_label_match_or_name">Syntax (or-label)</entry>
-  <entry key="syntax_agent_label_match_or">
-    <![CDATA[(or <agent-label-match> <agent-label-match>)]]>
-  </entry>
-
-  <entry key="syntax_agent_label_match_name">Syntax (agent-label-match)</entry>
-  <entry key="syntax_agent_label_match">
-    <![CDATA[<any-label> | <specific-label> | <and-label> | <or-label>]]>
-  </entry>
 </properties>

@@ -81,7 +81,7 @@ public final class NPACmdDisconnectTest
   {
     final var handler = new NPACmdDisconnect();
 
-    Mockito.when(this.context.authenticationRequire())
+    Mockito.when(this.context.onAuthenticationRequire())
       .thenThrow(new NPPlanException(
         ERROR_AUTHENTICATION.name(),
         errorAuthentication(),
@@ -121,7 +121,7 @@ public final class NPACmdDisconnectTest
     final var agentId =
       NPAgentID.of("ab27f114-6b29-5ab2-a528-b41ef98abe76");
 
-    Mockito.when(this.context.authenticationRequire())
+    Mockito.when(this.context.onAuthenticationRequire())
       .thenReturn(agentId);
 
     final var r = handler.execute(this.context, command);

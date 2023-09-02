@@ -54,4 +54,10 @@ public final class NPPlanSerializers
   {
     return NPPlanSerializer.create(stream);
   }
+
+  @Override
+  public String description()
+  {
+    return "Plan serializer factory service.";
+  }
 }

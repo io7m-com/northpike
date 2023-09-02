@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.model;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.verona.core.Version;
 
 import java.util.Objects;
@@ -31,8 +30,8 @@ import java.util.Objects;
  */
 
 public record NPToolReference(
-  RDottedName referenceName,
-  RDottedName toolName,
+  NPToolReferenceName referenceName,
+  NPToolName toolName,
   Version version)
 {
   /**

@@ -16,8 +16,8 @@
 
 package com.io7m.northpike.plans;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentResourceName;
 
 import java.time.Duration;
 
@@ -134,7 +134,7 @@ public interface NPPlanTaskBuilderType
    */
 
   NPPlanTaskBuilderType addLockAgentResource(
-    RDottedName name)
+    NPAgentResourceName name)
     throws NPPlanException;
 
   /**

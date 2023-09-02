@@ -17,10 +17,13 @@
 package com.io7m.northpike.plans.preparation;
 
 import com.io7m.jdeferthrow.core.ExceptionTracker;
+import com.io7m.northpike.model.NPArchiveWithLinks;
 import com.io7m.northpike.model.NPCommit;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.plans.NPPlanTaskType;
+import com.io7m.northpike.plans.NPPlanToolExecutionCompilerType;
 import com.io7m.northpike.plans.NPPlanType;
 import com.io7m.northpike.plans.variables.NPPlanStandardVariables;
 import com.io7m.northpike.plans.variables.NPPlanVariableString;
@@ -65,9 +68,10 @@ public final class NPPlanPreparation
   /**
    * Prepare a plan for the given commit.
    *
-   * @param resources The plan resource interface
-   * @param commit    The commit
-   * @param plan      The plan
+   * @param compiler The tool execution compiler
+   * @param commit   The commit
+   * @param archive  A hosted archive of sources for the plan
+   * @param plan     The plan
    *
    * @return A prepared plan
    *
@@ -75,17 +79,19 @@ public final class NPPlanPreparation
    */
 
   public static NPPlanPreparationType forCommit(
-    final NPPlanPreparationResourcesType resources,
+    final NPPlanToolExecutionCompilerType compiler,
     final NPCommit commit,
+    final NPArchiveWithLinks archive,
     final NPPlanType plan)
-    throws NPPlanException
+    throws NPException
   {
-    Objects.requireNonNull(resources, "resources");
+    Objects.requireNonNull(compiler, "compiler");
     Objects.requireNonNull(commit, "commit");
+    Objects.requireNonNull(archive, "archive");
     Objects.requireNonNull(plan, "plan");
 
     final var variables = new ArrayList<NPPlanVariableType>();
-    variables.addAll(createVariablesForCommit(resources, commit));
+    variables.addAll(createVariablesForCommit(archive, commit));
 
     final var planVariables =
       NPPlanVariables.ofList(variables);
@@ -99,7 +105,7 @@ public final class NPPlanPreparation
           final var toolExec =
             task.toolExecution();
           final NPTXTypeChecked toolCompiled =
-            resources.toolCompile(toolExec.execution(), planVariables);
+            compiler.toolCompile(toolExec.execution(), planVariables);
           toolsCompiled.put(task.name(), toolCompiled);
         }
       } catch (final NPPlanException e) {
@@ -113,19 +119,17 @@ public final class NPPlanPreparation
 
   private static Collection<? extends NPPlanVariableType>
   createVariablesForCommit(
-    final NPPlanPreparationResourcesType resources,
+    final NPArchiveWithLinks archive,
     final NPCommit commit)
-    throws NPPlanException
   {
-    final var archive = resources.archiveForCommit(commit);
     return List.of(
       new NPPlanVariableString(
         NPPlanStandardVariables.archiveURL().name(),
-        archive.sources().toString()
+        archive.links().sources().toString()
       ),
       new NPPlanVariableString(
         NPPlanStandardVariables.archiveChecksumURL().name(),
-        archive.checksum().toString()
+        archive.links().checksum().toString()
       ),
       new NPPlanVariableString(
         NPPlanStandardVariables.scmCommit().name(),

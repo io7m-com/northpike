@@ -41,6 +41,10 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.repetoir</groupId>
+      <artifactId>com.io7m.repetoir.core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.verona</groupId>
       <artifactId>com.io7m.verona.core</artifactId>
     </dependency>

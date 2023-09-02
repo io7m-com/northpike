@@ -17,10 +17,13 @@
 
 package com.io7m.northpike.server.internal.agents;
 
+import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.NPWorkItemStatus;
 import com.io7m.northpike.strings.NPStringConstantType;
 
 /**
@@ -39,7 +42,7 @@ public interface NPAgentCommandContextType
    * @throws NPException On errors
    */
 
-  NPAgentID authenticationRequire()
+  NPAgentID onAuthenticationRequire()
     throws NPException;
 
   /**
@@ -48,9 +51,7 @@ public interface NPAgentCommandContextType
    * @param agent The agent
    */
 
-  void authenticationComplete(
-    NPAgentDescription agent
-  );
+  void onAuthenticationComplete(NPAgentDescription agent);
 
   /**
    * Fail with an error.
@@ -70,4 +71,37 @@ public interface NPAgentCommandContextType
    */
 
   void disconnect();
+
+  /**
+   * @return A new database connection
+   *
+   * @throws NPException On errors
+   */
+
+  NPDatabaseConnectionType databaseConnection()
+    throws NPException;
+
+  /**
+   * Indicate that the status of a work item handled by this agent has
+   * changed.
+   *
+   * @param identifier The work item
+   * @param status     The new status
+   */
+
+  void onWorkItemStatusChanged(
+    NPWorkItemIdentifier identifier,
+    NPWorkItemStatus status);
+
+  /**
+   * Indicate that a work item has been accepted.
+   *
+   * @param identifier The work item
+   *
+   * @throws NPException On errors
+   */
+
+  void onWorkItemAccepted(
+    NPWorkItemIdentifier identifier)
+    throws NPException;
 }

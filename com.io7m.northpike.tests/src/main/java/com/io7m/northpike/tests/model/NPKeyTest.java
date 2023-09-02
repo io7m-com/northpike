@@ -15,25 +15,34 @@
  */
 
 
-package com.io7m.northpike.toolexec;
+package com.io7m.northpike.tests.model;
 
-/**
- * Whether lexical information from the parse should be preserved. If
- * lexical information is discarded, all line and column numbers will be
- * set to zero.
- */
+import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.NPValidityException;
+import org.junit.jupiter.api.Test;
 
-public enum NPTXPreserveLexical
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+public final class NPKeyTest
 {
-  /**
-   * Preserve lexical information.
-   */
+  @Test
+  public void testParse0()
+  {
+    final var v0 =
+      NPKey.parse("96b453638a7c1b254bb3ffbc4a315d7b1090641a451a58167a256977bec982cd");
+    final var v1 =
+      NPKey.parse("96b453638a7c1b254bb3ffbc4a315d7b1090641a451a58167a256977bec982cd");
 
-  PRESERVE_LEXICAL_INFORMATION,
+    assertEquals(v0, v1);
+    assertEquals("[NPKey 96b4...]", v0.toString());
+  }
 
-  /**
-   * Discard lexical information.
-   */
-
-  DISCARD_LEXICAL_INFORMATION
+  @Test
+  public void testParse1()
+  {
+    assertThrows(NPValidityException.class, () -> {
+      NPKey.parse("96");
+    });
+  }
 }

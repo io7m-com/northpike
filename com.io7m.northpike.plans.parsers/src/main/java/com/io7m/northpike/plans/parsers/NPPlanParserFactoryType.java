@@ -20,6 +20,7 @@ package com.io7m.northpike.plans.parsers;
 import com.io7m.anethum.api.ParserFactoryType;
 import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPPreserveLexical;
+import com.io7m.repetoir.core.RPServiceType;
 
 import java.util.Set;
 
@@ -28,7 +29,8 @@ import java.util.Set;
  */
 
 public interface NPPlanParserFactoryType
-  extends ParserFactoryType<NPPreserveLexical, NPPlanDescription, NPPlanParserType>
+  extends ParserFactoryType<NPPreserveLexical, NPPlanDescription, NPPlanParserType>,
+  RPServiceType
 {
   /**
    * @return The supported formats

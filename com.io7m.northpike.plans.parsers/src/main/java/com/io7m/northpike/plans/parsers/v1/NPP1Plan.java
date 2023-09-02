@@ -21,10 +21,11 @@ import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
 import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanIdentifier;
+import com.io7m.northpike.plans.NPPlanTimeouts;
 import com.io7m.northpike.plans.parsers.NPPlanDescription;
 import com.io7m.northpike.plans.parsers.NPPlanElementDescriptionType;
 import org.xml.sax.Attributes;
@@ -42,8 +43,9 @@ public final class NPP1Plan
   implements BTElementHandlerType<Object, NPPlanDescription>
 {
   private NPPlanIdentifier identifier;
-  private Map<RDottedName, NPToolReference> toolReferences;
+  private Map<NPToolReferenceName, NPToolReference> toolReferences;
   private Map<NPPlanElementName, NPPlanElementDescriptionType> elements;
+  private NPPlanTimeouts timeouts;
 
   /**
    * A plan parser.
@@ -56,6 +58,7 @@ public final class NPP1Plan
   {
     this.toolReferences = new HashMap<>();
     this.elements = new HashMap<>();
+    this.timeouts = NPPlanTimeouts.defaultTimeouts();
   }
 
   @Override
@@ -75,6 +78,10 @@ public final class NPP1Plan
       Map.entry(
         element("Tools"),
         NPP1Handlers.tools()
+      ),
+      Map.entry(
+        element("Timeouts"),
+        NPP1Timeouts::new
       )
     );
   }
@@ -97,6 +104,7 @@ public final class NPP1Plan
   {
     return new NPPlanDescription(
       this.identifier,
+      this.timeouts,
       this.toolReferences,
       this.elements
     );
@@ -111,6 +119,11 @@ public final class NPP1Plan
       for (final var tool : tools.tools()) {
         this.toolReferences.put(tool.referenceName(), tool);
       }
+      return;
+    }
+
+    if (result instanceof final NPPlanTimeouts newTimeouts) {
+      this.timeouts = newTimeouts;
       return;
     }
 

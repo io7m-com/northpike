@@ -19,9 +19,12 @@ package com.io7m.northpike.tests.plans;
 import com.io7m.anethum.slf4j.ParseStatusLogging;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentLabelMatchType.Specific;
+import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.model.NPPreserveLexical;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.plans.NPPlanBarrierType;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanException;
@@ -107,8 +110,8 @@ public final class NPPlansTest
 
     builder.addToolReference(
       new NPToolReference(
-        new RDottedName("x"),
-        new RDottedName("y"),
+        NPToolReferenceName.of("x"),
+        NPToolName.of("y"),
         Version.of(1, 0, 0)
       )
     );
@@ -117,8 +120,8 @@ public final class NPPlansTest
       assertThrows(NPPlanException.class, () -> {
         builder.addToolReference(
           new NPToolReference(
-            new RDottedName("x"),
-            new RDottedName("y"),
+            NPToolReferenceName.of("x"),
+            NPToolName.of("y"),
             Version.of(1, 0, 0)
           )
         );
@@ -361,16 +364,16 @@ public final class NPPlansTest
       NPPlans.builder(this.strings, "p", 1L);
 
     final var t0 = new NPToolReference(
-      new RDottedName("t0"),
-      new RDottedName("tk0"),
+      NPToolReferenceName.of("t0"),
+      NPToolName.of("tk0"),
       Version.of(1, 0, 0)
     );
 
     builder.addToolReference(t0);
 
     final var t1 = new NPToolReference(
-      new RDottedName("t1"),
-      new RDottedName("tk1"),
+      NPToolReferenceName.of("t1"),
+      NPToolName.of("tk1"),
       Version.of(1, 0, 0)
     );
 
@@ -381,14 +384,14 @@ public final class NPPlansTest
 
     final var toolExecution =
       new NPPlanToolExecution(
-        new RDottedName("t0"),
+        NPToolReferenceName.of("t0"),
         NPToolExecutionIdentifier.of("ta", 1L),
-        Set.of(new RDottedName("t1"))
+        Set.of(NPToolReferenceName.of("t1"))
       );
 
-    b0.addLockAgentResource(new RDottedName("r0"))
-      .addLockAgentResource(new RDottedName("r1"))
-      .addLockAgentResource(new RDottedName("r2"))
+    b0.addLockAgentResource(NPAgentResourceName.of("r0"))
+      .addLockAgentResource(NPAgentResourceName.of("r1"))
+      .addLockAgentResource(NPAgentResourceName.of("r2"))
       .setAgentPreferWithLabels(new Specific(new RDottedName("x")))
       .setAgentRequireWithLabels(new Specific(new RDottedName("y")))
       .setDescription("A task.")
@@ -409,9 +412,9 @@ public final class NPPlansTest
     assertEquals(new Specific(new RDottedName("x")), t.agentPreferWithLabel());
     assertEquals(new Specific(new RDottedName("y")), t.agentRequireWithLabel());
     assertEquals(Set.of(
-      new RDottedName("r0"),
-      new RDottedName("r1"),
-      new RDottedName("r2")
+      NPAgentResourceName.of("r0"),
+      NPAgentResourceName.of("r1"),
+      NPAgentResourceName.of("r2")
     ), t.lockAgentResources());
     assertEquals(List.of(), t.dependsOn());
     assertEquals(toolExecution, t.toolExecution());
@@ -436,8 +439,8 @@ public final class NPPlansTest
       NPPlans.builder(this.strings, "p", 1L);
 
     final var t0 = new NPToolReference(
-      new RDottedName("t0"),
-      new RDottedName("tk0"),
+      NPToolReferenceName.of("t0"),
+      NPToolName.of("tk0"),
       Version.of(1, 0, 0)
     );
 
@@ -451,7 +454,7 @@ public final class NPPlansTest
 
     final var toolExecution =
       new NPPlanToolExecution(
-        new RDottedName("t0"),
+        NPToolReferenceName.of("t0"),
         NPToolExecutionIdentifier.of("ta", 1L),
         Set.of()
       );
@@ -609,7 +612,7 @@ public final class NPPlansTest
     final var ex =
       assertThrows(NPPlanException.class, () -> {
         b0.setToolExecution(new NPPlanToolExecution(
-          new RDottedName("t"),
+          NPToolReferenceName.of("t"),
           NPToolExecutionIdentifier.of("y", 1L),
           Set.of()
         ));
@@ -633,8 +636,8 @@ public final class NPPlansTest
 
     builder.addToolReference(
       new NPToolReference(
-        new RDottedName("t"),
-        new RDottedName("t0"),
+        NPToolReferenceName.of("t"),
+        NPToolName.of("t0"),
         Version.of(1, 0, 0))
     );
 
@@ -644,9 +647,9 @@ public final class NPPlansTest
     final var ex =
       assertThrows(NPPlanException.class, () -> {
         b0.setToolExecution(new NPPlanToolExecution(
-          new RDottedName("t"),
+          NPToolReferenceName.of("t"),
           NPToolExecutionIdentifier.of("y", 1L),
-          Set.of(new RDottedName("k"))
+          Set.of(NPToolReferenceName.of("k"))
         ));
       });
 

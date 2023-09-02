@@ -19,6 +19,8 @@ package com.io7m.northpike.server.internal.archives;
 
 import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
+import com.io7m.northpike.model.NPArchive;
+import com.io7m.northpike.model.NPArchiveLinks;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerResources;
@@ -144,6 +146,19 @@ public final class NPArchiveService implements NPArchiveServiceType
       this.executor.execute(this::run);
     }
     return this.future;
+  }
+
+  @Override
+  public NPArchiveLinks linksForArchive(
+    final NPArchive archive)
+  {
+    final var baseURI =
+      this.configuration.archiveConfiguration().advertiseURI();
+
+    return new NPArchiveLinks(
+      baseURI.resolve(archive.fileName()),
+      baseURI.resolve(archive.checksumFileName())
+    );
   }
 
   private void run()

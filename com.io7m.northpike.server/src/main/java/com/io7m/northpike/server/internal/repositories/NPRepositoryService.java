@@ -302,17 +302,25 @@ public final class NPRepositoryService
 
     final var outputFile =
       this.directories.archiveDirectory()
-        .resolve(token.value() + ".tgz");
+        .resolve(NPArchive.fileNameFor(token));
     final var outputFileTmp =
       this.directories.archiveDirectory()
-        .resolve(token.value() + ".tgz.tmp");
+        .resolve(NPArchive.fileNameForTemporary(token));
+    final var checksumOutputFile =
+      this.directories.archiveDirectory()
+        .resolve(NPArchive.checksumFileNameFor(token));
+    final var checksumOutputFileTmp =
+      this.directories.archiveDirectory()
+        .resolve(NPArchive.checksumFileNameForTemporary(token));
 
     final var archive =
       repository.commitArchive(
         createArchive.commit,
         token,
         outputFile,
-        outputFileTmp
+        outputFileTmp,
+        checksumOutputFile,
+        checksumOutputFileTmp
       );
 
     final var description = repository.description();

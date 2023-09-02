@@ -409,10 +409,10 @@ CREATE TABLE archives (
     PRIMARY KEY (ar_id),
 
   CONSTRAINT archives_token_valid
-    CHECK (ar_token ~ '^[A-F0-9]{64}$'),
+    CHECK (ar_token ~ '^[a-f0-9]{64}$'),
 
   CONSTRAINT archives_hash_value_valid
-    CHECK (ar_hash_value ~ '^[A-F0-9]{64,128}$'),
+    CHECK (ar_hash_value ~ '^[a-f0-9]{64,128}$'),
 
   CONSTRAINT archives_commit_exists
     FOREIGN KEY (ar_commit) REFERENCES repository_commits (rc_id)
@@ -489,6 +489,77 @@ CREATE TABLE assignment_executions (
 
   CONSTRAINT assignment_executions_commit_exists
     FOREIGN KEY (ae_commit) REFERENCES repository_commits (rc_id)
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TYPE work_item_status_t AS ENUM(
+  'WORK_ITEM_CREATED',
+  'WORK_ITEM_ACCEPTED',
+  'WORK_ITEM_RUNNING',
+  'WORK_ITEM_SUCCEEDED',
+  'WORK_ITEM_FAILED'
+);
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE work_items (
+  wi_id         BIGINT              NOT NULL GENERATED ALWAYS AS IDENTITY,
+  wi_execution  UUID                NOT NULL,
+  wi_name       TEXT                NOT NULL,
+  wi_agent      UUID,
+  wi_status     work_item_status_t  NOT NULL,
+
+  -- [jooq ignore start]
+  CONSTRAINT work_items_status_values_present CHECK (
+    CASE
+      WHEN wi_status = 'WORK_ITEM_CREATED' THEN
+        't'::boolean
+      WHEN wi_status = 'WORK_ITEM_ACCEPTED' THEN
+        (wi_agent IS NOT NULL)
+      WHEN wi_status = 'WORK_ITEM_RUNNING' THEN
+        (wi_agent IS NOT NULL)
+      WHEN wi_status = 'WORK_ITEM_SUCCEEDED' THEN
+        (wi_agent IS NOT NULL)
+      WHEN wi_status = 'WORK_ITEM_FAILED' THEN
+        (wi_agent IS NOT NULL)
+      ELSE
+        'f'::boolean
+    END
+  ),
+  -- [jooq ignore stop]
+
+  -- [jooq ignore start]
+  CONSTRAINT work_items_assignment_item_unique
+    UNIQUE (wi_execution, wi_name),
+  -- [jooq ignore stop]
+
+  CONSTRAINT work_items_primary_key
+    PRIMARY KEY (wi_id),
+
+  CONSTRAINT work_items_assignment_exists
+    FOREIGN KEY (wi_execution) REFERENCES assignment_executions (ae_id),
+
+  CONSTRAINT work_items_name_valid
+    CHECK (wi_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$'),
+
+  CONSTRAINT work_items_agent_exists
+    FOREIGN KEY (wi_agent) REFERENCES agents (a_id)
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE work_item_logs (
+  wil_id         BIGINT                    NOT NULL GENERATED ALWAYS AS IDENTITY,
+  wil_item       BIGINT                    NOT NULL,
+  wil_time       TIMESTAMP WITH TIME ZONE  NOT NULL,
+  wil_line       TEXT                      NOT NULL,
+
+  CONSTRAINT work_item_logs_primary_key
+    PRIMARY KEY (wil_id),
+
+  CONSTRAINT work_item_logs_work_item_exists
+    FOREIGN KEY (wil_item) REFERENCES work_items (wi_id)
 )
 ]]></Statement>
   </Schema>

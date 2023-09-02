@@ -31,7 +31,7 @@ public final class NPArbCommitID extends NPArbAbstract<NPCommitID>
       NPCommitID.class,
       () ->
         Combinators.combine(
-          Arbitraries.defaultFor(UUID.class),
+          Arbitraries.create(UUID::randomUUID),
           Arbitraries.strings()
             .withChars("abcdef0123456789")
             .ofMinLength(1)

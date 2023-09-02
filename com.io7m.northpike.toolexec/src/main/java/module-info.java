@@ -14,6 +14,11 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.northpike.toolexec.NPTXParserFactoryType;
+import com.io7m.northpike.toolexec.NPTXParsers;
+import com.io7m.northpike.toolexec.NPTXSerializerFactoryType;
+import com.io7m.northpike.toolexec.NPTXSerializers;
+
 /**
  * Continuous integration (Tool execution language)
  */
@@ -23,6 +28,7 @@ module com.io7m.northpike.toolexec
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
+  requires com.io7m.northpike.model;
   requires com.io7m.northpike.strings;
 
   requires com.io7m.anethum.api;
@@ -33,6 +39,13 @@ module com.io7m.northpike.toolexec
   requires com.io7m.jlexing.core;
   requires com.io7m.jxe.core;
   requires com.io7m.lanark.core;
+  requires com.io7m.repetoir.core;
+
+  provides NPTXSerializerFactoryType
+    with NPTXSerializers;
+
+  provides NPTXParserFactoryType
+    with NPTXParsers;
 
   exports com.io7m.northpike.toolexec.checker;
   exports com.io7m.northpike.toolexec.evaluator;

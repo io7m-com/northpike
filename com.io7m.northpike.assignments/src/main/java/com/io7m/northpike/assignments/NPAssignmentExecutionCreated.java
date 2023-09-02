@@ -40,4 +40,32 @@ public record NPAssignmentExecutionCreated(
   {
     Objects.requireNonNull(timeCreated, "timeCreated");
   }
+
+  @Override
+  public NPAssignmentExecutionFailed fail(
+    final OffsetDateTime time)
+  {
+    return new NPAssignmentExecutionFailed(
+      this.timeCreated,
+      this.timeCreated,
+      time
+    );
+  }
+
+  @Override
+  public String name()
+  {
+    return "Created";
+  }
+
+  @Override
+  public NPAssignmentExecutionSucceeded succeed(
+    final OffsetDateTime time)
+  {
+    return new NPAssignmentExecutionSucceeded(
+      this.timeCreated,
+      this.timeCreated,
+      time
+    );
+  }
 }

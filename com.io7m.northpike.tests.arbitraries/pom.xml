@@ -45,6 +45,10 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.verona</groupId>
+      <artifactId>com.io7m.verona.core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.jlexing</groupId>
       <artifactId>com.io7m.jlexing.core</artifactId>
     </dependency>

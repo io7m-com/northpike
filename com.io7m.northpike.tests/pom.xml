@@ -172,6 +172,10 @@
       <artifactId>commons-compress</artifactId>
     </dependency>
     <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.quixote</groupId>
       <artifactId>com.io7m.quixote.core</artifactId>
     </dependency>

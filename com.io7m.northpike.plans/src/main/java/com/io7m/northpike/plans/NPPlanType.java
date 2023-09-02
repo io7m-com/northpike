@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.plans;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
 import org.jgrapht.Graph;
 
 import java.util.Map;
@@ -36,10 +36,16 @@ public interface NPPlanType
   NPPlanIdentifier identifier();
 
   /**
+   * @return The default plan timeouts
+   */
+
+  NPPlanTimeouts timeouts();
+
+  /**
    * @return The tools to which this plan refers
    */
 
-  Map<RDottedName, NPToolReference> toolReferences();
+  Map<NPToolReferenceName, NPToolReference> toolReferences();
 
   /**
    * @return The execution elements in this plan

@@ -20,6 +20,7 @@ package com.io7m.northpike.server.internal.clock;
 import com.io7m.repetoir.core.RPServiceType;
 
 import java.time.Clock;
+import java.time.OffsetDateTime;
 
 /**
  * The clock service.
@@ -32,4 +33,22 @@ public interface NPClockServiceType extends RPServiceType
    */
 
   Clock clock();
+
+  /**
+   * @return The current precise time
+   */
+
+  default OffsetDateTime nowPrecise()
+  {
+    return OffsetDateTime.now(this.clock());
+  }
+
+  /**
+   * @return The current time with no nanosecond precision
+   */
+
+  default OffsetDateTime now()
+  {
+    return this.nowPrecise().withNano(0);
+  }
 }

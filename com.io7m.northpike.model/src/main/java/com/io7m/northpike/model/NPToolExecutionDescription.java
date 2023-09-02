@@ -17,8 +17,6 @@
 
 package com.io7m.northpike.model;
 
-import com.io7m.lanark.core.RDottedName;
-
 import java.util.Objects;
 
 /**
@@ -32,8 +30,8 @@ import java.util.Objects;
 
 public record NPToolExecutionDescription(
   NPToolExecutionIdentifier identifier,
-  RDottedName tool,
-  RDottedName format,
+  NPToolName tool,
+  NPFormatName format,
   String text)
 {
   /**

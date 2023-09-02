@@ -43,7 +43,7 @@ public final class NPACmdDisconnect
     final NPACommandCDisconnect command)
     throws NPException
   {
-    context.authenticationRequire();
+    context.onAuthenticationRequire();
     context.disconnect();
     return NPAResponseOK.createCorrelated(command);
   }

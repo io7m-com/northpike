@@ -38,6 +38,7 @@ public final class NPArbAResponseError extends NPArbAbstract<NPAResponseError>
           Arbitraries.defaultFor(NPErrorCode.class),
           Arbitraries.strings(),
           Arbitraries.maps(Arbitraries.strings(), Arbitraries.strings())
+            .ofMaxSize(3)
         ).as(NPAResponseError::new);
       }
     );

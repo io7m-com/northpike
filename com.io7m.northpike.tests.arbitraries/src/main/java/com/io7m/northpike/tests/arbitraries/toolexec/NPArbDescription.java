@@ -34,7 +34,9 @@ public final class NPArbDescription extends NPArbAbstract<NPTXDescription>
         return Combinators.combine(
           Arbitraries.defaultFor(RDottedName.class),
           Arbitraries.longs(),
-          Arbitraries.defaultFor(NPTXStatementType.class).list()
+          Arbitraries.defaultFor(NPTXStatementType.class)
+            .list()
+            .ofMaxSize(8)
         ).as(NPTXDescription::new);
       }
     );

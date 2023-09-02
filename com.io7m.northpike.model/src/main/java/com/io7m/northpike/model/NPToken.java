@@ -33,7 +33,7 @@ public record NPToken(String value)
   implements Comparable<NPToken>
 {
   private static final Pattern VALID_VALUE =
-    Pattern.compile("[A-F0-9]{64}");
+    Pattern.compile("[a-f0-9]{64}");
 
   /**
    * A unique token.
@@ -95,7 +95,7 @@ public record NPToken(String value)
   {
     return new NPToken(
       HexFormat.of()
-        .withUpperCase()
+        .withLowerCase()
         .formatHex(bytes)
     );
   }

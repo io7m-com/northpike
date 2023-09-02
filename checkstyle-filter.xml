@@ -10,6 +10,12 @@
             checks="IllegalInstantiation"/>
 
   <!-- Lacking pattern matching. -->
+  <suppress files="NPA1Validation.java"
+            checks="NPathComplexity"/>
+  <suppress files="NPA1Validation.java"
+            checks="CyclomaticComplexity"/>
+
+  <!-- Lacking pattern matching. -->
   <suppress files="NPTX1Serializer.java"
             checks="NPathComplexity"/>
 
@@ -29,6 +35,10 @@
 
   <!-- Lots of injected services. -->
   <suppress files="NPAgentService.java"
+            checks="ParameterNumber"/>
+
+  <!-- Lots of injected services. -->
+  <suppress files="NPAssignmentTask.java"
             checks="ParameterNumber"/>
 
 </suppressions>

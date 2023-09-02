@@ -54,7 +54,7 @@ public final class NPACmdLogin
     }
 
     final var agent = agentOpt.get();
-    context.authenticationComplete(agent);
+    context.onAuthenticationComplete(agent);
     return NPAResponseOK.createCorrelated(command);
   }
 }

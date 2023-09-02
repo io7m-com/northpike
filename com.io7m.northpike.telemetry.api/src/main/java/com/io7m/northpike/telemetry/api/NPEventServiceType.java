@@ -17,13 +17,17 @@
 
 package com.io7m.northpike.telemetry.api;
 
+import com.io7m.northpike.model.NPException;
 import com.io7m.repetoir.core.RPServiceType;
+
+import java.util.concurrent.Flow;
 
 /**
  * The event service.
  */
 
-public interface NPEventServiceType extends RPServiceType
+public interface NPEventServiceType
+  extends RPServiceType, AutoCloseable
 {
   /**
    * Emit an event.
@@ -32,4 +36,14 @@ public interface NPEventServiceType extends RPServiceType
    */
 
   void emit(NPEventType event);
+
+  /**
+   * @return An observable stream of events
+   */
+
+  Flow.Publisher<NPEventType> events();
+
+  @Override
+  void close()
+    throws NPException;
 }

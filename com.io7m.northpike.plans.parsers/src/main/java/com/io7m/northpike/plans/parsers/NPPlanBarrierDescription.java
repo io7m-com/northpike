@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.plans.parsers;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.plans.NPPlanBarrierBuilderType;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanException;
@@ -36,7 +35,7 @@ import java.util.Set;
 public record NPPlanBarrierDescription(
   NPPlanElementName name,
   String description,
-  Set<RDottedName> dependsOn)
+  Set<NPPlanElementName> dependsOn)
   implements NPPlanElementDescriptionType
 {
   /**
@@ -69,7 +68,7 @@ public record NPPlanBarrierDescription(
     builder.setDescription(this.description);
 
     for (final var depends : this.dependsOn) {
-      builder.addDependsOn(new NPPlanElementName(depends));
+      builder.addDependsOn(depends);
     }
   }
 }

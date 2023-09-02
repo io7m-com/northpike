@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.plans;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPToolReferenceName;
 
 import java.util.Objects;
 import java.util.Set;
@@ -32,9 +32,9 @@ import java.util.Set;
  */
 
 public record NPPlanToolExecution(
-  RDottedName name,
+  NPToolReferenceName name,
   NPToolExecutionIdentifier execution,
-  Set<RDottedName> toolRequirements)
+  Set<NPToolReferenceName> toolRequirements)
 {
   /**
    * A tool execution.

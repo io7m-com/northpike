@@ -18,12 +18,14 @@
 package com.io7m.northpike.database.postgres.internal;
 
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.GetExecutionDescriptionType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
+import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPToolExecutionName;
+import com.io7m.northpike.model.NPToolName;
 import org.jooq.DSLContext;
 import org.jooq.Record5;
 
@@ -78,7 +80,7 @@ public final class NPDBQToolExecutionDescriptionGet
     throws NPDatabaseException
   {
     final var condition =
-      TOOL_EXECUTION_DESCRIPTIONS.TED_NAME.eq(id.name().value())
+      TOOL_EXECUTION_DESCRIPTIONS.TED_NAME.eq(id.name().toString())
         .and(TOOL_EXECUTION_DESCRIPTIONS.TED_VERSION.eq(Long.valueOf(id.version())));
 
     return context.select(
@@ -98,11 +100,11 @@ public final class NPDBQToolExecutionDescriptionGet
   {
     return new NPToolExecutionDescription(
       new NPToolExecutionIdentifier(
-        new RDottedName(r.get(TOOL_EXECUTION_DESCRIPTIONS.TED_NAME)),
+        NPToolExecutionName.of(r.get(TOOL_EXECUTION_DESCRIPTIONS.TED_NAME)),
         r.<Long>get(TOOL_EXECUTION_DESCRIPTIONS.TED_VERSION).longValue()
       ),
-      new RDottedName(r.get(TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME)),
-      new RDottedName(r.get(TOOL_EXECUTION_DESCRIPTIONS.TED_FORMAT)),
+      NPToolName.of(r.get(TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME)),
+      NPFormatName.of(r.get(TOOL_EXECUTION_DESCRIPTIONS.TED_FORMAT)),
       r.get(TOOL_EXECUTION_DESCRIPTIONS.TED_TEXT)
     );
   }

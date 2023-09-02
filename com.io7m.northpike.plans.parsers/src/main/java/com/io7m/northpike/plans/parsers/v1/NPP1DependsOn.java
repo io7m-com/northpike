@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.plans.parsers.v1;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.plans.NPPlanElementName;
 
 import java.util.Objects;
 
@@ -27,7 +27,7 @@ import java.util.Objects;
  * @param task The task
  */
 
-public record NPP1DependsOn(RDottedName task)
+public record NPP1DependsOn(NPPlanElementName task)
 {
   /**
    * A "depends on" element.

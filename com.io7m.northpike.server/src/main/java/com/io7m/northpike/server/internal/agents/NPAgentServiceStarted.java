@@ -17,7 +17,6 @@
 package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
-import com.io7m.northpike.telemetry.api.NPEventType;
 
 import java.util.Map;
 
@@ -26,7 +25,7 @@ import java.util.Map;
  */
 
 public record NPAgentServiceStarted()
-  implements NPEventType
+  implements NPAgentEventType
 {
   @Override
   public NPEventSeverity severity()

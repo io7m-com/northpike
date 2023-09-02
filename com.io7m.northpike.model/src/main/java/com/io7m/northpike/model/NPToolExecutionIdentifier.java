@@ -17,8 +17,6 @@
 
 package com.io7m.northpike.model;
 
-import com.io7m.lanark.core.RDottedName;
-
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -30,7 +28,7 @@ import java.util.Objects;
  */
 
 public record NPToolExecutionIdentifier(
-  RDottedName name,
+  NPToolExecutionName name,
   long version)
   implements Comparable<NPToolExecutionIdentifier>
 {
@@ -57,7 +55,7 @@ public record NPToolExecutionIdentifier(
     final String name,
     final long version)
   {
-    return new NPToolExecutionIdentifier(new RDottedName(name), version);
+    return new NPToolExecutionIdentifier(NPToolExecutionName.of(name), version);
   }
 
   @Override

@@ -17,9 +17,15 @@
 
 package com.io7m.northpike.server.internal.agents;
 
+import com.io7m.jaffirm.core.Preconditions;
 import com.io7m.jmulticlose.core.CloseableType;
+import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentWorkItem;
 import com.io7m.repetoir.core.RPServiceType;
 
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -36,4 +42,77 @@ public interface NPAgentServiceType
    */
 
   CompletableFuture<Void> start();
+
+  /**
+   * Find the connected agents that match the given expressions.
+   *
+   * @param require Agents must match this label expression
+   * @param prefer  Agents matching this label expression will be preferred
+   *
+   * @return The agents
+   */
+
+  NPSuitableAgents findSuitableAgentsFor(
+    NPAgentLabelMatchType require,
+    NPAgentLabelMatchType prefer);
+
+  /**
+   * Offer the given work item to the given agent.
+   *
+   * @param agent    The agent
+   * @param workItem The work item
+   *
+   * @return {@code true} if the given agent can accept the work
+   */
+
+  boolean offerWorkItem(
+    NPAgentID agent,
+    NPAgentWorkItem workItem
+  );
+
+  /**
+   * Send the given work item to the given agent. The agent is assumed to
+   * have previously accepted an offer of the work.
+   *
+   * @param agent    The agent
+   * @param workItem The work item
+   *
+   * @return {@code true} if the given agent accepts the work
+   *
+   * @see #offerWorkItem(NPAgentID, NPAgentWorkItem)
+   */
+
+  boolean sendWorkItem(
+    NPAgentID agent,
+    NPAgentWorkItem workItem);
+
+  /**
+   * The suitable agents.
+   *
+   * @param available The available agents
+   * @param preferred The preferred agents
+   */
+
+  record NPSuitableAgents(
+    Set<NPAgentID> available,
+    Set<NPAgentID> preferred)
+  {
+    /**
+     * The suitable agents.
+     */
+
+    public NPSuitableAgents
+    {
+      Objects.requireNonNull(available, "available");
+      Objects.requireNonNull(preferred, "preferred");
+
+      Preconditions.checkPreconditionV(
+        available.containsAll(preferred),
+        "Preferred set must be a subset of the available set."
+      );
+
+      available = Set.copyOf(available);
+      preferred = Set.copyOf(preferred);
+    }
+  }
 }

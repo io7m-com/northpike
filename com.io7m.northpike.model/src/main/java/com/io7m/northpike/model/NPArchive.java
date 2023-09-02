@@ -51,4 +51,72 @@ public record NPArchive(
     Objects.requireNonNull(hash, "hash");
     Objects.requireNonNull(created, "created");
   }
+
+  /**
+   * @param token The token
+   *
+   * @return The filename an archive with the given token would have
+   */
+
+  public static String fileNameFor(
+    final NPToken token)
+  {
+    return "%s.tgz".formatted(token.value());
+  }
+
+  /**
+   * @param token The token
+   *
+   * @return The filename a checksum file for the archive with the given
+   * token would have
+   */
+
+  public static String checksumFileNameFor(
+    final NPToken token)
+  {
+    return "%s.tgz.sha256".formatted(token.value());
+  }
+
+  /**
+   * @param token The token
+   *
+   * @return The filename a temporary checksum file for the archive with the
+   * given token would have
+   */
+
+  public static String checksumFileNameForTemporary(
+    final NPToken token)
+  {
+    return "%s.tgz.sha256.tmp".formatted(token.value());
+  }
+
+  /**
+   * @param token The token
+   *
+   * @return The filename a temporary archive with the given token would have
+   */
+
+  public static String fileNameForTemporary(
+    final NPToken token)
+  {
+    return "%s.tgz.tmp".formatted(token.value());
+  }
+
+  /**
+   * @return The filename for this archive
+   */
+
+  public String fileName()
+  {
+    return fileNameFor(this.token);
+  }
+
+  /**
+   * @return The filename for the checksum of this archive
+   */
+
+  public String checksumFileName()
+  {
+    return checksumFileNameFor(this.token);
+  }
 }

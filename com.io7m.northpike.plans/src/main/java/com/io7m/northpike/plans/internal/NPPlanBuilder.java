@@ -17,9 +17,10 @@
 
 package com.io7m.northpike.plans.internal;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.plans.NPPlanBarrierBuilderType;
 import com.io7m.northpike.plans.NPPlanBarrierType;
 import com.io7m.northpike.plans.NPPlanBuilderType;
@@ -31,6 +32,7 @@ import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.plans.NPPlanIdentifier;
 import com.io7m.northpike.plans.NPPlanTaskBuilderType;
 import com.io7m.northpike.plans.NPPlanTaskType;
+import com.io7m.northpike.plans.NPPlanTimeouts;
 import com.io7m.northpike.plans.NPPlanToolExecution;
 import com.io7m.northpike.plans.NPPlanType;
 import com.io7m.northpike.strings.NPStrings;
@@ -66,9 +68,10 @@ public final class NPPlanBuilder
 {
   private final NPStrings strings;
   private final DirectedAcyclicGraph<NPPlanElementName, NPPlanTaskNameDependency> graph;
-  private final HashMap<RDottedName, NPToolReference> toolReferences;
+  private final HashMap<NPToolReferenceName, NPToolReference> toolReferences;
   private final HashMap<NPPlanElementName, NPPlanElementBuilder> elements;
   private final NPPlanIdentifier identifier;
+  private NPPlanTimeouts timeouts;
 
   /**
    * A mutable plan builder.
@@ -85,6 +88,9 @@ public final class NPPlanBuilder
       Objects.requireNonNull(inStrings, "strings");
     this.identifier =
       Objects.requireNonNull(inIdentifier, "identifier");
+
+    this.timeouts =
+      NPPlanTimeouts.defaultTimeouts();
     this.graph =
       new DirectedAcyclicGraph<>(NPPlanTaskNameDependency.class);
     this.elements =
@@ -97,9 +103,15 @@ public final class NPPlanBuilder
   public NPPlanType build()
     throws NPPlanException
   {
+    final var imToolReferences =
+      Map.copyOf(this.toolReferences);
+
     final var newElements = new HashMap<NPPlanElementName, NPPlanElementType>();
     for (final var elementBuilder : this.elements.values()) {
-      newElements.put(elementBuilder.name(), elementBuilder.build(newElements));
+      newElements.put(
+        elementBuilder.name(),
+        elementBuilder.build(imToolReferences, newElements)
+      );
     }
 
     final var newGraph =
@@ -118,10 +130,19 @@ public final class NPPlanBuilder
 
     return new NPPlan(
       this.identifier,
-      Map.copyOf(this.toolReferences),
+      this.timeouts,
+      imToolReferences,
       Map.copyOf(newElements),
       new AsUnmodifiableGraph<>(newGraph)
     );
+  }
+
+  @Override
+  public NPPlanBuilderType setTimeouts(
+    final NPPlanTimeouts inTimeouts)
+  {
+    this.timeouts = Objects.requireNonNull(inTimeouts, "timeouts");
+    return this;
   }
 
   @Override
@@ -242,7 +263,9 @@ public final class NPPlanBuilder
       }
     }
 
-    abstract NPPlanElementType build(HashMap<NPPlanElementName, NPPlanElementType> newElements)
+    abstract NPPlanElementType build(
+      Map<NPToolReferenceName, NPToolReference> imToolReferences,
+      HashMap<NPPlanElementName, NPPlanElementType> newElements)
       throws NPPlanException;
   }
 
@@ -259,6 +282,7 @@ public final class NPPlanBuilder
 
     @Override
     NPPlanBarrier build(
+      final Map<NPToolReferenceName, NPToolReference> toolReferences,
       final HashMap<NPPlanElementName, NPPlanElementType> newElements)
     {
       return new NPPlanBarrier(
@@ -304,7 +328,7 @@ public final class NPPlanBuilder
     extends NPPlanElementBuilder
     implements NPPlanTaskBuilderType
   {
-    private final TreeSet<RDottedName> lockAgentResources;
+    private final TreeSet<NPAgentResourceName> lockAgentResources;
     private NPAgentLabelMatchType preferWithLabels;
     private NPAgentLabelMatchType requireWithLabels;
     private Optional<NPPlanToolExecution> toolExecution;
@@ -328,6 +352,7 @@ public final class NPPlanBuilder
 
     @Override
     NPPlanTaskType build(
+      final Map<NPToolReferenceName, NPToolReference> toolReferences,
       final HashMap<NPPlanElementName, NPPlanElementType> newElements)
       throws NPPlanException
     {
@@ -355,7 +380,8 @@ public final class NPPlanBuilder
         this.toolExecution.get(),
         sameAs,
         this.agentSelectionTimeout,
-        this.executionTimeout
+        this.executionTimeout,
+        toolReferences
       );
     }
 
@@ -404,7 +430,7 @@ public final class NPPlanBuilder
 
     @Override
     public NPPlanTaskBuilderType addLockAgentResource(
-      final RDottedName name)
+      final NPAgentResourceName name)
     {
       this.lockAgentResources.add(Objects.requireNonNull(name, "name"));
       return this;
@@ -462,11 +488,12 @@ public final class NPPlanBuilder
     List<NPPlanElementName> dependsOn,
     NPAgentLabelMatchType agentRequireWithLabel,
     NPAgentLabelMatchType agentPreferWithLabel,
-    SortedSet<RDottedName> lockAgentResources,
+    SortedSet<NPAgentResourceName> lockAgentResources,
     NPPlanToolExecution toolExecution,
     Optional<NPPlanTaskType> agentMustBeSameAs,
     Optional<Duration> agentSelectionTimeout,
-    Optional<Duration> executionTimeout)
+    Optional<Duration> executionTimeout,
+    Map<NPToolReferenceName, NPToolReference> toolReferences)
     implements NPPlanTaskType
   {
     NPPlanTask
@@ -481,6 +508,14 @@ public final class NPPlanBuilder
       Objects.requireNonNull(toolExecution, "toolExecution");
       Objects.requireNonNull(agentSelectionTimeout, "agentSelectionTimeout");
       Objects.requireNonNull(executionTimeout, "inExecutionTimeout");
+    }
+
+    @Override
+    public Optional<NPToolReference> toolByReferenceName(
+      final NPToolReferenceName refName)
+    {
+      Objects.requireNonNull(refName, "name");
+      return Optional.ofNullable(this.toolReferences.get(refName));
     }
   }
 }

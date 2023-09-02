@@ -19,6 +19,7 @@ package com.io7m.northpike.database.api;
 
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitGraph;
+import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitListParameters;
 import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPRepositoryDescription;
@@ -97,6 +98,17 @@ public sealed interface NPDatabaseQueriesRepositoriesType
         Objects.requireNonNull(commitGraph, "commitGraph");
       }
     }
+  }
+
+  /**
+   * Get a commit from a repository.
+   */
+
+  non-sealed interface CommitGetType
+    extends NPDatabaseQueryType<NPCommitID, Optional<NPCommit>>,
+    NPDatabaseQueriesRepositoriesType
+  {
+
   }
 
   /**

@@ -22,7 +22,7 @@ import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.blackthorne.core.Blackthorne;
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPAgentResourceName;
 
 import java.util.Map;
 import java.util.TreeSet;
@@ -34,9 +34,9 @@ import static com.io7m.northpike.plans.parsers.v1.NPP1.element;
  */
 
 public final class NPP1AgentLockResources
-  implements BTElementHandlerType<RDottedName, NPP1AgentLockResourcesExpression>
+  implements BTElementHandlerType<NPAgentResourceName, NPP1AgentLockResourcesExpression>
 {
-  private TreeSet<RDottedName> resources = new TreeSet<>();
+  private TreeSet<NPAgentResourceName> resources = new TreeSet<>();
 
   /**
    * A handler for locked resources.
@@ -51,7 +51,7 @@ public final class NPP1AgentLockResources
   }
 
   @Override
-  public Map<BTQualifiedName, BTElementHandlerConstructorType<?, ? extends RDottedName>>
+  public Map<BTQualifiedName, BTElementHandlerConstructorType<?, ? extends NPAgentResourceName>>
   onChildHandlersRequested(
     final BTElementParsingContextType context)
   {
@@ -61,7 +61,7 @@ public final class NPP1AgentLockResources
         Blackthorne.forScalarAttribute(
           element("Resource"),
           (c, a) -> {
-            return new RDottedName(a.getValue("Name"));
+            return NPAgentResourceName.of(a.getValue("Name"));
           }
         )
       )
@@ -71,7 +71,7 @@ public final class NPP1AgentLockResources
   @Override
   public void onChildValueProduced(
     final BTElementParsingContextType context,
-    final RDottedName result)
+    final NPAgentResourceName result)
   {
     this.resources.add(result);
   }

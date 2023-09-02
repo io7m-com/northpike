@@ -17,11 +17,12 @@
 
 package com.io7m.northpike.plans.parsers;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.plans.NPPlanIdentifier;
+import com.io7m.northpike.plans.NPPlanTimeouts;
 import com.io7m.northpike.plans.NPPlanType;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.strings.NPStrings;
@@ -36,13 +37,15 @@ import java.util.Objects;
  * will validate the plan and compile it into something executable.
  *
  * @param identifier     The plan identifier
+ * @param timeouts       The default timeouts
  * @param toolReferences The tool references
  * @param elements       The plan elements
  */
 
 public record NPPlanDescription(
   NPPlanIdentifier identifier,
-  Map<RDottedName, NPToolReference> toolReferences,
+  NPPlanTimeouts timeouts,
+  Map<NPToolReferenceName, NPToolReference> toolReferences,
   Map<NPPlanElementName, NPPlanElementDescriptionType> elements)
 {
   /**
@@ -52,6 +55,7 @@ public record NPPlanDescription(
    * will validate the plan and compile it into something executable.
    *
    * @param identifier     The plan identifier
+   * @param timeouts       The default timeouts
    * @param toolReferences The tool references
    * @param elements       The plan elements
    */
@@ -59,6 +63,7 @@ public record NPPlanDescription(
   public NPPlanDescription
   {
     Objects.requireNonNull(identifier, "identifier");
+    Objects.requireNonNull(timeouts, "timeouts");
     Objects.requireNonNull(toolReferences, "toolReferences");
     Objects.requireNonNull(elements, "elements");
   }
@@ -84,6 +89,8 @@ public record NPPlanDescription(
         this.identifier.name().name().value(),
         this.identifier.version()
       );
+
+    builder.setTimeouts(this.timeouts);
 
     for (final var refs : this.toolReferences.values()) {
       builder.addToolReference(refs);

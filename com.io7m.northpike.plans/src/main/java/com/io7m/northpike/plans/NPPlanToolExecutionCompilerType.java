@@ -15,23 +15,18 @@
  */
 
 
-package com.io7m.northpike.plans.preparation;
+package com.io7m.northpike.plans;
 
-import com.io7m.northpike.model.NPCommit;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
-import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.plans.variables.NPPlanVariables;
 import com.io7m.northpike.toolexec.checker.NPTXTypeChecked;
 
-import java.net.URI;
-import java.util.Objects;
-
 /**
- * An interface that can be used to fetch resources that are necessary
- * for preparing a plan for execution.
+ * An interface that can be used to compile tool executions for plans.
  */
 
-public interface NPPlanPreparationResourcesType
+public interface NPPlanToolExecutionCompilerType
 {
   /**
    * Compile a tool execution for the given plan variables.
@@ -41,46 +36,11 @@ public interface NPPlanPreparationResourcesType
    *
    * @return A type-checked execution
    *
-   * @throws NPPlanException On errors
+   * @throws NPException On errors
    */
 
   NPTXTypeChecked toolCompile(
     NPToolExecutionIdentifier execution,
     NPPlanVariables planVariables)
-    throws NPPlanException;
-
-  /**
-   * An archive of sources used to execute a plan.
-   *
-   * @param sources  The URI of the archive of sources
-   * @param checksum The URI of the checksum of the archive
-   */
-
-  record Archive(
-    URI sources,
-    URI checksum)
-  {
-    /**
-     * An archive of sources used to execute a plan.
-     */
-
-    public Archive
-    {
-      Objects.requireNonNull(sources, "sources");
-      Objects.requireNonNull(checksum, "checksum");
-    }
-  }
-
-  /**
-   * Return a link to the archive for the given commit.
-   *
-   * @param commit The commit
-   *
-   * @return A link to the archive
-   *
-   * @throws NPPlanException On errors
-   */
-
-  Archive archiveForCommit(NPCommit commit)
-    throws NPPlanException;
+    throws NPException;
 }

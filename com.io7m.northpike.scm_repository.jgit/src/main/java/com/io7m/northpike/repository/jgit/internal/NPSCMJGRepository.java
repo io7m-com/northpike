@@ -60,6 +60,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -264,13 +265,17 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     final NPCommitID commit,
     final NPToken token,
     final Path outputFile,
-    final Path outputFileTmp)
+    final Path outputFileTmp,
+    final Path checksumOutputFile,
+    final Path checksumOutputFileTmp)
     throws NPSCMRepositoryException
   {
     Objects.requireNonNull(commit, "commit");
     Objects.requireNonNull(token, "token");
     Objects.requireNonNull(outputFile, "outputFile");
     Objects.requireNonNull(outputFileTmp, "outputFileTmp");
+    Objects.requireNonNull(checksumOutputFile, "checksumOutputFile");
+    Objects.requireNonNull(checksumOutputFileTmp, "checksumOutputFileTmp");
 
     final var span =
       this.telemetry.tracer()
@@ -299,7 +304,27 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
 
         final var hash = sha256Of(outputFileTmp);
 
-        Files.move(outputFileTmp, outputFile, REPLACE_EXISTING, ATOMIC_MOVE);
+        Files.writeString(
+          checksumOutputFileTmp,
+          hash,
+          StandardCharsets.UTF_8,
+          CREATE,
+          TRUNCATE_EXISTING,
+          WRITE
+        );
+        Files.move(
+          checksumOutputFileTmp,
+          checksumOutputFile,
+          REPLACE_EXISTING,
+          ATOMIC_MOVE
+        );
+        Files.move(
+          outputFileTmp,
+          outputFile,
+          REPLACE_EXISTING,
+          ATOMIC_MOVE
+        );
+
         task.onCompleted();
         return new NPArchive(
           token,
@@ -331,7 +356,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
         inputStream.transferTo(outputStream);
       }
     }
-    return HexFormat.of().withUpperCase().formatHex(digest.digest());
+    return HexFormat.of().withLowerCase().formatHex(digest.digest());
   }
 
   private NPSCMCommitSet executeCalculateSince(

@@ -48,4 +48,32 @@ public record NPAssignmentExecutionFailed(
     Objects.requireNonNull(timeStarted, "timeStarted");
     Objects.requireNonNull(timeEnded, "timeEnded");
   }
+
+  @Override
+  public NPAssignmentExecutionFailed fail(
+    final OffsetDateTime time)
+  {
+    return new NPAssignmentExecutionFailed(
+      this.timeCreated,
+      this.timeStarted,
+      time
+    );
+  }
+
+  @Override
+  public String name()
+  {
+    return "Failed";
+  }
+
+  @Override
+  public NPAssignmentExecutionSucceeded succeed(
+    final OffsetDateTime time)
+  {
+    return new NPAssignmentExecutionSucceeded(
+      this.timeCreated,
+      this.timeStarted,
+      time
+    );
+  }
 }

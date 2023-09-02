@@ -27,6 +27,56 @@
   [field value cb:ByteArray]
 ]
 
+[documentation NPA1WorkItemIdentifier "A work item identifier."]
+[record NPA1WorkItemIdentifier
+  [documentation executionId "The execution ID."]
+  [field executionId cb:UUID]
+  [documentation planElementName "The plan element name."]
+  [field planElementName cb:String]
+]
+
+[documentation NPA1Version "A version number."]
+[record NPA1Version
+  [field major cb:IntegerUnsigned32]
+  [field minor cb:IntegerUnsigned32]
+  [field patch cb:IntegerUnsigned32]
+  [field qualifier [cb:Option cb:String]]
+]
+
+[documentation NPA1ToolReference "A tool reference."]
+[record NPA1ToolReference
+  [documentation referenceName "The reference name."]
+  [field referenceName cb:String]
+  [documentation toolName "The tool name."]
+  [field toolName cb:String]
+  [documentation version "The tool version."]
+  [field version NPA1Version]
+]
+
+[documentation NPA1ToolExecutionEvaluated "A fully evaluated tool execution."]
+[record NPA1ToolExecutionEvaluated
+  [documentation toolReference "The tool reference."]
+  [field toolReference NPA1ToolReference]
+  [documentation environment "The environment variables."]
+  [field environment [cb:Map cb:String cb:String]]
+  [documentation arguments "The command arguments."]
+  [field arguments [cb:List cb:String]]
+]
+
+[documentation NPA1AgentWorkItem "A work item."]
+[record NPA1AgentWorkItem
+  [documentation identifier "The work item identifier"]
+  [field identifier NPA1WorkItemIdentifier]
+  [documentation metadata "The work item metadata"]
+  [field metadata [cb:Map cb:String cb:String]]
+  [documentation toolsRequired "The required tools"]
+  [field toolsRequired [cb:List NPA1ToolReference]]
+  [documentation toolExecution "The tool execution"]
+  [field toolExecution NPA1ToolExecutionEvaluated]
+  [documentation lockResources "The set of resources that must be locked"]
+  [field lockResources [cb:List cb:String]]
+]
+
 ;
 ; Commands
 ;
@@ -55,12 +105,62 @@
   [field messageId cb:UUID]
 ]
 
+[documentation NPA1CommandCWorkItemStarted "A work item has started executing."]
+[record NPA1CommandCWorkItemStarted
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation workItem "The work item identifier"]
+  [field workItem NPA1WorkItemIdentifier]
+]
+
+[documentation NPA1CommandCWorkItemSucceeded "A work item finished executing successfully."]
+[record NPA1CommandCWorkItemSucceeded
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation workItem "The work item identifier"]
+  [field workItem NPA1WorkItemIdentifier]
+]
+
+[documentation NPA1CommandCWorkItemFailed "A work item finished executing with a failure."]
+[record NPA1CommandCWorkItemFailed
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation workItem "The work item identifier"]
+  [field workItem NPA1WorkItemIdentifier]
+]
+
+[documentation NPA1CommandCWorkItemOutput "A work item produced a line of output."]
+[record NPA1CommandCWorkItemOutput
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation workItem "The work item identifier"]
+  [field workItem NPA1WorkItemIdentifier]
+  [documentation output "The line of output"]
+  [field output cb:String]
+]
+
 [documentation NPA1CommandSLatencyCheck "A command to request latency information."]
 [record NPA1CommandSLatencyCheck
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
   [documentation timeCurrent "The current server time."]
   [field timeCurrent ct:OffsetDateTime]
+]
+
+[documentation NPA1CommandSWorkOffered "An offer of work to the client from the server."]
+[record NPA1CommandSWorkOffered
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation workItem "The work item identifier"]
+  [field workItem NPA1WorkItemIdentifier]
+]
+
+[documentation NPA1CommandSWorkSent "A sending of work to the client from the server."]
+[record NPA1CommandSWorkSent
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation workItem "The work item"]
+  [field workItem NPA1AgentWorkItem]
 ]
 
 ;
@@ -105,6 +205,30 @@
   [field timeClient ct:OffsetDateTime]
 ]
 
+[documentation NPA1ResponseWorkOffered "A response to a work offer."]
+[record NPA1ResponseWorkOffered
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation workItem "The original work item."]
+  [field workItem NPA1WorkItemIdentifier]
+  [documentation accepted "Whether the work can be accepted."]
+  [field accepted cb:Boolean]
+]
+
+[documentation NPA1ResponseWorkSent "A response to a work offer."]
+[record NPA1ResponseWorkSent
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation workItem "The original work item."]
+  [field workItem NPA1WorkItemIdentifier]
+  [documentation accepted "Whether the work was accepted."]
+  [field accepted cb:Boolean]
+]
+
 [documentation NPA "The Agent protocol."]
 [protocol NPA
   [version 1
@@ -112,10 +236,18 @@
       NPA1CommandCDisconnect
       NPA1CommandCEnvironmentInfo
       NPA1CommandCLogin
+      NPA1CommandCWorkItemFailed
+      NPA1CommandCWorkItemOutput
+      NPA1CommandCWorkItemStarted
+      NPA1CommandCWorkItemSucceeded
       NPA1CommandSLatencyCheck
+      NPA1CommandSWorkOffered
+      NPA1CommandSWorkSent
       NPA1ResponseError
       NPA1ResponseLatencyCheck
       NPA1ResponseOK
+      NPA1ResponseWorkOffered
+      NPA1ResponseWorkSent
     ]
   ]
 ]

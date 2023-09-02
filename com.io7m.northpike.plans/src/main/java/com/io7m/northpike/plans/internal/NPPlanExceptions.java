@@ -17,9 +17,9 @@
 
 package com.io7m.northpike.plans.internal;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.strings.NPStringConstants;
@@ -67,7 +67,7 @@ public final class NPPlanExceptions
       Map.ofEntries(
         Map.entry(
           strings.format(TOOL_REFERENCE),
-          reference.referenceName().value()
+          reference.referenceName().toString()
         )
       ),
       Optional.empty()
@@ -148,7 +148,7 @@ public final class NPPlanExceptions
 
   public static NPPlanException errorNonexistentToolReference(
     final NPStrings strings,
-    final RDottedName name)
+    final NPToolReferenceName name)
   {
     return new NPPlanException(
       strings.format(ERROR_NONEXISTENT),
@@ -156,7 +156,7 @@ public final class NPPlanExceptions
       Map.ofEntries(
         Map.entry(
           strings.format(TOOL_REFERENCE),
-          name.value()
+          name.toString()
         )
       ),
       Optional.empty()

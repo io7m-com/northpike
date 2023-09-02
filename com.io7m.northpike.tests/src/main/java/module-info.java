@@ -86,6 +86,7 @@ open module com.io7m.northpike.tests
   requires net.bytebuddy;
   requires net.jqwik.api;
   requires org.apache.commons.compress;
+  requires org.apache.commons.io;
   requires org.jgrapht.core;
   requires org.mockito;
   requires org.postgresql.jdbc;

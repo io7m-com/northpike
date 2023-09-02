@@ -40,10 +40,12 @@ public final class NPArbSIf
             Arbitraries.defaultFor(NPTXExpressionType.class),
             Arbitraries.defaultFor(NPTXSEnvironmentClear.class)
               .map(NPTXStatementType.class::cast)
-              .list(),
+              .list()
+              .ofMaxSize(8),
             Arbitraries.defaultFor(NPTXSEnvironmentPass.class)
               .map(NPTXStatementType.class::cast)
               .list()
+              .ofMaxSize(8)
           ).as(NPTXSIf::new);
       }
     );

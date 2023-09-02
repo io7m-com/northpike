@@ -39,8 +39,8 @@ public final class NPArbCommit extends NPArbAbstract<NPCommit>
           Arbitraries.defaultFor(NPCommitAuthor.class),
           Arbitraries.strings().ofMaxLength(80),
           Arbitraries.strings(),
-          Arbitraries.strings().set(),
-          Arbitraries.strings().set()
+          Arbitraries.strings().set().ofMaxSize(3),
+          Arbitraries.strings().set().ofMaxSize(3)
         ).as(NPCommit::new);
       }
     );

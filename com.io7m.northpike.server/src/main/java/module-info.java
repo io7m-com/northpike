@@ -41,9 +41,11 @@ module com.io7m.northpike.server
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
   requires com.io7m.northpike.tls;
+  requires com.io7m.northpike.toolexec;
 
   requires com.io7m.anethum.api;
   requires com.io7m.anethum.slf4j;
+  requires com.io7m.jaffirm.core;
   requires com.io7m.jmulticlose.core;
   requires com.io7m.medrina.vanilla;
   requires com.io7m.repetoir.core;
@@ -66,6 +68,8 @@ module com.io7m.northpike.server
 
   exports com.io7m.northpike.server;
 
+  exports com.io7m.northpike.server.internal.assignments
+    to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.archives
     to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.telemetry

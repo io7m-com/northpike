@@ -395,6 +395,10 @@ public final class NPSCMRepositoriesJGitTest
       outputDirectory.resolve("archive.tgz.tmp");
     final var file =
       outputDirectory.resolve("archive.tgz");
+    final var checksumTmp =
+      outputDirectory.resolve("archive.tgz.sha256.tmp");
+    final var checksum =
+      outputDirectory.resolve("archive.tgz.sha256");
 
     try (var repository =
            this.repositories.createRepository(
@@ -407,7 +411,9 @@ public final class NPSCMRepositoriesJGitTest
         ),
         new NPToken("0000000000000000000000000000000000000000000000000000000000000000"),
         file,
-        fileTmp
+        fileTmp,
+        checksum,
+        checksumTmp
       );
 
       assertTrue(Files.isRegularFile(file));

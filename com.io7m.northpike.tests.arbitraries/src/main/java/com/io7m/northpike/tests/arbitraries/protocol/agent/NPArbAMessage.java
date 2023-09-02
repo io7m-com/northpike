@@ -20,7 +20,13 @@ package com.io7m.northpike.tests.arbitraries.protocol.agent;
 import com.io7m.northpike.protocol.agent.NPACommandCDisconnect;
 import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
 import com.io7m.northpike.protocol.agent.NPACommandCLogin;
+import com.io7m.northpike.protocol.agent.NPACommandCWorkItemFailed;
+import com.io7m.northpike.protocol.agent.NPACommandCWorkItemOutput;
+import com.io7m.northpike.protocol.agent.NPACommandCWorkItemStarted;
+import com.io7m.northpike.protocol.agent.NPACommandCWorkItemSucceeded;
 import com.io7m.northpike.protocol.agent.NPACommandSLatencyCheck;
+import com.io7m.northpike.protocol.agent.NPACommandSWorkOffered;
+import com.io7m.northpike.protocol.agent.NPACommandSWorkSent;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.NPAResponseError;
 import com.io7m.northpike.protocol.agent.NPAResponseLatencyCheck;
@@ -43,10 +49,16 @@ public final class NPArbAMessage extends NPArbAbstract<NPAMessageType>
               NPACommandCDisconnect.class,
               NPACommandCEnvironmentInfo.class,
               NPACommandCLogin.class,
+              NPACommandCWorkItemFailed.class,
+              NPACommandCWorkItemOutput.class,
+              NPACommandCWorkItemStarted.class,
+              NPACommandCWorkItemSucceeded.class,
               NPACommandSLatencyCheck.class,
               NPAResponseError.class,
               NPAResponseLatencyCheck.class,
-              NPAResponseOK.class
+              NPAResponseOK.class,
+              NPACommandSWorkOffered.class,
+              NPACommandSWorkSent.class
             ).map(Arbitraries::defaultFor)
             .collect(Collectors.toUnmodifiableList())
         );

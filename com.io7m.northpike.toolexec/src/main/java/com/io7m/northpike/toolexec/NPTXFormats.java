@@ -17,7 +17,9 @@
 
 package com.io7m.northpike.toolexec;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPFormatName;
+
+import java.util.Set;
 
 /**
  * The known tool execution description formats.
@@ -25,14 +27,14 @@ import com.io7m.lanark.core.RDottedName;
 
 public final class NPTXFormats
 {
-  private static final RDottedName XML_VERSION_1 =
-    new RDottedName("com.io7m.northpike.toolexec.xml.v1");
+  private static final NPFormatName XML_VERSION_1 =
+    NPFormatName.of("com.io7m.northpike.toolexec.xml.v1");
 
   /**
    * @return The name of the XML format version 1
    */
 
-  public static RDottedName nptx1()
+  public static NPFormatName nptx1()
   {
     return XML_VERSION_1;
   }
@@ -40,5 +42,16 @@ public final class NPTXFormats
   private NPTXFormats()
   {
 
+  }
+
+  /**
+   * @return The supported formats
+   */
+
+  public static Set<NPFormatName> formats()
+  {
+    return Set.of(
+      nptx1()
+    );
   }
 }

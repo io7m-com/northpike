@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.server.internal.events;
 
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPEventType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
@@ -28,6 +29,8 @@ import org.slf4j.event.Level;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.concurrent.Flow;
+import java.util.concurrent.SubmissionPublisher;
 
 /**
  * The event service.
@@ -39,6 +42,7 @@ public final class NPEventService implements NPEventServiceType
     LoggerFactory.getLogger(NPEventService.class);
 
   private final io.opentelemetry.api.logs.Logger logger;
+  private final SubmissionPublisher<NPEventType> events;
 
   private NPEventService(
     final NPTelemetryServiceType inTelemetry)
@@ -47,6 +51,8 @@ public final class NPEventService implements NPEventServiceType
 
     this.logger =
       inTelemetry.logger();
+    this.events =
+      new SubmissionPublisher<>();
   }
 
   /**
@@ -97,6 +103,21 @@ public final class NPEventService implements NPEventServiceType
           case WARNING -> Severity.WARN;
         })
       .emit();
+
+    this.events.submit(event);
+  }
+
+  @Override
+  public Flow.Publisher<NPEventType> events()
+  {
+    return this.events;
+  }
+
+  @Override
+  public void close()
+    throws NPException
+  {
+    this.events.close();
   }
 
   @Override

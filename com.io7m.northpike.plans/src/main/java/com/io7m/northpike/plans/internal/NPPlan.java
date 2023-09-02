@@ -17,12 +17,13 @@
 
 package com.io7m.northpike.plans.internal;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.plans.NPPlanDependency;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanElementType;
 import com.io7m.northpike.plans.NPPlanIdentifier;
+import com.io7m.northpike.plans.NPPlanTimeouts;
 import com.io7m.northpike.plans.NPPlanType;
 import org.jgrapht.Graph;
 
@@ -36,18 +37,22 @@ import java.util.Objects;
 public final class NPPlan implements NPPlanType
 {
   private final NPPlanIdentifier identifier;
-  private final Map<RDottedName, NPToolReference> toolReferences;
+  private final NPPlanTimeouts timeouts;
+  private final Map<NPToolReferenceName, NPToolReference> toolReferences;
   private final Map<NPPlanElementName, NPPlanElementType> elements;
   private final Graph<NPPlanElementType, NPPlanDependency> graph;
 
   NPPlan(
     final NPPlanIdentifier inIdentifier,
-    final Map<RDottedName, NPToolReference> inToolReferences,
+    final NPPlanTimeouts inTimeouts,
+    final Map<NPToolReferenceName, NPToolReference> inToolReferences,
     final Map<NPPlanElementName, NPPlanElementType> inElements,
     final Graph<NPPlanElementType, NPPlanDependency> inGraph)
   {
     this.identifier =
       Objects.requireNonNull(inIdentifier, "identifier");
+    this.timeouts =
+      Objects.requireNonNull(inTimeouts, "timeouts");
     this.toolReferences =
       Objects.requireNonNull(inToolReferences, "toolReferences");
     this.elements =
@@ -63,7 +68,13 @@ public final class NPPlan implements NPPlanType
   }
 
   @Override
-  public Map<RDottedName, NPToolReference> toolReferences()
+  public NPPlanTimeouts timeouts()
+  {
+    return this.timeouts;
+  }
+
+  @Override
+  public Map<NPToolReferenceName, NPToolReference> toolReferences()
   {
     return this.toolReferences;
   }

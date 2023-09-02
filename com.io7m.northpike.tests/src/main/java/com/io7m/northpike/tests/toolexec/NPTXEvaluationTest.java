@@ -19,7 +19,7 @@ package com.io7m.northpike.tests.toolexec;
 
 import com.io7m.anethum.api.ParsingException;
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.toolexec.NPTXPreserveLexical;
+import com.io7m.northpike.model.NPPreserveLexical;
 import com.io7m.northpike.toolexec.checker.NPTXChecker;
 import com.io7m.northpike.toolexec.checker.NPTXCheckerException;
 import com.io7m.northpike.toolexec.evaluator.NPTXEvaluator;
@@ -80,7 +80,7 @@ public final class NPTXEvaluationTest
       NPTXDescriptionParser.open(
         input,
         URI.create("urn:stdin"),
-        NPTXPreserveLexical.DISCARD_LEXICAL_INFORMATION,
+        NPPreserveLexical.DISCARD_LEXICAL_INFORMATION,
         parseStatus -> {
 
         });

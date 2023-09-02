@@ -25,7 +25,7 @@ package com.io7m.northpike.protocol.agent;
 
 public sealed interface NPACommandS2CType<R extends NPAResponseType>
   extends NPACommandType<R>
-  permits NPACommandSLatencyCheck
+  permits NPACommandSLatencyCheck, NPACommandSWorkOffered, NPACommandSWorkSent
 {
 
 }

@@ -24,6 +24,11 @@
       <artifactId>com.io7m.northpike.strings</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.model</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.io7m.jaffirm</groupId>
@@ -56,6 +61,10 @@
     <dependency>
       <groupId>com.io7m.jxe</groupId>
       <artifactId>com.io7m.jxe.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.repetoir</groupId>
+      <artifactId>com.io7m.repetoir.core</artifactId>
     </dependency>
 
     <dependency>

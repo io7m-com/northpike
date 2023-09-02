@@ -67,4 +67,9 @@ public final class NPPlanParsers implements NPPlanParserFactoryType
     return NPPlanFormats.formats();
   }
 
+  @Override
+  public String description()
+  {
+    return "Plan parser factory service.";
+  }
 }

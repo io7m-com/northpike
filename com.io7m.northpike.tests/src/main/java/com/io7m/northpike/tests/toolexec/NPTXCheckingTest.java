@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.toolexec;
 
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.toolexec.NPTXPreserveLexical;
+import com.io7m.northpike.model.NPPreserveLexical;
 import com.io7m.northpike.toolexec.checker.NPTXChecker;
 import com.io7m.northpike.toolexec.checker.NPTXCheckerException;
 import com.io7m.northpike.toolexec.model.NPTXEAnd;
@@ -671,7 +671,7 @@ public final class NPTXCheckingTest
       NPTXDescriptionParser.open(
         input,
         URI.create("urn:stdin"),
-        NPTXPreserveLexical.DISCARD_LEXICAL_INFORMATION,
+        NPPreserveLexical.DISCARD_LEXICAL_INFORMATION,
         parseStatus -> {
 
         });
@@ -715,7 +715,7 @@ public final class NPTXCheckingTest
       NPTXDescriptionParser.open(
         input,
         URI.create("urn:stdin"),
-        NPTXPreserveLexical.DISCARD_LEXICAL_INFORMATION,
+        NPPreserveLexical.DISCARD_LEXICAL_INFORMATION,
         parseStatus -> {
 
         });

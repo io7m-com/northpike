@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.plans.parsers.v1;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPAgentResourceName;
 
 import java.util.Objects;
 import java.util.Set;
@@ -29,7 +29,7 @@ import java.util.Set;
  */
 
 public record NPP1AgentLockResourcesExpression(
-  Set<RDottedName> resources)
+  Set<NPAgentResourceName> resources)
 {
   /**
    * The set of resources locked on an agent.

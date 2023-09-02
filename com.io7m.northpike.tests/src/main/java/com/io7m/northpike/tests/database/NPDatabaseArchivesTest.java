@@ -155,11 +155,11 @@ public final class NPDatabaseArchivesTest
     final var archive =
       new NPArchive(
         new NPToken(
-          "8E35C2CD3BF6641BDB0E2050B76932CBB2E6034A0DDACC1D9BEA82A6BA57F7CF"),
+          "8e35c2cd3bf6641bdb0e2050b76932cbb2e6034a0ddacc1d9bea82a6ba57f7cf"),
         commit.id(),
         new NPHash(
           "SHA-256",
-          "454349E422F05297191EAD13E21D3DB520E5ABEF52055E4964B82FB213F593A1"
+          "454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"
         ),
         OffsetDateTime.now()
           .withNano(0)
@@ -190,7 +190,7 @@ public final class NPDatabaseArchivesTest
       Optional.empty(),
       get.execute(
         new NPToken(
-          "2215F4104678281140622C1088785093319DDC791D11F80CF687D9D4E24E200E")
+          "2215f4104678281140622c1088785093319ddc791d11f80cf687d9d4e24e200e")
       )
     );
   }

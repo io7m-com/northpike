@@ -21,6 +21,7 @@ import com.io7m.anethum.api.SerializerFactoryType;
 import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPPreserveLexical;
 import com.io7m.northpike.plans.NPPlanType;
+import com.io7m.repetoir.core.RPServiceType;
 
 import java.util.Set;
 
@@ -30,7 +31,8 @@ import java.util.Set;
 
 public interface NPPlanSerializerFactoryType
   extends SerializerFactoryType<
-  NPPreserveLexical, NPPlanType, NPPlanSerializerType>
+  NPPreserveLexical, NPPlanType, NPPlanSerializerType>,
+  RPServiceType
 {
   /**
    * @return The supported formats

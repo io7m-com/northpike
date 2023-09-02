@@ -19,8 +19,9 @@ package com.io7m.northpike.plans.parsers.v1;
 
 import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
 import com.io7m.blackthorne.core.Blackthorne;
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.plans.NPPlanToolExecution;
 import com.io7m.northpike.plans.parsers.NPPlanDescription;
 import com.io7m.northpike.plans.parsers.NPPlanElementDescriptionType;
@@ -44,7 +45,7 @@ public final class NPP1Handlers
    * @return A tool execution element parser
    */
 
-  public static BTElementHandlerConstructorType<RDottedName, NPPlanToolExecution> toolExecution()
+  public static BTElementHandlerConstructorType<NPToolReferenceName, NPPlanToolExecution> toolExecution()
   {
     return NPP1ToolExecution::new;
   }
@@ -53,12 +54,12 @@ public final class NPP1Handlers
    * @return A tool requirement element parser
    */
 
-  public static BTElementHandlerConstructorType<?, RDottedName> toolRequirement()
+  public static BTElementHandlerConstructorType<?, NPToolReferenceName> toolRequirement()
   {
     return Blackthorne.forScalarAttribute(
       element("ToolRequirement"),
       (context, attributes) -> {
-        return new RDottedName(attributes.getValue("ToolName"));
+        return NPToolReferenceName.of(attributes.getValue("ReferenceName"));
       }
     );
   }
@@ -73,8 +74,8 @@ public final class NPP1Handlers
       element("Tool"),
       (context, attributes) -> {
         return new NPToolReference(
-          new RDottedName(attributes.getValue("ReferenceName")),
-          new RDottedName(attributes.getValue("ToolName")),
+          NPToolReferenceName.of(attributes.getValue("ReferenceName")),
+          NPToolName.of(attributes.getValue("ToolName")),
           VersionParser.parse(attributes.getValue("ToolVersion"))
         );
       }

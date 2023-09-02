@@ -27,7 +27,11 @@ public sealed interface NPACommandC2SType<R extends NPAResponseType>
   extends NPACommandType<R>
   permits NPACommandCDisconnect,
   NPACommandCEnvironmentInfo,
-  NPACommandCLogin
+  NPACommandCLogin,
+  NPACommandCWorkItemFailed,
+  NPACommandCWorkItemOutput,
+  NPACommandCWorkItemStarted,
+  NPACommandCWorkItemSucceeded
 {
 
 }

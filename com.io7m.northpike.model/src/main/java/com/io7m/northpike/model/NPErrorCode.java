@@ -41,7 +41,7 @@ public record NPErrorCode(String id)
     Objects.requireNonNull(id, "id");
 
     if (!VALID_ERROR_CODE.matcher(id).matches()) {
-      throw new IllegalArgumentException(
+      throw new NPValidityException(
         "Error code identifiers must match %s".formatted(VALID_ERROR_CODE)
       );
     }

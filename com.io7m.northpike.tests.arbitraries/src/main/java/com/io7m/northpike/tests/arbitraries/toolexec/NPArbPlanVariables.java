@@ -45,6 +45,8 @@ public final class NPArbPlanVariables
       final var vars =
         Arbitraries.defaultFor(NPTXPlanVariableType.class)
           .list()
+          .ofMinSize(0)
+          .ofMaxSize(8)
           .sample();
 
       for (final var v : vars) {

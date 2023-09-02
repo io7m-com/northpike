@@ -66,10 +66,12 @@ public interface NPSCMRepositoryType extends AutoCloseable
   /**
    * Produce an archive of the given commit as a compressed tarball.
    *
-   * @param commit        The commit
-   * @param token         The token
-   * @param outputFile    The output file
-   * @param outputFileTmp The temporary output file
+   * @param commit                The commit
+   * @param token                 The token
+   * @param outputFile            The output file
+   * @param outputFileTmp         The temporary output file
+   * @param checksumOutputFile    The output checksum file
+   * @param checksumOutputFileTmp The temporary output checksum file
    *
    * @return The archive
    *
@@ -80,7 +82,9 @@ public interface NPSCMRepositoryType extends AutoCloseable
     NPCommitID commit,
     NPToken token,
     Path outputFile,
-    Path outputFileTmp)
+    Path outputFileTmp,
+    Path checksumOutputFile,
+    Path checksumOutputFileTmp)
     throws NPSCMRepositoryException;
 
   @Override

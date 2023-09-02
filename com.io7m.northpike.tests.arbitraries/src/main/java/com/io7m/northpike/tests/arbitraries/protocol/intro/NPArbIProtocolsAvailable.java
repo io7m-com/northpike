@@ -31,6 +31,7 @@ public final class NPArbIProtocolsAvailable extends NPArbAbstract<NPIProtocolsAv
       () -> {
         return Arbitraries.defaultFor(NPIProtocol.class)
           .list()
+          .ofMaxSize(3)
           .map(NPIProtocolsAvailable::new);
       }
     );
