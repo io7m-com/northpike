@@ -15,9 +15,8 @@
  */
 
 
-package com.io7m.northpike.server.internal.tls;
+package com.io7m.northpike.tls;
 
-import com.io7m.northpike.tls.NPTLSStoreConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,12 +83,16 @@ public final class NPTLSContext
    * @throws GeneralSecurityException On security errors
    */
 
-  static NPTLSContext create(
+  public static NPTLSContext create(
     final String user,
     final NPTLSStoreConfiguration keyStoreConfiguration,
     final NPTLSStoreConfiguration trustStoreConfiguration)
     throws IOException, GeneralSecurityException
   {
+    Objects.requireNonNull(user, "user");
+    Objects.requireNonNull(keyStoreConfiguration, "keyStoreConfiguration");
+    Objects.requireNonNull(trustStoreConfiguration, "trustStoreConfiguration");
+
     LOG.info(
       "KeyStore [{}] {} (Provider {}, Type {})",
       user,

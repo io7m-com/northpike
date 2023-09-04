@@ -33,4 +33,5 @@ module com.io7m.northpike.model
   requires com.io7m.jaffirm.core;
 
   exports com.io7m.northpike.model;
+  exports com.io7m.northpike.model.security;
 }

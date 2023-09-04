@@ -35,8 +35,10 @@ import com.io7m.idstore.model.IdRealName;
 import com.io7m.idstore.protocol.admin.IdACommandUserCreate;
 import com.io7m.idstore.protocol.admin.IdAResponseUserCreate;
 import com.io7m.northpike.database.api.NPDatabaseConfiguration;
+import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseCreate;
 import com.io7m.northpike.database.api.NPDatabaseException;
+import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseTelemetry;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.api.NPDatabaseUpgrade;
@@ -50,9 +52,11 @@ import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.api.NPServerFactoryType;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
 import com.io7m.northpike.server.api.NPServerType;
+import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.NPTestProperties;
 import io.opentelemetry.api.OpenTelemetry;
+import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -130,23 +134,29 @@ public final class NPTestContainers
     public void reset()
       throws IOException, InterruptedException
     {
-      this.container.executeAndWaitIndefinitely(
-        List.of(
-          "dropdb",
-          "-w",
-          "-U",
-          "northpike_install",
-          "northpike"
-        )
-      );
+      Assertions.assertEquals(
+        0,
+        this.container.executeAndWaitIndefinitely(
+          List.of(
+            "dropdb",
+            "-w",
+            "-f",
+            "-U",
+            "northpike_install",
+            "northpike"
+          )
+        ));
 
-      this.container.executeAndWaitIndefinitely(
-        List.of(
-          "createdb",
-          "-w",
-          "-U",
-          "northpike_install",
-          "northpike"
+      Assertions.assertEquals(
+        0,
+        this.container.executeAndWaitIndefinitely(
+          List.of(
+            "createdb",
+            "-w",
+            "-U",
+            "northpike_install",
+            "northpike"
+          )
         )
       );
     }
@@ -257,23 +267,30 @@ public final class NPTestContainers
     {
       this.serverContainer.stop();
 
-      this.databaseContainer.executeAndWaitIndefinitely(
-        List.of(
-          "dropdb",
-          "-w",
-          "-U",
-          "idstore_install",
-          "idstore"
+      Assertions.assertEquals(
+        0,
+        this.databaseContainer.executeAndWaitIndefinitely(
+          List.of(
+            "dropdb",
+            "-w",
+            "-f",
+            "-U",
+            "idstore_install",
+            "idstore"
+          )
         )
       );
 
-      this.databaseContainer.executeAndWaitIndefinitely(
-        List.of(
-          "createdb",
-          "-w",
-          "-U",
-          "idstore_install",
-          "idstore"
+      Assertions.assertEquals(
+        0,
+        this.databaseContainer.executeAndWaitIndefinitely(
+          List.of(
+            "createdb",
+            "-w",
+            "-U",
+            "idstore_install",
+            "idstore"
+          )
         )
       );
 
@@ -284,22 +301,25 @@ public final class NPTestContainers
     private void initialAdmin()
       throws IOException, InterruptedException
     {
-      this.serverContainer.executeAndWaitIndefinitely(
-        List.of(
-          "idstore",
-          "initial-admin",
-          "--configuration",
-          "/idstore/etc/server.xml",
-          "--admin-id",
-          this.adminId.toString(),
-          "--admin-username",
-          "admin",
-          "--admin-password",
-          "12345678",
-          "--admin-email",
-          "admin@example.com",
-          "--admin-realname",
-          "admin"
+      Assertions.assertEquals(
+        0,
+        this.serverContainer.executeAndWaitIndefinitely(
+          List.of(
+            "idstore",
+            "initial-admin",
+            "--configuration",
+            "/idstore/etc/server.xml",
+            "--admin-id",
+            this.adminId.toString(),
+            "--admin-username",
+            "admin",
+            "--admin-password",
+            "12345678",
+            "--admin-email",
+            "admin@example.com",
+            "--admin-realname",
+            "admin"
+          )
         )
       );
     }
@@ -395,7 +415,7 @@ public final class NPTestContainers
           .addArgument("debug")
           .addArgument("--configuration")
           .addArgument("/idstore/etc/server.xml")
-          .setReadyCheck(new NPIdstoreHealthcheck("localhost", 51000))
+          .setReadyCheck(new NPIdstoreHealthcheck("localhost", adminAPIPort))
           .build()
       );
 
@@ -446,6 +466,7 @@ public final class NPTestContainers
     """;
 
   public record NPServerFixture(
+    NPDatabaseFixture databaseFixture,
     NPServerType server)
     implements AutoCloseable
   {
@@ -463,13 +484,35 @@ public final class NPTestContainers
     {
       this.server.setUserAsAdmin(userId, new IdName(userName));
     }
+
+    public void reset()
+      throws Exception
+    {
+      this.databaseFixture.reset();
+      this.server.close();
+    }
+
+    public void start()
+      throws Exception
+    {
+      this.server.start();
+    }
+
+    public NPDatabaseConnectionType databaseConnection()
+      throws NPDatabaseException
+    {
+      return this.server.database()
+        .openConnection(NPDatabaseRole.NORTHPIKE);
+    }
   }
 
   public static NPServerFixture createServer(
     final NPIdstoreFixture idstoreFixture,
     final NPDatabaseFixture databaseFixture,
     final Path baseDirectory,
-    final int apiPort)
+    final int agentApiPort,
+    final int userApiPort,
+    final int archivePort)
     throws IOException, NPServerException
   {
     final NPServerConfiguration configuration =
@@ -488,21 +531,30 @@ public final class NPTestContainers
         ),
         new NPServerAgentConfiguration(
           InetAddress.getLocalHost(),
-          apiPort,
+          agentApiPort,
           TLS_DISABLED,
           1_000_000
         ),
         new NPServerArchiveConfiguration(
           InetAddress.getLocalHost(),
-          40001,
+          archivePort,
           TLS_DISABLED,
           URI.create("https://archives.example.com/")
         ),
-        Optional.empty()
+        new NPServerUserConfiguration(
+          InetAddress.getLocalHost(),
+          userApiPort,
+          TLS_DISABLED,
+          1_000_000
+        ),
+        empty()
       );
 
     final var fixture =
-      new NPServerFixture(SERVERS.createServer(configuration));
+      new NPServerFixture(
+        databaseFixture,
+        SERVERS.createServer(configuration)
+      );
 
     fixture.server.start();
     return fixture;

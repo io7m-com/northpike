@@ -24,6 +24,7 @@ import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
+import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.server.configuration.NPSCDatabase;
 import com.io7m.northpike.server.configuration.NPSCFile;
 import com.io7m.northpike.telemetry.api.NPTelemetryConfiguration;
@@ -47,6 +48,7 @@ public final class NPSC1File
   private NPSCDatabase database;
   private NPServerDirectoryConfiguration directories;
   private NPServerArchiveConfiguration archive;
+  private NPServerUserConfiguration user;
 
   /**
    * A parser for {@link NPSCFile}
@@ -71,7 +73,8 @@ public final class NPSC1File
       entry(element("Database"), NPSC1Database::new),
       entry(element("Directories"), NPSC1Directories::new),
       entry(element("IdStore"), NPSC1Idstore::new),
-      entry(element("OpenTelemetry"), NPSC1OpenTelemetry::new)
+      entry(element("OpenTelemetry"), NPSC1OpenTelemetry::new),
+      entry(element("UserService"), NPSC1UserService::new)
     );
   }
 
@@ -82,6 +85,10 @@ public final class NPSC1File
   {
     if (result instanceof final NPServerAgentConfiguration e) {
       this.agent = e;
+      return;
+    }
+    if (result instanceof final NPServerUserConfiguration e) {
+      this.user = e;
       return;
     }
     if (result instanceof final NPServerArchiveConfiguration e) {
@@ -116,6 +123,7 @@ public final class NPSC1File
       this.idstore,
       this.agent,
       this.archive,
+      this.user,
       Optional.ofNullable(this.telemetry)
     );
   }

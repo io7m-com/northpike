@@ -625,6 +625,7 @@ public final class NPRepositoryService
     throws Exception
   {
     if (this.closed.compareAndSet(false, true)) {
+      LOG.debug("Shutting down repository service.");
       this.future.complete(null);
       this.resources.close();
     }

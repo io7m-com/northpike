@@ -50,4 +50,19 @@
               Protocol="GRPC"/>
   </c:OpenTelemetry>
 
+  <c:UserService ListenAddress="example.com"
+                  ListenPort="20050"
+                  MaximumCommandSizeOctets="1000000">
+    <t:TLSEnabled>
+      <t:KeyStore Type="CANONMILL"
+                  Provider="CANONMILL"
+                  Password=""
+                  File="keys.xml"/>
+      <t:TrustStore Type="CANONMILL"
+                    Provider="CANONMILL"
+                    Password=""
+                    File="trust.xml"/>
+    </t:TLSEnabled>
+  </c:UserService>
+
 </c:Configuration>

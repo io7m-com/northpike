@@ -38,6 +38,7 @@ import java.util.Optional;
  * @param locale                The locale
  * @param idstoreConfiguration  The idstore configuration
  * @param agentConfiguration    The agent service configuration
+ * @param userConfiguration     The user service configuration
  * @param archiveConfiguration  The archive service configuration
  * @param openTelemetry         The OpenTelemetry configuration
  */
@@ -52,6 +53,7 @@ public record NPServerConfiguration(
   NPServerIdstoreConfiguration idstoreConfiguration,
   NPServerAgentConfiguration agentConfiguration,
   NPServerArchiveConfiguration archiveConfiguration,
+  NPServerUserConfiguration userConfiguration,
   Optional<NPTelemetryConfiguration> openTelemetry)
 {
   /**
@@ -66,6 +68,7 @@ public record NPServerConfiguration(
    * @param locale                The locale
    * @param idstoreConfiguration  The idstore configuration
    * @param agentConfiguration    The agent service configuration
+   * @param userConfiguration     The user service configuration
    * @param archiveConfiguration  The archive service configuration
    * @param openTelemetry         The OpenTelemetry configuration
    */
@@ -82,5 +85,6 @@ public record NPServerConfiguration(
     Objects.requireNonNull(locale, "locale");
     Objects.requireNonNull(openTelemetry, "openTelemetry");
     Objects.requireNonNull(strings, "strings");
+    Objects.requireNonNull(userConfiguration, "userConfiguration");
   }
 }

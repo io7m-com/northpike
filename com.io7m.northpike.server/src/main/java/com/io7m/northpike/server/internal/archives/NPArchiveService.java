@@ -25,8 +25,8 @@ import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerResources;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
-import com.io7m.northpike.server.internal.tls.NPTLSContext;
 import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
+import com.io7m.northpike.tls.NPTLSContext;
 import com.io7m.northpike.tls.NPTLSDisabled;
 import com.io7m.northpike.tls.NPTLSEnabled;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
@@ -46,6 +46,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -73,6 +74,7 @@ public final class NPArchiveService implements NPArchiveServiceType
   private NPServerConfiguration configuration;
   private final CloseableCollectionType<NPServerException> resources;
   private NPTLSContext tlsContext;
+  private Server server;
 
   private NPArchiveService(
     final NPServerConfiguration inConfiguration,
@@ -170,23 +172,19 @@ public final class NPArchiveService implements NPArchiveServiceType
     );
 
     while (!this.closed.get()) {
-      final var server = new Server();
       try {
-        this.resources.add(server::stop);
+        try {
+          this.startServer();
+        } catch (final Exception e) {
+          LOG.error("Failed to start server, retrying shortly: ", e);
+          pauseBriefly();
+          continue;
+        }
 
-        final var connector =
-          this.createConnector(server);
-
-        server.addConnector(connector);
-        server.setErrorHandler(new NPErrorHandler());
-        server.setHandler(
-          new NPArchiveHandler(this.database, this.configuration.directories())
-        );
-        server.start();
         this.future.complete(null);
 
         while (!this.closed.get()) {
-          Thread.sleep(1_000L);
+          pauseBriefly();
         }
       } catch (final Exception e) {
         this.future.completeExceptionally(e);
@@ -195,8 +193,45 @@ public final class NPArchiveService implements NPArchiveServiceType
     }
   }
 
-  private Connector createConnector(
-    final Server server)
+  private void startServer()
+    throws Exception
+  {
+    this.server = new Server();
+    this.resources.add(this.server::stop);
+
+    final var connector = this.createConnector();
+    this.server.addConnector(connector);
+    this.server.setErrorHandler(new NPErrorHandler());
+    this.server.setHandler(
+      new NPArchiveHandler(this.database, this.configuration.directories())
+    );
+
+    this.server.start();
+
+    /*
+     * Wait for the server to indicate that it has started. If the server
+     * indicates failure, raise an exception. The startup will be retried
+     * shortly.
+     */
+
+    while (!this.server.isStarted() && !this.closed.get()) {
+      if (this.server.isFailed()) {
+        throw new IOException("Server failed to start!");
+      }
+      pauseBriefly();
+    }
+  }
+
+  private static void pauseBriefly()
+  {
+    try {
+      Thread.sleep(1_000L);
+    } catch (final InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  private Connector createConnector()
     throws NPServerException
   {
     final var archiveConfiguration =
@@ -237,7 +272,7 @@ public final class NPArchiveService implements NPArchiveServiceType
 
       final var connector =
         new ServerConnector(
-          server,
+          this.server,
           sslConnectionFactory,
           new HttpConnectionFactory(httpsConfig)
         );
@@ -257,7 +292,7 @@ public final class NPArchiveService implements NPArchiveServiceType
       final var connectionFactory =
         new HttpConnectionFactory(httpConfig);
       final var connector =
-        new ServerConnector(server, connectionFactory);
+        new ServerConnector(this.server, connectionFactory);
 
       connector.setReuseAddress(true);
       connector.setReusePort(true);
@@ -308,8 +343,21 @@ public final class NPArchiveService implements NPArchiveServiceType
     throws Exception
   {
     if (this.closed.compareAndSet(false, true)) {
+      LOG.debug("Shutting down archive service.");
       this.resources.close();
+
+      while (!this.isStopped()) {
+        LOG.debug("Waiting for archive service to shut down...");
+        pauseBriefly();
+      }
+
+      LOG.debug("Archive service is down.");
       this.future.complete(null);
     }
+  }
+
+  private boolean isStopped()
+  {
+    return this.server.isStopped();
   }
 }

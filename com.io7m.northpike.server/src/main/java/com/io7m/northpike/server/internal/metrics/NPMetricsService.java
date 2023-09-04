@@ -32,6 +32,7 @@ public final class NPMetricsService implements NPMetricsServiceType
 {
   private final CloseableCollectionType<ClosingResourceFailedException> resources;
   private volatile int agentsConnected;
+  private volatile int usersConnected;
 
   /**
    * The metrics service.
@@ -68,6 +69,17 @@ public final class NPMetricsService implements NPMetricsServiceType
           measurement.record(Integer.toUnsignedLong(this.agentsConnected));
         })
     );
+
+    this.resources.add(
+      telemetry.meter()
+        .gaugeBuilder("northpike_users_connected")
+        .setDescription(
+          "The number of connected users.")
+        .ofLongs()
+        .buildWithCallback(measurement -> {
+          measurement.record(Integer.toUnsignedLong(this.usersConnected));
+        })
+    );
   }
 
   @Override
@@ -95,5 +107,12 @@ public final class NPMetricsService implements NPMetricsServiceType
     final int count)
   {
     this.agentsConnected = count;
+  }
+
+  @Override
+  public void setUsersConnected(
+    final int count)
+  {
+    this.usersConnected = count;
   }
 }

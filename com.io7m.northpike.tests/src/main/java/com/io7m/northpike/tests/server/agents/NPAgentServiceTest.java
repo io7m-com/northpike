@@ -67,6 +67,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
+@Timeout(30L)
 public final class NPAgentServiceTest
 {
   private RPServiceDirectory services;

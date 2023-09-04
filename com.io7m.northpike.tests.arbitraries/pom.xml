@@ -35,6 +35,11 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.protocol.user</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.protocol.intro</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -44,6 +49,10 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.io7m.idstore</groupId>
+      <artifactId>com.io7m.idstore.model</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.io7m.verona</groupId>
       <artifactId>com.io7m.verona.core</artifactId>

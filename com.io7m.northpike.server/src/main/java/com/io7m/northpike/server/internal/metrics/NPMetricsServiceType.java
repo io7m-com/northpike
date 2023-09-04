@@ -31,4 +31,12 @@ public interface NPMetricsServiceType extends AutoCloseable, RPServiceType
    */
 
   void setAgentsConnected(int count);
+
+  /**
+   * Set the number of connected users.
+   *
+   * @param count The number of connected users
+   */
+
+  void setUsersConnected(int count);
 }

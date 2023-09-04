@@ -22,6 +22,7 @@ import com.io7m.medrina.api.MPolicy;
 import com.io7m.medrina.api.MPolicyAccess;
 import com.io7m.medrina.api.MPolicyEvaluator;
 import com.io7m.medrina.api.MPolicyEvaluatorType;
+import com.io7m.medrina.api.MRoleName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * The main API for performing security policy checks.
@@ -95,7 +97,10 @@ public final class NPSecurity
       LOG.warn(
         "{} deny {} {} on {}",
         userId,
-        subject.roles(),
+        subject.roles()
+          .stream()
+          .map(MRoleName::value)
+          .collect(Collectors.toUnmodifiableSet()),
         actionName.value(),
         object.type().value()
       );

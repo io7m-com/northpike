@@ -19,14 +19,12 @@ package com.io7m.northpike.server.internal.security;
 import com.io7m.anethum.api.ParsingException;
 import com.io7m.anethum.slf4j.ParseStatusLogging;
 import com.io7m.medrina.api.MPolicy;
-import com.io7m.medrina.api.MRoleName;
 import com.io7m.medrina.vanilla.MPolicyParsers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Set;
 
 /**
  * The security policy objects.
@@ -36,22 +34,6 @@ public final class NPSecurityPolicy
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(NPSecurityPolicy.class);
-
-  /**
-   * An all-powerful administrator of servers.
-   */
-
-  public static final MRoleName ROLE_SERVER_ADMIN =
-    MRoleName.of("server.admin");
-
-  /**
-   * All roles.
-   */
-
-  public static final Set<MRoleName> ROLES_ALL =
-    Set.of(
-      ROLE_SERVER_ADMIN
-    );
 
   /**
    * Load the internal security policy.
@@ -67,7 +49,7 @@ public final class NPSecurityPolicy
     final var parsers = new MPolicyParsers();
 
     final var resource =
-      "/com/io7m/northpike/security/Policy.mp";
+      "/com/io7m/northpike/server/SecurityPolicy.mp";
     try (var stream =
            NPSecurityPolicy.class.getResourceAsStream(resource)) {
       final var source = URI.create(resource);

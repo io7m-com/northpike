@@ -25,6 +25,7 @@ open module com.io7m.northpike.tests.arbitraries
   requires com.io7m.jlexing.core;
 
   requires com.io7m.northpike.model;
+  requires com.io7m.northpike.protocol.user;
   requires com.io7m.northpike.protocol.agent;
   requires com.io7m.northpike.protocol.intro;
   requires com.io7m.northpike.toolexec;
@@ -32,6 +33,12 @@ open module com.io7m.northpike.tests.arbitraries
   uses ArbitraryProvider;
 
   provides ArbitraryProvider with
+    com.io7m.northpike.tests.arbitraries.NPArbIdName,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandDisconnect,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandLogin,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUMessage,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseError,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseOK,
     com.io7m.northpike.tests.arbitraries.NPArbFailurePolicy,
     com.io7m.northpike.tests.arbitraries.NPArbAgentLabel,
     com.io7m.northpike.tests.arbitraries.NPArbAgentLabelMatch,

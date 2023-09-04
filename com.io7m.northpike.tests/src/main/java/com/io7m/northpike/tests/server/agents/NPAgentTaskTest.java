@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.server.agents;
 
 import com.io7m.ervilla.api.EContainerSupervisorType;
-import com.io7m.ervilla.test_extension.ErvillaCloseAfterAll;
+import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
@@ -90,6 +90,7 @@ import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tests.NPEventInterceptingService;
 import com.io7m.northpike.tests.NPFakeSocket;
+import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
 import com.io7m.northpike.tests.plans.NPFakeClock;
 import com.io7m.northpike.tests.server.NPServerConfigurations;
@@ -101,6 +102,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
@@ -129,7 +131,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
-@ErvillaConfiguration(disabledIfUnsupported = true)
+@ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
+@Timeout(30L)
 public final class NPAgentTaskTest
 {
   private static final NPIMessages NPI_MESSAGES =
@@ -172,11 +175,10 @@ public final class NPAgentTaskTest
 
   @BeforeAll
   public static void setupOnce(
-    final @ErvillaCloseAfterAll EContainerSupervisorType containers)
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE =
-      NPTestContainers.createDatabase(containers, 15432);
+    DATABASE_FIXTURE = NPTestContainerInstances.database(containers);
   }
 
   @BeforeEach

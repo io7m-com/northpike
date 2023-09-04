@@ -16,12 +16,18 @@
 
 package com.io7m.northpike.database.postgres.internal;
 
+import com.io7m.lanark.core.RDottedName;
+import com.io7m.medrina.api.MRoleName;
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
+import com.io7m.northpike.model.security.NPSecRole;
 import org.jooq.DSLContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
+import static com.io7m.northpike.database.postgres.internal.Tables.USERS;
 
 /**
  * A query to run maintenance.
@@ -31,6 +37,9 @@ public final class NPDBQMaintenance
   extends NPDBQAbstract<NPDatabaseUnit, NPDatabaseUnit>
   implements NPDatabaseQueriesMaintenanceType.ExecuteType
 {
+  private static final Logger LOG =
+    LoggerFactory.getLogger(NPDBQMaintenance.class);
+
   private static final Service<NPDatabaseUnit, NPDatabaseUnit, ExecuteType> SERVICE =
     new Service<>(ExecuteType.class, NPDBQMaintenance::new);
 
@@ -60,6 +69,39 @@ public final class NPDBQMaintenance
     final DSLContext context,
     final NPDatabaseUnit parameters)
   {
+    updateUserRoles(context);
     return UNIT;
+  }
+
+  private static void updateUserRoles(
+    final DSLContext context)
+  {
+    final var roleNamesWithoutLogin =
+      NPSecRole.allRoles()
+        .stream()
+        .filter(role -> role != NPSecRole.LOGIN)
+        .map(NPSecRole::role)
+        .map(MRoleName::value)
+        .map(RDottedName::value)
+        .toList();
+
+    final var rolesArray = new String[roleNamesWithoutLogin.size()];
+    roleNamesWithoutLogin.toArray(rolesArray);
+
+    final var adminRoleName =
+      NPSecRole.ADMINISTRATOR.role().value().value();
+    final var adminRoleNameA =
+      new String[]{adminRoleName};
+
+    final var updated =
+      context.update(USERS)
+        .set(USERS.ROLES, rolesArray)
+        .where(USERS.ROLES.contains(adminRoleNameA))
+        .execute();
+
+    LOG.debug(
+      "Updated {} users with admin roles.",
+      Integer.valueOf(updated)
+    );
   }
 }

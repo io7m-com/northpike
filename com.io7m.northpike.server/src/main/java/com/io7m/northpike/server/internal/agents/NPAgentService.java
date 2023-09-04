@@ -396,7 +396,9 @@ public final class NPAgentService implements NPAgentServiceType
     throws Exception
   {
     if (this.closed.compareAndSet(false, true)) {
+      LOG.debug("Shutting down agent service.");
       this.resources.close();
+      LOG.debug("Agent service is down.");
       this.future.complete(null);
     }
   }

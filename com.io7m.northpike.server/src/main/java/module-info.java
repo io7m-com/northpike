@@ -36,6 +36,8 @@ module com.io7m.northpike.server
   requires com.io7m.northpike.protocol.agent;
   requires com.io7m.northpike.protocol.intro.cb;
   requires com.io7m.northpike.protocol.intro;
+  requires com.io7m.northpike.protocol.user.cb;
+  requires com.io7m.northpike.protocol.user;
   requires com.io7m.northpike.scm_repository.spi;
   requires com.io7m.northpike.server.api;
   requires com.io7m.northpike.strings;
@@ -45,6 +47,8 @@ module com.io7m.northpike.server
 
   requires com.io7m.anethum.api;
   requires com.io7m.anethum.slf4j;
+  requires com.io7m.idstore.user_client.api;
+  requires com.io7m.idstore.user_client;
   requires com.io7m.jaffirm.core;
   requires com.io7m.jmulticlose.core;
   requires com.io7m.medrina.vanilla;
@@ -89,5 +93,7 @@ module com.io7m.northpike.server
   exports com.io7m.northpike.server.internal
     to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.tls
+    to com.io7m.northpike.tests;
+  exports com.io7m.northpike.server.internal.security
     to com.io7m.northpike.tests;
 }

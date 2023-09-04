@@ -19,7 +19,6 @@ package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
-import com.io7m.northpike.server.internal.tls.NPTLSContext;
 import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
 import com.io7m.northpike.tls.NPTLSDisabled;
 import com.io7m.northpike.tls.NPTLSEnabled;
@@ -28,7 +27,6 @@ import javax.net.ServerSocketFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * The socket service for agents.
@@ -37,15 +35,11 @@ import java.util.Optional;
 public final class NPAgentServerSocketService
   implements NPAgentServerSocketServiceType
 {
-  private final Optional<NPTLSContext> context;
   private final ServerSocketFactory sockets;
 
   private NPAgentServerSocketService(
-    final Optional<NPTLSContext> inContext,
     final ServerSocketFactory inSockets)
   {
-    this.context =
-      Objects.requireNonNull(inContext, "context");
     this.sockets =
       Objects.requireNonNull(inSockets, "sockets");
   }
@@ -71,7 +65,6 @@ public final class NPAgentServerSocketService
     final var tls = configuration.tls();
     if (tls instanceof NPTLSDisabled) {
       return new NPAgentServerSocketService(
-        Optional.empty(),
         ServerSocketFactory.getDefault()
       );
     }
@@ -85,7 +78,6 @@ public final class NPAgentServerSocketService
         );
 
       return new NPAgentServerSocketService(
-        Optional.of(tlsContext),
         tlsContext.context().getServerSocketFactory()
       );
     }

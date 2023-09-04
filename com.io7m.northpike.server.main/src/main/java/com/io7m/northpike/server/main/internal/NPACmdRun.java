@@ -148,6 +148,7 @@ public final class NPACmdRun implements QCommandType
         configuration.idstoreConfiguration(),
         configuration.agentConfiguration(),
         configuration.archiveConfiguration(),
+        configuration.userConfiguration(),
         configuration.openTelemetry()
       );
 

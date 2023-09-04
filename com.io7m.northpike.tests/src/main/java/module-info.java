@@ -43,6 +43,8 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.protocol.api;
   requires com.io7m.northpike.protocol.intro.cb;
   requires com.io7m.northpike.protocol.intro;
+  requires com.io7m.northpike.protocol.user.cb;
+  requires com.io7m.northpike.protocol.user;
   requires com.io7m.northpike.scm_repository.jgit;
   requires com.io7m.northpike.scm_repository.spi;
   requires com.io7m.northpike.server.api;
@@ -55,6 +57,8 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.toolexec;
   requires com.io7m.northpike.tools.api;
   requires com.io7m.northpike.tools.maven;
+  requires com.io7m.northpike.user_client.api;
+  requires com.io7m.northpike.user_client;
 
   requires com.googlecode.javaewah;
   requires com.io7m.anethum.api;

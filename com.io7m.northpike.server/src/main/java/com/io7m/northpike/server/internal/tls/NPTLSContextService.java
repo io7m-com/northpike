@@ -21,6 +21,7 @@ import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerExceptions;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
+import com.io7m.northpike.tls.NPTLSContext;
 import com.io7m.northpike.tls.NPTLSStoreConfiguration;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 

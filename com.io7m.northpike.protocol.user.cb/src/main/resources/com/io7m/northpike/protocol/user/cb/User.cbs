@@ -1,0 +1,84 @@
+;
+; Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+;
+; Permission to use, copy, modify, and/or distribute this software for any
+; purpose with or without fee is hereby granted, provided that the above
+; copyright notice and this permission notice appear in all copies.
+;
+; THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+; WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+; MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+; SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+; WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+; ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+; IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+;
+
+[language cedarbridge 1 0]
+
+[package com.io7m.northpike.protocol.user.cb]
+
+[import com.io7m.cedarbridge cb]
+[import com.io7m.cedarbridge.time ct]
+
+;
+; Commands
+;
+
+[documentation NPU1CommandLogin "A request to log in."]
+[record NPU1CommandLogin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation userName "The user name"]
+  [field userName cb:String]
+  [documentation password "The password"]
+  [field password cb:String]
+]
+
+[documentation NPU1CommandDisconnect "A request to disconnect."]
+[record NPU1CommandDisconnect
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+;
+; Events
+;
+
+;
+; Responses
+;
+
+[documentation NPU1ResponseOK "A generic confirmation response."]
+[record NPU1ResponseOK
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+]
+
+[documentation NPU1ResponseError "An error response."]
+[record NPU1ResponseError
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation errorCode "The error code."]
+  [field errorCode cb:String]
+  [documentation message "The error message."]
+  [field message cb:String]
+  [documentation attributes "The error attributes."]
+  [field attributes [cb:Map cb:String cb:String]]
+]
+
+[documentation NPU "The User protocol."]
+[protocol NPU
+  [version 1
+    [types-added
+      NPU1CommandDisconnect
+      NPU1CommandLogin
+      NPU1ResponseError
+      NPU1ResponseOK
+    ]
+  ]
+]

@@ -25,9 +25,12 @@ import com.io7m.northpike.database.api.NPDatabaseTelemetry;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.api.NPServerType;
+import com.io7m.northpike.server.internal.agents.NPAgentServerSocketService;
+import com.io7m.northpike.server.internal.agents.NPAgentServerSocketServiceType;
 import com.io7m.northpike.server.internal.agents.NPAgentService;
 import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
 import com.io7m.northpike.server.internal.archives.NPArchiveService;
@@ -37,14 +40,22 @@ import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationService;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.server.internal.events.NPEventService;
+import com.io7m.northpike.server.internal.idstore.NPIdstoreClients;
+import com.io7m.northpike.server.internal.idstore.NPIdstoreClientsType;
+import com.io7m.northpike.server.internal.maintenance.NPMaintenanceService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryService;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
+import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
 import com.io7m.northpike.server.internal.telemetry.NPTelemetryNoOp;
 import com.io7m.northpike.server.internal.tls.NPTLSContextService;
 import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
+import com.io7m.northpike.server.internal.users.NPUserServerSocketService;
+import com.io7m.northpike.server.internal.users.NPUserServerSocketServiceType;
+import com.io7m.northpike.server.internal.users.NPUserService;
+import com.io7m.northpike.server.internal.users.NPUserServiceType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
@@ -53,6 +64,8 @@ import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Clock;
 import java.util.Map;
@@ -63,6 +76,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.telemetry.api.NPTelemetryServiceType.recordSpanException;
@@ -74,8 +88,11 @@ import static java.lang.Integer.toUnsignedString;
 
 public final class NPServer implements NPServerType
 {
+  private static final Logger LOG =
+    LoggerFactory.getLogger(NPServer.class);
+
   private final NPServerConfiguration configuration;
-  private final AtomicBoolean stopped;
+  private final AtomicBoolean running;
   private CloseableCollectionType<NPServerException> resources;
   private NPTelemetryServiceType telemetry;
   private NPDatabaseType database;
@@ -93,8 +110,8 @@ public final class NPServer implements NPServerType
       Objects.requireNonNull(inConfiguration, "configuration");
     this.resources =
       NPServerResources.createResources();
-    this.stopped =
-      new AtomicBoolean(true);
+    this.running =
+      new AtomicBoolean(false);
   }
 
   @Override
@@ -102,7 +119,7 @@ public final class NPServer implements NPServerType
     throws NPServerException
   {
     try {
-      if (this.stopped.compareAndSet(true, false)) {
+      if (this.running.compareAndSet(false, true)) {
         this.resources = NPServerResources.createResources();
         this.telemetry = this.createTelemetry();
 
@@ -140,6 +157,8 @@ public final class NPServer implements NPServerType
       final var services =
         this.resources.add(this.createServiceDirectory(this.database));
 
+      final var users =
+        services.requireService(NPUserServiceType.class);
       final var agents =
         services.requireService(NPAgentServiceType.class);
       final var repository =
@@ -149,12 +168,20 @@ public final class NPServer implements NPServerType
 
       final var all =
         CompletableFuture.allOf(
-          repository.start(),
+          agents.start(),
           archive.start(),
-          agents.start()
+          repository.start(),
+          users.start()
         );
 
       all.get(60L, TimeUnit.SECONDS);
+
+      /*
+       * After everything is started, load the security policy. The default
+       * policy is deny-all, so this effectively opens the server for access.
+       */
+
+      NPSecurity.setPolicy(NPSecurityPolicy.open());
     } catch (final NPDatabaseException e) {
       recordSpanException(e);
 
@@ -193,6 +220,7 @@ public final class NPServer implements NPServerType
 
   private RPServiceDirectoryType createServiceDirectory(
     final NPDatabaseType newDatabase)
+    throws NPServerException
   {
     final var services = new RPServiceDirectory();
     final var strings = this.configuration.strings();
@@ -223,8 +251,33 @@ public final class NPServer implements NPServerType
     final var repository = NPRepositoryService.create(services);
     services.register(NPRepositoryServiceType.class, repository);
 
+    final var maintenance =
+      NPMaintenanceService.create(clock, this.telemetry, this.database);
+    services.register(NPMaintenanceService.class, maintenance);
+
+    final var agentSockets =
+      NPAgentServerSocketService.create(
+        tls, this.configuration.agentConfiguration());
+    services.register(NPAgentServerSocketServiceType.class, agentSockets);
+
     final var agents = NPAgentService.create(services);
     services.register(NPAgentServiceType.class, agents);
+
+    final var userSockets =
+      NPUserServerSocketService.create(
+        tls, this.configuration.userConfiguration());
+    services.register(NPUserServerSocketServiceType.class, userSockets);
+
+    final var idstoreClients =
+      NPIdstoreClients.create(
+        this.configuration.locale(),
+        this.telemetry,
+        this.configuration.idstoreConfiguration()
+      );
+    services.register(NPIdstoreClientsType.class, idstoreClients);
+
+    final var users = NPUserService.create(services);
+    services.register(NPUserServiceType.class, users);
     return services;
   }
 
@@ -254,7 +307,7 @@ public final class NPServer implements NPServerType
   @Override
   public NPDatabaseType database()
   {
-    if (this.stopped.get()) {
+    if (!this.running.get()) {
       throw new IllegalStateException("Server is not started.");
     }
 
@@ -270,7 +323,7 @@ public final class NPServer implements NPServerType
   @Override
   public boolean isClosed()
   {
-    return this.stopped.get();
+    return !this.running.get();
   }
 
   @Override
@@ -345,7 +398,11 @@ public final class NPServer implements NPServerType
           new NPUser(
             adminId,
             adminName,
-            new MSubject(NPSecurityPolicy.ROLES_ALL)
+            new MSubject(
+              NPSecRole.allRoles()
+                .stream().map(NPSecRole::role)
+                .collect(Collectors.toUnmodifiableSet())
+            )
           )
         );
 
@@ -366,7 +423,8 @@ public final class NPServer implements NPServerType
   public void close()
     throws NPServerException
   {
-    if (this.stopped.compareAndSet(false, true)) {
+    if (this.running.compareAndSet(true, false)) {
+      LOG.debug("Shutting down server.");
       this.resources.close();
     }
   }

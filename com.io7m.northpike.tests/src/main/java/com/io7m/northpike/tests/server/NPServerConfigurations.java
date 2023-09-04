@@ -26,6 +26,7 @@ import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
+import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.strings.NPStrings;
 
 import java.net.InetAddress;
@@ -91,6 +92,12 @@ public final class NPServerConfigurations
         40001,
         TLS_DISABLED,
         URI.create("https://archives.example.com/")
+      ),
+      new NPServerUserConfiguration(
+        InetAddress.getLocalHost(),
+        20049,
+        TLS_DISABLED,
+        1000000
       ),
       Optional.empty()
     );

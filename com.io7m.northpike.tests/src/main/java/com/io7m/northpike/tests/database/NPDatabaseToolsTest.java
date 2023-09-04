@@ -17,7 +17,7 @@
 package com.io7m.northpike.tests.database;
 
 import com.io7m.ervilla.api.EContainerSupervisorType;
-import com.io7m.ervilla.test_extension.ErvillaCloseAfterAll;
+import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
@@ -29,6 +29,7 @@ import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
+import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
 import com.io7m.northpike.toolexec.NPTXFormats;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
@@ -44,7 +45,7 @@ import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
-@ErvillaConfiguration(disabledIfUnsupported = true)
+@ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
 public final class NPDatabaseToolsTest
 {
   private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
@@ -54,11 +55,10 @@ public final class NPDatabaseToolsTest
 
   @BeforeAll
   public static void setupOnce(
-    final @ErvillaCloseAfterAll EContainerSupervisorType containers)
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE =
-      NPTestContainers.createDatabase(containers, 15432);
+    DATABASE_FIXTURE = NPTestContainerInstances.database(containers);
   }
 
   @BeforeEach

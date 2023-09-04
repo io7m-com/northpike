@@ -17,7 +17,7 @@
 package com.io7m.northpike.tests.server.assignments;
 
 import com.io7m.ervilla.api.EContainerSupervisorType;
-import com.io7m.ervilla.test_extension.ErvillaCloseAfterAll;
+import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
@@ -53,6 +53,7 @@ import com.io7m.northpike.server.internal.agents.NPAgentWorkItemStatusChanged;
 import com.io7m.northpike.server.internal.assignments.NPAssignmentExecutionStatusChanged;
 import com.io7m.northpike.server.internal.assignments.NPAssignmentTask;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
 import com.io7m.northpike.toolexec.NPTXFormats;
 import com.io7m.verona.core.Version;
@@ -81,6 +82,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.io7m.northpike.model.NPWorkItemStatus.WORK_ITEM_FAILED;
 import static com.io7m.northpike.model.NPWorkItemStatus.WORK_ITEM_SUCCEEDED;
@@ -91,7 +93,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
-@ErvillaConfiguration(disabledIfUnsupported = true)
+@ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
 public final class NPAssignmentTaskTest
 {
   private static final Logger LOG =
@@ -128,15 +130,16 @@ public final class NPAssignmentTaskTest
   private static NPAssignmentFixture ASSIGNMENT_FIXTURE;
   private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
   private ScheduledExecutorService executor;
+  private AtomicBoolean running;
 
   @BeforeAll
   public static void setupOnce(
-    final @ErvillaCloseAfterAll EContainerSupervisorType containers,
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers,
     final @TempDir Path reposDirectory)
     throws Exception
   {
     DATABASE_FIXTURE =
-      NPTestContainers.createDatabase(containers, 15432);
+      NPTestContainerInstances.database(containers);
     ASSIGNMENT_FIXTURE =
       NPAssignmentFixture.create(DATABASE_FIXTURE, reposDirectory);
   }
@@ -282,14 +285,14 @@ public final class NPAssignmentTaskTest
     throws Exception
   {
     ASSIGNMENT_FIXTURE.reset(closeables);
-
-    this.executor =
-      Executors.newScheduledThreadPool(1);
+    this.running = new AtomicBoolean(true);
+    this.executor = Executors.newScheduledThreadPool(1);
   }
 
   @AfterEach
   public void tearDown()
   {
+    this.running.set(false);
     this.executor.shutdown();
   }
 
@@ -1040,7 +1043,7 @@ public final class NPAssignmentTaskTest
        */
 
       this.executor.execute(() -> {
-        while (true) {
+        while (this.running.get()) {
           LOG.debug("Waiting for work item...");
 
           NPAgentWorkItem item = null;

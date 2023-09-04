@@ -38,6 +38,8 @@
     <module>com.io7m.northpike.protocol.api</module>
     <module>com.io7m.northpike.protocol.intro.cb</module>
     <module>com.io7m.northpike.protocol.intro</module>
+    <module>com.io7m.northpike.protocol.user.cb</module>
+    <module>com.io7m.northpike.protocol.user</module>
     <module>com.io7m.northpike.scm_repository.jgit</module>
     <module>com.io7m.northpike.scm_repository.spi</module>
     <module>com.io7m.northpike.server.api</module>
@@ -53,6 +55,8 @@
     <module>com.io7m.northpike.tools.api</module>
     <module>com.io7m.northpike.tools.common</module>
     <module>com.io7m.northpike.tools.maven</module>
+    <module>com.io7m.northpike.user_client.api</module>
+    <module>com.io7m.northpike.user_client</module>
   </modules>
 
   <properties>
@@ -60,7 +64,7 @@
     <com.io7m.blackthorne.version>2.0.0</com.io7m.blackthorne.version>
     <com.io7m.canonmill.version>1.0.0</com.io7m.canonmill.version>
     <com.io7m.cedarbridge.version>1.2.0</com.io7m.cedarbridge.version>
-    <com.io7m.ervilla.version>0.0.4</com.io7m.ervilla.version>
+    <com.io7m.ervilla.version>0.0.5</com.io7m.ervilla.version>
     <com.io7m.hibiscus.version>0.0.8</com.io7m.hibiscus.version>
     <com.io7m.idstore.version>1.0.0-beta0014</com.io7m.idstore.version>
     <com.io7m.jade.version>1.0.2</com.io7m.jade.version>

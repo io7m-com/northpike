@@ -18,6 +18,7 @@
 package com.io7m.northpike.server.internal.tls;
 
 import com.io7m.northpike.server.api.NPServerException;
+import com.io7m.northpike.tls.NPTLSContext;
 import com.io7m.northpike.tls.NPTLSStoreConfiguration;
 import com.io7m.repetoir.core.RPServiceType;
 

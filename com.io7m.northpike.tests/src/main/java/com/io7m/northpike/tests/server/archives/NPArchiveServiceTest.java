@@ -37,6 +37,7 @@ import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
+import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.server.internal.archives.NPArchiveService;
 import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
 import com.io7m.northpike.server.internal.clock.NPClock;
@@ -56,6 +57,7 @@ import com.io7m.zelador.test_extension.ZeladorExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
@@ -83,7 +85,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
-@ErvillaConfiguration(disabledIfUnsupported = true)
+@ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
+@Timeout(30L)
 public final class NPArchiveServiceTest
 {
   private static final Logger LOG =
@@ -200,6 +203,12 @@ public final class NPArchiveServiceTest
             40001,
             TLS_DISABLED,
             URI.create("https://archives.example.com/")
+          ),
+          new NPServerUserConfiguration(
+            InetAddress.getLocalHost(),
+            40001,
+            TLS_DISABLED,
+            1_000_000
           ),
           Optional.empty()
         )

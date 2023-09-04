@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.server.repository;
 
 import com.io7m.ervilla.api.EContainerSupervisorType;
-import com.io7m.ervilla.test_extension.ErvillaCloseAfterAll;
+import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
@@ -39,6 +39,7 @@ import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
+import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.server.internal.clock.NPClock;
 import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
@@ -57,6 +58,7 @@ import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tests.NPEventInterceptingService;
+import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
@@ -88,7 +90,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
-@ErvillaConfiguration(disabledIfUnsupported = true)
+@ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
 public final class NPRepositoryServiceTest
 {
   private static final Logger LOG =
@@ -110,11 +112,10 @@ public final class NPRepositoryServiceTest
 
   @BeforeAll
   public static void setupOnce(
-    final @ErvillaCloseAfterAll EContainerSupervisorType containers)
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE =
-      NPTestContainers.createDatabase(containers, 15432);
+    DATABASE_FIXTURE = NPTestContainerInstances.database(containers);
   }
 
   @BeforeEach
@@ -196,6 +197,12 @@ public final class NPRepositoryServiceTest
             40001,
             TLS_DISABLED,
             URI.create("https://archives.example.com/")
+          ),
+          new NPServerUserConfiguration(
+            InetAddress.getLocalHost(),
+            40002,
+            TLS_DISABLED,
+            1_000_000
           ),
           Optional.empty()
         )

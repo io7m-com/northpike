@@ -457,6 +457,44 @@
     </xsd:complexType>
   </xsd:element>
 
+  <xsd:element name="UserService">
+    <xsd:complexType>
+      <xsd:sequence minOccurs="1" maxOccurs="1">
+        <xsd:group ref="t:TLSGroup"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="ListenAddress"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The address upon which the User service will listen.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="ListenPort"
+                     type="xsd:integer"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The port upon which the User service will listen.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="MaximumCommandSizeOctets"
+                     type="xsd:unsignedLong"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The maximum permitted size of ordinary commands (in octets).
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
   <xsd:element name="Configuration">
     <xsd:annotation>
       <xsd:documentation>
@@ -474,6 +512,7 @@
         <xsd:element ref="c:OpenTelemetry"
                      minOccurs="0"
                      maxOccurs="1"/>
+        <xsd:element ref="c:UserService"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>

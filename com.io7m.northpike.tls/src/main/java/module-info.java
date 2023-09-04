@@ -25,6 +25,7 @@ module com.io7m.northpike.tls
 
   requires com.io7m.blackthorne.core;
   requires com.io7m.jxe.core;
+  requires org.slf4j;
 
   exports com.io7m.northpike.tls;
 }
