@@ -27,7 +27,6 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
-import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.intro.NPIError;
 import com.io7m.northpike.protocol.intro.NPIProtocol;
 import com.io7m.northpike.protocol.intro.NPIProtocolsAvailable;
@@ -60,7 +59,6 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -80,7 +78,6 @@ public final class NPUserClientTest
   private static final NPIMessages NPI_MESSAGES =
     new NPIMessages();
 
-  private static NPTestContainers.NPDatabaseFixture SERVER_DATABASE_FIXTURE;
   private static NPTestContainers.NPIdstoreFixture IDSTORE_FIXTURE;
   private static NPTestContainers.NPServerFixture SERVER_FIXTURE;
 
@@ -90,7 +87,6 @@ public final class NPUserClientTest
   private CountDownLatch serverCloseLatch;
   private CountDownLatch serverAcceptLatch;
   private NPUserClientConfiguration configuration;
-  private LinkedBlockingQueue<NPAMessageType> received;
   private NPUserClients users;
   private NPUserClientType userClient;
   private InetSocketAddress serverAddress;
@@ -139,8 +135,6 @@ public final class NPUserClientTest
         1_000_000
       );
 
-    this.received =
-      new LinkedBlockingQueue<NPAMessageType>();
     this.users =
       new NPUserClients();
     this.userClient =
