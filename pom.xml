@@ -45,6 +45,7 @@
     <module>com.io7m.northpike.server.api</module>
     <module>com.io7m.northpike.server.configuration</module>
     <module>com.io7m.northpike.server.main</module>
+    <module>com.io7m.northpike.server.oci</module>
     <module>com.io7m.northpike.server</module>
     <module>com.io7m.northpike.strings</module>
     <module>com.io7m.northpike.telemetry.api</module>

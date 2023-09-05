@@ -1,0 +1,18 @@
+FROM docker.io/library/alpine:${com.io7m.oci.versionAlpine}
+FROM docker.io/library/eclipse-temurin:${com.io7m.oci.versionTemurin}
+
+ENV PATH="/northpike/bin:/sbin:/bin:/usr/sbin:/usr/bin:/opt/java/openjdk/bin"
+ENV NORTHPIKE_HOME="/northpike"
+
+COPY northpike /northpike
+
+LABEL "org.opencontainers.image.authors"="Mark Raynsford"
+LABEL "org.opencontainers.image.description"="Continuous integration server"
+LABEL "org.opencontainers.image.licenses"="ISC"
+LABEL "org.opencontainers.image.source"="https://www.github.com/io7m/northpike"
+LABEL "org.opencontainers.image.title"="Northpike"
+LABEL "org.opencontainers.image.url"="https://www.io7m.com/software/northpike"
+LABEL "org.opencontainers.image.version"="${project.version}"
+LABEL "org.opencontainers.image.revision"="${buildNumber}"
+
+ENTRYPOINT ["/northpike/bin/northpike-server"]
