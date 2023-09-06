@@ -89,6 +89,11 @@ CREATE TABLE users (
       GRANT SELECT ON users TO northpike_read_only
     </Statement>
 
+    <Comment>
+      The scm_providers table stores definitions for the available SCM
+      providers.
+    </Comment>
+
     <Statement><![CDATA[
 CREATE TABLE scm_providers (
   sp_id           BIGINT        NOT NULL GENERATED ALWAYS AS IDENTITY,
@@ -107,12 +112,23 @@ CREATE TABLE scm_providers (
 )
 ]]></Statement>
 
+    <Comment>
+      The repository_credentials_type_t type represents the possible
+      credentials.
+    </Comment>
+
     <Statement><![CDATA[
 CREATE TYPE repository_credentials_type_t AS ENUM(
   'REPOSITORY_CREDENTIALS_USERNAME_PASSWORD',
   'REPOSITORY_CREDENTIALS_NONE'
 );
 ]]></Statement>
+
+    <Comment>
+      The repositories table stores the set of repositories used for builds. The
+      server will regularly consult the repositories defined here to find new
+      commits to build.
+    </Comment>
 
     <Statement><![CDATA[
 CREATE TABLE repositories (
@@ -148,6 +164,11 @@ CREATE TABLE repositories (
 )
 ]]></Statement>
 
+    <Comment>
+      The repository_commit_authors table uniquely (within a single repository)
+      identifies authors of commits.
+    </Comment>
+
     <Statement><![CDATA[
 CREATE TABLE repository_commit_authors (
   rca_id     BIGINT   NOT NULL GENERATED ALWAYS AS IDENTITY,
@@ -165,6 +186,11 @@ CREATE UNIQUE INDEX repository_commit_authors_unique
   ON repository_commit_authors (rca_name, LOWER(rca_email))
 -- [jooq ignore stop]
 ]]></Statement>
+
+    <Comment>
+      The repository_commits table stores information about each commit in a
+      repository.
+    </Comment>
 
     <Statement><![CDATA[
 CREATE TABLE repository_commits (
@@ -194,6 +220,11 @@ CREATE TABLE repository_commits (
 )
 ]]></Statement>
 
+    <Comment>
+      The repository_commit_tags table stores information about each tag in a
+      repository.
+    </Comment>
+
     <Statement><![CDATA[
 CREATE TABLE repository_commit_tags (
   rct_id      BIGINT         NOT NULL GENERATED ALWAYS AS IDENTITY,
@@ -212,6 +243,11 @@ CREATE TABLE repository_commit_tags (
     FOREIGN KEY (rct_commit) REFERENCES repository_commits (rc_id)
 )
 ]]></Statement>
+
+    <Comment>
+      The repository_commit_branches table stores information about each branch
+      in a repository.
+    </Comment>
 
     <Statement><![CDATA[
 CREATE TABLE repository_commit_branches (
@@ -232,6 +268,14 @@ CREATE TABLE repository_commit_branches (
 )
 ]]></Statement>
 
+    <Comment>
+      The repository_commit_links table stores the links between commits. It
+      essentially forms a directed acyclic graph, with each commit pointing to
+      the "next" commit that is derived from it. A commit may have multiple
+      "next" commits, and nothing here actually enforces the property of being
+      acyclic.
+    </Comment>
+
     <Statement><![CDATA[
 CREATE TABLE repository_commit_links (
   rcl_commit       BIGINT NOT NULL,
@@ -250,6 +294,12 @@ CREATE TABLE repository_commit_links (
     CHECK (rcl_commit <> rcl_commit_next)
 )
 ]]></Statement>
+
+    <Comment>
+      The agents table stores the definitions of agents. Agents are uniquely
+      identified by their UUID values, and are also uniquely identified by their
+      secret access keys.
+    </Comment>
 
     <Statement><![CDATA[
 CREATE TABLE agents (
@@ -271,6 +321,11 @@ CREATE TABLE agents (
 )
 ]]></Statement>
 
+    <Comment>
+      The agents_environments table stores the most recent set of environment
+      variables that have been reported by an agent.
+    </Comment>
+
     <Statement><![CDATA[
 CREATE TABLE agents_environments (
   ae_id           UUID   NOT NULL,
@@ -287,6 +342,11 @@ CREATE TABLE agents_environments (
 )
 ]]></Statement>
 
+    <Comment>
+      The agents_properties table stores the most recent set of system
+      properties that have been reported by an agent.
+    </Comment>
+
     <Statement><![CDATA[
 CREATE TABLE agents_properties (
   ap_id           UUID   NOT NULL,
@@ -302,6 +362,11 @@ CREATE TABLE agents_properties (
     FOREIGN KEY (ap_id) REFERENCES agents (a_id)
 )
 ]]></Statement>
+
+    <Comment>
+      The agent_label_definitions table stores the set of labels that can be
+      assigned to agents.
+    </Comment>
 
     <Statement><![CDATA[
 CREATE TABLE agent_label_definitions (
@@ -322,6 +387,10 @@ CREATE TABLE agent_label_definitions (
 )
 ]]></Statement>
 
+    <Comment>
+      The agent_labels table assigns labels to agents.
+    </Comment>
+
     <Statement><![CDATA[
 CREATE TABLE agent_labels (
   al_agent   UUID    NOT NULL,
@@ -331,6 +400,11 @@ CREATE TABLE agent_labels (
     PRIMARY KEY (al_agent, al_label)
 )
 ]]></Statement>
+
+    <Comment>
+      The tool_execution_descriptions table stores the tool execution
+      descriptions that can be used in plans to execute code on agents.
+    </Comment>
 
     <Statement><![CDATA[
 CREATE TABLE tool_execution_descriptions (
@@ -363,6 +437,11 @@ CREATE TABLE tool_execution_descriptions (
 )
 ]]></Statement>
 
+    <Comment>
+      The plans table stores the plan descriptions that can be executed by
+      assignments.
+    </Comment>
+
     <Statement><![CDATA[
 CREATE TABLE plans (
   p_id        BIGINT  NOT NULL GENERATED ALWAYS AS IDENTITY,
@@ -391,6 +470,12 @@ CREATE TABLE plans (
 )
 ]]></Statement>
 
+    <Comment>
+      The archives table stores information about the archives that are
+      generated executing assignments. The actual archive data is stored on
+      disk, but information about the archives is stored here.
+    </Comment>
+
     <Statement><![CDATA[
 CREATE TABLE archives (
   ar_id            BIGINT                    NOT NULL GENERATED ALWAYS AS IDENTITY,
@@ -418,6 +503,12 @@ CREATE TABLE archives (
     FOREIGN KEY (ar_commit) REFERENCES repository_commits (rc_id)
 )
 ]]></Statement>
+
+    <Comment>
+      The assignments table stores assignment definitions. An assignment is
+      essentially a promise to compile commits from a given repository using a
+      specific plan.
+    </Comment>
 
     <Statement><![CDATA[
 CREATE TABLE assignments (
@@ -453,6 +544,10 @@ CREATE TYPE assignment_execution_status_t AS ENUM(
   'ASSIGNMENT_EXECUTION_FAILED'
 );
 ]]></Statement>
+
+    <Comment>
+      The set of assignment executions.
+    </Comment>
 
     <Statement><![CDATA[
 CREATE TABLE assignment_executions (
@@ -502,6 +597,10 @@ CREATE TYPE work_item_status_t AS ENUM(
 );
 ]]></Statement>
 
+    <Comment>
+      The set of work items in a single assignment execution.
+    </Comment>
+
     <Statement><![CDATA[
 CREATE TABLE work_items (
   wi_id         BIGINT              NOT NULL GENERATED ALWAYS AS IDENTITY,
@@ -548,6 +647,11 @@ CREATE TABLE work_items (
 )
 ]]></Statement>
 
+    <Comment>
+      The logs produced for a single work item. These are the lines of output
+      produced on an agent when executing a command.
+    </Comment>
+
     <Statement><![CDATA[
 CREATE TABLE work_item_logs (
   wil_id         BIGINT                    NOT NULL GENERATED ALWAYS AS IDENTITY,
@@ -560,6 +664,20 @@ CREATE TABLE work_item_logs (
 
   CONSTRAINT work_item_logs_work_item_exists
     FOREIGN KEY (wil_item) REFERENCES work_items (wi_id)
+)
+]]></Statement>
+  </Schema>
+
+  <Schema versionCurrent="2">
+    <Statement><![CDATA[
+INSERT INTO scm_providers (
+  sp_name,
+  sp_description,
+  sp_url
+) VALUES (
+  'com.io7m.northpike.repository.jgit',
+  'Eclipse JGit for Git repositories.',
+  'https://eclipse.dev/jgit/'
 )
 ]]></Statement>
   </Schema>
