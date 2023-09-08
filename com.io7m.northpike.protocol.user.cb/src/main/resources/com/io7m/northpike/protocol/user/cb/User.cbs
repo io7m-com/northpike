@@ -21,6 +21,29 @@
 [import com.io7m.cedarbridge cb]
 [import com.io7m.cedarbridge.time ct]
 
+[documentation NPU1RepositoryCredentials "The credentials used to access a repository."]
+[variant NPU1RepositoryCredentials
+  [documentation None "No credentials required."]
+  [case None]
+  [documentation UsernamePassword "Credentials consisting of a username and password."]
+  [case UsernamePassword
+    [field username cb:String]
+    [field password cb:String]
+  ]
+]
+
+[documentation NPU1RepositoryDescription "A description of a repository."]
+[record NPU1RepositoryDescription
+  [documentation provider "The SCM provider."]
+  [field provider cb:String]
+  [documentation id "The repository ID."]
+  [field id cb:UUID]
+  [documentation url "The repository URL."]
+  [field url cb:String]
+  [documentation credentials "The repository credentials."]
+  [field credentials NPU1RepositoryCredentials]
+]
+
 ;
 ; Commands
 ;
@@ -39,6 +62,22 @@
 [record NPU1CommandDisconnect
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandRepositoryPut "Create or update a repository."]
+[record NPU1CommandRepositoryPut
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation repository "The repository"]
+  [field repository NPU1RepositoryDescription]
+]
+
+[documentation NPU1CommandRepositoryGet "Get a repository."]
+[record NPU1CommandRepositoryGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation repository "The repository ID"]
+  [field repository cb:UUID]
 ]
 
 ;
@@ -71,14 +110,27 @@
   [field attributes [cb:Map cb:String cb:String]]
 ]
 
+[documentation NPU1ResponseRepositoryGet "A repository retrieval."]
+[record NPU1ResponseRepositoryGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation repository "The repository description"]
+  [field repository [cb:Option NPU1RepositoryDescription]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
     [types-added
       NPU1CommandDisconnect
       NPU1CommandLogin
+      NPU1CommandRepositoryGet
+      NPU1CommandRepositoryPut
       NPU1ResponseError
       NPU1ResponseOK
+      NPU1ResponseRepositoryGet
     ]
   ]
 ]

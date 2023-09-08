@@ -100,6 +100,7 @@ open module com.io7m.northpike.tests
   requires transitive org.junit.jupiter.engine;
   requires transitive org.junit.platform.commons;
   requires transitive org.junit.platform.engine;
+  requires com.io7m.idstore.user_client.api;
 
   exports com.io7m.northpike.tests.database;
   exports com.io7m.northpike.tests.containers;

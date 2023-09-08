@@ -25,6 +25,8 @@ import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.model.NPErrorCode;
+import com.io7m.northpike.model.NPRepositoryCredentialsNone;
+import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.intro.NPIError;
@@ -32,7 +34,10 @@ import com.io7m.northpike.protocol.intro.NPIProtocol;
 import com.io7m.northpike.protocol.intro.NPIProtocolsAvailable;
 import com.io7m.northpike.protocol.intro.cb.NPIMessages;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
 import com.io7m.northpike.protocol.user.cb.NPU1Messages;
+import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
@@ -53,9 +58,12 @@ import org.slf4j.LoggerFactory;
 import javax.net.ServerSocketFactory;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.URI;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -63,6 +71,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
+import static com.io7m.northpike.model.security.NPSecRole.LOGIN;
+import static com.io7m.northpike.model.security.NPSecRole.REPOSITORIES_READER;
+import static com.io7m.northpike.model.security.NPSecRole.REPOSITORIES_WRITER;
 import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -306,13 +317,57 @@ public final class NPUserClientTest
   public void testLoginOK()
     throws Exception
   {
-    this.setupUser(Set.of(NPSecRole.LOGIN));
+    this.setupUser(Set.of(LOGIN));
 
     this.userClient.login(
       this.serverAddress,
       TLS_DISABLED,
       this.userName,
       this.userPassword
+    );
+
+    this.userClient.execute(NPUCommandDisconnect.of());
+  }
+
+  /**
+   * Repositories can be read and written.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryReadWrite()
+    throws Exception
+  {
+    this.setupUser(Set.of(LOGIN, REPOSITORIES_WRITER, REPOSITORIES_READER));
+
+    this.userClient.login(
+      this.serverAddress,
+      TLS_DISABLED,
+      this.userName,
+      this.userPassword
+    );
+
+    final var repository =
+      new NPRepositoryDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        UUID.randomUUID(),
+        URI.create("http://www.example.com"),
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+      );
+
+    this.userClient.execute(
+      new NPUCommandRepositoryPut(UUID.randomUUID(), repository)
+    );
+
+    final var r =
+      this.userClient.execute(
+        new NPUCommandRepositoryGet(UUID.randomUUID(), repository.id())
+      );
+
+    assertEquals(
+      Optional.of(repository),
+      r.repository()
     );
 
     this.userClient.execute(NPUCommandDisconnect.of());

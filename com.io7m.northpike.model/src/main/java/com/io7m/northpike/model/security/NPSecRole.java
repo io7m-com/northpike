@@ -85,6 +85,36 @@ public enum NPSecRole
     {
       return NAME;
     }
+  },
+
+  /**
+   * A role for reading repositories.
+   */
+
+  REPOSITORIES_READER {
+    private static final MRoleName NAME =
+      MRoleName.of("repositories.reader");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
+  },
+
+  /**
+   * A role for writing repositories.
+   */
+
+  REPOSITORIES_WRITER {
+    private static final MRoleName NAME =
+      MRoleName.of("repositories.writer");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
   };
 
   private static final List<NPSecRole> ROLES_ALL =

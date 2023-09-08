@@ -14,22 +14,13 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
-package com.io7m.northpike.protocol.user;
-
-import java.util.UUID;
-
 /**
- * The type of responses.
+ * Continuous integration (Test suite)
  */
 
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseError, NPUResponseOK, NPUResponseRepositoryGet
-{
-  /**
-   * @return The ID of the message to which this message correlates
-   */
+@Export
+@Version("1.0.0")
+package com.io7m.northpike.tests.server.users;
 
-  UUID correlationID();
-}
+import org.osgi.annotation.bundle.Export;
+import org.osgi.annotation.versioning.Version;

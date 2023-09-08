@@ -21,17 +21,23 @@ import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandLogin;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
 import com.io7m.northpike.protocol.user.NPUCommandType;
 import com.io7m.northpike.protocol.user.NPUEventType;
 import com.io7m.northpike.protocol.user.NPUMessageType;
 import com.io7m.northpike.protocol.user.NPUResponseError;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
+import com.io7m.northpike.protocol.user.NPUResponseRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUResponseType;
 
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandDisconnect.COMMAND_DISCONNECT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandLogin.COMMAND_LOGIN;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositoryGet.COMMAND_REPOSITORY_GET;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositoryPut.COMMAND_REPOSITORY_PUT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseError.RESPONSE_ERROR;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseOK.RESPONSE_OK;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRepositoryGet.RESPONSE_REPOSITORY_GET;
 
 /**
  * Functions to translate between the core command set and the Agent v1
@@ -83,6 +89,9 @@ public final class NPU1Validation
     if (response instanceof final NPUResponseError r) {
       return RESPONSE_ERROR.convertToWire(r);
     }
+    if (response instanceof final NPUResponseRepositoryGet r) {
+      return RESPONSE_REPOSITORY_GET.convertToWire(r);
+    }
 
     throw new IllegalStateException("Unrecognized response: " + response);
   }
@@ -95,6 +104,12 @@ public final class NPU1Validation
     }
     if (command instanceof final NPUCommandDisconnect c) {
       return COMMAND_DISCONNECT.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandRepositoryPut c) {
+      return COMMAND_REPOSITORY_PUT.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandRepositoryGet c) {
+      return COMMAND_REPOSITORY_GET.convertToWire(c);
     }
 
     throw new IllegalStateException("Unrecognized command: " + command);
@@ -110,12 +125,21 @@ public final class NPU1Validation
     if (message instanceof final NPU1CommandDisconnect c) {
       return COMMAND_DISCONNECT.convertFromWire(c);
     }
+    if (message instanceof final NPU1CommandRepositoryPut c) {
+      return COMMAND_REPOSITORY_PUT.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandRepositoryGet c) {
+      return COMMAND_REPOSITORY_GET.convertFromWire(c);
+    }
 
     if (message instanceof final NPU1ResponseError r) {
       return RESPONSE_ERROR.convertFromWire(r);
     }
     if (message instanceof final NPU1ResponseOK r) {
       return RESPONSE_OK.convertFromWire(r);
+    }
+    if (message instanceof final NPU1ResponseRepositoryGet r) {
+      return RESPONSE_REPOSITORY_GET.convertFromWire(r);
     }
 
     throw new IllegalStateException("Unrecognized message: " + message);

@@ -17,19 +17,39 @@
 
 package com.io7m.northpike.protocol.user;
 
+import com.io7m.northpike.model.NPRepositoryDescription;
+
+import java.util.Objects;
 import java.util.UUID;
 
 /**
- * The type of responses.
+ * Create or update repositories.
+ *
+ * @param messageID  The message ID
+ * @param repository The repository
  */
 
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseError, NPUResponseOK, NPUResponseRepositoryGet
+public record NPUCommandRepositoryPut(
+  UUID messageID,
+  NPRepositoryDescription repository)
+  implements NPUCommandType<NPUResponseOK>
 {
   /**
-   * @return The ID of the message to which this message correlates
+   * Create or update repositories.
+   *
+   * @param messageID  The message ID
+   * @param repository The repository
    */
 
-  UUID correlationID();
+  public NPUCommandRepositoryPut
+  {
+    Objects.requireNonNull(messageID, "messageId");
+    Objects.requireNonNull(repository, "repository");
+  }
+
+  @Override
+  public Class<NPUResponseOK> responseClass()
+  {
+    return NPUResponseOK.class;
+  }
 }

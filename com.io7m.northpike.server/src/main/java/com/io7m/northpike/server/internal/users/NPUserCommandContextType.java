@@ -22,6 +22,7 @@ import com.io7m.idstore.user_client.api.IdUClientSynchronousType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.strings.NPStringConstantType;
 
 import java.net.URI;
@@ -46,12 +47,12 @@ public interface NPUserCommandContextType
    * Signal that the current command execution requires authentication, and
    * raise an exception if not currently authenticated.
    *
-   * @return The ID of the authenticated user
+   * @return The authenticated user
    *
    * @throws NPException On errors
    */
 
-  UUID onAuthenticationRequire()
+  NPUser onAuthenticationRequire()
     throws NPException;
 
   /**

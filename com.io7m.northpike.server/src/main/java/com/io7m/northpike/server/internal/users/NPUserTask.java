@@ -21,9 +21,11 @@ import com.io7m.idstore.user_client.api.IdUClientException;
 import com.io7m.idstore.user_client.api.IdUClientSynchronousType;
 import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.protocol.user.NPUMessageType;
 import com.io7m.northpike.protocol.user.NPUResponseError;
 import com.io7m.northpike.server.api.NPServerException;
@@ -276,14 +278,23 @@ public final class NPUserTask
   }
 
   @Override
-  public UUID onAuthenticationRequire()
+  public NPUser onAuthenticationRequire()
     throws NPException
   {
     final var id = this.userId;
     if (id == null) {
       throw this.fail(ERROR_AUTHENTICATION, errorAuthentication());
     }
-    return id;
+
+    try (var c = this.databaseConnection()) {
+      try (var transaction = c.openTransaction()) {
+        return transaction.queries(NPDatabaseQueriesUsersType.GetType.class)
+          .execute(id)
+          .orElseThrow(() -> {
+            return this.fail(ERROR_AUTHENTICATION, errorAuthentication());
+          });
+      }
+    }
   }
 
   @Override

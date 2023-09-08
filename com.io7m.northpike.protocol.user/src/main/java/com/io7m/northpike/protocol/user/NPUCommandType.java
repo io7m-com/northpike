@@ -25,7 +25,10 @@ package com.io7m.northpike.protocol.user;
 
 public sealed interface NPUCommandType<R extends NPUResponseType>
   extends NPUMessageType
-  permits NPUCommandDisconnect, NPUCommandLogin
+  permits NPUCommandDisconnect,
+  NPUCommandLogin,
+  NPUCommandRepositoryGet,
+  NPUCommandRepositoryPut
 {
   /**
    * @return The response class

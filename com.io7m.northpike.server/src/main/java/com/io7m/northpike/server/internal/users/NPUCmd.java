@@ -20,6 +20,8 @@ package com.io7m.northpike.server.internal.users;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandLogin;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
 import com.io7m.northpike.protocol.user.NPUCommandType;
 import com.io7m.northpike.protocol.user.NPUMessageType;
 import com.io7m.northpike.protocol.user.NPUResponseType;
@@ -64,6 +66,12 @@ public final class NPUCmd
       }
       if (command instanceof final NPUCommandDisconnect c) {
         return new NPUCmdDisconnect().execute(context, c);
+      }
+      if (command instanceof final NPUCommandRepositoryPut c) {
+        return new NPUCmdRepositoryPut().execute(context, c);
+      }
+      if (command instanceof final NPUCommandRepositoryGet c) {
+        return new NPUCmdRepositoryGet().execute(context, c);
       }
     }
     throw context.fail(ERROR_PROTOCOL, errorProtocol());

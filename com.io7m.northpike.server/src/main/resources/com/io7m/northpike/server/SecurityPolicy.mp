@@ -44,3 +44,22 @@
   [MatchObject  [WithType scm_providers]]
   [MatchAction  [WithName write]]
 ]
+
+
+#------------------------------------------------------------------------
+# Repositories
+#
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom repositories.reader]]
+  [MatchObject  [WithType repositories]]
+  [MatchAction  [WithName read]]
+]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom repositories.writer]]
+  [MatchObject  [WithType repositories]]
+  [MatchAction  [WithName write]]
+]

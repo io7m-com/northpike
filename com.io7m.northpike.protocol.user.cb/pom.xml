@@ -36,6 +36,10 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.lanark</groupId>
+      <artifactId>com.io7m.lanark.core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.idstore</groupId>
       <artifactId>com.io7m.idstore.model</artifactId>
     </dependency>
