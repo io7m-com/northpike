@@ -16,6 +16,12 @@
             checks="CyclomaticComplexity"/>
 
   <!-- Lacking pattern matching. -->
+  <suppress files="NPU1Validation.java"
+            checks="NPathComplexity"/>
+  <suppress files="NPU1Validation.java"
+            checks="CyclomaticComplexity"/>
+
+  <!-- Lacking pattern matching. -->
   <suppress files="NPTX1Serializer.java"
             checks="NPathComplexity"/>
 

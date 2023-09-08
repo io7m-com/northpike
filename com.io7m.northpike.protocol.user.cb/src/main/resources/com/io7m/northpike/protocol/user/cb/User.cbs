@@ -80,6 +80,34 @@
   [field repository cb:UUID]
 ]
 
+[documentation NPU1CommandRolesAssign "Assign a set of roles to a user."]
+[record NPU1CommandRolesAssign
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation user "The target user."]
+  [field user cb:UUID]
+  [documentation roles "The assigned roles."]
+  [field roles [cb:List cb:String]]
+]
+
+[documentation NPU1CommandRolesRevoke "Revoke a set of roles from a user."]
+[record NPU1CommandRolesRevoke
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation user "The target user."]
+  [field user cb:UUID]
+  [documentation roles "The roles."]
+  [field roles [cb:List cb:String]]
+]
+
+[documentation NPU1CommandRolesRevoke "Get the roles for a user."]
+[record NPU1CommandRolesGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation user "The target user."]
+  [field user cb:UUID]
+]
+
 ;
 ; Events
 ;
@@ -120,6 +148,16 @@
   [field repository [cb:Option NPU1RepositoryDescription]]
 ]
 
+[documentation NPU1ResponseRolesGet "A response to NPU1ResponseRolesGet."]
+[record NPU1ResponseRolesGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation roles "The roles."]
+  [field roles [cb:List cb:String]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -128,9 +166,13 @@
       NPU1CommandLogin
       NPU1CommandRepositoryGet
       NPU1CommandRepositoryPut
+      NPU1CommandRolesAssign
+      NPU1CommandRolesGet
+      NPU1CommandRolesRevoke
       NPU1ResponseError
       NPU1ResponseOK
       NPU1ResponseRepositoryGet
+      NPU1ResponseRolesGet
     ]
   ]
 ]

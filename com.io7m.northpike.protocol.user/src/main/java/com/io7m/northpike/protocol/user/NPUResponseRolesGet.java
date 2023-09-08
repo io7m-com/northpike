@@ -14,32 +14,40 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.northpike.protocol.user;
 
-package com.io7m.northpike.tests.arbitraries;
+import com.io7m.medrina.api.MRoleName;
 
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.model.NPRepositoryCredentialsType;
-import com.io7m.northpike.model.NPRepositoryDescription;
-import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Combinators;
-
-import java.net.URI;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
-public final class NPArbRepository extends NPArbAbstract<NPRepositoryDescription>
+/**
+ * A response to {@link NPUCommandRolesGet}.
+ *
+ * @param messageID     The message ID
+ * @param correlationID The command that prompted this response
+ * @param roles     The roles
+ */
+
+public record NPUResponseRolesGet(
+  UUID messageID,
+  UUID correlationID,
+  Set<MRoleName> roles)
+  implements NPUResponseType
 {
-  public NPArbRepository()
+  /**
+   * A response to {@link NPUCommandRolesGet}.
+   *
+   * @param messageID     The message ID
+   * @param correlationID The command that prompted this response
+   * @param roles     The roles
+   */
+
+  public NPUResponseRolesGet
   {
-    super(
-      NPRepositoryDescription.class,
-      () -> {
-        return Combinators.combine(
-          Arbitraries.defaultFor(RDottedName.class),
-          Arbitraries.create(UUID::randomUUID),
-          Arbitraries.create(() -> URI.create("urn:uuid:" + UUID.randomUUID())),
-          Arbitraries.defaultFor(NPRepositoryCredentialsType.class)
-        ).as(NPRepositoryDescription::new);
-      }
-    );
+    Objects.requireNonNull(messageID, "messageID");
+    Objects.requireNonNull(correlationID, "correlationID");
+    Objects.requireNonNull(roles, "roles");
   }
 }

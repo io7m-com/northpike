@@ -14,32 +14,39 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.northpike.protocol.user;
 
-package com.io7m.northpike.tests.arbitraries;
-
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.model.NPRepositoryCredentialsType;
-import com.io7m.northpike.model.NPRepositoryDescription;
-import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Combinators;
-
-import java.net.URI;
+import java.util.Objects;
 import java.util.UUID;
 
-public final class NPArbRepository extends NPArbAbstract<NPRepositoryDescription>
+/**
+ * Retrieve the roles for the given user.
+ *
+ * @param messageID The message ID
+ * @param user  The user
+ */
+
+public record NPUCommandRolesGet(
+  UUID messageID,
+  UUID user)
+  implements NPUCommandType<NPUResponseRolesGet>
 {
-  public NPArbRepository()
+  /**
+   * Retrieve the roles for the given user.
+   *
+   * @param messageID The message ID
+   * @param user  The user
+   */
+
+  public NPUCommandRolesGet
   {
-    super(
-      NPRepositoryDescription.class,
-      () -> {
-        return Combinators.combine(
-          Arbitraries.defaultFor(RDottedName.class),
-          Arbitraries.create(UUID::randomUUID),
-          Arbitraries.create(() -> URI.create("urn:uuid:" + UUID.randomUUID())),
-          Arbitraries.defaultFor(NPRepositoryCredentialsType.class)
-        ).as(NPRepositoryDescription::new);
-      }
-    );
+    Objects.requireNonNull(messageID, "messageID");
+    Objects.requireNonNull(user, "user");
+  }
+
+  @Override
+  public Class<NPUResponseRolesGet> responseClass()
+  {
+    return NPUResponseRolesGet.class;
   }
 }

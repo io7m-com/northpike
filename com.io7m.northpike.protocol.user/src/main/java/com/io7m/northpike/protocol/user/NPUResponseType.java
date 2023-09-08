@@ -25,7 +25,10 @@ import java.util.UUID;
 
 public sealed interface NPUResponseType
   extends NPUMessageType
-  permits NPUResponseError, NPUResponseOK, NPUResponseRepositoryGet
+  permits NPUResponseError,
+  NPUResponseOK,
+  NPUResponseRepositoryGet,
+  NPUResponseRolesGet
 {
   /**
    * @return The ID of the message to which this message correlates

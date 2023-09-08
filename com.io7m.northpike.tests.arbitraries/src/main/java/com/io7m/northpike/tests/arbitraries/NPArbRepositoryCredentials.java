@@ -17,28 +17,32 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPRepositoryCredentialsType;
-import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 
-import java.net.URI;
-import java.util.UUID;
+import java.util.Set;
 
-public final class NPArbRepository extends NPArbAbstract<NPRepositoryDescription>
+import static com.io7m.northpike.model.NPRepositoryCredentialsNone.CREDENTIALS_NONE;
+
+public final class NPArbRepositoryCredentials
+  extends NPArbAbstract<NPRepositoryCredentialsType>
 {
-  public NPArbRepository()
+  public NPArbRepositoryCredentials()
   {
     super(
-      NPRepositoryDescription.class,
+      NPRepositoryCredentialsType.class,
       () -> {
-        return Combinators.combine(
-          Arbitraries.defaultFor(RDottedName.class),
-          Arbitraries.create(UUID::randomUUID),
-          Arbitraries.create(() -> URI.create("urn:uuid:" + UUID.randomUUID())),
-          Arbitraries.defaultFor(NPRepositoryCredentialsType.class)
-        ).as(NPRepositoryDescription::new);
+        return Arbitraries.oneOf(
+          Set.of(
+            Arbitraries.create(() -> CREDENTIALS_NONE),
+            Combinators.combine(
+              Arbitraries.strings().alpha(),
+              Arbitraries.strings().alpha()
+            ).as(NPRepositoryCredentialsUsernamePassword::new)
+          )
+        );
       }
     );
   }

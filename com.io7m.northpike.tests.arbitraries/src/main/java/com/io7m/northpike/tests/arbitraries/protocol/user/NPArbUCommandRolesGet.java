@@ -15,30 +15,27 @@
  */
 
 
-package com.io7m.northpike.tests.arbitraries;
+package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.model.NPRepositoryCredentialsType;
-import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.protocol.user.NPUCommandRolesGet;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 
-import java.net.URI;
 import java.util.UUID;
 
-public final class NPArbRepository extends NPArbAbstract<NPRepositoryDescription>
+public final class NPArbUCommandRolesGet
+  extends NPArbAbstract<NPUCommandRolesGet>
 {
-  public NPArbRepository()
+  public NPArbUCommandRolesGet()
   {
     super(
-      NPRepositoryDescription.class,
+      NPUCommandRolesGet.class,
       () -> {
         return Combinators.combine(
-          Arbitraries.defaultFor(RDottedName.class),
           Arbitraries.create(UUID::randomUUID),
-          Arbitraries.create(() -> URI.create("urn:uuid:" + UUID.randomUUID())),
-          Arbitraries.defaultFor(NPRepositoryCredentialsType.class)
-        ).as(NPRepositoryDescription::new);
+          Arbitraries.create(UUID::randomUUID)
+        ).as(NPUCommandRolesGet::new);
       }
     );
   }

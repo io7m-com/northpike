@@ -28,7 +28,10 @@ public sealed interface NPUCommandType<R extends NPUResponseType>
   permits NPUCommandDisconnect,
   NPUCommandLogin,
   NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut
+  NPUCommandRepositoryPut,
+  NPUCommandRolesAssign,
+  NPUCommandRolesGet,
+  NPUCommandRolesRevoke
 {
   /**
    * @return The response class
