@@ -18,27 +18,18 @@
 package com.io7m.northpike.protocol.user;
 
 /**
- * The type of commands.
+ * The type of commands that begin searches.
  *
  * @param <R> The type of responses
+ * @param <T> The type of search parameters
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public sealed interface NPUCommandSearchBeginType<R extends NPUResponseType, T>
+  extends NPUCommandType<R> permits NPUCommandRepositorySearchBegin
 {
   /**
-   * @return The response class
+   * @return The search parameters
    */
 
-  Class<R> responseClass();
+  T parameters();
 }

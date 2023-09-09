@@ -17,28 +17,38 @@
 
 package com.io7m.northpike.protocol.user;
 
+import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPRepositorySummary;
+
+import java.util.Objects;
+import java.util.UUID;
+
 /**
- * The type of commands.
+ * A repository retrieval.
  *
- * @param <R> The type of responses
+ * @param messageID     The message ID
+ * @param correlationID The command that prompted this response
+ * @param results    The results
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public record NPUResponseRepositorySearch(
+  UUID messageID,
+  UUID correlationID,
+  NPPage<NPRepositorySummary> results)
+  implements NPUResponsePagedType<NPRepositorySummary>
 {
   /**
-   * @return The response class
+   * A repository retrieval.
+   *
+   * @param messageID     The message ID
+   * @param correlationID The command that prompted this response
+   * @param results    The results
    */
 
-  Class<R> responseClass();
+  public NPUResponseRepositorySearch
+  {
+    Objects.requireNonNull(messageID, "messageID");
+    Objects.requireNonNull(correlationID, "correlationID");
+    Objects.requireNonNull(results, "results");
+  }
 }

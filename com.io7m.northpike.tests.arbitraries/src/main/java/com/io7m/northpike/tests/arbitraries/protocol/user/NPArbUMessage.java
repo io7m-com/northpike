@@ -21,6 +21,9 @@ import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandLogin;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
+import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandRolesAssign;
 import com.io7m.northpike.protocol.user.NPUCommandRolesGet;
 import com.io7m.northpike.protocol.user.NPUCommandRolesRevoke;
@@ -28,6 +31,7 @@ import com.io7m.northpike.protocol.user.NPUMessageType;
 import com.io7m.northpike.protocol.user.NPUResponseError;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponseRepositoryGet;
+import com.io7m.northpike.protocol.user.NPUResponseRepositorySearch;
 import com.io7m.northpike.protocol.user.NPUResponseRolesGet;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
@@ -51,9 +55,13 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUCommandRolesAssign.class,
               NPUCommandRolesGet.class,
               NPUCommandRolesRevoke.class,
+              NPUCommandRepositorySearchBegin.class,
+              NPUCommandRepositorySearchNext.class,
+              NPUCommandRepositorySearchPrevious.class,
               NPUResponseError.class,
               NPUResponseOK.class,
               NPUResponseRepositoryGet.class,
+              NPUResponseRepositorySearch.class,
               NPUResponseRolesGet.class
             ).map(Arbitraries::defaultFor)
             .collect(Collectors.toUnmodifiableList())

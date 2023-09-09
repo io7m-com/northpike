@@ -15,30 +15,25 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-/**
- * The type of commands.
- *
- * @param <R> The type of responses
- */
+import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchPrevious;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import net.jqwik.api.Arbitraries;
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+import java.util.UUID;
+
+public final class NPArbUCommandRepositorySearchPrevious
+  extends NPArbAbstract<NPUCommandRepositorySearchPrevious>
 {
-  /**
-   * @return The response class
-   */
-
-  Class<R> responseClass();
+  public NPArbUCommandRepositorySearchPrevious()
+  {
+    super(
+      NPUCommandRepositorySearchPrevious.class,
+      () -> {
+        return Arbitraries.create(UUID::randomUUID)
+          .map(NPUCommandRepositorySearchPrevious::new);
+      }
+    );
+  }
 }

@@ -15,30 +15,40 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.protocol.user.cb.internal;
+
+import com.io7m.northpike.model.NPRepositorySearchParameters;
+import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
+import com.io7m.northpike.protocol.user.cb.NPU1RepositorySearchParameters;
 
 /**
- * The type of commands.
- *
- * @param <R> The type of responses
+ * A validator.
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public enum NPUVRepositorySearchParameters
+  implements NPProtocolMessageValidatorType<NPRepositorySearchParameters, NPU1RepositorySearchParameters>
 {
   /**
-   * @return The response class
+   * A validator.
    */
 
-  Class<R> responseClass();
+  REPOSITORY_SEARCH_PARAMETERS;
+
+  @Override
+  public NPU1RepositorySearchParameters convertToWire(
+    final NPRepositorySearchParameters message)
+  {
+    return new NPU1RepositorySearchParameters(
+
+    );
+  }
+
+  @Override
+  public NPRepositorySearchParameters convertFromWire(
+    final NPU1RepositorySearchParameters message)
+  {
+    return new NPRepositorySearchParameters(
+
+    );
+  }
 }

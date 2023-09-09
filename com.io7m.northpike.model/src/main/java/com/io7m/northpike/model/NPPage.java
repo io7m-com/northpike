@@ -18,6 +18,7 @@ package com.io7m.northpike.model;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * A page of items.
@@ -37,10 +38,37 @@ public record NPPage<T>(
 {
   /**
    * A page of items.
+   *
+   * @param items           The items
+   * @param pageIndex       The page index (starting at 0)
+   * @param pageCount       The total page count
+   * @param pageFirstOffset The offset of the first item in the list
    */
 
   public NPPage
   {
     Objects.requireNonNull(items, "items");
+  }
+
+  /**
+   * Map {@code f} over the elements of this page.
+   *
+   * @param f   The function
+   * @param <U> The type of results
+   *
+   * @return A new page
+   */
+
+  public <U> NPPage<U> map(
+    final Function<T, U> f)
+  {
+    return new NPPage<>(
+      this.items.stream()
+        .map(f)
+        .toList(),
+      this.pageIndex,
+      this.pageCount,
+      this.pageFirstOffset
+    );
   }
 }

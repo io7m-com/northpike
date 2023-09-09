@@ -76,6 +76,7 @@ public final class NPUserTask
   private final NPIdstoreClientsType idstore;
   private final NPTelemetryServiceType telemetry;
   private final HashMap<String, String> attributes;
+  private final HashMap<Class<?>, Object> properties;
   private UUID userId;
   private NPUMessageType messageCurrent;
 
@@ -106,6 +107,8 @@ public final class NPUserTask
     this.telemetry =
       Objects.requireNonNull(inTelemetry, "telemetry");
     this.attributes =
+      new HashMap<>();
+    this.properties =
       new HashMap<>();
   }
 
@@ -387,5 +390,24 @@ public final class NPUserTask
     return this.configuration.configuration()
       .idstoreConfiguration()
       .baseURI();
+  }
+
+  @Override
+  public <T> void setProperty(
+    final Class<T> key,
+    final T value)
+  {
+    this.properties.put(
+      Objects.requireNonNull(key, "key"),
+      Objects.requireNonNull(value, "value")
+    );
+  }
+
+  @Override
+  public <T> Optional<T> property(
+    final Class<T> key)
+  {
+    Objects.requireNonNull(key, "key");
+    return Optional.ofNullable((T) this.properties.get(key));
   }
 }

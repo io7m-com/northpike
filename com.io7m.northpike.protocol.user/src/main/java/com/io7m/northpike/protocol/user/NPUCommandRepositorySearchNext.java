@@ -17,28 +17,33 @@
 
 package com.io7m.northpike.protocol.user;
 
+import java.util.Objects;
+import java.util.UUID;
+
 /**
- * The type of commands.
+ * Continue searching.
  *
- * @param <R> The type of responses
+ * @param messageID  The message ID
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public record NPUCommandRepositorySearchNext(
+  UUID messageID)
+  implements NPUCommandType<NPUResponseRepositorySearch>
 {
   /**
-   * @return The response class
+   * Continue searching.
+   *
+   * @param messageID  The message ID
    */
 
-  Class<R> responseClass();
+  public NPUCommandRepositorySearchNext
+  {
+    Objects.requireNonNull(messageID, "messageId");
+  }
+
+  @Override
+  public Class<NPUResponseRepositorySearch> responseClass()
+  {
+    return NPUResponseRepositorySearch.class;
+  }
 }

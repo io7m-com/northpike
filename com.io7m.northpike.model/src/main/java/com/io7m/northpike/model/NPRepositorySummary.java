@@ -24,49 +24,32 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * A repository.
+ * A repository summary.
  *
  * @param provider             The SCM provider
  * @param id                   The repository ID
  * @param url                  The repository URL
- * @param credentials          The credentials
  */
 
-public record NPRepositoryDescription(
+public record NPRepositorySummary(
   RDottedName provider,
   UUID id,
-  URI url,
-  NPRepositoryCredentialsType credentials)
+  URI url)
 {
   /**
-   * A repository.
+   * A repository summary.
    *
    * @param provider             The SCM provider
    * @param id                   The repository ID
    * @param url                  The repository URL
-   * @param credentials          The credentials
    */
 
-  public NPRepositoryDescription
+  public NPRepositorySummary
   {
     Objects.requireNonNull(provider, "provider");
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(url, "url");
-    Objects.requireNonNull(credentials, "credentials");
 
     url = url.normalize();
-  }
-
-  /**
-   * @return A summary of the repository
-   */
-
-  public NPRepositorySummary summary()
-  {
-    return new NPRepositorySummary(
-      this.provider,
-      this.id,
-      this.url
-    );
   }
 }

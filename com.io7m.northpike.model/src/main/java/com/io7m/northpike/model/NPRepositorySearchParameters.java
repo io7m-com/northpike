@@ -15,30 +15,13 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.model;
 
 /**
- * The type of commands.
- *
- * @param <R> The type of responses
+ * The search parameters for repositories.
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public record NPRepositorySearchParameters()
 {
-  /**
-   * @return The response class
-   */
 
-  Class<R> responseClass();
 }

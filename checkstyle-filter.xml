@@ -35,6 +35,12 @@
   <suppress files="NPTXEvaluator.java"
             checks="CyclomaticComplexity"/>
 
+  <!-- Lacking pattern matching. -->
+  <suppress files="NPUCmd.java"
+            checks="NPathComplexity"/>
+  <suppress files="NPUCmd.java"
+            checks="CyclomaticComplexity"/>
+
   <!-- char[] -> String -->
   <suppress files="NPTX1Statements.java"
             checks="IllegalInstantiation"/>

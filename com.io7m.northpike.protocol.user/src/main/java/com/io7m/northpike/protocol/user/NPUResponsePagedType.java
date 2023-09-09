@@ -17,28 +17,21 @@
 
 package com.io7m.northpike.protocol.user;
 
+import com.io7m.northpike.model.NPPage;
+
 /**
- * The type of commands.
+ * The type of responses that contain paged results.
  *
- * @param <R> The type of responses
+ * @param <T> The type of results
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public sealed interface NPUResponsePagedType<T>
+  extends NPUResponseType
+  permits NPUResponseRepositorySearch
 {
   /**
-   * @return The response class
+   * @return The current results
    */
 
-  Class<R> responseClass();
+  NPPage<T> results();
 }

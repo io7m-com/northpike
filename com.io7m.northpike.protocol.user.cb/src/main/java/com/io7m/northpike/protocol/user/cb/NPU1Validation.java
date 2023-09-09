@@ -23,6 +23,9 @@ import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandLogin;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
+import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandRolesAssign;
 import com.io7m.northpike.protocol.user.NPUCommandRolesGet;
 import com.io7m.northpike.protocol.user.NPUCommandRolesRevoke;
@@ -32,6 +35,7 @@ import com.io7m.northpike.protocol.user.NPUMessageType;
 import com.io7m.northpike.protocol.user.NPUResponseError;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponseRepositoryGet;
+import com.io7m.northpike.protocol.user.NPUResponseRepositorySearch;
 import com.io7m.northpike.protocol.user.NPUResponseRolesGet;
 import com.io7m.northpike.protocol.user.NPUResponseType;
 
@@ -39,12 +43,16 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandDisconnect
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandLogin.COMMAND_LOGIN;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositoryGet.COMMAND_REPOSITORY_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositoryPut.COMMAND_REPOSITORY_PUT;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositorySearchBegin.COMMAND_REPOSITORY_SEARCH_BEGIN;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositorySearchNext.COMMAND_REPOSITORY_SEARCH_NEXT;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositorySearchPrevious.COMMAND_REPOSITORY_SEARCH_PREVIOUS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRolesAssign.COMMAND_ROLES_ASSIGN;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRolesGet.COMMAND_ROLES_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRolesRevoke.COMMAND_ROLES_REVOKE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseError.RESPONSE_ERROR;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseOK.RESPONSE_OK;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRepositoryGet.RESPONSE_REPOSITORY_GET;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRepositorySearch.RESPONSE_REPOSITORY_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRolesGet.RESPONSE_ROLES_GET;
 
 /**
@@ -103,6 +111,9 @@ public final class NPU1Validation
     if (response instanceof final NPUResponseRolesGet r) {
       return RESPONSE_ROLES_GET.convertToWire(r);
     }
+    if (response instanceof final NPUResponseRepositorySearch r) {
+      return RESPONSE_REPOSITORY_SEARCH.convertToWire(r);
+    }
 
     throw new IllegalStateException("Unrecognized response: " + response);
   }
@@ -130,6 +141,15 @@ public final class NPU1Validation
     }
     if (command instanceof final NPUCommandRolesGet c) {
       return COMMAND_ROLES_GET.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandRepositorySearchBegin c) {
+      return COMMAND_REPOSITORY_SEARCH_BEGIN.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandRepositorySearchNext c) {
+      return COMMAND_REPOSITORY_SEARCH_NEXT.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandRepositorySearchPrevious c) {
+      return COMMAND_REPOSITORY_SEARCH_PREVIOUS.convertToWire(c);
     }
 
     throw new IllegalStateException("Unrecognized command: " + command);
@@ -160,6 +180,15 @@ public final class NPU1Validation
     if (message instanceof final NPU1CommandRolesGet c) {
       return COMMAND_ROLES_GET.convertFromWire(c);
     }
+    if (message instanceof final NPU1CommandRepositorySearchBegin c) {
+      return COMMAND_REPOSITORY_SEARCH_BEGIN.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandRepositorySearchNext c) {
+      return COMMAND_REPOSITORY_SEARCH_NEXT.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandRepositorySearchPrevious c) {
+      return COMMAND_REPOSITORY_SEARCH_PREVIOUS.convertFromWire(c);
+    }
 
     if (message instanceof final NPU1ResponseError r) {
       return RESPONSE_ERROR.convertFromWire(r);
@@ -172,6 +201,9 @@ public final class NPU1Validation
     }
     if (message instanceof final NPU1ResponseRolesGet r) {
       return RESPONSE_ROLES_GET.convertFromWire(r);
+    }
+    if (message instanceof final NPU1ResponseRepositorySearch r) {
+      return RESPONSE_REPOSITORY_SEARCH.convertFromWire(r);
     }
 
     throw new IllegalStateException("Unrecognized message: " + message);

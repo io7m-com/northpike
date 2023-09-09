@@ -25,6 +25,7 @@
   <entry key="error_nonexistent">Object does not exist.</entry>
   <entry key="error_not_connected">Not connected.</entry>
   <entry key="error_numbered">Error {0}</entry>
+  <entry key="error_operation_not_permitted">Operation not permitted.</entry>
   <entry key="error_parse">Parse error.</entry>
   <entry key="error_plan_cyclic">Adding this dependency would create a cycle in the plan.</entry>
   <entry key="error_protocol">Protocol error.</entry>
@@ -33,14 +34,14 @@
   <entry key="error_repository_unsupported_provider">Unsupported repository provider.</entry>
   <entry key="error_repository_wrong_provider">Incorrect repository provider.</entry>
   <entry key="error_resource_closing">One or more resources could not be closed.</entry>
+  <entry key="error_search_not_started">A search must be started before it can be continued.</entry>
   <entry key="error_server_failed_protocol_confirmation">Server refused protocol version confirmation.</entry>
   <entry key="error_size_limit_exceeded">Exceeded message size limit.</entry>
   <entry key="error_unsafe_archive_path">Unsafe archive path encountered; refusing to unpack.</entry>
   <entry key="error_work_item_not_accepted">You cannot start a work item that you did not previously accept.</entry>
+  <entry key="error_work_item_not_created">This work item is not in the CREATED state.</entry>
   <entry key="error_work_item_not_executed">You cannot report status for work item that you did not execute.</entry>
   <entry key="error_work_item_not_yours">This work item has a different selected agent.</entry>
-  <entry key="error_work_item_not_created">This work item is not in the CREATED state.</entry>
-  <entry key="error_operation_not_permitted">Operation not permitted.</entry>
   <entry key="expected">Expected</entry>
   <entry key="file">File</entry>
   <entry key="format">Format</entry>

@@ -26,6 +26,7 @@ import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.strings.NPStringConstantType;
 
 import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -112,4 +113,29 @@ public interface NPUserCommandContextType
    */
 
   URI idstoreLoginURI();
+
+  /**
+   * Set a property on the context.
+   *
+   * @param key   The property key
+   * @param value The property value
+   * @param <T>   The type of property values
+   */
+
+  <T> void setProperty(
+    Class<T> key,
+    T value);
+
+  /**
+   * Find the property value for the given key.
+   *
+   * @param key The key
+   * @param <T> The type of property values
+   *
+   * @return The property value
+   */
+
+  <T> Optional<T> property(
+    Class<T> key);
+
 }

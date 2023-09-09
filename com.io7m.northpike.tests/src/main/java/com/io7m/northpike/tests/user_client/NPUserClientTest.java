@@ -25,8 +25,9 @@ import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.model.NPErrorCode;
-import com.io7m.northpike.model.NPRepositoryCredentialsNone;
+import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositorySearchParameters;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.intro.NPIError;
@@ -36,6 +37,9 @@ import com.io7m.northpike.protocol.intro.cb.NPIMessages;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
+import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchPrevious;
 import com.io7m.northpike.protocol.user.cb.NPU1Messages;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.strings.NPStrings;
@@ -63,18 +67,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.io7m.northpike.model.NPRepositoryCredentialsNone.CREDENTIALS_NONE;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.security.NPSecRole.LOGIN;
 import static com.io7m.northpike.model.security.NPSecRole.REPOSITORIES_READER;
 import static com.io7m.northpike.model.security.NPSecRole.REPOSITORIES_WRITER;
 import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -351,18 +356,18 @@ public final class NPUserClientTest
     final var repository =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        UUID.randomUUID(),
+        randomUUID(),
         URI.create("http://www.example.com"),
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+        CREDENTIALS_NONE
       );
 
     this.userClient.execute(
-      new NPUCommandRepositoryPut(UUID.randomUUID(), repository)
+      new NPUCommandRepositoryPut(randomUUID(), repository)
     );
 
     final var r =
       this.userClient.execute(
-        new NPUCommandRepositoryGet(UUID.randomUUID(), repository.id())
+        new NPUCommandRepositoryGet(randomUUID(), repository.id())
       );
 
     assertEquals(
@@ -371,6 +376,86 @@ public final class NPUserClientTest
     );
 
     this.userClient.execute(NPUCommandDisconnect.of());
+  }
+
+  /**
+   * Repositories can be searched for.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositorySearch()
+    throws Exception
+  {
+    this.setupUser(Set.of(LOGIN, REPOSITORIES_WRITER, REPOSITORIES_READER));
+
+    this.userClient.login(
+      this.serverAddress,
+      TLS_DISABLED,
+      this.userName,
+      this.userPassword
+    );
+
+    final var repository0 =
+      new NPRepositoryDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        randomUUID(),
+        URI.create("http://www.example.com/0"),
+        CREDENTIALS_NONE
+      );
+
+    final var repository1 =
+      new NPRepositoryDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        randomUUID(),
+        URI.create("http://www.example.com/1"),
+        CREDENTIALS_NONE
+      );
+
+    final var repository2 =
+      new NPRepositoryDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        randomUUID(),
+        URI.create("http://www.example.com/2"),
+        CREDENTIALS_NONE
+      );
+
+    this.userClient.execute(
+      new NPUCommandRepositoryPut(randomUUID(), repository0));
+    this.userClient.execute(
+      new NPUCommandRepositoryPut(randomUUID(), repository1));
+    this.userClient.execute(
+      new NPUCommandRepositoryPut(randomUUID(), repository2));
+
+    final var r =
+      this.userClient.execute(
+        new NPUCommandRepositorySearchBegin(
+          randomUUID(), new NPRepositorySearchParameters()));
+
+    this.userClient.execute(
+      new NPUCommandRepositorySearchNext(randomUUID()));
+    this.userClient.execute(
+      new NPUCommandRepositorySearchNext(randomUUID()));
+
+    this.userClient.execute(
+      new NPUCommandRepositorySearchPrevious(randomUUID()));
+    this.userClient.execute(
+      new NPUCommandRepositorySearchPrevious(randomUUID()));
+
+    assertEquals(
+      new NPPage<>(
+        List.of(
+          repository0.summary(),
+          repository1.summary(),
+          repository2.summary()
+        ),
+        1,
+        1,
+        0L
+      ),
+      r.results()
+    );
   }
 
   private void setupUser(

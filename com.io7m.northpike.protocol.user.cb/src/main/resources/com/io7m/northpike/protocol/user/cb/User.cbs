@@ -44,6 +44,28 @@
   [field credentials NPU1RepositoryCredentials]
 ]
 
+[documentation NPU1RepositorySummary "A summary of a repository."]
+[record NPU1RepositorySummary
+  [documentation provider "The SCM provider."]
+  [field provider cb:String]
+  [documentation id "The repository ID."]
+  [field id cb:UUID]
+  [documentation url "The repository URL."]
+  [field url cb:String]
+]
+
+[documentation NPU1Page "A page of search results."]
+[record NPU1Page
+  [parameter T]
+  [field items [cb:List T]]
+  [field pageIndex cb:IntegerUnsigned32]
+  [field pageCount cb:IntegerUnsigned32]
+  [field pageFirstOffset cb:IntegerUnsigned64]
+]
+
+[documentation NPU1RepositorySearchParameters "The repository search parameters."]
+[record NPU1RepositorySearchParameters]
+
 ;
 ; Commands
 ;
@@ -108,6 +130,26 @@
   [field user cb:UUID]
 ]
 
+[documentation NPU1CommandRepositorySearchBegin "Start searching repositories."]
+[record NPU1CommandRepositorySearchBegin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation parameters "The search parameters."]
+  [field parameters NPU1RepositorySearchParameters]
+]
+
+[documentation NPU1CommandRepositorySearchNext "Continue searching repositories."]
+[record NPU1CommandRepositorySearchNext
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandRepositorySearchPrevious "Continue searching repositories."]
+[record NPU1CommandRepositorySearchPrevious
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
 ;
 ; Events
 ;
@@ -158,6 +200,16 @@
   [field roles [cb:List cb:String]]
 ]
 
+[documentation NPU1ResponseRepositorySearch "A response to NPU1CommandRepositorySearchBegin."]
+[record NPU1ResponseRepositorySearch
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [NPU1Page NPU1RepositorySummary]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -166,12 +218,16 @@
       NPU1CommandLogin
       NPU1CommandRepositoryGet
       NPU1CommandRepositoryPut
+      NPU1CommandRepositorySearchBegin
+      NPU1CommandRepositorySearchNext
+      NPU1CommandRepositorySearchPrevious
       NPU1CommandRolesAssign
       NPU1CommandRolesGet
       NPU1CommandRolesRevoke
       NPU1ResponseError
       NPU1ResponseOK
       NPU1ResponseRepositoryGet
+      NPU1ResponseRepositorySearch
       NPU1ResponseRolesGet
     ]
   ]

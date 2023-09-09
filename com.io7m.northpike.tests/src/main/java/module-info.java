@@ -71,6 +71,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.ervilla.test_extension;
   requires com.io7m.idstore.admin_client.api;
   requires com.io7m.idstore.admin_client;
+  requires com.io7m.idstore.user_client.api;
   requires com.io7m.jattribute.core;
   requires com.io7m.jmulticlose.core;
   requires com.io7m.junreachable.core;
@@ -100,7 +101,6 @@ open module com.io7m.northpike.tests
   requires transitive org.junit.jupiter.engine;
   requires transitive org.junit.platform.commons;
   requires transitive org.junit.platform.engine;
-  requires com.io7m.idstore.user_client.api;
 
   exports com.io7m.northpike.tests.database;
   exports com.io7m.northpike.tests.containers;
