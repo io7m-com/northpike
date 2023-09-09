@@ -409,7 +409,13 @@ CREATE TABLE agent_labels (
   al_label   BIGINT  NOT NULL,
 
   CONSTRAINT agent_labels_primary_key
-    PRIMARY KEY (al_agent, al_label)
+    PRIMARY KEY (al_agent, al_label),
+
+  CONSTRAINT agent_labels_label_exists
+    FOREIGN KEY (al_label) REFERENCES agent_label_definitions (ald_id),
+
+  CONSTRAINT agent_labels_agent_exists
+    FOREIGN KEY (al_agent) REFERENCES agents (a_id)
 )
 ]]></Statement>
 

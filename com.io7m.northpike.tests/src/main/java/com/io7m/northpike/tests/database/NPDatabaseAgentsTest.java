@@ -54,6 +54,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPAgentLabelMatchType.AnyLabel.ANY_LABEL;
@@ -627,5 +628,68 @@ public final class NPDatabaseAgentsTest
     }
 
     assertEquals(labelsByName, labelsByNameRetrieved);
+  }
+
+  /**
+   * Deleting labels works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentLabelDelete()
+    throws Exception
+  {
+    final var get =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+    final var labelPut =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+    final var labelDelete =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelDeleteType.class);
+
+    final var labels =
+      Arbitraries.defaultFor(NPAgentLabel.class)
+        .set()
+        .ofSize(100)
+        .sample();
+
+    final var byName = new HashMap<RDottedName, NPAgentLabel>();
+    for (final var label : labels) {
+      labelPut.execute(label);
+      byName.put(label.name(), label);
+    }
+
+    final var agent0 =
+      new NPAgentDescription(
+        new NPAgentID(UUID.randomUUID()),
+        "Agent 0",
+        NPKey.generate(SecureRandom.getInstanceStrong()),
+        Map.of(),
+        Map.of(),
+        byName
+      );
+
+    put.execute(agent0);
+    this.transaction.commit();
+
+    labelDelete.execute(
+      labels.stream()
+        .map(NPAgentLabel::name)
+        .collect(Collectors.toUnmodifiableSet())
+    );
+
+    final var agent1 =
+      new NPAgentDescription(
+        agent0.id(),
+        agent0.name(),
+        agent0.accessKey(),
+        Map.of(),
+        Map.of(),
+        Map.of()
+      );
+
+    assertEquals(agent1, get.execute(agent0.id()).orElseThrow());
   }
 }

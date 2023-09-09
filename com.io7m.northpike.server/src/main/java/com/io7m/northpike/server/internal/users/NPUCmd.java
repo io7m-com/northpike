@@ -18,6 +18,7 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelDelete;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelGet;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelPut;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchBegin;
@@ -119,6 +120,9 @@ public final class NPUCmd
       }
       if (command instanceof final NPUCommandAgentLabelSearchPrevious c) {
         return new NPUCmdAgentLabelSearchPrevious().execute(context, c);
+      }
+      if (command instanceof final NPUCommandAgentLabelDelete c) {
+        return new NPUCmdAgentLabelDelete().execute(context, c);
       }
     }
     throw context.fail(ERROR_PROTOCOL, errorProtocol());

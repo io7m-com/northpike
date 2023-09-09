@@ -17,33 +17,40 @@
 
 package com.io7m.northpike.protocol.user;
 
+import com.io7m.lanark.core.RDottedName;
+
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+
 /**
- * The type of commands.
+ * Delete labels.
  *
- * @param <R> The type of responses
+ * @param messageID The message ID
+ * @param labels    The labels
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandAgentLabelDelete,
-  NPUCommandAgentLabelGet,
-  NPUCommandAgentLabelPut,
-  NPUCommandAgentLabelSearchNext,
-  NPUCommandAgentLabelSearchPrevious,
-  NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public record NPUCommandAgentLabelDelete(
+  UUID messageID,
+  Set<RDottedName> labels)
+  implements NPUCommandType<NPUResponseOK>
 {
   /**
-   * @return The response class
+   * Delete labels.
+   *
+   * @param messageID The message ID
+   * @param labels    The labels
    */
 
-  Class<R> responseClass();
+  public NPUCommandAgentLabelDelete
+  {
+    Objects.requireNonNull(messageID, "messageId");
+    Objects.requireNonNull(labels, "labels");
+  }
+
+  @Override
+  public Class<NPUResponseOK> responseClass()
+  {
+    return NPUResponseOK.class;
+  }
 }

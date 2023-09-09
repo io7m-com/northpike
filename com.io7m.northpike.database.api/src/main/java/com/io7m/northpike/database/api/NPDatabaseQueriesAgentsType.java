@@ -25,6 +25,7 @@ import com.io7m.northpike.model.NPAgentListParameters;
 import com.io7m.northpike.model.NPKey;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * The database queries involving agents.
@@ -105,6 +106,17 @@ public sealed interface NPDatabaseQueriesAgentsType
 
   non-sealed interface LabelSearchType
     extends NPDatabaseQueryType<NPAgentLabelSearchParameters, NPAgentLabelsPagedType>,
+    NPDatabaseQueriesAgentsType
+  {
+
+  }
+
+  /**
+   * Delete an agent label.
+   */
+
+  non-sealed interface LabelDeleteType
+    extends NPDatabaseQueryType<Set<RDottedName>, NPDatabaseUnit>,
     NPDatabaseQueriesAgentsType
   {
 

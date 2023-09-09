@@ -83,6 +83,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIMessage,
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIProtocol,
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIProtocolsAvailable,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelDelete,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelPut,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelSearchBegin,

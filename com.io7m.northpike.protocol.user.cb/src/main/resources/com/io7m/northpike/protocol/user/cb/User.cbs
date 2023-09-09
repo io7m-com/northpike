@@ -200,6 +200,14 @@
   [field messageId cb:UUID]
 ]
 
+[documentation NPU1CommandAgentLabelDelete "Delete agent labels."]
+[record NPU1CommandAgentLabelDelete
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation names "The label names"]
+  [field names [cb:List cb:String]]
+]
+
 ;
 ; Events
 ;
@@ -280,11 +288,11 @@
   [field results [NPU1Page NPU1AgentLabel]]
 ]
 
-
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
     [types-added
+      NPU1CommandAgentLabelDelete
       NPU1CommandAgentLabelGet
       NPU1CommandAgentLabelPut
       NPU1CommandAgentLabelSearchBegin

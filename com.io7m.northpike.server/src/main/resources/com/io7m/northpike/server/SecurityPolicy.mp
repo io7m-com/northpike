@@ -81,3 +81,10 @@
   [MatchObject  [WithType agent_labels]]
   [MatchAction  [WithName write]]
 ]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom agent_labels.writer]]
+  [MatchObject  [WithType agent_labels]]
+  [MatchAction  [WithName delete]]
+]

@@ -15,35 +15,29 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-/**
- * The type of commands.
- *
- * @param <R> The type of responses
- */
+import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelDelete;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandAgentLabelDelete,
-  NPUCommandAgentLabelGet,
-  NPUCommandAgentLabelPut,
-  NPUCommandAgentLabelSearchNext,
-  NPUCommandAgentLabelSearchPrevious,
-  NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+import java.util.UUID;
+
+public final class NPArbUCommandAgentLabelDelete
+  extends NPArbAbstract<NPUCommandAgentLabelDelete>
 {
-  /**
-   * @return The response class
-   */
-
-  Class<R> responseClass();
+  public NPArbUCommandAgentLabelDelete()
+  {
+    super(
+      NPUCommandAgentLabelDelete.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(RDottedName.class).set()
+        ).as(NPUCommandAgentLabelDelete::new);
+      }
+    );
+  }
 }

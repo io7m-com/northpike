@@ -19,6 +19,7 @@ package com.io7m.northpike.protocol.user.cb;
 
 import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelDelete;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelGet;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelPut;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchBegin;
@@ -46,6 +47,7 @@ import com.io7m.northpike.protocol.user.NPUResponseRepositorySearch;
 import com.io7m.northpike.protocol.user.NPUResponseRolesGet;
 import com.io7m.northpike.protocol.user.NPUResponseType;
 
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLabelDelete.COMMAND_AGENT_LABEL_DELETE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLabelGet.COMMAND_AGENT_LABEL_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLabelPut.COMMAND_AGENT_LABEL_PUT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLabelSearchBegin.COMMAND_AGENT_LABEL_SEARCH_BEGIN;
@@ -189,6 +191,9 @@ public final class NPU1Validation
     if (command instanceof final NPUCommandAgentLabelSearchPrevious c) {
       return COMMAND_AGENT_LABEL_SEARCH_PREVIOUS.convertToWire(c);
     }
+    if (command instanceof final NPUCommandAgentLabelDelete c) {
+      return COMMAND_AGENT_LABEL_DELETE.convertToWire(c);
+    }
 
     throw new IllegalStateException("Unrecognized command: " + command);
   }
@@ -244,6 +249,9 @@ public final class NPU1Validation
     }
     if (message instanceof final NPU1CommandAgentLabelSearchPrevious c) {
       return COMMAND_AGENT_LABEL_SEARCH_PREVIOUS.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandAgentLabelDelete c) {
+      return COMMAND_AGENT_LABEL_DELETE.convertFromWire(c);
     }
 
     if (message instanceof final NPU1ResponseError r) {
