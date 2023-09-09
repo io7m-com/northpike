@@ -85,6 +85,7 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQSCMProviderPut,
     com.io7m.northpike.database.postgres.internal.NPDBQToolExecutionDescriptionGet,
     com.io7m.northpike.database.postgres.internal.NPDBQToolExecutionDescriptionPut,
+    com.io7m.northpike.database.postgres.internal.NPDBQToolExecutionDescriptionSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQUserGet,
     com.io7m.northpike.database.postgres.internal.NPDBQUserPut,
     com.io7m.northpike.database.postgres.internal.NPDBQWorkItemGet,

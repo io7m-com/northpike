@@ -105,6 +105,7 @@ public final class NPAssignmentTaskTest
     new NPToolExecutionDescription(
       NPToolExecutionIdentifier.of("run", 1L),
       NPToolName.of("tool"),
+      "A description.",
       NPTXFormats.nptx1(),
       """
         <?xml version="1.0" encoding="UTF-8" ?>
@@ -1146,6 +1147,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPToolExecutionDescription(
         TOOL_EXECUTION_DESCRIPTION.identifier(),
         TOOL_EXECUTION_DESCRIPTION.tool(),
+        TOOL_EXECUTION_DESCRIPTION.description(),
         TOOL_EXECUTION_DESCRIPTION.format(),
         """
           <?xml version="1.0" encoding="UTF-8" ?>
@@ -1194,6 +1196,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPToolExecutionDescription(
         TOOL_EXECUTION_DESCRIPTION.identifier(),
         TOOL_EXECUTION_DESCRIPTION.tool(),
+        TOOL_EXECUTION_DESCRIPTION.description(),
         TOOL_EXECUTION_DESCRIPTION.format(),
         """
           <?xml version="1.0" encoding="UTF-8" ?>
@@ -1251,6 +1254,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPToolExecutionDescription(
         TOOL_EXECUTION_DESCRIPTION.identifier(),
         TOOL_EXECUTION_DESCRIPTION.tool(),
+        TOOL_EXECUTION_DESCRIPTION.description(),
         NPFormatName.of("x.y.z"),
         TOOL_EXECUTION_DESCRIPTION.text()
       ));

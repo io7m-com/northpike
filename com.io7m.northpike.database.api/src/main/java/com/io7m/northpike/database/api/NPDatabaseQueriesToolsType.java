@@ -17,6 +17,7 @@
 package com.io7m.northpike.database.api;
 
 import com.io7m.northpike.model.NPToolExecutionDescription;
+import com.io7m.northpike.model.NPToolExecutionDescriptionSearchParameters;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 
 import java.util.Optional;
@@ -45,6 +46,17 @@ public sealed interface NPDatabaseQueriesToolsType
 
   non-sealed interface GetExecutionDescriptionType
     extends NPDatabaseQueryType<NPToolExecutionIdentifier, Optional<NPToolExecutionDescription>>,
+    NPDatabaseQueriesToolsType
+  {
+
+  }
+
+  /**
+   * Search for tool execution descriptions.
+   */
+
+  non-sealed interface SearchExecutionDescriptionType
+    extends NPDatabaseQueryType<NPToolExecutionDescriptionSearchParameters, NPToolExecutionDescriptionsPagedType>,
     NPDatabaseQueriesToolsType
   {
 

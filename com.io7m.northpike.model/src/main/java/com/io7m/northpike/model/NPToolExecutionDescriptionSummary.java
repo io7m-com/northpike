@@ -25,16 +25,12 @@ import java.util.Objects;
  * @param identifier  The identifier of the execution description
  * @param tool        The name of the tool with which this execution is expected to be compatible
  * @param description The humanly-readable description of the tool execution
- * @param format      The name of the format used to describe the execution
- * @param text        The description text
  */
 
-public record NPToolExecutionDescription(
+public record NPToolExecutionDescriptionSummary(
   NPToolExecutionIdentifier identifier,
   NPToolName tool,
-  String description,
-  NPFormatName format,
-  String text)
+  String description)
 {
   /**
    * An unparsed tool execution description.
@@ -42,29 +38,12 @@ public record NPToolExecutionDescription(
    * @param identifier  The identifier of the execution description
    * @param tool        The name of the tool with which this execution is expected to be compatible
    * @param description The humanly-readable description of the tool execution
-   * @param format      The name of the format used to describe the execution
-   * @param text        The description text
    */
 
-  public NPToolExecutionDescription
+  public NPToolExecutionDescriptionSummary
   {
     Objects.requireNonNull(identifier, "identifier");
     Objects.requireNonNull(tool, "tool");
     Objects.requireNonNull(description, "description");
-    Objects.requireNonNull(format, "format");
-    Objects.requireNonNull(text, "text");
-  }
-
-  /**
-   * @return The summary of this description
-   */
-
-  public NPToolExecutionDescriptionSummary summary()
-  {
-    return new NPToolExecutionDescriptionSummary(
-      this.identifier,
-      this.tool,
-      this.description
-    );
   }
 }

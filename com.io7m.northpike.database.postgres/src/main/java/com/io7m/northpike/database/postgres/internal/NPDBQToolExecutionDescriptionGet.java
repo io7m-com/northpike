@@ -27,7 +27,6 @@ import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
 import org.jooq.DSLContext;
-import org.jooq.Record5;
 
 import java.util.Optional;
 
@@ -86,6 +85,7 @@ public final class NPDBQToolExecutionDescriptionGet
     return context.select(
         TOOL_EXECUTION_DESCRIPTIONS.TED_NAME,
         TOOL_EXECUTION_DESCRIPTIONS.TED_VERSION,
+        TOOL_EXECUTION_DESCRIPTIONS.TED_DESCRIPTION,
         TOOL_EXECUTION_DESCRIPTIONS.TED_FORMAT,
         TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME,
         TOOL_EXECUTION_DESCRIPTIONS.TED_TEXT
@@ -96,7 +96,7 @@ public final class NPDBQToolExecutionDescriptionGet
   }
 
   private static NPToolExecutionDescription mapRecord(
-    final Record5<String, Long, String, String, String> r)
+    final org.jooq.Record r)
   {
     return new NPToolExecutionDescription(
       new NPToolExecutionIdentifier(
@@ -104,6 +104,7 @@ public final class NPDBQToolExecutionDescriptionGet
         r.<Long>get(TOOL_EXECUTION_DESCRIPTIONS.TED_VERSION).longValue()
       ),
       NPToolName.of(r.get(TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME)),
+      r.get(TOOL_EXECUTION_DESCRIPTIONS.TED_DESCRIPTION),
       NPFormatName.of(r.get(TOOL_EXECUTION_DESCRIPTIONS.TED_FORMAT)),
       r.get(TOOL_EXECUTION_DESCRIPTIONS.TED_TEXT)
     );

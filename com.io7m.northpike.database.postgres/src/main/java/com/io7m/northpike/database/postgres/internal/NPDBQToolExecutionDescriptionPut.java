@@ -67,17 +67,19 @@ public final class NPDBQToolExecutionDescriptionPut
   {
     final var id = d.identifier();
     context.insertInto(TOOL_EXECUTION_DESCRIPTIONS)
-      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_NAME, id.name().toString())
-      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_VERSION, Long.valueOf(id.version()))
+      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_DESCRIPTION, d.description())
       .set(TOOL_EXECUTION_DESCRIPTIONS.TED_FORMAT, d.format().toString())
-      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME, d.tool().toString())
+      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_NAME, id.name().toString())
       .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TEXT, d.text())
+      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME, d.tool().toString())
+      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_VERSION, Long.valueOf(id.version()))
       .onConflictOnConstraint(
         DSL.name("tool_execution_descriptions_name_version_unique"))
       .doUpdate()
+      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_DESCRIPTION, d.description())
       .set(TOOL_EXECUTION_DESCRIPTIONS.TED_FORMAT, d.format().toString())
-      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME, d.tool().toString())
       .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TEXT, d.text())
+      .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME, d.tool().toString())
       .execute();
     return UNIT;
   }

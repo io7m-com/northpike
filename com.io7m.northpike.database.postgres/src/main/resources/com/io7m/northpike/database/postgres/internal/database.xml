@@ -424,19 +424,28 @@ CREATE TABLE agent_labels (
       descriptions that can be used in plans to execute code on agents.
     </Comment>
 
-    <Statement><![CDATA[
+    <StatementParameterized parameterInterpolation="STRING_FORMATTING">
+      <ParameterReferences>
+        <ParameterReference order="0"
+                            name="search.language"/>
+      </ParameterReferences>
+      <Text><![CDATA[
 CREATE TABLE tool_execution_descriptions (
-  ted_id         BIGINT  NOT NULL GENERATED ALWAYS AS IDENTITY,
-  ted_name       TEXT    NOT NULL,
-  ted_version    BIGINT  NOT NULL,
-  ted_tool_name  TEXT    NOT NULL,
-  ted_format     TEXT    NOT NULL,
-  ted_text       TEXT    NOT NULL,
+  ted_id           BIGINT  NOT NULL GENERATED ALWAYS AS IDENTITY,
+  ted_name         TEXT    NOT NULL,
+  ted_version      BIGINT  NOT NULL,
+  ted_tool_name    TEXT    NOT NULL,
+  ted_description  TEXT    NOT NULL,
+  ted_format       TEXT    NOT NULL,
+  ted_text         TEXT    NOT NULL,
 
   CONSTRAINT tool_execution_descriptions_primary_key
     PRIMARY KEY (ted_id),
 
   -- [jooq ignore start]
+  ted_description_search TSVECTOR NOT NULL
+    GENERATED ALWAYS AS (to_tsvector(%1$S, ted_description)) STORED,
+
   CONSTRAINT tool_execution_descriptions_name_version_unique
     UNIQUE (ted_name, ted_version),
   -- [jooq ignore stop]
@@ -453,7 +462,8 @@ CREATE TABLE tool_execution_descriptions (
   CONSTRAINT tool_execution_descriptions_tool_name_valid
     CHECK (ted_tool_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$')
 )
-]]></Statement>
+]]></Text>
+    </StatementParameterized>
 
     <Comment>
       The plans table stores the plan descriptions that can be executed by

@@ -23,9 +23,12 @@ import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.GetExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.SearchExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPToolExecutionDescription;
+import com.io7m.northpike.model.NPToolExecutionDescriptionSearchParameters;
+import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
@@ -39,6 +42,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
@@ -98,6 +102,7 @@ public final class NPDatabaseToolsTest
           23L
         ),
         NPToolName.of("com.io7m.tool"),
+        "A description.",
         NPTXFormats.nptx1(),
         "Data."
       );
@@ -125,6 +130,208 @@ public final class NPDatabaseToolsTest
         NPToolExecutionName.of("com.io7m.example"),
         23L
       ))
+    );
+  }
+
+  /**
+   * Searching for tool execution descriptions works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testToolExecSearch0()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(PutExecutionDescriptionType.class);
+    final var search =
+      this.transaction.queries(SearchExecutionDescriptionType.class);
+
+    for (int toolIndex = 0; toolIndex < 3; ++toolIndex) {
+      for (long version = 1L; version <= 3L; ++version) {
+        final var tool =
+          new NPToolExecutionDescription(
+            new NPToolExecutionIdentifier(
+              NPToolExecutionName.of(
+                "com.io7m.example_%d"
+                  .formatted(Integer.valueOf(toolIndex))
+              ),
+              version
+            ),
+            NPToolName.of("com.io7m.tool_%d"
+                            .formatted(Integer.valueOf(toolIndex))),
+            "A description.",
+            NPTXFormats.nptx1(),
+            "Data."
+          );
+        put.execute(tool);
+      }
+    }
+
+    final var paged =
+      search.execute(new NPToolExecutionDescriptionSearchParameters(
+        Optional.of(NPToolName.of("com.io7m.tool_2")))
+      );
+
+    final var p = paged.pageCurrent(this.transaction);
+    assertEquals(1, p.pageIndex());
+    assertEquals(1, p.pageCount());
+    assertEquals(0L, p.pageFirstOffset());
+    assertEquals(
+      List.of(
+        new NPToolExecutionDescriptionSummary(
+          new NPToolExecutionIdentifier(
+            NPToolExecutionName.of("com.io7m.example_2"),
+            1L
+          ),
+          NPToolName.of("com.io7m.tool_2"),
+          "A description."
+        ),
+        new NPToolExecutionDescriptionSummary(
+          new NPToolExecutionIdentifier(
+            NPToolExecutionName.of("com.io7m.example_2"),
+            2L
+          ),
+          NPToolName.of("com.io7m.tool_2"),
+          "A description."
+        ),
+        new NPToolExecutionDescriptionSummary(
+          new NPToolExecutionIdentifier(
+            NPToolExecutionName.of("com.io7m.example_2"),
+            3L
+          ),
+          NPToolName.of("com.io7m.tool_2"),
+          "A description."
+        )
+      ),
+      p.items()
+    );
+  }
+
+  /**
+   * Searching for tool execution descriptions works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testToolExecSearch1()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(PutExecutionDescriptionType.class);
+    final var search =
+      this.transaction.queries(SearchExecutionDescriptionType.class);
+
+    for (int toolIndex = 0; toolIndex < 3; ++toolIndex) {
+      for (long version = 1L; version <= 3L; ++version) {
+        final var tool =
+          new NPToolExecutionDescription(
+            new NPToolExecutionIdentifier(
+              NPToolExecutionName.of(
+                "com.io7m.example_%d"
+                  .formatted(Integer.valueOf(toolIndex))
+              ),
+              version
+            ),
+            NPToolName.of("com.io7m.tool_%d"
+                            .formatted(Integer.valueOf(toolIndex))),
+            "A description.",
+            NPTXFormats.nptx1(),
+            "Data."
+          );
+        put.execute(tool);
+      }
+    }
+
+    this.transaction.commit();
+
+    final var paged =
+      search.execute(new NPToolExecutionDescriptionSearchParameters(
+        Optional.empty())
+      );
+
+    final var p = paged.pageCurrent(this.transaction);
+    assertEquals(1, p.pageIndex());
+    assertEquals(1, p.pageCount());
+    assertEquals(0L, p.pageFirstOffset());
+    assertEquals(
+      List.of(
+        new NPToolExecutionDescriptionSummary(
+          new NPToolExecutionIdentifier(
+            NPToolExecutionName.of("com.io7m.example_0"),
+            1L
+          ),
+          NPToolName.of("com.io7m.tool_0"),
+          "A description."
+        ),
+        new NPToolExecutionDescriptionSummary(
+          new NPToolExecutionIdentifier(
+            NPToolExecutionName.of("com.io7m.example_0"),
+            2L
+          ),
+          NPToolName.of("com.io7m.tool_0"),
+          "A description."
+        ),
+        new NPToolExecutionDescriptionSummary(
+          new NPToolExecutionIdentifier(
+            NPToolExecutionName.of("com.io7m.example_0"),
+            3L
+          ),
+          NPToolName.of("com.io7m.tool_0"),
+          "A description."
+        ),
+        new NPToolExecutionDescriptionSummary(
+          new NPToolExecutionIdentifier(
+            NPToolExecutionName.of("com.io7m.example_1"),
+            1L
+          ),
+          NPToolName.of("com.io7m.tool_1"),
+          "A description."
+        ),
+        new NPToolExecutionDescriptionSummary(
+          new NPToolExecutionIdentifier(
+            NPToolExecutionName.of("com.io7m.example_1"),
+            2L
+          ),
+          NPToolName.of("com.io7m.tool_1"),
+          "A description."
+        ),
+        new NPToolExecutionDescriptionSummary(
+          new NPToolExecutionIdentifier(
+            NPToolExecutionName.of("com.io7m.example_1"),
+            3L
+          ),
+          NPToolName.of("com.io7m.tool_1"),
+          "A description."
+        ),
+        new NPToolExecutionDescriptionSummary(
+          new NPToolExecutionIdentifier(
+            NPToolExecutionName.of("com.io7m.example_2"),
+            1L
+          ),
+          NPToolName.of("com.io7m.tool_2"),
+          "A description."
+        ),
+        new NPToolExecutionDescriptionSummary(
+          new NPToolExecutionIdentifier(
+            NPToolExecutionName.of("com.io7m.example_2"),
+            2L
+          ),
+          NPToolName.of("com.io7m.tool_2"),
+          "A description."
+        ),
+        new NPToolExecutionDescriptionSummary(
+          new NPToolExecutionIdentifier(
+            NPToolExecutionName.of("com.io7m.example_2"),
+            3L
+          ),
+          NPToolName.of("com.io7m.tool_2"),
+          "A description."
+        )
+      ),
+      p.items()
     );
   }
 }
