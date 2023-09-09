@@ -27,7 +27,7 @@ import com.io7m.northpike.model.NPPage;
 
 public sealed interface NPUResponsePagedType<T>
   extends NPUResponseType
-  permits NPUResponseRepositorySearch
+  permits NPUResponseAgentLabelSearch, NPUResponseRepositorySearch
 {
   /**
    * @return The current results

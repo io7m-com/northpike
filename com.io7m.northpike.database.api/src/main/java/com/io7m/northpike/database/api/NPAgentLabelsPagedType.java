@@ -15,34 +15,16 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.database.api;
+
+import com.io7m.northpike.model.NPAgentLabel;
 
 /**
- * The type of commands.
- *
- * @param <R> The type of responses
+ * A paged query that returns agent label descriptions.
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandAgentLabelGet,
-  NPUCommandAgentLabelPut,
-  NPUCommandAgentLabelSearchNext,
-  NPUCommandAgentLabelSearchPrevious,
-  NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public interface NPAgentLabelsPagedType
+  extends NPDatabasePagedQueryType<NPAgentLabel>
 {
-  /**
-   * @return The response class
-   */
 
-  Class<R> responseClass();
 }

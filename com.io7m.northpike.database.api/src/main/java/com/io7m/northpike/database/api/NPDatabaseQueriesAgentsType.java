@@ -20,6 +20,7 @@ import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelSearchParameters;
 import com.io7m.northpike.model.NPAgentListParameters;
 import com.io7m.northpike.model.NPKey;
 
@@ -93,6 +94,17 @@ public sealed interface NPDatabaseQueriesAgentsType
 
   non-sealed interface LabelGetType
     extends NPDatabaseQueryType<RDottedName, Optional<NPAgentLabel>>,
+    NPDatabaseQueriesAgentsType
+  {
+
+  }
+
+  /**
+   * Search for agent labels.
+   */
+
+  non-sealed interface LabelSearchType
+    extends NPDatabaseQueryType<NPAgentLabelSearchParameters, NPAgentLabelsPagedType>,
     NPDatabaseQueriesAgentsType
   {
 

@@ -15,34 +15,29 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-/**
- * The type of commands.
- *
- * @param <R> The type of responses
- */
+import com.io7m.northpike.model.NPAgentLabelSearchParameters;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchBegin;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandAgentLabelGet,
-  NPUCommandAgentLabelPut,
-  NPUCommandAgentLabelSearchNext,
-  NPUCommandAgentLabelSearchPrevious,
-  NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+import java.util.UUID;
+
+public final class NPArbUCommandAgentLabelSearchBegin
+  extends NPArbAbstract<NPUCommandAgentLabelSearchBegin>
 {
-  /**
-   * @return The response class
-   */
-
-  Class<R> responseClass();
+  public NPArbUCommandAgentLabelSearchBegin()
+  {
+    super(
+      NPUCommandAgentLabelSearchBegin.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(NPAgentLabelSearchParameters.class)
+        ).as(NPUCommandAgentLabelSearchBegin::new);
+      }
+    );
+  }
 }

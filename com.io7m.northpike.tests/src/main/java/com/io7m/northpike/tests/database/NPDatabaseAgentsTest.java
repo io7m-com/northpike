@@ -32,6 +32,7 @@ import com.io7m.northpike.model.NPAgentLabel;
 import com.io7m.northpike.model.NPAgentLabelMatchType.And;
 import com.io7m.northpike.model.NPAgentLabelMatchType.Or;
 import com.io7m.northpike.model.NPAgentLabelMatchType.Specific;
+import com.io7m.northpike.model.NPAgentLabelSearchParameters;
 import com.io7m.northpike.model.NPAgentListParameters;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
@@ -536,5 +537,95 @@ public final class NPDatabaseAgentsTest
     this.transaction.commit();
 
     assertEquals(agent, get.execute(agent.id()).orElseThrow());
+  }
+
+  /**
+   * Searching for labels works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentLabelSearch0()
+    throws Exception
+  {
+    final var labelPut =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+    final var labelSearch =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelSearchType.class);
+
+    final var labelsByName = new HashMap<RDottedName, NPAgentLabel>();
+    for (int index = 0; index < 1000; ++index) {
+      final var name = new RDottedName("drawer.abacus" + index);
+      final var label = new NPAgentLabel(name, "Drawer Abacus " + index);
+      labelPut.execute(label);
+      labelsByName.put(name, label);
+    }
+
+    this.transaction.commit();
+
+    final var paged =
+      labelSearch.execute(new NPAgentLabelSearchParameters("abacus"));
+
+    final var labelsByNameRetrieved =
+      new HashMap<RDottedName, NPAgentLabel>();
+
+    for (int index = 0; index < 10; ++index) {
+      final var page =
+        paged.pageCurrent(this.transaction);
+
+      for (final var item : page.items()) {
+        labelsByNameRetrieved.put(item.name(), item);
+      }
+
+      paged.pageNext(this.transaction);
+    }
+
+    assertEquals(labelsByName, labelsByNameRetrieved);
+  }
+
+  /**
+   * Searching for labels works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentLabelSearch1()
+    throws Exception
+  {
+    final var labelPut =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+    final var labelSearch =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelSearchType.class);
+
+    final var labelsByName = new HashMap<RDottedName, NPAgentLabel>();
+    for (int index = 0; index < 1000; ++index) {
+      final var name = new RDottedName("drawer.abacus" + index);
+      final var label = new NPAgentLabel(name, "Drawer Abacus " + index);
+      labelPut.execute(label);
+      labelsByName.put(name, label);
+    }
+
+    this.transaction.commit();
+
+    final var paged =
+      labelSearch.execute(new NPAgentLabelSearchParameters(""));
+
+    final var labelsByNameRetrieved =
+      new HashMap<RDottedName, NPAgentLabel>();
+
+    for (int index = 0; index < 10; ++index) {
+      final var page =
+        paged.pageCurrent(this.transaction);
+
+      for (final var item : page.items()) {
+        labelsByNameRetrieved.put(item.name(), item);
+      }
+
+      paged.pageNext(this.transaction);
+    }
+
+    assertEquals(labelsByName, labelsByNameRetrieved);
   }
 }

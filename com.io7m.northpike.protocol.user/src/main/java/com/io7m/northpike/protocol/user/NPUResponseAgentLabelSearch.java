@@ -17,32 +17,39 @@
 
 package com.io7m.northpike.protocol.user;
 
+import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPPage;
+
+import java.util.Objects;
+import java.util.UUID;
+
 /**
- * The type of commands.
+ * An agent label search.
  *
- * @param <R> The type of responses
+ * @param messageID     The message ID
+ * @param correlationID The command that prompted this response
+ * @param results       The results
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandAgentLabelGet,
-  NPUCommandAgentLabelPut,
-  NPUCommandAgentLabelSearchNext,
-  NPUCommandAgentLabelSearchPrevious,
-  NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public record NPUResponseAgentLabelSearch(
+  UUID messageID,
+  UUID correlationID,
+  NPPage<NPAgentLabel> results)
+  implements NPUResponsePagedType<NPAgentLabel>
 {
   /**
-   * @return The response class
+   * An agent label search.
+   *
+   * @param messageID     The message ID
+   * @param correlationID The command that prompted this response
+   * @param results       The results
    */
 
-  Class<R> responseClass();
+
+  public NPUResponseAgentLabelSearch
+  {
+    Objects.requireNonNull(messageID, "messageID");
+    Objects.requireNonNull(correlationID, "correlationID");
+    Objects.requireNonNull(results, "results");
+  }
 }

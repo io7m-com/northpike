@@ -59,6 +59,21 @@ public enum NPSecObject
   },
 
   /**
+   * The agent labels.
+   */
+
+  AGENT_LABELS {
+    private static final MObject AGENT_LABELS_OBJECT =
+      new MObject(MTypeName.of("agent_labels"), Map.of());
+
+    @Override
+    public MObject object()
+    {
+      return AGENT_LABELS_OBJECT;
+    }
+  },
+
+  /**
    * The plans.
    */
 

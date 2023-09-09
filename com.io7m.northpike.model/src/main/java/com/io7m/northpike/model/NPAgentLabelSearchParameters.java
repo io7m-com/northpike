@@ -15,34 +15,27 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.model;
+
+import java.util.Objects;
 
 /**
- * The type of commands.
+ * The search parameters for labels.
  *
- * @param <R> The type of responses
+ * @param query The search query
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandAgentLabelGet,
-  NPUCommandAgentLabelPut,
-  NPUCommandAgentLabelSearchNext,
-  NPUCommandAgentLabelSearchPrevious,
-  NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public record NPAgentLabelSearchParameters(
+  String query)
 {
   /**
-   * @return The response class
+   * The search parameters for labels.
+   *
+   * @param query The search query
    */
 
-  Class<R> responseClass();
+  public NPAgentLabelSearchParameters
+  {
+    Objects.requireNonNull(query, "query");
+  }
 }

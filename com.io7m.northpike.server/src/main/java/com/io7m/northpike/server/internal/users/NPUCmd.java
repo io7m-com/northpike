@@ -18,6 +18,11 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelGet;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelPut;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandLogin;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
@@ -73,6 +78,7 @@ public final class NPUCmd
       if (command instanceof final NPUCommandDisconnect c) {
         return new NPUCmdDisconnect().execute(context, c);
       }
+
       if (command instanceof final NPUCommandRepositoryPut c) {
         return new NPUCmdRepositoryPut().execute(context, c);
       }
@@ -88,6 +94,7 @@ public final class NPUCmd
       if (command instanceof final NPUCommandRepositorySearchPrevious c) {
         return new NPUCmdRepositorySearchPrevious().execute(context, c);
       }
+
       if (command instanceof final NPUCommandRolesAssign c) {
         return new NPUCmdRolesAssign().execute(context, c);
       }
@@ -96,6 +103,22 @@ public final class NPUCmd
       }
       if (command instanceof final NPUCommandRolesGet c) {
         return new NPUCmdRolesGet().execute(context, c);
+      }
+
+      if (command instanceof final NPUCommandAgentLabelPut c) {
+        return new NPUCmdAgentLabelPut().execute(context, c);
+      }
+      if (command instanceof final NPUCommandAgentLabelGet c) {
+        return new NPUCmdAgentLabelGet().execute(context, c);
+      }
+      if (command instanceof final NPUCommandAgentLabelSearchBegin c) {
+        return new NPUCmdAgentLabelSearchBegin().execute(context, c);
+      }
+      if (command instanceof final NPUCommandAgentLabelSearchNext c) {
+        return new NPUCmdAgentLabelSearchNext().execute(context, c);
+      }
+      if (command instanceof final NPUCommandAgentLabelSearchPrevious c) {
+        return new NPUCmdAgentLabelSearchPrevious().execute(context, c);
       }
     }
     throw context.fail(ERROR_PROTOCOL, errorProtocol());

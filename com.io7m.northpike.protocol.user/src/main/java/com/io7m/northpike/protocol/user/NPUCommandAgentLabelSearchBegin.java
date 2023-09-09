@@ -17,32 +17,41 @@
 
 package com.io7m.northpike.protocol.user;
 
+import com.io7m.northpike.model.NPAgentLabelSearchParameters;
+
+import java.util.Objects;
+import java.util.UUID;
+
 /**
- * The type of commands.
+ * Start searching labels.
  *
- * @param <R> The type of responses
+ * @param messageID  The message ID
+ * @param parameters The search parameters
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandAgentLabelGet,
-  NPUCommandAgentLabelPut,
-  NPUCommandAgentLabelSearchNext,
-  NPUCommandAgentLabelSearchPrevious,
-  NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public record NPUCommandAgentLabelSearchBegin(
+  UUID messageID,
+  NPAgentLabelSearchParameters parameters)
+  implements NPUCommandSearchBeginType<
+  NPUResponseAgentLabelSearch,
+  NPAgentLabelSearchParameters>
 {
   /**
-   * @return The response class
+   * Start searching repositories.
+   *
+   * @param messageID  The message ID
+   * @param parameters The search parameters
    */
 
-  Class<R> responseClass();
+  public NPUCommandAgentLabelSearchBegin
+  {
+    Objects.requireNonNull(messageID, "messageId");
+    Objects.requireNonNull(parameters, "parameters");
+  }
+
+  @Override
+  public Class<NPUResponseAgentLabelSearch> responseClass()
+  {
+    return NPUResponseAgentLabelSearch.class;
+  }
 }

@@ -60,6 +60,7 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQAgentGetByKey,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelGet,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelPut,
+    com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentList,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentPut,
     com.io7m.northpike.database.postgres.internal.NPDBQArchiveGet,

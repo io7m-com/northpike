@@ -17,32 +17,39 @@
 
 package com.io7m.northpike.protocol.user;
 
+import com.io7m.northpike.model.NPAgentLabel;
+
+import java.util.Objects;
+import java.util.UUID;
+
 /**
- * The type of commands.
+ * Create or update labels.
  *
- * @param <R> The type of responses
+ * @param messageID The message ID
+ * @param label     The label
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandAgentLabelGet,
-  NPUCommandAgentLabelPut,
-  NPUCommandAgentLabelSearchNext,
-  NPUCommandAgentLabelSearchPrevious,
-  NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public record NPUCommandAgentLabelPut(
+  UUID messageID,
+  NPAgentLabel label)
+  implements NPUCommandType<NPUResponseOK>
 {
   /**
-   * @return The response class
+   * Create or update labels.
+   *
+   * @param messageID The message ID
+   * @param label     The label
    */
 
-  Class<R> responseClass();
+  public NPUCommandAgentLabelPut
+  {
+    Objects.requireNonNull(messageID, "messageId");
+    Objects.requireNonNull(label, "label");
+  }
+
+  @Override
+  public Class<NPUResponseOK> responseClass()
+  {
+    return NPUResponseOK.class;
+  }
 }

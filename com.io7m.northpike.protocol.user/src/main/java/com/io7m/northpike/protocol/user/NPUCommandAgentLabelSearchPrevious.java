@@ -17,32 +17,33 @@
 
 package com.io7m.northpike.protocol.user;
 
+import java.util.Objects;
+import java.util.UUID;
+
 /**
- * The type of commands.
+ * Continue searching.
  *
- * @param <R> The type of responses
+ * @param messageID  The message ID
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandAgentLabelGet,
-  NPUCommandAgentLabelPut,
-  NPUCommandAgentLabelSearchNext,
-  NPUCommandAgentLabelSearchPrevious,
-  NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public record NPUCommandAgentLabelSearchPrevious(
+  UUID messageID)
+  implements NPUCommandType<NPUResponseAgentLabelSearch>
 {
   /**
-   * @return The response class
+   * Continue searching.
+   *
+   * @param messageID  The message ID
    */
 
-  Class<R> responseClass();
+  public NPUCommandAgentLabelSearchPrevious
+  {
+    Objects.requireNonNull(messageID, "messageId");
+  }
+
+  @Override
+  public Class<NPUResponseAgentLabelSearch> responseClass()
+  {
+    return NPUResponseAgentLabelSearch.class;
+  }
 }

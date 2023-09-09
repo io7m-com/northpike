@@ -63,3 +63,21 @@
   [MatchObject  [WithType repositories]]
   [MatchAction  [WithName write]]
 ]
+
+#------------------------------------------------------------------------
+# Agent Labels
+#
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom agent_labels.reader]]
+  [MatchObject  [WithType agent_labels]]
+  [MatchAction  [WithName read]]
+]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom agent_labels.writer]]
+  [MatchObject  [WithType agent_labels]]
+  [MatchAction  [WithName write]]
+]

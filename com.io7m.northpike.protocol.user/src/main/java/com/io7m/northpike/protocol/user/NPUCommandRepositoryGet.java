@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Create or update repositories.
+ * Retrieve repositories.
  *
  * @param messageID  The message ID
  * @param repository The repository
@@ -33,7 +33,7 @@ public record NPUCommandRepositoryGet(
   implements NPUCommandType<NPUResponseRepositoryGet>
 {
   /**
-   * Create or update repositories.
+   * Retrieve repositories.
    *
    * @param messageID  The message ID
    * @param repository The repository

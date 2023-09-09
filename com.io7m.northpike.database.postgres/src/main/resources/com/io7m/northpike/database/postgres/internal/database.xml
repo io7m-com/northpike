@@ -368,7 +368,12 @@ CREATE TABLE agents_properties (
       assigned to agents.
     </Comment>
 
-    <Statement><![CDATA[
+    <StatementParameterized parameterInterpolation="STRING_FORMATTING">
+      <ParameterReferences>
+        <ParameterReference order="0"
+                            name="search.language"/>
+      </ParameterReferences>
+      <Text><![CDATA[
 CREATE TABLE agent_label_definitions (
   ald_id            BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
   ald_name          TEXT   NOT NULL,
@@ -378,6 +383,12 @@ CREATE TABLE agent_label_definitions (
     PRIMARY KEY (ald_id),
 
   -- [jooq ignore start]
+  ald_name_search TSVECTOR NOT NULL
+    GENERATED ALWAYS AS (to_tsvector(%1$S, ald_name)) STORED,
+
+  ald_description_search TSVECTOR NOT NULL
+    GENERATED ALWAYS AS (to_tsvector(%1$S, ald_description)) STORED,
+
   CONSTRAINT agent_label_definitions_name_unique
     UNIQUE (ald_name),
   -- [jooq ignore stop]
@@ -385,7 +396,8 @@ CREATE TABLE agent_label_definitions (
   CONSTRAINT agent_label_definitions_name_valid
     CHECK (ald_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$')
 )
-]]></Statement>
+]]></Text>
+    </StatementParameterized>
 
     <Comment>
       The agent_labels table assigns labels to agents.

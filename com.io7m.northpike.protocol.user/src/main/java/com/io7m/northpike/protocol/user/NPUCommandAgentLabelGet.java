@@ -17,32 +17,39 @@
 
 package com.io7m.northpike.protocol.user;
 
+import com.io7m.lanark.core.RDottedName;
+
+import java.util.Objects;
+import java.util.UUID;
+
 /**
- * The type of commands.
+ * Retrieve a label.
  *
- * @param <R> The type of responses
+ * @param messageID  The message ID
+ * @param name The name
  */
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandAgentLabelGet,
-  NPUCommandAgentLabelPut,
-  NPUCommandAgentLabelSearchNext,
-  NPUCommandAgentLabelSearchPrevious,
-  NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public record NPUCommandAgentLabelGet(
+  UUID messageID,
+  RDottedName name)
+  implements NPUCommandType<NPUResponseAgentLabelGet>
 {
   /**
-   * @return The response class
+   * Retrieve a label.
+   *
+   * @param messageID  The message ID
+   * @param name The name
    */
 
-  Class<R> responseClass();
+  public NPUCommandAgentLabelGet
+  {
+    Objects.requireNonNull(messageID, "messageId");
+    Objects.requireNonNull(name, "name");
+  }
+
+  @Override
+  public Class<NPUResponseAgentLabelGet> responseClass()
+  {
+    return NPUResponseAgentLabelGet.class;
+  }
 }

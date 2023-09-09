@@ -63,8 +63,22 @@
   [field pageFirstOffset cb:IntegerUnsigned64]
 ]
 
+[documentation NPU1AgentLabel "An agent label."]
+[record NPU1AgentLabel
+  [documentation name "The label name."]
+  [field name cb:String]
+  [documentation description "The label description."]
+  [field description cb:String]
+]
+
 [documentation NPU1RepositorySearchParameters "The repository search parameters."]
 [record NPU1RepositorySearchParameters]
+
+[documentation NPU1AgentLabelSearchParameters "The agent label search parameters."]
+[record NPU1AgentLabelSearchParameters
+  [documentation query "The search query."]
+  [field query cb:String]
+]
 
 ;
 ; Commands
@@ -150,6 +164,42 @@
   [field messageId cb:UUID]
 ]
 
+[documentation NPU1CommandAgentLabelPut "Create or update an agent label."]
+[record NPU1CommandAgentLabelPut
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation label "The label"]
+  [field label NPU1AgentLabel]
+]
+
+[documentation NPU1CommandAgentLabelGet "Get an agent label."]
+[record NPU1CommandAgentLabelGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation name "The label name"]
+  [field name cb:String]
+]
+
+[documentation NPU1CommandAgentLabelSearchBegin "Start searching labels."]
+[record NPU1CommandAgentLabelSearchBegin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation parameters "The search parameters."]
+  [field parameters NPU1AgentLabelSearchParameters]
+]
+
+[documentation NPU1CommandAgentLabelSearchNext "Continue searching labels."]
+[record NPU1CommandAgentLabelSearchNext
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandAgentLabelSearchPrevious "Continue searching labels."]
+[record NPU1CommandAgentLabelSearchPrevious
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
 ;
 ; Events
 ;
@@ -210,10 +260,36 @@
   [field results [NPU1Page NPU1RepositorySummary]]
 ]
 
+[documentation NPU1ResponseAgentLabelGet "A label retrieval."]
+[record NPU1ResponseAgentLabelGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation label "The label description"]
+  [field label [cb:Option NPU1AgentLabel]]
+]
+
+[documentation NPU1ResponseAgentLabelSearch "A response to NPU1CommandAgentLabelSearchBegin."]
+[record NPU1ResponseAgentLabelSearch
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [NPU1Page NPU1AgentLabel]]
+]
+
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
     [types-added
+      NPU1CommandAgentLabelGet
+      NPU1CommandAgentLabelPut
+      NPU1CommandAgentLabelSearchBegin
+      NPU1CommandAgentLabelSearchNext
+      NPU1CommandAgentLabelSearchPrevious
       NPU1CommandDisconnect
       NPU1CommandLogin
       NPU1CommandRepositoryGet
@@ -224,6 +300,8 @@
       NPU1CommandRolesAssign
       NPU1CommandRolesGet
       NPU1CommandRolesRevoke
+      NPU1ResponseAgentLabelGet
+      NPU1ResponseAgentLabelSearch
       NPU1ResponseError
       NPU1ResponseOK
       NPU1ResponseRepositoryGet

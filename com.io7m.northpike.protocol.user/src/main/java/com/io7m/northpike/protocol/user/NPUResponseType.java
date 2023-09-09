@@ -25,7 +25,8 @@ import java.util.UUID;
 
 public sealed interface NPUResponseType
   extends NPUMessageType
-  permits NPUResponseError,
+  permits NPUResponseAgentLabelGet,
+  NPUResponseError,
   NPUResponseOK,
   NPUResponsePagedType,
   NPUResponseRepositoryGet,

@@ -15,34 +15,23 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries;
 
-/**
- * The type of commands.
- *
- * @param <R> The type of responses
- */
+import com.io7m.northpike.model.NPAgentLabelSearchParameters;
+import net.jqwik.api.Arbitraries;
 
-public sealed interface NPUCommandType<R extends NPUResponseType>
-  extends NPUMessageType
-  permits NPUCommandAgentLabelGet,
-  NPUCommandAgentLabelPut,
-  NPUCommandAgentLabelSearchNext,
-  NPUCommandAgentLabelSearchPrevious,
-  NPUCommandDisconnect,
-  NPUCommandLogin,
-  NPUCommandRepositoryGet,
-  NPUCommandRepositoryPut,
-  NPUCommandRepositorySearchNext,
-  NPUCommandRepositorySearchPrevious,
-  NPUCommandRolesAssign,
-  NPUCommandRolesGet,
-  NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+public final class NPArbAgentLabelSearchParameters
+  extends NPArbAbstract<NPAgentLabelSearchParameters>
 {
-  /**
-   * @return The response class
-   */
-
-  Class<R> responseClass();
+  public NPArbAgentLabelSearchParameters()
+  {
+    super(
+      NPAgentLabelSearchParameters.class,
+      () -> {
+        return Arbitraries.strings()
+          .alpha()
+          .map(NPAgentLabelSearchParameters::new);
+      }
+    );
+  }
 }
