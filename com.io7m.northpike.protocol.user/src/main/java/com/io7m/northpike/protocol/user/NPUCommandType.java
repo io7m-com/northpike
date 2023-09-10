@@ -42,6 +42,8 @@ public sealed interface NPUCommandType<R extends NPUResponseType>
   NPUCommandSearchBeginType,
   NPUCommandToolExecutionDescriptionGet,
   NPUCommandToolExecutionDescriptionPut,
+  NPUCommandToolExecutionDescriptionSearchNext,
+  NPUCommandToolExecutionDescriptionSearchPrevious,
   NPUCommandToolExecutionDescriptionValidate
 {
   /**

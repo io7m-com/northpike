@@ -35,6 +35,9 @@ import com.io7m.northpike.protocol.user.NPUCommandRolesGet;
 import com.io7m.northpike.protocol.user.NPUCommandRolesRevoke;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionGet;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionPut;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
 import com.io7m.northpike.protocol.user.NPUMessageType;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelGet;
@@ -45,6 +48,7 @@ import com.io7m.northpike.protocol.user.NPUResponseRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUResponseRepositorySearch;
 import com.io7m.northpike.protocol.user.NPUResponseRolesGet;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionGet;
+import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionSearch;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionValidate;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
@@ -79,6 +83,9 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUCommandRolesRevoke.class,
               NPUCommandToolExecutionDescriptionGet.class,
               NPUCommandToolExecutionDescriptionPut.class,
+              NPUCommandToolExecutionDescriptionSearchBegin.class,
+              NPUCommandToolExecutionDescriptionSearchNext.class,
+              NPUCommandToolExecutionDescriptionSearchPrevious.class,
               NPUCommandToolExecutionDescriptionValidate.class,
               NPUResponseAgentLabelGet.class,
               NPUResponseAgentLabelSearch.class,
@@ -88,6 +95,7 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUResponseRepositorySearch.class,
               NPUResponseRolesGet.class,
               NPUResponseToolExecutionDescriptionGet.class,
+              NPUResponseToolExecutionDescriptionSearch.class,
               NPUResponseToolExecutionDescriptionValidate.class
             ).map(Arbitraries::defaultFor)
             .collect(Collectors.toUnmodifiableList())

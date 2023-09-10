@@ -36,6 +36,9 @@ import com.io7m.northpike.protocol.user.NPUCommandRolesGet;
 import com.io7m.northpike.protocol.user.NPUCommandRolesRevoke;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionGet;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionPut;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
 import com.io7m.northpike.protocol.user.NPUCommandType;
 import com.io7m.northpike.protocol.user.NPUMessageType;
@@ -136,6 +139,15 @@ public final class NPUCmd
       }
       if (command instanceof final NPUCommandToolExecutionDescriptionGet c) {
         return new NPUCmdToolExecutionDescriptionGet().execute(context, c);
+      }
+      if (command instanceof final NPUCommandToolExecutionDescriptionSearchBegin c) {
+        return new NPUCmdToolExecutionDescriptionSearchBegin().execute(context, c);
+      }
+      if (command instanceof final NPUCommandToolExecutionDescriptionSearchNext c) {
+        return new NPUCmdToolExecutionDescriptionSearchNext().execute(context, c);
+      }
+      if (command instanceof final NPUCommandToolExecutionDescriptionSearchPrevious c) {
+        return new NPUCmdToolExecutionDescriptionSearchPrevious().execute(context, c);
       }
     }
     throw context.fail(ERROR_PROTOCOL, errorProtocol());

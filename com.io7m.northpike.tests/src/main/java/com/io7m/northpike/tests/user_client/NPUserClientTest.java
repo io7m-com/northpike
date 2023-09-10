@@ -29,6 +29,7 @@ import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySearchParameters;
 import com.io7m.northpike.model.NPToolExecutionDescription;
+import com.io7m.northpike.model.NPToolExecutionDescriptionSearchParameters;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
@@ -46,6 +47,9 @@ import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionGet;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionPut;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
 import com.io7m.northpike.protocol.user.cb.NPU1Messages;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
@@ -89,6 +93,7 @@ import static com.io7m.northpike.model.security.NPSecRole.REPOSITORIES_WRITER;
 import static com.io7m.northpike.model.security.NPSecRole.TOOLS_READER;
 import static com.io7m.northpike.model.security.NPSecRole.TOOLS_WRITER;
 import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
+import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -469,7 +474,7 @@ public final class NPUserClientTest
   }
 
   /**
-   * Repositories can be searched for.
+   * Tool executions can be searched for.
    *
    * @throws Exception On errors
    */
@@ -521,12 +526,35 @@ public final class NPUserClientTest
       new NPUCommandToolExecutionDescriptionPut(randomUUID(), description)
     );
 
-    final var r =
-      this.userClient.execute(
-        new NPUCommandToolExecutionDescriptionGet(randomUUID(), identifier)
+    {
+      final var r =
+        this.userClient.execute(
+          new NPUCommandToolExecutionDescriptionGet(randomUUID(), identifier)
+        );
+
+      assertEquals(description, r.execution().orElseThrow());
+    }
+
+    {
+      final var r =
+        this.userClient.execute(
+          new NPUCommandToolExecutionDescriptionSearchBegin(
+            randomUUID(),
+            new NPToolExecutionDescriptionSearchParameters(empty()))
+        );
+
+      assertEquals(
+        description.summary(),
+        r.results().items().get(0)
       );
 
-    assertEquals(description, r.execution().orElseThrow());
+      this.userClient.execute(
+        new NPUCommandToolExecutionDescriptionSearchNext(randomUUID())
+      );
+      this.userClient.execute(
+        new NPUCommandToolExecutionDescriptionSearchPrevious(randomUUID())
+      );
+    }
   }
 
 

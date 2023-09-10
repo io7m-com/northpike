@@ -17,23 +17,33 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.model.NPPage;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- * The type of responses that contain paged results.
+ * Continue searching.
  *
- * @param <T> The type of results
+ * @param messageID  The message ID
  */
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch
+public record NPUCommandToolExecutionDescriptionSearchPrevious(
+  UUID messageID)
+  implements NPUCommandType<NPUResponseToolExecutionDescriptionSearch>
 {
   /**
-   * @return The current results
+   * Continue searching.
+   *
+   * @param messageID  The message ID
    */
 
-  NPPage<T> results();
+  public NPUCommandToolExecutionDescriptionSearchPrevious
+  {
+    Objects.requireNonNull(messageID, "messageId");
+  }
+
+  @Override
+  public Class<NPUResponseToolExecutionDescriptionSearch> responseClass()
+  {
+    return NPUResponseToolExecutionDescriptionSearch.class;
+  }
 }

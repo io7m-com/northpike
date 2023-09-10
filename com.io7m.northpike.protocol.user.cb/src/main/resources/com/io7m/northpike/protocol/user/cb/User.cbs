@@ -102,6 +102,16 @@
   [field text cb:String]
 ]
 
+[documentation NPU1ToolExecutionDescriptionSummary "A tool execution description summary."]
+[record NPU1ToolExecutionDescriptionSummary
+  [documentation identifier "The identifier."]
+  [field identifier NPU1ToolExecutionIdentifier]
+  [documentation toolName "The tool name."]
+  [field toolName cb:String]
+  [documentation description "The humanly-readable description."]
+  [field description cb:String]
+]
+
 [documentation NPU1CompilationMessage "A compilation message."]
 [record NPU1CompilationMessage
   [documentation kind "The message kind."]
@@ -132,6 +142,12 @@
     [field name  cb:String]
     [field value [cb:List cb:String]]
   ]
+]
+
+[documentation NPU1ToolExecutionDescriptionSearchParameters "The tool execution description search parameters."]
+[record NPU1ToolExecutionDescriptionSearchParameters
+  [documentation toolName "Restrict searching to executions compatible with this tool."]
+  [field toolName [cb:Option cb:String]]
 ]
 
 ;
@@ -288,6 +304,26 @@
   [field description NPU1ToolExecutionDescription]
 ]
 
+[documentation NPU1CommandToolExecutionDescriptionSearchBegin "Start searching tool execution descriptions."]
+[record NPU1CommandToolExecutionDescriptionSearchBegin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation parameters "The search parameters."]
+  [field parameters NPU1ToolExecutionDescriptionSearchParameters]
+]
+
+[documentation NPU1CommandToolExecutionDescriptionSearchNext "Continue searching tool execution descriptions."]
+[record NPU1CommandToolExecutionDescriptionSearchNext
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandToolExecutionDescriptionSearchPrevious "Continue searching tool execution descriptions."]
+[record NPU1CommandToolExecutionDescriptionSearchPrevious
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
 ;
 ; Events
 ;
@@ -388,6 +424,16 @@
   [field description [cb:Option NPU1ToolExecutionDescription]]
 ]
 
+[documentation NPU1ResponseToolExecutionDescriptionSearch "A response to NPU1CommandToolExecutionDescriptionSearchBegin."]
+[record NPU1ResponseToolExecutionDescriptionSearch
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [NPU1Page NPU1ToolExecutionDescriptionSummary]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -410,6 +456,9 @@
       NPU1CommandRolesRevoke
       NPU1CommandToolExecutionDescriptionGet
       NPU1CommandToolExecutionDescriptionPut
+      NPU1CommandToolExecutionDescriptionSearchBegin
+      NPU1CommandToolExecutionDescriptionSearchNext
+      NPU1CommandToolExecutionDescriptionSearchPrevious
       NPU1CommandToolExecutionDescriptionValidate
       NPU1ResponseAgentLabelGet
       NPU1ResponseAgentLabelSearch
@@ -419,6 +468,7 @@
       NPU1ResponseRepositorySearch
       NPU1ResponseRolesGet
       NPU1ResponseToolExecutionDescriptionGet
+      NPU1ResponseToolExecutionDescriptionSearch
       NPU1ResponseToolExecutionDescriptionValidate
     ]
   ]

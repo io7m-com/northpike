@@ -20,36 +20,39 @@ package com.io7m.northpike.tests.server.users;
 import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
+import com.io7m.northpike.database.api.NPToolExecutionDescriptionsPagedType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPFormatName;
-import com.io7m.northpike.model.NPToolExecutionDescription;
+import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
-import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.plans.NPPlanException;
-import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionGet;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchNext;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
-import com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionGet;
+import com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchNext;
 import com.io7m.northpike.server.internal.users.NPUserCommandContextType;
 import com.io7m.northpike.strings.NPStringConstantType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.verification.NoInteractions;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorApiMisuse;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorSecurityPolicyDenied;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
+import static com.io7m.northpike.tests.server.users.NPUCmdToolExecutionDescriptionGetTest.TOOL_EXECUTION_DESCRIPTION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -58,20 +61,8 @@ import static org.mockito.ArgumentMatchers.any;
  * Tests for a command.
  */
 
-public final class NPUCmdToolExecutionDescriptionGetTest
+public final class NPUCmdToolExecutionDescriptionSearchNextTest
 {
-  static final NPToolExecutionDescription TOOL_EXECUTION_DESCRIPTION =
-    new NPToolExecutionDescription(
-      new NPToolExecutionIdentifier(
-        NPToolExecutionName.of("x.y"),
-        100L
-      ),
-      NPToolName.of("t"),
-      "A description.",
-      NPFormatName.of("f"),
-      "Some text."
-    );
-
   private NPUserCommandContextType context;
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
@@ -120,7 +111,7 @@ public final class NPUCmdToolExecutionDescriptionGetTest
   public void testFailure0()
     throws Exception
   {
-    final var handler = new NPUCmdToolExecutionDescriptionGet();
+    final var handler = new NPUCmdToolExecutionDescriptionSearchNext();
 
     Mockito.when(this.context.onAuthenticationRequire())
       .thenThrow(new NPPlanException(
@@ -131,9 +122,8 @@ public final class NPUCmdToolExecutionDescriptionGetTest
       ));
 
     final var command =
-      new NPUCommandToolExecutionDescriptionGet(
-        UUID.randomUUID(),
-        TOOL_EXECUTION_DESCRIPTION.identifier()
+      new NPUCommandToolExecutionDescriptionSearchNext(
+        UUID.randomUUID()
       );
 
     final var ex =
@@ -143,6 +133,9 @@ public final class NPUCmdToolExecutionDescriptionGetTest
 
     assertEquals("ERROR_AUTHENTICATION", ex.message());
     assertEquals(errorAuthentication(), ex.errorCode());
+
+    Mockito.verify(this.transaction, new NoInteractions())
+      .commit();
   }
 
   /**
@@ -155,12 +148,11 @@ public final class NPUCmdToolExecutionDescriptionGetTest
   public void testFailure1()
     throws Exception
   {
-    final var handler = new NPUCmdToolExecutionDescriptionGet();
+    final var handler = new NPUCmdToolExecutionDescriptionSearchNext();
 
     final var command =
-      new NPUCommandToolExecutionDescriptionGet(
-        UUID.randomUUID(),
-        TOOL_EXECUTION_DESCRIPTION.identifier()
+      new NPUCommandToolExecutionDescriptionSearchNext(
+        UUID.randomUUID()
       );
 
     final var userId =
@@ -180,10 +172,51 @@ public final class NPUCmdToolExecutionDescriptionGetTest
 
     assertEquals("Operation not permitted.", ex.message());
     assertEquals(errorSecurityPolicyDenied(), ex.errorCode());
+
+    Mockito.verify(this.transaction, new NoInteractions())
+      .commit();
   }
 
   /**
-   * Succeeds if permitted.
+   * Requires an existing search.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testFailure2()
+    throws Exception
+  {
+    final var handler = new NPUCmdToolExecutionDescriptionSearchNext();
+
+    final var command =
+      new NPUCommandToolExecutionDescriptionSearchNext(
+        UUID.randomUUID()
+      );
+
+    final var userId =
+      new NPUser(
+        UUID.fromString("ab27f114-6b29-5ab2-a528-b41ef98abe76"),
+        new IdName("x"),
+        new MSubject(Set.of(NPSecRole.TOOLS_READER.role()))
+      );
+
+    Mockito.when(this.context.onAuthenticationRequire())
+      .thenReturn(userId);
+    Mockito.when(this.context.property(NPToolExecutionDescriptionsPagedType.class))
+      .thenReturn(Optional.empty());
+
+    final var ex =
+      assertThrows(NPException.class, () -> {
+        handler.execute(this.context, command);
+      });
+
+    assertEquals("ERROR_SEARCH_NOT_STARTED", ex.message());
+    assertEquals(errorApiMisuse(), ex.errorCode());
+  }
+
+  /**
+   * Succeeds if permitted and a search has been started.
    *
    * @throws Exception On errors
    */
@@ -192,12 +225,11 @@ public final class NPUCmdToolExecutionDescriptionGetTest
   public void testSuccess0()
     throws Exception
   {
-    final var handler = new NPUCmdToolExecutionDescriptionGet();
+    final var handler = new NPUCmdToolExecutionDescriptionSearchNext();
 
     final var command =
-      new NPUCommandToolExecutionDescriptionGet(
-        UUID.randomUUID(),
-        TOOL_EXECUTION_DESCRIPTION.identifier()
+      new NPUCommandToolExecutionDescriptionSearchNext(
+        UUID.randomUUID()
       );
 
     final var userId =
@@ -210,61 +242,62 @@ public final class NPUCmdToolExecutionDescriptionGetTest
     Mockito.when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
 
-    final var toolExecGet =
-      Mockito.mock(NPDatabaseQueriesToolsType.GetExecutionDescriptionType.class);
+    final var pageMain =
+      new NPPage<>(
+        List.of(
+          new NPToolExecutionDescriptionSummary(
+            new NPToolExecutionIdentifier(
+              TOOL_EXECUTION_DESCRIPTION.identifier().name(),
+              1L
+            ),
+            NPToolName.of("com.x"),
+            "Description 0"
+          ),
+          new NPToolExecutionDescriptionSummary(
+            new NPToolExecutionIdentifier(
+              TOOL_EXECUTION_DESCRIPTION.identifier().name(),
+              2L
+            ),
+            NPToolName.of("com.x"),
+            "Description 1"
+          ),
+          new NPToolExecutionDescriptionSummary(
+            new NPToolExecutionIdentifier(
+              TOOL_EXECUTION_DESCRIPTION.identifier().name(),
+              3L
+            ),
+            NPToolName.of("com.x"),
+            "Description 2"
+          )
+        ),
+        1,
+        1,
+        0L
+      );
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesToolsType.GetExecutionDescriptionType.class))
-      .thenReturn(toolExecGet);
+    final var pageSummarized =
+      new NPPage<>(
+        List.of(
+          pageMain.items().get(0),
+          pageMain.items().get(1),
+          pageMain.items().get(2)
+        ),
+        1,
+        1,
+        0L
+      );
 
-    Mockito.when(toolExecGet.execute(any()))
-      .thenReturn(Optional.empty());
+    final var paged =
+      Mockito.mock(NPToolExecutionDescriptionsPagedType.class);
+
+    Mockito.when(this.context.property(NPToolExecutionDescriptionsPagedType.class))
+      .thenReturn(Optional.of(paged));
+
+    Mockito.when(paged.pageNext(any()))
+      .thenReturn(pageMain);
 
     final var r = handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
-
-    assertEquals(Optional.empty(), r.execution());
-  }
-
-  /**
-   * Succeeds if permitted.
-   *
-   * @throws Exception On errors
-   */
-
-  @Test
-  public void testSuccess1()
-    throws Exception
-  {
-    final var handler = new NPUCmdToolExecutionDescriptionGet();
-
-    final var command =
-      new NPUCommandToolExecutionDescriptionGet(
-        UUID.randomUUID(),
-        TOOL_EXECUTION_DESCRIPTION.identifier()
-      );
-
-    final var userId =
-      new NPUser(
-        UUID.fromString("ab27f114-6b29-5ab2-a528-b41ef98abe76"),
-        new IdName("x"),
-        new MSubject(Set.of(NPSecRole.TOOLS_READER.role()))
-      );
-
-    Mockito.when(this.context.onAuthenticationRequire())
-      .thenReturn(userId);
-
-    final var toolExecGet =
-      Mockito.mock(NPDatabaseQueriesToolsType.GetExecutionDescriptionType.class);
-
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesToolsType.GetExecutionDescriptionType.class))
-      .thenReturn(toolExecGet);
-
-    Mockito.when(toolExecGet.execute(any()))
-      .thenReturn(Optional.of(TOOL_EXECUTION_DESCRIPTION));
-
-    final var r = handler.execute(this.context, command);
-    assertEquals(r.correlationID(), command.messageID());
-
-    assertEquals(Optional.of(TOOL_EXECUTION_DESCRIPTION), r.execution());
+    assertEquals(pageSummarized, r.results());
   }
 }
