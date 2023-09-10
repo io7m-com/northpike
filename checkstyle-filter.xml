@@ -20,6 +20,8 @@
             checks="NPathComplexity"/>
   <suppress files="NPU1Validation.java"
             checks="CyclomaticComplexity"/>
+  <suppress files="NPU1Validation.java"
+            checks="ExecutableStatementCount"/>
 
   <!-- Lacking pattern matching. -->
   <suppress files="NPTX1Serializer.java"
@@ -52,5 +54,13 @@
   <!-- Lots of injected services. -->
   <suppress files="NPAssignmentTask.java"
             checks="ParameterNumber"/>
+
+  <!-- Manually constructed strings. -->
+  <suppress files="NPUCmdPlanValidate.java"
+            checks="IllegalInstantiation"/>
+  <suppress files="NPUCmdPlanPut.java"
+            checks="IllegalInstantiation"/>
+  <suppress files="NPDBQPlanGetRaw.java"
+            checks="IllegalInstantiation"/>
 
 </suppressions>

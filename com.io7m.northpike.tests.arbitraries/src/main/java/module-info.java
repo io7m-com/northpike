@@ -25,14 +25,20 @@ open module com.io7m.northpike.tests.arbitraries
   requires com.io7m.jlexing.core;
 
   requires com.io7m.northpike.model;
-  requires com.io7m.northpike.protocol.user;
+  requires com.io7m.northpike.plans;
   requires com.io7m.northpike.protocol.agent;
   requires com.io7m.northpike.protocol.intro;
+  requires com.io7m.northpike.protocol.user;
   requires com.io7m.northpike.toolexec;
 
   uses ArbitraryProvider;
 
   provides ArbitraryProvider with
+    com.io7m.northpike.tests.arbitraries.NPArbPlanSummary,
+    com.io7m.northpike.tests.arbitraries.NPArbPlanSearchParameters,
+    com.io7m.northpike.tests.arbitraries.NPArbPlanDescriptionUnparsed,
+    com.io7m.northpike.tests.arbitraries.NPArbPlanName,
+    com.io7m.northpike.tests.arbitraries.NPArbPlanIdentifier,
     com.io7m.northpike.tests.arbitraries.NPArbAgentLabel,
     com.io7m.northpike.tests.arbitraries.NPArbAgentLabelMatch,
     com.io7m.northpike.tests.arbitraries.NPArbAgentLabelSearchParameters,
@@ -95,6 +101,12 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelSearchPrevious,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandDisconnect,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandLogin,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanGet,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanPut,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanSearchBegin,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanSearchNext,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanSearchPrevious,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanValidate,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandRepositoryGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandRepositoryPut,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandRepositorySearchBegin,
@@ -114,6 +126,9 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAgentLabelSearch,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseError,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseOK,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponsePlanGet,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponsePlanSearch,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponsePlanValidate,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseRepositoryGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseRepositorySearch,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseRolesGet,

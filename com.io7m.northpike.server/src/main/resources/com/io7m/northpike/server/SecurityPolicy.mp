@@ -105,3 +105,21 @@
   [MatchObject  [WithType tools]]
   [MatchAction  [WithName write]]
 ]
+
+#------------------------------------------------------------------------
+# Plans
+#
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom plans.reader]]
+  [MatchObject  [WithType plans]]
+  [MatchAction  [WithName read]]
+]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom plans.writer]]
+  [MatchObject  [WithType plans]]
+  [MatchAction  [WithName write]]
+]

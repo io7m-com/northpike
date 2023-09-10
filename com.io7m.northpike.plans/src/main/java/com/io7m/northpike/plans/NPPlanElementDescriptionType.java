@@ -15,9 +15,7 @@
  */
 
 
-package com.io7m.northpike.plans.parsers;
-
-import com.io7m.northpike.plans.NPPlanElementName;
+package com.io7m.northpike.plans;
 
 /**
  * The type of descriptions of plan elements.

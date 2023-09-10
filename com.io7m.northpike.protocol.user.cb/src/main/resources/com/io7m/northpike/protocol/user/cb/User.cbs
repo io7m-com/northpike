@@ -74,6 +74,12 @@
 [documentation NPU1RepositorySearchParameters "The repository search parameters."]
 [record NPU1RepositorySearchParameters]
 
+[documentation NPU1PlanSearchParameters "The plan search parameters."]
+[record NPU1PlanSearchParameters
+  [documentation query "The search query."]
+  [field query cb:String]
+]
+
 [documentation NPU1AgentLabelSearchParameters "The agent label search parameters."]
 [record NPU1AgentLabelSearchParameters
   [documentation query "The search query."]
@@ -148,6 +154,32 @@
 [record NPU1ToolExecutionDescriptionSearchParameters
   [documentation toolName "Restrict searching to executions compatible with this tool."]
   [field toolName [cb:Option cb:String]]
+]
+
+[documentation NPU1PlanIdentifier "A plan identifier."]
+[record NPU1PlanIdentifier
+  [documentation name "The name."]
+  [field name cb:String]
+  [documentation version "The version."]
+  [field version cb:IntegerUnsigned64]
+]
+
+[documentation NPU1PlanDescription "A plan description."]
+[record NPU1PlanDescription
+  [documentation identifier "The identifier."]
+  [field identifier NPU1PlanIdentifier]
+  [documentation formatName "The format name."]
+  [field formatName cb:String]
+  [documentation text "The execution text."]
+  [field text cb:String]
+]
+
+[documentation NPU1PlanSummary "A plan summary."]
+[record NPU1PlanSummary
+  [documentation identifier "The identifier."]
+  [field identifier NPU1PlanIdentifier]
+  [documentation description "The plan description."]
+  [field description cb:String]
 ]
 
 ;
@@ -324,6 +356,50 @@
   [field messageId cb:UUID]
 ]
 
+[documentation NPU1CommandPlanPut "Create or update a plan."]
+[record NPU1CommandPlanPut
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation plan "The plan"]
+  [field plan NPU1PlanDescription]
+]
+
+[documentation NPU1CommandPlanGet "Get a plan."]
+[record NPU1CommandPlanGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation plan "The plan ID"]
+  [field plan NPU1PlanIdentifier]
+]
+
+[documentation NPU1CommandPlanValidate "Validate a plan description."]
+[record NPU1CommandPlanValidate
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation description "The description"]
+  [field description NPU1PlanDescription]
+]
+
+[documentation NPU1CommandPlanSearchBegin "Start searching plans."]
+[record NPU1CommandPlanSearchBegin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation parameters "The search parameters."]
+  [field parameters NPU1PlanSearchParameters]
+]
+
+[documentation NPU1CommandPlanSearchNext "Continue searching plans."]
+[record NPU1CommandPlanSearchNext
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandPlanSearchPrevious "Continue searching plans."]
+[record NPU1CommandPlanSearchPrevious
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
 ;
 ; Events
 ;
@@ -434,6 +510,36 @@
   [field results [NPU1Page NPU1ToolExecutionDescriptionSummary]]
 ]
 
+[documentation NPU1ResponsePlanValidate "A response to NPU1CommandPlanValidate."]
+[record NPU1ResponsePlanValidate
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation compilationMessages "The compilation messages."]
+  [field compilationMessages [cb:List NPU1CompilationMessage]]
+]
+
+[documentation NPU1ResponsePlanGet "A response to NPU1CommandPlanGet."]
+[record NPU1ResponsePlanGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation description "The description."]
+  [field description [cb:Option NPU1PlanDescription]]
+]
+
+[documentation NPU1ResponsePlanSearch "A response to NPU1CommandPlanSearchBegin."]
+[record NPU1ResponsePlanSearch
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [NPU1Page NPU1PlanSummary]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -446,6 +552,12 @@
       NPU1CommandAgentLabelSearchPrevious
       NPU1CommandDisconnect
       NPU1CommandLogin
+      NPU1CommandPlanGet
+      NPU1CommandPlanPut
+      NPU1CommandPlanSearchBegin
+      NPU1CommandPlanSearchNext
+      NPU1CommandPlanSearchPrevious
+      NPU1CommandPlanValidate
       NPU1CommandRepositoryGet
       NPU1CommandRepositoryPut
       NPU1CommandRepositorySearchBegin
@@ -464,6 +576,9 @@
       NPU1ResponseAgentLabelSearch
       NPU1ResponseError
       NPU1ResponseOK
+      NPU1ResponsePlanGet
+      NPU1ResponsePlanSearch
+      NPU1ResponsePlanValidate
       NPU1ResponseRepositoryGet
       NPU1ResponseRepositorySearch
       NPU1ResponseRolesGet

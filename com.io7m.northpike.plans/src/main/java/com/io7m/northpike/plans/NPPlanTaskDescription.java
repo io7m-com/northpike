@@ -15,15 +15,11 @@
  */
 
 
-package com.io7m.northpike.plans.parsers;
+package com.io7m.northpike.plans;
 
 import com.io7m.northpike.model.NPAgentLabelMatchType;
 import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.model.NPFailurePolicyType;
-import com.io7m.northpike.plans.NPPlanElementName;
-import com.io7m.northpike.plans.NPPlanException;
-import com.io7m.northpike.plans.NPPlanTaskBuilderType;
-import com.io7m.northpike.plans.NPPlanToolExecution;
 
 import java.time.Duration;
 import java.util.Objects;

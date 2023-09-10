@@ -22,9 +22,9 @@ import com.io7m.blackthorne.core.Blackthorne;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.plans.NPPlanDescription;
+import com.io7m.northpike.plans.NPPlanElementDescriptionType;
 import com.io7m.northpike.plans.NPPlanToolExecution;
-import com.io7m.northpike.plans.parsers.NPPlanDescription;
-import com.io7m.northpike.plans.parsers.NPPlanElementDescriptionType;
 import com.io7m.verona.core.VersionParser;
 
 import static com.io7m.blackthorne.core.BTIgnoreUnrecognizedElements.DO_NOT_IGNORE_UNRECOGNIZED_ELEMENTS;

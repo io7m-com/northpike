@@ -36,6 +36,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.database.postgres;
   requires com.io7m.northpike.model;
+  requires com.io7m.northpike.plans.compiler;
   requires com.io7m.northpike.plans.parsers;
   requires com.io7m.northpike.plans;
   requires com.io7m.northpike.protocol.agent.cb;

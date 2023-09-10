@@ -25,6 +25,7 @@ import com.io7m.blackthorne.core.BTParseError;
 import com.io7m.blackthorne.core.BTPreserveLexical;
 import com.io7m.blackthorne.jxe.BlackthorneJXE;
 import com.io7m.northpike.model.NPPreserveLexical;
+import com.io7m.northpike.plans.NPPlanDescription;
 import com.io7m.northpike.plans.parsers.v1.NPP1;
 import com.io7m.northpike.plans.parsers.v1.NPP1Handlers;
 

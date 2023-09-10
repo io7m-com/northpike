@@ -15,11 +15,7 @@
  */
 
 
-package com.io7m.northpike.plans.parsers;
-
-import com.io7m.northpike.plans.NPPlanBarrierBuilderType;
-import com.io7m.northpike.plans.NPPlanElementName;
-import com.io7m.northpike.plans.NPPlanException;
+package com.io7m.northpike.plans;
 
 import java.util.Objects;
 import java.util.Set;

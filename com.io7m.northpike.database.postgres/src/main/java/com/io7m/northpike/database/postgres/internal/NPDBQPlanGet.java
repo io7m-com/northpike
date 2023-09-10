@@ -22,12 +22,13 @@ import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.GetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.GetType.Parameters;
 import com.io7m.northpike.model.NPStandardErrorCodes;
-import com.io7m.northpike.plans.parsers.NPPlanDescription;
+import com.io7m.northpike.plans.NPPlanDescription;
 import org.jooq.DSLContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_FORMAT_UNSUPPORTED;
@@ -75,7 +76,10 @@ public final class NPDBQPlanGet
     final var transaction = this.transaction();
     for (final var parsers : parameters.parsers()) {
       if (parsers.formats().contains(text.format())) {
-        try (var stream = new ByteArrayInputStream(text.text())) {
+        final var bytes =
+          text.text().getBytes(StandardCharsets.UTF_8);
+
+        try (var stream = new ByteArrayInputStream(bytes)) {
           final var plan =
             parsers.parse(URI.create("urn:input"), stream);
           return Optional.of(plan);

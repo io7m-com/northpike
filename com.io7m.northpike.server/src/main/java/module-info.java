@@ -14,6 +14,8 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.northpike.plans.compiler.NPPlanCompilerFactoryType;
+import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
 import com.io7m.northpike.server.internal.telemetry.NPTelemetryServices;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
 import com.io7m.northpike.toolexec.NPTXParserFactoryType;
@@ -31,6 +33,7 @@ module com.io7m.northpike.server
   requires com.io7m.northpike.connections;
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.model;
+  requires com.io7m.northpike.plans.compiler;
   requires com.io7m.northpike.plans.parsers;
   requires com.io7m.northpike.plans;
   requires com.io7m.northpike.protocol.agent.cb;
@@ -66,8 +69,10 @@ module com.io7m.northpike.server
   requires org.eclipse.jetty.server;
   requires org.slf4j;
 
-  uses NPTelemetryServiceFactoryType;
+  uses NPPlanCompilerFactoryType;
+  uses NPPlanParserFactoryType;
   uses NPTXParserFactoryType;
+  uses NPTelemetryServiceFactoryType;
 
   provides NPTelemetryServiceFactoryType
     with NPTelemetryServices;

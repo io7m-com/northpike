@@ -31,6 +31,7 @@
     <module>com.io7m.northpike.database.api</module>
     <module>com.io7m.northpike.database.postgres</module>
     <module>com.io7m.northpike.model</module>
+    <module>com.io7m.northpike.plans.compiler</module>
     <module>com.io7m.northpike.plans.parsers</module>
     <module>com.io7m.northpike.plans</module>
     <module>com.io7m.northpike.protocol.agent.cb</module>

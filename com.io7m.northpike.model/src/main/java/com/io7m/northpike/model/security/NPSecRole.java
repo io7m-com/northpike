@@ -148,6 +148,36 @@ public enum NPSecRole
   },
 
   /**
+   * A role for reading plans.
+   */
+
+  PLANS_READER {
+    private static final MRoleName NAME =
+      MRoleName.of("plans.reader");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
+  },
+
+  /**
+   * A role for writing plans.
+   */
+
+  PLANS_WRITER {
+    private static final MRoleName NAME =
+      MRoleName.of("plans.writer");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
+  },
+
+  /**
    * A role for reading agent labels.
    */
 

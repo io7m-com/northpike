@@ -29,6 +29,8 @@ public sealed interface NPUResponseType
   NPUResponseError,
   NPUResponseOK,
   NPUResponsePagedType,
+  NPUResponsePlanGet,
+  NPUResponsePlanValidate,
   NPUResponseRepositoryGet,
   NPUResponseRolesGet,
   NPUResponseToolExecutionDescriptionGet,

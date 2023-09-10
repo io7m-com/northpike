@@ -23,11 +23,11 @@ import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.plans.NPPlanDescription;
+import com.io7m.northpike.plans.NPPlanElementDescriptionType;
 import com.io7m.northpike.plans.NPPlanElementName;
 import com.io7m.northpike.plans.NPPlanIdentifier;
 import com.io7m.northpike.plans.NPPlanTimeouts;
-import com.io7m.northpike.plans.parsers.NPPlanDescription;
-import com.io7m.northpike.plans.parsers.NPPlanElementDescriptionType;
 import org.xml.sax.Attributes;
 
 import java.util.HashMap;

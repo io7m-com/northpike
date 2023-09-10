@@ -22,9 +22,10 @@ import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.GetUnparsedType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPFormatName;
+import com.io7m.northpike.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.plans.NPPlanIdentifier;
+import com.io7m.northpike.plans.NPPlanName;
 import org.jooq.DSLContext;
-import org.jooq.Record3;
 
 import java.nio.charset.Charset;
 import java.util.Optional;
@@ -36,10 +37,10 @@ import static com.io7m.northpike.database.postgres.internal.tables.Plans.PLANS;
  */
 
 public final class NPDBQPlanGetRaw
-  extends NPDBQAbstract<NPPlanIdentifier, Optional<GetUnparsedType.Result>>
+  extends NPDBQAbstract<NPPlanIdentifier, Optional<NPPlanDescriptionUnparsed>>
   implements GetUnparsedType
 {
-  private static final Service<NPPlanIdentifier, Optional<GetUnparsedType.Result>, GetUnparsedType> SERVICE =
+  private static final Service<NPPlanIdentifier, Optional<NPPlanDescriptionUnparsed>, GetUnparsedType> SERVICE =
     new Service<>(GetUnparsedType.class, NPDBQPlanGetRaw::new);
 
   /**
@@ -54,16 +55,6 @@ public final class NPDBQPlanGetRaw
     super(transaction);
   }
 
-  private static Result mapRecord(
-    final Record3<String, String, byte[]> r)
-  {
-    return new Result(
-      r.get(PLANS.P_DATA),
-      Charset.forName(r.get(PLANS.P_ENCODING)),
-      NPFormatName.of(r.get(PLANS.P_FORMAT))
-    );
-  }
-
   /**
    * @return A query provider
    */
@@ -74,7 +65,7 @@ public final class NPDBQPlanGetRaw
   }
 
   @Override
-  protected Optional<Result> onExecute(
+  protected Optional<NPPlanDescriptionUnparsed> onExecute(
     final DSLContext context,
     final NPPlanIdentifier parameters)
     throws NPDatabaseException
@@ -82,7 +73,7 @@ public final class NPDBQPlanGetRaw
     return getResult(context, parameters);
   }
 
-  static Optional<Result> getResult(
+  static Optional<NPPlanDescriptionUnparsed> getResult(
     final DSLContext context,
     final NPPlanIdentifier parameters)
   {
@@ -91,6 +82,8 @@ public final class NPDBQPlanGetRaw
         .and(PLANS.P_VERSION.eq(Long.valueOf(parameters.version())));
 
     return context.select(
+        PLANS.P_NAME,
+        PLANS.P_VERSION,
         PLANS.P_FORMAT,
         PLANS.P_ENCODING,
         PLANS.P_DATA
@@ -98,5 +91,23 @@ public final class NPDBQPlanGetRaw
       .where(condition)
       .fetchOptional()
       .map(NPDBQPlanGetRaw::mapRecord);
+  }
+
+  private static NPPlanDescriptionUnparsed mapRecord(
+    final org.jooq.Record record)
+  {
+    final var data =
+      record.get(PLANS.P_DATA);
+    final var chars =
+      Charset.forName(record.get(PLANS.P_ENCODING));
+
+    return new NPPlanDescriptionUnparsed(
+      new NPPlanIdentifier(
+        NPPlanName.of(record.get(PLANS.P_NAME)),
+        record.get(PLANS.P_VERSION).longValue()
+      ),
+      NPFormatName.of(record.get(PLANS.P_FORMAT)),
+      new String(data, chars)
+    );
   }
 }

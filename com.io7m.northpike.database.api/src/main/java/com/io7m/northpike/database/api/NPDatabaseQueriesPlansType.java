@@ -17,15 +17,14 @@
 package com.io7m.northpike.database.api;
 
 
-import com.io7m.northpike.model.NPFormatName;
+import com.io7m.northpike.plans.NPPlanDescription;
+import com.io7m.northpike.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.plans.NPPlanIdentifier;
 import com.io7m.northpike.plans.NPPlanSearchParameters;
 import com.io7m.northpike.plans.NPPlanType;
-import com.io7m.northpike.plans.parsers.NPPlanDescription;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanSerializerFactoryType;
 
-import java.nio.charset.Charset;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -104,33 +103,10 @@ public sealed interface NPDatabaseQueriesPlansType
    */
 
   non-sealed interface GetUnparsedType
-    extends NPDatabaseQueryType<NPPlanIdentifier, Optional<GetUnparsedType.Result>>,
+    extends NPDatabaseQueryType<NPPlanIdentifier, Optional<NPPlanDescriptionUnparsed>>,
     NPDatabaseQueriesPlansType
   {
-    /**
-     * The raw plan text.
-     *
-     * @param text    The text
-     * @param charset The charset
-     * @param format  The format
-     */
 
-    record Result(
-      byte[] text,
-      Charset charset,
-      NPFormatName format)
-    {
-      /**
-       * The raw plan text.
-       */
-
-      public Result
-      {
-        Objects.requireNonNull(text, "text");
-        Objects.requireNonNull(charset, "charset");
-        Objects.requireNonNull(format, "format");
-      }
-    }
   }
 
   /**

@@ -15,16 +15,10 @@
  */
 
 
-package com.io7m.northpike.plans.parsers;
+package com.io7m.northpike.plans;
 
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
-import com.io7m.northpike.plans.NPPlanElementName;
-import com.io7m.northpike.plans.NPPlanException;
-import com.io7m.northpike.plans.NPPlanIdentifier;
-import com.io7m.northpike.plans.NPPlanTimeouts;
-import com.io7m.northpike.plans.NPPlanType;
-import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.strings.NPStrings;
 
 import java.util.Map;

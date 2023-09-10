@@ -27,6 +27,12 @@ import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandLogin;
+import com.io7m.northpike.protocol.user.NPUCommandPlanGet;
+import com.io7m.northpike.protocol.user.NPUCommandPlanPut;
+import com.io7m.northpike.protocol.user.NPUCommandPlanSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandPlanSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandPlanSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandPlanValidate;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchBegin;
@@ -48,6 +54,9 @@ import com.io7m.northpike.protocol.user.NPUResponseAgentLabelGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelSearch;
 import com.io7m.northpike.protocol.user.NPUResponseError;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
+import com.io7m.northpike.protocol.user.NPUResponsePlanGet;
+import com.io7m.northpike.protocol.user.NPUResponsePlanSearch;
+import com.io7m.northpike.protocol.user.NPUResponsePlanValidate;
 import com.io7m.northpike.protocol.user.NPUResponseRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUResponseRepositorySearch;
 import com.io7m.northpike.protocol.user.NPUResponseRolesGet;
@@ -64,6 +73,12 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLabel
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLabelSearchPrevious.COMMAND_AGENT_LABEL_SEARCH_PREVIOUS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandDisconnect.COMMAND_DISCONNECT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandLogin.COMMAND_LOGIN;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanGet.COMMAND_PLAN_GET;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanPut.COMMAND_PLAN_PUT;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanSearchBegin.COMMAND_PLAN_SEARCH_BEGIN;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanSearchNext.COMMAND_PLAN_SEARCH_NEXT;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanSearchPrevious.COMMAND_PLAN_SEARCH_PREVIOUS;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanValidate.COMMAND_PLAN_VALIDATE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositoryGet.COMMAND_REPOSITORY_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositoryPut.COMMAND_REPOSITORY_PUT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositorySearchBegin.COMMAND_REPOSITORY_SEARCH_BEGIN;
@@ -82,6 +97,9 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentLabe
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentLabelSearch.RESPONSE_AGENT_LABEL_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseError.RESPONSE_ERROR;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseOK.RESPONSE_OK;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponsePlanGet.RESPONSE_PLAN_GET;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponsePlanSearch.RESPONSE_PLAN_SEARCH;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponsePlanValidate.RESPONSE_PLAN_VALIDATE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRepositoryGet.RESPONSE_REPOSITORY_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRepositorySearch.RESPONSE_REPOSITORY_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRolesGet.RESPONSE_ROLES_GET;
@@ -163,6 +181,15 @@ public final class NPU1Validation
     if (response instanceof final NPUResponseToolExecutionDescriptionSearch r) {
       return RESPONSE_TOOL_EXECUTION_DESCRIPTION_SEARCH.convertToWire(r);
     }
+    if (response instanceof final NPUResponsePlanValidate r) {
+      return RESPONSE_PLAN_VALIDATE.convertToWire(r);
+    }
+    if (response instanceof final NPUResponsePlanGet r) {
+      return RESPONSE_PLAN_GET.convertToWire(r);
+    }
+    if (response instanceof final NPUResponsePlanSearch r) {
+      return RESPONSE_PLAN_SEARCH.convertToWire(r);
+    }
 
     throw new IllegalStateException("Unrecognized response: " + response);
   }
@@ -239,6 +266,25 @@ public final class NPU1Validation
     }
     if (command instanceof final NPUCommandToolExecutionDescriptionSearchPrevious c) {
       return COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_PREVIOUS.convertToWire(c);
+    }
+
+    if (command instanceof final NPUCommandPlanPut c) {
+      return COMMAND_PLAN_PUT.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandPlanValidate c) {
+      return COMMAND_PLAN_VALIDATE.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandPlanGet c) {
+      return COMMAND_PLAN_GET.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandPlanSearchBegin c) {
+      return COMMAND_PLAN_SEARCH_BEGIN.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandPlanSearchNext c) {
+      return COMMAND_PLAN_SEARCH_NEXT.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandPlanSearchPrevious c) {
+      return COMMAND_PLAN_SEARCH_PREVIOUS.convertToWire(c);
     }
 
     throw new IllegalStateException("Unrecognized command: " + command);
@@ -319,6 +365,25 @@ public final class NPU1Validation
       return COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_PREVIOUS.convertFromWire(c);
     }
 
+    if (message instanceof final NPU1CommandPlanPut c) {
+      return COMMAND_PLAN_PUT.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandPlanValidate c) {
+      return COMMAND_PLAN_VALIDATE.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandPlanGet c) {
+      return COMMAND_PLAN_GET.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandPlanSearchBegin c) {
+      return COMMAND_PLAN_SEARCH_BEGIN.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandPlanSearchNext c) {
+      return COMMAND_PLAN_SEARCH_NEXT.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandPlanSearchPrevious c) {
+      return COMMAND_PLAN_SEARCH_PREVIOUS.convertFromWire(c);
+    }
+
     if (message instanceof final NPU1ResponseError r) {
       return RESPONSE_ERROR.convertFromWire(r);
     }
@@ -352,6 +417,16 @@ public final class NPU1Validation
     }
     if (message instanceof final NPU1ResponseToolExecutionDescriptionSearch r) {
       return RESPONSE_TOOL_EXECUTION_DESCRIPTION_SEARCH.convertFromWire(r);
+    }
+
+    if (message instanceof final NPU1ResponsePlanValidate r) {
+      return RESPONSE_PLAN_VALIDATE.convertFromWire(r);
+    }
+    if (message instanceof final NPU1ResponsePlanGet r) {
+      return RESPONSE_PLAN_GET.convertFromWire(r);
+    }
+    if (message instanceof final NPU1ResponsePlanSearch r) {
+      return RESPONSE_PLAN_SEARCH.convertFromWire(r);
     }
 
     throw new IllegalStateException("Unrecognized message: " + message);
