@@ -28,6 +28,10 @@ import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySearchParameters;
+import com.io7m.northpike.model.NPToolExecutionDescription;
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPToolExecutionName;
+import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.intro.NPIError;
@@ -40,11 +44,15 @@ import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionGet;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionPut;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
 import com.io7m.northpike.protocol.user.cb.NPU1Messages;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.northpike.toolexec.NPTXFormats;
 import com.io7m.northpike.user_client.NPUserClients;
 import com.io7m.northpike.user_client.api.NPUserClientConfiguration;
 import com.io7m.northpike.user_client.api.NPUserClientException;
@@ -78,6 +86,8 @@ import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.security.NPSecRole.LOGIN;
 import static com.io7m.northpike.model.security.NPSecRole.REPOSITORIES_READER;
 import static com.io7m.northpike.model.security.NPSecRole.REPOSITORIES_WRITER;
+import static com.io7m.northpike.model.security.NPSecRole.TOOLS_READER;
+import static com.io7m.northpike.model.security.NPSecRole.TOOLS_WRITER;
 import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -457,6 +467,68 @@ public final class NPUserClientTest
       r.results()
     );
   }
+
+  /**
+   * Repositories can be searched for.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testToolExecutions()
+    throws Exception
+  {
+    this.setupUser(Set.of(LOGIN, TOOLS_WRITER, TOOLS_READER));
+
+    this.userClient.login(
+      this.serverAddress,
+      TLS_DISABLED,
+      this.userName,
+      this.userPassword
+    );
+
+    final var identifier =
+      new NPToolExecutionIdentifier(
+        NPToolExecutionName.of("com.io7m.ex0"),
+        1L
+      );
+
+    final var description =
+      new NPToolExecutionDescription(
+        identifier,
+        NPToolName.of("org.apache.maven"),
+        "An execution.",
+        NPTXFormats.nptx1(),
+        """
+          <?xml version="1.0" encoding="UTF-8" ?>
+          <ToolExecution xmlns="urn:com.io7m.northpike.toolexec:1"
+                         Name="com.io7m.ex0"
+                         Version="1">
+            <ArgumentAdd Value="ok"/>
+          </ToolExecution>
+                    """.strip()
+      );
+
+    this.userClient.execute(
+      new NPUCommandToolExecutionDescriptionValidate(
+        randomUUID(),
+        List.of(),
+        description
+      )
+    );
+
+    this.userClient.execute(
+      new NPUCommandToolExecutionDescriptionPut(randomUUID(), description)
+    );
+
+    final var r =
+      this.userClient.execute(
+        new NPUCommandToolExecutionDescriptionGet(randomUUID(), identifier)
+      );
+
+    assertEquals(description, r.execution().orElseThrow());
+  }
+
 
   private void setupUser(
     final Set<NPSecRole> roles)

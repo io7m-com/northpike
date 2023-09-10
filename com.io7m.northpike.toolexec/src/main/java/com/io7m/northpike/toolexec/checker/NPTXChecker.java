@@ -21,20 +21,20 @@ import com.io7m.jdeferthrow.core.ExceptionTracker;
 import com.io7m.northpike.toolexec.model.NPTXDescription;
 import com.io7m.northpike.toolexec.model.NPTXEAnd;
 import com.io7m.northpike.toolexec.model.NPTXEFalse;
+import com.io7m.northpike.toolexec.model.NPTXEInteger;
 import com.io7m.northpike.toolexec.model.NPTXEIsEqual;
 import com.io7m.northpike.toolexec.model.NPTXENot;
-import com.io7m.northpike.toolexec.model.NPTXENumber;
 import com.io7m.northpike.toolexec.model.NPTXEOr;
 import com.io7m.northpike.toolexec.model.NPTXEString;
 import com.io7m.northpike.toolexec.model.NPTXEStringSetContains;
 import com.io7m.northpike.toolexec.model.NPTXETrue;
 import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
+import com.io7m.northpike.toolexec.model.NPTXEVariableInteger;
 import com.io7m.northpike.toolexec.model.NPTXEVariableString;
 import com.io7m.northpike.toolexec.model.NPTXEVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXExpressionType;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableNumeric;
+import com.io7m.northpike.toolexec.model.NPTXPlanVariableInteger;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableString;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableType;
@@ -55,7 +55,7 @@ import static com.io7m.northpike.strings.NPStringConstants.TYPE_CHECK_EXPRESSION
 import static com.io7m.northpike.strings.NPStringConstants.TYPE_CHECK_PLAN_VARIABLE;
 import static com.io7m.northpike.strings.NPStringConstants.TYPE_CHECK_UNDEFINED_VARIABLE;
 import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_BOOLEAN;
-import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_NUMERIC;
+import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_INTEGER;
 import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_STRING;
 import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_STRING_SET;
 import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_UNIT;
@@ -98,9 +98,9 @@ public final class NPTXChecker
     return TYPE_STRING;
   }
 
-  private static NPTXType checkExpressionVariableNumber(
+  private static NPTXType checkExpressionVariableInteger(
     final NPTXPlanVariables variables,
-    final NPTXEVariableNumber v)
+    final NPTXEVariableInteger v)
     throws NPTXCheckerException
   {
     final var pv = variables.variables().get(v.name());
@@ -108,21 +108,21 @@ public final class NPTXChecker
       throw new NPTXCheckerException(
         TYPE_CHECK_UNDEFINED_VARIABLE,
         v,
-        TYPE_NUMERIC,
+        TYPE_INTEGER,
         TYPE_UNIT
       );
     }
 
     final var vType = typeOfVariable(pv);
-    if (vType != TYPE_NUMERIC) {
+    if (vType != TYPE_INTEGER) {
       throw new NPTXCheckerException(
         TYPE_CHECK_PLAN_VARIABLE,
         v,
         vType,
-        TYPE_NUMERIC
+        TYPE_INTEGER
       );
     }
-    return TYPE_NUMERIC;
+    return TYPE_INTEGER;
   }
 
   private static NPTXType checkExpressionVariableBoolean(
@@ -164,8 +164,8 @@ public final class NPTXChecker
     if (v instanceof NPTXPlanVariableStringSet) {
       return TYPE_STRING_SET;
     }
-    if (v instanceof NPTXPlanVariableNumeric) {
-      return TYPE_NUMERIC;
+    if (v instanceof NPTXPlanVariableInteger) {
+      return TYPE_INTEGER;
     }
     throw new IllegalStateException();
   }
@@ -320,8 +320,8 @@ public final class NPTXChecker
       return TYPE_BOOLEAN;
     }
 
-    if (expression instanceof NPTXENumber) {
-      return TYPE_NUMERIC;
+    if (expression instanceof NPTXEInteger) {
+      return TYPE_INTEGER;
     }
 
     if (expression instanceof NPTXEString) {
@@ -332,8 +332,8 @@ public final class NPTXChecker
       return checkExpressionVariableBoolean(variables, v);
     }
 
-    if (expression instanceof final NPTXEVariableNumber v) {
-      return checkExpressionVariableNumber(variables, v);
+    if (expression instanceof final NPTXEVariableInteger v) {
+      return checkExpressionVariableInteger(variables, v);
     }
 
     if (expression instanceof final NPTXEVariableString v) {

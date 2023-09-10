@@ -23,17 +23,17 @@ import com.io7m.northpike.toolexec.checker.NPTXChecker;
 import com.io7m.northpike.toolexec.checker.NPTXCheckerException;
 import com.io7m.northpike.toolexec.model.NPTXEAnd;
 import com.io7m.northpike.toolexec.model.NPTXEFalse;
+import com.io7m.northpike.toolexec.model.NPTXEInteger;
 import com.io7m.northpike.toolexec.model.NPTXEIsEqual;
 import com.io7m.northpike.toolexec.model.NPTXENot;
-import com.io7m.northpike.toolexec.model.NPTXENumber;
 import com.io7m.northpike.toolexec.model.NPTXEOr;
 import com.io7m.northpike.toolexec.model.NPTXEString;
 import com.io7m.northpike.toolexec.model.NPTXETrue;
 import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
+import com.io7m.northpike.toolexec.model.NPTXEVariableInteger;
 import com.io7m.northpike.toolexec.model.NPTXEVariableString;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableNumeric;
+import com.io7m.northpike.toolexec.model.NPTXPlanVariableInteger;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableString;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariables;
 import com.io7m.northpike.toolexec.model.NPTXSArgumentAdd;
@@ -48,7 +48,6 @@ import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigInteger;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +59,7 @@ import static com.io7m.northpike.strings.NPStringConstants.TYPE_CHECK_EXPRESSION
 import static com.io7m.northpike.strings.NPStringConstants.TYPE_CHECK_PLAN_VARIABLE;
 import static com.io7m.northpike.strings.NPStringConstants.TYPE_CHECK_UNDEFINED_VARIABLE;
 import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_BOOLEAN;
-import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_NUMERIC;
+import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_INTEGER;
 import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_STRING;
 import static com.io7m.northpike.toolexec.checker.NPTXType.TYPE_UNIT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -186,7 +185,7 @@ public final class NPTXCheckingTest
     final var if0 =
       new NPTXSIf(
         zero(),
-        new NPTXENumber(zero(), BigInteger.ONE),
+        new NPTXEInteger(zero(), 23L),
         List.of(),
         List.of()
       );
@@ -194,7 +193,7 @@ public final class NPTXCheckingTest
     final var if1 =
       new NPTXSIf(
         zero(),
-        new NPTXENumber(zero(), BigInteger.ONE),
+        new NPTXEInteger(zero(), 24L),
         List.of(),
         List.of()
       );
@@ -283,7 +282,7 @@ public final class NPTXCheckingTest
       assertThrows(NPTXCheckerException.class, () -> {
         NPTXChecker.checkExpression(
           variables,
-          new NPTXEAnd(zero(), new NPTXENumber(zero(), BigInteger.ONE), new NPTXETrue(zero()))
+          new NPTXEAnd(zero(), new NPTXEInteger(zero(), 1L), new NPTXETrue(zero()))
         );
       });
 
@@ -299,7 +298,7 @@ public final class NPTXCheckingTest
       assertThrows(NPTXCheckerException.class, () -> {
         NPTXChecker.checkExpression(
           variables,
-          new NPTXEAnd(zero(), new NPTXETrue(zero()), new NPTXENumber(zero(), BigInteger.ONE))
+          new NPTXEAnd(zero(), new NPTXETrue(zero()), new NPTXEInteger(zero(), 1L))
         );
       });
 
@@ -329,7 +328,7 @@ public final class NPTXCheckingTest
       assertThrows(NPTXCheckerException.class, () -> {
         NPTXChecker.checkExpression(
           variables,
-          new NPTXEOr(zero(), new NPTXENumber(zero(), BigInteger.ONE), new NPTXETrue(zero()))
+          new NPTXEOr(zero(), new NPTXEInteger(zero(), 1L), new NPTXETrue(zero()))
         );
       });
 
@@ -345,7 +344,7 @@ public final class NPTXCheckingTest
       assertThrows(NPTXCheckerException.class, () -> {
         NPTXChecker.checkExpression(
           variables,
-          new NPTXEOr(zero(), new NPTXETrue(zero()), new NPTXENumber(zero(), BigInteger.ONE))
+          new NPTXEOr(zero(), new NPTXETrue(zero()), new NPTXEInteger(zero(), 1L))
         );
       });
 
@@ -375,7 +374,7 @@ public final class NPTXCheckingTest
       assertThrows(NPTXCheckerException.class, () -> {
         NPTXChecker.checkExpression(
           variables,
-          new NPTXENot(zero(), new NPTXENumber(zero(), BigInteger.ONE))
+          new NPTXENot(zero(), new NPTXEInteger(zero(), 1L))
         );
       });
 
@@ -399,14 +398,14 @@ public final class NPTXCheckingTest
   @Property
   public void testCheckENumber(
     final @ForAll NPTXPlanVariables variables,
-    final @ForAll BigInteger value)
+    final @ForAll long value)
     throws Exception
   {
     assertEquals(
-      TYPE_NUMERIC,
+      TYPE_INTEGER,
       NPTXChecker.checkExpression(
         variables,
-        new NPTXENumber(zero(), value)
+        new NPTXEInteger(zero(), value)
       )
     );
   }
@@ -475,7 +474,7 @@ public final class NPTXCheckingTest
     throws Exception
   {
     final var vr =
-      new NPTXPlanVariableNumeric(name, Integer.valueOf(23));
+      new NPTXPlanVariableInteger(name, 23L);
     final var vm = new HashMap<>(variables.variables());
     vm.put(vr.name(), vr);
     final var v2 = new NPTXPlanVariables(vm);
@@ -498,16 +497,16 @@ public final class NPTXCheckingTest
     throws Exception
   {
     final var vr =
-      new NPTXPlanVariableNumeric(name, Integer.valueOf(23));
+      new NPTXPlanVariableInteger(name, 23L);
     final var vm = new HashMap<>(variables.variables());
     vm.put(vr.name(), vr);
     final var v2 = new NPTXPlanVariables(vm);
 
     assertEquals(
-      TYPE_NUMERIC,
+      TYPE_INTEGER,
       NPTXChecker.checkExpression(
         v2,
-        new NPTXEVariableNumber(zero(), name)
+        new NPTXEVariableInteger(zero(), name)
       )
     );
   }
@@ -526,7 +525,7 @@ public final class NPTXCheckingTest
       assertThrows(NPTXCheckerException.class, () -> {
         NPTXChecker.checkExpression(
           v2,
-          new NPTXEVariableNumber(zero(), name)
+          new NPTXEVariableInteger(zero(), name)
         );
       });
 
@@ -549,7 +548,7 @@ public final class NPTXCheckingTest
       assertThrows(NPTXCheckerException.class, () -> {
         NPTXChecker.checkExpression(
           v2,
-          new NPTXEVariableNumber(zero(), name)
+          new NPTXEVariableInteger(zero(), name)
         );
       });
 
@@ -632,8 +631,8 @@ public final class NPTXCheckingTest
         variables,
         new NPTXEIsEqual(
           zero(),
-          new NPTXENumber(zero(), BigInteger.ONE),
-          new NPTXENumber(zero(), BigInteger.ONE)
+          new NPTXEInteger(zero(), 1L),
+          new NPTXEInteger(zero(), 1L)
         )
       )
     );
@@ -650,7 +649,7 @@ public final class NPTXCheckingTest
           variables,
           new NPTXEIsEqual(
             zero(),
-            new NPTXENumber(zero(), BigInteger.ONE),
+            new NPTXEInteger(zero(), 1L),
             new NPTXETrue(zero())
           )
         );

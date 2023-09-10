@@ -25,7 +25,7 @@
     </xsd:annotation>
   </xsd:complexType>
 
-  <xsd:complexType name="NumberType">
+  <xsd:complexType name="IntegerType">
     <xsd:annotation>
       <xsd:documentation>
         A numeric constant.
@@ -40,8 +40,8 @@
     </xsd:complexContent>
   </xsd:complexType>
 
-  <xsd:element name="Number"
-               type="te:NumberType"/>
+  <xsd:element name="Integer"
+               type="te:IntegerType"/>
 
   <xsd:complexType name="StringType">
     <xsd:annotation>
@@ -110,7 +110,7 @@
   <xsd:element name="VariableBoolean"
                type="te:VariableBooleanType"/>
 
-  <xsd:complexType name="VariableNumberType">
+  <xsd:complexType name="VariableIntegerType">
     <xsd:annotation>
       <xsd:documentation>
         Obtain the numeric value of the given named plan variable.
@@ -126,8 +126,8 @@
     </xsd:complexContent>
   </xsd:complexType>
 
-  <xsd:element name="VariableNumber"
-               type="te:VariableNumberType"/>
+  <xsd:element name="VariableInteger"
+               type="te:VariableIntegerType"/>
 
   <xsd:complexType name="VariableStringType">
     <xsd:annotation>
@@ -272,13 +272,13 @@
       <xsd:element ref="te:False"/>
       <xsd:element ref="te:IsEqual"/>
       <xsd:element ref="te:Not"/>
-      <xsd:element ref="te:Number"/>
+      <xsd:element ref="te:Integer"/>
       <xsd:element ref="te:Or"/>
       <xsd:element ref="te:String"/>
       <xsd:element ref="te:True"/>
       <xsd:element ref="te:StringSetContains"/>
       <xsd:element ref="te:VariableBoolean"/>
-      <xsd:element ref="te:VariableNumber"/>
+      <xsd:element ref="te:VariableInteger"/>
       <xsd:element ref="te:VariableString"/>
       <xsd:element ref="te:VariableStringSet"/>
     </xsd:choice>

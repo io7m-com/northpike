@@ -15,34 +15,62 @@
  */
 
 
-package com.io7m.northpike.plans.variables;
-
-import com.io7m.lanark.core.RDottedName;
+package com.io7m.northpike.model;
 
 import java.util.Objects;
 
 /**
- * A numeric-typed plan variable.
+ * The compilation message.
  *
- * @param name  The name
- * @param value The value
+ * @param kind    The message kind
+ * @param line    The line number
+ * @param column  The column number
+ * @param message The message
  */
 
-public record NPPlanVariableNumeric(
-  RDottedName name,
-  Number value)
-  implements NPPlanVariableType
+public record NPCompilationMessage(
+  Kind kind,
+  int line,
+  int column,
+  String message)
 {
   /**
-   * A numeric-typed plan variable.
+   * The compilation message.
    *
-   * @param name  The name
-   * @param value The value
+   * @param kind    The message kind
+   * @param line    The line number
+   * @param column  The column number
+   * @param message The message
    */
 
-  public NPPlanVariableNumeric
+  public NPCompilationMessage
   {
-    Objects.requireNonNull(name, "name");
-    Objects.requireNonNull(value, "value");
+    Objects.requireNonNull(kind, "kind");
+    Objects.requireNonNull(message, "message");
+  }
+
+  /**
+   * The kind of message.
+   */
+
+  public enum Kind
+  {
+    /**
+     * The message is info.
+     */
+
+    INFO,
+
+    /**
+     * The message is a warning.
+     */
+
+    WARNING,
+
+    /**
+     * The message is an error.
+     */
+
+    ERROR
   }
 }

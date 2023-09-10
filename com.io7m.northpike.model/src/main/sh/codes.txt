@@ -29,3 +29,4 @@ TYPE_SCALAR_REFERENCED|type-scalar-referenced|The scalar type is referenced by o
 UNSAFE_ARCHIVE_ENTRY|unsafe-archive-entry|An unsafe archive entry was encountered.
 UNSUPPORTED|unsupported|An operation was unsupported.
 USER_NONEXISTENT|user-nonexistent|An attempt was made to reference a user that does not exist.
+COMPILATION_FAILED|compilation-failed|Compilation failed.

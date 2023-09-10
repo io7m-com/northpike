@@ -36,10 +36,10 @@ public enum NPTXType
   TYPE_STRING_SET,
 
   /**
-   * The numeric type.
+   * The integer type.
    */
 
-  TYPE_NUMERIC,
+  TYPE_INTEGER,
 
   /**
    * The boolean type.

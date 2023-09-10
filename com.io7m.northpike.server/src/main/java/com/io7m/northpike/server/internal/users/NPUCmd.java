@@ -34,6 +34,9 @@ import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandRolesAssign;
 import com.io7m.northpike.protocol.user.NPUCommandRolesGet;
 import com.io7m.northpike.protocol.user.NPUCommandRolesRevoke;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionGet;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionPut;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
 import com.io7m.northpike.protocol.user.NPUCommandType;
 import com.io7m.northpike.protocol.user.NPUMessageType;
 import com.io7m.northpike.protocol.user.NPUResponseType;
@@ -123,6 +126,16 @@ public final class NPUCmd
       }
       if (command instanceof final NPUCommandAgentLabelDelete c) {
         return new NPUCmdAgentLabelDelete().execute(context, c);
+      }
+
+      if (command instanceof final NPUCommandToolExecutionDescriptionValidate c) {
+        return new NPUCmdToolExecutionDescriptionValidate().execute(context, c);
+      }
+      if (command instanceof final NPUCommandToolExecutionDescriptionPut c) {
+        return new NPUCmdToolExecutionDescriptionPut().execute(context, c);
+      }
+      if (command instanceof final NPUCommandToolExecutionDescriptionGet c) {
+        return new NPUCmdToolExecutionDescriptionGet().execute(context, c);
       }
     }
     throw context.fail(ERROR_PROTOCOL, errorProtocol());

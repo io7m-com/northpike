@@ -26,22 +26,21 @@ import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.toolexec.model.NPTXEAnd;
 import com.io7m.northpike.toolexec.model.NPTXEFalse;
+import com.io7m.northpike.toolexec.model.NPTXEInteger;
 import com.io7m.northpike.toolexec.model.NPTXEIsEqual;
 import com.io7m.northpike.toolexec.model.NPTXENot;
-import com.io7m.northpike.toolexec.model.NPTXENumber;
 import com.io7m.northpike.toolexec.model.NPTXEOr;
 import com.io7m.northpike.toolexec.model.NPTXEString;
 import com.io7m.northpike.toolexec.model.NPTXEStringSetContains;
 import com.io7m.northpike.toolexec.model.NPTXETrue;
 import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
+import com.io7m.northpike.toolexec.model.NPTXEVariableInteger;
 import com.io7m.northpike.toolexec.model.NPTXEVariableString;
 import com.io7m.northpike.toolexec.model.NPTXEVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXExpressionType;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 
-import java.math.BigInteger;
 import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
@@ -64,13 +63,13 @@ public final class NPTX1Expressions
       entry(element("False"), exprFalse()),
       entry(element("IsEqual"), exprIsEqual()),
       entry(element("Not"), exprNot()),
-      entry(element("Number"), exprNumber()),
+      entry(element("Integer"), exprInteger()),
       entry(element("Or"), exprOr()),
       entry(element("String"), exprString()),
       entry(element("StringSetContains"), exprStringSetContains()),
       entry(element("True"), exprTrue()),
       entry(element("VariableBoolean"), exprVariableBoolean()),
-      entry(element("VariableNumber"), exprVariableNumber()),
+      entry(element("VariableInteger"), exprVariableInteger()),
       entry(element("VariableString"), exprVariableString()),
       entry(element("VariableStringSet"), exprVariableStringSet())
     );
@@ -116,17 +115,17 @@ public final class NPTX1Expressions
   }
 
   /**
-   * @return The handler for Number
+   * @return The handler for Integer
    */
 
-  public static BTElementHandlerConstructorType<?, NPTXENumber> exprNumber()
+  public static BTElementHandlerConstructorType<?, NPTXEInteger> exprInteger()
   {
     return Blackthorne.forScalarAttribute(
-      element("Number"),
+      element("Integer"),
       (context, attributes) -> {
-        return new NPTXENumber(
+        return new NPTXEInteger(
           lexical(context.documentLocator()),
-          new BigInteger(attributes.getValue("Value"))
+          Long.parseLong(attributes.getValue("Value"))
         );
       }
     );
@@ -184,15 +183,15 @@ public final class NPTX1Expressions
   }
 
   /**
-   * @return The handler for VariableNumber
+   * @return The handler for VariableInteger
    */
 
-  public static BTElementHandlerConstructorType<?, NPTXEVariableNumber> exprVariableNumber()
+  public static BTElementHandlerConstructorType<?, NPTXEVariableInteger> exprVariableInteger()
   {
     return Blackthorne.forScalarAttribute(
-      element("VariableNumber"),
+      element("VariableInteger"),
       (context, attributes) -> {
-        return new NPTXEVariableNumber(
+        return new NPTXEVariableInteger(
           lexical(context.documentLocator()),
           new RDottedName(attributes.getValue("Name"))
         );

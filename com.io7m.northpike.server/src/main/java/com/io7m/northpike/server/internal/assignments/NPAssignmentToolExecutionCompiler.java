@@ -25,7 +25,7 @@ import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.plans.NPPlanToolExecutionCompilerType;
 import com.io7m.northpike.plans.variables.NPPlanVariableBoolean;
-import com.io7m.northpike.plans.variables.NPPlanVariableNumeric;
+import com.io7m.northpike.plans.variables.NPPlanVariableInteger;
 import com.io7m.northpike.plans.variables.NPPlanVariableString;
 import com.io7m.northpike.plans.variables.NPPlanVariableStringSet;
 import com.io7m.northpike.plans.variables.NPPlanVariableType;
@@ -40,7 +40,7 @@ import com.io7m.northpike.toolexec.checker.NPTXCheckerException;
 import com.io7m.northpike.toolexec.checker.NPTXTypeChecked;
 import com.io7m.northpike.toolexec.model.NPTXDescription;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableNumeric;
+import com.io7m.northpike.toolexec.model.NPTXPlanVariableInteger;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableString;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableType;
@@ -279,8 +279,8 @@ public final class NPAssignmentToolExecutionCompiler
     if (v instanceof final NPPlanVariableStringSet vv) {
       return new NPTXPlanVariableStringSet(vv.name(), vv.value());
     }
-    if (v instanceof final NPPlanVariableNumeric vv) {
-      return new NPTXPlanVariableNumeric(vv.name(), vv.value());
+    if (v instanceof final NPPlanVariableInteger vv) {
+      return new NPTXPlanVariableInteger(vv.name(), vv.value());
     }
 
     throw new IllegalStateException(

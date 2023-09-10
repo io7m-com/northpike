@@ -15,26 +15,33 @@
  */
 
 
-package com.io7m.northpike.tests.arbitraries.toolexec;
+package com.io7m.northpike.toolexec.model;
 
-import com.io7m.jlexing.core.LexicalPosition;
-import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
-import com.io7m.northpike.toolexec.model.NPTXENumber;
-import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Combinators;
+import com.io7m.lanark.core.RDottedName;
 
-public final class NPArbENumber extends NPArbAbstract<NPTXENumber>
+import java.util.Objects;
+
+/**
+ * A numeric-typed plan variable.
+ *
+ * @param name  The name
+ * @param value The value
+ */
+
+public record NPTXPlanVariableInteger(
+  RDottedName name,
+  long value)
+  implements NPTXPlanVariableType
 {
-  public NPArbENumber()
+  /**
+   * A numeric-typed plan variable.
+   *
+   * @param name  The name
+   * @param value The value
+   */
+
+  public NPTXPlanVariableInteger
   {
-    super(
-      NPTXENumber.class,
-      () -> {
-        return Combinators.combine(
-          Arbitraries.defaultFor(LexicalPosition.class),
-          Arbitraries.bigIntegers()
-        ).as(NPTXENumber::new);
-      }
-    );
+    Objects.requireNonNull(name, "name");
   }
 }

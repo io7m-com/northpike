@@ -118,6 +118,36 @@ public enum NPSecRole
   },
 
   /**
+   * A role for reading tools.
+   */
+
+  TOOLS_READER {
+    private static final MRoleName NAME =
+      MRoleName.of("tools.reader");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
+  },
+
+  /**
+   * A role for writing tools.
+   */
+
+  TOOLS_WRITER {
+    private static final MRoleName NAME =
+      MRoleName.of("tools.writer");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
+  },
+
+  /**
    * A role for reading agent labels.
    */
 

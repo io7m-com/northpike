@@ -7,8 +7,8 @@
   <If>
     <Condition>
       <IsEqual>
-        <VariableNumber Name="vn"/>
-        <Number Value="1"/>
+        <VariableInteger Name="vn"/>
+        <Integer Value="1"/>
       </IsEqual>
     </Condition>
     <Then>

@@ -26,15 +26,15 @@ import com.io7m.northpike.toolexec.model.NPTXComment;
 import com.io7m.northpike.toolexec.model.NPTXDescription;
 import com.io7m.northpike.toolexec.model.NPTXEAnd;
 import com.io7m.northpike.toolexec.model.NPTXEFalse;
+import com.io7m.northpike.toolexec.model.NPTXEInteger;
 import com.io7m.northpike.toolexec.model.NPTXEIsEqual;
 import com.io7m.northpike.toolexec.model.NPTXENot;
-import com.io7m.northpike.toolexec.model.NPTXENumber;
 import com.io7m.northpike.toolexec.model.NPTXEOr;
 import com.io7m.northpike.toolexec.model.NPTXEString;
 import com.io7m.northpike.toolexec.model.NPTXEStringSetContains;
 import com.io7m.northpike.toolexec.model.NPTXETrue;
 import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
+import com.io7m.northpike.toolexec.model.NPTXEVariableInteger;
 import com.io7m.northpike.toolexec.model.NPTXEVariableString;
 import com.io7m.northpike.toolexec.model.NPTXEVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXExpressionType;
@@ -236,8 +236,8 @@ public final class NPTX1Serializer implements NPTXSerializerType
       this.serializeExpressionFalse(e);
       return;
     }
-    if (expression instanceof final NPTXENumber e) {
-      this.serializeExpressionNumber(e);
+    if (expression instanceof final NPTXEInteger e) {
+      this.serializeExpressionInteger(e);
       return;
     }
     if (expression instanceof final NPTXEString e) {
@@ -252,8 +252,8 @@ public final class NPTX1Serializer implements NPTXSerializerType
       this.serializeExpressionVariableBoolean(e);
       return;
     }
-    if (expression instanceof final NPTXEVariableNumber e) {
-      this.serializeExpressionVariableNumber(e);
+    if (expression instanceof final NPTXEVariableInteger e) {
+      this.serializeExpressionVariableInteger(e);
       return;
     }
     if (expression instanceof final NPTXEVariableString e) {
@@ -333,12 +333,12 @@ public final class NPTX1Serializer implements NPTXSerializerType
     this.output.writeEndElement();
   }
 
-  private void serializeExpressionNumber(
-    final NPTXENumber e)
+  private void serializeExpressionInteger(
+    final NPTXEInteger e)
     throws XMLStreamException
   {
-    this.output.writeStartElement(this.ns, "Number");
-    this.output.writeAttribute("Value", e.value().toString());
+    this.output.writeStartElement(this.ns, "Integer");
+    this.output.writeAttribute("Value", Long.toString(e.value()));
     this.output.writeEndElement();
   }
 
@@ -360,11 +360,11 @@ public final class NPTX1Serializer implements NPTXSerializerType
     this.output.writeEndElement();
   }
 
-  private void serializeExpressionVariableNumber(
-    final NPTXEVariableNumber e)
+  private void serializeExpressionVariableInteger(
+    final NPTXEVariableInteger e)
     throws XMLStreamException
   {
-    this.output.writeStartElement(this.ns, "VariableNumber");
+    this.output.writeStartElement(this.ns, "VariableInteger");
     this.output.writeAttribute("Name", e.name().value());
     this.output.writeEndElement();
   }

@@ -45,7 +45,6 @@
   [MatchAction  [WithName write]]
 ]
 
-
 #------------------------------------------------------------------------
 # Repositories
 #
@@ -87,4 +86,22 @@
   [MatchSubject [WithAnyRolesFrom agent_labels.writer]]
   [MatchObject  [WithType agent_labels]]
   [MatchAction  [WithName delete]]
+]
+
+#------------------------------------------------------------------------
+# Tools
+#
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom tools.reader]]
+  [MatchObject  [WithType tools]]
+  [MatchAction  [WithName read]]
+]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom tools.writer]]
+  [MatchObject  [WithType tools]]
+  [MatchAction  [WithName write]]
 ]

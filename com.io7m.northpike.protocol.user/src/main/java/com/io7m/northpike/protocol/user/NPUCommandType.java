@@ -39,7 +39,10 @@ public sealed interface NPUCommandType<R extends NPUResponseType>
   NPUCommandRolesAssign,
   NPUCommandRolesGet,
   NPUCommandRolesRevoke,
-  NPUCommandSearchBeginType
+  NPUCommandSearchBeginType,
+  NPUCommandToolExecutionDescriptionGet,
+  NPUCommandToolExecutionDescriptionPut,
+  NPUCommandToolExecutionDescriptionValidate
 {
   /**
    * @return The response class

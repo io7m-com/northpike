@@ -60,8 +60,12 @@ import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
+import com.io7m.northpike.toolexec.NPTXCompilerFactoryType;
+import com.io7m.northpike.toolexec.NPTXCompilers;
+import com.io7m.northpike.toolexec.NPTXParserFactoryType;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
+import com.io7m.repetoir.core.RPServiceDirectoryWritableType;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import org.slf4j.Logger;
@@ -245,6 +249,9 @@ public final class NPServer implements NPServerType
     final var tls = NPTLSContextService.create(services);
     services.register(NPTLSContextServiceType.class, tls);
 
+    loadParsers(services);
+    services.register(NPTXCompilerFactoryType.class, new NPTXCompilers());
+
     final var archive = NPArchiveService.create(services);
     services.register(NPArchiveServiceType.class, archive);
 
@@ -279,6 +286,20 @@ public final class NPServer implements NPServerType
     final var users = NPUserService.create(services);
     services.register(NPUserServiceType.class, users);
     return services;
+  }
+
+  private static void loadParsers(
+    final RPServiceDirectoryWritableType services)
+  {
+    final var loader =
+      ServiceLoader.load(NPTXParserFactoryType.class);
+
+    final var iterator =
+      loader.iterator();
+
+    while (iterator.hasNext()) {
+      services.register(NPTXParserFactoryType.class, iterator.next());
+    }
   }
 
   private NPDatabaseType createDatabase(

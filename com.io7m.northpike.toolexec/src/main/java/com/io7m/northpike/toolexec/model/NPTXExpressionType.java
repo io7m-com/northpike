@@ -27,13 +27,13 @@ public sealed interface NPTXExpressionType
   NPTXEFalse,
   NPTXEIsEqual,
   NPTXENot,
-  NPTXENumber,
+  NPTXEInteger,
   NPTXEOr,
   NPTXEString,
   NPTXEStringSetContains,
   NPTXETrue,
   NPTXEVariableBoolean,
-  NPTXEVariableNumber,
+  NPTXEVariableInteger,
   NPTXEVariableString,
   NPTXEVariableStringSet
 {

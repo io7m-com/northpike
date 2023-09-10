@@ -80,6 +80,60 @@
   [field query cb:String]
 ]
 
+[documentation NPU1ToolExecutionIdentifier "A tool execution identifier."]
+[record NPU1ToolExecutionIdentifier
+  [documentation name "The name."]
+  [field name cb:String]
+  [documentation version "The version."]
+  [field version cb:IntegerUnsigned64]
+]
+
+[documentation NPU1ToolExecutionDescription "A tool execution description."]
+[record NPU1ToolExecutionDescription
+  [documentation identifier "The identifier."]
+  [field identifier NPU1ToolExecutionIdentifier]
+  [documentation toolName "The tool name."]
+  [field toolName cb:String]
+  [documentation description "The humanly-readable description."]
+  [field description cb:String]
+  [documentation formatName "The format name."]
+  [field formatName cb:String]
+  [documentation text "The execution text."]
+  [field text cb:String]
+]
+
+[documentation NPU1CompilationMessage "A compilation message."]
+[record NPU1CompilationMessage
+  [documentation kind "The message kind."]
+  [field kind cb:String]
+  [documentation line "The message line."]
+  [field line cb:IntegerUnsigned32]
+  [documentation column "The message column."]
+  [field column cb:IntegerUnsigned32]
+  [documentation message "The message text."]
+  [field message cb:String]
+]
+
+[documentation NPU1ToolExecutionVariable "A tool execution variable."]
+[variant NPU1ToolExecutionVariable
+  [case Integer
+    [field name  cb:String]
+    [field value cb:IntegerSigned64]
+  ]
+  [case Boolean
+    [field name  cb:String]
+    [field value cb:Boolean]
+  ]
+  [case String
+    [field name  cb:String]
+    [field value cb:String]
+  ]
+  [case StringSet
+    [field name  cb:String]
+    [field value [cb:List cb:String]]
+  ]
+]
+
 ;
 ; Commands
 ;
@@ -208,6 +262,32 @@
   [field names [cb:List cb:String]]
 ]
 
+[documentation NPU1CommandToolExecutionDescriptionPut "Create or update a tool execution description."]
+[record NPU1CommandToolExecutionDescriptionPut
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation description "The description"]
+  [field description NPU1ToolExecutionDescription]
+]
+
+[documentation NPU1CommandToolExecutionDescriptionGet "Get a tool execution description."]
+[record NPU1CommandToolExecutionDescriptionGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation identifier "The identifier"]
+  [field identifier NPU1ToolExecutionIdentifier]
+]
+
+[documentation NPU1CommandToolExecutionDescriptionValidate "Validate a tool execution description."]
+[record NPU1CommandToolExecutionDescriptionValidate
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation variables "The variables."]
+  [field variables [cb:List NPU1ToolExecutionVariable]]
+  [documentation description "The description"]
+  [field description NPU1ToolExecutionDescription]
+]
+
 ;
 ; Events
 ;
@@ -288,6 +368,26 @@
   [field results [NPU1Page NPU1AgentLabel]]
 ]
 
+[documentation NPU1ResponseToolExecutionDescriptionValidate "A response to NPU1CommandToolExecutionDescriptionValidate."]
+[record NPU1ResponseToolExecutionDescriptionValidate
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation compilationMessages "The compilation messages."]
+  [field compilationMessages [cb:List NPU1CompilationMessage]]
+]
+
+[documentation NPU1ResponseToolExecutionDescriptionGet "A response to NPU1CommandToolExecutionDescriptionGet."]
+[record NPU1ResponseToolExecutionDescriptionGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation description "The description."]
+  [field description [cb:Option NPU1ToolExecutionDescription]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -308,6 +408,9 @@
       NPU1CommandRolesAssign
       NPU1CommandRolesGet
       NPU1CommandRolesRevoke
+      NPU1CommandToolExecutionDescriptionGet
+      NPU1CommandToolExecutionDescriptionPut
+      NPU1CommandToolExecutionDescriptionValidate
       NPU1ResponseAgentLabelGet
       NPU1ResponseAgentLabelSearch
       NPU1ResponseError
@@ -315,6 +418,8 @@
       NPU1ResponseRepositoryGet
       NPU1ResponseRepositorySearch
       NPU1ResponseRolesGet
+      NPU1ResponseToolExecutionDescriptionGet
+      NPU1ResponseToolExecutionDescriptionValidate
     ]
   ]
 ]

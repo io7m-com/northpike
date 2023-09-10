@@ -16,6 +16,7 @@
 
 import com.io7m.northpike.server.internal.telemetry.NPTelemetryServices;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
+import com.io7m.northpike.toolexec.NPTXParserFactoryType;
 
 /**
  * Continuous integration (Server)
@@ -66,6 +67,7 @@ module com.io7m.northpike.server
   requires org.slf4j;
 
   uses NPTelemetryServiceFactoryType;
+  uses NPTXParserFactoryType;
 
   provides NPTelemetryServiceFactoryType
     with NPTelemetryServices;

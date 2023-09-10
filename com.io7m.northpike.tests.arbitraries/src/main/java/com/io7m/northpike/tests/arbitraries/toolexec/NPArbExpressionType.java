@@ -20,15 +20,15 @@ package com.io7m.northpike.tests.arbitraries.toolexec;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import com.io7m.northpike.toolexec.model.NPTXEAnd;
 import com.io7m.northpike.toolexec.model.NPTXEFalse;
+import com.io7m.northpike.toolexec.model.NPTXEInteger;
 import com.io7m.northpike.toolexec.model.NPTXEIsEqual;
 import com.io7m.northpike.toolexec.model.NPTXENot;
-import com.io7m.northpike.toolexec.model.NPTXENumber;
 import com.io7m.northpike.toolexec.model.NPTXEOr;
 import com.io7m.northpike.toolexec.model.NPTXEString;
 import com.io7m.northpike.toolexec.model.NPTXEStringSetContains;
 import com.io7m.northpike.toolexec.model.NPTXETrue;
 import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
+import com.io7m.northpike.toolexec.model.NPTXEVariableInteger;
 import com.io7m.northpike.toolexec.model.NPTXEVariableString;
 import com.io7m.northpike.toolexec.model.NPTXEVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXExpressionType;
@@ -49,13 +49,13 @@ public final class NPArbExpressionType extends NPArbAbstract<NPTXExpressionType>
             Arbitraries.defaultFor(NPTXEFalse.class),
             Arbitraries.defaultFor(NPTXEIsEqual.class),
             Arbitraries.defaultFor(NPTXENot.class),
-            Arbitraries.defaultFor(NPTXENumber.class),
+            Arbitraries.defaultFor(NPTXEInteger.class),
             Arbitraries.defaultFor(NPTXEOr.class),
             Arbitraries.defaultFor(NPTXEString.class),
             Arbitraries.defaultFor(NPTXEStringSetContains.class),
             Arbitraries.defaultFor(NPTXETrue.class),
             Arbitraries.defaultFor(NPTXEVariableBoolean.class),
-            Arbitraries.defaultFor(NPTXEVariableNumber.class),
+            Arbitraries.defaultFor(NPTXEVariableInteger.class),
             Arbitraries.defaultFor(NPTXEVariableString.class),
             Arbitraries.defaultFor(NPTXEVariableStringSet.class)
           )

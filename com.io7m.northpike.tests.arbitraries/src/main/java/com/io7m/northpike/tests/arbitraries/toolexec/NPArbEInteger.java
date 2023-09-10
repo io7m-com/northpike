@@ -15,36 +15,26 @@
  */
 
 
-package com.io7m.northpike.toolexec.model;
+package com.io7m.northpike.tests.arbitraries.toolexec;
 
 import com.io7m.jlexing.core.LexicalPosition;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import com.io7m.northpike.toolexec.model.NPTXEInteger;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-import java.math.BigInteger;
-import java.net.URI;
-import java.util.Objects;
-
-/**
- * A numeric constant.
- *
- * @param lexical The lexical position of the expression
- * @param value   The numeric constant
- */
-
-public record NPTXENumber(
-  LexicalPosition<URI> lexical,
-  BigInteger value)
-  implements NPTXExpressionType
+public final class NPArbEInteger extends NPArbAbstract<NPTXEInteger>
 {
-  /**
-   * A numeric constant.
-   *
-   * @param lexical The lexical position of the expression
-   * @param value   The numeric constant
-   */
-
-  public NPTXENumber
+  public NPArbEInteger()
   {
-    Objects.requireNonNull(lexical, "lexical");
-    Objects.requireNonNull(value, "value");
+    super(
+      NPTXEInteger.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.defaultFor(LexicalPosition.class),
+          Arbitraries.longs()
+        ).as(NPTXEInteger::new);
+      }
+    );
   }
 }

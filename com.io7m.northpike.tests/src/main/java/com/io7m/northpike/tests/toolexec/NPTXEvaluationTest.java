@@ -24,7 +24,7 @@ import com.io7m.northpike.toolexec.checker.NPTXChecker;
 import com.io7m.northpike.toolexec.checker.NPTXCheckerException;
 import com.io7m.northpike.toolexec.evaluator.NPTXEvaluator;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableNumeric;
+import com.io7m.northpike.toolexec.model.NPTXPlanVariableInteger;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableString;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariables;
@@ -32,7 +32,6 @@ import com.io7m.northpike.toolexec.parser.NPTXDescriptionParser;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
-import java.math.BigInteger;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +52,7 @@ public final class NPTXEvaluationTest
           final var vb =
             new NPTXPlanVariableBoolean(new RDottedName("vb"), true);
           final var vn =
-            new NPTXPlanVariableNumeric(new RDottedName("vn"), BigInteger.ONE);
+            new NPTXPlanVariableInteger(new RDottedName("vn"), 1L);
           final var vs =
             new NPTXPlanVariableString(new RDottedName("vs"), "x");
           final var vss =

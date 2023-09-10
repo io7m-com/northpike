@@ -427,5 +427,18 @@ public final class NPStandardErrorCodes
   {
     return ERROR_USER_NONEXISTENT;
   }
+
+  private static final NPErrorCode ERROR_COMPILATION_FAILED =
+    new NPErrorCode("error-compilation-failed");
+
+  /**
+   * Compilation failed.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorCompilationFailed()
+  {
+    return ERROR_COMPILATION_FAILED;
+  }
 }
 

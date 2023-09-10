@@ -19,7 +19,7 @@ package com.io7m.northpike.tests.arbitraries.toolexec;
 
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableNumeric;
+import com.io7m.northpike.toolexec.model.NPTXPlanVariableInteger;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableString;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableType;
 import net.jqwik.api.Arbitraries;
@@ -34,7 +34,7 @@ public final class NPArbPlanVariable
       () -> {
         return Arbitraries.oneOf(
           Arbitraries.defaultFor(NPTXPlanVariableString.class),
-          Arbitraries.defaultFor(NPTXPlanVariableNumeric.class),
+          Arbitraries.defaultFor(NPTXPlanVariableInteger.class),
           Arbitraries.defaultFor(NPTXPlanVariableBoolean.class)
         );
       }

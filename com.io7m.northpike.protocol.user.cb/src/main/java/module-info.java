@@ -26,6 +26,7 @@ module com.io7m.northpike.protocol.user.cb
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.protocol.api;
   requires com.io7m.northpike.protocol.user;
+  requires com.io7m.northpike.toolexec;
 
   requires com.io7m.cedarbridge.runtime.api;
   requires com.io7m.cedarbridge.runtime.bssio;

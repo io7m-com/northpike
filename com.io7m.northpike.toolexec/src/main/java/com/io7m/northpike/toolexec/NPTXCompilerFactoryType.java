@@ -15,34 +15,24 @@
  */
 
 
-package com.io7m.northpike.toolexec.model;
+package com.io7m.northpike.toolexec;
 
-import com.io7m.lanark.core.RDottedName;
-
-import java.util.Objects;
+import com.io7m.repetoir.core.RPServiceType;
 
 /**
- * A numeric-typed plan variable.
- *
- * @param name  The name
- * @param value The value
+ * A factory of compilers.
  */
 
-public record NPTXPlanVariableNumeric(
-  RDottedName name,
-  Number value)
-  implements NPTXPlanVariableType
+public interface NPTXCompilerFactoryType
+  extends RPServiceType
 {
   /**
-   * A numeric-typed plan variable.
-   *
-   * @param name  The name
-   * @param value The value
+   * Create a new compiler.
+   * @param configuration The configuration
+   * @return The compiler
    */
 
-  public NPTXPlanVariableNumeric
-  {
-    Objects.requireNonNull(name, "name");
-    Objects.requireNonNull(value, "value");
-  }
+  NPTXCompilerType create(
+    NPTXCompilerConfiguration configuration
+  );
 }

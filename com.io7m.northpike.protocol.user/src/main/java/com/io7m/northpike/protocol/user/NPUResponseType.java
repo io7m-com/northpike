@@ -30,7 +30,9 @@ public sealed interface NPUResponseType
   NPUResponseOK,
   NPUResponsePagedType,
   NPUResponseRepositoryGet,
-  NPUResponseRolesGet
+  NPUResponseRolesGet,
+  NPUResponseToolExecutionDescriptionGet,
+  NPUResponseToolExecutionDescriptionValidate
 {
   /**
    * @return The ID of the message to which this message correlates

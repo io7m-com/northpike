@@ -7,8 +7,8 @@
   <If>
     <Condition>
       <IsEqual>
-        <Number Value="23"/>
-        <Number Value="23"/>
+        <Integer Value="23"/>
+        <Integer Value="23"/>
       </IsEqual>
     </Condition>
     <Then>

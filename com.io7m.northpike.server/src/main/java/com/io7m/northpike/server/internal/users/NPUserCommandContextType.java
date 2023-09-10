@@ -24,6 +24,8 @@ import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.strings.NPStringConstantType;
+import com.io7m.northpike.strings.NPStringConstants;
+import com.io7m.repetoir.core.RPServiceDirectoryType;
 
 import java.net.URI;
 import java.util.Optional;
@@ -94,6 +96,21 @@ public interface NPUserCommandContextType
     NPErrorCode errorCode);
 
   /**
+   * Fail with an error.
+   *
+   * @param suggestion The remediating action
+   * @param message    The error message
+   * @param errorCode  The error code
+   *
+   * @return The exception
+   */
+
+  NPException failWithRemediation(
+    NPStringConstants message,
+    NPErrorCode errorCode,
+    NPStringConstants suggestion);
+
+  /**
    * Indicate that the current user wants to disconnect.
    */
 
@@ -138,4 +155,20 @@ public interface NPUserCommandContextType
   <T> Optional<T> property(
     Class<T> key);
 
+  /**
+   * @return The service directory
+   */
+
+  RPServiceDirectoryType services();
+
+  /**
+   * Set a diagnostic attribute.
+   *
+   * @param key   The key
+   * @param value The value
+   */
+
+  void setAttribute(
+    NPStringConstantType key,
+    String value);
 }

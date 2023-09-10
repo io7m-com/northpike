@@ -15,35 +15,27 @@
  */
 
 
-package com.io7m.northpike.toolexec.model;
+package com.io7m.northpike.tests.arbitraries.toolexec;
 
-import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import com.io7m.northpike.toolexec.model.NPTXPlanVariableInteger;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-import java.net.URI;
-import java.util.Objects;
-
-/**
- * Obtain the number-typed value of the named plan variable.
- *
- * @param lexical The lexical position of the expression
- * @param name    The variable name
- */
-
-public record NPTXEVariableNumber(
-  LexicalPosition<URI> lexical,
-  RDottedName name)
-  implements NPTXExpressionType
+public final class NPArbPlanVariableInteger
+  extends NPArbAbstract<NPTXPlanVariableInteger>
 {
-  /**
-   * Obtain the number-typed value of the named plan variable.
-   *
-   * @param lexical The lexical position of the expression
-   * @param name    The variable name
-   */
-
-  public NPTXEVariableNumber
+  public NPArbPlanVariableInteger()
   {
-    Objects.requireNonNull(lexical, "lexical");
+    super(
+      NPTXPlanVariableInteger.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.defaultFor(RDottedName.class),
+          Arbitraries.integers()
+        ).as(NPTXPlanVariableInteger::new);
+      }
+    );
   }
 }

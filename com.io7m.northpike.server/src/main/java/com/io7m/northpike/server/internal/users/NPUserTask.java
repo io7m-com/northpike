@@ -34,6 +34,7 @@ import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.server.internal.idstore.NPIdstoreClientsType;
 import com.io7m.northpike.strings.NPStringConstantType;
+import com.io7m.northpike.strings.NPStringConstants;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
@@ -67,6 +68,7 @@ public final class NPUserTask
   private static final Logger LOG =
     LoggerFactory.getLogger(NPUserTask.class);
 
+  private final RPServiceDirectoryType services;
   private final NPUserServerConnectionType connection;
   private final NPConfigurationServiceType configuration;
   private final NPStrings strings;
@@ -81,6 +83,7 @@ public final class NPUserTask
   private NPUMessageType messageCurrent;
 
   private NPUserTask(
+    final RPServiceDirectoryType inServices,
     final NPUserServerConnectionType inConnection,
     final NPConfigurationServiceType inConfiguration,
     final NPStrings inStrings,
@@ -90,6 +93,8 @@ public final class NPUserTask
     final NPIdstoreClientsType inIdstore,
     final NPTelemetryServiceType inTelemetry)
   {
+    this.services =
+      Objects.requireNonNull(inServices, "inServices");
     this.connection =
       Objects.requireNonNull(inConnection, "connection");
     this.configuration =
@@ -151,6 +156,7 @@ public final class NPUserTask
 
     try {
       return new NPUserTask(
+        services,
         NPUserServerConnection.open(strings, sizeLimit, socket),
         configuration,
         strings,
@@ -348,6 +354,23 @@ public final class NPUserTask
     return this.sendException(message, errorCode, exception);
   }
 
+  @Override
+  public NPException failWithRemediation(
+    final NPStringConstants message,
+    final NPErrorCode errorCode,
+    final NPStringConstants suggestion)
+  {
+    final var exception =
+      new NPServerException(
+        this.strings.format(message),
+        errorCode,
+        this.attributes,
+        Optional.of(this.strings.format(suggestion))
+      );
+
+    return this.sendException(message, errorCode, exception);
+  }
+
   private NPServerException sendException(
     final NPStringConstantType message,
     final NPErrorCode errorCode,
@@ -409,5 +432,22 @@ public final class NPUserTask
   {
     Objects.requireNonNull(key, "key");
     return Optional.ofNullable((T) this.properties.get(key));
+  }
+
+  @Override
+  public RPServiceDirectoryType services()
+  {
+    return this.services;
+  }
+
+  @Override
+  public void setAttribute(
+    final NPStringConstantType key,
+    final String value)
+  {
+    this.attributes.put(
+      this.strings.format(key),
+      value
+    );
   }
 }

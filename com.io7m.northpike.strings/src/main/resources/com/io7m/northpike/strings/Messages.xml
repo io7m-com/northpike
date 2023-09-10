@@ -42,6 +42,8 @@
   <entry key="error_work_item_not_created">This work item is not in the CREATED state.</entry>
   <entry key="error_work_item_not_executed">You cannot report status for work item that you did not execute.</entry>
   <entry key="error_work_item_not_yours">This work item has a different selected agent.</entry>
+  <entry key="error_compilation_failed">Compilation failed.</entry>
+  <entry key="suggest_compilation_failed">Use the validation API to check data before submitting it.</entry>
   <entry key="expected">Expected</entry>
   <entry key="file">File</entry>
   <entry key="format">Format</entry>

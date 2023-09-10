@@ -14,6 +14,8 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.northpike.toolexec.NPTXCompilerFactoryType;
+import com.io7m.northpike.toolexec.NPTXCompilers;
 import com.io7m.northpike.toolexec.NPTXParserFactoryType;
 import com.io7m.northpike.toolexec.NPTXParsers;
 import com.io7m.northpike.toolexec.NPTXSerializerFactoryType;
@@ -46,6 +48,9 @@ module com.io7m.northpike.toolexec
 
   provides NPTXParserFactoryType
     with NPTXParsers;
+
+  provides NPTXCompilerFactoryType
+    with NPTXCompilers;
 
   exports com.io7m.northpike.toolexec.checker;
   exports com.io7m.northpike.toolexec.evaluator;

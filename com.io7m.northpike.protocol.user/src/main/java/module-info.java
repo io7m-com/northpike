@@ -26,6 +26,7 @@ module com.io7m.northpike.protocol.user
   requires com.io7m.idstore.model;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.protocol.api;
+  requires com.io7m.northpike.toolexec;
 
   exports com.io7m.northpike.protocol.user;
 }

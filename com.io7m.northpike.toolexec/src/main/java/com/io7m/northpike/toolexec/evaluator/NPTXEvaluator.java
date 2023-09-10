@@ -20,20 +20,20 @@ package com.io7m.northpike.toolexec.evaluator;
 import com.io7m.northpike.toolexec.checker.NPTXTypeChecked;
 import com.io7m.northpike.toolexec.model.NPTXEAnd;
 import com.io7m.northpike.toolexec.model.NPTXEFalse;
+import com.io7m.northpike.toolexec.model.NPTXEInteger;
 import com.io7m.northpike.toolexec.model.NPTXEIsEqual;
 import com.io7m.northpike.toolexec.model.NPTXENot;
-import com.io7m.northpike.toolexec.model.NPTXENumber;
 import com.io7m.northpike.toolexec.model.NPTXEOr;
 import com.io7m.northpike.toolexec.model.NPTXEString;
 import com.io7m.northpike.toolexec.model.NPTXEStringSetContains;
 import com.io7m.northpike.toolexec.model.NPTXETrue;
 import com.io7m.northpike.toolexec.model.NPTXEVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXEVariableNumber;
+import com.io7m.northpike.toolexec.model.NPTXEVariableInteger;
 import com.io7m.northpike.toolexec.model.NPTXEVariableString;
 import com.io7m.northpike.toolexec.model.NPTXEVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXExpressionType;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableNumeric;
+import com.io7m.northpike.toolexec.model.NPTXPlanVariableInteger;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableString;
 import com.io7m.northpike.toolexec.model.NPTXPlanVariableStringSet;
 import com.io7m.northpike.toolexec.model.NPTXSArgumentAdd;
@@ -165,7 +165,7 @@ public final class NPTXEvaluator
       return TRUE;
     }
 
-    if (expression instanceof final NPTXENumber e) {
+    if (expression instanceof final NPTXEInteger e) {
       return e.value();
     }
 
@@ -191,8 +191,8 @@ public final class NPTXEvaluator
       return vv.value();
     }
 
-    if (expression instanceof final NPTXEVariableNumber v) {
-      final var vv = (NPTXPlanVariableNumeric)
+    if (expression instanceof final NPTXEVariableInteger v) {
+      final var vv = (NPTXPlanVariableInteger)
         this.source.planVariables().variables().get(v.name());
       return vv.value();
     }

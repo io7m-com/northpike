@@ -15,28 +15,37 @@
  */
 
 
-package com.io7m.northpike.tests.arbitraries.toolexec;
+package com.io7m.northpike.toolexec;
 
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableNumeric;
-import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Combinators;
+import com.io7m.northpike.strings.NPStrings;
 
-public final class NPArbPlanVariableNumeric
-  extends NPArbAbstract<NPTXPlanVariableNumeric>
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * The configuration for a compiler.
+ *
+ * @param strings       The string resources
+ * @param allowWarnings {@code true} if warnings should not be errors
+ * @param parsers       The available parsers
+ */
+
+public record NPTXCompilerConfiguration(
+  NPStrings strings,
+  boolean allowWarnings,
+  List<NPTXParserFactoryType> parsers)
 {
-  public NPArbPlanVariableNumeric()
+  /**
+   * The configuration for a compiler.
+   *
+   * @param strings       The string resources
+   * @param allowWarnings {@code true} if warnings should not be errors
+   * @param parsers       The available parsers
+   */
+
+  public NPTXCompilerConfiguration
   {
-    super(
-      NPTXPlanVariableNumeric.class,
-      () -> {
-        return Combinators.combine(
-          Arbitraries.defaultFor(RDottedName.class),
-          Arbitraries.integers()
-        ).as(NPTXPlanVariableNumeric::new);
-      }
-    );
+    Objects.requireNonNull(strings, "strings");
+    Objects.requireNonNull(parsers, "parsers");
   }
 }
