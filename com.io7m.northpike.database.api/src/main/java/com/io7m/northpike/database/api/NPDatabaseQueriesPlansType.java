@@ -19,6 +19,7 @@ package com.io7m.northpike.database.api;
 
 import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.plans.NPPlanIdentifier;
+import com.io7m.northpike.plans.NPPlanSearchParameters;
 import com.io7m.northpike.plans.NPPlanType;
 import com.io7m.northpike.plans.parsers.NPPlanDescription;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
@@ -130,5 +131,16 @@ public sealed interface NPDatabaseQueriesPlansType
         Objects.requireNonNull(format, "format");
       }
     }
+  }
+
+  /**
+   * Search for plans.
+   */
+
+  non-sealed interface SearchType
+    extends NPDatabaseQueryType<NPPlanSearchParameters, NPPlansPagedType>,
+    NPDatabaseQueriesPlansType
+  {
+
   }
 }

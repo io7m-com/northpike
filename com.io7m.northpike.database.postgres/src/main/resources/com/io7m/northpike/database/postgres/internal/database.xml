@@ -470,16 +470,28 @@ CREATE TABLE tool_execution_descriptions (
       assignments.
     </Comment>
 
-    <Statement><![CDATA[
+    <StatementParameterized parameterInterpolation="STRING_FORMATTING">
+      <ParameterReferences>
+        <ParameterReference order="0"
+                            name="search.language"/>
+      </ParameterReferences>
+      <Text><![CDATA[
 CREATE TABLE plans (
-  p_id        BIGINT  NOT NULL GENERATED ALWAYS AS IDENTITY,
-  p_name      TEXT    NOT NULL,
-  p_version   BIGINT  NOT NULL,
-  p_format    TEXT    NOT NULL,
-  p_data      BYTEA   NOT NULL,
-  p_encoding  TEXT    NOT NULL,
+  p_id          BIGINT  NOT NULL GENERATED ALWAYS AS IDENTITY,
+  p_name        TEXT    NOT NULL,
+  p_version     BIGINT  NOT NULL,
+  p_description TEXT    NOT NULL,
+  p_format      TEXT    NOT NULL,
+  p_data        BYTEA   NOT NULL,
+  p_encoding    TEXT    NOT NULL,
 
   -- [jooq ignore start]
+  p_name_search TSVECTOR NOT NULL
+    GENERATED ALWAYS AS (to_tsvector(%1$S, p_name)) STORED,
+
+  p_description_search TSVECTOR NOT NULL
+    GENERATED ALWAYS AS (to_tsvector(%1$S, p_description)) STORED,
+
   CONSTRAINT plans_name_version_unique
     UNIQUE (p_name, p_version),
   -- [jooq ignore stop]
@@ -496,7 +508,9 @@ CREATE TABLE plans (
   CONSTRAINT plans_name_valid
     CHECK (p_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$')
 )
-]]></Statement>
+]]>
+      </Text>
+    </StatementParameterized>
 
     <Comment>
       The archives table stores information about the archives that are

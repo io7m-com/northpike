@@ -594,6 +594,16 @@
         </xsd:annotation>
       </xsd:attribute>
 
+      <xsd:attribute name="Description"
+                     use="optional"
+                     type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            A short description of the plan.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
       <xsd:attribute name="Version"
                      use="required"
                      type="xsd:unsignedLong">

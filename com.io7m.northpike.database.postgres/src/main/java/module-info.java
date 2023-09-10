@@ -74,6 +74,7 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQPlanGet,
     com.io7m.northpike.database.postgres.internal.NPDBQPlanGetRaw,
     com.io7m.northpike.database.postgres.internal.NPDBQPlanPut,
+    com.io7m.northpike.database.postgres.internal.NPDBQPlanSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQRepositoryCommitGet,
     com.io7m.northpike.database.postgres.internal.NPDBQRepositoryCommitsGet,
     com.io7m.northpike.database.postgres.internal.NPDBQRepositoryCommitsGetMostRecentlyReceived,

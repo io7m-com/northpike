@@ -114,6 +114,10 @@ public final class NPP1Serializer
       plan.identifier().name().toString()
     );
     this.output.writeAttribute(
+      "Description",
+      plan.description()
+    );
+    this.output.writeAttribute(
       "Version",
       Long.toUnsignedString(plan.identifier().version())
     );

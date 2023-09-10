@@ -37,6 +37,7 @@ import java.util.Objects;
 public final class NPPlan implements NPPlanType
 {
   private final NPPlanIdentifier identifier;
+  private final String description;
   private final NPPlanTimeouts timeouts;
   private final Map<NPToolReferenceName, NPToolReference> toolReferences;
   private final Map<NPPlanElementName, NPPlanElementType> elements;
@@ -44,6 +45,7 @@ public final class NPPlan implements NPPlanType
 
   NPPlan(
     final NPPlanIdentifier inIdentifier,
+    final String inDescription,
     final NPPlanTimeouts inTimeouts,
     final Map<NPToolReferenceName, NPToolReference> inToolReferences,
     final Map<NPPlanElementName, NPPlanElementType> inElements,
@@ -51,6 +53,8 @@ public final class NPPlan implements NPPlanType
   {
     this.identifier =
       Objects.requireNonNull(inIdentifier, "identifier");
+    this.description =
+      Objects.requireNonNull(inDescription, "description");
     this.timeouts =
       Objects.requireNonNull(inTimeouts, "timeouts");
     this.toolReferences =
@@ -65,6 +69,12 @@ public final class NPPlan implements NPPlanType
   public NPPlanIdentifier identifier()
   {
     return this.identifier;
+  }
+
+  @Override
+  public String description()
+  {
+    return this.description;
   }
 
   @Override

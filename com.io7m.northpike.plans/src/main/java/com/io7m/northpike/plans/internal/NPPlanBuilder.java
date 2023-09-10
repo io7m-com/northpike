@@ -74,6 +74,7 @@ public final class NPPlanBuilder
   private final HashMap<NPPlanElementName, NPPlanElementBuilder> elements;
   private final NPPlanIdentifier identifier;
   private NPPlanTimeouts timeouts;
+  private String description;
 
   /**
    * A mutable plan builder.
@@ -91,6 +92,8 @@ public final class NPPlanBuilder
     this.identifier =
       Objects.requireNonNull(inIdentifier, "identifier");
 
+    this.description =
+      "";
     this.timeouts =
       NPPlanTimeouts.defaultTimeouts();
     this.graph =
@@ -99,6 +102,16 @@ public final class NPPlanBuilder
       new HashMap<>();
     this.toolReferences =
       new HashMap<>();
+  }
+
+  @Override
+  public NPPlanBuilderType setDescription(
+    final String newDescription)
+    throws NPPlanException
+  {
+    this.description =
+      Objects.requireNonNull(newDescription, "description");
+    return this;
   }
 
   @Override
@@ -132,6 +145,7 @@ public final class NPPlanBuilder
 
     return new NPPlan(
       this.identifier,
+      this.description,
       this.timeouts,
       imToolReferences,
       Map.copyOf(newElements),

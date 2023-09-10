@@ -36,6 +36,12 @@ public interface NPPlanType
   NPPlanIdentifier identifier();
 
   /**
+   * @return A humanly-readable plan description
+   */
+
+  String description();
+
+  /**
    * @return The default plan timeouts
    */
 
@@ -58,4 +64,13 @@ public interface NPPlanType
    */
 
   Graph<NPPlanElementType, NPPlanDependency> graph();
+
+  /**
+   * @return The plan summary
+   */
+
+  default NPPlanSummary summary()
+  {
+    return new NPPlanSummary(this.identifier(), this.description());
+  }
 }

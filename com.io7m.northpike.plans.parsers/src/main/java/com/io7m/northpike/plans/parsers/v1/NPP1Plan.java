@@ -32,6 +32,7 @@ import org.xml.sax.Attributes;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.io7m.northpike.plans.parsers.v1.NPP1.element;
 
@@ -46,6 +47,7 @@ public final class NPP1Plan
   private Map<NPToolReferenceName, NPToolReference> toolReferences;
   private Map<NPPlanElementName, NPPlanElementDescriptionType> elements;
   private NPPlanTimeouts timeouts;
+  private String description;
 
   /**
    * A plan parser.
@@ -96,6 +98,12 @@ public final class NPP1Plan
         attributes.getValue("Name"),
         Long.parseUnsignedLong(attributes.getValue("Version"))
       );
+
+    this.description =
+      Objects.requireNonNullElse(
+        attributes.getValue("Description"),
+        ""
+      );
   }
 
   @Override
@@ -104,6 +112,7 @@ public final class NPP1Plan
   {
     return new NPPlanDescription(
       this.identifier,
+      this.description,
       this.timeouts,
       this.toolReferences,
       this.elements
@@ -127,8 +136,8 @@ public final class NPP1Plan
       return;
     }
 
-    if (result instanceof final NPPlanElementDescriptionType description) {
-      this.elements.put(description.name(), description);
+    if (result instanceof final NPPlanElementDescriptionType element) {
+      this.elements.put(element.name(), element);
       return;
     }
 

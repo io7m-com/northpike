@@ -26,6 +26,20 @@ import com.io7m.northpike.model.NPToolReference;
 public interface NPPlanBuilderType
 {
   /**
+   * Set the plan description.
+   *
+   * @param description The description
+   *
+   * @return this
+   *
+   * @throws NPPlanException On errors
+   */
+
+  NPPlanBuilderType setDescription(
+    String description)
+    throws NPPlanException;
+
+  /**
    * Construct a plan.
    *
    * @return A plan based on all the given information

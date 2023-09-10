@@ -37,6 +37,7 @@ import java.util.Objects;
  * will validate the plan and compile it into something executable.
  *
  * @param identifier     The plan identifier
+ * @param description    A humanly-readable description of the plan
  * @param timeouts       The default timeouts
  * @param toolReferences The tool references
  * @param elements       The plan elements
@@ -44,6 +45,7 @@ import java.util.Objects;
 
 public record NPPlanDescription(
   NPPlanIdentifier identifier,
+  String description,
   NPPlanTimeouts timeouts,
   Map<NPToolReferenceName, NPToolReference> toolReferences,
   Map<NPPlanElementName, NPPlanElementDescriptionType> elements)
@@ -55,6 +57,7 @@ public record NPPlanDescription(
    * will validate the plan and compile it into something executable.
    *
    * @param identifier     The plan identifier
+   * @param description    A humanly-readable description of the plan
    * @param timeouts       The default timeouts
    * @param toolReferences The tool references
    * @param elements       The plan elements
@@ -63,6 +66,7 @@ public record NPPlanDescription(
   public NPPlanDescription
   {
     Objects.requireNonNull(identifier, "identifier");
+    Objects.requireNonNull(description, "description");
     Objects.requireNonNull(timeouts, "timeouts");
     Objects.requireNonNull(toolReferences, "toolReferences");
     Objects.requireNonNull(elements, "elements");
@@ -91,6 +95,7 @@ public record NPPlanDescription(
       );
 
     builder.setTimeouts(this.timeouts);
+    builder.setDescription(this.description);
 
     for (final var refs : this.toolReferences.values()) {
       builder.addToolReference(refs);

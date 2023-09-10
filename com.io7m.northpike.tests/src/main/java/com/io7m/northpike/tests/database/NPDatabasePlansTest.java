@@ -25,9 +25,11 @@ import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.plans.NPPlanIdentifier;
+import com.io7m.northpike.plans.NPPlanSearchParameters;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanParserType;
@@ -141,7 +143,7 @@ public final class NPDatabasePlansTest
         .build();
 
     put.execute(
-      new NPDatabaseQueriesPlansType.PutType.Parameters(
+      new Parameters(
         plan,
         new NPPlanSerializers())
     );
@@ -189,7 +191,7 @@ public final class NPDatabasePlansTest
     final var ex =
       assertThrows(NPDatabaseException.class, () -> {
         put.execute(
-          new NPDatabaseQueriesPlansType.PutType.Parameters(
+          new Parameters(
             plan,
             this.failingSerializers
           )
@@ -227,7 +229,7 @@ public final class NPDatabasePlansTest
 
     final var serializers = new NPPlanSerializers();
     put.execute(
-      new NPDatabaseQueriesPlansType.PutType.Parameters(plan, serializers)
+      new Parameters(plan, serializers)
     );
 
     Mockito.when(this.failingParsers.formats())
@@ -274,7 +276,7 @@ public final class NPDatabasePlansTest
 
     final var serializers = new NPPlanSerializers();
     put.execute(
-      new NPDatabaseQueriesPlansType.PutType.Parameters(plan, serializers)
+      new Parameters(plan, serializers)
     );
 
     Mockito.when(this.failingParsers.formats())
@@ -324,5 +326,102 @@ public final class NPDatabasePlansTest
         NPPlanIdentifier.of("x", 23L)
       )
     );
+  }
+
+  /**
+   * Creating plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearch0()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+
+    final var strings =
+      NPStrings.create(Locale.ROOT);
+
+    final var plan0 =
+      NPPlans.builder(strings, "com.io7m.p", 1L)
+        .build();
+    final var plan1 =
+      NPPlans.builder(strings, "com.io7m.p", 2L)
+        .build();
+    final var plan2 =
+      NPPlans.builder(strings, "com.io7m.p", 3L)
+        .build();
+
+    put.execute(new Parameters(plan0, new NPPlanSerializers()));
+    put.execute(new Parameters(plan1, new NPPlanSerializers()));
+    put.execute(new Parameters(plan2, new NPPlanSerializers()));
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(new NPPlanSearchParameters(""));
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plan0.identifier(), p.items().get(0).identifier());
+    assertEquals(plan1.identifier(), p.items().get(1).identifier());
+    assertEquals(plan2.identifier(), p.items().get(2).identifier());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
+  /**
+   * Creating plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearch1()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+
+    final var strings =
+      NPStrings.create(Locale.ROOT);
+
+    final var plan0 =
+      NPPlans.builder(strings, "com.io7m.p", 1L)
+        .setDescription("Abacus")
+        .build();
+    final var plan1 =
+      NPPlans.builder(strings, "com.io7m.p", 2L)
+        .setDescription("Marimba")
+        .build();
+    final var plan2 =
+      NPPlans.builder(strings, "com.io7m.p", 3L)
+        .setDescription("Nova")
+        .build();
+
+    put.execute(new Parameters(plan0, new NPPlanSerializers()));
+    put.execute(new Parameters(plan1, new NPPlanSerializers()));
+    put.execute(new Parameters(plan2, new NPPlanSerializers()));
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(new NPPlanSearchParameters("marimba"));
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plan1.identifier(), p.items().get(0).identifier());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
   }
 }

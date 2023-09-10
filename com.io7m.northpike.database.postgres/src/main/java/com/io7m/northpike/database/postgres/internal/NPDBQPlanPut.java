@@ -82,16 +82,18 @@ public final class NPDBQPlanPut
         output.toByteArray();
 
       context.insertInto(PLANS)
+        .set(PLANS.P_DATA, data)
+        .set(PLANS.P_DESCRIPTION, plan.description())
+        .set(PLANS.P_ENCODING, charsetName)
+        .set(PLANS.P_FORMAT, serializer.format().toString())
         .set(PLANS.P_NAME, identifier.name().toString())
         .set(PLANS.P_VERSION, Long.valueOf(identifier.version()))
-        .set(PLANS.P_DATA, data)
-        .set(PLANS.P_FORMAT, serializer.format().toString())
-        .set(PLANS.P_ENCODING, charsetName)
         .onConflictOnConstraint(DSL.name("plans_name_version_unique"))
         .doUpdate()
         .set(PLANS.P_DATA, data)
-        .set(PLANS.P_FORMAT, serializer.format().toString())
+        .set(PLANS.P_DESCRIPTION, plan.description())
         .set(PLANS.P_ENCODING, charsetName)
+        .set(PLANS.P_FORMAT, serializer.format().toString())
         .execute();
     } catch (final IOException e) {
       throw NPDatabaseExceptions.ofIOError(
