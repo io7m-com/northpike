@@ -20,6 +20,7 @@ package com.io7m.northpike.tests.arbitraries;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSearchParameters;
 import com.io7m.northpike.model.NPToolName;
 import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
 public final class NPArbToolExecutionDescriptionSearchParameters
   extends NPArbAbstract<NPToolExecutionDescriptionSearchParameters>
@@ -29,10 +30,11 @@ public final class NPArbToolExecutionDescriptionSearchParameters
     super(
       NPToolExecutionDescriptionSearchParameters.class,
       () -> {
-        return
+        return Combinators.combine(
           Arbitraries.defaultFor(NPToolName.class)
-            .optional()
-            .map(NPToolExecutionDescriptionSearchParameters::new);
+            .optional(),
+          Arbitraries.longs()
+        ).as(NPToolExecutionDescriptionSearchParameters::new);
       }
     );
   }

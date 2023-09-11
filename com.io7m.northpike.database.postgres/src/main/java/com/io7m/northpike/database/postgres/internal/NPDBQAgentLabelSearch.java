@@ -98,7 +98,7 @@ public final class NPDBQAgentLabelSearch
         .addWhereCondition(condition)
         .addSortField(sortField)
         .setDistinct(JQSelectDistinct.SELECT_DISTINCT)
-        .setPageSize(100L)
+        .setPageSize(parameters.pageSize())
         .setStatementListener(statement -> {
           Span.current().setAttribute(DB_STATEMENT, statement.toString());
         }).build();

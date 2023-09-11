@@ -20,7 +20,7 @@ package com.io7m.northpike.database.api;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitID;
-import com.io7m.northpike.model.NPCommitListParameters;
+import com.io7m.northpike.model.NPCommitSearchParameters;
 import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPRepositoryDescription;
 
@@ -116,7 +116,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    */
 
   non-sealed interface CommitsGetType
-    extends NPDatabaseQueryType<NPCommitListParameters, NPCommitSummaryLinkedPagedType>,
+    extends NPDatabaseQueryType<NPCommitSearchParameters, NPCommitSummaryLinkedPagedType>,
     NPDatabaseQueriesRepositoriesType
   {
 

@@ -363,7 +363,7 @@ public final class NPDatabasePlansTest
     this.transaction.commit();
 
     final var r =
-      search.execute(new NPPlanSearchParameters(""));
+      search.execute(new NPPlanSearchParameters("", 1000L));
 
     final var p =
       r.pageCurrent(this.transaction);
@@ -414,7 +414,7 @@ public final class NPDatabasePlansTest
     this.transaction.commit();
 
     final var r =
-      search.execute(new NPPlanSearchParameters("marimba"));
+      search.execute(new NPPlanSearchParameters("marimba", 1000L));
 
     final var p =
       r.pageCurrent(this.transaction);

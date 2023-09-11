@@ -19,6 +19,7 @@ package com.io7m.northpike.tests.arbitraries;
 
 import com.io7m.northpike.model.NPRepositorySearchParameters;
 import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
 public final class NPArbRepositorySearchParameters
   extends NPArbAbstract<NPRepositorySearchParameters>
@@ -28,7 +29,12 @@ public final class NPArbRepositorySearchParameters
     super(
       NPRepositorySearchParameters.class,
       () -> {
-        return Arbitraries.create(() -> new NPRepositorySearchParameters());
+        return Combinators.combine(
+          Arbitraries.nothing(),
+          Arbitraries.longs()
+        ).as((unused, pageSize) -> {
+          return new NPRepositorySearchParameters(pageSize.longValue());
+        });
       }
     );
   }

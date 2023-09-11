@@ -22,6 +22,7 @@ import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AgentLabelSearchParameters;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.string;
+import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
 
 /**
  * A validator.
@@ -41,7 +42,8 @@ public enum NPUVAgentLabelSearchParameters
     final NPAgentLabelSearchParameters message)
   {
     return new NPU1AgentLabelSearchParameters(
-      string(message.query())
+      string(message.query()),
+      unsigned32(message.pageSize())
     );
   }
 
@@ -50,7 +52,8 @@ public enum NPUVAgentLabelSearchParameters
     final NPU1AgentLabelSearchParameters message)
   {
     return new NPAgentLabelSearchParameters(
-      message.fieldQuery().value()
+      message.fieldQuery().value(),
+      message.fieldPageSize().value()
     );
   }
 }

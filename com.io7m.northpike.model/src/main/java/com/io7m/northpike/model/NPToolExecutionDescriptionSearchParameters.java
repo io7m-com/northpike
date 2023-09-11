@@ -22,20 +22,25 @@ import java.util.Optional;
 /**
  * The search parameters for tool execution descriptions.
  *
- * @param forTool Only include executions for the given tool
+ * @param forTool  Only include executions for the given tool
+ * @param pageSize The page size
  */
 
 public record NPToolExecutionDescriptionSearchParameters(
-  Optional<NPToolName> forTool)
+  Optional<NPToolName> forTool,
+  long pageSize)
+  implements NPSearchParametersType
 {
   /**
    * The search parameters for tool execution descriptions.
    *
-   * @param forTool Only include executions for the given tool
+   * @param forTool  Only include executions for the given tool
+   * @param pageSize The page size
    */
 
   public NPToolExecutionDescriptionSearchParameters
   {
     Objects.requireNonNull(forTool, "forTool");
+    pageSize = NPPageSizes.clampPageSize(pageSize);
   }
 }

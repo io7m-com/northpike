@@ -15,26 +15,32 @@
  */
 
 
-package com.io7m.northpike.tests.arbitraries;
+package com.io7m.northpike.model;
 
+import java.util.Objects;
 
-import com.io7m.northpike.plans.NPPlanSearchParameters;
-import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Combinators;
+/**
+ * The parameters required to list agents.
+ *
+ * @param matchLabels The expression against which to match agent labels
+ * @param pageSize    The page size
+ */
 
-public final class NPArbPlanSearchParameters
-  extends NPArbAbstract<NPPlanSearchParameters>
+public record NPAgentSearchParameters(
+  NPAgentLabelMatchType matchLabels,
+  long pageSize)
+  implements NPSearchParametersType
 {
-  public NPArbPlanSearchParameters()
+  /**
+   * The parameters required to list agents.
+   *
+   * @param matchLabels The expression against which to match agent labels
+   * @param pageSize    The page size
+   */
+
+  public NPAgentSearchParameters
   {
-    super(
-      NPPlanSearchParameters.class,
-      () -> {
-        return Combinators.combine(
-          Arbitraries.strings().alpha(),
-          Arbitraries.longs()
-        ).as(NPPlanSearchParameters::new);
-      }
-    );
+    Objects.requireNonNull(matchLabels, "matchLabels");
+    pageSize = NPPageSizes.clampPageSize(pageSize);
   }
 }

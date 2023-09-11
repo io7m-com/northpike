@@ -126,7 +126,7 @@ public final class NPUCmdRepositorySearchBeginTest
     final var command =
       new NPUCommandRepositorySearchBegin(
         UUID.randomUUID(),
-        new NPRepositorySearchParameters()
+        new NPRepositorySearchParameters(1000L)
       );
 
     final var ex =
@@ -156,7 +156,7 @@ public final class NPUCmdRepositorySearchBeginTest
     final var command =
       new NPUCommandRepositorySearchBegin(
         UUID.randomUUID(),
-        new NPRepositorySearchParameters()
+        new NPRepositorySearchParameters(1000L)
       );
 
     final var userId =
@@ -196,7 +196,7 @@ public final class NPUCmdRepositorySearchBeginTest
     final var command =
       new NPUCommandRepositorySearchBegin(
         UUID.randomUUID(),
-        new NPRepositorySearchParameters()
+        new NPRepositorySearchParameters(1000L)
       );
 
     final var userId =

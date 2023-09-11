@@ -21,6 +21,8 @@ import com.io7m.northpike.model.NPRepositorySearchParameters;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1RepositorySearchParameters;
 
+import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
+
 /**
  * A validator.
  */
@@ -39,7 +41,7 @@ public enum NPUVRepositorySearchParameters
     final NPRepositorySearchParameters message)
   {
     return new NPU1RepositorySearchParameters(
-
+      unsigned32(message.pageSize())
     );
   }
 
@@ -48,7 +50,7 @@ public enum NPUVRepositorySearchParameters
     final NPU1RepositorySearchParameters message)
   {
     return new NPRepositorySearchParameters(
-
+      message.fieldPageSize().value()
     );
   }
 }

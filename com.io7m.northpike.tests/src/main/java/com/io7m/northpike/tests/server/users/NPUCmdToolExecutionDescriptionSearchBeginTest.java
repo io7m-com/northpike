@@ -127,7 +127,8 @@ public final class NPUCmdToolExecutionDescriptionSearchBeginTest
       new NPUCommandToolExecutionDescriptionSearchBegin(
         UUID.randomUUID(),
         new NPToolExecutionDescriptionSearchParameters(
-          Optional.empty()
+          Optional.empty(),
+          1000L
         )
       );
 
@@ -159,7 +160,8 @@ public final class NPUCmdToolExecutionDescriptionSearchBeginTest
       new NPUCommandToolExecutionDescriptionSearchBegin(
         UUID.randomUUID(),
         new NPToolExecutionDescriptionSearchParameters(
-          Optional.empty()
+          Optional.empty(),
+          1000L
         )
       );
 
@@ -201,7 +203,8 @@ public final class NPUCmdToolExecutionDescriptionSearchBeginTest
       new NPUCommandToolExecutionDescriptionSearchBegin(
         UUID.randomUUID(),
         new NPToolExecutionDescriptionSearchParameters(
-          Optional.empty()
+          Optional.empty(),
+          1000L
         )
       );
 

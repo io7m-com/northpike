@@ -124,7 +124,7 @@ public final class NPUCmdAgentLabelSearchBeginTest
     final var command =
       new NPUCommandAgentLabelSearchBegin(
         UUID.randomUUID(),
-        new NPAgentLabelSearchParameters("")
+        new NPAgentLabelSearchParameters("", 1000L)
       );
 
     final var ex =
@@ -154,7 +154,7 @@ public final class NPUCmdAgentLabelSearchBeginTest
     final var command =
       new NPUCommandAgentLabelSearchBegin(
         UUID.randomUUID(),
-        new NPAgentLabelSearchParameters("")
+        new NPAgentLabelSearchParameters("", 1000L)
       );
 
     final var userId =
@@ -194,7 +194,7 @@ public final class NPUCmdAgentLabelSearchBeginTest
     final var command =
       new NPUCommandAgentLabelSearchBegin(
         UUID.randomUUID(),
-        new NPAgentLabelSearchParameters("")
+        new NPAgentLabelSearchParameters("", 1000L)
       );
 
     final var userId =

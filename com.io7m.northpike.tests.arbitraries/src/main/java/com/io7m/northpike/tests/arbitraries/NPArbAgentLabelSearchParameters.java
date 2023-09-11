@@ -19,6 +19,7 @@ package com.io7m.northpike.tests.arbitraries;
 
 import com.io7m.northpike.model.NPAgentLabelSearchParameters;
 import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
 public final class NPArbAgentLabelSearchParameters
   extends NPArbAbstract<NPAgentLabelSearchParameters>
@@ -28,9 +29,10 @@ public final class NPArbAgentLabelSearchParameters
     super(
       NPAgentLabelSearchParameters.class,
       () -> {
-        return Arbitraries.strings()
-          .alpha()
-          .map(NPAgentLabelSearchParameters::new);
+        return Combinators.combine(
+          Arbitraries.strings().alpha(),
+          Arbitraries.longs()
+        ).as(NPAgentLabelSearchParameters::new);
       }
     );
   }

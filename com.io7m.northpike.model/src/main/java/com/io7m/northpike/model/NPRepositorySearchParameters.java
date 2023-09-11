@@ -19,9 +19,22 @@ package com.io7m.northpike.model;
 
 /**
  * The search parameters for repositories.
+ *
+ * @param pageSize The page size
  */
 
-public record NPRepositorySearchParameters()
+public record NPRepositorySearchParameters(
+  long pageSize)
+  implements NPSearchParametersType
 {
+  /**
+   * The search parameters for repositories.
+   *
+   * @param pageSize The page size
+   */
 
+  public NPRepositorySearchParameters
+  {
+    pageSize = NPPageSizes.clampPageSize(pageSize);
+  }
 }

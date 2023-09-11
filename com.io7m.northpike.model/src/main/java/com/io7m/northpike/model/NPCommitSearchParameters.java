@@ -32,13 +32,14 @@ import java.util.UUID;
  * @param pageSize          The page size
  */
 
-public record NPCommitListParameters(
+public record NPCommitSearchParameters(
   Optional<UUID> repository,
   Optional<NPCommitID> sinceCreated,
   Optional<NPCommitID> sinceReceived,
   NPTimeRange timeRangeCreated,
   NPTimeRange timeRangeReceived,
   long pageSize)
+  implements NPSearchParametersType
 {
   /**
    * The parameters required to list commits.
@@ -51,7 +52,7 @@ public record NPCommitListParameters(
    * @param pageSize          The page size
    */
 
-  public NPCommitListParameters
+  public NPCommitSearchParameters
   {
     Objects.requireNonNull(repository, "repository");
     Objects.requireNonNull(sinceCreated, "sinceCreated");
@@ -59,6 +60,6 @@ public record NPCommitListParameters(
     Objects.requireNonNull(timeRangeCreated, "timeRangeCreated");
     Objects.requireNonNull(timeRangeReceived, "timeRangeReceived");
 
-    pageSize = Math.min(pageSize, 1000L);
+    pageSize = NPPageSizes.clampPageSize(pageSize);
   }
 }

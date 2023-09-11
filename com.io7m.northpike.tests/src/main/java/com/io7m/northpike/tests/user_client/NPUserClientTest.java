@@ -446,7 +446,7 @@ public final class NPUserClientTest
     final var r =
       this.userClient.execute(
         new NPUCommandRepositorySearchBegin(
-          randomUUID(), new NPRepositorySearchParameters()));
+          randomUUID(), new NPRepositorySearchParameters(1000L)));
 
     this.userClient.execute(
       new NPUCommandRepositorySearchNext(randomUUID()));
@@ -540,7 +540,7 @@ public final class NPUserClientTest
         this.userClient.execute(
           new NPUCommandToolExecutionDescriptionSearchBegin(
             randomUUID(),
-            new NPToolExecutionDescriptionSearchParameters(empty()))
+            new NPToolExecutionDescriptionSearchParameters(empty(), 1000L))
         );
 
       assertEquals(

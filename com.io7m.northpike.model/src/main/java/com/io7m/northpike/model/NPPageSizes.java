@@ -15,26 +15,30 @@
  */
 
 
-package com.io7m.northpike.tests.arbitraries;
+package com.io7m.northpike.model;
 
+/**
+ * The page sizes.
+ */
 
-import com.io7m.northpike.plans.NPPlanSearchParameters;
-import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Combinators;
-
-public final class NPArbPlanSearchParameters
-  extends NPArbAbstract<NPPlanSearchParameters>
+public final class NPPageSizes
 {
-  public NPArbPlanSearchParameters()
+  private NPPageSizes()
   {
-    super(
-      NPPlanSearchParameters.class,
-      () -> {
-        return Combinators.combine(
-          Arbitraries.strings().alpha(),
-          Arbitraries.longs()
-        ).as(NPPlanSearchParameters::new);
-      }
-    );
+
+  }
+
+  /**
+   * Clamp the page size to a sensible range.
+   *
+   * @param size The size
+   *
+   * @return The clamped size
+   */
+
+  public static long clampPageSize(
+    final long size)
+  {
+    return Math.max(1L, Math.min(1000L, size));
   }
 }

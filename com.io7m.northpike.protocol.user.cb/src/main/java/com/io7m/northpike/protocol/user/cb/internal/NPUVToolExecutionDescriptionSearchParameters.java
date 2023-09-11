@@ -24,6 +24,8 @@ import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1ToolExecutionDescriptionSearchParameters;
 
+import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
+
 /**
  * A validator.
  */
@@ -48,7 +50,8 @@ public enum NPUVToolExecutionDescriptionSearchParameters
         message.forTool()
           .map(NPToolName::toString)
           .map(CBCore::string)
-      )
+      ),
+      unsigned32(message.pageSize())
     );
   }
 
@@ -59,7 +62,8 @@ public enum NPUVToolExecutionDescriptionSearchParameters
     return new NPToolExecutionDescriptionSearchParameters(
       message.fieldToolName()
         .asOptional()
-        .map(x -> NPToolName.of(x.value()))
+        .map(x -> NPToolName.of(x.value())),
+      message.fieldPageSize().value()
     );
   }
 }

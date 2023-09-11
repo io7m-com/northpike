@@ -22,6 +22,7 @@ import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1PlanSearchParameters;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.string;
+import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
 
 /**
  * A validator.
@@ -43,7 +44,8 @@ public enum NPUVPlanSearchParameters
     final NPPlanSearchParameters message)
   {
     return new NPU1PlanSearchParameters(
-      string(message.query())
+      string(message.query()),
+      unsigned32(message.pageSize())
     );
   }
 
@@ -52,7 +54,8 @@ public enum NPUVPlanSearchParameters
     final NPU1PlanSearchParameters message)
   {
     return new NPPlanSearchParameters(
-      message.fieldQuery().value()
+      message.fieldQuery().value(),
+      message.fieldPageSize().value()
     );
   }
 }

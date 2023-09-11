@@ -17,25 +17,33 @@
 
 package com.io7m.northpike.plans;
 
+import com.io7m.northpike.model.NPPageSizes;
+import com.io7m.northpike.model.NPSearchParametersType;
+
 import java.util.Objects;
 
 /**
  * The search parameters for plans.
  *
- * @param query The search query
+ * @param query    The search query
+ * @param pageSize The page size
  */
 
 public record NPPlanSearchParameters(
-  String query)
+  String query,
+  long pageSize)
+  implements NPSearchParametersType
 {
   /**
    * The search parameters for plans.
    *
-   * @param query The search query
+   * @param query    The search query
+   * @param pageSize The page size
    */
 
   public NPPlanSearchParameters
   {
     Objects.requireNonNull(query, "query");
+    pageSize = NPPageSizes.clampPageSize(pageSize);
   }
 }

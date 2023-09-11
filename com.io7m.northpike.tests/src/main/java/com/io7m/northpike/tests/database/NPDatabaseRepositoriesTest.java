@@ -35,7 +35,7 @@ import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitLink;
-import com.io7m.northpike.model.NPCommitListParameters;
+import com.io7m.northpike.model.NPCommitSearchParameters;
 import com.io7m.northpike.model.NPCommitSummaryLinked;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPPage;
@@ -246,7 +246,7 @@ public final class NPDatabaseRepositoriesTest
 
     final var paged =
       getCommits.execute(
-        new NPCommitListParameters(
+        new NPCommitSearchParameters(
           Optional.empty(),
           Optional.empty(),
           Optional.empty(),
@@ -318,7 +318,7 @@ public final class NPDatabaseRepositoriesTest
 
     final var paged =
       getCommits.execute(
-        new NPCommitListParameters(
+        new NPCommitSearchParameters(
           Optional.empty(),
           Optional.empty(),
           Optional.empty(),
@@ -393,7 +393,7 @@ public final class NPDatabaseRepositoriesTest
 
     final var paged =
       getCommits.execute(
-        new NPCommitListParameters(
+        new NPCommitSearchParameters(
           Optional.empty(),
           Optional.empty(),
           Optional.empty(),
@@ -468,7 +468,7 @@ public final class NPDatabaseRepositoriesTest
 
     final var paged =
       getCommits.execute(
-        new NPCommitListParameters(
+        new NPCommitSearchParameters(
           Optional.empty(),
           Optional.of(generated.commits.get(30).id()),
           Optional.empty(),
@@ -540,7 +540,7 @@ public final class NPDatabaseRepositoriesTest
 
     final var paged =
       getCommits.execute(
-        new NPCommitListParameters(
+        new NPCommitSearchParameters(
           Optional.empty(),
           Optional.empty(),
           Optional.of(generated.commits.get(30).id()),

@@ -21,7 +21,7 @@ import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentLabel;
 import com.io7m.northpike.model.NPAgentLabelSearchParameters;
-import com.io7m.northpike.model.NPAgentListParameters;
+import com.io7m.northpike.model.NPAgentSearchParameters;
 import com.io7m.northpike.model.NPKey;
 
 import java.util.Optional;
@@ -72,7 +72,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    */
 
   non-sealed interface ListType
-    extends NPDatabaseQueryType<NPAgentListParameters, NPAgentPagedType>,
+    extends NPDatabaseQueryType<NPAgentSearchParameters, NPAgentPagedType>,
     NPDatabaseQueriesAgentsType
   {
 

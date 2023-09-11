@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPTimeRange;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;

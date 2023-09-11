@@ -30,7 +30,7 @@ import com.io7m.northpike.database.postgres.internal.NPDBMatch.QuerySetType.Quer
 import com.io7m.northpike.database.postgres.internal.NPDBMatch.QuerySetType.QuerySetUnion;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentListParameters;
+import com.io7m.northpike.model.NPAgentSearchParameters;
 import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPPage;
 import io.opentelemetry.api.trace.Span;
@@ -57,12 +57,12 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_ST
  * Retrieve an agent.
  */
 
-public final class NPDBQAgentList
-  extends NPDBQAbstract<NPAgentListParameters, NPAgentPagedType>
+public final class NPDBQAgentSearch
+  extends NPDBQAbstract<NPAgentSearchParameters, NPAgentPagedType>
   implements ListType
 {
-  private static final Service<NPAgentListParameters, NPAgentPagedType, ListType> SERVICE =
-    new Service<>(ListType.class, NPDBQAgentList::new);
+  private static final Service<NPAgentSearchParameters, NPAgentPagedType, ListType> SERVICE =
+    new Service<>(ListType.class, NPDBQAgentSearch::new);
 
   private static final Name AGENT_SEARCH =
     DSL.name("AGENT_SEARCH");
@@ -85,7 +85,7 @@ public final class NPDBQAgentList
    * @param transaction The transaction
    */
 
-  public NPDBQAgentList(
+  public NPDBQAgentSearch(
     final NPDatabaseTransaction transaction)
   {
     super(transaction);
@@ -94,7 +94,7 @@ public final class NPDBQAgentList
   @Override
   protected NPAgentPagedType onExecute(
     final DSLContext context,
-    final NPAgentListParameters parameters)
+    final NPAgentSearchParameters parameters)
     throws NPDatabaseException
   {
     final var tableSource =
@@ -106,6 +106,7 @@ public final class NPDBQAgentList
 
     final var querySet =
       NPDBMatch.ofAgentLabelMatch(parameters.matchLabels());
+
     final var query =
       generateQuerySetFor(context, tableSource, querySet)
         .asTable(AGENT_SEARCH);

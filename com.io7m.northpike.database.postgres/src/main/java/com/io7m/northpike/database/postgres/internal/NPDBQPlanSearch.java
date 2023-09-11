@@ -99,7 +99,7 @@ public final class NPDBQPlanSearch
         .addSortField(new JQField(PLANS.P_VERSION, JQOrder.ASCENDING))
         .addWhereCondition(condition)
         .setDistinct(JQSelectDistinct.SELECT_DISTINCT)
-        .setPageSize(100L)
+        .setPageSize(parameters.pageSize())
         .setStatementListener(statement -> {
           Span.current().setAttribute(DB_STATEMENT, statement.toString());
         }).build();

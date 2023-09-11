@@ -171,7 +171,7 @@ public final class NPDatabaseToolsTest
 
     final var paged =
       search.execute(new NPToolExecutionDescriptionSearchParameters(
-        Optional.of(NPToolName.of("com.io7m.tool_2")))
+        Optional.of(NPToolName.of("com.io7m.tool_2")), 1000L)
       );
 
     final var p = paged.pageCurrent(this.transaction);
@@ -249,7 +249,7 @@ public final class NPDatabaseToolsTest
 
     final var paged =
       search.execute(new NPToolExecutionDescriptionSearchParameters(
-        Optional.empty())
+        Optional.empty(), 1000L)
       );
 
     final var p = paged.pageCurrent(this.transaction);

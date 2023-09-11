@@ -17,29 +17,15 @@
 
 package com.io7m.northpike.model;
 
-import java.util.Objects;
-
 /**
- * The parameters required to list agents.
- *
- * @param matchLabels The expression against which to match agent labels
- * @param pageSize    The page size
+ * The base type of search parameters.
  */
 
-public record NPAgentListParameters(
-  NPAgentLabelMatchType matchLabels,
-  long pageSize)
+public interface NPSearchParametersType
 {
   /**
-   * The parameters required to list agents.
-   *
-   * @param matchLabels The expression against which to match agent labels
-   * @param pageSize    The page size
+   * @return The page size
    */
 
-  public NPAgentListParameters
-  {
-    Objects.requireNonNull(matchLabels, "matchLabels");
-    pageSize = Math.min(pageSize, 1000L);
-  }
+  long pageSize();
 }

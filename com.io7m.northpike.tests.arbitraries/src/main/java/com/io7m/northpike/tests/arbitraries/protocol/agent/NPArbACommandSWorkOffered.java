@@ -23,7 +23,6 @@ import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public final class NPArbACommandSWorkOffered

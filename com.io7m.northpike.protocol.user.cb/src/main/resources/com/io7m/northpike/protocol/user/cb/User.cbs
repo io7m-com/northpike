@@ -72,18 +72,25 @@
 ]
 
 [documentation NPU1RepositorySearchParameters "The repository search parameters."]
-[record NPU1RepositorySearchParameters]
+[record NPU1RepositorySearchParameters
+  [documentation pageSize "The page size."]
+  [field pageSize cb:IntegerUnsigned32]
+]
 
 [documentation NPU1PlanSearchParameters "The plan search parameters."]
 [record NPU1PlanSearchParameters
   [documentation query "The search query."]
   [field query cb:String]
+  [documentation pageSize "The page size."]
+  [field pageSize cb:IntegerUnsigned32]
 ]
 
 [documentation NPU1AgentLabelSearchParameters "The agent label search parameters."]
 [record NPU1AgentLabelSearchParameters
   [documentation query "The search query."]
   [field query cb:String]
+  [documentation pageSize "The page size."]
+  [field pageSize cb:IntegerUnsigned32]
 ]
 
 [documentation NPU1ToolExecutionIdentifier "A tool execution identifier."]
@@ -154,6 +161,8 @@
 [record NPU1ToolExecutionDescriptionSearchParameters
   [documentation toolName "Restrict searching to executions compatible with this tool."]
   [field toolName [cb:Option cb:String]]
+  [documentation pageSize "The page size."]
+  [field pageSize cb:IntegerUnsigned32]
 ]
 
 [documentation NPU1PlanIdentifier "A plan identifier."]

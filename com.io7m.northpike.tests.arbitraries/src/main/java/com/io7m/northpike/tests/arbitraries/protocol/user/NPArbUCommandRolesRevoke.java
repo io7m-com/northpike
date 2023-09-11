@@ -18,7 +18,6 @@
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
 import com.io7m.medrina.api.MRoleName;
-import com.io7m.northpike.protocol.user.NPUCommandRolesAssign;
 import com.io7m.northpike.protocol.user.NPUCommandRolesRevoke;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;

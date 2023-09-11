@@ -125,7 +125,7 @@ public final class NPUCmdPlanSearchBeginTest
     final var command =
       new NPUCommandPlanSearchBegin(
         UUID.randomUUID(),
-        new NPPlanSearchParameters("")
+        new NPPlanSearchParameters("", 1000L)
       );
 
     final var ex =
@@ -155,7 +155,7 @@ public final class NPUCmdPlanSearchBeginTest
     final var command =
       new NPUCommandPlanSearchBegin(
         UUID.randomUUID(),
-        new NPPlanSearchParameters("")
+        new NPPlanSearchParameters("", 1000L)
       );
 
     final var userId =
@@ -195,7 +195,7 @@ public final class NPUCmdPlanSearchBeginTest
     final var command =
       new NPUCommandPlanSearchBegin(
         UUID.randomUUID(),
-        new NPPlanSearchParameters("")
+        new NPPlanSearchParameters("", 1000L)
       );
 
     final var userId =

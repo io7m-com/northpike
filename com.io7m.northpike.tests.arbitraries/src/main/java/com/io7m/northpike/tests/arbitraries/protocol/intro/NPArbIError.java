@@ -18,7 +18,6 @@
 package com.io7m.northpike.tests.arbitraries.protocol.intro;
 
 import com.io7m.northpike.model.NPErrorCode;
-import com.io7m.northpike.protocol.agent.NPAResponseError;
 import com.io7m.northpike.protocol.intro.NPIError;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;

@@ -33,7 +33,7 @@ import com.io7m.northpike.model.NPAgentLabelMatchType.And;
 import com.io7m.northpike.model.NPAgentLabelMatchType.Or;
 import com.io7m.northpike.model.NPAgentLabelMatchType.Specific;
 import com.io7m.northpike.model.NPAgentLabelSearchParameters;
-import com.io7m.northpike.model.NPAgentListParameters;
+import com.io7m.northpike.model.NPAgentSearchParameters;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
@@ -253,7 +253,7 @@ public final class NPDatabaseAgentsTest
 
     {
       final var page =
-        list.execute(new NPAgentListParameters(ANY_LABEL, 1000L));
+        list.execute(new NPAgentSearchParameters(ANY_LABEL, 1000L));
 
       final var page0 =
         page.pageCurrent(this.transaction);
@@ -303,7 +303,7 @@ public final class NPDatabaseAgentsTest
       final var label0 = new RDottedName("label0");
       final var page =
         list.execute(
-          new NPAgentListParameters(new Specific(label0), 1000L)
+          new NPAgentSearchParameters(new Specific(label0), 1000L)
         );
 
       final var page0 =
@@ -362,7 +362,7 @@ public final class NPDatabaseAgentsTest
 
       final var page =
         list.execute(
-          new NPAgentListParameters(
+          new NPAgentSearchParameters(
             new Or(new Specific(label0), new Specific(label3)),
             1000L)
         );
@@ -424,7 +424,7 @@ public final class NPDatabaseAgentsTest
 
       final var page =
         list.execute(
-          new NPAgentListParameters(
+          new NPAgentSearchParameters(
             new And(new Specific(label0), new Specific(label3)),
             1000L)
         );
@@ -566,7 +566,7 @@ public final class NPDatabaseAgentsTest
     this.transaction.commit();
 
     final var paged =
-      labelSearch.execute(new NPAgentLabelSearchParameters("abacus"));
+      labelSearch.execute(new NPAgentLabelSearchParameters("abacus", 1000L));
 
     final var labelsByNameRetrieved =
       new HashMap<RDottedName, NPAgentLabel>();
@@ -611,7 +611,7 @@ public final class NPDatabaseAgentsTest
     this.transaction.commit();
 
     final var paged =
-      labelSearch.execute(new NPAgentLabelSearchParameters(""));
+      labelSearch.execute(new NPAgentLabelSearchParameters("", 1000L));
 
     final var labelsByNameRetrieved =
       new HashMap<RDottedName, NPAgentLabel>();

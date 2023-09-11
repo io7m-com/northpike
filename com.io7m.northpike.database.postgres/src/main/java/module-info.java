@@ -16,6 +16,7 @@
 
 import com.io7m.northpike.database.api.NPDatabaseFactoryType;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
+import com.io7m.northpike.database.postgres.internal.NPDBQAgentSearch;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType;
 
 /**
@@ -62,7 +63,7 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelGet,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelPut,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelSearch,
-    com.io7m.northpike.database.postgres.internal.NPDBQAgentList,
+    NPDBQAgentSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentPut,
     com.io7m.northpike.database.postgres.internal.NPDBQArchiveGet,
     com.io7m.northpike.database.postgres.internal.NPDBQArchivePut,

@@ -23,19 +23,24 @@ import java.util.Objects;
  * The search parameters for labels.
  *
  * @param query The search query
+ * @param pageSize    The page size
  */
 
 public record NPAgentLabelSearchParameters(
-  String query)
+  String query,
+  long pageSize)
+  implements NPSearchParametersType
 {
   /**
    * The search parameters for labels.
    *
    * @param query The search query
+   * @param pageSize    The page size
    */
 
   public NPAgentLabelSearchParameters
   {
     Objects.requireNonNull(query, "query");
+    pageSize = NPPageSizes.clampPageSize(pageSize);
   }
 }

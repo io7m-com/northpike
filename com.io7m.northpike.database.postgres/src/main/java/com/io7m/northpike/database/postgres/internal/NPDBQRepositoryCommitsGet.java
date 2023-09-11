@@ -28,7 +28,7 @@ import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Servi
 import com.io7m.northpike.database.postgres.internal.tables.RepositoryCommits;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitLink;
-import com.io7m.northpike.model.NPCommitListParameters;
+import com.io7m.northpike.model.NPCommitSearchParameters;
 import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPCommitSummaryLinked;
 import com.io7m.northpike.model.NPPage;
@@ -37,8 +37,6 @@ import org.jooq.DSLContext;
 import org.jooq.Name;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,13 +52,10 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_ST
  */
 
 public final class NPDBQRepositoryCommitsGet
-  extends NPDBQAbstract<NPCommitListParameters, NPCommitSummaryLinkedPagedType>
+  extends NPDBQAbstract<NPCommitSearchParameters, NPCommitSummaryLinkedPagedType>
   implements CommitsGetType
 {
-  private static final Logger LOG =
-    LoggerFactory.getLogger(NPDBQRepositoryCommitsGet.class);
-
-  private static final Service<NPCommitListParameters, NPCommitSummaryLinkedPagedType, CommitsGetType> SERVICE =
+  private static final Service<NPCommitSearchParameters, NPCommitSummaryLinkedPagedType, CommitsGetType> SERVICE =
     new Service<>(CommitsGetType.class, NPDBQRepositoryCommitsGet::new);
 
   private static final JQField COMMIT_TIME_SORT =
@@ -96,7 +91,7 @@ public final class NPDBQRepositoryCommitsGet
   @Override
   protected NPCommitSummaryLinkedPagedType onExecute(
     final DSLContext context,
-    final NPCommitListParameters description)
+    final NPCommitSearchParameters description)
     throws NPDatabaseException
   {
     final var source =
