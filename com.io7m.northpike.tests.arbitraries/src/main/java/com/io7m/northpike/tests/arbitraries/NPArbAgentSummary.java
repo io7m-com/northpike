@@ -15,31 +15,24 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries;
 
-import java.util.UUID;
+import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.NPAgentSummary;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-/**
- * The type of responses.
- */
-
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponseRepositoryGet,
-  NPUResponseRolesGet,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate
+public final class NPArbAgentSummary
+  extends NPArbAbstract<NPAgentSummary>
 {
-  /**
-   * @return The ID of the message to which this message correlates
-   */
-
-  UUID correlationID();
+  public NPArbAgentSummary()
+  {
+    super(
+      NPAgentSummary.class,
+      () -> Combinators.combine(
+        Arbitraries.defaultFor(NPAgentID.class),
+        Arbitraries.strings().alpha()
+      ).as(NPAgentSummary::new)
+    );
+  }
 }

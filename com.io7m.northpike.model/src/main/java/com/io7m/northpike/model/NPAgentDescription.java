@@ -60,6 +60,8 @@ public record NPAgentDescription(
     Objects.requireNonNull(environmentVariables, "environmentVariables");
     Objects.requireNonNull(systemProperties, "systemProperties");
     Objects.requireNonNull(labels, "labels");
+
+    NPMapValidation.check(labels, NPAgentLabel::name);
   }
 
   /**

@@ -17,12 +17,17 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
+import com.io7m.northpike.protocol.user.NPUCommandAgentGet;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelDelete;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelGet;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelPut;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
+import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandAgentSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandAgentSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandLogin;
 import com.io7m.northpike.protocol.user.NPUCommandPlanGet;
@@ -46,8 +51,10 @@ import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearch
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
 import com.io7m.northpike.protocol.user.NPUMessageType;
+import com.io7m.northpike.protocol.user.NPUResponseAgentGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelSearch;
+import com.io7m.northpike.protocol.user.NPUResponseAgentSearch;
 import com.io7m.northpike.protocol.user.NPUResponseError;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponsePlanGet;
@@ -74,20 +81,25 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
       () -> {
         return Arbitraries.oneOf(
           Stream.of(
+              NPUCommandAgentGet.class,
               NPUCommandAgentLabelDelete.class,
               NPUCommandAgentLabelGet.class,
               NPUCommandAgentLabelPut.class,
               NPUCommandAgentLabelSearchBegin.class,
               NPUCommandAgentLabelSearchNext.class,
               NPUCommandAgentLabelSearchPrevious.class,
+              NPUCommandAgentPut.class,
+              NPUCommandAgentSearchBegin.class,
+              NPUCommandAgentSearchNext.class,
+              NPUCommandAgentSearchPrevious.class,
               NPUCommandDisconnect.class,
               NPUCommandLogin.class,
               NPUCommandPlanGet.class,
               NPUCommandPlanPut.class,
-              NPUCommandPlanValidate.class,
               NPUCommandPlanSearchBegin.class,
               NPUCommandPlanSearchNext.class,
               NPUCommandPlanSearchPrevious.class,
+              NPUCommandPlanValidate.class,
               NPUCommandRepositoryGet.class,
               NPUCommandRepositoryPut.class,
               NPUCommandRepositorySearchBegin.class,
@@ -102,8 +114,10 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUCommandToolExecutionDescriptionSearchNext.class,
               NPUCommandToolExecutionDescriptionSearchPrevious.class,
               NPUCommandToolExecutionDescriptionValidate.class,
+              NPUResponseAgentGet.class,
               NPUResponseAgentLabelGet.class,
               NPUResponseAgentLabelSearch.class,
+              NPUResponseAgentSearch.class,
               NPUResponseError.class,
               NPUResponseOK.class,
               NPUResponsePlanGet.class,

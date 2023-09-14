@@ -15,31 +15,41 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.model;
 
-import java.util.UUID;
+import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPMapValidation;
+import com.io7m.northpike.model.NPValidityException;
+import org.junit.jupiter.api.Test;
 
-/**
- * The type of responses.
- */
+import java.util.Map;
 
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponseRepositoryGet,
-  NPUResponseRolesGet,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+public final class NPMapValidationTest
 {
   /**
-   * @return The ID of the message to which this message correlates
+   * The label must match the key.
    */
 
-  UUID correlationID();
+  @Test
+  public void testInvalid()
+  {
+    final var label =
+      new NPAgentLabel(
+        new RDottedName("x.y"),
+        "X Y"
+      );
+
+    final var m =
+      Map.of(
+        new RDottedName("a.b"),
+        label
+      );
+
+    assertThrows(NPValidityException.class, () -> {
+      NPMapValidation.check(m, NPAgentLabel::name);
+    });
+  }
 }

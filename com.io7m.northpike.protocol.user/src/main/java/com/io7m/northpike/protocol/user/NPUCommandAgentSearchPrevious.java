@@ -17,29 +17,33 @@
 
 package com.io7m.northpike.protocol.user;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
- * The type of responses.
+ * Continue searching.
+ *
+ * @param messageID  The message ID
  */
 
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponseRepositoryGet,
-  NPUResponseRolesGet,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate
+public record NPUCommandAgentSearchPrevious(
+  UUID messageID)
+  implements NPUCommandType<NPUResponseAgentSearch>
 {
   /**
-   * @return The ID of the message to which this message correlates
+   * Continue searching.
+   *
+   * @param messageID  The message ID
    */
 
-  UUID correlationID();
+  public NPUCommandAgentSearchPrevious
+  {
+    Objects.requireNonNull(messageID, "messageId");
+  }
+
+  @Override
+  public Class<NPUResponseAgentSearch> responseClass()
+  {
+    return NPUResponseAgentSearch.class;
+  }
 }

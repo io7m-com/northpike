@@ -191,6 +191,54 @@
   [field description cb:String]
 ]
 
+[documentation NPU1AgentSummary "A summary of an agent."]
+[record NPU1AgentSummary
+  [documentation id "The agent ID."]
+  [field id cb:UUID]
+  [documentation name "The agent name."]
+  [field name cb:String]
+]
+
+[documentation NPU1AgentDescription "A description of an agent."]
+[record NPU1AgentDescription
+  [documentation id "The agent ID."]
+  [field id cb:UUID]
+  [documentation name "The agent name."]
+  [field name cb:String]
+  [documentation accessKey "The agent access key."]
+  [field accessKey cb:String]
+  [documentation environmentVariables "The agent environment."]
+  [field environmentVariables [cb:Map cb:String cb:String]]
+  [documentation systemProperties "The agent system properties."]
+  [field systemProperties [cb:Map cb:String cb:String]]
+  [documentation labels "The agent labels."]
+  [field labels [cb:Map cb:String NPU1AgentLabel]]
+]
+
+[documentation NPU1AgentLabelMatch "A label match expression."]
+[variant NPU1AgentLabelMatch
+  [case AnyLabel]
+  [case And
+    [field e0 NPU1AgentLabelMatch]
+    [field e1 NPU1AgentLabelMatch]
+  ]
+  [case Or
+    [field e0 NPU1AgentLabelMatch]
+    [field e1 NPU1AgentLabelMatch]
+  ]
+  [case Specific
+    [field name cb:String]
+  ]
+]
+
+[documentation NPU1AgentSearchParameters "The agent search parameters."]
+[record NPU1AgentSearchParameters
+  [documentation matchLabels "The expression against which to match agent labels."]
+  [field matchLabels NPU1AgentLabelMatch]
+  [documentation pageSize "The page size."]
+  [field pageSize cb:IntegerUnsigned32]
+]
+
 ;
 ; Commands
 ;
@@ -211,21 +259,9 @@
   [field messageId cb:UUID]
 ]
 
-[documentation NPU1CommandRepositoryPut "Create or update a repository."]
-[record NPU1CommandRepositoryPut
-  [documentation messageId "The message ID"]
-  [field messageId cb:UUID]
-  [documentation repository "The repository"]
-  [field repository NPU1RepositoryDescription]
-]
-
-[documentation NPU1CommandRepositoryGet "Get a repository."]
-[record NPU1CommandRepositoryGet
-  [documentation messageId "The message ID"]
-  [field messageId cb:UUID]
-  [documentation repository "The repository ID"]
-  [field repository cb:UUID]
-]
+;
+; Roles
+;
 
 [documentation NPU1CommandRolesAssign "Assign a set of roles to a user."]
 [record NPU1CommandRolesAssign
@@ -255,6 +291,26 @@
   [field user cb:UUID]
 ]
 
+;
+; Repositories
+;
+
+[documentation NPU1CommandRepositoryPut "Create or update a repository."]
+[record NPU1CommandRepositoryPut
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation repository "The repository"]
+  [field repository NPU1RepositoryDescription]
+]
+
+[documentation NPU1CommandRepositoryGet "Get a repository."]
+[record NPU1CommandRepositoryGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation repository "The repository ID"]
+  [field repository cb:UUID]
+]
+
 [documentation NPU1CommandRepositorySearchBegin "Start searching repositories."]
 [record NPU1CommandRepositorySearchBegin
   [documentation messageId "The message ID"]
@@ -274,6 +330,10 @@
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
 ]
+
+;
+; Agent Labels
+;
 
 [documentation NPU1CommandAgentLabelPut "Create or update an agent label."]
 [record NPU1CommandAgentLabelPut
@@ -318,6 +378,10 @@
   [documentation names "The label names"]
   [field names [cb:List cb:String]]
 ]
+
+;
+; Tool executions
+;
 
 [documentation NPU1CommandToolExecutionDescriptionPut "Create or update a tool execution description."]
 [record NPU1CommandToolExecutionDescriptionPut
@@ -365,6 +429,10 @@
   [field messageId cb:UUID]
 ]
 
+;
+; Plans
+;
+
 [documentation NPU1CommandPlanPut "Create or update a plan."]
 [record NPU1CommandPlanPut
   [documentation messageId "The message ID"]
@@ -405,6 +473,46 @@
 
 [documentation NPU1CommandPlanSearchPrevious "Continue searching plans."]
 [record NPU1CommandPlanSearchPrevious
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+;
+; Agents
+;
+
+[documentation NPU1CommandAgentPut "Create or update an agent."]
+[record NPU1CommandAgentPut
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation agent "The agent"]
+  [field agent NPU1AgentDescription]
+]
+
+[documentation NPU1CommandAgentGet "Get an agent."]
+[record NPU1CommandAgentGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation agent "The agent ID"]
+  [field agent cb:UUID]
+]
+
+[documentation NPU1CommandAgentSearchBegin "Start searching agents."]
+[record NPU1CommandAgentSearchBegin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation parameters "The search parameters."]
+  [field parameters NPU1AgentSearchParameters]
+]
+
+[documentation NPU1CommandAgentSearchNext "Continue searching agents."]
+[record NPU1CommandAgentSearchNext
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandAgentSearchPrevious "Continue searching agents."]
+[record NPU1CommandAgentSearchPrevious
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
 ]
@@ -549,16 +657,41 @@
   [field results [NPU1Page NPU1PlanSummary]]
 ]
 
+[documentation NPU1ResponseAgentGet "A response to NPU1CommandAgentGet."]
+[record NPU1ResponseAgentGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation description "The description."]
+  [field description [cb:Option NPU1AgentDescription]]
+]
+
+[documentation NPU1ResponseAgentSearch "A response to NPU1CommandAgentSearchBegin."]
+[record NPU1ResponseAgentSearch
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [NPU1Page NPU1AgentSummary]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
     [types-added
+      NPU1CommandAgentGet
       NPU1CommandAgentLabelDelete
       NPU1CommandAgentLabelGet
       NPU1CommandAgentLabelPut
       NPU1CommandAgentLabelSearchBegin
       NPU1CommandAgentLabelSearchNext
       NPU1CommandAgentLabelSearchPrevious
+      NPU1CommandAgentPut
+      NPU1CommandAgentSearchBegin
+      NPU1CommandAgentSearchNext
+      NPU1CommandAgentSearchPrevious
       NPU1CommandDisconnect
       NPU1CommandLogin
       NPU1CommandPlanGet
@@ -581,8 +714,10 @@
       NPU1CommandToolExecutionDescriptionSearchNext
       NPU1CommandToolExecutionDescriptionSearchPrevious
       NPU1CommandToolExecutionDescriptionValidate
+      NPU1ResponseAgentGet
       NPU1ResponseAgentLabelGet
       NPU1ResponseAgentLabelSearch
+      NPU1ResponseAgentSearch
       NPU1ResponseError
       NPU1ResponseOK
       NPU1ResponsePlanGet

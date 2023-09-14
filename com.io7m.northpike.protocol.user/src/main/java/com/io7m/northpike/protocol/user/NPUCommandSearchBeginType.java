@@ -27,6 +27,7 @@ package com.io7m.northpike.protocol.user;
 public sealed interface NPUCommandSearchBeginType<R extends NPUResponseType, T>
   extends NPUCommandType<R>
   permits NPUCommandAgentLabelSearchBegin,
+  NPUCommandAgentSearchBegin,
   NPUCommandPlanSearchBegin,
   NPUCommandRepositorySearchBegin,
   NPUCommandToolExecutionDescriptionSearchBegin

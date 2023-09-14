@@ -17,29 +17,39 @@
 
 package com.io7m.northpike.protocol.user;
 
+import com.io7m.northpike.model.NPAgentID;
+
+import java.util.Objects;
 import java.util.UUID;
 
 /**
- * The type of responses.
+ * Retrieve agents.
+ *
+ * @param messageID The message ID
+ * @param agent     The agent
  */
 
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponseRepositoryGet,
-  NPUResponseRolesGet,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate
+public record NPUCommandAgentGet(
+  UUID messageID,
+  NPAgentID agent)
+  implements NPUCommandType<NPUResponseAgentGet>
 {
   /**
-   * @return The ID of the message to which this message correlates
+   * Retrieve repositories.
+   *
+   * @param messageID The message ID
+   * @param agent     The agent
    */
 
-  UUID correlationID();
+  public NPUCommandAgentGet
+  {
+    Objects.requireNonNull(messageID, "messageId");
+    Objects.requireNonNull(agent, "agent");
+  }
+
+  @Override
+  public Class<NPUResponseAgentGet> responseClass()
+  {
+    return NPUResponseAgentGet.class;
+  }
 }

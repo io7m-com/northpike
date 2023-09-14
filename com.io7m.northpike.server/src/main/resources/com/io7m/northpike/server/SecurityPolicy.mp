@@ -123,3 +123,21 @@
   [MatchObject  [WithType plans]]
   [MatchAction  [WithName write]]
 ]
+
+#------------------------------------------------------------------------
+# Agents
+#
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom agents.reader]]
+  [MatchObject  [WithType agents]]
+  [MatchAction  [WithName read]]
+]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom agents.writer]]
+  [MatchObject  [WithType agents]]
+  [MatchAction  [WithName write]]
+]

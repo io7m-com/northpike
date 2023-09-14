@@ -15,31 +15,29 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries.protocol.user;
+
+import com.io7m.northpike.model.NPAgentSearchParameters;
+import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
 import java.util.UUID;
 
-/**
- * The type of responses.
- */
-
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponseRepositoryGet,
-  NPUResponseRolesGet,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate
+public final class NPArbUCommandAgentSearchBegin
+  extends NPArbAbstract<NPUCommandAgentSearchBegin>
 {
-  /**
-   * @return The ID of the message to which this message correlates
-   */
-
-  UUID correlationID();
+  public NPArbUCommandAgentSearchBegin()
+  {
+    super(
+      NPUCommandAgentSearchBegin.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(NPAgentSearchParameters.class)
+        ).as(NPUCommandAgentSearchBegin::new);
+      }
+    );
+  }
 }

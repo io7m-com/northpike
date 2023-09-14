@@ -15,31 +15,44 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.model;
 
-import java.util.UUID;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
- * The type of responses.
+ * Functions to validate maps.
  */
 
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponseRepositoryGet,
-  NPUResponseRolesGet,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate
+public final class NPMapValidation
 {
+  private NPMapValidation()
+  {
+
+  }
+
   /**
-   * @return The ID of the message to which this message correlates
+   * Check map invariants such as keys matching the extracted value keys.
+   *
+   * @param m   The map
+   * @param key The key extraction function
+   * @param <A> The type of keys
+   * @param <B> The type of values
    */
 
-  UUID correlationID();
+  public static <A, B> void check(
+    final Map<A, B> m,
+    final Function<B, A> key)
+  {
+    for (final var e : m.entrySet()) {
+      final var xk = key.apply(e.getValue());
+      if (!Objects.equals(e.getKey(), xk)) {
+        throw new NPValidityException(
+          "Key %s does not match extracted key %s of %s"
+            .formatted(e.getKey(), xk, e.getValue())
+        );
+      }
+    }
+  }
 }
