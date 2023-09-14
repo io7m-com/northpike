@@ -20,6 +20,7 @@ package com.io7m.northpike.database.api;
 import com.io7m.northpike.assignments.NPAssignment;
 import com.io7m.northpike.assignments.NPAssignmentExecution;
 import com.io7m.northpike.assignments.NPAssignmentName;
+import com.io7m.northpike.assignments.NPAssignmentSearchParameters;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 
@@ -51,6 +52,17 @@ public sealed interface NPDatabaseQueriesAssignmentsType
 
   non-sealed interface GetType
     extends NPDatabaseQueryType<NPAssignmentName, Optional<NPAssignment>>,
+    NPDatabaseQueriesAssignmentsType
+  {
+
+  }
+
+  /**
+   * Search assignments.
+   */
+
+  non-sealed interface SearchType
+    extends NPDatabaseQueryType<NPAssignmentSearchParameters, NPAssignmentsPagedType>,
     NPDatabaseQueriesAssignmentsType
   {
 

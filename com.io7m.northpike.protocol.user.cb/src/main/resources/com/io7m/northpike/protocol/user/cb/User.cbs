@@ -239,6 +239,22 @@
   [field pageSize cb:IntegerUnsigned32]
 ]
 
+[documentation NPU1AssignmentSearchParameters "The assignment search parameters."]
+[record NPU1AssignmentSearchParameters
+  [documentation pageSize "The page size."]
+  [field pageSize cb:IntegerUnsigned32]
+]
+
+[documentation NPU1Assignment "A description of an assignment."]
+[record NPU1Assignment
+  [documentation name "The assignment name."]
+  [field name cb:String]
+  [documentation repository "The repository ID."]
+  [field repository cb:UUID]
+  [documentation plan "The plan ID."]
+  [field plan NPU1PlanIdentifier]
+]
+
 ;
 ; Commands
 ;

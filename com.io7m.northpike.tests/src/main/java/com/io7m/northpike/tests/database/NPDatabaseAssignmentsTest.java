@@ -28,7 +28,9 @@ import com.io7m.northpike.assignments.NPAssignmentExecutionFailed;
 import com.io7m.northpike.assignments.NPAssignmentExecutionRunning;
 import com.io7m.northpike.assignments.NPAssignmentExecutionSucceeded;
 import com.io7m.northpike.assignments.NPAssignmentName;
+import com.io7m.northpike.assignments.NPAssignmentSearchParameters;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
+import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
@@ -43,12 +45,16 @@ import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.NPNameMatchType;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.plans.NPPlanException;
+import com.io7m.northpike.plans.NPPlanIdentifier;
+import com.io7m.northpike.plans.NPPlanName;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.parsers.NPPlanSerializers;
 import com.io7m.northpike.strings.NPStrings;
@@ -63,6 +69,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -70,7 +78,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.model.NPNameMatchType.AnyName.ANY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
 @ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
@@ -80,6 +90,8 @@ public final class NPDatabaseAssignmentsTest
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private NPDatabaseType database;
+  private final NPStrings strings = NPStrings.create(Locale.ROOT);
+  private UUID repositoryId;
 
   @BeforeAll
   public static void setupOnce(
@@ -102,6 +114,9 @@ public final class NPDatabaseAssignmentsTest
       closeables.addPerTestResource(this.database.openConnection(NORTHPIKE));
     this.transaction =
       closeables.addPerTestResource(this.connection.openTransaction());
+
+    this.repositoryId =
+      UUID.randomUUID();
   }
 
   /**
@@ -477,9 +492,9 @@ public final class NPDatabaseAssignmentsTest
 
     final var identifier =
       new NPWorkItemIdentifier(
-      execution.executionId(),
-      new RDottedName("some.task")
-    );
+        execution.executionId(),
+        new RDottedName("some.task")
+      );
 
     for (final var state : NPWorkItemStatus.values()) {
       final var workItem =
@@ -491,5 +506,248 @@ public final class NPDatabaseAssignmentsTest
         workGet.execute(identifier).orElseThrow()
       );
     }
+  }
+
+  /**
+   * Searching assignments works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentSearch0()
+    throws Exception
+  {
+    final var assignments =
+      this.createSampleAssignments();
+
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+
+    final var paged =
+      search.execute(new NPAssignmentSearchParameters(
+        Optional.empty(),
+        Optional.empty(),
+        ANY_NAME,
+        1000L
+      ));
+
+    final var p = paged.pageCurrent(this.transaction);
+    for (final var a : assignments) {
+      assertTrue(p.items().contains(a));
+    }
+    assertEquals(9, p.items().size());
+  }
+
+  /**
+   * Searching assignments works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentSearch1()
+    throws Exception
+  {
+    final var assignments =
+      this.createSampleAssignments();
+
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+
+    final var paged =
+      search.execute(new NPAssignmentSearchParameters(
+        Optional.empty(),
+        Optional.of(new NPPlanIdentifier(
+          NPPlanName.of("orchid"),
+          1L
+        )),
+        ANY_NAME,
+        1000L
+      ));
+
+    final var p = paged.pageCurrent(this.transaction);
+    for (final var i : p.items()) {
+      assertTrue(i.plan().name().name().value().contains("orchid"));
+    }
+    assertEquals(3, p.items().size());
+  }
+
+  /**
+   * Searching assignments works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentSearch2()
+    throws Exception
+  {
+    final var assignments =
+      this.createSampleAssignments();
+
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+
+    final var paged =
+      search.execute(new NPAssignmentSearchParameters(
+        Optional.of(this.repositoryId),
+        Optional.empty(),
+        ANY_NAME,
+        1000L
+      ));
+
+    final var p = paged.pageCurrent(this.transaction);
+    for (final var a : assignments) {
+      assertTrue(p.items().contains(a));
+    }
+    assertEquals(9, p.items().size());
+  }
+
+  /**
+   * Searching assignments works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentSearch3()
+    throws Exception
+  {
+    final var assignments =
+      this.createSampleAssignments();
+
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+
+    final var paged =
+      search.execute(new NPAssignmentSearchParameters(
+        Optional.of(this.repositoryId),
+        Optional.empty(),
+        new NPNameMatchType.Similar("carrot"),
+        1000L
+      ));
+
+    final var p = paged.pageCurrent(this.transaction);
+    for (final var i : p.items()) {
+      assertTrue(i.name().value().value().contains("carrot"));
+    }
+    assertEquals(3, p.items().size());
+  }
+
+  /**
+   * Searching assignments works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentSearch4()
+    throws Exception
+  {
+    final var assignments =
+      this.createSampleAssignments();
+
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+
+    final var paged =
+      search.execute(new NPAssignmentSearchParameters(
+        Optional.of(this.repositoryId),
+        Optional.empty(),
+        new NPNameMatchType.Exact("a.lavender.carrot"),
+        1000L
+      ));
+
+    final var p = paged.pageCurrent(this.transaction);
+    for (final var i : p.items()) {
+      assertEquals("a.lavender.carrot", i.name().value().value());
+    }
+    assertEquals(1, p.items().size());
+  }
+
+  private List<NPAssignment> createSampleAssignments()
+    throws NPDatabaseException, NPPlanException
+  {
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
+    final var planPut =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+    final var reposPut =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+    final var scmPut =
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+
+    final var scm =
+      new NPSCMProviderDescription(
+        new RDottedName("x.y"),
+        "A",
+        URI.create("https://www.example.com")
+      );
+    scmPut.execute(scm);
+
+    final var repositoryDescription =
+      new NPRepositoryDescription(
+        new RDottedName("x.y"),
+        this.repositoryId,
+        URI.create("https://www.example.com"),
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+      );
+    reposPut.execute(repositoryDescription);
+
+    final var plan0 =
+      NPPlans.builder(this.strings, "rose", 1L)
+        .build();
+    final var plan1 =
+      NPPlans.builder(this.strings, "lavender", 1L)
+        .build();
+    final var plan2 =
+      NPPlans.builder(this.strings, "orchid", 1L)
+        .build();
+
+    planPut.execute(
+      new NPDatabaseQueriesPlansType.PutType.Parameters(
+        plan0, new NPPlanSerializers())
+    );
+    planPut.execute(
+      new NPDatabaseQueriesPlansType.PutType.Parameters(
+        plan1, new NPPlanSerializers())
+    );
+    planPut.execute(
+      new NPDatabaseQueriesPlansType.PutType.Parameters(
+        plan2, new NPPlanSerializers())
+    );
+
+    final var assignments = new ArrayList<NPAssignment>();
+    for (final var p : List.of(plan0, plan1, plan2)) {
+      for (int index = 0; index < 3; ++index) {
+        final var assignmentName =
+          NPAssignmentName.of(
+            "a.%s.%s"
+              .formatted(
+                p.identifier().name(),
+                switch (index) {
+                  case 0 -> "corn";
+                  case 1 -> "cabbage";
+                  case 2 -> "carrot";
+                  default -> throw new IllegalStateException();
+                }
+              )
+          );
+
+        final var assignment =
+          new NPAssignment(
+            assignmentName,
+            repositoryDescription.id(),
+            p.identifier()
+          );
+
+        assignments.add(assignment);
+        put.execute(assignment);
+      }
+    }
+
+    this.transaction.commit();
+    return List.copyOf(assignments);
   }
 }

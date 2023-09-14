@@ -552,7 +552,12 @@ CREATE TABLE archives (
       specific plan.
     </Comment>
 
-    <Statement><![CDATA[
+    <StatementParameterized parameterInterpolation="STRING_FORMATTING">
+      <ParameterReferences>
+        <ParameterReference order="0"
+                            name="search.language"/>
+      </ParameterReferences>
+      <Text><![CDATA[
 CREATE TABLE assignments (
   a_id          BIGINT  NOT NULL GENERATED ALWAYS AS IDENTITY,
   a_name        TEXT    NOT NULL,
@@ -560,6 +565,11 @@ CREATE TABLE assignments (
   a_plan        BIGINT  NOT NULL,
 
   -- [jooq ignore start]
+  a_name_search TSVECTOR NOT NULL
+    GENERATED ALWAYS AS (
+      to_tsvector(%1$S, REPLACE (a_name, '.', ' '))
+    ) STORED,
+
   CONSTRAINT assignments_name_unique
     UNIQUE (a_name),
   -- [jooq ignore stop]
@@ -576,7 +586,8 @@ CREATE TABLE assignments (
   CONSTRAINT assignments_name_valid
     CHECK (a_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$')
 )
-]]></Statement>
+]]></Text>
+    </StatementParameterized>
 
     <Statement><![CDATA[
 CREATE TYPE assignment_execution_status_t AS ENUM(
