@@ -28,6 +28,11 @@ import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentGet;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentPut;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandLogin;
 import com.io7m.northpike.protocol.user.NPUCommandPlanGet;
@@ -55,6 +60,8 @@ import com.io7m.northpike.protocol.user.NPUResponseAgentGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAgentSearch;
+import com.io7m.northpike.protocol.user.NPUResponseAssignmentGet;
+import com.io7m.northpike.protocol.user.NPUResponseAssignmentSearch;
 import com.io7m.northpike.protocol.user.NPUResponseError;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponsePlanGet;
@@ -92,6 +99,11 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUCommandAgentSearchBegin.class,
               NPUCommandAgentSearchNext.class,
               NPUCommandAgentSearchPrevious.class,
+              NPUCommandAssignmentGet.class,
+              NPUCommandAssignmentPut.class,
+              NPUCommandAssignmentSearchBegin.class,
+              NPUCommandAssignmentSearchNext.class,
+              NPUCommandAssignmentSearchPrevious.class,
               NPUCommandDisconnect.class,
               NPUCommandLogin.class,
               NPUCommandPlanGet.class,
@@ -118,6 +130,8 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUResponseAgentLabelGet.class,
               NPUResponseAgentLabelSearch.class,
               NPUResponseAgentSearch.class,
+              NPUResponseAssignmentGet.class,
+              NPUResponseAssignmentSearch.class,
               NPUResponseError.class,
               NPUResponseOK.class,
               NPUResponsePlanGet.class,

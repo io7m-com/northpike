@@ -24,6 +24,7 @@ open module com.io7m.northpike.tests.arbitraries
   requires net.jqwik.api;
   requires com.io7m.jlexing.core;
 
+  requires com.io7m.northpike.assignments;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.plans;
   requires com.io7m.northpike.protocol.agent;
@@ -34,6 +35,17 @@ open module com.io7m.northpike.tests.arbitraries
   uses ArbitraryProvider;
 
   provides ArbitraryProvider with
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAssignmentGet,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAssignmentSearch,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentGet,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentPut,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentSearchBegin,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentSearchNext,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentSearchPrevious,
+    com.io7m.northpike.tests.arbitraries.NPArbNameMatch,
+    com.io7m.northpike.tests.arbitraries.NPArbAssignmentSearchParameters,
+    com.io7m.northpike.tests.arbitraries.NPArbAssignment,
+    com.io7m.northpike.tests.arbitraries.NPArbAssignmentName,
     com.io7m.northpike.tests.arbitraries.NPArbAgentSummary,
     com.io7m.northpike.tests.arbitraries.NPArbAgentSearchParameters,
     com.io7m.northpike.tests.arbitraries.NPArbAgentDescription,

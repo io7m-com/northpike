@@ -15,27 +15,20 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries;
 
-/**
- * The type of commands that begin searches.
- *
- * @param <R> The type of responses
- * @param <T> The type of search parameters
- */
+import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.assignments.NPAssignmentName;
+import net.jqwik.api.Arbitraries;
 
-public sealed interface NPUCommandSearchBeginType<R extends NPUResponseType, T>
-  extends NPUCommandType<R>
-  permits NPUCommandAgentLabelSearchBegin,
-  NPUCommandAgentSearchBegin,
-  NPUCommandAssignmentSearchBegin,
-  NPUCommandPlanSearchBegin,
-  NPUCommandRepositorySearchBegin,
-  NPUCommandToolExecutionDescriptionSearchBegin
+public final class NPArbAssignmentName extends NPArbAbstract<NPAssignmentName>
 {
-  /**
-   * @return The search parameters
-   */
-
-  T parameters();
+  public NPArbAssignmentName()
+  {
+    super(
+      NPAssignmentName.class,
+      () -> Arbitraries.defaultFor(RDottedName.class)
+        .map(NPAssignmentName::new)
+    );
+  }
 }

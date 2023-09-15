@@ -241,6 +241,12 @@
 
 [documentation NPU1AssignmentSearchParameters "The assignment search parameters."]
 [record NPU1AssignmentSearchParameters
+  [documentation repositoryId "Only include assignments with this repository ID."]
+  [field repositoryId [cb:Option cb:UUID]]
+  [documentation plan "Only include assignments with this plan."]
+  [field plan [cb:Option NPU1PlanIdentifier]]
+  [documentation nameQuery "Only include assignments with names matching this expression."]
+  [field nameQuery NPU1NameMatch]
   [documentation pageSize "The page size."]
   [field pageSize cb:IntegerUnsigned32]
 ]
@@ -253,6 +259,13 @@
   [field repository cb:UUID]
   [documentation plan "The plan ID."]
   [field plan NPU1PlanIdentifier]
+]
+
+[documentation NPU1NameMatch "A name match expression."]
+[variant NPU1NameMatch
+  [case AnyName]
+  [case Exact [field name cb:String]]
+  [case Similar [field name cb:String]]
 ]
 
 ;
@@ -534,6 +547,46 @@
 ]
 
 ;
+; Assignments
+;
+
+[documentation NPU1CommandAssignmentPut "Create or update a assignment."]
+[record NPU1CommandAssignmentPut
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation assignment "The assignment"]
+  [field assignment NPU1Assignment]
+]
+
+[documentation NPU1CommandAssignmentGet "Get a assignment."]
+[record NPU1CommandAssignmentGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation assignment "The assignment name"]
+  [field assignment cb:String]
+]
+
+[documentation NPU1CommandAssignmentSearchBegin "Start searching repositories."]
+[record NPU1CommandAssignmentSearchBegin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation parameters "The search parameters."]
+  [field parameters NPU1AssignmentSearchParameters]
+]
+
+[documentation NPU1CommandAssignmentSearchNext "Continue searching repositories."]
+[record NPU1CommandAssignmentSearchNext
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandAssignmentSearchPrevious "Continue searching repositories."]
+[record NPU1CommandAssignmentSearchPrevious
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+;
 ; Events
 ;
 
@@ -693,6 +746,26 @@
   [field results [NPU1Page NPU1AgentSummary]]
 ]
 
+[documentation NPU1ResponseAssignmentGet "A response to NPU1CommandAssignmentGet."]
+[record NPU1ResponseAssignmentGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation description "The description."]
+  [field description [cb:Option NPU1Assignment]]
+]
+
+[documentation NPU1ResponseAssignmentSearch "A response to NPU1CommandAssignmentSearchBegin."]
+[record NPU1ResponseAssignmentSearch
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [NPU1Page NPU1Assignment]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -708,6 +781,11 @@
       NPU1CommandAgentSearchBegin
       NPU1CommandAgentSearchNext
       NPU1CommandAgentSearchPrevious
+      NPU1CommandAssignmentGet
+      NPU1CommandAssignmentPut
+      NPU1CommandAssignmentSearchBegin
+      NPU1CommandAssignmentSearchNext
+      NPU1CommandAssignmentSearchPrevious
       NPU1CommandDisconnect
       NPU1CommandLogin
       NPU1CommandPlanGet
@@ -734,6 +812,8 @@
       NPU1ResponseAgentLabelGet
       NPU1ResponseAgentLabelSearch
       NPU1ResponseAgentSearch
+      NPU1ResponseAssignmentGet
+      NPU1ResponseAssignmentSearch
       NPU1ResponseError
       NPU1ResponseOK
       NPU1ResponsePlanGet

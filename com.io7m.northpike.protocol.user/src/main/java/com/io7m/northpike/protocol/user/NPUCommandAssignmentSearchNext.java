@@ -17,25 +17,33 @@
 
 package com.io7m.northpike.protocol.user;
 
+import java.util.Objects;
+import java.util.UUID;
+
 /**
- * The type of commands that begin searches.
+ * Continue searching.
  *
- * @param <R> The type of responses
- * @param <T> The type of search parameters
+ * @param messageID  The message ID
  */
 
-public sealed interface NPUCommandSearchBeginType<R extends NPUResponseType, T>
-  extends NPUCommandType<R>
-  permits NPUCommandAgentLabelSearchBegin,
-  NPUCommandAgentSearchBegin,
-  NPUCommandAssignmentSearchBegin,
-  NPUCommandPlanSearchBegin,
-  NPUCommandRepositorySearchBegin,
-  NPUCommandToolExecutionDescriptionSearchBegin
+public record NPUCommandAssignmentSearchNext(
+  UUID messageID)
+  implements NPUCommandType<NPUResponseAssignmentSearch>
 {
   /**
-   * @return The search parameters
+   * Continue searching.
+   *
+   * @param messageID  The message ID
    */
 
-  T parameters();
+  public NPUCommandAssignmentSearchNext
+  {
+    Objects.requireNonNull(messageID, "messageId");
+  }
+
+  @Override
+  public Class<NPUResponseAssignmentSearch> responseClass()
+  {
+    return NPUResponseAssignmentSearch.class;
+  }
 }

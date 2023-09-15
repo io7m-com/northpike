@@ -141,3 +141,21 @@
   [MatchObject  [WithType agents]]
   [MatchAction  [WithName write]]
 ]
+
+#------------------------------------------------------------------------
+# Assignments
+#
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom assignments.reader]]
+  [MatchObject  [WithType assignments]]
+  [MatchAction  [WithName read]]
+]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom assignments.writer]]
+  [MatchObject  [WithType assignments]]
+  [MatchAction  [WithName write]]
+]

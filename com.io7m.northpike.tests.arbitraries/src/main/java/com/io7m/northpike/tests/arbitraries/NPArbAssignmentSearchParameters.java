@@ -15,41 +15,31 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.plans.NPPlanDescriptionUnparsed;
+import com.io7m.northpike.assignments.NPAssignmentSearchParameters;
+import com.io7m.northpike.model.NPNameMatchType;
+import com.io7m.northpike.plans.NPPlanIdentifier;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-import java.util.Objects;
 import java.util.UUID;
 
-/**
- * Create or update plans.
- *
- * @param messageID The message ID
- * @param plan      The plan
- */
-
-public record NPUCommandPlanPut(
-  UUID messageID,
-  NPPlanDescriptionUnparsed plan)
-  implements NPUCommandType<NPUResponseOK>
+public final class NPArbAssignmentSearchParameters
+  extends NPArbAbstract<NPAssignmentSearchParameters>
 {
-  /**
-   * Create or update repositories.
-   *
-   * @param messageID The message ID
-   * @param plan      The plan
-   */
-
-  public NPUCommandPlanPut
+  public NPArbAssignmentSearchParameters()
   {
-    Objects.requireNonNull(messageID, "messageId");
-    Objects.requireNonNull(plan, "repository");
-  }
-
-  @Override
-  public Class<NPUResponseOK> responseClass()
-  {
-    return NPUResponseOK.class;
+    super(
+      NPAssignmentSearchParameters.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.create(UUID::randomUUID).optional(),
+          Arbitraries.defaultFor(NPPlanIdentifier.class).optional(),
+          Arbitraries.defaultFor(NPNameMatchType.class),
+          Arbitraries.longs()
+        ).as(NPAssignmentSearchParameters::new);
+      }
+    );
   }
 }

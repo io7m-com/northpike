@@ -21,6 +21,8 @@
   <suppress files="NPU1Validation.java"
             checks="CyclomaticComplexity"/>
   <suppress files="NPU1Validation.java"
+            checks="JavaNCSS"/>
+  <suppress files="NPU1Validation.java"
             checks="ExecutableStatementCount"/>
 
   <!-- Lacking pattern matching. -->
@@ -42,6 +44,8 @@
             checks="NPathComplexity"/>
   <suppress files="NPUCmd.java"
             checks="CyclomaticComplexity"/>
+  <suppress files="NPUCmd.java"
+            checks="ExecutableStatementCount"/>
 
   <!-- char[] -> String -->
   <suppress files="NPTX1Statements.java"

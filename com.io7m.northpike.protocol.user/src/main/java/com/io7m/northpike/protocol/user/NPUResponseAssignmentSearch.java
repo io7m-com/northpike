@@ -17,25 +17,39 @@
 
 package com.io7m.northpike.protocol.user;
 
+
+import com.io7m.northpike.assignments.NPAssignment;
+import com.io7m.northpike.model.NPPage;
+
+import java.util.Objects;
+import java.util.UUID;
+
 /**
- * The type of commands that begin searches.
+ * A assignment retrieval.
  *
- * @param <R> The type of responses
- * @param <T> The type of search parameters
+ * @param messageID     The message ID
+ * @param correlationID The command that prompted this response
+ * @param results       The results
  */
 
-public sealed interface NPUCommandSearchBeginType<R extends NPUResponseType, T>
-  extends NPUCommandType<R>
-  permits NPUCommandAgentLabelSearchBegin,
-  NPUCommandAgentSearchBegin,
-  NPUCommandAssignmentSearchBegin,
-  NPUCommandPlanSearchBegin,
-  NPUCommandRepositorySearchBegin,
-  NPUCommandToolExecutionDescriptionSearchBegin
+public record NPUResponseAssignmentSearch(
+  UUID messageID,
+  UUID correlationID,
+  NPPage<NPAssignment> results)
+  implements NPUResponsePagedType<NPAssignment>
 {
   /**
-   * @return The search parameters
+   * A assignment retrieval.
+   *
+   * @param messageID     The message ID
+   * @param correlationID The command that prompted this response
+   * @param results       The results
    */
 
-  T parameters();
+  public NPUResponseAssignmentSearch
+  {
+    Objects.requireNonNull(messageID, "messageID");
+    Objects.requireNonNull(correlationID, "correlationID");
+    Objects.requireNonNull(results, "results");
+  }
 }

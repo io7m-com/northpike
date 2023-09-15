@@ -15,27 +15,30 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-/**
- * The type of commands that begin searches.
- *
- * @param <R> The type of responses
- * @param <T> The type of search parameters
- */
+import com.io7m.northpike.assignments.NPAssignment;
+import com.io7m.northpike.protocol.user.NPUResponseAssignmentGet;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-public sealed interface NPUCommandSearchBeginType<R extends NPUResponseType, T>
-  extends NPUCommandType<R>
-  permits NPUCommandAgentLabelSearchBegin,
-  NPUCommandAgentSearchBegin,
-  NPUCommandAssignmentSearchBegin,
-  NPUCommandPlanSearchBegin,
-  NPUCommandRepositorySearchBegin,
-  NPUCommandToolExecutionDescriptionSearchBegin
+import java.util.UUID;
+
+public final class NPArbUResponseAssignmentGet
+  extends NPArbAbstract<NPUResponseAssignmentGet>
 {
-  /**
-   * @return The search parameters
-   */
-
-  T parameters();
+  public NPArbUResponseAssignmentGet()
+  {
+    super(
+      NPUResponseAssignmentGet.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(NPAssignment.class).optional()
+        ).as(NPUResponseAssignmentGet::new);
+      }
+    );
+  }
 }

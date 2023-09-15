@@ -104,6 +104,21 @@ public enum NPSecObject
   },
 
   /**
+   * The assignments.
+   */
+
+  ASSIGNMENTS {
+    private static final MObject ASSIGNMENTS_OBJECT =
+      new MObject(MTypeName.of("assignments"), Map.of());
+
+    @Override
+    public MObject object()
+    {
+      return ASSIGNMENTS_OBJECT;
+    }
+  },
+
+  /**
    * The SCM providers.
    */
 
