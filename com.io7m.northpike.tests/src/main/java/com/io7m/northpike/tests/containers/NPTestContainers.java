@@ -301,9 +301,8 @@ public final class NPTestContainers
     private void initialAdmin()
       throws IOException, InterruptedException
     {
-      Assertions.assertEquals(
-        0,
-        this.serverContainer.executeAndWaitIndefinitely(
+      for (int index = 0; index < 5; ++index) {
+        final var r = this.serverContainer.executeAndWaitIndefinitely(
           List.of(
             "idstore",
             "initial-admin",
@@ -320,7 +319,15 @@ public final class NPTestContainers
             "--admin-realname",
             "admin"
           )
-        )
+        );
+        if (r == 0) {
+          return;
+        }
+        Thread.sleep(250L);
+      }
+
+      throw new IllegalStateException(
+        "Failed to create initial admin after several attempts."
       );
     }
 
