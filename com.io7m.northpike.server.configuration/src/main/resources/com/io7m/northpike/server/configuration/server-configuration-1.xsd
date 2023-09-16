@@ -372,8 +372,8 @@
                      use="required">
         <xsd:annotation>
           <xsd:documentation>
-            The directory that will be used to store archives of commits
-            used during builds.
+            The directory that will be used to store archives of commits used
+            during builds.
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
@@ -382,7 +382,8 @@
 
   <xsd:element name="ArchiveService">
     <xsd:complexType>
-      <xsd:sequence minOccurs="1" maxOccurs="1">
+      <xsd:sequence minOccurs="1"
+                    maxOccurs="1">
         <xsd:group ref="t:TLSGroup"/>
       </xsd:sequence>
 
@@ -411,8 +412,7 @@
                      use="required">
         <xsd:annotation>
           <xsd:documentation>
-            The base URI advertised to agents in order to serve them
-            archives.
+            The base URI advertised to agents in order to serve them archives.
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
@@ -421,7 +421,8 @@
 
   <xsd:element name="AgentService">
     <xsd:complexType>
-      <xsd:sequence minOccurs="1" maxOccurs="1">
+      <xsd:sequence minOccurs="1"
+                    maxOccurs="1">
         <xsd:group ref="t:TLSGroup"/>
       </xsd:sequence>
 
@@ -459,7 +460,8 @@
 
   <xsd:element name="UserService">
     <xsd:complexType>
-      <xsd:sequence minOccurs="1" maxOccurs="1">
+      <xsd:sequence minOccurs="1"
+                    maxOccurs="1">
         <xsd:group ref="t:TLSGroup"/>
       </xsd:sequence>
 
@@ -495,6 +497,21 @@
     </xsd:complexType>
   </xsd:element>
 
+  <xsd:element name="Maintenance">
+    <xsd:complexType>
+      <xsd:attribute name="TLSReloadInterval"
+                     type="xsd:duration"
+                     use="optional">
+        <xsd:annotation>
+          <xsd:documentation>
+            The interval at which TLS contexts will be reloaded. If not
+            specified, TLS contexts will not be reloaded.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
   <xsd:element name="Configuration">
     <xsd:annotation>
       <xsd:documentation>
@@ -509,6 +526,7 @@
         <xsd:element ref="c:Database"/>
         <xsd:element ref="c:Directories"/>
         <xsd:element ref="c:IdStore"/>
+        <xsd:element ref="c:Maintenance"/>
         <xsd:element ref="c:OpenTelemetry"
                      minOccurs="0"
                      maxOccurs="1"/>

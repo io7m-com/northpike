@@ -34,6 +34,10 @@
             checks="NPathComplexity"/>
 
   <!-- Lacking pattern matching. -->
+  <suppress files="NPSC1File.java"
+            checks="NPathComplexity"/>
+
+  <!-- Lacking pattern matching. -->
   <suppress files="NPTXEvaluator.java"
             checks="NPathComplexity"/>
   <suppress files="NPTXEvaluator.java"

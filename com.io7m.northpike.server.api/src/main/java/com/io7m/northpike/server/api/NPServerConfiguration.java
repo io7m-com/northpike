@@ -29,18 +29,19 @@ import java.util.Optional;
 /**
  * The configuration for a server.
  *
- * @param clock                 The clock
- * @param strings               The string resources
- * @param databaseConfiguration The database configuration for the server
- * @param databases             The factory of databases that will be used for
- *                              the server
- * @param directories           The server directories
- * @param locale                The locale
- * @param idstoreConfiguration  The idstore configuration
- * @param agentConfiguration    The agent service configuration
- * @param userConfiguration     The user service configuration
- * @param archiveConfiguration  The archive service configuration
- * @param openTelemetry         The OpenTelemetry configuration
+ * @param clock                    The clock
+ * @param strings                  The string resources
+ * @param databaseConfiguration    The database configuration for the server
+ * @param databases                The factory of databases that will be used for
+ *                                 the server
+ * @param directories              The server directories
+ * @param locale                   The locale
+ * @param idstoreConfiguration     The idstore configuration
+ * @param agentConfiguration       The agent service configuration
+ * @param userConfiguration        The user service configuration
+ * @param archiveConfiguration     The archive service configuration
+ * @param openTelemetry            The OpenTelemetry configuration
+ * @param maintenanceConfiguration The maintenance configuration
  */
 
 public record NPServerConfiguration(
@@ -54,23 +55,25 @@ public record NPServerConfiguration(
   NPServerAgentConfiguration agentConfiguration,
   NPServerArchiveConfiguration archiveConfiguration,
   NPServerUserConfiguration userConfiguration,
+  NPServerMaintenanceConfiguration maintenanceConfiguration,
   Optional<NPTelemetryConfiguration> openTelemetry)
 {
   /**
    * The configuration for a server.
    *
-   * @param clock                 The clock
-   * @param strings               The string resources
-   * @param databaseConfiguration The database configuration for the server
-   * @param databases             The factory of databases that will be used for
-   *                              the server
-   * @param directories           The server directories
-   * @param locale                The locale
-   * @param idstoreConfiguration  The idstore configuration
-   * @param agentConfiguration    The agent service configuration
-   * @param userConfiguration     The user service configuration
-   * @param archiveConfiguration  The archive service configuration
-   * @param openTelemetry         The OpenTelemetry configuration
+   * @param clock                    The clock
+   * @param strings                  The string resources
+   * @param databaseConfiguration    The database configuration for the server
+   * @param databases                The factory of databases that will be used for
+   *                                 the server
+   * @param directories              The server directories
+   * @param locale                   The locale
+   * @param idstoreConfiguration     The idstore configuration
+   * @param agentConfiguration       The agent service configuration
+   * @param userConfiguration        The user service configuration
+   * @param archiveConfiguration     The archive service configuration
+   * @param openTelemetry            The OpenTelemetry configuration
+   * @param maintenanceConfiguration The maintenance configuration
    */
 
   public NPServerConfiguration
@@ -85,6 +88,9 @@ public record NPServerConfiguration(
     Objects.requireNonNull(locale, "locale");
     Objects.requireNonNull(openTelemetry, "openTelemetry");
     Objects.requireNonNull(strings, "strings");
+    Objects.requireNonNull(
+      maintenanceConfiguration,
+      "maintenanceConfiguration");
     Objects.requireNonNull(userConfiguration, "userConfiguration");
   }
 }

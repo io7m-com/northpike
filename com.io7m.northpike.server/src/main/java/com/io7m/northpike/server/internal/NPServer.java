@@ -259,7 +259,13 @@ public final class NPServer implements NPServerType
     services.register(NPRepositoryServiceType.class, repository);
 
     final var maintenance =
-      NPMaintenanceService.create(clock, this.telemetry, this.database);
+      NPMaintenanceService.create(
+        clock,
+        this.telemetry,
+        config,
+        tls,
+        this.database
+      );
     services.register(NPMaintenanceService.class, maintenance);
 
     final var agentSockets =

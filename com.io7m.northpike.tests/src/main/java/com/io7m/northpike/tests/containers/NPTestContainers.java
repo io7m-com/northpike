@@ -51,6 +51,7 @@ import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.api.NPServerFactoryType;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
+import com.io7m.northpike.server.api.NPServerMaintenanceConfiguration;
 import com.io7m.northpike.server.api.NPServerType;
 import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.strings.NPStrings;
@@ -553,6 +554,9 @@ public final class NPTestContainers
           userApiPort,
           TLS_DISABLED,
           1_000_000
+        ),
+        new NPServerMaintenanceConfiguration(
+          Optional.empty()
         ),
         empty()
       );

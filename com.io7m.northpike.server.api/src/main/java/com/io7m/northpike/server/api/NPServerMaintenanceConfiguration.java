@@ -14,55 +14,29 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.northpike.server.api;
 
-package com.io7m.northpike.model;
-
-import java.util.Arrays;
-import java.util.HexFormat;
+import java.time.Duration;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * A byte array with structural equality.
+ * Configuration information for the server's maintenance service.
  *
- * @param data The data
+ * @param tlsReloadInterval The interval at which to reload TLS contexts
  */
 
-public record NPByteArray(
-  byte[] data)
+public record NPServerMaintenanceConfiguration(
+  Optional<Duration> tlsReloadInterval)
 {
   /**
-   * A byte array with structural equality.
+   * Configuration information for the server's maintenance service.
    *
-   * @param data The data
+   * @param tlsReloadInterval The interval at which to reload TLS contexts
    */
 
-  public NPByteArray
+  public NPServerMaintenanceConfiguration
   {
-    data = data.clone();
-  }
-
-  @Override
-  public boolean equals(
-    final Object o)
-  {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || !this.getClass().equals(o.getClass())) {
-      return false;
-    }
-    final NPByteArray that = (NPByteArray) o;
-    return Arrays.equals(this.data, that.data);
-  }
-
-  @Override
-  public String toString()
-  {
-    return HexFormat.of().formatHex(this.data);
-  }
-
-  @Override
-  public int hashCode()
-  {
-    return Arrays.hashCode(this.data);
+    Objects.requireNonNull(tlsReloadInterval, "tlsReloadInterval");
   }
 }

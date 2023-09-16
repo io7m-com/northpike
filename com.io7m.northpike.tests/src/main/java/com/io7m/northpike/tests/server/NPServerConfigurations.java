@@ -26,6 +26,7 @@ import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
+import com.io7m.northpike.server.api.NPServerMaintenanceConfiguration;
 import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.strings.NPStrings;
 
@@ -98,6 +99,9 @@ public final class NPServerConfigurations
         20049,
         TLS_DISABLED,
         1000000
+      ),
+      new NPServerMaintenanceConfiguration(
+        Optional.empty()
       ),
       Optional.empty()
     );

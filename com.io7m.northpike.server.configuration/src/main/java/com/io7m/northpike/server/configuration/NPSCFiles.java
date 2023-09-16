@@ -26,7 +26,6 @@ import com.io7m.blackthorne.core.BTPreserveLexical;
 import com.io7m.blackthorne.jxe.BlackthorneJXE;
 import com.io7m.northpike.server.configuration.v1.NPSC1File;
 import com.io7m.northpike.server.configuration.v1.NPSCv1;
-import com.io7m.northpike.strings.NPStrings;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -54,7 +53,6 @@ public final class NPSCFiles implements Closeable
   /**
    * A parser of configurations.
    *
-   * @param inStrings        The string resources
    * @param inSource         The source
    * @param inStream         The stream
    * @param inStatusConsumer A status consumer
@@ -62,7 +60,6 @@ public final class NPSCFiles implements Closeable
    */
 
   private NPSCFiles(
-    final NPStrings inStrings,
     final URI inSource,
     final InputStream inStream,
     final Consumer<ParseStatus> inStatusConsumer,
@@ -105,7 +102,6 @@ public final class NPSCFiles implements Closeable
   /**
    * Open the given configuration file.
    *
-   * @param strings        The string resources
    * @param file           The file
    * @param statusConsumer A consumer of error messages
    *
@@ -115,13 +111,11 @@ public final class NPSCFiles implements Closeable
    */
 
   public static NPSCFiles open(
-    final NPStrings strings,
     final Path file,
     final Consumer<ParseStatus> statusConsumer)
     throws IOException
   {
     return open(
-      strings,
       Files.newInputStream(file),
       file.toUri(),
       NPServerPreserveLexical.PRESERVE_LEXICAL_INFORMATION,
@@ -132,7 +126,6 @@ public final class NPSCFiles implements Closeable
   /**
    * Open the given configuration file.
    *
-   * @param strings        The string resources
    * @param statusConsumer A consumer of error messages
    * @param uri            The URI
    * @param inputStream    The input stream
@@ -142,14 +135,12 @@ public final class NPSCFiles implements Closeable
    */
 
   public static NPSCFiles open(
-    final NPStrings strings,
     final InputStream inputStream,
     final URI uri,
     final NPServerPreserveLexical lexical,
     final Consumer<ParseStatus> statusConsumer)
   {
     return new NPSCFiles(
-      strings,
       uri,
       inputStream,
       statusConsumer,

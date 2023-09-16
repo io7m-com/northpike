@@ -37,6 +37,7 @@ import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
+import com.io7m.northpike.server.api.NPServerMaintenanceConfiguration;
 import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.server.internal.archives.NPArchiveService;
 import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
@@ -209,6 +210,9 @@ public final class NPArchiveServiceTest
             40001,
             TLS_DISABLED,
             1_000_000
+          ),
+          new NPServerMaintenanceConfiguration(
+            Optional.empty()
           ),
           Optional.empty()
         )

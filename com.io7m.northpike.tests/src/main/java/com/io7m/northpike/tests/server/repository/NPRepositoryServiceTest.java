@@ -39,6 +39,7 @@ import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
+import com.io7m.northpike.server.api.NPServerMaintenanceConfiguration;
 import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.server.internal.clock.NPClock;
 import com.io7m.northpike.server.internal.clock.NPClockServiceType;
@@ -203,6 +204,9 @@ public final class NPRepositoryServiceTest
             40002,
             TLS_DISABLED,
             1_000_000
+          ),
+          new NPServerMaintenanceConfiguration(
+            Optional.empty()
           ),
           Optional.empty()
         )

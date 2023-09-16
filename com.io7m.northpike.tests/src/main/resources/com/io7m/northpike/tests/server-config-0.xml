@@ -41,6 +41,8 @@
   <c:IdStore BaseURI="https://idstore.example.com"
              PasswordResetURI="https://idstore.example.com"/>
 
+  <c:Maintenance/>
+
   <c:OpenTelemetry LogicalServiceName="northpike">
     <c:Logs Endpoint="http://logs.telemetry.example.com:4317"
             Protocol="GRPC"/>

@@ -111,7 +111,6 @@ public final class NPACmdRun implements QCommandType
     final NPSCFile configuration;
     try (var files =
            NPSCFiles.open(
-             strings,
              configurationFile,
              status -> ParseStatusLogging.logMinimal(LOG, status))) {
       configuration = files.execute();
@@ -149,6 +148,7 @@ public final class NPACmdRun implements QCommandType
         configuration.agentConfiguration(),
         configuration.archiveConfiguration(),
         configuration.userConfiguration(),
+        configuration.maintenanceConfiguration(),
         configuration.openTelemetry()
       );
 

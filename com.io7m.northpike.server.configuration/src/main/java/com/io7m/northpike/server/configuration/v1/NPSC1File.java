@@ -24,6 +24,7 @@ import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
+import com.io7m.northpike.server.api.NPServerMaintenanceConfiguration;
 import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.server.configuration.NPSCDatabase;
 import com.io7m.northpike.server.configuration.NPSCFile;
@@ -49,6 +50,7 @@ public final class NPSC1File
   private NPServerDirectoryConfiguration directories;
   private NPServerArchiveConfiguration archive;
   private NPServerUserConfiguration user;
+  private NPServerMaintenanceConfiguration maintenance;
 
   /**
    * A parser for {@link NPSCFile}
@@ -73,6 +75,7 @@ public final class NPSC1File
       entry(element("Database"), NPSC1Database::new),
       entry(element("Directories"), NPSC1Directories::new),
       entry(element("IdStore"), NPSC1Idstore::new),
+      entry(element("Maintenance"), NPSC1Maintenance::new),
       entry(element("OpenTelemetry"), NPSC1OpenTelemetry::new),
       entry(element("UserService"), NPSC1UserService::new)
     );
@@ -111,6 +114,10 @@ public final class NPSC1File
       this.database = e;
       return;
     }
+    if (result instanceof final NPServerMaintenanceConfiguration e) {
+      this.maintenance = e;
+      return;
+    }
   }
 
   @Override
@@ -124,6 +131,7 @@ public final class NPSC1File
       this.agent,
       this.archive,
       this.user,
+      this.maintenance,
       Optional.ofNullable(this.telemetry)
     );
   }

@@ -23,6 +23,8 @@ import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.server.internal.clock.NPClockServiceType;
+import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
+import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.repetoir.core.RPServiceType;
 import io.opentelemetry.api.trace.SpanKind;
@@ -49,11 +51,13 @@ public final class NPMaintenanceService
   private final ScheduledExecutorService executor;
   private final NPTelemetryServiceType telemetry;
   private final NPDatabaseType database;
+  private final NPTLSContextServiceType tlsContexts;
 
   private NPMaintenanceService(
     final ScheduledExecutorService inExecutor,
     final NPTelemetryServiceType inTelemetry,
-    final NPDatabaseType inDatabase)
+    final NPDatabaseType inDatabase,
+    final NPTLSContextServiceType inTlsContexts)
   {
     this.executor =
       Objects.requireNonNull(inExecutor, "executor");
@@ -61,14 +65,18 @@ public final class NPMaintenanceService
       Objects.requireNonNull(inTelemetry, "telemetry");
     this.database =
       Objects.requireNonNull(inDatabase, "database");
+    this.tlsContexts =
+      Objects.requireNonNull(inTlsContexts, "tlsContexts");
   }
 
   /**
    * A service that performs nightly database maintenance.
    *
-   * @param clock     The clock
-   * @param telemetry The telemetry service
-   * @param database  The database
+   * @param clock         The clock
+   * @param telemetry     The telemetry service
+   * @param database      The database
+   * @param configuration The configuration service
+   * @param tlsContexts   The TLS contexts
    *
    * @return The service
    */
@@ -76,11 +84,15 @@ public final class NPMaintenanceService
   public static NPMaintenanceService create(
     final NPClockServiceType clock,
     final NPTelemetryServiceType telemetry,
+    final NPConfigurationServiceType configuration,
+    final NPTLSContextServiceType tlsContexts,
     final NPDatabaseType database)
   {
     Objects.requireNonNull(clock, "clock");
     Objects.requireNonNull(telemetry, "telemetry");
     Objects.requireNonNull(database, "database");
+    Objects.requireNonNull(configuration, "configuration");
+    Objects.requireNonNull(tlsContexts, "tlsContexts");
 
     final var executor =
       Executors.newSingleThreadScheduledExecutor(r -> {
@@ -94,7 +106,12 @@ public final class NPMaintenanceService
       });
 
     final var maintenanceService =
-      new NPMaintenanceService(executor, telemetry, database);
+      new NPMaintenanceService(
+        executor,
+        telemetry,
+        database,
+        tlsContexts
+      );
 
     final var timeNow =
       clock.now();
@@ -110,6 +127,22 @@ public final class NPMaintenanceService
     final var period =
       Duration.of(1L, ChronoUnit.DAYS)
         .toSeconds();
+
+    /*
+     * Start TLS context reloading if needed.
+     */
+
+    configuration.configuration()
+      .maintenanceConfiguration()
+      .tlsReloadInterval()
+      .ifPresent(duration -> {
+        executor.scheduleAtFixedRate(
+          maintenanceService::runTLSReload,
+          duration.toSeconds(),
+          duration.toSeconds(),
+          TimeUnit.SECONDS
+        );
+      });
 
     /*
      * Run maintenance as soon as the service starts.
@@ -131,9 +164,15 @@ public final class NPMaintenanceService
     return maintenanceService;
   }
 
+  private void runTLSReload()
+  {
+    LOG.info("Reloading TLS contexts");
+    this.tlsContexts.reload();
+  }
+
   private void runMaintenance()
   {
-    LOG.info("maintenance task starting");
+    LOG.info("Maintenance task starting");
 
     final var span =
       this.telemetry.tracer()
@@ -150,11 +189,11 @@ public final class NPMaintenanceService
             transaction.queries(NPDatabaseQueriesMaintenanceType.ExecuteType.class);
           maintenance.execute(NPDatabaseUnit.UNIT);
           transaction.commit();
-          LOG.info("maintenance task completed successfully");
+          LOG.info("Maintenance task completed successfully");
         }
       }
     } catch (final Exception e) {
-      LOG.error("maintenance task failed: ", e);
+      LOG.error("Maintenance task failed: ", e);
       span.recordException(e);
     } finally {
       span.end();

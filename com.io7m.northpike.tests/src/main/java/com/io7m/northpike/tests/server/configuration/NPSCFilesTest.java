@@ -21,7 +21,6 @@ import com.io7m.anethum.api.ParsingException;
 import com.io7m.anethum.slf4j.ParseStatusLogging;
 import com.io7m.northpike.server.configuration.NPSCFile;
 import com.io7m.northpike.server.configuration.NPSCFiles;
-import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.scm_repository.NPSCMRepositoriesJGitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -33,7 +32,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -72,7 +70,6 @@ public final class NPSCFilesTest
   {
     try (var files =
            NPSCFiles.open(
-             NPStrings.create(Locale.ROOT),
              file,
              parseStatus -> ParseStatusLogging.logWithAll(LOG, parseStatus))) {
       return files.execute();
@@ -85,7 +82,6 @@ public final class NPSCFilesTest
   {
     try (var files =
            NPSCFiles.open(
-             NPStrings.create(Locale.ROOT),
              file,
              parseStatus -> ParseStatusLogging.logWithAll(LOG, parseStatus))) {
       assertThrows(ParsingException.class, files::execute);

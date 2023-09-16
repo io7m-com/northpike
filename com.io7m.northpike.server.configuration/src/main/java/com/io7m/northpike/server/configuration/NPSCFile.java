@@ -21,6 +21,7 @@ import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
+import com.io7m.northpike.server.api.NPServerMaintenanceConfiguration;
 import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.telemetry.api.NPTelemetryConfiguration;
 
@@ -30,13 +31,14 @@ import java.util.Optional;
 /**
  * A configuration file.
  *
- * @param databaseConfiguration  The database configuration
- * @param directoryConfiguration The directory configuration
- * @param idstoreConfiguration   The idstore configuration
- * @param agentConfiguration     The agent configuration
- * @param archiveConfiguration   The archive configuration
- * @param userConfiguration      The user configuration
- * @param openTelemetry          The telemetry configuration
+ * @param databaseConfiguration    The database configuration
+ * @param directoryConfiguration   The directory configuration
+ * @param idstoreConfiguration     The idstore configuration
+ * @param agentConfiguration       The agent configuration
+ * @param archiveConfiguration     The archive configuration
+ * @param openTelemetry            The telemetry configuration
+ * @param maintenanceConfiguration The maintenance configuration
+ * @param userConfiguration        The user configuration
  */
 
 public record NPSCFile(
@@ -46,18 +48,20 @@ public record NPSCFile(
   NPServerAgentConfiguration agentConfiguration,
   NPServerArchiveConfiguration archiveConfiguration,
   NPServerUserConfiguration userConfiguration,
+  NPServerMaintenanceConfiguration maintenanceConfiguration,
   Optional<NPTelemetryConfiguration> openTelemetry)
 {
   /**
    * A configuration file.
    *
-   * @param databaseConfiguration  The database configuration
-   * @param directoryConfiguration The directory configuration
-   * @param idstoreConfiguration   The idstore configuration
-   * @param agentConfiguration     The agent configuration
-   * @param archiveConfiguration   The archive configuration
-   * @param openTelemetry          The telemetry configuration
-   * @param userConfiguration      The user configuration
+   * @param databaseConfiguration    The database configuration
+   * @param directoryConfiguration   The directory configuration
+   * @param idstoreConfiguration     The idstore configuration
+   * @param agentConfiguration       The agent configuration
+   * @param archiveConfiguration     The archive configuration
+   * @param openTelemetry            The telemetry configuration
+   * @param maintenanceConfiguration The maintenance configuration
+   * @param userConfiguration        The user configuration
    */
 
   public NPSCFile
@@ -68,6 +72,9 @@ public record NPSCFile(
     Objects.requireNonNull(directoryConfiguration, "directoryConfiguration");
     Objects.requireNonNull(idstoreConfiguration, "idstoreConfiguration");
     Objects.requireNonNull(openTelemetry, "openTelemetry");
+    Objects.requireNonNull(
+      maintenanceConfiguration,
+      "maintenanceConfiguration");
     Objects.requireNonNull(userConfiguration, "userConfiguration");
   }
 }
