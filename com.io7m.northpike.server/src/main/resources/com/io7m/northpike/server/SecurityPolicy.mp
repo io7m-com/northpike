@@ -159,3 +159,10 @@
   [MatchObject  [WithType assignments]]
   [MatchAction  [WithName write]]
 ]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom assignments.executor]]
+  [MatchObject  [WithType assignments]]
+  [MatchAction  [WithName execute]]
+]

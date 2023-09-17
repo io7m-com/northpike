@@ -15,34 +15,29 @@
  */
 
 
-package com.io7m.northpike.tests.model;
-
-import com.io7m.northpike.model.NPCommitID;
-import com.io7m.northpike.model.NPCommitUnqualifiedID;
-import com.io7m.northpike.model.NPValidityException;
-import net.jqwik.api.ForAll;
-import net.jqwik.api.Property;
-import org.junit.jupiter.api.Test;
+package com.io7m.northpike.assignments;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+/**
+ * The set of states that indicate that the execution had, at one point,
+ * been created.
+ */
 
-public final class NPCommitIDTest
+public sealed interface NPAssignmentExecutionStateCreatedType
+  extends NPAssignmentExecutionStateType
+  permits NPAssignmentExecutionStateCreated,
+  NPAssignmentExecutionStateStartedType
 {
-  @Property
-  public void testValue(
-    final @ForAll NPCommitID x)
-  {
-    assertEquals(x, x);
-  }
+  /**
+   * @return The assignment execution values
+   */
 
-  @Test
-  public void testParse1()
+  NPAssignmentExecution execution();
+
+  @Override
+  default UUID id()
   {
-    assertThrows(NPValidityException.class, () -> {
-      new NPCommitID(UUID.randomUUID(), new NPCommitUnqualifiedID("A"));
-    });
+    return this.execution().id();
   }
 }

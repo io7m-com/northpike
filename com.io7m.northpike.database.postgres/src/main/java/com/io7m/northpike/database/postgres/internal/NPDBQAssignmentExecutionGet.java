@@ -20,18 +20,22 @@ package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.northpike.assignments.NPAssignment;
 import com.io7m.northpike.assignments.NPAssignmentExecution;
-import com.io7m.northpike.assignments.NPAssignmentExecutionCreated;
-import com.io7m.northpike.assignments.NPAssignmentExecutionFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRunning;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStatusType;
-import com.io7m.northpike.assignments.NPAssignmentExecutionSucceeded;
+import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateCancelled;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreationFailed;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateFailed;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateRequested;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateRunning;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.plans.NPPlanIdentifier;
-import com.io7m.northpike.plans.NPPlanName;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 
@@ -41,17 +45,16 @@ import java.util.UUID;
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENTS;
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENT_EXECUTIONS;
 import static com.io7m.northpike.database.postgres.internal.Tables.PLANS;
-import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_COMMITS;
 
 /**
- * Retrieve an archive.
+ * Retrieve an assignment execution.
  */
 
 public final class NPDBQAssignmentExecutionGet
-  extends NPDBQAbstract<UUID, Optional<NPAssignmentExecution>>
+  extends NPDBQAbstract<UUID, Optional<NPAssignmentExecutionStateType>>
   implements NPDatabaseQueriesAssignmentsType.ExecutionGetType
 {
-  private static final Service<UUID, Optional<NPAssignmentExecution>, ExecutionGetType> SERVICE =
+  private static final Service<UUID, Optional<NPAssignmentExecutionStateType>, ExecutionGetType> SERVICE =
     new Service<>(ExecutionGetType.class, NPDBQAssignmentExecutionGet::new);
 
   /**
@@ -67,85 +70,149 @@ public final class NPDBQAssignmentExecutionGet
   }
 
   @Override
-  protected Optional<NPAssignmentExecution> onExecute(
+  protected Optional<NPAssignmentExecutionStateType> onExecute(
     final DSLContext context,
     final UUID name)
     throws NPDatabaseException
   {
     return context.select(
-      ASSIGNMENT_EXECUTIONS.AE_ID,
-      ASSIGNMENT_EXECUTIONS.AE_STATUS,
-      ASSIGNMENT_EXECUTIONS.AE_CREATED,
-      ASSIGNMENT_EXECUTIONS.AE_STARTED,
-      ASSIGNMENT_EXECUTIONS.AE_ENDED,
-      ASSIGNMENTS.A_NAME,
-      ASSIGNMENTS.A_REPOSITORY,
-      PLANS.P_NAME,
-      PLANS.P_VERSION,
-      REPOSITORY_COMMITS.RC_COMMIT_ID
-    ).from(ASSIGNMENT_EXECUTIONS)
-      .join(ASSIGNMENTS)
+        ASSIGNMENTS.A_NAME,
+        ASSIGNMENTS.A_REPOSITORY,
+        ASSIGNMENT_EXECUTIONS.AE_ASSIGNMENT_NAME,
+        ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME,
+        ASSIGNMENT_EXECUTIONS.AE_CREATED,
+        ASSIGNMENT_EXECUTIONS.AE_ENDED,
+        ASSIGNMENT_EXECUTIONS.AE_ID,
+        ASSIGNMENT_EXECUTIONS.AE_STARTED,
+        ASSIGNMENT_EXECUTIONS.AE_STATUS,
+        PLANS.P_NAME,
+        PLANS.P_VERSION
+      ).from(ASSIGNMENT_EXECUTIONS)
+      .leftOuterJoin(ASSIGNMENTS)
       .on(ASSIGNMENT_EXECUTIONS.AE_ASSIGNMENT.eq(ASSIGNMENTS.A_ID))
-      .join(PLANS)
+      .leftOuterJoin(PLANS)
       .on(ASSIGNMENTS.A_PLAN.eq(PLANS.P_ID))
-      .join(REPOSITORY_COMMITS)
-      .on(ASSIGNMENT_EXECUTIONS.AE_COMMIT.eq(REPOSITORY_COMMITS.RC_ID))
       .where(ASSIGNMENT_EXECUTIONS.AE_ID.eq(name))
       .fetchOptional()
       .map(NPDBQAssignmentExecutionGet::mapRecord);
   }
 
-  private static NPAssignmentExecution mapRecord(
+  private static NPAssignmentExecutionStateType mapRecord(
     final org.jooq.Record r)
+  {
+    final var state = r.get(ASSIGNMENT_EXECUTIONS.AE_STATUS);
+    return switch (state) {
+      case ASSIGNMENT_EXECUTION_REQUESTED -> mapStateRequested(r);
+      case ASSIGNMENT_EXECUTION_CREATION_FAILED -> mapStateCreationFailed(r);
+      case ASSIGNMENT_EXECUTION_CREATED -> mapStateCreated(r);
+      case ASSIGNMENT_EXECUTION_RUNNING -> mapStateRunning(r);
+      case ASSIGNMENT_EXECUTION_SUCCEEDED -> mapStateSucceeded(r);
+      case ASSIGNMENT_EXECUTION_FAILED -> mapStateFailed(r);
+      case ASSIGNMENT_EXECUTION_CANCELLED -> mapStateCancelled(r);
+    };
+  }
+
+  private static NPAssignmentExecutionStateCancelled mapStateCancelled(
+    final Record r)
+  {
+    return new NPAssignmentExecutionStateCancelled(
+      r.get(ASSIGNMENT_EXECUTIONS.AE_ID),
+      mapRequest(r),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED)
+    );
+  }
+
+  private static NPAssignmentExecutionStateFailed mapStateFailed(
+    final Record r)
+  {
+    return new NPAssignmentExecutionStateFailed(
+      mapRequest(r),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED),
+      mapExecution(r),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_STARTED),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_ENDED)
+    );
+  }
+
+  private static NPAssignmentExecutionStateSucceeded mapStateSucceeded(
+    final Record r)
+  {
+    return new NPAssignmentExecutionStateSucceeded(
+      mapRequest(r),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED),
+      mapExecution(r),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_STARTED),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_ENDED)
+    );
+  }
+
+  private static NPAssignmentExecutionStateRunning mapStateRunning(
+    final Record r)
+  {
+    return new NPAssignmentExecutionStateRunning(
+      mapRequest(r),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED),
+      mapExecution(r),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_STARTED)
+    );
+  }
+
+  private static NPAssignmentExecutionStateCreated mapStateCreated(
+    final Record r)
+  {
+    return new NPAssignmentExecutionStateCreated(
+      mapRequest(r),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED),
+      mapExecution(r)
+    );
+  }
+
+  private static NPAssignmentExecution mapExecution(
+    final Record r)
   {
     return new NPAssignmentExecution(
       r.get(ASSIGNMENT_EXECUTIONS.AE_ID),
       new NPAssignment(
-        NPAssignmentName.of(r.get(ASSIGNMENTS.A_NAME)),
+        NPAssignmentName.of(r.get(ASSIGNMENT_EXECUTIONS.AE_ASSIGNMENT_NAME)),
         r.get(ASSIGNMENTS.A_REPOSITORY),
-        new NPPlanIdentifier(
-          NPPlanName.of(r.get(PLANS.P_NAME)),
+        NPPlanIdentifier.of(
+          r.get(PLANS.P_NAME),
           r.<Long>get(PLANS.P_VERSION).longValue()
         )
       ),
       new NPCommitID(
         r.get(ASSIGNMENTS.A_REPOSITORY),
-        r.get(REPOSITORY_COMMITS.RC_COMMIT_ID)
-      ),
-      mapStatus(r)
+        new NPCommitUnqualifiedID(r.get(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME))
+      )
     );
   }
 
-  private static NPAssignmentExecutionStatusType mapStatus(
+  private static NPAssignmentExecutionStateCreationFailed mapStateCreationFailed(
     final Record r)
   {
-    return switch (r.get(ASSIGNMENT_EXECUTIONS.AE_STATUS)) {
-      case ASSIGNMENT_EXECUTION_RUNNING -> {
-        yield new NPAssignmentExecutionRunning(
-          r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED),
-          r.get(ASSIGNMENT_EXECUTIONS.AE_STARTED)
-        );
-      }
-      case ASSIGNMENT_EXECUTION_SUCCEEDED -> {
-        yield new NPAssignmentExecutionSucceeded(
-          r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED),
-          r.get(ASSIGNMENT_EXECUTIONS.AE_STARTED),
-          r.get(ASSIGNMENT_EXECUTIONS.AE_ENDED)
-        );
-      }
-      case ASSIGNMENT_EXECUTION_FAILED -> {
-        yield new NPAssignmentExecutionFailed(
-          r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED),
-          r.get(ASSIGNMENT_EXECUTIONS.AE_STARTED),
-          r.get(ASSIGNMENT_EXECUTIONS.AE_ENDED)
-        );
-      }
-      case ASSIGNMENT_EXECUTION_CREATED -> {
-        yield new NPAssignmentExecutionCreated(
-          r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED)
-        );
-      }
-    };
+    return new NPAssignmentExecutionStateCreationFailed(
+      r.get(ASSIGNMENT_EXECUTIONS.AE_ID),
+      mapRequest(r),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED)
+    );
+  }
+
+  private static NPAssignmentExecutionRequest mapRequest(final Record r)
+  {
+    return new NPAssignmentExecutionRequest(
+      NPAssignmentName.of(r.get(ASSIGNMENT_EXECUTIONS.AE_ASSIGNMENT_NAME)),
+      new NPCommitUnqualifiedID(r.get(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME))
+    );
+  }
+
+  private static NPAssignmentExecutionStateRequested mapStateRequested(
+    final Record r)
+  {
+    return new NPAssignmentExecutionStateRequested(
+      r.get(ASSIGNMENT_EXECUTIONS.AE_ID),
+      mapRequest(r),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED)
+    );
   }
 
   /**

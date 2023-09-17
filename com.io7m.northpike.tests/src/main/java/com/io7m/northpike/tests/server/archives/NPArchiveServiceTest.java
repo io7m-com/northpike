@@ -30,6 +30,7 @@ import com.io7m.northpike.database.api.NPDatabaseUpgrade;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPHash;
 import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
@@ -283,7 +284,7 @@ public final class NPArchiveServiceTest
           "454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"),
         new NPCommitID(
           UUID.randomUUID(),
-          "432a852395d4d587440e508a9da46f3d05ab67dd6b784d7bef84a50ce25e9e16"
+          new NPCommitUnqualifiedID("432a852395d4d587440e508a9da46f3d05ab67dd6b784d7bef84a50ce25e9e16")
         ),
         new NPHash(
           "SHA-256",
@@ -346,7 +347,7 @@ public final class NPArchiveServiceTest
           "454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"),
         new NPCommitID(
           UUID.randomUUID(),
-          "432a852395d4d587440e508a9da46f3d05ab67dd6b784d7bef84a50ce25e9e16"
+          new NPCommitUnqualifiedID("432a852395d4d587440e508a9da46f3d05ab67dd6b784d7bef84a50ce25e9e16")
         ),
         new NPHash(
           "SHA-256",

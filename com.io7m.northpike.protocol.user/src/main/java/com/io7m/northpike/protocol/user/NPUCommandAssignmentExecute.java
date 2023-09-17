@@ -15,34 +15,46 @@
  */
 
 
-package com.io7m.northpike.tests.model;
+package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
-import com.io7m.northpike.model.NPValidityException;
-import net.jqwik.api.ForAll;
-import net.jqwik.api.Property;
-import org.junit.jupiter.api.Test;
 
+import java.util.Objects;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+/**
+ * Create or update repositories.
+ *
+ * @param messageID  The message ID
+ * @param assignment The assignment
+ * @param commit     The commit ID
+ */
 
-public final class NPCommitIDTest
+public record NPUCommandAssignmentExecute(
+  UUID messageID,
+  NPAssignmentName assignment,
+  NPCommitUnqualifiedID commit)
+  implements NPUCommandType<NPUResponseOK>
 {
-  @Property
-  public void testValue(
-    final @ForAll NPCommitID x)
+  /**
+   * Create or update repositories.
+   *
+   * @param messageID  The message ID
+   * @param assignment The assignment
+   * @param commit     The commit ID
+   */
+
+  public NPUCommandAssignmentExecute
   {
-    assertEquals(x, x);
+    Objects.requireNonNull(messageID, "messageId");
+    Objects.requireNonNull(assignment, "assignment");
+    Objects.requireNonNull(commit, "commit");
   }
 
-  @Test
-  public void testParse1()
+  @Override
+  public Class<NPUResponseOK> responseClass()
   {
-    assertThrows(NPValidityException.class, () -> {
-      new NPCommitID(UUID.randomUUID(), new NPCommitUnqualifiedID("A"));
-    });
+    return NPUResponseOK.class;
   }
 }

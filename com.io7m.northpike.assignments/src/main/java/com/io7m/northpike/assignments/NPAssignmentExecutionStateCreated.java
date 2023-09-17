@@ -18,38 +18,38 @@
 package com.io7m.northpike.assignments;
 
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.Objects;
+
+import static java.util.Map.entry;
 
 /**
  * An assignment was created but not yet started.
  *
  * @param timeCreated The time created
+ * @param execution   The assignment execution
+ * @param request     The request
  */
 
-public record NPAssignmentExecutionCreated(
-  OffsetDateTime timeCreated)
-  implements NPAssignmentExecutionStatusType
+public record NPAssignmentExecutionStateCreated(
+  NPAssignmentExecutionRequest request,
+  OffsetDateTime timeCreated,
+  NPAssignmentExecution execution)
+  implements NPAssignmentExecutionStateCreatedType
 {
   /**
    * An assignment was created but not yet started.
    *
    * @param timeCreated The time created
+   * @param execution   The assignment
+   * @param request     The request
    */
 
-  public NPAssignmentExecutionCreated
+  public NPAssignmentExecutionStateCreated
   {
+    Objects.requireNonNull(execution, "execution");
+    Objects.requireNonNull(request, "request");
     Objects.requireNonNull(timeCreated, "timeCreated");
-  }
-
-  @Override
-  public NPAssignmentExecutionFailed fail(
-    final OffsetDateTime time)
-  {
-    return new NPAssignmentExecutionFailed(
-      this.timeCreated,
-      this.timeCreated,
-      time
-    );
   }
 
   @Override
@@ -59,13 +59,18 @@ public record NPAssignmentExecutionCreated(
   }
 
   @Override
-  public NPAssignmentExecutionSucceeded succeed(
-    final OffsetDateTime time)
+  public Map<String, String> asAttributes()
   {
-    return new NPAssignmentExecutionSucceeded(
-      this.timeCreated,
-      this.timeCreated,
-      time
+    final var assignment = this.execution.assignment();
+    final var plan = assignment.plan();
+    return Map.ofEntries(
+      entry("Assignment", this.request.assignment().toString()),
+      entry("AssignmentExecutionID", this.execution.id().toString()),
+      entry("CommitID", this.request.commit().toString()),
+      entry("PlanID", plan.name().toString()),
+      entry("PlanVersion", Long.toUnsignedString(plan.version())),
+      entry("Status", this.name()),
+      entry("TimeCreated", this.timeCreated.toString())
     );
   }
 }

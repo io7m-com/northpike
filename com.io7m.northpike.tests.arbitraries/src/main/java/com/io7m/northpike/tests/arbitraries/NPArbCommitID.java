@@ -18,6 +18,7 @@
 package com.io7m.northpike.tests.arbitraries;
 
 import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 
@@ -32,10 +33,7 @@ public final class NPArbCommitID extends NPArbAbstract<NPCommitID>
       () ->
         Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
-          Arbitraries.strings()
-            .withChars("abcdef0123456789")
-            .ofMinLength(1)
-            .ofMaxLength(8192)
+          Arbitraries.defaultFor(NPCommitUnqualifiedID.class)
         ).as(NPCommitID::new)
     );
   }

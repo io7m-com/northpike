@@ -133,7 +133,7 @@ public final class NPPlanPreparation
       ),
       new NPPlanVariableString(
         NPPlanStandardVariables.scmCommit().name(),
-        commit.id().value()
+        commit.id().commitId().value()
       ),
       new NPPlanVariableStringSet(
         NPPlanStandardVariables.scmBranches().name(),

@@ -22,11 +22,14 @@ import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentExecutionCreated;
-import com.io7m.northpike.assignments.NPAssignmentExecutionFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRunning;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStatusType;
-import com.io7m.northpike.assignments.NPAssignmentExecutionSucceeded;
+import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreationFailed;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateFailed;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateRequested;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateRunning;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
@@ -272,12 +275,12 @@ public final class NPAssignmentTaskTest
     return planBuilder.build();
   }
 
-  private static NPAssignmentExecutionStatusType assertEventStatusChanged()
+  private static NPAssignmentExecutionStateType assertEventStatusChanged()
   {
     return assertInstanceOf(
       NPAssignmentExecutionStatusChanged.class,
       ASSIGNMENT_FIXTURE.events().poll()
-    ).execution().status();
+    ).execution();
   }
 
   @BeforeEach
@@ -322,22 +325,29 @@ public final class NPAssignmentTaskTest
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
-      assignment,
-      ASSIGNMENT_FIXTURE.commit()
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commit().commitId()
+      ),
+      UUID.randomUUID()
     )) {
       task.run();
     }
 
     assertInstanceOf(
-      NPAssignmentExecutionCreated.class,
+      NPAssignmentExecutionStateRequested.class,
       assertEventStatusChanged()
     );
     assertInstanceOf(
-      NPAssignmentExecutionRunning.class,
+      NPAssignmentExecutionStateCreated.class,
       assertEventStatusChanged()
     );
     assertInstanceOf(
-      NPAssignmentExecutionSucceeded.class,
+      NPAssignmentExecutionStateRunning.class,
+      assertEventStatusChanged()
+    );
+    assertInstanceOf(
+      NPAssignmentExecutionStateSucceeded.class,
       assertEventStatusChanged()
     );
   }
@@ -416,8 +426,11 @@ public final class NPAssignmentTaskTest
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
-      assignment,
-      ASSIGNMENT_FIXTURE.commit()
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commit().commitId()
+      ),
+      UUID.randomUUID()
     )) {
 
       /*
@@ -436,7 +449,7 @@ public final class NPAssignmentTaskTest
         events.emit(new NPAgentWorkItemAccepted(
           agent,
           new NPWorkItemIdentifier(
-            task.execution().executionId(),
+            task.executionId(),
             new RDottedName("task0")
           )
         ));
@@ -458,7 +471,7 @@ public final class NPAssignmentTaskTest
         events.emit(new NPAgentWorkItemStatusChanged(
           agent,
           new NPWorkItemIdentifier(
-            task.execution().executionId(),
+            task.executionId(),
             new RDottedName("task0")
           ),
           WORK_ITEM_SUCCEEDED
@@ -471,6 +484,7 @@ public final class NPAssignmentTaskTest
     final var eQ = ASSIGNMENT_FIXTURE.events();
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertInstanceOf(NPAgentWorkItemAccepted.class, eQ.poll());
     assertInstanceOf(NPAgentWorkItemStatusChanged.class, eQ.poll());
     final var e =
@@ -478,8 +492,8 @@ public final class NPAssignmentTaskTest
     assertEquals(0, eQ.size());
 
     assertInstanceOf(
-      NPAssignmentExecutionSucceeded.class,
-      e.execution().status()
+      NPAssignmentExecutionStateSucceeded.class,
+      e.execution()
     );
   }
 
@@ -557,8 +571,11 @@ public final class NPAssignmentTaskTest
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
-      assignment,
-      ASSIGNMENT_FIXTURE.commit()
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commit().commitId()
+      ),
+      UUID.randomUUID()
     )) {
 
       /*
@@ -577,7 +594,7 @@ public final class NPAssignmentTaskTest
         events.emit(new NPAgentWorkItemAccepted(
           agent,
           new NPWorkItemIdentifier(
-            task.execution().executionId(),
+            task.executionId(),
             new RDottedName("task0")
           )
         ));
@@ -599,7 +616,7 @@ public final class NPAssignmentTaskTest
         events.emit(new NPAgentWorkItemStatusChanged(
           agent,
           new NPWorkItemIdentifier(
-            task.execution().executionId(),
+            task.executionId(),
             new RDottedName("task0")
           ),
           WORK_ITEM_FAILED
@@ -612,6 +629,7 @@ public final class NPAssignmentTaskTest
     final var eQ = ASSIGNMENT_FIXTURE.events();
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertInstanceOf(NPAgentWorkItemAccepted.class, eQ.poll());
     assertInstanceOf(NPAgentWorkItemStatusChanged.class, eQ.poll());
     final var e =
@@ -619,8 +637,8 @@ public final class NPAssignmentTaskTest
     assertEquals(0, eQ.size());
 
     assertInstanceOf(
-      NPAssignmentExecutionFailed.class,
-      e.execution().status()
+      NPAssignmentExecutionStateFailed.class,
+      e.execution()
     );
   }
 
@@ -685,8 +703,11 @@ public final class NPAssignmentTaskTest
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
-      assignment,
-      ASSIGNMENT_FIXTURE.commit()
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commit().commitId()
+      ),
+      UUID.randomUUID()
     )) {
       task.run();
     }
@@ -694,13 +715,14 @@ public final class NPAssignmentTaskTest
     final var eQ = ASSIGNMENT_FIXTURE.events();
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     final var e =
       assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertEquals(0, eQ.size());
 
     assertInstanceOf(
-      NPAssignmentExecutionFailed.class,
-      e.execution().status()
+      NPAssignmentExecutionStateFailed.class,
+      e.execution()
     );
   }
 
@@ -765,8 +787,11 @@ public final class NPAssignmentTaskTest
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
-      assignment,
-      ASSIGNMENT_FIXTURE.commit()
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commit().commitId()
+      ),
+      UUID.randomUUID()
     )) {
       task.run();
     }
@@ -774,13 +799,14 @@ public final class NPAssignmentTaskTest
     final var eQ = ASSIGNMENT_FIXTURE.events();
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     final var e =
       assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertEquals(0, eQ.size());
 
     assertInstanceOf(
-      NPAssignmentExecutionFailed.class,
-      e.execution().status()
+      NPAssignmentExecutionStateFailed.class,
+      e.execution()
     );
   }
 
@@ -852,8 +878,11 @@ public final class NPAssignmentTaskTest
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
-      assignment,
-      ASSIGNMENT_FIXTURE.commit()
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commit().commitId()
+      ),
+      UUID.randomUUID()
     )) {
       task.run();
     }
@@ -861,13 +890,14 @@ public final class NPAssignmentTaskTest
     final var eQ = ASSIGNMENT_FIXTURE.events();
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     final var e =
       assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertEquals(0, eQ.size());
 
     assertInstanceOf(
-      NPAssignmentExecutionFailed.class,
-      e.execution().status()
+      NPAssignmentExecutionStateFailed.class,
+      e.execution()
     );
   }
 
@@ -939,8 +969,11 @@ public final class NPAssignmentTaskTest
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
-      assignment,
-      ASSIGNMENT_FIXTURE.commit()
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commit().commitId()
+      ),
+      UUID.randomUUID()
     )) {
       task.run();
     }
@@ -948,13 +981,14 @@ public final class NPAssignmentTaskTest
     final var eQ = ASSIGNMENT_FIXTURE.events();
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     final var e =
       assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertEquals(0, eQ.size());
 
     assertInstanceOf(
-      NPAssignmentExecutionFailed.class,
-      e.execution().status()
+      NPAssignmentExecutionStateFailed.class,
+      e.execution()
     );
   }
 
@@ -1034,8 +1068,11 @@ public final class NPAssignmentTaskTest
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
-      assignment,
-      ASSIGNMENT_FIXTURE.commit()
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commit().commitId()
+      ),
+      UUID.randomUUID()
     )) {
 
       /*
@@ -1077,6 +1114,7 @@ public final class NPAssignmentTaskTest
     final var eQ = ASSIGNMENT_FIXTURE.events();
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertInstanceOf(NPAgentWorkItemStatusChanged.class, eQ.poll());
     assertInstanceOf(NPAgentWorkItemStatusChanged.class, eQ.poll());
     assertInstanceOf(NPAgentWorkItemStatusChanged.class, eQ.poll());
@@ -1085,8 +1123,8 @@ public final class NPAssignmentTaskTest
     assertEquals(0, eQ.size());
 
     assertInstanceOf(
-      NPAssignmentExecutionSucceeded.class,
-      e.execution().status()
+      NPAssignmentExecutionStateSucceeded.class,
+      e.execution()
     );
   }
 
@@ -1126,7 +1164,11 @@ public final class NPAssignmentTaskTest
       ));
 
     transaction.commit();
-    runSimpleFailure(assignment, agent);
+    runSimpleFailure(
+      assignment,
+      agent,
+      NPAssignmentExecutionStateCreationFailed.class
+    );
   }
 
   /**
@@ -1175,7 +1217,11 @@ public final class NPAssignmentTaskTest
       ));
 
     transaction.commit();
-    runSimpleFailure(assignment, agent);
+    runSimpleFailure(
+      assignment,
+      agent,
+      NPAssignmentExecutionStateCreationFailed.class
+    );
   }
 
   /**
@@ -1233,7 +1279,11 @@ public final class NPAssignmentTaskTest
       ));
 
     transaction.commit();
-    runSimpleFailure(assignment, agent);
+    runSimpleFailure(
+      assignment,
+      agent,
+      NPAssignmentExecutionStateCreationFailed.class
+    );
   }
 
   /**
@@ -1274,12 +1324,17 @@ public final class NPAssignmentTaskTest
       ));
 
     transaction.commit();
-    runSimpleFailure(assignment, agent);
+    runSimpleFailure(
+      assignment,
+      agent,
+      NPAssignmentExecutionStateCreationFailed.class
+    );
   }
 
   private static void runSimpleFailure(
     final NPAssignment assignment,
-    final NPAgentID agent)
+    final NPAgentID agent,
+    final Class<? extends NPAssignmentExecutionStateType> expected)
   {
     Mockito.when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
@@ -1317,8 +1372,11 @@ public final class NPAssignmentTaskTest
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
-      assignment,
-      ASSIGNMENT_FIXTURE.commit()
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commit().commitId()
+      ),
+      UUID.randomUUID()
     )) {
       task.run();
     }
@@ -1328,11 +1386,7 @@ public final class NPAssignmentTaskTest
     final var e =
       assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertEquals(0, eQ.size());
-
-    assertInstanceOf(
-      NPAssignmentExecutionFailed.class,
-      e.execution().status()
-    );
+    assertInstanceOf(expected, e.execution());
   }
 
   private static NPPlanType createPlanThreeTaskSameAgent()

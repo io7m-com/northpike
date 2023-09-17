@@ -70,13 +70,13 @@ public final class NPDBQArchivePut
   {
     final var commitVal = archive.commit();
     this.setAttribute(ARCHIVE, archive.token().value());
-    this.setAttribute(COMMIT, commitVal.value());
+    this.setAttribute(COMMIT, commitVal.commitId().value());
 
     final var commit =
       context.select(REPOSITORY_COMMITS.RC_ID)
         .from(REPOSITORY_COMMITS)
         .where(
-          REPOSITORY_COMMITS.RC_COMMIT_ID.eq(commitVal.value())
+          REPOSITORY_COMMITS.RC_COMMIT_ID.eq(commitVal.commitId().value())
             .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(commitVal.repository()))
         );
 

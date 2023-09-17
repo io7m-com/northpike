@@ -44,7 +44,7 @@ public record NPUCommandAssignmentPut(
   public NPUCommandAssignmentPut
   {
     Objects.requireNonNull(messageID, "messageId");
-    Objects.requireNonNull(assignment, "repository");
+    Objects.requireNonNull(assignment, "assignment");
   }
 
   @Override

@@ -20,6 +20,7 @@ import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.NPToken;
@@ -135,7 +136,8 @@ public final class NPSCMRepositoriesJGitTest
           "6cf9c3deec2e9663a204a8ca2c30717ff4366e5d"
         ),
         commits.stream()
-          .map(c -> c.id().value())
+          .map(c -> c.id().commitId())
+          .map(NPCommitUnqualifiedID::value)
           .collect(Collectors.toUnmodifiableSet())
       );
     }
@@ -169,7 +171,8 @@ public final class NPSCMRepositoriesJGitTest
           "6cf9c3deec2e9663a204a8ca2c30717ff4366e5d"
         ),
         commits.stream()
-          .map(c -> c.id().value())
+          .map(c -> c.id().commitId())
+          .map(NPCommitUnqualifiedID::value)
           .collect(Collectors.toUnmodifiableSet())
       );
     }
@@ -205,7 +208,7 @@ public final class NPSCMRepositoriesJGitTest
       new NPCommitSummary(
         new NPCommitID(
           repositoryDescription.id(),
-          "f512486ea90cab4a8f00bc01f2ba2083f65aa0ab"
+          new NPCommitUnqualifiedID("f512486ea90cab4a8f00bc01f2ba2083f65aa0ab")
         ),
         OffsetDateTime.parse("2023-07-28T11:12:36+00:00"),
         OffsetDateTime.parse("2023-07-28T11:12:36+00:00"),
@@ -237,7 +240,8 @@ public final class NPSCMRepositoriesJGitTest
           "f6d27f77259522f10f7062efca687978531456a4"
         ),
         commits.stream()
-          .map(c -> c.id().value())
+          .map(c -> c.id().commitId())
+          .map(NPCommitUnqualifiedID::value)
           .collect(Collectors.toUnmodifiableSet())
       );
     }
@@ -267,7 +271,8 @@ public final class NPSCMRepositoriesJGitTest
           "f6d27f77259522f10f7062efca687978531456a4"
         ),
         commits.stream()
-          .map(c -> c.id().value())
+          .map(c -> c.id().commitId())
+          .map(NPCommitUnqualifiedID::value)
           .collect(Collectors.toUnmodifiableSet())
       );
     }
@@ -317,7 +322,7 @@ public final class NPSCMRepositoriesJGitTest
     for (final var commit : commits) {
       LOG.debug(
         "{} {} {}",
-        commit.id().value(),
+        commit.id().commitId(),
         commit.timeCreated(),
         commit.messageSubject()
       );
@@ -407,7 +412,7 @@ public final class NPSCMRepositoriesJGitTest
       repository.commitArchive(
         new NPCommitID(
           repositoryDescription.id(),
-          "b155d186fce6d0525b8348cc48dd778fda6c6a85"
+          new NPCommitUnqualifiedID("b155d186fce6d0525b8348cc48dd778fda6c6a85")
         ),
         new NPToken("0000000000000000000000000000000000000000000000000000000000000000"),
         file,

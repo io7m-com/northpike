@@ -19,35 +19,30 @@ package com.io7m.northpike.model;
 
 import java.util.Objects;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 /**
- * A commit ID.
+ * A fully-qualified commit ID. A commit along with the ID of the repository
+ * that contains it.
  *
  * @param repository The repository ID
- * @param value      The ID value
+ * @param commitId   The ID value
  */
 
 public record NPCommitID(
   UUID repository,
-  String value)
+  NPCommitUnqualifiedID commitId)
 {
-  private static final Pattern VALID_PATTERN =
-    Pattern.compile("[a-f0-9]{1,8192}");
-
   /**
-   * A commit ID.
+   * A fully-qualified commit ID. A commit along with the ID of the repository
+   * that contains it.
    *
    * @param repository The repository ID
-   * @param value      The ID value
+   * @param commitId   The ID value
    */
 
   public NPCommitID
   {
     Objects.requireNonNull(repository, "repository");
-
-    if (!VALID_PATTERN.matcher(value).matches()) {
-      throw new NPValidityException("Invalid commit ID");
-    }
+    Objects.requireNonNull(commitId, "commitId");
   }
 }

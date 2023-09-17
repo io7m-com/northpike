@@ -30,6 +30,7 @@ import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecute;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentGet;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentPut;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchBegin;
@@ -90,6 +91,7 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentPut.C
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentSearchBegin.COMMAND_AGENT_SEARCH_BEGIN;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentSearchNext.COMMAND_AGENT_SEARCH_NEXT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentSearchPrevious.COMMAND_AGENT_SEARCH_PREVIOUS;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAssignmentExecute.COMMAND_ASSIGNMENT_EXECUTE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAssignmentGet.COMMAND_ASSIGNMENT_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAssignmentPut.COMMAND_ASSIGNMENT_PUT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAssignmentSearchBegin.COMMAND_ASSIGNMENT_SEARCH_BEGIN;
@@ -358,6 +360,9 @@ public final class NPU1Validation
     if (command instanceof final NPUCommandAssignmentSearchPrevious c) {
       return COMMAND_ASSIGNMENT_SEARCH_PREVIOUS.convertToWire(c);
     }
+    if (command instanceof final NPUCommandAssignmentExecute c) {
+      return COMMAND_ASSIGNMENT_EXECUTE.convertToWire(c);
+    }
 
     throw new IllegalStateException("Unrecognized command: " + command);
   }
@@ -486,6 +491,9 @@ public final class NPU1Validation
     }
     if (message instanceof final NPU1CommandAssignmentSearchPrevious c) {
       return COMMAND_ASSIGNMENT_SEARCH_PREVIOUS.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandAssignmentExecute c) {
+      return COMMAND_ASSIGNMENT_EXECUTE.convertFromWire(c);
     }
 
     if (message instanceof final NPU1ResponseError r) {

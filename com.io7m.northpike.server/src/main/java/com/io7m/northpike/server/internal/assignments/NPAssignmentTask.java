@@ -20,14 +20,23 @@ package com.io7m.northpike.server.internal.assignments;
 import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.assignments.NPAssignment;
 import com.io7m.northpike.assignments.NPAssignmentExecution;
-import com.io7m.northpike.assignments.NPAssignmentExecutionCreated;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRunning;
+import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreatedType;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreationFailed;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateFailed;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateRequested;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateRunning;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
+import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
@@ -80,6 +89,7 @@ import com.io7m.repetoir.core.RPServiceDirectoryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -97,7 +107,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
+import static com.io7m.northpike.server.internal.assignments.NPAssignmentLogging.recordErrorText;
+import static com.io7m.northpike.server.internal.assignments.NPAssignmentLogging.recordInfoText;
 import static com.io7m.northpike.strings.NPStringConstants.AGENT_ID;
+import static com.io7m.northpike.strings.NPStringConstants.ASSIGNMENT;
 import static com.io7m.northpike.strings.NPStringConstants.COMMIT;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
 import static com.io7m.northpike.strings.NPStringConstants.PLAN;
@@ -117,26 +130,31 @@ public final class NPAssignmentTask
   private static final Logger LOG =
     LoggerFactory.getLogger(NPAssignmentTask.class);
 
-  private final NPAgentServiceType agents;
-  private final NPArchiveServiceType archives;
-  private final Set<NPPlanParserFactoryType> planParsers;
-  private final Set<NPTXParserFactoryType> toolExecParsers;
-  private final NPStrings strings;
-  private final NPAssignment assignment;
-  private final NPClockServiceType clock;
-  private final NPCommitID commitId;
-  private final NPDatabaseType database;
-  private final NPRepositoryServiceType repositories;
-  private final NPEventServiceType events;
-  private final NPTelemetryServiceType telemetry;
-  private final AtomicBoolean closed;
-  private final ConcurrentLinkedQueue<NPPlanEvaluationUpdateType> planUpdates;
-  private NPAssignmentExecution execution;
-  private NPPlanType plan;
+  private NPArchive archive;
+  private NPAssignment assignment;
+  private NPAssignmentExecution assignmentExecution;
+  private NPAssignmentExecutionStateType executionState;
+  private NPCommit commit;
   private NPPlanEvaluationType planEvaluator;
   private NPPlanPreparationType planPreparation;
-  private NPArchive archive;
-  private NPCommit commit;
+  private NPPlanType plan;
+  private OffsetDateTime timeCreated;
+  private OffsetDateTime timeEnded;
+  private OffsetDateTime timeStarted;
+  private final AtomicBoolean closed;
+  private final ConcurrentLinkedQueue<NPPlanEvaluationUpdateType> planUpdates;
+  private final NPAgentServiceType agents;
+  private final NPArchiveServiceType archives;
+  private final NPAssignmentExecutionRequest assignmentRequest;
+  private final NPClockServiceType clock;
+  private final NPDatabaseType database;
+  private final NPEventServiceType events;
+  private final NPRepositoryServiceType repositories;
+  private final NPStrings strings;
+  private final NPTelemetryServiceType telemetry;
+  private final Set<NPPlanParserFactoryType> planParsers;
+  private final Set<NPTXParserFactoryType> toolExecParsers;
+  private final UUID executionId;
 
   private NPAssignmentTask(
     final NPDatabaseType inDatabase,
@@ -149,8 +167,8 @@ public final class NPAssignmentTask
     final Set<NPPlanParserFactoryType> inParserFactories,
     final Set<NPTXParserFactoryType> inToolExecParsers,
     final NPStrings inStrings,
-    final NPAssignment inAssignment,
-    final NPCommitID inCommit)
+    final NPAssignmentExecutionRequest inRequest,
+    final UUID inExecutionId)
   {
     this.database =
       Objects.requireNonNull(inDatabase, "database");
@@ -172,24 +190,22 @@ public final class NPAssignmentTask
       Objects.requireNonNull(inToolExecParsers, "toolExecParsers");
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
-    this.assignment =
-      Objects.requireNonNull(inAssignment, "assignment");
-    this.commitId =
-      Objects.requireNonNull(inCommit, "commit");
+    this.assignmentRequest =
+      Objects.requireNonNull(inRequest, "request");
+    this.executionId =
+      Objects.requireNonNull(inExecutionId, "inExecutionId");
+
+    this.executionState =
+      new NPAssignmentExecutionStateRequested(
+        this.executionId,
+        this.assignmentRequest,
+        this.timeCalculateCreated()
+      );
 
     this.closed =
       new AtomicBoolean(false);
-
     this.planUpdates =
       new ConcurrentLinkedQueue<>();
-    this.execution =
-      new NPAssignmentExecution(
-        UUID.randomUUID(),
-        this.assignment,
-        this.commitId,
-        new NPAssignmentExecutionCreated(this.clock.now())
-      );
-
     this.events.events()
       .subscribe(this);
   }
@@ -197,17 +213,17 @@ public final class NPAssignmentTask
   /**
    * Create a new assignment task.
    *
-   * @param services   The service directory
-   * @param assignment The assignment
-   * @param commit     The commit to build
+   * @param services    The service directory
+   * @param assignment  The assignment
+   * @param executionId An execution ID
    *
    * @return A new assignment task
    */
 
   public static NPAssignmentTask create(
     final RPServiceDirectoryType services,
-    final NPAssignment assignment,
-    final NPCommitID commit)
+    final NPAssignmentExecutionRequest assignment,
+    final UUID executionId)
   {
     return new NPAssignmentTask(
       services.requireService(NPDatabaseType.class),
@@ -221,7 +237,7 @@ public final class NPAssignmentTask
       Set.copyOf(services.optionalServices(NPTXParserFactoryType.class)),
       services.requireService(NPStrings.class),
       assignment,
-      commit
+      executionId
     );
   }
 
@@ -239,11 +255,11 @@ public final class NPAssignmentTask
   {
     final var span =
       this.telemetry.tracer()
-        .spanBuilder("AssignmentExecution")
-        .setAttribute("ExecutionID", this.execution.executionId().toString())
-        .setAttribute("Assignment", this.assignment.name().toString())
-        .setAttribute("PlanName", this.assignment.plan().name().toString())
-        .setAttribute("PlanVersion", this.assignment.plan().version())
+        .spanBuilder("AssignmentTaskExecution")
+        .setAttribute("AssignmentExecutionID", this.executionId.toString())
+        .setAttribute(
+          "Assignment",
+          this.assignmentRequest.assignment().toString())
         .startSpan();
 
     try (var ignored = span.makeCurrent()) {
@@ -261,8 +277,28 @@ public final class NPAssignmentTask
       }
     } catch (final Throwable e) {
       recordSpanException(e);
+      this.recordExceptionText(e);
     } finally {
       span.end();
+    }
+  }
+
+  private void recordExceptionText(
+    final Throwable e)
+  {
+    try (var connection =
+           this.database.openConnection(NORTHPIKE)) {
+      try (var transaction =
+             connection.openTransaction()) {
+        NPAssignmentLogging.recordExceptionText(
+          transaction,
+          this.executionId,
+          e
+        );
+        transaction.commit();
+      }
+    } catch (final NPDatabaseException ex) {
+      recordSpanException(ex);
     }
   }
 
@@ -275,12 +311,6 @@ public final class NPAssignmentTask
           transaction.queries(NPDatabaseQueriesPlansType.GetType.class);
         final var toolGet =
           transaction.queries(NPDatabaseQueriesToolsType.GetExecutionDescriptionType.class);
-        final var commitGet =
-          transaction.queries(NPDatabaseQueriesRepositoriesType.CommitGetType.class);
-
-        this.commit =
-          commitGet.execute(this.commitId)
-            .orElseThrow(this::errorCommitNonexistent);
 
         final var planOpt =
           planGet.execute(new NPDatabaseQueriesPlansType.GetType.Parameters(
@@ -289,7 +319,7 @@ public final class NPAssignmentTask
           ));
 
         if (planOpt.isEmpty()) {
-          throw this.errorPlanNonexistent(this.assignment.plan());
+          throw this.errorNonexistentPlan(this.assignment.plan());
         }
 
         this.plan =
@@ -319,12 +349,56 @@ public final class NPAssignmentTask
             this.plan
           );
 
-        LOG.info("Compiled plan {}", this.plan);
+        this.setStateInTransaction(
+          transaction,
+          new NPAssignmentExecutionStateCreated(
+            this.assignmentRequest,
+            this.timeCalculateCreated(),
+            this.assignmentExecution
+          )
+        );
+
+        transaction.commit();
+        this.logInfo("Compiled plan %s", this.plan);
       }
     }
   }
 
-  private NPServerException errorCommitNonexistent()
+
+  private void logInfo(
+    final String format,
+    final Object... arguments)
+  {
+    final var formatted = format.formatted(arguments);
+    LOG.info("{}", formatted);
+
+    try (var connection = this.database.openConnection(NORTHPIKE)) {
+      try (var transaction = connection.openTransaction()) {
+        recordInfoText(transaction, this.executionId, formatted);
+      }
+    } catch (final NPDatabaseException e) {
+      recordSpanException(e);
+    }
+  }
+
+  private void logError(
+    final String format,
+    final Object... arguments)
+  {
+    final var formatted = format.formatted(arguments);
+    LOG.info("{}", formatted);
+
+    try (var connection = this.database.openConnection(NORTHPIKE)) {
+      try (var transaction = connection.openTransaction()) {
+        recordErrorText(transaction, this.executionId, formatted);
+      }
+    } catch (final NPDatabaseException e) {
+      recordSpanException(e);
+    }
+  }
+
+
+  private NPServerException errorNonexistentCommit()
   {
     return new NPServerException(
       this.strings.format(ERROR_NONEXISTENT),
@@ -332,18 +406,18 @@ public final class NPAssignmentTask
       Map.ofEntries(
         Map.entry(
           this.strings.format(COMMIT),
-          this.commitId.value()
+          this.assignmentRequest.commit().value()
         ),
         Map.entry(
           this.strings.format(REPOSITORY),
-          this.commitId.repository().toString()
+          this.assignment.repositoryId().toString()
         )
       ),
       Optional.empty()
     );
   }
 
-  private NPServerException errorPlanNonexistent(
+  private NPServerException errorNonexistentPlan(
     final NPPlanIdentifier planId)
   {
     return new NPServerException(
@@ -384,9 +458,10 @@ public final class NPAssignmentTask
   {
     try {
       this.archive =
-        this.repositories.createArchiveFor(this.commitId)
+        this.repositories.createArchiveFor(this.commit.id())
           .get(5L, TimeUnit.MINUTES);
     } catch (final ExecutionException e) {
+      this.assignmentFailed();
       throw (Exception) e.getCause();
     }
   }
@@ -490,7 +565,11 @@ public final class NPAssignmentTask
       this.createWorkItemForAgent(task, agent);
 
     if (this.agents.sendWorkItem(agentId, workItem)) {
-      LOG.debug("Agent {} received work item.", agentId);
+      this.logInfo(
+        "Agent %s received work item %s.",
+        agentId,
+        workItem.identifier().planElementName()
+      );
       this.planUpdates.add(new AgentAcceptedTask(task.name(), agentId));
     } else {
       LOG.debug("Agent {} did not receive work item.", agentId);
@@ -560,7 +639,11 @@ public final class NPAssignmentTask
         entry.getValue();
 
       if (this.agents.sendWorkItem(agentId, workItem)) {
-        LOG.debug("Agent {} received work item.", agentId);
+        this.logInfo(
+          "Agent %s received work item %s.",
+          agentId,
+          workItem.identifier().planElementName()
+        );
         this.planUpdates.add(new AgentAcceptedTask(task.name(), agentId));
         return;
       } else {
@@ -653,7 +736,7 @@ public final class NPAssignmentTask
 
     final var itemIdentifier =
       new NPWorkItemIdentifier(
-        this.execution.executionId(),
+        this.executionId,
         task.name().name()
       );
 
@@ -708,71 +791,158 @@ public final class NPAssignmentTask
   }
 
   private void assignmentSucceeded()
-    throws NPDatabaseException
   {
     LOG.debug("Assignment succeeded.");
 
-    this.execution =
-      this.execution.withStatus(
-        this.execution.status().succeed(this.clock.now())
-      );
+    this.setState(new NPAssignmentExecutionStateSucceeded(
+      this.assignmentRequest,
+      this.timeCalculateCreated(),
+      this.assignmentExecution,
+      this.timeCalculateStarted(),
+      this.timeCalculateEnded()
+    ));
+  }
 
-    this.executionUpdateDatabase();
-    this.emitStatusChangeEvent();
+  private OffsetDateTime timeCalculateCreated()
+  {
+    final var t = this.timeCreated;
+    if (t == null) {
+      this.timeCreated = this.clock.nowPrecise();
+    }
+    return this.timeCreated;
+  }
+
+
+  private OffsetDateTime timeCalculateStarted()
+  {
+    final var t = this.timeStarted;
+    if (t == null) {
+      this.timeStarted = this.clock.nowPrecise();
+    }
+    return this.timeStarted;
+  }
+
+  private OffsetDateTime timeCalculateEnded()
+  {
+    final var t = this.timeEnded;
+    if (t == null) {
+      this.timeEnded = this.clock.nowPrecise();
+    }
+    return this.timeEnded;
   }
 
   private void assignmentStart()
-    throws NPDatabaseException
   {
     LOG.debug("Assignment started.");
 
-    this.execution =
-      this.execution.withStatus(
-        new NPAssignmentExecutionRunning(
-          this.execution.status().timeCreated(),
-          this.clock.now()
-        )
-      );
-
-    this.executionUpdateDatabase();
-    this.emitStatusChangeEvent();
-  }
-
-  private void emitStatusChangeEvent()
-  {
-    this.events.emit(new NPAssignmentExecutionStatusChanged(this.execution));
+    this.setState(new NPAssignmentExecutionStateRunning(
+      this.assignmentRequest,
+      this.timeCalculateCreated(),
+      this.assignmentExecution,
+      this.timeCalculateStarted()
+    ));
   }
 
   private void assignmentFailed()
-    throws NPDatabaseException
   {
     LOG.debug("Assignment failed.");
 
-    this.execution =
-      this.execution.withStatus(
-        this.execution.status().fail(this.clock.now())
-      );
-    this.executionUpdateDatabase();
-    this.emitStatusChangeEvent();
+    if (this.executionState instanceof NPAssignmentExecutionStateCreatedType) {
+      this.setState(new NPAssignmentExecutionStateFailed(
+        this.assignmentRequest,
+        this.timeCalculateCreated(),
+        this.assignmentExecution,
+        this.timeCalculateStarted(),
+        this.timeCalculateEnded()
+      ));
+    } else {
+      this.setState(new NPAssignmentExecutionStateCreationFailed(
+        this.executionId,
+        this.assignmentRequest,
+        this.timeCalculateCreated()
+      ));
+    }
   }
 
   private void assignmentInitialize()
-    throws NPDatabaseException
+    throws NPException
   {
-    this.executionUpdateDatabase();
-    this.emitStatusChangeEvent();
+    /*
+     * Setting up the initial assignment state might fail if either of the
+     * assignment or commit do not actually exist.
+     */
+
+    try {
+      try (var connection = this.database.openConnection(NORTHPIKE)) {
+        try (var transaction = connection.openTransaction()) {
+          this.setStateInTransaction(transaction, this.executionState);
+          transaction.commit();
+
+          this.assignment =
+            this.findAssignment(transaction);
+          this.commit =
+            this.findCommit(transaction);
+          this.assignmentExecution =
+            new NPAssignmentExecution(
+              this.executionId,
+              this.assignment,
+              this.commit.id()
+            );
+        }
+      }
+    } catch (final NPException e) {
+      this.setState(
+        new NPAssignmentExecutionStateCreationFailed(
+          this.executionId,
+          this.assignmentRequest,
+          this.timeCalculateCreated()
+        )
+      );
+      throw e;
+    }
   }
 
-  private void executionUpdateDatabase()
-    throws NPDatabaseException
+  private NPCommit findCommit(
+    final NPDatabaseTransactionType transaction)
+    throws NPDatabaseException, NPServerException
   {
-    try (var connection = this.database.openConnection(NORTHPIKE)) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.queries(NPDatabaseQueriesAssignmentsType.ExecutionPutType.class)
-          .execute(this.execution);
-        transaction.commit();
-      }
-    }
+    final var commitID =
+      new NPCommitID(
+        this.assignment.repositoryId(),
+        this.assignmentRequest.commit()
+      );
+
+    return transaction.queries(NPDatabaseQueriesRepositoriesType.CommitGetType.class)
+      .execute(commitID)
+      .orElseThrow(this::errorNonexistentCommit);
+  }
+
+  private NPAssignment findAssignment(
+    final NPDatabaseTransactionType transaction)
+    throws NPDatabaseException, NPServerException
+  {
+    return transaction.queries(NPDatabaseQueriesAssignmentsType.GetType.class)
+      .execute(this.assignmentRequest.assignment())
+      .orElseThrow(this::errorNonexistentAssignment);
+  }
+
+  private NPServerException errorNonexistentAssignment()
+  {
+    return new NPServerException(
+      this.strings.format(ERROR_NONEXISTENT),
+      errorNonexistent(),
+      Map.ofEntries(
+        Map.entry(
+          this.strings.format(ASSIGNMENT),
+          this.assignmentRequest.assignment().value().value()
+        ),
+        Map.entry(
+          this.strings.format(COMMIT),
+          this.assignmentRequest.commit().value()
+        )
+      ),
+      Optional.empty()
+    );
   }
 
   @Override
@@ -826,7 +996,7 @@ public final class NPAssignmentTask
     final NPAgentWorkItemEventType event)
   {
     return Objects.equals(
-      this.execution.executionId(),
+      this.executionId,
       event.identifier().assignmentExecutionId()
     );
   }
@@ -840,6 +1010,12 @@ public final class NPAssignmentTask
       }
 
       case WORK_ITEM_SUCCEEDED -> {
+        this.logInfo(
+          "Agent %s completed work item %s successfully.",
+          event.agentID(),
+          event.identifier().planElementName()
+        );
+
         this.planUpdates.add(
           new NPPlanEvaluationUpdateType.AgentReportedTaskSuccess(
             new NPPlanElementName(event.identifier().planElementName()),
@@ -849,6 +1025,12 @@ public final class NPAssignmentTask
       }
 
       case WORK_ITEM_FAILED -> {
+        this.logError(
+          "Agent %s failed to complete work item %s.",
+          event.agentID(),
+          event.identifier().planElementName()
+        );
+
         this.planUpdates.add(
           new NPPlanEvaluationUpdateType.AgentReportedTaskFailure(
             new NPPlanElementName(event.identifier().planElementName()),
@@ -884,11 +1066,51 @@ public final class NPAssignmentTask
   }
 
   /**
-   * @return The assignment execution
+   * @return The execution identifier
    */
 
-  public NPAssignmentExecution execution()
+  public UUID executionId()
   {
-    return this.execution;
+    return this.executionId;
+  }
+
+  private void setState(
+    final NPAssignmentExecutionStateType newState)
+  {
+    try (var connection =
+           this.database.openConnection(NORTHPIKE)) {
+      try (var transaction =
+             connection.openTransaction()) {
+        this.setStateInTransaction(transaction, newState);
+        transaction.commit();
+      }
+    } catch (final NPDatabaseException e) {
+      recordSpanException(e);
+    }
+  }
+
+  private void setStateInTransaction(
+    final NPDatabaseTransactionType transaction,
+    final NPAssignmentExecutionStateType newState)
+  {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(
+        "State {} -> {}",
+        this.executionState.getClass().getSimpleName(),
+        newState.getClass().getSimpleName()
+      );
+    }
+
+    this.executionState = newState;
+    this.events.emit(
+      new NPAssignmentExecutionStatusChanged(this.executionState)
+    );
+
+    try {
+      transaction.queries(ExecutionPutType.class)
+        .execute(this.executionState);
+    } catch (final NPDatabaseException e) {
+      recordSpanException(e);
+    }
   }
 }

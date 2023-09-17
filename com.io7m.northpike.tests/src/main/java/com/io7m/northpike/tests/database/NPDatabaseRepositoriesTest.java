@@ -37,6 +37,7 @@ import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitLink;
 import com.io7m.northpike.model.NPCommitSearchParameters;
 import com.io7m.northpike.model.NPCommitSummaryLinked;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
@@ -576,7 +577,7 @@ public final class NPDatabaseRepositoriesTest
 
     final var commit =
       new NPCommit(
-        new NPCommitID(UUID.randomUUID(), "a"),
+        new NPCommitID(UUID.randomUUID(), new NPCommitUnqualifiedID("a")),
         OffsetDateTime.now(),
         OffsetDateTime.now(),
         new NPCommitAuthor(
@@ -737,7 +738,7 @@ public final class NPDatabaseRepositoriesTest
 
     for (int index = 0; index < 100; ++index) {
       final var commit = new NPCommit(
-        new NPCommitID(repository, String.format("%x", Integer.valueOf(index))),
+        new NPCommitID(repository, new NPCommitUnqualifiedID(String.format("%x", Integer.valueOf(index)))),
         startTime.plusHours(index).withNano(0),
         startTime.plusHours(index).minusYears(1L).withNano(0),
         index % 3 == 0 ? author1 : author0,

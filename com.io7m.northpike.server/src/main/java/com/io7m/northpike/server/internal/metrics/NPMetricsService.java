@@ -31,8 +31,10 @@ import java.util.Objects;
 public final class NPMetricsService implements NPMetricsServiceType
 {
   private final CloseableCollectionType<ClosingResourceFailedException> resources;
+  private volatile int assignmentsEnqueued;
   private volatile int agentsConnected;
   private volatile int usersConnected;
+  private volatile int assignmentsExecuting;
 
   /**
    * The metrics service.
@@ -80,6 +82,28 @@ public final class NPMetricsService implements NPMetricsServiceType
           measurement.record(Integer.toUnsignedLong(this.usersConnected));
         })
     );
+
+    this.resources.add(
+      telemetry.meter()
+        .gaugeBuilder("northpike_assignments_executing")
+        .setDescription(
+          "The number of assignments currently executing.")
+        .ofLongs()
+        .buildWithCallback(measurement -> {
+          measurement.record(Integer.toUnsignedLong(this.assignmentsExecuting));
+        })
+    );
+
+    this.resources.add(
+      telemetry.meter()
+        .gaugeBuilder("northpike_assignments_enqueued")
+        .setDescription(
+          "The number of assignments currently enqueued.")
+        .ofLongs()
+        .buildWithCallback(measurement -> {
+          measurement.record(Integer.toUnsignedLong(this.assignmentsEnqueued));
+        })
+    );
   }
 
   @Override
@@ -114,5 +138,19 @@ public final class NPMetricsService implements NPMetricsServiceType
     final int count)
   {
     this.usersConnected = count;
+  }
+
+  @Override
+  public void setAssignmentsExecuting(
+    final int count)
+  {
+    this.assignmentsExecuting = count;
+  }
+
+  @Override
+  public void setAssignmentsQueueSize(
+    final int count)
+  {
+    this.assignmentsEnqueued = count;
   }
 }

@@ -24,7 +24,9 @@ import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.assignments.NPAssignment;
 import com.io7m.northpike.assignments.NPAssignmentExecution;
-import com.io7m.northpike.assignments.NPAssignmentExecutionCreated;
+import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
@@ -42,6 +44,7 @@ import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
@@ -167,11 +170,11 @@ public final class NPAgentTaskTest
   private NPPlanType plan;
   private NPAssignment assignment;
   private NPCommit commit;
-  private NPAssignmentExecution assignmentExecution;
   private NPWorkItem workItem0;
   private NPWorkItemIdentifier workItem0Id;
   private NPAgentWorkItem agentWorkItem0;
   private NPAgentDescription agent1;
+  private NPAssignmentExecutionStateType assignmentExecution;
 
   @BeforeAll
   public static void setupOnce(
@@ -285,7 +288,7 @@ public final class NPAgentTaskTest
       new NPCommit(
         new NPCommitID(
           this.repository.id(),
-          "adc83b19e793491b1c6ea0fd8b46cd9f32e592fc"
+          new NPCommitUnqualifiedID("adc83b19e793491b1c6ea0fd8b46cd9f32e592fc")
         ),
         OffsetDateTime.now(),
         OffsetDateTime.now(),
@@ -323,11 +326,17 @@ public final class NPAgentTaskTest
       .execute(this.assignment);
 
     this.assignmentExecution =
-      new NPAssignmentExecution(
-        randomUUID(),
-        this.assignment,
-        this.commit.id(),
-        new NPAssignmentExecutionCreated(OffsetDateTime.now())
+      new NPAssignmentExecutionStateCreated(
+        new NPAssignmentExecutionRequest(
+          this.assignment.name(),
+          this.commit.id().commitId()
+        ),
+        OffsetDateTime.now(),
+        new NPAssignmentExecution(
+          randomUUID(),
+          this.assignment,
+          this.commit.id()
+        )
       );
 
     this.transaction.queries(NPDatabaseQueriesAssignmentsType.ExecutionPutType.class)
@@ -335,7 +344,7 @@ public final class NPAgentTaskTest
 
     this.workItem0Id =
       new NPWorkItemIdentifier(
-        this.assignmentExecution.executionId(),
+        this.assignmentExecution.id(),
         new RDottedName("some.task")
       );
 

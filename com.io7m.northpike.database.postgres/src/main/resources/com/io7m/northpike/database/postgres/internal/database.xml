@@ -69,6 +69,14 @@ CREATE TABLE schema_version (
 
   <Schema versionCurrent="1">
     <Comment>
+      Some tables use the hstore type to store unstructured key/value maps.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE EXTENSION hstore;
+]]></Statement>
+
+    <Comment>
       The users table stores the current set of users. The name field is neither
       authoritative, nor expected to be unique, because the external identity
       server is the authoritative source for names.
@@ -591,10 +599,13 @@ CREATE TABLE assignments (
 
     <Statement><![CDATA[
 CREATE TYPE assignment_execution_status_t AS ENUM(
+  'ASSIGNMENT_EXECUTION_REQUESTED',
+  'ASSIGNMENT_EXECUTION_CREATION_FAILED',
   'ASSIGNMENT_EXECUTION_CREATED',
   'ASSIGNMENT_EXECUTION_RUNNING',
   'ASSIGNMENT_EXECUTION_SUCCEEDED',
-  'ASSIGNMENT_EXECUTION_FAILED'
+  'ASSIGNMENT_EXECUTION_FAILED',
+  'ASSIGNMENT_EXECUTION_CANCELLED'
 );
 ]]></Statement>
 
@@ -604,25 +615,56 @@ CREATE TYPE assignment_execution_status_t AS ENUM(
 
     <Statement><![CDATA[
 CREATE TABLE assignment_executions (
-  ae_id          UUID                           NOT NULL,
-  ae_assignment  BIGINT                         NOT NULL,
-  ae_commit      BIGINT                         NOT NULL,
-  ae_created     TIMESTAMP WITH TIME ZONE       NOT NULL,
-  ae_started     TIMESTAMP WITH TIME ZONE,
-  ae_ended       TIMESTAMP WITH TIME ZONE,
-  ae_status      assignment_execution_status_t  NOT NULL,
+  ae_id              UUID                           NOT NULL,
+  ae_assignment      BIGINT,
+  ae_commit          BIGINT,
+  ae_created         TIMESTAMP WITH TIME ZONE       NOT NULL,
+  ae_started         TIMESTAMP WITH TIME ZONE,
+  ae_ended           TIMESTAMP WITH TIME ZONE,
+  ae_status          assignment_execution_status_t  NOT NULL,
+
+  -- Denormalized values purely for diagnostics/forensics
+  ae_assignment_name TEXT NOT NULL,
+  ae_commit_name     TEXT NOT NULL,
 
   -- [jooq ignore start]
   CONSTRAINT assignment_executions_status_values_present CHECK (
     CASE
-      WHEN ae_status = 'ASSIGNMENT_EXECUTION_CREATED' THEN
-        ((ae_started IS NULL) AND (ae_ended IS NULL))
-      WHEN ae_status = 'ASSIGNMENT_EXECUTION_RUNNING' THEN
-        ((ae_started IS NOT NULL) AND (ae_ended IS NULL))
-      WHEN ae_status = 'ASSIGNMENT_EXECUTION_SUCCEEDED' THEN
-        ((ae_started IS NOT NULL) AND (ae_ended IS NOT NULL))
-      WHEN ae_status = 'ASSIGNMENT_EXECUTION_FAILED' THEN
-        ((ae_started IS NOT NULL) AND (ae_ended IS NOT NULL))
+      WHEN ae_status = 'ASSIGNMENT_EXECUTION_REQUESTED' THEN (
+            (ae_started    IS     NULL)
+        AND (ae_ended      IS     NULL)
+      )
+      WHEN ae_status = 'ASSIGNMENT_EXECUTION_CREATION_FAILED' THEN (
+            (ae_started    IS     NULL)
+        AND (ae_ended      IS     NULL)
+      )
+      WHEN ae_status = 'ASSIGNMENT_EXECUTION_CREATED' THEN (
+            (ae_started    IS     NULL)
+        AND (ae_ended      IS     NULL)
+        AND (ae_assignment IS NOT NULL)
+        AND (ae_commit     IS NOT NULL)
+      )
+      WHEN ae_status = 'ASSIGNMENT_EXECUTION_RUNNING' THEN (
+            (ae_started    IS NOT NULL)
+        AND (ae_ended      IS     NULL)
+        AND (ae_assignment IS NOT NULL)
+        AND (ae_commit     IS NOT NULL)
+      )
+      WHEN ae_status = 'ASSIGNMENT_EXECUTION_SUCCEEDED' THEN (
+            (ae_started    IS NOT NULL)
+        AND (ae_ended      IS NOT NULL)
+        AND (ae_assignment IS NOT NULL)
+        AND (ae_commit     IS NOT NULL)
+      )
+      WHEN ae_status = 'ASSIGNMENT_EXECUTION_FAILED' THEN (
+            (ae_started    IS NOT NULL)
+        AND (ae_ended      IS NOT NULL)
+        AND (ae_assignment IS NOT NULL)
+        AND (ae_commit     IS NOT NULL)
+      )
+      WHEN ae_status = 'ASSIGNMENT_EXECUTION_CANCELLED' THEN (
+        't'::boolean
+      )
       ELSE
         'f'::boolean
     END
@@ -637,6 +679,26 @@ CREATE TABLE assignment_executions (
 
   CONSTRAINT assignment_executions_commit_exists
     FOREIGN KEY (ae_commit) REFERENCES repository_commits (rc_id)
+)
+]]></Statement>
+
+    <Comment>
+      The server log messages associated with assignment executions.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE assignment_execution_logs (
+  ael_id           UUID                     NOT NULL,
+  ael_time         TIMESTAMP WITH TIME ZONE NOT NULL,
+  ael_type         TEXT                     NOT NULL,
+  ael_message      TEXT                     NOT NULL,
+
+  -- [jooq ignore start]
+  ael_attributes   HSTORE                   NOT NULL,
+  -- [jooq ignore stop]
+
+  CONSTRAINT assignment_executions_logs_exists
+    FOREIGN KEY (ael_id) REFERENCES assignment_executions (ae_id)
 )
 ]]></Statement>
 

@@ -56,6 +56,21 @@ public enum NPSecAction
   },
 
   /**
+   * An execute operation.
+   */
+
+  EXECUTE {
+    private static final MActionName EXECUTE_OBJECT =
+      MActionName.of("execute");
+
+    @Override
+    public MActionName action()
+    {
+      return EXECUTE_OBJECT;
+    }
+  },
+
+  /**
    * A delete operation.
    */
 

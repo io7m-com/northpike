@@ -17,40 +17,29 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-import com.io7m.northpike.model.NPAgentSummary;
-import com.io7m.northpike.model.NPPage;
-import com.io7m.northpike.protocol.user.NPUResponseAgentSearch;
+import com.io7m.northpike.assignments.NPAssignmentName;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecute;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
 
 import java.util.UUID;
 
-public final class NPArbUResponseAgentSearch
-  extends NPArbAbstract<NPUResponseAgentSearch>
+public final class NPArbUCommandAssignmentExecute
+  extends NPArbAbstract<NPUCommandAssignmentExecute>
 {
-  public NPArbUResponseAgentSearch()
+  public NPArbUCommandAssignmentExecute()
   {
     super(
-      NPUResponseAgentSearch.class,
+      NPUCommandAssignmentExecute.class,
       () -> {
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
-          Arbitraries.create(UUID::randomUUID),
-          page()
-        ).as(NPUResponseAgentSearch::new);
+          Arbitraries.defaultFor(NPAssignmentName.class),
+          Arbitraries.defaultFor(NPCommitUnqualifiedID.class)
+        ).as(NPUCommandAssignmentExecute::new);
       }
     );
-  }
-
-  private static Arbitrary<NPPage<NPAgentSummary>> page()
-  {
-    return Combinators.combine(
-      Arbitraries.defaultFor(NPAgentSummary.class).list(),
-      Arbitraries.integers(),
-      Arbitraries.integers(),
-      Arbitraries.longs()
-    ).as(NPPage::new);
   }
 }

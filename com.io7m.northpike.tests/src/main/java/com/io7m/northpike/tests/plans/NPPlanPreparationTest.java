@@ -24,6 +24,7 @@ import com.io7m.northpike.model.NPArchiveWithLinks;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPHash;
 import com.io7m.northpike.model.NPToken;
@@ -64,7 +65,7 @@ public final class NPPlanPreparationTest
 {
   private static final NPCommit COMMIT =
     new NPCommit(
-      new NPCommitID(UUID.randomUUID(), "deda21dfcddaf071d42e374db3bf2afc"),
+      new NPCommitID(UUID.randomUUID(), new NPCommitUnqualifiedID("deda21dfcddaf071d42e374db3bf2afc")),
       OffsetDateTime.now(),
       OffsetDateTime.now(),
       new NPCommitAuthor("Author", "someone@example.com"),
@@ -128,7 +129,7 @@ public final class NPPlanPreparationTest
         .value()
     );
     assertEquals(
-      COMMIT.id().value(),
+      COMMIT.id().commitId().value(),
       ((NPPlanVariableString) preparation.planVariables()
         .variables()
         .get(NPPlanStandardVariables.scmCommit().name()))

@@ -15,47 +15,16 @@
  */
 
 
-package com.io7m.northpike.assignments;
+package com.io7m.northpike.database.api;
 
-import java.time.OffsetDateTime;
+import com.io7m.northpike.assignments.NPAssignmentExecutionLogMessage;
 
 /**
- * The type of execution status values.
+ * A paged query that returns log messages.
  */
 
-public sealed interface NPAssignmentExecutionStatusType
-  permits NPAssignmentExecutionCreated,
-  NPAssignmentExecutionRunning,
-  NPAssignmentExecutionStatusCompletedType
+public interface NPAssignmentExecutionLogPagedType
+  extends NPDatabasePagedQueryType<NPAssignmentExecutionLogMessage>
 {
-  /**
-   * @return The time the execution was created
-   */
-
-  OffsetDateTime timeCreated();
-
-  /**
-   * @param time The time of failure
-   *
-   * @return A new failure status based on this status
-   */
-
-  NPAssignmentExecutionFailed fail(
-    OffsetDateTime time);
-
-  /**
-   * @return The name of the status value
-   */
-
-  String name();
-
-  /**
-   * @param time The time of success
-   *
-   * @return A new success status based on this status
-   */
-
-  NPAssignmentExecutionSucceeded succeed(
-    OffsetDateTime time);
 
 }

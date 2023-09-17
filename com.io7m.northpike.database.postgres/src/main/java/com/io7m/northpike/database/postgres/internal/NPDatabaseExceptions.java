@@ -166,9 +166,9 @@ public final class NPDatabaseExceptions
         .orElse("");
 
     return switch (column.toUpperCase(Locale.ROOT)) {
-      case "R_PROVIDER" -> {
+      case "R_PROVIDER", "AE_COMMIT" -> {
         yield new NPDatabaseException(
-          m,
+          transaction.localize(ERROR_NONEXISTENT),
           e,
           NPStandardErrorCodes.errorNonexistent(),
           attributes,

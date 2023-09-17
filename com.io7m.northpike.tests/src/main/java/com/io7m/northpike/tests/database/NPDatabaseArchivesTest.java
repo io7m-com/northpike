@@ -32,6 +32,7 @@ import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPHash;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPSCMProviderDescription;
@@ -132,7 +133,7 @@ public final class NPDatabaseArchivesTest
       new NPCommit(
         new NPCommitID(
           description.id(),
-          "2215f4104678281140622c1088785093319ddc791d11f80cf687d9d4e24e200e"
+          new NPCommitUnqualifiedID("2215f4104678281140622c1088785093319ddc791d11f80cf687d9d4e24e200e")
         ),
         OffsetDateTime.now(),
         OffsetDateTime.now(),

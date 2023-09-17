@@ -18,58 +18,55 @@
 package com.io7m.northpike.assignments;
 
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
+
+import static java.util.Map.entry;
 
 /**
- * An assignment was started.
+ * An assignment execution could not be created.
  *
- * @param timeCreated The time the execution was created
- * @param timeStarted The time the execution was started
+ * @param id          The execution ID
+ * @param timeCreated The time of the creation attempt
+ * @param request     The request
  */
 
-public record NPAssignmentExecutionRunning(
-  OffsetDateTime timeCreated,
-  OffsetDateTime timeStarted)
-  implements NPAssignmentExecutionStatusType
+public record NPAssignmentExecutionStateCreationFailed(
+  UUID id,
+  NPAssignmentExecutionRequest request,
+  OffsetDateTime timeCreated)
+  implements NPAssignmentExecutionStateType
 {
   /**
-   * An assignment was started.
+   * An assignment execution could not be created.
    *
-   * @param timeCreated The time the execution was created
-   * @param timeStarted The time the execution was started
+   * @param id          The execution ID
+   * @param timeCreated The time of the creation attempt
+   * @param request     The request
    */
 
-  public NPAssignmentExecutionRunning
+  public NPAssignmentExecutionStateCreationFailed
   {
+    Objects.requireNonNull(id, "id");
+    Objects.requireNonNull(request, "request");
     Objects.requireNonNull(timeCreated, "timeCreated");
-    Objects.requireNonNull(timeStarted, "timeStarted");
-  }
-
-  @Override
-  public NPAssignmentExecutionFailed fail(
-    final OffsetDateTime time)
-  {
-    return new NPAssignmentExecutionFailed(
-      this.timeCreated,
-      this.timeStarted,
-      time
-    );
   }
 
   @Override
   public String name()
   {
-    return "Running";
+    return "CreationFailed";
   }
 
   @Override
-  public NPAssignmentExecutionSucceeded succeed(
-    final OffsetDateTime time)
+  public Map<String, String> asAttributes()
   {
-    return new NPAssignmentExecutionSucceeded(
-      this.timeCreated,
-      this.timeStarted,
-      time
+    return Map.ofEntries(
+      entry("Assignment", this.request.assignment().toString()),
+      entry("CommitID", this.request.commit().toString()),
+      entry("Status", this.name()),
+      entry("TimeCreated", this.timeCreated.toString())
     );
   }
 }

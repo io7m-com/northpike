@@ -15,27 +15,38 @@
  */
 
 
-package com.io7m.northpike.assignments;
+package com.io7m.northpike.model;
 
-import java.time.OffsetDateTime;
+import java.util.regex.Pattern;
 
 /**
- * The set of status values that indicate that execution has ended.
+ * An unqualified commit ID.
+ *
+ * @param value The ID value
  */
 
-public sealed interface NPAssignmentExecutionStatusCompletedType
-  extends NPAssignmentExecutionStatusType
-  permits NPAssignmentExecutionFailed, NPAssignmentExecutionSucceeded
+public record NPCommitUnqualifiedID(
+  String value)
 {
-  /**
-   * @return The time that execution started
-   */
-
-  OffsetDateTime timeStarted();
+  private static final Pattern VALID_PATTERN =
+    Pattern.compile("[a-f0-9]{1,8192}");
 
   /**
-   * @return The time that execution ended
+   * An unqualified commit ID.
+   *
+   * @param value The ID value
    */
 
-  OffsetDateTime timeEnded();
+  public NPCommitUnqualifiedID
+  {
+    if (!VALID_PATTERN.matcher(value).matches()) {
+      throw new NPValidityException("Invalid commit ID");
+    }
+  }
+
+  @Override
+  public String toString()
+  {
+    return this.value;
+  }
 }

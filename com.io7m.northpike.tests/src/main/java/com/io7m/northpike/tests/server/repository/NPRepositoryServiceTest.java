@@ -29,6 +29,7 @@ import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
 import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPSCMProviderDescription;
@@ -397,7 +398,7 @@ public final class NPRepositoryServiceTest
     final var commit =
       new NPCommitID(
         repositoryDescription.id(),
-        "11e4ee346c9a8708688acc4f32beac8955714b6c"
+        new NPCommitUnqualifiedID("11e4ee346c9a8708688acc4f32beac8955714b6c")
       );
 
     final var archive =
@@ -459,7 +460,7 @@ public final class NPRepositoryServiceTest
     final var commit =
       new NPCommitID(
         repositoryDescription.id(),
-        "a5830879c9a5536e811df8ac4710d19e712a1232"
+        new NPCommitUnqualifiedID("a5830879c9a5536e811df8ac4710d19e712a1232")
       );
 
     assertThrows(Exception.class, () -> {
@@ -507,7 +508,7 @@ public final class NPRepositoryServiceTest
     final var commit =
       new NPCommitID(
         UUID.randomUUID(),
-        "11e4ee346c9a8708688acc4f32beac8955714b6c"
+        new NPCommitUnqualifiedID("11e4ee346c9a8708688acc4f32beac8955714b6c")
       );
 
     assertThrows(Exception.class, () -> {

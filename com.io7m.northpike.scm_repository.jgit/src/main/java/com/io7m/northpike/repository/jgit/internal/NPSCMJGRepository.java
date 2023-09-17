@@ -26,6 +26,7 @@ import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitLink;
 import com.io7m.northpike.model.NPCommitSummary;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPHash;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
@@ -296,7 +297,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
                  this.git.archive()
                    .setFormat("tar.gz")
                    .setOutputStream(output)
-                   .setTree(ObjectId.fromString(commit.value()))
+                   .setTree(ObjectId.fromString(commit.commitId().value()))
                    .call()) {
             out.flush();
           }
@@ -403,7 +404,9 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
 
           for (final var endCommit : commits) {
             revWalker.markUninteresting(
-              revWalker.parseCommit(ObjectId.fromString(endCommit.id().value()))
+              revWalker.parseCommit(
+                ObjectId.fromString(endCommit.id().commitId().value())
+              )
             );
           }
 
@@ -500,7 +503,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     return new NPCommit(
       new NPCommitID(
         this.repositoryDescription.id(),
-        source.name()
+        new NPCommitUnqualifiedID(source.name())
       ),
       timeCreatedUTC,
       timeReceived,

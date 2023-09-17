@@ -39,4 +39,20 @@ public interface NPMetricsServiceType extends AutoCloseable, RPServiceType
    */
 
   void setUsersConnected(int count);
+
+  /**
+   * Set the number of assignments currently executing.
+   *
+   * @param count The number of assignments executing
+   */
+
+  void setAssignmentsExecuting(int count);
+
+  /**
+   * Set the number of requests currently enqueued.
+   *
+   * @param count The number of assignments requests in the queue
+   */
+
+  void setAssignmentsQueueSize(int count);
 }

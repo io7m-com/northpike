@@ -18,46 +18,46 @@
 package com.io7m.northpike.assignments;
 
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.Objects;
+
+import static java.util.Map.entry;
 
 /**
  * An assignment execution failed.
  *
  * @param timeCreated The time the execution was created
+ * @param request     The request
+ * @param execution   The execution
  * @param timeStarted The time the execution was started
  * @param timeEnded   The time the execution ended
  */
 
-public record NPAssignmentExecutionFailed(
+public record NPAssignmentExecutionStateFailed(
+  NPAssignmentExecutionRequest request,
   OffsetDateTime timeCreated,
+  NPAssignmentExecution execution,
   OffsetDateTime timeStarted,
   OffsetDateTime timeEnded)
-  implements NPAssignmentExecutionStatusCompletedType
+  implements NPAssignmentExecutionStateCompletedType
 {
   /**
    * An assignment execution failed.
    *
    * @param timeCreated The time the execution was created
+   * @param request     The request
+   * @param execution   The execution
    * @param timeStarted The time the execution was started
    * @param timeEnded   The time the execution ended
    */
 
-  public NPAssignmentExecutionFailed
+  public NPAssignmentExecutionStateFailed
   {
+    Objects.requireNonNull(request, "request");
     Objects.requireNonNull(timeCreated, "timeCreated");
+    Objects.requireNonNull(execution, "execution");
     Objects.requireNonNull(timeStarted, "timeStarted");
     Objects.requireNonNull(timeEnded, "timeEnded");
-  }
-
-  @Override
-  public NPAssignmentExecutionFailed fail(
-    final OffsetDateTime time)
-  {
-    return new NPAssignmentExecutionFailed(
-      this.timeCreated,
-      this.timeStarted,
-      time
-    );
   }
 
   @Override
@@ -67,13 +67,20 @@ public record NPAssignmentExecutionFailed(
   }
 
   @Override
-  public NPAssignmentExecutionSucceeded succeed(
-    final OffsetDateTime time)
+  public Map<String, String> asAttributes()
   {
-    return new NPAssignmentExecutionSucceeded(
-      this.timeCreated,
-      this.timeStarted,
-      time
+    final var assignment = this.execution.assignment();
+    final var plan = assignment.plan();
+    return Map.ofEntries(
+      entry("Assignment", this.request.assignment().toString()),
+      entry("AssignmentExecutionID", this.execution.id().toString()),
+      entry("CommitID", this.request.commit().toString()),
+      entry("PlanID", plan.name().toString()),
+      entry("PlanVersion", Long.toUnsignedString(plan.version())),
+      entry("Status", this.name()),
+      entry("TimeCreated", this.timeCreated.toString()),
+      entry("TimeEnded", this.timeEnded.toString()),
+      entry("TimeStarted", this.timeStarted.toString())
     );
   }
 }

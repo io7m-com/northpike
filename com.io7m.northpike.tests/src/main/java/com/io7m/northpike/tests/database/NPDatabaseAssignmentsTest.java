@@ -23,18 +23,24 @@ import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.assignments.NPAssignment;
 import com.io7m.northpike.assignments.NPAssignmentExecution;
-import com.io7m.northpike.assignments.NPAssignmentExecutionCreated;
-import com.io7m.northpike.assignments.NPAssignmentExecutionFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRunning;
-import com.io7m.northpike.assignments.NPAssignmentExecutionSucceeded;
+import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateFailed;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateRequested;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateRunning;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.assignments.NPAssignmentSearchParameters;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogAddType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogListType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
@@ -44,6 +50,8 @@ import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPNameMatchType;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
@@ -52,7 +60,6 @@ import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
-import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.plans.NPPlanIdentifier;
 import com.io7m.northpike.plans.NPPlanName;
 import com.io7m.northpike.plans.NPPlans;
@@ -215,7 +222,7 @@ public final class NPDatabaseAssignmentsTest
         NPDatabaseQueriesAssignmentsType.ExecutionGetType.class);
     final var execPut =
       this.transaction.queries(
-        NPDatabaseQueriesAssignmentsType.ExecutionPutType.class);
+        ExecutionPutType.class);
 
     final var planPut =
       this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
@@ -224,7 +231,7 @@ public final class NPDatabaseAssignmentsTest
     final var scmPut =
       this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
     final var commitPut =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+      this.transaction.queries(CommitsPutType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -247,7 +254,7 @@ public final class NPDatabaseAssignmentsTest
       new NPCommit(
         new NPCommitID(
           repositoryDescription.id(),
-          "e5dc6e8b6dad3c58692b5b6a6ebbeaa30abe3cd9"
+          new NPCommitUnqualifiedID("e5dc6e8b6dad3c58692b5b6a6ebbeaa30abe3cd9")
         ),
         OffsetDateTime.now().withNano(0),
         OffsetDateTime.now().withNano(0),
@@ -262,10 +269,7 @@ public final class NPDatabaseAssignmentsTest
       NPCommitGraph.create(Set.of());
 
     commitPut.execute(
-      new NPDatabaseQueriesRepositoriesType.CommitsPutType.Parameters(
-        Set.of(commit),
-        commitGraph
-      ));
+      new CommitsPutType.Parameters(Set.of(commit), commitGraph));
 
     final var plan =
       NPPlans.builder(NPStrings.create(Locale.ROOT), "x", 1L)
@@ -285,14 +289,32 @@ public final class NPDatabaseAssignmentsTest
 
     put.execute(assignment);
 
-    var execution =
-      new NPAssignmentExecution(
-        UUID.randomUUID(),
-        assignment,
-        commit.id(),
-        new NPAssignmentExecutionCreated(
-          OffsetDateTime.now()
-            .withNano(0)
+    final var executionId = UUID.randomUUID();
+
+    NPAssignmentExecutionStateType execution =
+      new NPAssignmentExecutionStateRequested(
+        executionId,
+        new NPAssignmentExecutionRequest(
+          assignment.name(),
+          commit.id().commitId()
+        ),
+        OffsetDateTime.now()
+          .withNano(0)
+      );
+
+    execPut.execute(execution);
+
+    execution = new NPAssignmentExecutionStateCreated(
+        new NPAssignmentExecutionRequest(
+          assignment.name(),
+          commit.id().commitId()
+        ),
+        OffsetDateTime.now()
+          .withNano(0),
+        new NPAssignmentExecution(
+          executionId,
+          assignment,
+          commit.id()
         )
       );
 
@@ -300,59 +322,80 @@ public final class NPDatabaseAssignmentsTest
 
     assertEquals(
       execution,
-      execGet.execute(execution.executionId()).orElseThrow()
+      execGet.execute(execution.id()).orElseThrow()
     );
 
-    execution = execution.withStatus(
-      new NPAssignmentExecutionRunning(
-        OffsetDateTime.now()
-          .withNano(0),
-        OffsetDateTime.now()
-          .withNano(0)
-      )
-    );
-
-    execPut.execute(execution);
-
-    assertEquals(
-      execution,
-      execGet.execute(execution.executionId()).orElseThrow()
-    );
-
-    execution = execution.withStatus(
-      new NPAssignmentExecutionSucceeded(
-        OffsetDateTime.now()
-          .withNano(0),
-        OffsetDateTime.now()
-          .withNano(0),
-        OffsetDateTime.now()
-          .withNano(0)
-      )
+    execution = new NPAssignmentExecutionStateRunning(
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        commit.id().commitId()
+      ),
+      OffsetDateTime.now()
+        .withNano(0),
+      new NPAssignmentExecution(
+        executionId,
+        assignment,
+        commit.id()
+      ),
+      OffsetDateTime.now()
+        .withNano(0)
     );
 
     execPut.execute(execution);
 
     assertEquals(
       execution,
-      execGet.execute(execution.executionId()).orElseThrow()
+      execGet.execute(executionId).orElseThrow()
     );
 
-    execution = execution.withStatus(
-      new NPAssignmentExecutionFailed(
-        OffsetDateTime.now()
-          .withNano(0),
-        OffsetDateTime.now()
-          .withNano(0),
-        OffsetDateTime.now()
-          .withNano(0)
-      )
+    execution = new NPAssignmentExecutionStateSucceeded(
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        commit.id().commitId()
+      ),
+      OffsetDateTime.now()
+        .withNano(0),
+      new NPAssignmentExecution(
+        executionId,
+        assignment,
+        commit.id()
+      ),
+      OffsetDateTime.now()
+        .withNano(0),
+      OffsetDateTime.now()
+        .withNano(0)
     );
 
     execPut.execute(execution);
 
     assertEquals(
       execution,
-      execGet.execute(execution.executionId()).orElseThrow()
+      execGet.execute(executionId).orElseThrow()
+    );
+
+    execution = new NPAssignmentExecutionStateFailed(
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        commit.id().commitId()
+      ),
+      OffsetDateTime.now()
+        .withNano(0),
+      new NPAssignmentExecution(
+        executionId,
+        assignment,
+        commit.id()
+      ),
+      OffsetDateTime.now()
+        .withNano(0),
+      OffsetDateTime.now()
+        .withNano(0)
+    );
+
+    execPut.execute(execution);
+
+    assertEquals(
+      execution,
+      execGet.execute(executionId).orElseThrow()
     );
   }
 
@@ -390,7 +433,7 @@ public final class NPDatabaseAssignmentsTest
 
     final var execPut =
       this.transaction.queries(
-        NPDatabaseQueriesAssignmentsType.ExecutionPutType.class);
+        ExecutionPutType.class);
 
     final var planPut =
       this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
@@ -399,7 +442,7 @@ public final class NPDatabaseAssignmentsTest
     final var scmPut =
       this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
     final var commitPut =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+      this.transaction.queries(CommitsPutType.class);
 
     final var workPut =
       this.transaction.queries(NPDatabaseQueriesAssignmentsType.WorkItemPutType.class);
@@ -427,7 +470,7 @@ public final class NPDatabaseAssignmentsTest
       new NPCommit(
         new NPCommitID(
           repositoryDescription.id(),
-          "e5dc6e8b6dad3c58692b5b6a6ebbeaa30abe3cd9"
+          new NPCommitUnqualifiedID("e5dc6e8b6dad3c58692b5b6a6ebbeaa30abe3cd9")
         ),
         OffsetDateTime.now().withNano(0),
         OffsetDateTime.now().withNano(0),
@@ -442,7 +485,7 @@ public final class NPDatabaseAssignmentsTest
       NPCommitGraph.create(Set.of());
 
     commitPut.execute(
-      new NPDatabaseQueriesRepositoriesType.CommitsPutType.Parameters(
+      new CommitsPutType.Parameters(
         Set.of(commit),
         commitGraph
       ));
@@ -478,13 +521,17 @@ public final class NPDatabaseAssignmentsTest
     agentPut.execute(agent);
 
     final var execution =
-      new NPAssignmentExecution(
-        UUID.randomUUID(),
-        assignment,
-        commit.id(),
-        new NPAssignmentExecutionCreated(
-          OffsetDateTime.now()
-            .withNano(0)
+      new NPAssignmentExecutionStateCreated(
+        new NPAssignmentExecutionRequest(
+          assignment.name(),
+          commit.id().commitId()
+        ),
+        OffsetDateTime.now()
+          .withNano(0),
+        new NPAssignmentExecution(
+          UUID.randomUUID(),
+          assignment,
+          commit.id()
         )
       );
 
@@ -492,7 +539,7 @@ public final class NPDatabaseAssignmentsTest
 
     final var identifier =
       new NPWorkItemIdentifier(
-        execution.executionId(),
+        execution.execution().id(),
         new RDottedName("some.task")
       );
 
@@ -666,8 +713,79 @@ public final class NPDatabaseAssignmentsTest
     assertEquals(1, p.items().size());
   }
 
+  /**
+   * Logging execution output works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentExecutionLog0()
+    throws Exception
+  {
+    final var assignments =
+      this.createSampleAssignments();
+
+    final var execution =
+      new NPAssignmentExecutionStateCreated(
+        new NPAssignmentExecutionRequest(
+          assignments.get(0).name(),
+          new NPCommitUnqualifiedID("a")
+        ),
+        OffsetDateTime.now()
+          .withNano(0),
+        new NPAssignmentExecution(
+          UUID.randomUUID(),
+          assignments.get(0),
+          new NPCommitID(
+            this.repositoryId,
+            new NPCommitUnqualifiedID("a")
+          )
+        )
+      );
+
+    this.transaction.queries(ExecutionPutType.class)
+      .execute(execution);
+
+    this.transaction.queries(ExecutionLogAddType.class)
+      .execute(new ExecutionLogAddType.Parameters(
+        execution.id(),
+        "INFO",
+        "Some text.",
+        Map.ofEntries(
+          Map.entry("Key1", "Value1"),
+          Map.entry("Key2", "Value2"),
+          Map.entry("Key3", "Value3")
+        )
+      ));
+
+    final var paged =
+      this.transaction.queries(ExecutionLogListType.class)
+        .execute(new ExecutionLogListType.Parameters(
+          execution.id(),
+          true,
+          1000L
+        ));
+
+    final var page =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(1, page.pageIndex());
+    assertEquals(1, page.pageCount());
+    assertEquals(1, page.items().size());
+
+    assertEquals(
+      Map.ofEntries(
+        Map.entry("Key1", "Value1"),
+        Map.entry("Key2", "Value2"),
+        Map.entry("Key3", "Value3")
+      ),
+      page.items().get(0).attributes()
+    );
+  }
+
   private List<NPAssignment> createSampleAssignments()
-    throws NPDatabaseException, NPPlanException
+    throws NPException
   {
     final var put =
       this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
@@ -675,6 +793,8 @@ public final class NPDatabaseAssignmentsTest
       this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
     final var reposPut =
       this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+    final var commitPut =
+      this.transaction.queries(CommitsPutType.class);
     final var scmPut =
       this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
 
@@ -694,6 +814,28 @@ public final class NPDatabaseAssignmentsTest
         NPRepositoryCredentialsNone.CREDENTIALS_NONE
       );
     reposPut.execute(repositoryDescription);
+
+    final var commit =
+      new NPCommit(
+        new NPCommitID(
+          repositoryDescription.id(),
+          new NPCommitUnqualifiedID("a")
+        ),
+        OffsetDateTime.now(),
+        OffsetDateTime.now(),
+        new NPCommitAuthor("Author", "x@example.com"),
+        "Subject",
+        "Body",
+        Set.of(),
+        Set.of()
+      );
+
+    commitPut.execute(
+      new CommitsPutType.Parameters(
+        Set.of(commit),
+        NPCommitGraph.create(Set.of())
+      )
+    );
 
     final var plan0 =
       NPPlans.builder(this.strings, "rose", 1L)

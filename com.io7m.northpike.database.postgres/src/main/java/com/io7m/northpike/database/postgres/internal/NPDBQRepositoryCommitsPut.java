@@ -123,7 +123,7 @@ public final class NPDBQRepositoryCommitsPut
       context.select(REPOSITORY_COMMITS.RC_ID)
         .from(REPOSITORY_COMMITS)
         .where(
-          REPOSITORY_COMMITS.RC_COMMIT_ID.eq(commit.id().value())
+          REPOSITORY_COMMITS.RC_COMMIT_ID.eq(commit.id().commitId().value())
             .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(commit.id().repository()))
         );
 
@@ -153,7 +153,7 @@ public final class NPDBQRepositoryCommitsPut
       context.select(REPOSITORY_COMMITS.RC_ID)
         .from(REPOSITORY_COMMITS)
         .where(
-          REPOSITORY_COMMITS.RC_COMMIT_ID.eq(commit.id().value())
+          REPOSITORY_COMMITS.RC_COMMIT_ID.eq(commit.id().commitId().value())
             .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(commit.id().repository()))
         );
 
@@ -182,7 +182,7 @@ public final class NPDBQRepositoryCommitsPut
       context.select(REPOSITORY_COMMITS.RC_ID)
         .from(REPOSITORY_COMMITS)
         .where(
-          REPOSITORY_COMMITS.RC_COMMIT_ID.eq(link.commit().value())
+          REPOSITORY_COMMITS.RC_COMMIT_ID.eq(link.commit().commitId().value())
             .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(link.commit().repository()))
         );
 
@@ -192,7 +192,7 @@ public final class NPDBQRepositoryCommitsPut
           context.select(REPOSITORY_COMMITS.RC_ID)
             .from(REPOSITORY_COMMITS)
             .where(
-              REPOSITORY_COMMITS.RC_COMMIT_ID.eq(next.value())
+              REPOSITORY_COMMITS.RC_COMMIT_ID.eq(next.commitId().value())
                 .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(next.repository()))
             );
 
@@ -222,7 +222,7 @@ public final class NPDBQRepositoryCommitsPut
 
     return context.insertInto(REPOSITORY_COMMITS)
       .set(REPOSITORY_COMMITS.RC_COMMIT_AUTHOR, authorSelect)
-      .set(REPOSITORY_COMMITS.RC_COMMIT_ID, com.id().value())
+      .set(REPOSITORY_COMMITS.RC_COMMIT_ID, com.id().commitId().value())
       .set(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_SUBJECT, com.messageSubject())
       .set(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_BODY, com.messageBody())
       .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED, com.timeCreated())
@@ -231,7 +231,7 @@ public final class NPDBQRepositoryCommitsPut
       .onConflictOnConstraint(DSL.name("repository_commits_unique"))
       .doUpdate()
       .set(REPOSITORY_COMMITS.RC_COMMIT_AUTHOR, authorSelect)
-      .set(REPOSITORY_COMMITS.RC_COMMIT_ID, com.id().value())
+      .set(REPOSITORY_COMMITS.RC_COMMIT_ID, com.id().commitId().value())
       .set(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_SUBJECT, com.messageSubject())
       .set(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_BODY, com.messageBody())
       .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED, com.timeCreated())

@@ -15,34 +15,49 @@
  */
 
 
-package com.io7m.northpike.tests.model;
+package com.io7m.northpike.assignments;
 
-import com.io7m.northpike.model.NPCommitID;
-import com.io7m.northpike.model.NPCommitUnqualifiedID;
-import com.io7m.northpike.model.NPValidityException;
-import net.jqwik.api.ForAll;
-import net.jqwik.api.Property;
-import org.junit.jupiter.api.Test;
-
+import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+/**
+ * The status of an assignment execution.
+ */
 
-public final class NPCommitIDTest
+public sealed interface NPAssignmentExecutionStateType
+  permits NPAssignmentExecutionStateCancelled,
+  NPAssignmentExecutionStateCreatedType,
+  NPAssignmentExecutionStateCreationFailed,
+  NPAssignmentExecutionStateRequested
 {
-  @Property
-  public void testValue(
-    final @ForAll NPCommitID x)
-  {
-    assertEquals(x, x);
-  }
+  /**
+   * @return The execution ID
+   */
 
-  @Test
-  public void testParse1()
-  {
-    assertThrows(NPValidityException.class, () -> {
-      new NPCommitID(UUID.randomUUID(), new NPCommitUnqualifiedID("A"));
-    });
-  }
+  UUID id();
+
+  /**
+   * @return The request that started the execution
+   */
+
+  NPAssignmentExecutionRequest request();
+
+  /**
+   * @return The time the execution was created
+   */
+
+  OffsetDateTime timeCreated();
+
+  /**
+   * @return The name of this status value
+   */
+
+  String name();
+
+  /**
+   * @return The execution status as a set of attributes for telemetry/logging
+   */
+
+  Map<String, String> asAttributes();
 }

@@ -25,56 +25,35 @@ import java.util.UUID;
 /**
  * An execution of an assignment.
  *
- * @param executionId The execution ID
- * @param assignment  The assignment
- * @param commit      The specific commit
- * @param status      The current status of the assignment
+ * @param id         The execution ID
+ * @param assignment The assignment
+ * @param commit     The specific commit
  */
 
 public record NPAssignmentExecution(
-  UUID executionId,
+  UUID id,
   NPAssignment assignment,
-  NPCommitID commit,
-  NPAssignmentExecutionStatusType status)
+  NPCommitID commit)
 {
   /**
    * An execution of an assignment.
    *
-   * @param executionId The execution ID
-   * @param assignment  The assignment
-   * @param commit      The specific commit
-   * @param status      The current status of the assignment
+   * @param id         The execution ID
+   * @param assignment The assignment
+   * @param commit     The specific commit
    */
 
   public NPAssignmentExecution
   {
-    Objects.requireNonNull(executionId, "executionId");
+    Objects.requireNonNull(id, "executionId");
     Objects.requireNonNull(assignment, "assignment");
     Objects.requireNonNull(commit, "commit");
-    Objects.requireNonNull(status, "status");
 
     Preconditions.checkPreconditionV(
       Objects.equals(commit.repository(), assignment.repositoryId()),
       "Commit repository %s must match assignment repository %s",
       commit.repository(),
       assignment.repositoryId()
-    );
-  }
-
-  /**
-   * @param newStatus The new status
-   *
-   * @return A new execution with the given status
-   */
-
-  public NPAssignmentExecution withStatus(
-    final NPAssignmentExecutionStatusType newStatus)
-  {
-    return new NPAssignmentExecution(
-      this.executionId(),
-      this.assignment(),
-      this.commit(),
-      newStatus
     );
   }
 }

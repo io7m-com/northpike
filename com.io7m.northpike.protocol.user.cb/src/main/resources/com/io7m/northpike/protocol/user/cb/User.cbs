@@ -586,6 +586,16 @@
   [field messageId cb:UUID]
 ]
 
+[documentation NPU1CommandAssignmentExecute "Request the execution of an assignment."]
+[record NPU1CommandAssignmentExecute
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation assignment "The assignment name."]
+  [field assignment cb:String]
+  [documentation commitId "The commit ID."]
+  [field commitId cb:String]
+]
+
 ;
 ; Events
 ;
@@ -786,6 +796,7 @@
       NPU1CommandAssignmentSearchBegin
       NPU1CommandAssignmentSearchNext
       NPU1CommandAssignmentSearchPrevious
+      NPU1CommandAssignmentExecute
       NPU1CommandDisconnect
       NPU1CommandLogin
       NPU1CommandPlanGet

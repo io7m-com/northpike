@@ -15,34 +15,22 @@
  */
 
 
-package com.io7m.northpike.tests.model;
+package com.io7m.northpike.assignments;
 
-import com.io7m.northpike.model.NPCommitID;
-import com.io7m.northpike.model.NPCommitUnqualifiedID;
-import com.io7m.northpike.model.NPValidityException;
-import net.jqwik.api.ForAll;
-import net.jqwik.api.Property;
-import org.junit.jupiter.api.Test;
+import java.time.OffsetDateTime;
 
-import java.util.UUID;
+/**
+ * The set of states that indicate that the execution has completed for any
+ * reason.
+ */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-public final class NPCommitIDTest
+public sealed interface NPAssignmentExecutionStateCompletedType
+  extends NPAssignmentExecutionStateStartedType
+  permits NPAssignmentExecutionStateFailed, NPAssignmentExecutionStateSucceeded
 {
-  @Property
-  public void testValue(
-    final @ForAll NPCommitID x)
-  {
-    assertEquals(x, x);
-  }
+  /**
+   * @return The time that execution ended
+   */
 
-  @Test
-  public void testParse1()
-  {
-    assertThrows(NPValidityException.class, () -> {
-      new NPCommitID(UUID.randomUUID(), new NPCommitUnqualifiedID("A"));
-    });
-  }
+  OffsetDateTime timeEnded();
 }

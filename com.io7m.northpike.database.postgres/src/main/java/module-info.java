@@ -30,6 +30,7 @@ module com.io7m.northpike.database.postgres
   requires com.io7m.northpike.assignments;
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.model;
+  requires com.io7m.northpike.plans.parsers;
   requires com.io7m.northpike.plans;
   requires com.io7m.northpike.strings;
 
@@ -45,10 +46,10 @@ module com.io7m.northpike.database.postgres
   requires io.opentelemetry.semconv;
   requires java.sql;
   requires org.jgrapht.core;
+  requires org.jooq.postgres.extensions;
   requires org.jooq;
   requires org.postgresql.jdbc;
   requires org.slf4j;
-  requires com.io7m.northpike.plans.parsers;
 
   provides NPDatabaseFactoryType
     with NPPGDatabases;
@@ -67,7 +68,10 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQArchiveGet,
     com.io7m.northpike.database.postgres.internal.NPDBQArchivePut,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionGet,
+    com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionLogAdd,
+    com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionLogList,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionPut,
+    com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionsCancelAll,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentGet,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentPut,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentSearch,

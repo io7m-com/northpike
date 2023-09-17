@@ -21,6 +21,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
@@ -80,8 +81,14 @@ public final class NPDBQRepositoryCommitsGetMostRecentlyReceived
     recordQuery(query);
     return query.fetchOptional()
       .map(rec -> {
+        final var commit =
+          new NPCommitID(
+            parameters,
+            new NPCommitUnqualifiedID(rec.get(REPOSITORY_COMMITS.RC_COMMIT_ID))
+          );
+
         return new NPCommitSummary(
-          new NPCommitID(parameters, rec.get(REPOSITORY_COMMITS.RC_COMMIT_ID)),
+          commit,
           rec.get(REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED),
           rec.get(REPOSITORY_COMMITS.RC_COMMIT_TIME_RECEIVED),
           rec.get(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_SUBJECT)

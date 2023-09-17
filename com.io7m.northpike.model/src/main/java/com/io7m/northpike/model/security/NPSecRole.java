@@ -133,6 +133,21 @@ public enum NPSecRole
   },
 
   /**
+   * A role for executing assignments.
+   */
+
+  ASSIGNMENTS_EXECUTOR {
+    private static final MRoleName NAME =
+      MRoleName.of("assignments.executor");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
+  },
+
+  /**
    * A role for writing assignments.
    */
 

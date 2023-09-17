@@ -35,6 +35,8 @@ import com.io7m.northpike.server.internal.agents.NPAgentService;
 import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
 import com.io7m.northpike.server.internal.archives.NPArchiveService;
 import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
+import com.io7m.northpike.server.internal.assignments.NPAssignmentService;
+import com.io7m.northpike.server.internal.assignments.NPAssignmentServiceType;
 import com.io7m.northpike.server.internal.clock.NPClock;
 import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationService;
@@ -288,6 +290,10 @@ public final class NPServer implements NPServerType
         this.configuration.idstoreConfiguration()
       );
     services.register(NPIdstoreClientsType.class, idstoreClients);
+
+    final var assignmentService =
+      NPAssignmentService.create(services);
+    services.register(NPAssignmentServiceType.class, assignmentService);
 
     final var users = NPUserService.create(services);
     services.register(NPUserServiceType.class, users);

@@ -17,13 +17,11 @@
 
 package com.io7m.northpike.server.internal.assignments;
 
-import com.io7m.northpike.assignments.NPAssignmentExecution;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
 import java.util.Map;
 import java.util.Objects;
-
-import static java.util.Map.entry;
 
 /**
  * The status of an assignment execution changed.
@@ -32,7 +30,7 @@ import static java.util.Map.entry;
  */
 
 public record NPAssignmentExecutionStatusChanged(
-  NPAssignmentExecution execution)
+  NPAssignmentExecutionStateType execution)
   implements NPAssignmentEventType
 {
   /**
@@ -67,13 +65,6 @@ public record NPAssignmentExecutionStatusChanged(
   @Override
   public Map<String, String> asAttributes()
   {
-    final var assignment = this.execution.assignment();
-    return Map.ofEntries(
-      entry("AssignmentExecutionID", this.execution.executionId().toString()),
-      entry("Assignment", assignment.name().toString()),
-      entry("PlanName", assignment.plan().name().toString()),
-      entry("PlanVersion", Long.toUnsignedString(assignment.plan().version())),
-      entry("Status", this.execution.status().name())
-    );
+    return this.execution.asAttributes();
   }
 }

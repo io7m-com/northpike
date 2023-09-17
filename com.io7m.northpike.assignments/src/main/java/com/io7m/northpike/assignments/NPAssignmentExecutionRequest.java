@@ -15,34 +15,33 @@
  */
 
 
-package com.io7m.northpike.tests.model;
+package com.io7m.northpike.assignments;
 
-import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
-import com.io7m.northpike.model.NPValidityException;
-import net.jqwik.api.ForAll;
-import net.jqwik.api.Property;
-import org.junit.jupiter.api.Test;
 
-import java.util.UUID;
+import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+/**
+ * A request to start executing an assignment.
+ *
+ * @param assignment The assignment
+ * @param commit     The commit
+ */
 
-public final class NPCommitIDTest
+public record NPAssignmentExecutionRequest(
+  NPAssignmentName assignment,
+  NPCommitUnqualifiedID commit)
 {
-  @Property
-  public void testValue(
-    final @ForAll NPCommitID x)
-  {
-    assertEquals(x, x);
-  }
+  /**
+   * A request to start executing an assignment.
+   *
+   * @param assignment The assignment
+   * @param commit     The commit
+   */
 
-  @Test
-  public void testParse1()
+  public NPAssignmentExecutionRequest
   {
-    assertThrows(NPValidityException.class, () -> {
-      new NPCommitID(UUID.randomUUID(), new NPCommitUnqualifiedID("A"));
-    });
+    Objects.requireNonNull(assignment, "assignment");
+    Objects.requireNonNull(commit, "commit");
   }
 }

@@ -31,6 +31,7 @@ import com.io7m.northpike.model.NPCommitLink;
 import com.io7m.northpike.model.NPCommitSearchParameters;
 import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPCommitSummaryLinked;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPPage;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -125,7 +126,8 @@ public final class NPDBQRepositoryCommitsGet
               .on(REPOSITORIES.R_ID.eq(REPOSITORY_COMMITS.RC_REPOSITORY))
               .where(
                 REPOSITORIES.R_ID.eq(sinceValue.repository())
-                  .and(REPOSITORY_COMMITS.RC_COMMIT_ID.eq(sinceValue.value()))
+                  .and(REPOSITORY_COMMITS.RC_COMMIT_ID
+                         .eq(sinceValue.commitId().value()))
               ).limit(Integer.valueOf(1));
           return REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED.ge(timeSelect);
         })
@@ -141,7 +143,8 @@ public final class NPDBQRepositoryCommitsGet
               .on(REPOSITORIES.R_ID.eq(REPOSITORY_COMMITS.RC_REPOSITORY))
               .where(
                 REPOSITORIES.R_ID.eq(sinceValue.repository())
-                  .and(REPOSITORY_COMMITS.RC_COMMIT_ID.eq(sinceValue.value()))
+                  .and(REPOSITORY_COMMITS.RC_COMMIT_ID
+                         .eq(sinceValue.commitId().value()))
               ).limit(Integer.valueOf(1));
           return REPOSITORY_COMMITS.RC_COMMIT_TIME_RECEIVED.ge(timeSelect);
         })
@@ -221,13 +224,15 @@ public final class NPDBQRepositoryCommitsGet
             final var commit =
               new NPCommitID(
                 record.get(REPOSITORY_COMMITS.RC_REPOSITORY),
-                record.get(REPOSITORY_COMMITS.RC_COMMIT_ID)
+                new NPCommitUnqualifiedID(record.get(REPOSITORY_COMMITS.RC_COMMIT_ID))
               );
 
             final var nextRepos =
               record.get(COMMITS_NEXT.RC_REPOSITORY);
             final var nextCommit =
-              record.get(COMMITS_NEXT.RC_COMMIT_ID);
+              Optional.ofNullable(record.get(COMMITS_NEXT.RC_COMMIT_ID))
+                .map(NPCommitUnqualifiedID::new)
+                .orElse(null);
 
             return new NPCommitSummaryLinked(
               new NPCommitSummary(

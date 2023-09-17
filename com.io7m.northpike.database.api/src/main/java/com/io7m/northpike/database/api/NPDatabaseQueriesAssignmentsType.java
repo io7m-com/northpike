@@ -18,12 +18,15 @@ package com.io7m.northpike.database.api;
 
 
 import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentExecution;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.assignments.NPAssignmentSearchParameters;
+import com.io7m.northpike.model.NPPageSizes;
+import com.io7m.northpike.model.NPSearchParametersType;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -73,7 +76,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    */
 
   non-sealed interface ExecutionPutType
-    extends NPDatabaseQueryType<NPAssignmentExecution, NPDatabaseUnit>,
+    extends NPDatabaseQueryType<NPAssignmentExecutionStateType, NPDatabaseUnit>,
     NPDatabaseQueriesAssignmentsType
   {
 
@@ -84,7 +87,89 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    */
 
   non-sealed interface ExecutionGetType
-    extends NPDatabaseQueryType<UUID, Optional<NPAssignmentExecution>>,
+    extends NPDatabaseQueryType<UUID, Optional<NPAssignmentExecutionStateType>>,
+    NPDatabaseQueriesAssignmentsType
+  {
+
+  }
+
+  /**
+   * Add a log message to the assignment execution.
+   */
+
+  non-sealed interface ExecutionLogAddType
+    extends NPDatabaseQueryType<ExecutionLogAddType.Parameters, NPDatabaseUnit>,
+    NPDatabaseQueriesAssignmentsType
+  {
+    /**
+     * The log parameters.
+     *
+     * @param execution  The assignment execution
+     * @param type       The message type (such as "EXCEPTION")
+     * @param message    The message
+     * @param attributes The message attributes
+     */
+
+    record Parameters(
+      UUID execution,
+      String type,
+      String message,
+      Map<String, String> attributes)
+    {
+      /**
+       * The log parameters.
+       */
+
+      public Parameters
+      {
+        Objects.requireNonNull(execution, "execution");
+        Objects.requireNonNull(type, "type");
+        Objects.requireNonNull(message, "line");
+        Objects.requireNonNull(attributes, "attributes");
+      }
+    }
+  }
+
+  /**
+   * Search execution logs.
+   */
+
+  non-sealed interface ExecutionLogListType
+    extends NPDatabaseQueryType<ExecutionLogListType.Parameters, NPAssignmentExecutionLogPagedType>,
+    NPDatabaseQueriesAssignmentsType
+  {
+    /**
+     * The log parameters.
+     *
+     * @param execution     The assignment execution
+     * @param timeAscending {@code true} if lines should be in time-ascending order
+     * @param pageSize      The page size
+     */
+
+    record Parameters(
+      UUID execution,
+      boolean timeAscending,
+      long pageSize)
+      implements NPSearchParametersType
+    {
+      /**
+       * The log parameters.
+       */
+
+      public Parameters
+      {
+        Objects.requireNonNull(execution, "execution");
+        pageSize = NPPageSizes.clampPageSize(pageSize);
+      }
+    }
+  }
+
+  /**
+   * Mark all non-completed executions as being cancelled.
+   */
+
+  non-sealed interface ExecutionsCancelAllType
+    extends NPDatabaseQueryType<NPDatabaseUnit, Long>,
     NPDatabaseQueriesAssignmentsType
   {
 

@@ -15,34 +15,24 @@
  */
 
 
-package com.io7m.northpike.tests.model;
+package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
-import com.io7m.northpike.model.NPValidityException;
-import net.jqwik.api.ForAll;
-import net.jqwik.api.Property;
-import org.junit.jupiter.api.Test;
+import net.jqwik.api.Arbitraries;
 
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-public final class NPCommitIDTest
+public final class NPArbCommitUnqualifiedID extends NPArbAbstract<NPCommitUnqualifiedID>
 {
-  @Property
-  public void testValue(
-    final @ForAll NPCommitID x)
+  public NPArbCommitUnqualifiedID()
   {
-    assertEquals(x, x);
-  }
-
-  @Test
-  public void testParse1()
-  {
-    assertThrows(NPValidityException.class, () -> {
-      new NPCommitID(UUID.randomUUID(), new NPCommitUnqualifiedID("A"));
-    });
+    super(
+      NPCommitUnqualifiedID.class,
+      () -> {
+        return Arbitraries.strings()
+          .withChars("abcdef0123456789")
+          .ofMinLength(1)
+          .ofMaxLength(8192)
+          .map(NPCommitUnqualifiedID::new);
+      }
+    );
   }
 }

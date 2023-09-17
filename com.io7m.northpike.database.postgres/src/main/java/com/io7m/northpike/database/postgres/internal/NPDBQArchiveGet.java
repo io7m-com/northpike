@@ -23,6 +23,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesArchivesType.GetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPHash;
 import com.io7m.northpike.model.NPToken;
 import org.jooq.DSLContext;
@@ -86,7 +87,7 @@ public final class NPDBQArchiveGet
       new NPToken(r.get(ARCHIVES.AR_TOKEN)),
       new NPCommitID(
         r.get(REPOSITORY_COMMITS.RC_REPOSITORY),
-        r.get(REPOSITORY_COMMITS.RC_COMMIT_ID)
+        new NPCommitUnqualifiedID(r.get(REPOSITORY_COMMITS.RC_COMMIT_ID))
       ),
       new NPHash(
         r.get(ARCHIVES.AR_HASH_ALGO),
