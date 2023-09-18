@@ -18,7 +18,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MRoleName;
-import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.UpdateUserRolesType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.security.NPSecRole;
@@ -33,15 +33,15 @@ import static com.io7m.northpike.database.postgres.internal.Tables.USERS;
  * A query to run maintenance.
  */
 
-public final class NPDBQMaintenance
+public final class NPDBQMaintenanceUpdateUserRoles
   extends NPDBQAbstract<NPDatabaseUnit, NPDatabaseUnit>
-  implements NPDatabaseQueriesMaintenanceType.ExecuteType
+  implements UpdateUserRolesType
 {
   private static final Logger LOG =
-    LoggerFactory.getLogger(NPDBQMaintenance.class);
+    LoggerFactory.getLogger(NPDBQMaintenanceUpdateUserRoles.class);
 
-  private static final Service<NPDatabaseUnit, NPDatabaseUnit, ExecuteType> SERVICE =
-    new Service<>(ExecuteType.class, NPDBQMaintenance::new);
+  private static final Service<NPDatabaseUnit, NPDatabaseUnit, UpdateUserRolesType> SERVICE =
+    new Service<>(UpdateUserRolesType.class, NPDBQMaintenanceUpdateUserRoles::new);
 
   /**
    * Construct a query.
@@ -49,7 +49,7 @@ public final class NPDBQMaintenance
    * @param transaction The transaction
    */
 
-  public NPDBQMaintenance(
+  public NPDBQMaintenanceUpdateUserRoles(
     final NPDatabaseTransaction transaction)
   {
     super(transaction);
@@ -68,13 +68,6 @@ public final class NPDBQMaintenance
   protected NPDatabaseUnit onExecute(
     final DSLContext context,
     final NPDatabaseUnit parameters)
-  {
-    updateUserRoles(context);
-    return UNIT;
-  }
-
-  private static void updateUserRoles(
-    final DSLContext context)
   {
     final var roleNamesWithoutLogin =
       NPSecRole.allRoles()
@@ -103,5 +96,7 @@ public final class NPDBQMaintenance
       "Updated {} users with admin roles.",
       Integer.valueOf(updated)
     );
+    return UNIT;
   }
+
 }

@@ -34,6 +34,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.time.Clock;
+import java.time.Duration;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -101,7 +102,8 @@ public final class NPServerConfigurations
         1000000
       ),
       new NPServerMaintenanceConfiguration(
-        Optional.empty()
+        Optional.empty(),
+        Duration.ofDays(1L)
       ),
       Optional.empty()
     );

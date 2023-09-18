@@ -20,8 +20,10 @@ package com.io7m.northpike.server.internal.archives;
 import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPArchiveLinks;
+import com.io7m.northpike.model.NPToken;
 import com.io7m.repetoir.core.RPServiceType;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -48,4 +50,16 @@ public interface NPArchiveServiceType
    */
 
   NPArchiveLinks linksForArchive(NPArchive archive);
+
+  /**
+   * Delete the archive with the given token. Does nothing if the
+   * archive does not exist.
+   *
+   * @param token The archive token
+   *
+   * @throws IOException On I/O errors
+   */
+
+  void deleteArchive(NPToken token)
+    throws IOException;
 }

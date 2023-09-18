@@ -33,6 +33,7 @@ public final class NPSC1Maintenance
   implements BTElementHandlerType<Object, NPServerMaintenanceConfiguration>
 {
   private Optional<Duration> tlsReloadDuration = Optional.empty();
+  private Duration archiveMaximumAge;
 
   /**
    * A parser for {@link NPServerMaintenanceConfiguration}
@@ -54,6 +55,9 @@ public final class NPSC1Maintenance
     this.tlsReloadDuration =
       Optional.ofNullable(attributes.getValue("TLSReloadInterval"))
         .map(Duration::parse);
+
+    this.archiveMaximumAge =
+      Duration.parse(attributes.getValue("ArchiveMaximumAge"));
   }
 
   @Override
@@ -61,7 +65,8 @@ public final class NPSC1Maintenance
     final BTElementParsingContextType context)
   {
     return new NPServerMaintenanceConfiguration(
-      this.tlsReloadDuration
+      this.tlsReloadDuration,
+      this.archiveMaximumAge
     );
   }
 }

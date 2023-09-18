@@ -16,6 +16,11 @@
 
 package com.io7m.northpike.database.api;
 
+import com.io7m.northpike.model.NPToken;
+
+import java.time.OffsetDateTime;
+import java.util.Set;
+
 /**
  * The database queries involving maintenance.
  */
@@ -24,11 +29,22 @@ public sealed interface NPDatabaseQueriesMaintenanceType
   extends NPDatabaseQueriesType
 {
   /**
-   * Execute maintenance queries.
+   * Update user roles.
    */
 
-  non-sealed interface ExecuteType
+  non-sealed interface UpdateUserRolesType
     extends NPDatabaseQueryType<NPDatabaseUnit, NPDatabaseUnit>,
+    NPDatabaseQueriesMaintenanceType
+  {
+
+  }
+
+  /**
+   * Delete expired archives.
+   */
+
+  non-sealed interface DeleteExpiredArchivesType
+    extends NPDatabaseQueryType<OffsetDateTime, Set<NPToken>>,
     NPDatabaseQueriesMaintenanceType
   {
 

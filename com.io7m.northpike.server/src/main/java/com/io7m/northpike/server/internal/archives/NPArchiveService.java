@@ -21,6 +21,7 @@ import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPArchiveLinks;
+import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerResources;
@@ -50,6 +51,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -161,6 +163,19 @@ public final class NPArchiveService implements NPArchiveServiceType
       baseURI.resolve(archive.fileName()),
       baseURI.resolve(archive.checksumFileName())
     );
+  }
+
+  @Override
+  public void deleteArchive(
+    final NPToken token)
+    throws IOException
+  {
+    final var file =
+      this.configuration.directories()
+        .archiveDirectory()
+        .resolve(NPArchive.fileNameFor(token));
+
+    Files.deleteIfExists(file);
   }
 
   private void run()

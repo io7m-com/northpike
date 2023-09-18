@@ -171,7 +171,7 @@ public final class NPDatabaseUsersTest
     final var put =
       this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
     final var maintenance =
-      this.transaction.queries(NPDatabaseQueriesMaintenanceType.ExecuteType.class);
+      this.transaction.queries(NPDatabaseQueriesMaintenanceType.UpdateUserRolesType.class);
 
     final var user =
       new NPUser(

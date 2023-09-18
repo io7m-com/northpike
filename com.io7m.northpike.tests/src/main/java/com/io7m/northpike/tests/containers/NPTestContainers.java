@@ -66,6 +66,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -556,7 +557,8 @@ public final class NPTestContainers
           1_000_000
         ),
         new NPServerMaintenanceConfiguration(
-          Optional.empty()
+          Optional.empty(),
+          Duration.ofDays(1L)
         ),
         empty()
       );

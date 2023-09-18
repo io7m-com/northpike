@@ -75,6 +75,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Locale;
 import java.util.Optional;
@@ -213,7 +214,8 @@ public final class NPArchiveServiceTest
             1_000_000
           ),
           new NPServerMaintenanceConfiguration(
-            Optional.empty()
+            Optional.empty(),
+            Duration.ofDays(1L)
           ),
           Optional.empty()
         )

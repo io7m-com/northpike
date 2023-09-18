@@ -18,10 +18,13 @@
 package com.io7m.northpike.server.internal.maintenance;
 
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType;
+import com.io7m.northpike.database.api.NPDatabaseException;
+import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.DeleteExpiredArchivesType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.UpdateUserRolesType;
 import com.io7m.northpike.database.api.NPDatabaseRole;
+import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.database.api.NPDatabaseUnit;
+import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
 import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
@@ -31,12 +34,15 @@ import io.opentelemetry.api.trace.SpanKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
 
 /**
  * A service that performs nightly database maintenance.
@@ -49,29 +55,42 @@ public final class NPMaintenanceService
     LoggerFactory.getLogger(NPMaintenanceService.class);
 
   private final ScheduledExecutorService executor;
+  private final NPClockServiceType clock;
   private final NPTelemetryServiceType telemetry;
   private final NPDatabaseType database;
   private final NPTLSContextServiceType tlsContexts;
+  private final NPArchiveServiceType archives;
+  private final NPConfigurationServiceType configuration;
 
   private NPMaintenanceService(
     final ScheduledExecutorService inExecutor,
+    final NPClockServiceType inClock,
     final NPTelemetryServiceType inTelemetry,
     final NPDatabaseType inDatabase,
-    final NPTLSContextServiceType inTlsContexts)
+    final NPTLSContextServiceType inTlsContexts,
+    final NPArchiveServiceType inArchives,
+    final NPConfigurationServiceType inConfiguration)
   {
     this.executor =
       Objects.requireNonNull(inExecutor, "executor");
+    this.clock =
+      Objects.requireNonNull(inClock, "clock");
     this.telemetry =
       Objects.requireNonNull(inTelemetry, "telemetry");
     this.database =
       Objects.requireNonNull(inDatabase, "database");
     this.tlsContexts =
       Objects.requireNonNull(inTlsContexts, "tlsContexts");
+    this.archives =
+      Objects.requireNonNull(inArchives, "archives");
+    this.configuration =
+      Objects.requireNonNull(inConfiguration, "configuration");
   }
 
   /**
-   * A service that performs nightly database maintenance.
+   * A service that performs nightly maintenance.
    *
+   * @param archives      The archive service
    * @param clock         The clock
    * @param telemetry     The telemetry service
    * @param database      The database
@@ -85,13 +104,15 @@ public final class NPMaintenanceService
     final NPClockServiceType clock,
     final NPTelemetryServiceType telemetry,
     final NPConfigurationServiceType configuration,
+    final NPArchiveServiceType archives,
     final NPTLSContextServiceType tlsContexts,
     final NPDatabaseType database)
   {
+    Objects.requireNonNull(archives, "archives");
     Objects.requireNonNull(clock, "clock");
-    Objects.requireNonNull(telemetry, "telemetry");
-    Objects.requireNonNull(database, "database");
     Objects.requireNonNull(configuration, "configuration");
+    Objects.requireNonNull(database, "database");
+    Objects.requireNonNull(telemetry, "telemetry");
     Objects.requireNonNull(tlsContexts, "tlsContexts");
 
     final var executor =
@@ -108,9 +129,12 @@ public final class NPMaintenanceService
     final var maintenanceService =
       new NPMaintenanceService(
         executor,
+        clock,
         telemetry,
         database,
-        tlsContexts
+        tlsContexts,
+        archives,
+        configuration
       );
 
     final var timeNow =
@@ -185,11 +209,20 @@ public final class NPMaintenanceService
              this.database.openConnection(NPDatabaseRole.NORTHPIKE)) {
         try (var transaction =
                connection.openTransaction()) {
-          final var maintenance =
-            transaction.queries(NPDatabaseQueriesMaintenanceType.ExecuteType.class);
-          maintenance.execute(NPDatabaseUnit.UNIT);
-          transaction.commit();
-          LOG.info("Maintenance task completed successfully");
+
+          try {
+            updateUserRoles(transaction);
+          } catch (final Exception e) {
+            span.recordException(e);
+          }
+
+          try {
+            this.deleteExpiredArchives(transaction);
+          } catch (final Exception e) {
+            span.recordException(e);
+          }
+
+          LOG.info("Maintenance task completed.");
         }
       }
     } catch (final Exception e) {
@@ -198,6 +231,38 @@ public final class NPMaintenanceService
     } finally {
       span.end();
     }
+  }
+
+  private void deleteExpiredArchives(
+    final NPDatabaseTransactionType transaction)
+    throws NPDatabaseException, IOException
+  {
+    final var maximumAge =
+      this.configuration.configuration()
+        .maintenanceConfiguration()
+        .archivesMaximumAge();
+
+    final var cutoffTime =
+      this.clock.now()
+        .minusSeconds(maximumAge.toSeconds());
+
+    final var tokens =
+      transaction.queries(DeleteExpiredArchivesType.class)
+        .execute(cutoffTime);
+
+    for (final var token : tokens) {
+      this.archives.deleteArchive(token);
+    }
+
+    transaction.commit();
+  }
+
+  private static void updateUserRoles(
+    final NPDatabaseTransactionType transaction)
+    throws NPDatabaseException
+  {
+    transaction.queries(UpdateUserRolesType.class).execute(UNIT);
+    transaction.commit();
   }
 
   @Override

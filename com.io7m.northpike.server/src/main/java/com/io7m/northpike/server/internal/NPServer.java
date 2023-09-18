@@ -265,6 +265,7 @@ public final class NPServer implements NPServerType
         clock,
         this.telemetry,
         config,
+        archive,
         tls,
         this.database
       );

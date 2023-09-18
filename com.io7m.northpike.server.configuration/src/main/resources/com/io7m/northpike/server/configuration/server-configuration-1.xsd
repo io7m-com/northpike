@@ -509,6 +509,18 @@
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
+
+      <xsd:attribute name="ArchiveMaximumAge"
+                     type="xsd:duration"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The maximum age allowed for archives produced during assignment
+            executions. Archives older than the current time minus this duration
+            will be deleted.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
     </xsd:complexType>
   </xsd:element>
 

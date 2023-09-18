@@ -23,20 +23,24 @@ import java.util.Optional;
 /**
  * Configuration information for the server's maintenance service.
  *
- * @param tlsReloadInterval The interval at which to reload TLS contexts
+ * @param tlsReloadInterval  The interval at which to reload TLS contexts
+ * @param archivesMaximumAge The maximum age of archives
  */
 
 public record NPServerMaintenanceConfiguration(
-  Optional<Duration> tlsReloadInterval)
+  Optional<Duration> tlsReloadInterval,
+  Duration archivesMaximumAge)
 {
   /**
    * Configuration information for the server's maintenance service.
    *
-   * @param tlsReloadInterval The interval at which to reload TLS contexts
+   * @param tlsReloadInterval  The interval at which to reload TLS contexts
+   * @param archivesMaximumAge The maximum age of archives
    */
 
   public NPServerMaintenanceConfiguration
   {
     Objects.requireNonNull(tlsReloadInterval, "tlsReloadInterval");
+    Objects.requireNonNull(archivesMaximumAge, "archivesMaximumAge");
   }
 }
