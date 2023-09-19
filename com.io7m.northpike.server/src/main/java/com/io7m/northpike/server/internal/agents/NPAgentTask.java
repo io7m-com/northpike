@@ -63,6 +63,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPWorkItemStatus.WORK_ITEM_ACCEPTED;
 import static com.io7m.northpike.strings.NPStringConstants.AGENT_ID;
@@ -454,7 +455,7 @@ public final class NPAgentTask
     final NPAgentID id)
     throws NPDatabaseException
   {
-    try (var dbConn = this.database.openConnection(NORTHPIKE)) {
+    try (var dbConn = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
       try (var transaction = dbConn.openTransaction()) {
         final var get =
           transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
@@ -468,7 +469,7 @@ public final class NPAgentTask
     final NPKey key)
     throws NPDatabaseException
   {
-    try (var dbConn = this.database.openConnection(NORTHPIKE)) {
+    try (var dbConn = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
       try (var transaction = dbConn.openTransaction()) {
         final var get =
           transaction.queries(NPDatabaseQueriesAgentsType.GetByKeyType.class);

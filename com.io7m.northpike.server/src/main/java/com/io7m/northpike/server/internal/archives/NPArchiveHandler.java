@@ -39,7 +39,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
 
 /**
  * A handler that serves archives by ID.
@@ -138,7 +138,7 @@ public final class NPArchiveHandler extends Handler.Abstract
       new NPToken(withoutLeading);
 
     try (var connection =
-           this.database.openConnection(NORTHPIKE)) {
+           this.database.openConnection(NORTHPIKE_READ_ONLY)) {
       try (var transaction =
              connection.openTransaction()) {
         final var get =

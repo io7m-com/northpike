@@ -97,7 +97,11 @@ final class NPDatabaseTransaction
   {
     switch (role) {
       case NORTHPIKE -> {
-        // Transactions already start in this role.
+        try (var st =
+               this.connection.connection()
+                 .prepareStatement("set role northpike")) {
+          st.execute();
+        }
       }
       case NORTHPIKE_READ_ONLY -> {
         try (var st =

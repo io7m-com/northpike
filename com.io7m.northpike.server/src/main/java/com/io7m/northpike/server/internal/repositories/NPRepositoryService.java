@@ -64,6 +64,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
 import static com.io7m.northpike.telemetry.api.NPTelemetryServiceType.recordSpanException;
 
 /**
@@ -577,7 +578,7 @@ public final class NPRepositoryService
     final var descriptions =
       new HashMap<UUID, NPRepositoryDescription>();
 
-    try (var connection = this.database.openConnection(NORTHPIKE)) {
+    try (var connection = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
       try (var transaction = connection.openTransaction()) {
         final var list =
           transaction.queries(NPDatabaseQueriesRepositoriesType.ListType.class);

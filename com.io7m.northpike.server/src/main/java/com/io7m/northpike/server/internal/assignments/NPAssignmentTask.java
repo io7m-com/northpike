@@ -106,6 +106,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
 import static com.io7m.northpike.server.internal.assignments.NPAssignmentLogging.recordErrorText;
 import static com.io7m.northpike.server.internal.assignments.NPAssignmentLogging.recordInfoText;
@@ -662,7 +663,7 @@ public final class NPAssignmentTask
       new HashMap<NPAgentID, NPAgentDescription>();
 
     try (var connection =
-           this.database.openConnection(NORTHPIKE)) {
+           this.database.openConnection(NORTHPIKE_READ_ONLY)) {
       try (var transaction =
              connection.openTransaction()) {
         final var agentGet =

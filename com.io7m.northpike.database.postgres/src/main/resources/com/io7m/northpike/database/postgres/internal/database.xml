@@ -14,10 +14,10 @@
     </Comment>
 
     <Statement><![CDATA[
-DROP ROLE IF EXISTS northpike;
+DROP ROLE IF EXISTS northpike
 ]]></Statement>
     <Statement><![CDATA[
-CREATE ROLE northpike WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN;
+CREATE ROLE northpike WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN
 ]]></Statement>
 
     <Comment>
@@ -26,10 +26,10 @@ CREATE ROLE northpike WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN
     </Comment>
 
     <Statement><![CDATA[
-DROP ROLE IF EXISTS northpike_none;
+DROP ROLE IF EXISTS northpike_none
 ]]></Statement>
     <Statement><![CDATA[
-CREATE ROLE northpike_none WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN;
+CREATE ROLE northpike_none WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN
 ]]></Statement>
 
     <Comment>
@@ -38,10 +38,13 @@ CREATE ROLE northpike_none WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NO
     </Comment>
 
     <Statement><![CDATA[
-DROP ROLE IF EXISTS northpike_read_only;
+DROP ROLE IF EXISTS northpike_read_only
 ]]></Statement>
     <Statement><![CDATA[
-CREATE ROLE northpike_read_only WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN;
+CREATE ROLE northpike_read_only WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN
+]]></Statement>
+    <Statement><![CDATA[
+GRANT northpike_read_only TO northpike
 ]]></Statement>
 
     <Comment>
@@ -120,6 +123,13 @@ CREATE TABLE scm_providers (
 )
 ]]></Statement>
 
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON scm_providers TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON scm_providers TO northpike_read_only
+    </Statement>
+
     <Comment>
       The repository_credentials_type_t type represents the possible
       credentials.
@@ -172,6 +182,13 @@ CREATE TABLE repositories (
 )
 ]]></Statement>
 
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON repositories TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON repositories TO northpike_read_only
+    </Statement>
+
     <Comment>
       The repository_commit_authors table uniquely (within a single repository)
       identifies authors of commits.
@@ -187,6 +204,13 @@ CREATE TABLE repository_commit_authors (
     PRIMARY KEY (rca_id)
 )
 ]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON repository_commit_authors TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON repository_commit_authors TO northpike_read_only
+    </Statement>
 
     <Statement><![CDATA[
 -- [jooq ignore start]
@@ -228,6 +252,13 @@ CREATE TABLE repository_commits (
 )
 ]]></Statement>
 
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON repository_commits TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON repository_commits TO northpike_read_only
+    </Statement>
+
     <Comment>
       The repository_commit_tags table stores information about each tag in a
       repository.
@@ -252,6 +283,13 @@ CREATE TABLE repository_commit_tags (
 )
 ]]></Statement>
 
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_commit_tags TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON repository_commit_tags TO northpike_read_only
+    </Statement>
+
     <Comment>
       The repository_commit_branches table stores information about each branch
       in a repository.
@@ -275,6 +313,14 @@ CREATE TABLE repository_commit_branches (
     FOREIGN KEY (rcb_commit) REFERENCES repository_commits (rc_id)
 )
 ]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_commit_branches TO
+      northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON repository_commit_branches TO northpike_read_only
+    </Statement>
 
     <Comment>
       The repository_commit_links table stores the links between commits. It
@@ -303,6 +349,13 @@ CREATE TABLE repository_commit_links (
 )
 ]]></Statement>
 
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_commit_links TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON repository_commit_links TO northpike_read_only
+    </Statement>
+
     <Comment>
       The agents table stores the definitions of agents. Agents are uniquely
       identified by their UUID values, and are also uniquely identified by their
@@ -329,6 +382,13 @@ CREATE TABLE agents (
 )
 ]]></Statement>
 
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON agents TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON agents TO northpike_read_only
+    </Statement>
+
     <Comment>
       The agents_environments table stores the most recent set of environment
       variables that have been reported by an agent.
@@ -350,6 +410,13 @@ CREATE TABLE agents_environments (
 )
 ]]></Statement>
 
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE, DELETE ON agents_environments TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON agents_environments TO northpike_read_only
+    </Statement>
+
     <Comment>
       The agents_properties table stores the most recent set of system
       properties that have been reported by an agent.
@@ -370,6 +437,13 @@ CREATE TABLE agents_properties (
     FOREIGN KEY (ap_id) REFERENCES agents (a_id)
 )
 ]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE, DELETE ON agents_properties TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON agents_properties TO northpike_read_only
+    </Statement>
 
     <Comment>
       The agent_label_definitions table stores the set of labels that can be
@@ -407,6 +481,14 @@ CREATE TABLE agent_label_definitions (
 ]]></Text>
     </StatementParameterized>
 
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE, DELETE ON agent_label_definitions TO
+      northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON agent_label_definitions TO northpike_read_only
+    </Statement>
+
     <Comment>
       The agent_labels table assigns labels to agents.
     </Comment>
@@ -426,6 +508,13 @@ CREATE TABLE agent_labels (
     FOREIGN KEY (al_agent) REFERENCES agents (a_id)
 )
 ]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE, DELETE ON agent_labels TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON agent_labels TO northpike_read_only
+    </Statement>
 
     <Comment>
       The tool_execution_descriptions table stores the tool execution
@@ -472,6 +561,13 @@ CREATE TABLE tool_execution_descriptions (
 )
 ]]></Text>
     </StatementParameterized>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON tool_execution_descriptions TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON tool_execution_descriptions TO northpike_read_only
+    </Statement>
 
     <Comment>
       The plans table stores the plan descriptions that can be executed by
@@ -520,6 +616,13 @@ CREATE TABLE plans (
       </Text>
     </StatementParameterized>
 
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON plans TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON plans TO northpike_read_only
+    </Statement>
+
     <Comment>
       The archives table stores information about the archives that are
       generated executing assignments. The actual archive data is stored on
@@ -553,6 +656,13 @@ CREATE TABLE archives (
     FOREIGN KEY (ar_commit) REFERENCES repository_commits (rc_id)
 )
 ]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON archives TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON archives TO northpike_read_only
+    </Statement>
 
     <Comment>
       The assignments table stores assignment definitions. An assignment is
@@ -596,6 +706,13 @@ CREATE TABLE assignments (
 )
 ]]></Text>
     </StatementParameterized>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON assignments TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON assignments TO northpike_read_only
+    </Statement>
 
     <Statement><![CDATA[
 CREATE TYPE assignment_execution_status_t AS ENUM(
@@ -682,6 +799,13 @@ CREATE TABLE assignment_executions (
 )
 ]]></Statement>
 
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON assignment_executions TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON assignment_executions TO northpike_read_only
+    </Statement>
+
     <Comment>
       The server log messages associated with assignment executions.
     </Comment>
@@ -701,6 +825,13 @@ CREATE TABLE assignment_execution_logs (
     FOREIGN KEY (ael_id) REFERENCES assignment_executions (ae_id)
 )
 ]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON assignment_execution_logs TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON assignment_execution_logs TO northpike_read_only
+    </Statement>
 
     <Statement><![CDATA[
 CREATE TYPE work_item_status_t AS ENUM(
@@ -762,6 +893,13 @@ CREATE TABLE work_items (
 )
 ]]></Statement>
 
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON work_items TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON work_items TO northpike_read_only
+    </Statement>
+
     <Comment>
       The logs produced for a single work item. These are the lines of output
       produced on an agent when executing a command.
@@ -781,6 +919,13 @@ CREATE TABLE work_item_logs (
     FOREIGN KEY (wil_item) REFERENCES work_items (wi_id)
 )
 ]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON work_item_logs TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON work_item_logs TO northpike_read_only
+    </Statement>
   </Schema>
 
   <Schema versionCurrent="2">
