@@ -49,6 +49,8 @@
   <suppress files="NPUCmd.java"
             checks="NPathComplexity"/>
   <suppress files="NPUCmd.java"
+            checks="ClassDataAbstractionCoupling"/>
+  <suppress files="NPUCmd.java"
             checks="CyclomaticComplexity"/>
   <suppress files="NPUCmd.java"
             checks="ExecutableStatementCount"/>
