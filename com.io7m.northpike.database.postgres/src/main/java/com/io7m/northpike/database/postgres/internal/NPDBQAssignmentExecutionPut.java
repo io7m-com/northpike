@@ -216,13 +216,16 @@ public final class NPDBQAssignmentExecutionPut
     final DSLContext context,
     final NPAssignmentExecution execution)
   {
-    final var commit = execution.commit();
+    final var commit =
+      execution.commit();
+    final var repositoryId =
+      execution.assignment().repositoryId();
 
     return context.select(REPOSITORY_COMMITS.RC_ID)
       .from(REPOSITORY_COMMITS)
       .where(
-        REPOSITORY_COMMITS.RC_REPOSITORY.eq(commit.repository())
-          .and(REPOSITORY_COMMITS.RC_COMMIT_ID.eq(commit.commitId().value()))
+        REPOSITORY_COMMITS.RC_REPOSITORY.eq(repositoryId)
+          .and(REPOSITORY_COMMITS.RC_COMMIT_ID.eq(commit.value()))
       );
   }
 
@@ -363,6 +366,8 @@ public final class NPDBQAssignmentExecutionPut
           request.assignment().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME, request.commit().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
+        .set(ASSIGNMENT_EXECUTIONS.AE_STARTED, r.timeStarted())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ENDED, r.timeEnded())
         .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id())
         .set(ASSIGNMENT_EXECUTIONS.AE_STATUS, ASSIGNMENT_EXECUTION_CANCELLED)
         .onConflictOnConstraint(DSL.name("assignment_executions_primary_key"))
@@ -372,6 +377,8 @@ public final class NPDBQAssignmentExecutionPut
           request.assignment().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME, request.commit().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
+        .set(ASSIGNMENT_EXECUTIONS.AE_STARTED, r.timeStarted())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ENDED, r.timeEnded())
         .set(ASSIGNMENT_EXECUTIONS.AE_STATUS, ASSIGNMENT_EXECUTION_CANCELLED);
 
     recordQuery(query);

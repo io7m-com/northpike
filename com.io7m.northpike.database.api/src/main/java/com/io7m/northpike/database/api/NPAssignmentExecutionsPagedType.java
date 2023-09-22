@@ -14,19 +14,17 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.northpike.database.api;
+
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
+
 /**
- * Continuous integration (Assignments)
+ * A paged query that returns assignment executions.
  */
 
-module com.io7m.northpike.assignments
+public interface NPAssignmentExecutionsPagedType
+  extends NPDatabasePagedQueryType<NPAssignmentExecutionStateType>
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.plans;
-
-  requires com.io7m.lanark.core;
-
-  exports com.io7m.northpike.assignments;
 }

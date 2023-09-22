@@ -29,6 +29,9 @@ import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecute;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentGet;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentPut;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchBegin;
@@ -61,6 +64,7 @@ import com.io7m.northpike.protocol.user.NPUResponseAgentGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAgentSearch;
+import com.io7m.northpike.protocol.user.NPUResponseAssignmentExecutionSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAssignmentGet;
 import com.io7m.northpike.protocol.user.NPUResponseAssignmentSearch;
 import com.io7m.northpike.protocol.user.NPUResponseError;
@@ -101,6 +105,9 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUCommandAgentSearchNext.class,
               NPUCommandAgentSearchPrevious.class,
               NPUCommandAssignmentExecute.class,
+              NPUCommandAssignmentExecutionSearchBegin.class,
+              NPUCommandAssignmentExecutionSearchNext.class,
+              NPUCommandAssignmentExecutionSearchPrevious.class,
               NPUCommandAssignmentGet.class,
               NPUCommandAssignmentPut.class,
               NPUCommandAssignmentSearchBegin.class,
@@ -132,6 +139,7 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUResponseAgentLabelGet.class,
               NPUResponseAgentLabelSearch.class,
               NPUResponseAgentSearch.class,
+              NPUResponseAssignmentExecutionSearch.class,
               NPUResponseAssignmentGet.class,
               NPUResponseAssignmentSearch.class,
               NPUResponseError.class,

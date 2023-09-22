@@ -33,7 +33,6 @@ import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
-import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.plans.NPPlanIdentifier;
 import org.jooq.DSLContext;
@@ -94,10 +93,10 @@ public final class NPDBQAssignmentExecutionGet
       .on(ASSIGNMENTS.A_PLAN.eq(PLANS.P_ID))
       .where(ASSIGNMENT_EXECUTIONS.AE_ID.eq(name))
       .fetchOptional()
-      .map(NPDBQAssignmentExecutionGet::mapRecord);
+      .map(NPDBQAssignmentExecutionGet::mapAssignmentExecutionRecord);
   }
 
-  private static NPAssignmentExecutionStateType mapRecord(
+  static NPAssignmentExecutionStateType mapAssignmentExecutionRecord(
     final org.jooq.Record r)
   {
     final var state = r.get(ASSIGNMENT_EXECUTIONS.AE_STATUS);
@@ -118,7 +117,9 @@ public final class NPDBQAssignmentExecutionGet
     return new NPAssignmentExecutionStateCancelled(
       r.get(ASSIGNMENT_EXECUTIONS.AE_ID),
       mapRequest(r),
-      r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED)
+      r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_STARTED),
+      r.get(ASSIGNMENT_EXECUTIONS.AE_ENDED)
     );
   }
 
@@ -126,7 +127,6 @@ public final class NPDBQAssignmentExecutionGet
     final Record r)
   {
     return new NPAssignmentExecutionStateFailed(
-      mapRequest(r),
       r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED),
       mapExecution(r),
       r.get(ASSIGNMENT_EXECUTIONS.AE_STARTED),
@@ -138,7 +138,6 @@ public final class NPDBQAssignmentExecutionGet
     final Record r)
   {
     return new NPAssignmentExecutionStateSucceeded(
-      mapRequest(r),
       r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED),
       mapExecution(r),
       r.get(ASSIGNMENT_EXECUTIONS.AE_STARTED),
@@ -150,7 +149,6 @@ public final class NPDBQAssignmentExecutionGet
     final Record r)
   {
     return new NPAssignmentExecutionStateRunning(
-      mapRequest(r),
       r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED),
       mapExecution(r),
       r.get(ASSIGNMENT_EXECUTIONS.AE_STARTED)
@@ -161,7 +159,6 @@ public final class NPDBQAssignmentExecutionGet
     final Record r)
   {
     return new NPAssignmentExecutionStateCreated(
-      mapRequest(r),
       r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED),
       mapExecution(r)
     );
@@ -180,10 +177,7 @@ public final class NPDBQAssignmentExecutionGet
           r.<Long>get(PLANS.P_VERSION).longValue()
         )
       ),
-      new NPCommitID(
-        r.get(ASSIGNMENTS.A_REPOSITORY),
-        new NPCommitUnqualifiedID(r.get(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME))
-      )
+      new NPCommitUnqualifiedID(r.get(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME))
     );
   }
 

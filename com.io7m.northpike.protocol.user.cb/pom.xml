@@ -83,6 +83,10 @@
       <artifactId>com.io7m.cedarbridge.runtime.convenience</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.io7m.cedarbridge</groupId>
+      <artifactId>com.io7m.cedarbridge.runtime.time</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.medrina</groupId>
       <artifactId>com.io7m.medrina.api</artifactId>
     </dependency>

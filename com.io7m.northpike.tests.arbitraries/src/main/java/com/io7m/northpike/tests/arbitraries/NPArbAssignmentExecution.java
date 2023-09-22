@@ -14,50 +14,31 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.assignments;
 
+package com.io7m.northpike.tests.arbitraries;
+
+import com.io7m.northpike.assignments.NPAssignment;
+import com.io7m.northpike.assignments.NPAssignmentExecution;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-import java.util.Objects;
 import java.util.UUID;
 
-/**
- * An execution of an assignment.
- *
- * @param id         The execution ID
- * @param assignment The assignment
- * @param commit     The specific commit
- */
-
-public record NPAssignmentExecution(
-  UUID id,
-  NPAssignment assignment,
-  NPCommitUnqualifiedID commit)
+public final class NPArbAssignmentExecution
+  extends NPArbAbstract<NPAssignmentExecution>
 {
-  /**
-   * An execution of an assignment.
-   *
-   * @param id         The execution ID
-   * @param assignment The assignment
-   * @param commit     The specific commit
-   */
-
-  public NPAssignmentExecution
+  public NPArbAssignmentExecution()
   {
-    Objects.requireNonNull(id, "executionId");
-    Objects.requireNonNull(assignment, "assignment");
-    Objects.requireNonNull(commit, "commit");
-  }
-
-  /**
-   * @return This execution as a request
-   */
-
-  public NPAssignmentExecutionRequest request()
-  {
-    return new NPAssignmentExecutionRequest(
-      this.assignment.name(),
-      this.commit
+    super(
+      NPAssignmentExecution.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(NPAssignment.class),
+          Arbitraries.defaultFor(NPCommitUnqualifiedID.class)
+        ).as(NPAssignmentExecution::new);
+      }
     );
   }
 }

@@ -24,7 +24,6 @@ import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.assignments.NPAssignment;
 import com.io7m.northpike.assignments.NPAssignmentExecution;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.assignments.NPAssignmentName;
@@ -327,15 +326,11 @@ public final class NPAgentTaskTest
 
     this.assignmentExecution =
       new NPAssignmentExecutionStateCreated(
-        new NPAssignmentExecutionRequest(
-          this.assignment.name(),
-          this.commit.id().commitId()
-        ),
         OffsetDateTime.now(),
         new NPAssignmentExecution(
           randomUUID(),
           this.assignment,
-          this.commit.id()
+          this.commit.id().commitId()
         )
       );
 

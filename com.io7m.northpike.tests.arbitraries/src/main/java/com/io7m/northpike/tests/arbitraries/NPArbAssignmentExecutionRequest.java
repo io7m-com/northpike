@@ -14,19 +14,28 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/**
- * Continuous integration (Assignments)
- */
 
-module com.io7m.northpike.assignments
+package com.io7m.northpike.tests.arbitraries;
+
+import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.assignments.NPAssignmentName;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
+
+public final class NPArbAssignmentExecutionRequest
+  extends NPArbAbstract<NPAssignmentExecutionRequest>
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
-
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.plans;
-
-  requires com.io7m.lanark.core;
-
-  exports com.io7m.northpike.assignments;
+  public NPArbAssignmentExecutionRequest()
+  {
+    super(
+      NPAssignmentExecutionRequest.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.defaultFor(NPAssignmentName.class),
+          Arbitraries.defaultFor(NPCommitUnqualifiedID.class)
+        ).as(NPAssignmentExecutionRequest::new);
+      }
+    );
+  }
 }

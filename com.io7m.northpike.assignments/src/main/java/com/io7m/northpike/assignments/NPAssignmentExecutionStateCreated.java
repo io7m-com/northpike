@@ -28,11 +28,9 @@ import static java.util.Map.entry;
  *
  * @param timeCreated The time created
  * @param execution   The assignment execution
- * @param request     The request
  */
 
 public record NPAssignmentExecutionStateCreated(
-  NPAssignmentExecutionRequest request,
   OffsetDateTime timeCreated,
   NPAssignmentExecution execution)
   implements NPAssignmentExecutionStateCreatedType
@@ -42,14 +40,19 @@ public record NPAssignmentExecutionStateCreated(
    *
    * @param timeCreated The time created
    * @param execution   The assignment
-   * @param request     The request
    */
 
   public NPAssignmentExecutionStateCreated
   {
     Objects.requireNonNull(execution, "execution");
-    Objects.requireNonNull(request, "request");
     Objects.requireNonNull(timeCreated, "timeCreated");
+  }
+
+
+  @Override
+  public NPAssignmentExecutionRequest request()
+  {
+    return this.execution.request();
   }
 
   @Override
@@ -64,9 +67,9 @@ public record NPAssignmentExecutionStateCreated(
     final var assignment = this.execution.assignment();
     final var plan = assignment.plan();
     return Map.ofEntries(
-      entry("Assignment", this.request.assignment().toString()),
+      entry("Assignment", this.request().assignment().toString()),
       entry("AssignmentExecutionID", this.execution.id().toString()),
-      entry("CommitID", this.request.commit().toString()),
+      entry("CommitID", this.request().commit().toString()),
       entry("PlanID", plan.name().toString()),
       entry("PlanVersion", Long.toUnsignedString(plan.version())),
       entry("Status", this.name()),

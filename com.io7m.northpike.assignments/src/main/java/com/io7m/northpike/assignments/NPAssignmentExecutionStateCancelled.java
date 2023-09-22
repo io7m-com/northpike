@@ -29,13 +29,17 @@ import static java.util.Map.entry;
  *
  * @param id          The execution ID
  * @param timeCreated The time created
+ * @param timeStarted The time started
+ * @param timeEnded   The time ended/cancelled
  * @param request     The request
  */
 
 public record NPAssignmentExecutionStateCancelled(
   UUID id,
   NPAssignmentExecutionRequest request,
-  OffsetDateTime timeCreated)
+  OffsetDateTime timeCreated,
+  OffsetDateTime timeStarted,
+  OffsetDateTime timeEnded)
   implements NPAssignmentExecutionStateType
 {
   /**
@@ -43,6 +47,8 @@ public record NPAssignmentExecutionStateCancelled(
    *
    * @param id          The execution ID
    * @param timeCreated The time created
+   *                    @param timeStarted The time started
+   * @param timeEnded   The time ended/cancelled
    * @param request     The request
    */
 
@@ -51,6 +57,8 @@ public record NPAssignmentExecutionStateCancelled(
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(request, "request");
     Objects.requireNonNull(timeCreated, "timeCreated");
+    Objects.requireNonNull(timeStarted, "timeStarted");
+    Objects.requireNonNull(timeEnded, "timeEnded");
   }
 
   @Override
@@ -63,10 +71,13 @@ public record NPAssignmentExecutionStateCancelled(
   public Map<String, String> asAttributes()
   {
     return Map.ofEntries(
-      entry("AssignmentExecutionID", this.id.toString()),
       entry("Assignment", this.request.assignment().toString()),
+      entry("AssignmentExecutionID", this.id.toString()),
       entry("CommitID", this.request.commit().toString()),
-      entry("Status", this.name())
+      entry("Status", this.name()),
+      entry("TimeCreated", this.timeCreated.toString()),
+      entry("TimeEnded", this.timeEnded.toString()),
+      entry("TimeStarted", this.timeStarted.toString())
     );
   }
 }

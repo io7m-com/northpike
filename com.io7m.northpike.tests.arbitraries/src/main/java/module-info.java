@@ -35,6 +35,9 @@ open module com.io7m.northpike.tests.arbitraries
   uses ArbitraryProvider;
 
   provides ArbitraryProvider with
+    com.io7m.northpike.tests.arbitraries.NPArbAssignmentExecution,
+    com.io7m.northpike.tests.arbitraries.NPArbAssignmentExecutionRequest,
+    com.io7m.northpike.tests.arbitraries.NPArbAssignmentExecutionState,
     com.io7m.northpike.tests.arbitraries.NPArbAgentDescription,
     com.io7m.northpike.tests.arbitraries.NPArbAgentID,
     com.io7m.northpike.tests.arbitraries.NPArbAgentLabel,
@@ -45,6 +48,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbAgentSummary,
     com.io7m.northpike.tests.arbitraries.NPArbAgentWorkItem,
     com.io7m.northpike.tests.arbitraries.NPArbAssignment,
+    com.io7m.northpike.tests.arbitraries.NPArbAssignmentExecutionSearchParameters,
     com.io7m.northpike.tests.arbitraries.NPArbAssignmentName,
     com.io7m.northpike.tests.arbitraries.NPArbAssignmentSearchParameters,
     com.io7m.northpike.tests.arbitraries.NPArbCommit,
@@ -115,6 +119,9 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentSearchNext,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentSearchPrevious,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentExecute,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentExecutionSearchBegin,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentExecutionSearchNext,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentExecutionSearchPrevious,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentPut,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentSearchBegin,
@@ -149,6 +156,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAgentSearch,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAssignmentGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAssignmentSearch,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAssignmentExecutionSearch,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseError,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseOK,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponsePlanGet,

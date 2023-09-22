@@ -28,6 +28,7 @@ public sealed interface NPUCommandSearchBeginType<R extends NPUResponseType, T>
   extends NPUCommandType<R>
   permits NPUCommandAgentLabelSearchBegin,
   NPUCommandAgentSearchBegin,
+  NPUCommandAssignmentExecutionSearchBegin,
   NPUCommandAssignmentSearchBegin,
   NPUCommandPlanSearchBegin,
   NPUCommandRepositorySearchBegin,

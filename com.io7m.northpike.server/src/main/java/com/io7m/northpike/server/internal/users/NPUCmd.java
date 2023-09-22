@@ -25,6 +25,9 @@ import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecute;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentGet;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentPut;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchBegin;
@@ -201,6 +204,15 @@ public final class NPUCmd
       }
       if (command instanceof final NPUCommandAssignmentExecute c) {
         return new NPUCmdAssignmentExecute().execute(context, c);
+      }
+      if (command instanceof final NPUCommandAssignmentExecutionSearchBegin c) {
+        return new NPUCmdAssignmentExecutionSearchBegin().execute(context, c);
+      }
+      if (command instanceof final NPUCommandAssignmentExecutionSearchNext c) {
+        return new NPUCmdAssignmentExecutionSearchNext().execute(context, c);
+      }
+      if (command instanceof final NPUCommandAssignmentExecutionSearchPrevious c) {
+        return new NPUCmdAssignmentExecutionSearchPrevious().execute(context, c);
       }
     }
     throw context.fail(ERROR_PROTOCOL, errorProtocol());

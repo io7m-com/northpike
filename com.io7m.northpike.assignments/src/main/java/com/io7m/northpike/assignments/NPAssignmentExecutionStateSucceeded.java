@@ -27,14 +27,12 @@ import static java.util.Map.entry;
  * An assignment execution succeeded.
  *
  * @param timeCreated The time the execution was created
- * @param request     The request
  * @param execution   The execution
  * @param timeStarted The time the execution was started
  * @param timeEnded   The time the execution ended
  */
 
 public record NPAssignmentExecutionStateSucceeded(
-  NPAssignmentExecutionRequest request,
   OffsetDateTime timeCreated,
   NPAssignmentExecution execution,
   OffsetDateTime timeStarted,
@@ -45,7 +43,6 @@ public record NPAssignmentExecutionStateSucceeded(
    * An assignment execution succeeded.
    *
    * @param timeCreated The time the execution was created
-   * @param request     The request
    * @param execution   The execution
    * @param timeStarted The time the execution was started
    * @param timeEnded   The time the execution ended
@@ -53,11 +50,16 @@ public record NPAssignmentExecutionStateSucceeded(
 
   public NPAssignmentExecutionStateSucceeded
   {
-    Objects.requireNonNull(request, "request");
     Objects.requireNonNull(timeCreated, "timeCreated");
     Objects.requireNonNull(execution, "execution");
     Objects.requireNonNull(timeStarted, "timeStarted");
     Objects.requireNonNull(timeEnded, "timeEnded");
+  }
+
+  @Override
+  public NPAssignmentExecutionRequest request()
+  {
+    return this.execution.request();
   }
 
   @Override
@@ -72,9 +74,9 @@ public record NPAssignmentExecutionStateSucceeded(
     final var assignment = this.execution.assignment();
     final var plan = assignment.plan();
     return Map.ofEntries(
-      entry("Assignment", this.request.assignment().toString()),
+      entry("Assignment", this.request().assignment().toString()),
       entry("AssignmentExecutionID", this.execution.id().toString()),
-      entry("CommitID", this.request.commit().toString()),
+      entry("CommitID", this.request().commit().toString()),
       entry("PlanID", plan.name().toString()),
       entry("PlanVersion", Long.toUnsignedString(plan.version())),
       entry("Status", this.name()),

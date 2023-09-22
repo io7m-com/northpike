@@ -28,13 +28,11 @@ import static java.util.Map.entry;
  *
 
  * @param timeCreated The time the execution was created
- * @param request     The request
  * @param execution   The execution
  * @param timeStarted The time the execution was started
  */
 
 public record NPAssignmentExecutionStateRunning(
-  NPAssignmentExecutionRequest request,
   OffsetDateTime timeCreated,
   NPAssignmentExecution execution,
   OffsetDateTime timeStarted)
@@ -44,19 +42,22 @@ public record NPAssignmentExecutionStateRunning(
    * An assignment was started.
    *
    * @param timeCreated The time the execution was created
-   * @param request     The request
    * @param execution   The execution
    * @param timeStarted The time the execution was started
    */
 
   public NPAssignmentExecutionStateRunning
   {
-    Objects.requireNonNull(request, "request");
     Objects.requireNonNull(timeCreated, "timeCreated");
     Objects.requireNonNull(execution, "execution");
     Objects.requireNonNull(timeStarted, "timeStarted");
   }
 
+  @Override
+  public NPAssignmentExecutionRequest request()
+  {
+    return this.execution.request();
+  }
 
   @Override
   public String name()
@@ -70,9 +71,9 @@ public record NPAssignmentExecutionStateRunning(
     final var assignment = this.execution.assignment();
     final var plan = assignment.plan();
     return Map.ofEntries(
-      entry("Assignment", this.request.assignment().toString()),
+      entry("Assignment", this.request().assignment().toString()),
       entry("AssignmentExecutionID", this.execution.id().toString()),
-      entry("CommitID", this.request.commit().toString()),
+      entry("CommitID", this.request().commit().toString()),
       entry("PlanID", plan.name().toString()),
       entry("PlanVersion", Long.toUnsignedString(plan.version())),
       entry("Status", this.name()),

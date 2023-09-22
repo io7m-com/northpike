@@ -24,6 +24,8 @@
             checks="JavaNCSS"/>
   <suppress files="NPU1Validation.java"
             checks="ExecutableStatementCount"/>
+  <suppress files="NPU1Validation.java"
+            checks="ClassFanOutComplexity"/>
 
   <!-- Lacking pattern matching. -->
   <suppress files="NPTX1Serializer.java"

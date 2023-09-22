@@ -591,7 +591,9 @@ CREATE TABLE plans (
 
   -- [jooq ignore start]
   p_name_search TSVECTOR NOT NULL
-    GENERATED ALWAYS AS (to_tsvector(%1$S, p_name)) STORED,
+    GENERATED ALWAYS AS (
+      to_tsvector(%1$S, REPLACE (p_name, '.', ' '))
+    ) STORED,
 
   p_description_search TSVECTOR NOT NULL
     GENERATED ALWAYS AS (to_tsvector(%1$S, p_description)) STORED,
@@ -780,7 +782,8 @@ CREATE TABLE assignment_executions (
         AND (ae_commit     IS NOT NULL)
       )
       WHEN ae_status = 'ASSIGNMENT_EXECUTION_CANCELLED' THEN (
-        't'::boolean
+            (ae_started    IS NOT NULL)
+        AND (ae_ended      IS NOT NULL)
       )
       ELSE
         'f'::boolean

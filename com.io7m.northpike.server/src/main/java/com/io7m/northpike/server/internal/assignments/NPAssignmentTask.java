@@ -353,7 +353,6 @@ public final class NPAssignmentTask
         this.setStateInTransaction(
           transaction,
           new NPAssignmentExecutionStateCreated(
-            this.assignmentRequest,
             this.timeCalculateCreated(),
             this.assignmentExecution
           )
@@ -796,7 +795,6 @@ public final class NPAssignmentTask
     LOG.debug("Assignment succeeded.");
 
     this.setState(new NPAssignmentExecutionStateSucceeded(
-      this.assignmentRequest,
       this.timeCalculateCreated(),
       this.assignmentExecution,
       this.timeCalculateStarted(),
@@ -837,7 +835,6 @@ public final class NPAssignmentTask
     LOG.debug("Assignment started.");
 
     this.setState(new NPAssignmentExecutionStateRunning(
-      this.assignmentRequest,
       this.timeCalculateCreated(),
       this.assignmentExecution,
       this.timeCalculateStarted()
@@ -850,7 +847,6 @@ public final class NPAssignmentTask
 
     if (this.executionState instanceof NPAssignmentExecutionStateCreatedType) {
       this.setState(new NPAssignmentExecutionStateFailed(
-        this.assignmentRequest,
         this.timeCalculateCreated(),
         this.assignmentExecution,
         this.timeCalculateStarted(),
@@ -887,7 +883,7 @@ public final class NPAssignmentTask
             new NPAssignmentExecution(
               this.executionId,
               this.assignment,
-              this.commit.id()
+              this.commit.id().commitId()
             );
         }
       }

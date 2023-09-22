@@ -18,25 +18,25 @@
 package com.io7m.northpike.protocol.user;
 
 
-import com.io7m.northpike.assignments.NPAssignment;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.model.NPPage;
 
 import java.util.Objects;
 import java.util.UUID;
 
 /**
- * An assignment retrieval.
+ * An assignment execution retrieval.
  *
  * @param messageID     The message ID
  * @param correlationID The command that prompted this response
  * @param results       The results
  */
 
-public record NPUResponseAssignmentSearch(
+public record NPUResponseAssignmentExecutionSearch(
   UUID messageID,
   UUID correlationID,
-  NPPage<NPAssignment> results)
-  implements NPUResponsePagedType<NPAssignment>
+  NPPage<NPAssignmentExecutionStateType> results)
+  implements NPUResponsePagedType<NPAssignmentExecutionStateType>
 {
   /**
    * A assignment retrieval.
@@ -46,7 +46,7 @@ public record NPUResponseAssignmentSearch(
    * @param results       The results
    */
 
-  public NPUResponseAssignmentSearch
+  public NPUResponseAssignmentExecutionSearch
   {
     Objects.requireNonNull(messageID, "messageID");
     Objects.requireNonNull(correlationID, "correlationID");

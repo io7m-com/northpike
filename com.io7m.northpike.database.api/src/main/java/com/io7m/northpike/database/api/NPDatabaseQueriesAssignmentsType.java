@@ -18,6 +18,7 @@ package com.io7m.northpike.database.api;
 
 
 import com.io7m.northpike.assignments.NPAssignment;
+import com.io7m.northpike.assignments.NPAssignmentExecutionSearchParameters;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.assignments.NPAssignmentSearchParameters;
@@ -88,6 +89,18 @@ public sealed interface NPDatabaseQueriesAssignmentsType
 
   non-sealed interface ExecutionGetType
     extends NPDatabaseQueryType<UUID, Optional<NPAssignmentExecutionStateType>>,
+    NPDatabaseQueriesAssignmentsType
+  {
+
+  }
+
+  /**
+   * Search assignment executions.
+   */
+
+  non-sealed interface ExecutionSearchType
+    extends NPDatabaseQueryType<
+    NPAssignmentExecutionSearchParameters, NPAssignmentExecutionsPagedType>,
     NPDatabaseQueriesAssignmentsType
   {
 

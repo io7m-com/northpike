@@ -268,6 +268,89 @@
   [case Similar [field name cb:String]]
 ]
 
+[documentation NPU1AssignmentExecutionRequest "A request to start an assignment execution."]
+[record NPU1AssignmentExecutionRequest
+  [documentation name "The assignment name."]
+  [field name cb:String]
+  [documentation commit "The commit."]
+  [field commit cb:String]
+]
+
+[documentation NPU1AssignmentExecution "A description of an assignment execution."]
+[record NPU1AssignmentExecution
+  [documentation id "The execution ID."]
+  [field id cb:UUID]
+  [documentation assignment "The assignment."]
+  [field assignment NPU1Assignment]
+  [documentation commit "The commit."]
+  [field commit cb:String]
+]
+
+[documentation NPU1AssignmentExecutionState "The state of an execution."]
+[variant NPU1AssignmentExecutionState
+  [case Requested
+    [documentation id "The execution ID."]
+    [field id cb:UUID]
+    [documentation request "The request that started the execution."]
+    [field request NPU1AssignmentExecutionRequest]
+    [field timeCreated ct:OffsetDateTime]
+  ]
+  [case Created
+    [documentation id "The execution ID."]
+    [field id cb:UUID]
+    [field timeCreated ct:OffsetDateTime]
+    [field execution NPU1AssignmentExecution]
+  ]
+  [case Cancelled
+    [documentation id "The execution ID."]
+    [field id cb:UUID]
+    [documentation request "The request that started the execution."]
+    [field request NPU1AssignmentExecutionRequest]
+    [field timeCreated ct:OffsetDateTime]
+    [field timeStarted ct:OffsetDateTime]
+    [field timeEnded ct:OffsetDateTime]
+  ]
+  [case CreationFailed
+    [documentation id "The execution ID."]
+    [field id cb:UUID]
+    [documentation request "The request that started the execution."]
+    [field request NPU1AssignmentExecutionRequest]
+    [field timeCreated ct:OffsetDateTime]
+  ]
+  [case Running
+    [documentation execution "The assignment execution."]
+    [field execution NPU1AssignmentExecution]
+    [field timeCreated ct:OffsetDateTime]
+    [field timeStarted ct:OffsetDateTime]
+  ]
+  [case Failed
+    [documentation execution "The assignment execution."]
+    [field execution NPU1AssignmentExecution]
+    [field timeCreated ct:OffsetDateTime]
+    [field timeStarted ct:OffsetDateTime]
+    [field timeEnded ct:OffsetDateTime]
+  ]
+  [case Succeeded
+    [documentation execution "The assignment execution."]
+    [field execution NPU1AssignmentExecution]
+    [field timeCreated ct:OffsetDateTime]
+    [field timeStarted ct:OffsetDateTime]
+    [field timeEnded ct:OffsetDateTime]
+  ]
+]
+
+[documentation NPU1AssignmentExecutionSearchParameters "The assignment execution search parameters."]
+[record NPU1AssignmentExecutionSearchParameters
+  [documentation repositoryId "Only include assignments with this repository ID."]
+  [field repositoryId [cb:Option cb:UUID]]
+  [documentation plan "Only include assignments with this plan."]
+  [field plan [cb:Option NPU1PlanIdentifier]]
+  [documentation nameQuery "Only include assignments with names matching this expression."]
+  [field nameQuery NPU1NameMatch]
+  [documentation pageSize "The page size."]
+  [field pageSize cb:IntegerUnsigned32]
+]
+
 ;
 ; Commands
 ;
@@ -566,7 +649,7 @@
   [field assignment cb:String]
 ]
 
-[documentation NPU1CommandAssignmentSearchBegin "Start searching repositories."]
+[documentation NPU1CommandAssignmentSearchBegin "Start searching assignments."]
 [record NPU1CommandAssignmentSearchBegin
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
@@ -574,13 +657,13 @@
   [field parameters NPU1AssignmentSearchParameters]
 ]
 
-[documentation NPU1CommandAssignmentSearchNext "Continue searching repositories."]
+[documentation NPU1CommandAssignmentSearchNext "Continue searching assignments."]
 [record NPU1CommandAssignmentSearchNext
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
 ]
 
-[documentation NPU1CommandAssignmentSearchPrevious "Continue searching repositories."]
+[documentation NPU1CommandAssignmentSearchPrevious "Continue searching assignments."]
 [record NPU1CommandAssignmentSearchPrevious
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
@@ -594,6 +677,26 @@
   [field assignment cb:String]
   [documentation commitId "The commit ID."]
   [field commitId cb:String]
+]
+
+[documentation NPU1CommandAssignmentExecutionSearchBegin "Start searching assignment executions."]
+[record NPU1CommandAssignmentExecutionSearchBegin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation parameters "The search parameters."]
+  [field parameters NPU1AssignmentExecutionSearchParameters]
+]
+
+[documentation NPU1CommandAssignmentExecutionSearchNext "Continue searching assignment executions."]
+[record NPU1CommandAssignmentExecutionSearchNext
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandAssignmentExecutionSearchPrevious "Continue searching assignment executions."]
+[record NPU1CommandAssignmentExecutionSearchPrevious
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
 ]
 
 ;
@@ -776,6 +879,16 @@
   [field results [NPU1Page NPU1Assignment]]
 ]
 
+[documentation NPU1ResponseAssignmentExecutionSearch "A response to NPU1CommandAssignmentExecutionSearchBegin."]
+[record NPU1ResponseAssignmentExecutionSearch
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [NPU1Page NPU1AssignmentExecutionState]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -791,12 +904,15 @@
       NPU1CommandAgentSearchBegin
       NPU1CommandAgentSearchNext
       NPU1CommandAgentSearchPrevious
+      NPU1CommandAssignmentExecute
+      NPU1CommandAssignmentExecutionSearchBegin
+      NPU1CommandAssignmentExecutionSearchNext
+      NPU1CommandAssignmentExecutionSearchPrevious
       NPU1CommandAssignmentGet
       NPU1CommandAssignmentPut
       NPU1CommandAssignmentSearchBegin
       NPU1CommandAssignmentSearchNext
       NPU1CommandAssignmentSearchPrevious
-      NPU1CommandAssignmentExecute
       NPU1CommandDisconnect
       NPU1CommandLogin
       NPU1CommandPlanGet
@@ -823,6 +939,7 @@
       NPU1ResponseAgentLabelGet
       NPU1ResponseAgentLabelSearch
       NPU1ResponseAgentSearch
+      NPU1ResponseAssignmentExecutionSearch
       NPU1ResponseAssignmentGet
       NPU1ResponseAssignmentSearch
       NPU1ResponseError

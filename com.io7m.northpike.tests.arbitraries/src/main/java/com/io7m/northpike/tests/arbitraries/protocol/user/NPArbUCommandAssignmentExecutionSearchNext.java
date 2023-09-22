@@ -14,19 +14,26 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/**
- * Continuous integration (Assignments)
- */
 
-module com.io7m.northpike.assignments
+package com.io7m.northpike.tests.arbitraries.protocol.user;
+
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchNext;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import net.jqwik.api.Arbitraries;
+
+import java.util.UUID;
+
+public final class NPArbUCommandAssignmentExecutionSearchNext
+  extends NPArbAbstract<NPUCommandAssignmentExecutionSearchNext>
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
-
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.plans;
-
-  requires com.io7m.lanark.core;
-
-  exports com.io7m.northpike.assignments;
+  public NPArbUCommandAssignmentExecutionSearchNext()
+  {
+    super(
+      NPUCommandAssignmentExecutionSearchNext.class,
+      () -> {
+        return Arbitraries.create(UUID::randomUUID)
+          .map(NPUCommandAssignmentExecutionSearchNext::new);
+      }
+    );
+  }
 }

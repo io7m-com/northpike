@@ -24,7 +24,10 @@ import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.assignments.NPAssignment;
 import com.io7m.northpike.assignments.NPAssignmentExecution;
 import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.assignments.NPAssignmentExecutionSearchParameters;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateCancelled;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreationFailed;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateFailed;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateRequested;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateRunning;
@@ -38,6 +41,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogAddType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogListType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionSearchType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsPutType;
@@ -305,18 +309,14 @@ public final class NPDatabaseAssignmentsTest
     execPut.execute(execution);
 
     execution = new NPAssignmentExecutionStateCreated(
-        new NPAssignmentExecutionRequest(
-          assignment.name(),
-          commit.id().commitId()
-        ),
-        OffsetDateTime.now()
-          .withNano(0),
-        new NPAssignmentExecution(
-          executionId,
-          assignment,
-          commit.id()
-        )
-      );
+      OffsetDateTime.now()
+        .withNano(0),
+      new NPAssignmentExecution(
+        executionId,
+        assignment,
+        commit.id().commitId()
+      )
+    );
 
     execPut.execute(execution);
 
@@ -326,16 +326,12 @@ public final class NPDatabaseAssignmentsTest
     );
 
     execution = new NPAssignmentExecutionStateRunning(
-      new NPAssignmentExecutionRequest(
-        assignment.name(),
-        commit.id().commitId()
-      ),
       OffsetDateTime.now()
         .withNano(0),
       new NPAssignmentExecution(
         executionId,
         assignment,
-        commit.id()
+        commit.id().commitId()
       ),
       OffsetDateTime.now()
         .withNano(0)
@@ -349,16 +345,12 @@ public final class NPDatabaseAssignmentsTest
     );
 
     execution = new NPAssignmentExecutionStateSucceeded(
-      new NPAssignmentExecutionRequest(
-        assignment.name(),
-        commit.id().commitId()
-      ),
       OffsetDateTime.now()
         .withNano(0),
       new NPAssignmentExecution(
         executionId,
         assignment,
-        commit.id()
+        commit.id().commitId()
       ),
       OffsetDateTime.now()
         .withNano(0),
@@ -374,16 +366,12 @@ public final class NPDatabaseAssignmentsTest
     );
 
     execution = new NPAssignmentExecutionStateFailed(
-      new NPAssignmentExecutionRequest(
-        assignment.name(),
-        commit.id().commitId()
-      ),
       OffsetDateTime.now()
         .withNano(0),
       new NPAssignmentExecution(
         executionId,
         assignment,
-        commit.id()
+        commit.id().commitId()
       ),
       OffsetDateTime.now()
         .withNano(0),
@@ -522,16 +510,12 @@ public final class NPDatabaseAssignmentsTest
 
     final var execution =
       new NPAssignmentExecutionStateCreated(
-        new NPAssignmentExecutionRequest(
-          assignment.name(),
-          commit.id().commitId()
-        ),
         OffsetDateTime.now()
           .withNano(0),
         new NPAssignmentExecution(
           UUID.randomUUID(),
           assignment,
-          commit.id()
+          commit.id().commitId()
         )
       );
 
@@ -728,19 +712,12 @@ public final class NPDatabaseAssignmentsTest
 
     final var execution =
       new NPAssignmentExecutionStateCreated(
-        new NPAssignmentExecutionRequest(
-          assignments.get(0).name(),
-          new NPCommitUnqualifiedID("a")
-        ),
         OffsetDateTime.now()
           .withNano(0),
         new NPAssignmentExecution(
           UUID.randomUUID(),
           assignments.get(0),
-          new NPCommitID(
-            this.repositoryId,
-            new NPCommitUnqualifiedID("a")
-          )
+          new NPCommitUnqualifiedID("a")
         )
       );
 
@@ -782,6 +759,131 @@ public final class NPDatabaseAssignmentsTest
       ),
       page.items().get(0).attributes()
     );
+  }
+
+  /**
+   * Searching for executions works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentExecutionSearch0()
+    throws Exception
+  {
+    final var assignments =
+      this.createSampleAssignments();
+
+    final var executions =
+      List.of(
+        new NPAssignmentExecution(
+          UUID.randomUUID(),
+          assignments.get(0),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          UUID.randomUUID(),
+          assignments.get(1),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          UUID.randomUUID(),
+          assignments.get(2),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          UUID.randomUUID(),
+          assignments.get(3),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          UUID.randomUUID(),
+          assignments.get(4),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          UUID.randomUUID(),
+          assignments.get(5),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          UUID.randomUUID(),
+          assignments.get(6),
+          new NPCommitUnqualifiedID("a")
+        )
+      );
+
+    final var executionRecords =
+      List.of(
+        new NPAssignmentExecutionStateCancelled(
+          executions.get(0).id(),
+          executions.get(0).request(),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateCreated(
+          OffsetDateTime.now().withNano(0),
+          executions.get(1)
+        ),
+        new NPAssignmentExecutionStateCreationFailed(
+          executions.get(2).id(),
+          executions.get(2).request(),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateFailed(
+          OffsetDateTime.now().withNano(0),
+          executions.get(3),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateRequested(
+          executions.get(4).id(),
+          executions.get(4).request(),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateRunning(
+          OffsetDateTime.now().withNano(0),
+          executions.get(5),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateSucceeded(
+          OffsetDateTime.now().withNano(0),
+          executions.get(6),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0)
+        )
+      );
+
+    for (final var r : executionRecords) {
+      this.transaction.queries(ExecutionPutType.class)
+        .execute(r);
+    }
+
+    this.transaction.commit();
+
+    final var paged =
+      this.transaction.queries(ExecutionSearchType.class)
+        .execute(new NPAssignmentExecutionSearchParameters(
+          Optional.empty(),
+          Optional.empty(),
+          ANY_NAME,
+          1000L
+        ));
+
+    final var page =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(1, page.pageIndex());
+    assertEquals(1, page.pageCount());
+    assertEquals(7, page.items().size());
+
+    for (final var r : executionRecords) {
+      assertTrue(
+        page.items().contains(r),
+        "List %s must contain %s".formatted(page.items(), r)
+      );
+    }
   }
 
   private List<NPAssignment> createSampleAssignments()

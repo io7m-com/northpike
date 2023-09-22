@@ -14,50 +14,44 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.assignments;
 
-import com.io7m.northpike.model.NPCommitUnqualifiedID;
+package com.io7m.northpike.protocol.user;
+
+import com.io7m.northpike.assignments.NPAssignmentExecutionSearchParameters;
 
 import java.util.Objects;
 import java.util.UUID;
 
 /**
- * An execution of an assignment.
+ * Start searching assignment executions.
  *
- * @param id         The execution ID
- * @param assignment The assignment
- * @param commit     The specific commit
+ * @param messageID  The message ID
+ * @param parameters The search parameters
  */
 
-public record NPAssignmentExecution(
-  UUID id,
-  NPAssignment assignment,
-  NPCommitUnqualifiedID commit)
+public record NPUCommandAssignmentExecutionSearchBegin(
+  UUID messageID,
+  NPAssignmentExecutionSearchParameters parameters)
+  implements NPUCommandSearchBeginType<
+  NPUResponseAssignmentExecutionSearch,
+  NPAssignmentExecutionSearchParameters>
 {
   /**
-   * An execution of an assignment.
+   * Start searching assignments.
    *
-   * @param id         The execution ID
-   * @param assignment The assignment
-   * @param commit     The specific commit
+   * @param messageID  The message ID
+   * @param parameters The search parameters
    */
 
-  public NPAssignmentExecution
+  public NPUCommandAssignmentExecutionSearchBegin
   {
-    Objects.requireNonNull(id, "executionId");
-    Objects.requireNonNull(assignment, "assignment");
-    Objects.requireNonNull(commit, "commit");
+    Objects.requireNonNull(messageID, "messageId");
+    Objects.requireNonNull(parameters, "parameters");
   }
 
-  /**
-   * @return This execution as a request
-   */
-
-  public NPAssignmentExecutionRequest request()
+  @Override
+  public Class<NPUResponseAssignmentExecutionSearch> responseClass()
   {
-    return new NPAssignmentExecutionRequest(
-      this.assignment.name(),
-      this.commit
-    );
+    return NPUResponseAssignmentExecutionSearch.class;
   }
 }

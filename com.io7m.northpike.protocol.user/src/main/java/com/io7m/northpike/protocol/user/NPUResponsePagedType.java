@@ -29,6 +29,7 @@ public sealed interface NPUResponsePagedType<T>
   extends NPUResponseType
   permits NPUResponseAgentLabelSearch,
   NPUResponseAgentSearch,
+  NPUResponseAssignmentExecutionSearch,
   NPUResponseAssignmentSearch,
   NPUResponsePlanSearch,
   NPUResponseRepositorySearch,

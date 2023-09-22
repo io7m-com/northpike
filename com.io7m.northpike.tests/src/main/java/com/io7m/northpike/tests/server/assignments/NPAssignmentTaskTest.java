@@ -66,6 +66,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
@@ -999,6 +1000,7 @@ public final class NPAssignmentTaskTest
    */
 
   @Test
+  @Timeout(value = 10L)
   public void testThreeTaskPlanSameAgentSucceeds()
     throws Exception
   {
