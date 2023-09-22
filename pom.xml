@@ -30,6 +30,7 @@
     <module>com.io7m.northpike.connections</module>
     <module>com.io7m.northpike.database.api</module>
     <module>com.io7m.northpike.database.postgres</module>
+    <module>com.io7m.northpike.keys</module>
     <module>com.io7m.northpike.model</module>
     <module>com.io7m.northpike.plans.compiler</module>
     <module>com.io7m.northpike.plans.parsers</module>
@@ -464,6 +465,11 @@
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcutil-jdk15to18</artifactId>
+        <version>${org.bouncycastle.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpg-jdk15to18</artifactId>
         <version>${org.bouncycastle.version}</version>
       </dependency>
 

@@ -35,6 +35,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.assignments;
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.database.postgres;
+  requires com.io7m.northpike.keys;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.plans.compiler;
   requires com.io7m.northpike.plans.parsers;
@@ -93,6 +94,7 @@ open module com.io7m.northpike.tests
   requires net.jqwik.api;
   requires org.apache.commons.compress;
   requires org.apache.commons.io;
+  requires org.bouncycastle.pg;
   requires org.jgrapht.core;
   requires org.mockito;
   requires org.postgresql.jdbc;

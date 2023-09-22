@@ -193,6 +193,36 @@ public enum NPSecRole
   },
 
   /**
+   * A role for reading public keys.
+   */
+
+  PUBLIC_KEYS_READER {
+    private static final MRoleName NAME =
+      MRoleName.of("public_keys.reader");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
+  },
+
+  /**
+   * A role for writing public keys.
+   */
+
+  PUBLIC_KEYS_WRITER {
+    private static final MRoleName NAME =
+      MRoleName.of("public_keys.writer");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
+  },
+
+  /**
    * A role for reading plans.
    */
 

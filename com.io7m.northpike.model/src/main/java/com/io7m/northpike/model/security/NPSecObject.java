@@ -149,6 +149,21 @@ public enum NPSecObject
   },
 
   /**
+   * The public keys.
+   */
+
+  PUBLIC_KEYS {
+    private static final MObject PUBLIC_KEYS_OBJECT =
+      new MObject(MTypeName.of("public_keys"), Map.of());
+
+    @Override
+    public MObject object()
+    {
+      return PUBLIC_KEYS_OBJECT;
+    }
+  },
+
+  /**
    * The users.
    */
 

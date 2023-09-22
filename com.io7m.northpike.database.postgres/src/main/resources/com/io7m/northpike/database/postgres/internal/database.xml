@@ -284,7 +284,8 @@ CREATE TABLE repository_commit_tags (
 ]]></Statement>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_commit_tags TO northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_commit_tags TO
+      northpike
     </Statement>
     <Statement>
       GRANT SELECT ON repository_commit_tags TO northpike_read_only
@@ -350,7 +351,8 @@ CREATE TABLE repository_commit_links (
 ]]></Statement>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_commit_links TO northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_commit_links TO
+      northpike
     </Statement>
     <Statement>
       GRANT SELECT ON repository_commit_links TO northpike_read_only
@@ -928,6 +930,43 @@ CREATE TABLE work_item_logs (
     </Statement>
     <Statement>
       GRANT SELECT ON work_item_logs TO northpike_read_only
+    </Statement>
+
+    <Comment>
+      The public keys that are used to verify the signatures on commits that
+      appears in repositories.
+    </Comment>
+
+    <StatementParameterized parameterInterpolation="STRING_FORMATTING">
+      <ParameterReferences>
+        <ParameterReference order="0"
+                            name="search.language"/>
+      </ParameterReferences>
+      <Text><![CDATA[
+CREATE TABLE public_keys (
+  pk_id            BIGINT                    NOT NULL GENERATED ALWAYS AS IDENTITY,
+  pk_user_ids      TEXT[]                    NOT NULL,
+  pk_fingerprint   TEXT                      NOT NULL,
+  pk_time_created  TIMESTAMP WITH TIME ZONE  NOT NULL,
+  pk_time_expires  TIMESTAMP WITH TIME ZONE,
+  pk_encoded       TEXT                      NOT NULL,
+
+  -- [jooq ignore start]
+  CONSTRAINT public_keys_fingerprint_unique
+    UNIQUE (pk_fingerprint),
+  -- [jooq ignore stop]
+
+  CONSTRAINT public_keys_primary_key
+    PRIMARY KEY (pk_id)
+)
+]]></Text>
+    </StatementParameterized>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE, DELETE ON public_keys TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON public_keys TO northpike_read_only
     </Statement>
   </Schema>
 

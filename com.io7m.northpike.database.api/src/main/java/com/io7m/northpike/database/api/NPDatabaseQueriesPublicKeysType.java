@@ -16,41 +16,50 @@
 
 package com.io7m.northpike.database.api;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
-import static java.time.ZoneOffset.UTC;
+import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPPublicKey;
+import com.io7m.northpike.model.NPPublicKeySearchParameters;
+
+import java.util.Optional;
 
 /**
- * The base type of query interfaces.
+ * The database queries involving public keys.
  */
 
-public sealed interface NPDatabaseQueriesType
-  permits NPDatabaseQueriesAgentsType,
-  NPDatabaseQueriesArchivesType,
-  NPDatabaseQueriesAssignmentsType,
-  NPDatabaseQueriesMaintenanceType,
-  NPDatabaseQueriesPlansType,
-  NPDatabaseQueriesPublicKeysType,
-  NPDatabaseQueriesRepositoriesType,
-  NPDatabaseQueriesSCMProvidersType,
-  NPDatabaseQueriesToolsType,
-  NPDatabaseQueriesUsersType
+public sealed interface NPDatabaseQueriesPublicKeysType
+  extends NPDatabaseQueriesType
 {
   /**
-   * The earliest possible time considered by the server
+   * Update the given public key.
    */
 
-  OffsetDateTime EARLIEST =
-    LocalDateTime.ofEpochSecond(0L, 0, UTC)
-      .atOffset(UTC);
+  non-sealed interface PutType
+    extends NPDatabaseQueryType<NPPublicKey, NPDatabaseUnit>,
+    NPDatabaseQueriesPublicKeysType
+  {
+
+  }
 
   /**
-   * @return The earliest possible time considered by the server
+   * Retrieve a public key.
    */
 
-  static OffsetDateTime earliest()
+  non-sealed interface GetType
+    extends NPDatabaseQueryType<NPFingerprint, Optional<NPPublicKey>>,
+    NPDatabaseQueriesPublicKeysType
   {
-    return EARLIEST;
+
+  }
+
+  /**
+   * Search public keys.
+   */
+
+  non-sealed interface SearchType
+    extends NPDatabaseQueryType<NPPublicKeySearchParameters, NPPublicKeysPagedType>,
+    NPDatabaseQueriesPublicKeysType
+  {
+
   }
 }
