@@ -18,8 +18,10 @@
 package com.io7m.northpike.server.internal.repositories;
 
 import com.io7m.jmulticlose.core.CloseableType;
+import com.io7m.northpike.keys.NPSignatureKeyLookupType;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.repetoir.core.RPServiceType;
 
 import java.util.concurrent.CompletableFuture;
@@ -56,4 +58,17 @@ public interface NPRepositoryServiceType
    */
 
   CompletableFuture<NPArchive> createArchiveFor(NPCommitID commit);
+
+  /**
+   * Verify the signature for the given commit.
+   *
+   * @param commit    The commit
+   * @param keyLookup The key lookup
+   *
+   * @return A future representing the operation in progress
+   */
+
+  CompletableFuture<NPFingerprint> verifyCommitSignature(
+    NPCommitID commit,
+    NPSignatureKeyLookupType keyLookup);
 }

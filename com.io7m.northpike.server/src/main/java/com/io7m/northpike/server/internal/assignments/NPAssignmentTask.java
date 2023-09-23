@@ -29,12 +29,15 @@ import com.io7m.northpike.assignments.NPAssignmentExecutionStateRequested;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateRunning;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyIsAssignedType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
@@ -46,6 +49,9 @@ import com.io7m.northpike.model.NPArchiveWithLinks;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPPublicKey;
+import com.io7m.northpike.model.NPRepositorySigningPolicy;
 import com.io7m.northpike.model.NPToolExecutionEvaluated;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
@@ -77,7 +83,6 @@ import com.io7m.northpike.server.internal.agents.NPAgentWorkItemAccepted;
 import com.io7m.northpike.server.internal.agents.NPAgentWorkItemEventType;
 import com.io7m.northpike.server.internal.agents.NPAgentWorkItemStatusChanged;
 import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
-import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
@@ -108,12 +113,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorSignatureVerificationFailed;
 import static com.io7m.northpike.server.internal.assignments.NPAssignmentLogging.recordErrorText;
 import static com.io7m.northpike.server.internal.assignments.NPAssignmentLogging.recordInfoText;
 import static com.io7m.northpike.strings.NPStringConstants.AGENT_ID;
 import static com.io7m.northpike.strings.NPStringConstants.ASSIGNMENT;
 import static com.io7m.northpike.strings.NPStringConstants.COMMIT;
+import static com.io7m.northpike.strings.NPStringConstants.ERROR_KEY_NOT_ASSIGNED;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
+import static com.io7m.northpike.strings.NPStringConstants.KEY;
 import static com.io7m.northpike.strings.NPStringConstants.PLAN;
 import static com.io7m.northpike.strings.NPStringConstants.PLAN_VERSION;
 import static com.io7m.northpike.strings.NPStringConstants.REPOSITORY;
@@ -266,6 +274,7 @@ public final class NPAssignmentTask
     try (var ignored = span.makeCurrent()) {
       try {
         this.assignmentInitialize();
+        this.assignmentCheckAllowed();
         this.assignmentCreateArchive();
         this.assignmentCompilePlan();
         this.assignmentStart();
@@ -281,6 +290,151 @@ public final class NPAssignmentTask
       this.recordExceptionText(e);
     } finally {
       span.end();
+    }
+  }
+
+  private void assignmentCheckAllowed()
+    throws Exception
+  {
+    this.logInfo("Checking commit signature against signing policy.");
+
+    switch (this.assignmentGetSigningPolicy()) {
+
+      /*
+       * Commits are allowed to be unsigned. This is morally equivalent to not
+       * checking commit signatures at all.
+       */
+
+      case ALLOW_UNSIGNED_COMMITS -> {
+        this.logInfo("Unsigned commits are allowed; ignoring signature.");
+      }
+
+      /*
+       * Commits are required to be signed with keys that we know about.
+       */
+
+      case REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY -> {
+        this.logInfo("Commit must be signed with a known key; verifying signature.");
+
+        try {
+          final var fingerprint =
+          this.repositories.verifyCommitSignature(this.commit.id(), this::findKey)
+            .get(5L, TimeUnit.MINUTES);
+
+          this.logInfo("Commit has valid signature from key %s.", fingerprint);
+        } catch (final ExecutionException e) {
+          this.assignmentFailed();
+          throw (Exception) e.getCause();
+        }
+      }
+
+      /*
+       * Commits are required to be signed with keys that are assigned to
+       * the repository.
+       */
+
+      case REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS -> {
+        this.logInfo("Commit must be signed with a specific key; verifying signature.");
+
+        try {
+          final var fingerprint =
+            this.repositories.verifyCommitSignature(this.commit.id(), this::findKey)
+              .get(5L, TimeUnit.MINUTES);
+
+          final var isKeyAssigned =
+            this.keyIsAssignedToCurrentRepository(fingerprint);
+
+          if (!isKeyAssigned) {
+            throw this.errorKeyNotAssignedToRepository(fingerprint);
+          }
+
+          this.logInfo("Commit has valid signature from key %s.", fingerprint);
+        } catch (final ExecutionException e) {
+          this.assignmentFailed();
+          throw (Exception) e.getCause();
+        }
+      }
+    }
+  }
+
+  private NPPublicKey findKey(
+    final NPFingerprint fingerprint)
+    throws NPException
+  {
+    try (var connection = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
+      try (var transaction = connection.openTransaction()) {
+        return transaction.queries(NPDatabaseQueriesPublicKeysType.GetType.class)
+          .execute(fingerprint)
+          .orElseThrow(() -> this.errorNonexistentPublicKey(fingerprint));
+      }
+    }
+  }
+
+  private NPServerException errorNonexistentPublicKey(
+    final NPFingerprint fingerprint)
+  {
+    return new NPServerException(
+      this.strings.format(ERROR_NONEXISTENT),
+      errorNonexistent(),
+      Map.ofEntries(
+        Map.entry(
+          this.strings.format(KEY),
+          fingerprint.value()
+        )
+      ),
+      Optional.empty()
+    );
+  }
+
+  private NPRepositorySigningPolicy assignmentGetSigningPolicy()
+    throws NPDatabaseException, NPServerException
+  {
+    try (var connection = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
+      try (var transaction = connection.openTransaction()) {
+        return transaction.queries(NPDatabaseQueriesRepositoriesType.GetType.class)
+          .execute(this.assignment.repositoryId())
+          .orElseThrow(this::errorNonexistentRepository)
+          .signingPolicy();
+      }
+    }
+  }
+
+  private NPServerException errorKeyNotAssignedToRepository(
+    final NPFingerprint fingerprint)
+  {
+    return new NPServerException(
+      this.strings.format(ERROR_KEY_NOT_ASSIGNED),
+      errorSignatureVerificationFailed(),
+      Map.ofEntries(
+        Map.entry(
+          this.strings.format(REPOSITORY),
+          this.assignment.repositoryId().toString()
+        ),
+        Map.entry(
+          this.strings.format(KEY),
+          fingerprint.value()
+        ),
+        Map.entry(
+          this.strings.format(COMMIT),
+          this.commit.id().commitId().value()
+        )
+      ),
+      Optional.empty()
+    );
+  }
+
+  private boolean keyIsAssignedToCurrentRepository(
+    final NPFingerprint fingerprint)
+    throws NPDatabaseException
+  {
+    try (var connection = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
+      try (var transaction = connection.openTransaction()) {
+        return transaction.queries(PublicKeyIsAssignedType.class)
+          .execute(new PublicKeyIsAssignedType.Parameters(
+            this.commit.id().repository(),
+            fingerprint
+          )).booleanValue();
+      }
     }
   }
 
@@ -364,7 +518,6 @@ public final class NPAssignmentTask
     }
   }
 
-
   private void logInfo(
     final String format,
     final Object... arguments)
@@ -397,6 +550,20 @@ public final class NPAssignmentTask
     }
   }
 
+  private NPServerException errorNonexistentRepository()
+  {
+    return new NPServerException(
+      this.strings.format(ERROR_NONEXISTENT),
+      errorNonexistent(),
+      Map.ofEntries(
+        Map.entry(
+          this.strings.format(REPOSITORY),
+          this.assignment.repositoryId().toString()
+        )
+      ),
+      Optional.empty()
+    );
+  }
 
   private NPServerException errorNonexistentCommit()
   {

@@ -15,40 +15,28 @@
  */
 
 
-package com.io7m.northpike.server.internal.clock;
+package com.io7m.northpike.keys;
 
-import com.io7m.repetoir.core.RPServiceType;
-
-import java.time.Clock;
-import java.time.OffsetDateTime;
+import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPPublicKey;
 
 /**
- * The clock service.
+ * An interface that allows for looking up keys by fingerprint.
  */
 
-public interface NPClockServiceType extends RPServiceType
+public interface NPSignatureKeyLookupType
 {
   /**
-   * @return The clock
+   * Find the key with the given fingerprint.
+   *
+   * @param fingerprint The fingerprint
+   *
+   * @return The key, if a matching key exists
+   *
+   * @throws NPException On errors and nonexistent keys
    */
 
-  Clock clock();
-
-  /**
-   * @return The current precise time
-   */
-
-  default OffsetDateTime nowPrecise()
-  {
-    return OffsetDateTime.now(this.clock());
-  }
-
-  /**
-   * @return The current time with no nanosecond precision
-   */
-
-  default OffsetDateTime now()
-  {
-    return this.nowPrecise().withNano(0);
-  }
+  NPPublicKey keyFor(NPFingerprint fingerprint)
+    throws NPException;
 }

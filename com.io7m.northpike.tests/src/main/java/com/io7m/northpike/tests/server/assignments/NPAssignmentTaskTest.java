@@ -32,11 +32,15 @@ import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyAssignType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
+import com.io7m.northpike.keys.NPPublicKeys;
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentWorkItem;
 import com.io7m.northpike.model.NPArchiveLinks;
+import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPToolExecutionDescription;
@@ -58,6 +62,7 @@ import com.io7m.northpike.server.internal.assignments.NPAssignmentTask;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.northpike.tests.keys.NPPublicKeysTest;
 import com.io7m.northpike.toolexec.NPTXFormats;
 import com.io7m.verona.core.Version;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
@@ -73,6 +78,8 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -81,6 +88,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -88,6 +96,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY;
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS;
 import static com.io7m.northpike.model.NPWorkItemStatus.WORK_ITEM_FAILED;
 import static com.io7m.northpike.model.NPWorkItemStatus.WORK_ITEM_SUCCEEDED;
 import static java.lang.Boolean.FALSE;
@@ -284,6 +295,97 @@ public final class NPAssignmentTaskTest
     ).execution();
   }
 
+  private static void runSimpleFailure(
+    final NPAssignment assignment,
+    final NPAgentID agent,
+    final Class<? extends NPAssignmentExecutionStateType> expected)
+  {
+    Mockito.when(
+      ASSIGNMENT_FIXTURE.mockArchiveService()
+        .linksForArchive(any())
+    ).thenReturn(
+      new NPArchiveLinks(
+        URI.create("https://www.example.com/file.tgz"),
+        URI.create("https://www.example.com/file.tgz.sha256")
+      )
+    );
+
+    Mockito.when(
+      ASSIGNMENT_FIXTURE.mockAgentService()
+        .findSuitableAgentsFor(any(), any())
+    ).thenReturn(
+      new NPAgentServiceType.NPSuitableAgents(
+        Set.of(agent),
+        Set.of(agent)
+      )
+    );
+
+    Mockito.when(
+      Boolean.valueOf(
+        ASSIGNMENT_FIXTURE.mockAgentService()
+          .offerWorkItem(any(), any())
+      )
+    ).thenReturn(TRUE);
+
+    Mockito.when(
+      Boolean.valueOf(
+        ASSIGNMENT_FIXTURE.mockAgentService()
+          .sendWorkItem(any(), any())
+      )
+    ).thenReturn(TRUE);
+
+    try (var task = NPAssignmentTask.create(
+      ASSIGNMENT_FIXTURE.services(),
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
+      ),
+      UUID.randomUUID()
+    )) {
+      task.run();
+    }
+
+    final var eQ = ASSIGNMENT_FIXTURE.events();
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    final var e =
+      assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertEquals(0, eQ.size());
+    assertInstanceOf(expected, e.execution());
+  }
+
+  private static NPPlanType createPlanThreeTaskSameAgent()
+    throws Exception
+  {
+    final var planBuilder =
+      NPPlans.builder(STRINGS, "plans.three", 1L);
+
+    final var transaction =
+      ASSIGNMENT_FIXTURE.transaction();
+
+    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+      .execute(TOOL_EXECUTION_DESCRIPTION);
+
+    transaction.commit();
+
+    planBuilder.addToolReference(TOOL_REFERENCE);
+
+    final var t0 =
+      planBuilder.addTask("task0")
+        .setToolExecution(TOOL_EXECUTION);
+
+    final var t1 =
+      planBuilder.addTask("task1")
+        .setToolExecution(TOOL_EXECUTION)
+        .setAgentMustBeSameAs(t0);
+
+    final var t2 =
+      planBuilder.addTask("task2")
+        .setToolExecution(TOOL_EXECUTION)
+        .setAgentMustBeSameAs(t1);
+
+    return planBuilder.build();
+  }
+
   @BeforeEach
   public void setup(
     final CloseableResourcesType closeables)
@@ -312,7 +414,8 @@ public final class NPAssignmentTaskTest
     throws Exception
   {
     final var assignment =
-      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(createPlanEmptyTask());
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS, createPlanEmptyTask());
 
     Mockito.when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
@@ -328,7 +431,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.services(),
       new NPAssignmentExecutionRequest(
         assignment.name(),
-        ASSIGNMENT_FIXTURE.commit().commitId()
+        ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
       UUID.randomUUID()
     )) {
@@ -364,7 +467,8 @@ public final class NPAssignmentTaskTest
     throws Exception
   {
     final var assignment =
-      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(createPlanOneTask());
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS, createPlanOneTask());
 
     final var agent =
       NPAgentID.of(UUID.randomUUID().toString());
@@ -429,7 +533,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.services(),
       new NPAssignmentExecutionRequest(
         assignment.name(),
-        ASSIGNMENT_FIXTURE.commit().commitId()
+        ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
       UUID.randomUUID()
     )) {
@@ -509,7 +613,8 @@ public final class NPAssignmentTaskTest
     throws Exception
   {
     final var assignment =
-      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(createPlanOneTask());
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS, createPlanOneTask());
 
     final var agent =
       NPAgentID.of(UUID.randomUUID().toString());
@@ -574,7 +679,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.services(),
       new NPAssignmentExecutionRequest(
         assignment.name(),
-        ASSIGNMENT_FIXTURE.commit().commitId()
+        ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
       UUID.randomUUID()
     )) {
@@ -655,6 +760,7 @@ public final class NPAssignmentTaskTest
   {
     final var assignment =
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS,
         createPlanOneTimeoutAgentSelectionTask0()
       );
 
@@ -706,7 +812,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.services(),
       new NPAssignmentExecutionRequest(
         assignment.name(),
-        ASSIGNMENT_FIXTURE.commit().commitId()
+        ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
       UUID.randomUUID()
     )) {
@@ -739,6 +845,7 @@ public final class NPAssignmentTaskTest
   {
     final var assignment =
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS,
         createPlanOneTimeoutAgentSelectionTask1()
       );
 
@@ -790,7 +897,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.services(),
       new NPAssignmentExecutionRequest(
         assignment.name(),
-        ASSIGNMENT_FIXTURE.commit().commitId()
+        ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
       UUID.randomUUID()
     )) {
@@ -823,6 +930,7 @@ public final class NPAssignmentTaskTest
   {
     final var assignment =
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS,
         createPlanOneTimeoutAgentExecutionTask0()
       );
 
@@ -881,7 +989,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.services(),
       new NPAssignmentExecutionRequest(
         assignment.name(),
-        ASSIGNMENT_FIXTURE.commit().commitId()
+        ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
       UUID.randomUUID()
     )) {
@@ -914,6 +1022,7 @@ public final class NPAssignmentTaskTest
   {
     final var assignment =
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS,
         createPlanOneTimeoutAgentExecutionTask1()
       );
 
@@ -972,7 +1081,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.services(),
       new NPAssignmentExecutionRequest(
         assignment.name(),
-        ASSIGNMENT_FIXTURE.commit().commitId()
+        ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
       UUID.randomUUID()
     )) {
@@ -1005,7 +1114,8 @@ public final class NPAssignmentTaskTest
     throws Exception
   {
     final var assignment =
-      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(createPlanThreeTaskSameAgent());
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS, createPlanThreeTaskSameAgent());
 
     final var agent =
       NPAgentID.of(UUID.randomUUID().toString());
@@ -1072,7 +1182,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.services(),
       new NPAssignmentExecutionRequest(
         assignment.name(),
-        ASSIGNMENT_FIXTURE.commit().commitId()
+        ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
       UUID.randomUUID()
     )) {
@@ -1143,7 +1253,7 @@ public final class NPAssignmentTaskTest
     final var plan =
       createPlanOneTask();
     final var assignment =
-      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(plan);
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(ALLOW_UNSIGNED_COMMITS, plan);
 
     final var transaction = ASSIGNMENT_FIXTURE.transaction();
     transaction.queries(NPDatabaseQueriesPlansType.PutType.class)
@@ -1184,7 +1294,8 @@ public final class NPAssignmentTaskTest
     throws Exception
   {
     final var assignment =
-      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(createPlanOneTask());
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS, createPlanOneTask());
 
     final var transaction = ASSIGNMENT_FIXTURE.transaction();
     transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
@@ -1237,7 +1348,8 @@ public final class NPAssignmentTaskTest
     throws Exception
   {
     final var assignment =
-      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(createPlanOneTask());
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS, createPlanOneTask());
 
     final var transaction = ASSIGNMENT_FIXTURE.transaction();
     transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
@@ -1299,7 +1411,8 @@ public final class NPAssignmentTaskTest
     throws Exception
   {
     final var assignment =
-      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(createPlanOneTask());
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS, createPlanOneTask());
 
     final var transaction = ASSIGNMENT_FIXTURE.transaction();
     transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
@@ -1333,11 +1446,159 @@ public final class NPAssignmentTaskTest
     );
   }
 
-  private static void runSimpleFailure(
-    final NPAssignment assignment,
-    final NPAgentID agent,
-    final Class<? extends NPAssignmentExecutionStateType> expected)
+  /**
+   * The plan fails if commit signing is required but the commit is signed
+   * with an unknown key.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  @Timeout(value = 10L)
+  public void testCommitWithUnknownKey()
+    throws Exception
   {
+    final var assignment =
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY, createPlanEmptyTask());
+
+    Mockito.when(
+      ASSIGNMENT_FIXTURE.mockRepositoryService()
+        .verifyCommitSignature(any(), any())
+    ).thenReturn(CompletableFuture.failedFuture(
+      new IOException("Wrong signature.")
+    ));
+
+    try (var task = NPAssignmentTask.create(
+      ASSIGNMENT_FIXTURE.services(),
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commitSigned().commitId()
+      ),
+      UUID.randomUUID()
+    )) {
+      task.run();
+    }
+
+    final var eQ = ASSIGNMENT_FIXTURE.events();
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+
+    final var e =
+      assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertEquals(0, eQ.size());
+    assertInstanceOf(NPAssignmentExecutionStateCreationFailed.class, e.execution());
+  }
+
+  /**
+   * The plan fails if commit signing is required but the commit is signed
+   * with an unknown key.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  @Timeout(value = 10L)
+  public void testCommitWithUnknownKeySpecific()
+    throws Exception
+  {
+    final var assignment =
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS, createPlanEmptyTask());
+
+    Mockito.when(
+      ASSIGNMENT_FIXTURE.mockRepositoryService()
+        .verifyCommitSignature(any(), any())
+    ).thenReturn(CompletableFuture.failedFuture(
+      new IOException("Wrong signature.")
+    ));
+
+    try (var task = NPAssignmentTask.create(
+      ASSIGNMENT_FIXTURE.services(),
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commitSignedSpecific().commitId()
+      ),
+      UUID.randomUUID()
+    )) {
+      task.run();
+    }
+
+    final var eQ = ASSIGNMENT_FIXTURE.events();
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+
+    final var e =
+      assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertEquals(0, eQ.size());
+    assertInstanceOf(NPAssignmentExecutionStateCreationFailed.class, e.execution());
+  }
+
+  /**
+   * The plan fails if commit signing is required but the commit is signed
+   * with a key that isn't assigned to the repository.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  @Timeout(value = 10L)
+  public void testCommitWithKeySpecificNotAssigned()
+    throws Exception
+  {
+    final var assignment =
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS, createPlanEmptyTask());
+
+    Mockito.when(
+      ASSIGNMENT_FIXTURE.mockRepositoryService()
+        .verifyCommitSignature(any(), any())
+    ).thenReturn(CompletableFuture.completedFuture(
+      new NPFingerprint("a438a737c771787195cfc166f84351f72c918476")
+    ));
+
+    try (var task = NPAssignmentTask.create(
+      ASSIGNMENT_FIXTURE.services(),
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commitSignedSpecific().commitId()
+      ),
+      UUID.randomUUID()
+    )) {
+      task.run();
+    }
+
+    final var eQ = ASSIGNMENT_FIXTURE.events();
+    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+
+    final var e =
+      assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
+    assertEquals(0, eQ.size());
+    assertInstanceOf(NPAssignmentExecutionStateCreationFailed.class, e.execution());
+  }
+
+  /**
+   * A commit that requires signing with a known key succeeds if the commit
+   * is signed with a known key.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testCommitSignedSucceeds()
+    throws Exception
+  {
+    final var assignment =
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY, createPlanEmptyTask());
+
+    Mockito.when(
+      ASSIGNMENT_FIXTURE.mockRepositoryService()
+        .verifyCommitSignature(any(), any())
+    ).thenReturn(CompletableFuture.completedFuture(
+      new NPFingerprint("a438a737c771787195cfc166f84351f72c918476")
+    ));
+
     Mockito.when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
         .linksForArchive(any())
@@ -1348,79 +1609,116 @@ public final class NPAssignmentTaskTest
       )
     );
 
-    Mockito.when(
-      ASSIGNMENT_FIXTURE.mockAgentService()
-        .findSuitableAgentsFor(any(), any())
-    ).thenReturn(
-      new NPAgentServiceType.NPSuitableAgents(
-        Set.of(agent),
-        Set.of(agent)
-      )
-    );
-
-    Mockito.when(
-      Boolean.valueOf(
-        ASSIGNMENT_FIXTURE.mockAgentService()
-          .offerWorkItem(any(), any())
-      )
-    ).thenReturn(TRUE);
-
-    Mockito.when(
-      Boolean.valueOf(
-        ASSIGNMENT_FIXTURE.mockAgentService()
-          .sendWorkItem(any(), any())
-      )
-    ).thenReturn(TRUE);
-
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
       new NPAssignmentExecutionRequest(
         assignment.name(),
-        ASSIGNMENT_FIXTURE.commit().commitId()
+        ASSIGNMENT_FIXTURE.commitSigned().commitId()
       ),
       UUID.randomUUID()
     )) {
       task.run();
     }
 
-    final var eQ = ASSIGNMENT_FIXTURE.events();
-    assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
-    final var e =
-      assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
-    assertEquals(0, eQ.size());
-    assertInstanceOf(expected, e.execution());
+    assertInstanceOf(
+      NPAssignmentExecutionStateRequested.class,
+      assertEventStatusChanged()
+    );
+    assertInstanceOf(
+      NPAssignmentExecutionStateCreated.class,
+      assertEventStatusChanged()
+    );
+    assertInstanceOf(
+      NPAssignmentExecutionStateRunning.class,
+      assertEventStatusChanged()
+    );
+    assertInstanceOf(
+      NPAssignmentExecutionStateSucceeded.class,
+      assertEventStatusChanged()
+    );
   }
 
-  private static NPPlanType createPlanThreeTaskSameAgent()
+  /**
+   * A commit that requires signing with a specific key succeeds if the commit
+   * is signed with a specific key.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testCommitSignedSpecificSucceeds()
     throws Exception
   {
-    final var planBuilder =
-      NPPlans.builder(STRINGS, "plans.three", 1L);
-
     final var transaction =
       ASSIGNMENT_FIXTURE.transaction();
 
-    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
-      .execute(TOOL_EXECUTION_DESCRIPTION);
+    transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class)
+      .execute(
+        NPPublicKeys.decode(resource("key-pub-0.asc")).get(0)
+      );
+
+    transaction.queries(PublicKeyAssignType.class)
+      .execute(new PublicKeyAssignType.Parameters(
+        ASSIGNMENT_FIXTURE.commitSignedSpecific().repository(),
+        new NPFingerprint("a438a737c771787195cfc166f84351f72c918476")
+      ));
 
     transaction.commit();
 
-    planBuilder.addToolReference(TOOL_REFERENCE);
+    final var assignment =
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS, createPlanEmptyTask());
 
-    final var t0 =
-      planBuilder.addTask("task0")
-        .setToolExecution(TOOL_EXECUTION);
+    Mockito.when(
+      ASSIGNMENT_FIXTURE.mockRepositoryService()
+        .verifyCommitSignature(any(), any())
+    ).thenReturn(CompletableFuture.completedFuture(
+      new NPFingerprint("a438a737c771787195cfc166f84351f72c918476")
+    ));
 
-    final var t1 =
-      planBuilder.addTask("task1")
-        .setToolExecution(TOOL_EXECUTION)
-        .setAgentMustBeSameAs(t0);
+    Mockito.when(
+      ASSIGNMENT_FIXTURE.mockArchiveService()
+        .linksForArchive(any())
+    ).thenReturn(
+      new NPArchiveLinks(
+        URI.create("https://www.example.com/file.tgz"),
+        URI.create("https://www.example.com/file.tgz.sha256")
+      )
+    );
 
-    final var t2 =
-      planBuilder.addTask("task2")
-        .setToolExecution(TOOL_EXECUTION)
-        .setAgentMustBeSameAs(t1);
+    try (var task = NPAssignmentTask.create(
+      ASSIGNMENT_FIXTURE.services(),
+      new NPAssignmentExecutionRequest(
+        assignment.name(),
+        ASSIGNMENT_FIXTURE.commitSignedSpecific().commitId()
+      ),
+      UUID.randomUUID()
+    )) {
+      task.run();
+    }
 
-    return planBuilder.build();
+    assertInstanceOf(
+      NPAssignmentExecutionStateRequested.class,
+      assertEventStatusChanged()
+    );
+    assertInstanceOf(
+      NPAssignmentExecutionStateCreated.class,
+      assertEventStatusChanged()
+    );
+    assertInstanceOf(
+      NPAssignmentExecutionStateRunning.class,
+      assertEventStatusChanged()
+    );
+    assertInstanceOf(
+      NPAssignmentExecutionStateSucceeded.class,
+      assertEventStatusChanged()
+    );
+  }
+
+  private static InputStream resource(
+    final String name)
+  {
+    return NPPublicKeysTest.class
+      .getResourceAsStream("/com/io7m/northpike/tests/" + name);
   }
 }

@@ -98,6 +98,36 @@ public enum NPSecAction
     {
       return LOGIN_OBJECT;
     }
+  },
+
+  /**
+   * A key assignment operation.
+   */
+
+  KEY_ASSIGN {
+    private static final MActionName KEY_ASSIGN_OBJECT =
+      MActionName.of("key_assign");
+
+    @Override
+    public MActionName action()
+    {
+      return KEY_ASSIGN_OBJECT;
+    }
+  },
+
+  /**
+   * A key unassignment operation.
+   */
+
+  KEY_UNASSIGN {
+    private static final MActionName KEY_UNASSIGN_OBJECT =
+      MActionName.of("key_unassign");
+
+    @Override
+    public MActionName action()
+    {
+      return KEY_UNASSIGN_OBJECT;
+    }
   };
 
   /**

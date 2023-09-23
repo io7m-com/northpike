@@ -32,6 +32,7 @@ public sealed interface NPUResponsePagedType<T>
   NPUResponseAssignmentExecutionSearch,
   NPUResponseAssignmentSearch,
   NPUResponsePlanSearch,
+  NPUResponsePublicKeySearch,
   NPUResponseRepositorySearch,
   NPUResponseToolExecutionDescriptionSearch
 {

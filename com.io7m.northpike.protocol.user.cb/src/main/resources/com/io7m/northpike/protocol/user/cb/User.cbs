@@ -32,6 +32,13 @@
   ]
 ]
 
+[documentation NPU1RepositorySigningPolicy "A repository signing policy."]
+[variant NPU1RepositorySigningPolicy
+  [case AllowUnsignedCommits]
+  [case RequireCommitsSignedWithKnownKey]
+  [case RequireCommitsSignedWithSpecificKeys]
+]
+
 [documentation NPU1RepositoryDescription "A description of a repository."]
 [record NPU1RepositoryDescription
   [documentation provider "The SCM provider."]
@@ -42,6 +49,8 @@
   [field url cb:String]
   [documentation credentials "The repository credentials."]
   [field credentials NPU1RepositoryCredentials]
+  [documentation signingPolicy "The repository signing policy."]
+  [field signingPolicy NPU1RepositorySigningPolicy]
 ]
 
 [documentation NPU1RepositorySummary "A summary of a repository."]
@@ -351,6 +360,12 @@
   [field pageSize cb:IntegerUnsigned32]
 ]
 
+[documentation NPU1PublicKeySearchParameters "The public key search parameters."]
+[record NPU1PublicKeySearchParameters
+  [documentation pageSize "The page size."]
+  [field pageSize cb:IntegerUnsigned32]
+]
+
 ;
 ; Commands
 ;
@@ -441,6 +456,34 @@
 [record NPU1CommandRepositorySearchPrevious
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandRepositoryPublicKeyAssign "Assign a public key to a repository."]
+[record NPU1CommandRepositoryPublicKeyAssign
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation repository "The repository ID"]
+  [field repository cb:UUID]
+  [documentation publicKey "The public key"]
+  [field publicKey cb:String]
+]
+
+[documentation NPU1CommandRepositoryPublicKeyUnassign "Unassign a public key from a repository."]
+[record NPU1CommandRepositoryPublicKeyUnassign
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation repository "The repository ID"]
+  [field repository cb:UUID]
+  [documentation publicKey "The public key"]
+  [field publicKey cb:String]
+]
+
+[documentation NPU1CommandRepositoryPublicKeysAssigned "Retrieve the set of keys assigned to a repository."]
+[record NPU1CommandRepositoryPublicKeysAssigned
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation repository "The repository ID"]
+  [field repository cb:UUID]
 ]
 
 ;
@@ -700,6 +743,46 @@
 ]
 
 ;
+; Public Keys
+;
+
+[documentation NPU1CommandPublicKeyPut "Create or update a public key."]
+[record NPU1CommandPublicKeyPut
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation publicKey "The public key"]
+  [field publicKey cb:String]
+]
+
+[documentation NPU1CommandPublicKeyGet "Get a public key."]
+[record NPU1CommandPublicKeyGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation fingerprint "The public key fingerprint"]
+  [field fingerprint cb:String]
+]
+
+[documentation NPU1CommandPublicKeySearchBegin "Start searching public keys."]
+[record NPU1CommandPublicKeySearchBegin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation parameters "The search parameters."]
+  [field parameters NPU1PublicKeySearchParameters]
+]
+
+[documentation NPU1CommandPublicKeySearchNext "Continue searching public keys."]
+[record NPU1CommandPublicKeySearchNext
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandPublicKeySearchPrevious "Continue searching public keys."]
+[record NPU1CommandPublicKeySearchPrevious
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+;
 ; Events
 ;
 
@@ -737,6 +820,16 @@
   [field correlationId cb:UUID]
   [documentation repository "The repository description"]
   [field repository [cb:Option NPU1RepositoryDescription]]
+]
+
+[documentation NPU1ResponseRepositoryPublicKeysAssigned "A retrieval of repository key assignments."]
+[record NPU1ResponseRepositoryPublicKeysAssigned
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation keys "The repository keys"]
+  [field keys [cb:List cb:String]]
 ]
 
 [documentation NPU1ResponseRolesGet "A response to NPU1ResponseRolesGet."]
@@ -889,6 +982,26 @@
   [field results [NPU1Page NPU1AssignmentExecutionState]]
 ]
 
+[documentation NPU1ResponsePublicKeyGet "A response to NPU1CommandPublicKeyGet."]
+[record NPU1ResponsePublicKeyGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation publicKey "The public key."]
+  [field publicKey [cb:Option cb:String]]
+]
+
+[documentation NPU1ResponsePublicKeySearch "A response to NPU1CommandPublicKeySearchBegin."]
+[record NPU1ResponsePublicKeySearch
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [NPU1Page cb:String]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -921,7 +1034,15 @@
       NPU1CommandPlanSearchNext
       NPU1CommandPlanSearchPrevious
       NPU1CommandPlanValidate
+      NPU1CommandPublicKeyGet
+      NPU1CommandPublicKeyPut
+      NPU1CommandPublicKeySearchBegin
+      NPU1CommandPublicKeySearchNext
+      NPU1CommandPublicKeySearchPrevious
       NPU1CommandRepositoryGet
+      NPU1CommandRepositoryPublicKeyAssign
+      NPU1CommandRepositoryPublicKeyUnassign
+      NPU1CommandRepositoryPublicKeysAssigned
       NPU1CommandRepositoryPut
       NPU1CommandRepositorySearchBegin
       NPU1CommandRepositorySearchNext
@@ -947,7 +1068,10 @@
       NPU1ResponsePlanGet
       NPU1ResponsePlanSearch
       NPU1ResponsePlanValidate
+      NPU1ResponsePublicKeyGet
+      NPU1ResponsePublicKeySearch
       NPU1ResponseRepositoryGet
+      NPU1ResponseRepositoryPublicKeysAssigned
       NPU1ResponseRepositorySearch
       NPU1ResponseRolesGet
       NPU1ResponseToolExecutionDescriptionGet

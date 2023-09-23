@@ -25,6 +25,7 @@ module com.io7m.northpike.scm_repository.spi
 
   requires transitive com.io7m.northpike.strings;
   requires transitive com.io7m.northpike.model;
+  requires transitive com.io7m.northpike.keys;
 
   requires transitive com.io7m.lanark.core;
   requires transitive com.io7m.repetoir.core;

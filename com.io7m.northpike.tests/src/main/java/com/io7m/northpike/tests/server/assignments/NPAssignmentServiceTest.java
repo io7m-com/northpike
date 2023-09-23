@@ -26,6 +26,8 @@ import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreationFailed;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.assignments.NPAssignmentName;
+import com.io7m.northpike.clock.NPClock;
+import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogListType;
@@ -45,8 +47,6 @@ import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
 import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
 import com.io7m.northpike.server.internal.assignments.NPAssignmentService;
 import com.io7m.northpike.server.internal.assignments.NPAssignmentServiceType;
-import com.io7m.northpike.server.internal.clock.NPClock;
-import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.events.NPEventService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
@@ -84,6 +84,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -188,7 +189,8 @@ public final class NPAssignmentServiceTest
     throws Exception
   {
     final var assignment =
-      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(createPlanEmptyTask());
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS, createPlanEmptyTask());
 
     final var assignmentService =
       NPAssignmentService.create(this.services);
@@ -261,7 +263,8 @@ public final class NPAssignmentServiceTest
     throws Exception
   {
     final var assignment =
-      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(createPlanEmptyTask());
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS, createPlanEmptyTask());
 
     final var assignmentService =
       NPAssignmentService.create(this.services);
@@ -269,7 +272,7 @@ public final class NPAssignmentServiceTest
     final var archive =
       new NPArchive(
         NPToken.generate(),
-        ASSIGNMENT_FIXTURE.commit(),
+        ASSIGNMENT_FIXTURE.commitUnsigned(),
         new NPHash(
           "SHA-256",
           "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"),
@@ -289,7 +292,7 @@ public final class NPAssignmentServiceTest
       assignmentService.requestExecution(
         new NPAssignmentExecutionRequest(
           assignment.name(),
-          ASSIGNMENT_FIXTURE.commit().commitId()
+          ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
         )
       );
 
@@ -315,7 +318,8 @@ public final class NPAssignmentServiceTest
     throws Exception
   {
     final var assignment =
-      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(createPlanEmptyTask());
+      ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
+        ALLOW_UNSIGNED_COMMITS, createPlanEmptyTask());
 
     final var assignmentService =
       NPAssignmentService.create(this.services);
@@ -327,7 +331,7 @@ public final class NPAssignmentServiceTest
       assignmentService.requestExecution(
         new NPAssignmentExecutionRequest(
           assignment.name(),
-          ASSIGNMENT_FIXTURE.commit().commitId()
+          ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
         )
       );
 

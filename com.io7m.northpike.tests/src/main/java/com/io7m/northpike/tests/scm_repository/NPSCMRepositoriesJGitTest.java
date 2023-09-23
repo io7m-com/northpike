@@ -17,10 +17,14 @@
 package com.io7m.northpike.tests.scm_repository;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.clock.NPClock;
+import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.NPToken;
@@ -45,8 +49,10 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Flow;
@@ -54,6 +60,7 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import static com.io7m.northpike.model.NPRepositoryCredentialsNone.CREDENTIALS_NONE;
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -78,7 +85,12 @@ public final class NPSCMRepositoriesJGitTest
 
     this.services = new RPServiceDirectory();
     this.services.register(NPStrings.class, this.strings);
-    this.services.register(NPTelemetryServiceType.class, NPTelemetryNoOp.noop());
+    this.services.register(
+      NPTelemetryServiceType.class,
+      NPTelemetryNoOp.noop());
+    this.services.register(
+      NPClockServiceType.class,
+      new NPClock(Clock.systemUTC()));
   }
 
   /**
@@ -104,7 +116,8 @@ public final class NPSCMRepositoriesJGitTest
         new RDottedName("com.io7m.northpike.repository.jgit"),
         UUID.randomUUID(),
         reposSource,
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     try (var repository =
@@ -201,7 +214,8 @@ public final class NPSCMRepositoriesJGitTest
         new RDottedName("com.io7m.northpike.repository.jgit"),
         UUID.randomUUID(),
         reposSource,
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     final var exampleCommit =
@@ -300,7 +314,8 @@ public final class NPSCMRepositoriesJGitTest
         new RDottedName("com.io7m.northpike.repository.jgit"),
         UUID.randomUUID(),
         file.toUri(),
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     try (var repository =
@@ -393,7 +408,8 @@ public final class NPSCMRepositoriesJGitTest
         new RDottedName("com.io7m.northpike.repository.jgit"),
         UUID.randomUUID(),
         reposSource,
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     final var fileTmp =
@@ -414,7 +430,8 @@ public final class NPSCMRepositoriesJGitTest
           repositoryDescription.id(),
           new NPCommitUnqualifiedID("b155d186fce6d0525b8348cc48dd778fda6c6a85")
         ),
-        new NPToken("0000000000000000000000000000000000000000000000000000000000000000"),
+        new NPToken(
+          "0000000000000000000000000000000000000000000000000000000000000000"),
         file,
         fileTmp,
         checksum,
@@ -430,6 +447,178 @@ public final class NPSCMRepositoriesJGitTest
       assertTrue(Files.isRegularFile(expandDirectory.resolve("pom.xml")));
     }
   }
+
+  /**
+   * Verifying commit signatures works.
+   *
+   * @param directory      The directory
+   * @param reposDirectory The repos directory
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testCommitSign(
+    final @TempDir Path directory,
+    final @TempDir Path reposDirectory)
+    throws Exception
+  {
+    final var reposSource =
+      unpack("demo.git.tar", reposDirectory);
+
+    final var repositoryDescription =
+      new NPRepositoryDescription(
+        new RDottedName("com.io7m.northpike.repository.jgit"),
+        UUID.randomUUID(),
+        reposSource,
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
+      );
+
+    try (var repository =
+           this.repositories.createRepository(
+             this.services, directory, repositoryDescription)) {
+
+      repository.commitVerifySignature(
+        new NPCommitUnqualifiedID("cde3f73fa34459a7f9a2b2734636bbe9bdebe5ac"),
+        fingerprint -> PUBLIC_KEY_0
+      );
+    }
+  }
+
+  /**
+   * A "bad" commit signature cannot be verified. This test emulates a bad
+   * signature by deliberately passing the wrong key to the verification
+   * function.
+   *
+   * @param directory      The directory
+   * @param reposDirectory The repos directory
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testCommitSignInvalid(
+    final @TempDir Path directory,
+    final @TempDir Path reposDirectory)
+    throws Exception
+  {
+    final var reposSource =
+      unpack("demo.git.tar", reposDirectory);
+
+    final var repositoryDescription =
+      new NPRepositoryDescription(
+        new RDottedName("com.io7m.northpike.repository.jgit"),
+        UUID.randomUUID(),
+        reposSource,
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
+      );
+
+    try (var repository =
+           this.repositories.createRepository(
+             this.services, directory, repositoryDescription)) {
+
+      assertThrows(NPSCMRepositoryException.class, () -> {
+        repository.commitVerifySignature(
+          new NPCommitUnqualifiedID("cde3f73fa34459a7f9a2b2734636bbe9bdebe5ac"),
+          fingerprint -> {
+            return new NPPublicKey(
+              PUBLIC_KEY_1.userIDs(),
+              PUBLIC_KEY_0.fingerprint(),
+              PUBLIC_KEY_1.timeCreated(),
+              PUBLIC_KEY_1.timeExpires(),
+              PUBLIC_KEY_1.encodedForm()
+            );
+          }
+        );
+      });
+    }
+  }
+
+  /**
+   * Unsigned commits cannot be verified.
+   *
+   * @param directory      The directory
+   * @param reposDirectory The repos directory
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testCommitUnsigned(
+    final @TempDir Path directory,
+    final @TempDir Path reposDirectory)
+    throws Exception
+  {
+    final var reposSource =
+      unpack("demo.git.tar", reposDirectory);
+
+    final var repositoryDescription =
+      new NPRepositoryDescription(
+        new RDottedName("com.io7m.northpike.repository.jgit"),
+        UUID.randomUUID(),
+        reposSource,
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
+      );
+
+    try (var repository =
+           this.repositories.createRepository(
+             this.services, directory, repositoryDescription)) {
+
+      assertThrows(NPSCMRepositoryException.class, () -> {
+        repository.commitVerifySignature(
+          new NPCommitUnqualifiedID("82fa7441887fa2c57d2dea604f9aef1525b7f54f"),
+          fingerprint -> PUBLIC_KEY_0
+        );
+      });
+    }
+  }
+
+  private static final NPPublicKey PUBLIC_KEY_0 =
+    new NPPublicKey(
+      Set.of(
+        "Northpike (Northpike Example Key) <noone@example.com>"
+      ),
+      new NPFingerprint("10ff1ed0241c1fd72590facf3d3dab4fb3cc298b"),
+      OffsetDateTime.now(),
+      Optional.empty(),
+      """
+        -----BEGIN PGP PUBLIC KEY BLOCK-----
+
+        mDMEZQ37xRYJKwYBBAHaRw8BAQdA7He9A88wApW0TPahm8XJqywfLph/fmgCOEFr
+        Tz6sNWK0NU5vcnRocGlrZSAoTm9ydGhwaWtlIEV4YW1wbGUgS2V5KSA8bm9vbmVA
+        ZXhhbXBsZS5jb20+iJAEExYIADgWIQQQ/x7QJBwf1yWQ+s89PatPs8wpiwUCZQ37
+        xQIbAwULCQgHAwUVCgkICwUWAgMBAAIeAQIXgAAKCRA9PatPs8wpi2cMAPwOUK7P
+        Atq0lGG+8xhk6BKLIs6w2649YQ2Vuup5msFmPgEApqqMV2N1R3IMG5XK6f8vsaqD
+        u2zAEQx7OnSnnEETOgI=
+        =T6/h
+        -----END PGP PUBLIC KEY BLOCK-----
+              """
+    );
+
+  private static final NPPublicKey PUBLIC_KEY_1 =
+    new NPPublicKey(
+      Set.of(
+        "Northpike (Northpike Example Key 2) <noone@example.com>"
+      ),
+      new NPFingerprint("0f9aa2c937036ba634d186bd13be2c5148398745"),
+      OffsetDateTime.now(),
+      Optional.empty(),
+      """
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+mDMEZQ4TaBYJKwYBBAHaRw8BAQdAMNgv7poctgUe5VlVqPF832sXIZdqV139e/IP
+ds8SwFa0QU5vcnRocGlrZSAoTm9ydGhwaWtlIEV4YW1wbGUgS2V5IEFsdGVybmF0
+aXZlKSA8bm9vbmVAZXhhbXBsZS5jb20+iJAEExYIADgWIQQPmqLJNwNrpjTRhr0T
+vixRSDmHRQUCZQ4TaAIbAwULCQgHAwUVCgkICwUWAgMBAAIeAQIXgAAKCRATvixR
+SDmHRZGoAQChIyLkA4TIQ6ROdJWrCgSYj0r63zu3y47wqI5U8dXjiAD/WQ3E+FA7
+WDQ4AgI9+C5Ommu8ftVPDj7dctHMEl5xEAM=
+=zTld
+-----END PGP PUBLIC KEY BLOCK-----
+              """
+    );
 
   private static void expandArchive(
     final Path expandDirectory,

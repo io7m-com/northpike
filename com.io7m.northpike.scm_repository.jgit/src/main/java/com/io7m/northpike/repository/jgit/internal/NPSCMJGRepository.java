@@ -19,6 +19,8 @@ package com.io7m.northpike.repository.jgit.internal;
 
 import com.io7m.jmulticlose.core.CloseableCollection;
 import com.io7m.jmulticlose.core.CloseableCollectionType;
+import com.io7m.northpike.clock.NPClockServiceType;
+import com.io7m.northpike.keys.NPSignatureKeyLookupType;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
@@ -28,6 +30,7 @@ import com.io7m.northpike.model.NPCommitLink;
 import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPErrorCode;
+import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPHash;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
@@ -46,6 +49,7 @@ import com.io7m.repetoir.core.RPServiceDirectoryType;
 import io.opentelemetry.api.trace.Span;
 import org.eclipse.jgit.api.ArchiveCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.VerifySignatureCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.archive.TgzFormat;
 import org.eclipse.jgit.lib.Constants;
@@ -87,6 +91,7 @@ import static com.io7m.northpike.strings.NPStringConstants.CLONE;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_REPOSITORY_WRONG_PROVIDER;
 import static com.io7m.northpike.strings.NPStringConstants.GC;
 import static com.io7m.northpike.strings.NPStringConstants.PULL;
+import static com.io7m.northpike.strings.NPStringConstants.VERIFY;
 import static com.io7m.northpike.telemetry.api.NPTelemetryServiceType.recordSpanException;
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -94,6 +99,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 import static java.time.ZoneOffset.UTC;
+import static org.eclipse.jgit.api.VerifySignatureCommand.VerifyMode.ANY;
 import static org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode.YES;
 
 /**
@@ -106,6 +112,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     {TRUNCATE_EXISTING, CREATE, WRITE};
 
   private final NPStrings strings;
+  private final NPClockServiceType clock;
   private final NPTelemetryServiceType telemetry;
   private final NPRepositoryDescription repositoryDescription;
   private final Path repoPath;
@@ -116,12 +123,15 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
 
   private NPSCMJGRepository(
     final NPStrings inStrings,
+    final NPClockServiceType inClock,
     final NPTelemetryServiceType inTelemetry,
     final NPRepositoryDescription inDescription,
     final Path inRepoPath)
   {
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
+    this.clock =
+      Objects.requireNonNull(inClock, "inClock");
     this.telemetry =
       Objects.requireNonNull(inTelemetry, "telemetry");
     this.repositoryDescription =
@@ -187,6 +197,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
 
     return new NPSCMJGRepository(
       strings,
+      services.requireService(NPClockServiceType.class),
       telemetry,
       repository,
       repos
@@ -705,6 +716,50 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     try (var ignored = span.makeCurrent()) {
       this.ensureRepository();
       return this.executeCalculateSinceTime(since);
+    } finally {
+      span.end();
+    }
+  }
+
+  @Override
+  public NPFingerprint commitVerifySignature(
+    final NPCommitUnqualifiedID commit,
+    final NPSignatureKeyLookupType keys)
+    throws NPSCMRepositoryException
+  {
+    Objects.requireNonNull(commit, "commit");
+    Objects.requireNonNull(keys, "keys");
+
+    final var span =
+      this.telemetry.tracer()
+        .spanBuilder("VerifyCommit")
+        .startSpan();
+
+    try (var ignored = span.makeCurrent()) {
+      final var task = new NPSCMJTask(this.events, VERIFY);
+      try {
+        this.ensureRepository();
+
+        final var repository =
+          this.git.getRepository();
+
+        final var verifier =
+          new NPSCMJGVerifier(commit, keys, this.clock);
+
+        new VerifySignatureCommand(repository)
+          .addName(commit.value())
+          .setMode(ANY)
+          .setVerifier(verifier)
+          .call();
+
+        task.onCompleted();
+        return verifier.keyUsed().fingerprint();
+      } catch (final Exception e) {
+        recordSpanException(e);
+        final var ex = this.handleException(e);
+        task.onFailed(ex);
+        throw ex;
+      }
     } finally {
       span.end();
     }

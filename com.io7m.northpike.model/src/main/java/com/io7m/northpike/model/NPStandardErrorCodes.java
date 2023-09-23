@@ -440,5 +440,18 @@ public final class NPStandardErrorCodes
   {
     return ERROR_COMPILATION_FAILED;
   }
+
+  private static final NPErrorCode ERROR_SIGNATURE_VERIFICATION_FAILED =
+    new NPErrorCode("error-signature-verification-failed");
+
+  /**
+   * Signature verification failed.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorSignatureVerificationFailed()
+  {
+    return ERROR_SIGNATURE_VERIFICATION_FAILED;
+  }
 }
 

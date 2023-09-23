@@ -90,6 +90,7 @@ import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPNameMatchType.AnyName.ANY_NAME;
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -165,7 +166,8 @@ public final class NPDatabaseAssignmentsTest
         new RDottedName("x.y"),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
     reposPut.execute(repositoryDescription);
 
@@ -250,7 +252,8 @@ public final class NPDatabaseAssignmentsTest
         new RDottedName("x.y"),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
     reposPut.execute(repositoryDescription);
 
@@ -450,7 +453,8 @@ public final class NPDatabaseAssignmentsTest
         new RDottedName("x.y"),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
     reposPut.execute(repositoryDescription);
 
@@ -913,7 +917,8 @@ public final class NPDatabaseAssignmentsTest
         new RDottedName("x.y"),
         this.repositoryId,
         URI.create("https://www.example.com"),
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
     reposPut.execute(repositoryDescription);
 

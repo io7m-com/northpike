@@ -46,6 +46,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorSecurityPolicyDenied;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
@@ -251,7 +252,8 @@ public final class NPUCmdRepositoryGetTest
         new RDottedName("x.y"),
         UUID.randomUUID(),
         URI.create("http://www.example.com"),
-        new NPRepositoryCredentialsUsernamePassword("x", "y")
+        new NPRepositoryCredentialsUsernamePassword("x", "y"),
+        ALLOW_UNSIGNED_COMMITS
       );
 
     Mockito.when(reposGet.execute(any()))

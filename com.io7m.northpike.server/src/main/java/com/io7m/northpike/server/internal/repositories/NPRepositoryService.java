@@ -25,10 +25,12 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.Commits
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsPutType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
+import com.io7m.northpike.keys.NPSignatureKeyLookupType;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.NPToken;
@@ -211,6 +213,17 @@ public final class NPRepositoryService
     return command.future;
   }
 
+  @Override
+  public CompletableFuture<NPFingerprint> verifyCommitSignature(
+    final NPCommitID commit,
+    final NPSignatureKeyLookupType keyLookup)
+  {
+    final var command =
+      new VerifyCommit(new CompletableFuture<>(), keyLookup, commit);
+    this.commands.add(command);
+    return command.future;
+  }
+
   private void run()
   {
     LOG.info("Starting Repository service");
@@ -260,6 +273,32 @@ public final class NPRepositoryService
     if (command instanceof final CreateArchive createArchive) {
       this.processCommandCreateArchive(createArchive);
       return;
+    }
+    if (command instanceof final VerifyCommit verifyCommit) {
+      this.processCommandVerifyCommit(verifyCommit);
+      return;
+    }
+
+    throw new IllegalStateException(
+      "Unrecognized command: %s".formatted(command)
+    );
+  }
+
+  private void processCommandVerifyCommit(
+    final VerifyCommit verifyCommit)
+  {
+    try {
+      final var repository =
+        this.openOrGetRepository(verifyCommit.commit.repository());
+      final NPFingerprint fingerprint =
+        repository.commitVerifySignature(
+          verifyCommit.commit.commitId(),
+          verifyCommit.keyLookup()
+        );
+
+      verifyCommit.future.complete(fingerprint);
+    } catch (final Throwable e) {
+      verifyCommit.future.completeExceptionally(e);
     }
   }
 
@@ -338,11 +377,15 @@ public final class NPRepositoryService
     final CreateArchive createArchive)
     throws NPDatabaseException, NPServerException
   {
+    return this.openOrGetRepository(createArchive.commit.repository());
+  }
+
+  private NPSCMRepositoryType openOrGetRepository(
+    final UUID repositoryId)
+    throws NPDatabaseException, NPServerException
+  {
     final var repositoryDescriptions =
       this.repositoriesLoadDescriptions();
-
-    final var repositoryId =
-      createArchive.commit.repository();
     final var repositoryDescription =
       repositoryDescriptions.get(repositoryId);
 
@@ -646,6 +689,15 @@ public final class NPRepositoryService
 
   record CreateArchive(
     CompletableFuture<NPArchive> future,
+    NPCommitID commit)
+    implements NPRepositoryCommandType
+  {
+
+  }
+
+  record VerifyCommit(
+    CompletableFuture<NPFingerprint> future,
+    NPSignatureKeyLookupType keyLookup,
     NPCommitID commit)
     implements NPRepositoryCommandType
   {

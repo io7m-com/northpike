@@ -49,6 +49,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorApiMisuse;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorSecurityPolicyDenied;
@@ -249,19 +250,22 @@ public final class NPUCmdRepositorySearchNextTest
             new RDottedName("x.y"),
             UUID.randomUUID(),
             URI.create("http://example.com/1"),
-            NPRepositoryCredentialsNone.CREDENTIALS_NONE
+            NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+            ALLOW_UNSIGNED_COMMITS
           ),
           new NPRepositoryDescription(
             new RDottedName("x.y"),
             UUID.randomUUID(),
             URI.create("http://example.com/2"),
-            NPRepositoryCredentialsNone.CREDENTIALS_NONE
+            NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+            ALLOW_UNSIGNED_COMMITS
           ),
           new NPRepositoryDescription(
             new RDottedName("x.y"),
             UUID.randomUUID(),
             URI.create("http://example.com/3"),
-            NPRepositoryCredentialsNone.CREDENTIALS_NONE
+            NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+            ALLOW_UNSIGNED_COMMITS
           )
         ),
         1,

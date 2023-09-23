@@ -15,47 +15,25 @@
  */
 
 
-package com.io7m.northpike.server.internal.clock;
+package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-import java.time.Clock;
-import java.util.Objects;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchNext;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import net.jqwik.api.Arbitraries;
 
-/**
- * A clock service.
- */
+import java.util.UUID;
 
-public final class NPClock implements NPClockServiceType
+public final class NPArbUCommandPublicKeySearchNext
+  extends NPArbAbstract<NPUCommandPublicKeySearchNext>
 {
-  private final Clock clock;
-
-  /**
-   * A clock service.
-   *
-   * @param inClock The underlying clock
-   */
-
-  public NPClock(
-    final Clock inClock)
+  public NPArbUCommandPublicKeySearchNext()
   {
-    this.clock = Objects.requireNonNull(inClock, "clock");
-  }
-
-  @Override
-  public Clock clock()
-  {
-    return this.clock;
-  }
-
-  @Override
-  public String description()
-  {
-    return "Clock service.";
-  }
-
-  @Override
-  public String toString()
-  {
-    return "[NPClock 0x%s]"
-      .formatted(Integer.toUnsignedString(this.hashCode(), 16));
+    super(
+      NPUCommandPublicKeySearchNext.class,
+      () -> {
+        return Arbitraries.create(UUID::randomUUID)
+          .map(NPUCommandPublicKeySearchNext::new);
+      }
+    );
   }
 }

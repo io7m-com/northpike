@@ -27,6 +27,7 @@ import java.net.URI;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.string;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVRepositoryCredentials.REPOSITORY_CREDENTIALS;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVRepositorySigningPolicy.REPOSITORY_SIGNING_POLICY;
 
 /**
  * A validator.
@@ -49,7 +50,8 @@ public enum NPUVRepositoryDescription
       string(message.provider().value()),
       new CBUUID(message.id()),
       string(message.url().toString()),
-      REPOSITORY_CREDENTIALS.convertToWire(message.credentials())
+      REPOSITORY_CREDENTIALS.convertToWire(message.credentials()),
+      REPOSITORY_SIGNING_POLICY.convertToWire(message.signingPolicy())
     );
   }
 
@@ -61,7 +63,8 @@ public enum NPUVRepositoryDescription
       new RDottedName(message.fieldProvider().value()),
       message.fieldId().value(),
       URI.create(message.fieldUrl().value()),
-      REPOSITORY_CREDENTIALS.convertFromWire(message.fieldCredentials())
+      REPOSITORY_CREDENTIALS.convertFromWire(message.fieldCredentials()),
+      REPOSITORY_SIGNING_POLICY.convertFromWire(message.fieldSigningPolicy())
     );
   }
 }

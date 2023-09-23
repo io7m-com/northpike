@@ -18,6 +18,7 @@
 package com.io7m.northpike.server.internal.maintenance;
 
 
+import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.DeleteExpiredArchivesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.UpdateUserRolesType;
@@ -25,7 +26,6 @@ import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
-import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;

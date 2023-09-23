@@ -56,6 +56,7 @@ import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPRepositoryCredentialsNone.CREDENTIALS_NONE;
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
@@ -126,7 +127,8 @@ public final class NPDatabaseArchivesTest
         scm.name(),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     final var commit =

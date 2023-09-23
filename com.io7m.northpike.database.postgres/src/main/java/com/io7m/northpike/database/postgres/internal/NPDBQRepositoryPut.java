@@ -22,10 +22,12 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.database.postgres.internal.enums.RepositoryCredentialsTypeT;
+import com.io7m.northpike.database.postgres.internal.enums.RepositorySigningPolicyT;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryCredentialsType;
 import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositorySigningPolicy;
 import org.jooq.DSLContext;
 
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
@@ -86,27 +88,52 @@ public final class NPDBQRepositoryPut
         .set(REPOSITORIES.R_ID, description.id())
         .set(REPOSITORIES.R_PROVIDER, selectedProvider)
         .set(REPOSITORIES.R_URL, description.url().toString())
-        .set(REPOSITORIES.R_CREDENTIALS_TYPE,
-             credentialsType(description.credentials()))
-        .set(REPOSITORIES.R_CREDENTIALS_USERNAME,
-             credentialsUsername(description.credentials()))
-        .set(REPOSITORIES.R_CREDENTIALS_PASSWORD,
-             credentialsPassword(description.credentials()))
+        .set(
+          REPOSITORIES.R_CREDENTIALS_TYPE,
+          credentialsType(description.credentials()))
+        .set(
+          REPOSITORIES.R_CREDENTIALS_USERNAME,
+          credentialsUsername(description.credentials()))
+        .set(
+          REPOSITORIES.R_CREDENTIALS_PASSWORD,
+          credentialsPassword(description.credentials()))
+        .set(
+          REPOSITORIES.R_SIGNING_POLICY,
+          signingPolicy(description.signingPolicy()))
         .onConflict(REPOSITORIES.R_URL)
         .doUpdate()
         .set(REPOSITORIES.R_ID, description.id())
         .set(REPOSITORIES.R_PROVIDER, selectedProvider)
         .set(REPOSITORIES.R_URL, description.url().toString())
-        .set(REPOSITORIES.R_CREDENTIALS_TYPE,
-             credentialsType(description.credentials()))
-        .set(REPOSITORIES.R_CREDENTIALS_USERNAME,
-             credentialsUsername(description.credentials()))
-        .set(REPOSITORIES.R_CREDENTIALS_PASSWORD,
-             credentialsPassword(description.credentials()));
+        .set(
+          REPOSITORIES.R_CREDENTIALS_TYPE,
+          credentialsType(description.credentials()))
+        .set(
+          REPOSITORIES.R_CREDENTIALS_USERNAME,
+          credentialsUsername(description.credentials()))
+        .set(
+          REPOSITORIES.R_CREDENTIALS_PASSWORD,
+          credentialsPassword(description.credentials()))
+        .set(
+          REPOSITORIES.R_SIGNING_POLICY,
+          signingPolicy(description.signingPolicy()));
 
     recordQuery(query);
     query.execute();
     return UNIT;
+  }
+
+  private static RepositorySigningPolicyT signingPolicy(
+    final NPRepositorySigningPolicy policy)
+  {
+    return switch (policy) {
+      case REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY ->
+        RepositorySigningPolicyT.REPOSITORY_REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY;
+      case ALLOW_UNSIGNED_COMMITS ->
+        RepositorySigningPolicyT.REPOSITORY_ALLOW_UNSIGNED_COMMITS;
+      case REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS ->
+        RepositorySigningPolicyT.REPOSITORY_REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS;
+    };
   }
 
   private static String credentialsUsername(

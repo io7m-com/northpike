@@ -47,7 +47,15 @@ import com.io7m.northpike.protocol.user.NPUCommandPlanSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandPlanValidate;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeyGet;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeyPut;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeyAssign;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeyUnassign;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeysAssigned;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
@@ -76,7 +84,10 @@ import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponsePlanGet;
 import com.io7m.northpike.protocol.user.NPUResponsePlanSearch;
 import com.io7m.northpike.protocol.user.NPUResponsePlanValidate;
+import com.io7m.northpike.protocol.user.NPUResponsePublicKeyGet;
+import com.io7m.northpike.protocol.user.NPUResponsePublicKeySearch;
 import com.io7m.northpike.protocol.user.NPUResponseRepositoryGet;
+import com.io7m.northpike.protocol.user.NPUResponseRepositoryPublicKeysAssigned;
 import com.io7m.northpike.protocol.user.NPUResponseRepositorySearch;
 import com.io7m.northpike.protocol.user.NPUResponseRolesGet;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionGet;
@@ -112,7 +123,15 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanSearch
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanSearchNext.COMMAND_PLAN_SEARCH_NEXT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanSearchPrevious.COMMAND_PLAN_SEARCH_PREVIOUS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanValidate.COMMAND_PLAN_VALIDATE;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPublicKeyGet.COMMAND_PUBLIC_KEY_GET;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPublicKeyPut.COMMAND_PUBLIC_KEY_PUT;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPublicKeySearchBegin.COMMAND_PUBLIC_KEY_SEARCH_BEGIN;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPublicKeySearchNext.COMMAND_PUBLIC_KEY_SEARCH_NEXT;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPublicKeySearchPrevious.COMMAND_PUBLIC_KEY_SEARCH_PREVIOUS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositoryGet.COMMAND_REPOSITORY_GET;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositoryPublicKeyAssign.COMMAND_REPOSITORY_PUBLIC_KEY_ASSIGN;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositoryPublicKeyUnassign.COMMAND_REPOSITORY_PUBLIC_KEY_UNASSIGN;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositoryPublicKeysAssigned.COMMAND_REPOSITORY_PUBLIC_KEYS_ASSIGNED;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositoryPut.COMMAND_REPOSITORY_PUT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositorySearchBegin.COMMAND_REPOSITORY_SEARCH_BEGIN;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositorySearchNext.COMMAND_REPOSITORY_SEARCH_NEXT;
@@ -138,7 +157,10 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseOK.RESPON
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponsePlanGet.RESPONSE_PLAN_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponsePlanSearch.RESPONSE_PLAN_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponsePlanValidate.RESPONSE_PLAN_VALIDATE;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponsePublicKeyGet.RESPONSE_PUBLIC_KEY_GET;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponsePublicKeySearch.RESPONSE_PUBLIC_KEY_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRepositoryGet.RESPONSE_REPOSITORY_GET;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRepositoryPublicKeysAssigned.RESPONSE_REPOSITORY_PUBLIC_KEYS_ASSIGNED;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRepositorySearch.RESPONSE_REPOSITORY_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRolesGet.RESPONSE_ROLES_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseToolExecutionDescriptionGet.RESPONSE_TOOL_EXECUTION_DESCRIPTION_GET;
@@ -243,6 +265,15 @@ public final class NPU1Validation
     if (response instanceof final NPUResponseAssignmentExecutionSearch r) {
       return RESPONSE_ASSIGNMENT_EXECUTION_SEARCH.convertToWire(r);
     }
+    if (response instanceof final NPUResponsePublicKeyGet r) {
+      return RESPONSE_PUBLIC_KEY_GET.convertToWire(r);
+    }
+    if (response instanceof final NPUResponsePublicKeySearch r) {
+      return RESPONSE_PUBLIC_KEY_SEARCH.convertToWire(r);
+    }
+    if (response instanceof final NPUResponseRepositoryPublicKeysAssigned r) {
+      return RESPONSE_REPOSITORY_PUBLIC_KEYS_ASSIGNED.convertToWire(r);
+    }
 
     throw new IllegalStateException("Unrecognized response: " + response);
   }
@@ -271,6 +302,31 @@ public final class NPU1Validation
     }
     if (command instanceof final NPUCommandRepositorySearchPrevious c) {
       return COMMAND_REPOSITORY_SEARCH_PREVIOUS.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandRepositoryPublicKeyAssign c) {
+      return COMMAND_REPOSITORY_PUBLIC_KEY_ASSIGN.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandRepositoryPublicKeyUnassign c) {
+      return COMMAND_REPOSITORY_PUBLIC_KEY_UNASSIGN.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandRepositoryPublicKeysAssigned c) {
+      return COMMAND_REPOSITORY_PUBLIC_KEYS_ASSIGNED.convertToWire(c);
+    }
+
+    if (command instanceof final NPUCommandPublicKeyPut c) {
+      return COMMAND_PUBLIC_KEY_PUT.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandPublicKeyGet c) {
+      return COMMAND_PUBLIC_KEY_GET.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandPublicKeySearchBegin c) {
+      return COMMAND_PUBLIC_KEY_SEARCH_BEGIN.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandPublicKeySearchNext c) {
+      return COMMAND_PUBLIC_KEY_SEARCH_NEXT.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandPublicKeySearchPrevious c) {
+      return COMMAND_PUBLIC_KEY_SEARCH_PREVIOUS.convertToWire(c);
     }
 
     if (command instanceof final NPUCommandRolesAssign c) {
@@ -423,6 +479,31 @@ public final class NPU1Validation
     if (message instanceof final NPU1CommandRepositorySearchPrevious c) {
       return COMMAND_REPOSITORY_SEARCH_PREVIOUS.convertFromWire(c);
     }
+    if (message instanceof final NPU1CommandRepositoryPublicKeyAssign c) {
+      return COMMAND_REPOSITORY_PUBLIC_KEY_ASSIGN.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandRepositoryPublicKeyUnassign c) {
+      return COMMAND_REPOSITORY_PUBLIC_KEY_UNASSIGN.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandRepositoryPublicKeysAssigned c) {
+      return COMMAND_REPOSITORY_PUBLIC_KEYS_ASSIGNED.convertFromWire(c);
+    }
+
+    if (message instanceof final NPU1CommandPublicKeyPut c) {
+      return COMMAND_PUBLIC_KEY_PUT.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandPublicKeyGet c) {
+      return COMMAND_PUBLIC_KEY_GET.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandPublicKeySearchBegin c) {
+      return COMMAND_PUBLIC_KEY_SEARCH_BEGIN.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandPublicKeySearchNext c) {
+      return COMMAND_PUBLIC_KEY_SEARCH_NEXT.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandPublicKeySearchPrevious c) {
+      return COMMAND_PUBLIC_KEY_SEARCH_PREVIOUS.convertFromWire(c);
+    }
 
     if (message instanceof final NPU1CommandAgentLabelPut c) {
       return COMMAND_AGENT_LABEL_PUT.convertFromWire(c);
@@ -542,6 +623,9 @@ public final class NPU1Validation
     if (message instanceof final NPU1ResponseRepositorySearch r) {
       return RESPONSE_REPOSITORY_SEARCH.convertFromWire(r);
     }
+    if (message instanceof final NPU1ResponseRepositoryPublicKeysAssigned r) {
+      return RESPONSE_REPOSITORY_PUBLIC_KEYS_ASSIGNED.convertFromWire(r);
+    }
 
     if (message instanceof final NPU1ResponseAgentLabelGet r) {
       return RESPONSE_AGENT_LABEL_GET.convertFromWire(r);
@@ -585,6 +669,13 @@ public final class NPU1Validation
     }
     if (message instanceof final NPU1ResponseAssignmentExecutionSearch r) {
       return RESPONSE_ASSIGNMENT_EXECUTION_SEARCH.convertFromWire(r);
+    }
+
+    if (message instanceof final NPU1ResponsePublicKeyGet r) {
+      return RESPONSE_PUBLIC_KEY_GET.convertFromWire(r);
+    }
+    if (message instanceof final NPU1ResponsePublicKeySearch r) {
+      return RESPONSE_PUBLIC_KEY_SEARCH.convertFromWire(r);
     }
 
     throw new IllegalStateException("Unrecognized message: " + message);

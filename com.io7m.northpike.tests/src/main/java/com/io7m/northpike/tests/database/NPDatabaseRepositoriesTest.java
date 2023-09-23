@@ -24,8 +24,13 @@ import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPCommitSummaryLinkedPagedType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsPutType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyAssignType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyIsAssignedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyUnassignType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeysAssignedType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
@@ -39,7 +44,9 @@ import com.io7m.northpike.model.NPCommitSearchParameters;
 import com.io7m.northpike.model.NPCommitSummaryLinked;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPSCMProviderDescription;
@@ -65,9 +72,12 @@ import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPRepositoryCredentialsNone.CREDENTIALS_NONE;
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
 @ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
@@ -133,7 +143,8 @@ public final class NPDatabaseRepositoriesTest
         scm.name(),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     putSCM.execute(scm);
@@ -161,7 +172,8 @@ public final class NPDatabaseRepositoriesTest
         new RDottedName("x.y"),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     final var ex =
@@ -223,7 +235,8 @@ public final class NPDatabaseRepositoriesTest
         scm.name(),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     putSCM.execute(scm);
@@ -299,7 +312,8 @@ public final class NPDatabaseRepositoriesTest
         scm.name(),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     putSCM.execute(scm);
@@ -374,7 +388,8 @@ public final class NPDatabaseRepositoriesTest
         scm.name(),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     putSCM.execute(scm);
@@ -449,7 +464,8 @@ public final class NPDatabaseRepositoriesTest
         scm.name(),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     putSCM.execute(scm);
@@ -521,7 +537,8 @@ public final class NPDatabaseRepositoriesTest
         scm.name(),
         UUID.randomUUID(),
         URI.create("https://www.example.com"),
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     putSCM.execute(scm);
@@ -643,7 +660,8 @@ public final class NPDatabaseRepositoriesTest
           scm.name(),
           UUID.randomUUID(),
           URI.create("https://www.example.com/%04d".formatted(index)),
-          index % 2 == 0 ? CREDENTIALS_NONE : usernamePassword
+          index % 2 == 0 ? CREDENTIALS_NONE : usernamePassword,
+          ALLOW_UNSIGNED_COMMITS
         );
 
       put.execute(description);
@@ -738,7 +756,11 @@ public final class NPDatabaseRepositoriesTest
 
     for (int index = 0; index < 100; ++index) {
       final var commit = new NPCommit(
-        new NPCommitID(repository, new NPCommitUnqualifiedID(String.format("%x", Integer.valueOf(index)))),
+        new NPCommitID(
+          repository,
+          new NPCommitUnqualifiedID(String.format(
+            "%x",
+            Integer.valueOf(index)))),
         startTime.plusHours(index).withNano(0),
         startTime.plusHours(index).minusYears(1L).withNano(0),
         index % 3 == 0 ? author1 : author0,
@@ -773,5 +795,113 @@ public final class NPDatabaseRepositoriesTest
     NPCommitGraph graph)
   {
 
+  }
+
+  /**
+   * Assigning keys to repositories works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryKeyAssign()
+    throws Exception
+  {
+    final var putSCM =
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+    final var get =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.GetType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+    final var keyPut =
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+
+    final var keysAssigned =
+      this.transaction.queries(PublicKeysAssignedType.class);
+    final var keyAssign =
+      this.transaction.queries(PublicKeyAssignType.class);
+    final var keyUnassign =
+      this.transaction.queries(PublicKeyUnassignType.class);
+    final var keyIsAssigned =
+      this.transaction.queries(PublicKeyIsAssignedType.class);
+
+    final var scm =
+      new NPSCMProviderDescription(
+        new RDottedName("x.y"),
+        "A provider.",
+        URI.create("https://www.example.com/scm")
+      );
+
+    final var description =
+      new NPRepositoryDescription(
+        scm.name(),
+        UUID.randomUUID(),
+        URI.create("https://www.example.com"),
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
+      );
+
+    putSCM.execute(scm);
+    put.execute(description);
+
+    final var expected =
+      new HashSet<NPFingerprint>();
+
+    for (int index = 0; index < 9; ++index) {
+      final var keyId =
+        new NPFingerprint("f572d396fae9206628714fb2ce00f72e94f2258" + index);
+
+      expected.add(keyId);
+
+      keyPut.execute(
+        new NPPublicKey(
+          Set.of("Example " + index),
+          keyId,
+          OffsetDateTime.now().withNano(0),
+          Optional.empty(),
+          """
+            -----BEGIN PGP PUBLIC KEY BLOCK-----
+  
+            mDMEZQ2b3BYJKwYBBAHaRw8BAQdAlyurVHs8w5+VvhGU6++xmsQCfc+35lYZro0O
+            ugEroKu0J0V4YW1wbGUgKEV4YW1wbGUpIDxleGFtcGxlQGV4YW1wbGUuY29tPoiW
+            BBMWCAA+FiEEL6HX/r/nWP/p+Rtf926L7eldjOEFAmUNm9wCGwMFCTPoWgAFCwkI
+            BwMFFQoJCAsFFgIDAQACHgECF4AACgkQ926L7eldjOEclAEA2DG7KtzQ7A6tDQP3
+            pbXiNwK8fuMXR8ALJ01z9dDsPLgA/2wlWC/TAFuG7AdAvWfEU4U6snFDayz8YPot
+            zA1rFJcI
+            =bfKj
+            -----END PGP PUBLIC KEY BLOCK-----
+                      """
+        )
+      );
+
+      assertFalse(keyIsAssigned.execute(
+        new PublicKeyIsAssignedType.Parameters(description.id(), keyId)
+      ).booleanValue());
+
+      keyAssign.execute(
+        new PublicKeyAssignType.Parameters(description.id(), keyId)
+      );
+
+      assertTrue(keyIsAssigned.execute(
+        new PublicKeyIsAssignedType.Parameters(description.id(), keyId)
+      ).booleanValue());
+
+      keyUnassign.execute(
+        new PublicKeyUnassignType.Parameters(description.id(), keyId)
+      );
+
+      assertFalse(keyIsAssigned.execute(
+        new PublicKeyIsAssignedType.Parameters(description.id(), keyId)
+      ).booleanValue());
+
+      keyAssign.execute(
+        new PublicKeyAssignType.Parameters(description.id(), keyId)
+      );
+    }
+
+    final var keys =
+      keysAssigned.execute(description.id());
+
+    assertEquals(expected, keys);
   }
 }

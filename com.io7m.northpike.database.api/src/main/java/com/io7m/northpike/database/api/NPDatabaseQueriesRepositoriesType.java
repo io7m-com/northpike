@@ -22,6 +22,7 @@ import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSearchParameters;
 import com.io7m.northpike.model.NPCommitSummary;
+import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPRepositoryDescription;
 
 import java.util.Objects;
@@ -128,6 +129,110 @@ public sealed interface NPDatabaseQueriesRepositoriesType
 
   non-sealed interface CommitsGetMostRecentlyReceivedType
     extends NPDatabaseQueryType<UUID, Optional<NPCommitSummary>>,
+    NPDatabaseQueriesRepositoriesType
+  {
+
+  }
+
+  /**
+   * Assign a key to a repository.
+   */
+
+  non-sealed interface PublicKeyAssignType
+    extends NPDatabaseQueryType<PublicKeyAssignType.Parameters, NPDatabaseUnit>,
+    NPDatabaseQueriesRepositoriesType
+  {
+    /**
+     * The parameters.
+     *
+     * @param repositoryId The repository
+     * @param key          The key
+     */
+
+    record Parameters(
+      UUID repositoryId,
+      NPFingerprint key)
+    {
+      /**
+       * The parameters.
+       */
+
+      public Parameters
+      {
+        Objects.requireNonNull(repositoryId, "repositoryId");
+        Objects.requireNonNull(key, "key");
+      }
+    }
+  }
+
+  /**
+   * Unassign a key from a repository.
+   */
+
+  non-sealed interface PublicKeyUnassignType
+    extends NPDatabaseQueryType<PublicKeyUnassignType.Parameters, NPDatabaseUnit>,
+    NPDatabaseQueriesRepositoriesType
+  {
+    /**
+     * The parameters.
+     *
+     * @param repositoryId The repository
+     * @param key          The key
+     */
+
+    record Parameters(
+      UUID repositoryId,
+      NPFingerprint key)
+    {
+      /**
+       * The parameters.
+       */
+
+      public Parameters
+      {
+        Objects.requireNonNull(repositoryId, "repositoryId");
+        Objects.requireNonNull(key, "key");
+      }
+    }
+  }
+
+  /**
+   * Check if a key is assigned to a repository.
+   */
+
+  non-sealed interface PublicKeyIsAssignedType
+    extends NPDatabaseQueryType<PublicKeyIsAssignedType.Parameters, Boolean>,
+    NPDatabaseQueriesRepositoriesType
+  {
+    /**
+     * The parameters.
+     *
+     * @param repositoryId The repository
+     * @param key          The key
+     */
+
+    record Parameters(
+      UUID repositoryId,
+      NPFingerprint key)
+    {
+      /**
+       * The parameters.
+       */
+
+      public Parameters
+      {
+        Objects.requireNonNull(repositoryId, "repositoryId");
+        Objects.requireNonNull(key, "key");
+      }
+    }
+  }
+
+  /**
+   * Retrieve the set of keys assigned to a repository.
+   */
+
+  non-sealed interface PublicKeysAssignedType
+    extends NPDatabaseQueryType<UUID, Set<NPFingerprint>>,
     NPDatabaseQueriesRepositoriesType
   {
 

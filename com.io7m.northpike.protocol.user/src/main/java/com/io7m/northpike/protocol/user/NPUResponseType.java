@@ -33,7 +33,9 @@ public sealed interface NPUResponseType
   NPUResponsePagedType,
   NPUResponsePlanGet,
   NPUResponsePlanValidate,
+  NPUResponsePublicKeyGet,
   NPUResponseRepositoryGet,
+  NPUResponseRepositoryPublicKeysAssigned,
   NPUResponseRolesGet,
   NPUResponseToolExecutionDescriptionGet,
   NPUResponseToolExecutionDescriptionValidate

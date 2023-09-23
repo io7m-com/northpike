@@ -22,6 +22,8 @@ import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.clock.NPClock;
+import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
@@ -42,8 +44,6 @@ import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
 import com.io7m.northpike.server.api.NPServerMaintenanceConfiguration;
 import com.io7m.northpike.server.api.NPServerUserConfiguration;
-import com.io7m.northpike.server.internal.clock.NPClock;
-import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.server.internal.events.NPEventService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
@@ -86,6 +86,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static com.io7m.northpike.tests.scm_repository.NPSCMRepositoriesJGitTest.unpack;
 import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -266,7 +267,8 @@ public final class NPRepositoryServiceTest
         NPSCMRepositoriesJGit.providerNameGet(),
         UUID.randomUUID(),
         reposSource,
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       ));
 
     this.transaction.commit();
@@ -309,7 +311,8 @@ public final class NPRepositoryServiceTest
         NPSCMRepositoriesJGit.providerNameGet(),
         UUID.randomUUID(),
         reposDirectory.toUri(),
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       ));
 
     this.transaction.commit();
@@ -347,7 +350,8 @@ public final class NPRepositoryServiceTest
         new RDottedName("com.io7m.unsupported"),
         UUID.randomUUID(),
         reposDirectory.toUri(),
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       ));
 
     this.transaction.commit();
@@ -387,7 +391,8 @@ public final class NPRepositoryServiceTest
         NPSCMRepositoriesJGit.providerNameGet(),
         UUID.randomUUID(),
         reposSource,
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
@@ -449,7 +454,8 @@ public final class NPRepositoryServiceTest
         NPSCMRepositoriesJGit.providerNameGet(),
         UUID.randomUUID(),
         reposSource,
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
@@ -497,7 +503,8 @@ public final class NPRepositoryServiceTest
         NPSCMRepositoriesJGit.providerNameGet(),
         UUID.randomUUID(),
         reposSource,
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)

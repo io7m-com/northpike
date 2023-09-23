@@ -33,6 +33,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.agent.main;
   requires com.io7m.northpike.agent;
   requires com.io7m.northpike.assignments;
+  requires com.io7m.northpike.clock;
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.database.postgres;
   requires com.io7m.northpike.keys;

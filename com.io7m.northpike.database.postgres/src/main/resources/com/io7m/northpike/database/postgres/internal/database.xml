@@ -143,6 +143,19 @@ CREATE TYPE repository_credentials_type_t AS ENUM(
 ]]></Statement>
 
     <Comment>
+      The repository_signing_policy_t type represents the signing policy for
+      commits in a repository.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TYPE repository_signing_policy_t AS ENUM(
+  'REPOSITORY_ALLOW_UNSIGNED_COMMITS',
+  'REPOSITORY_REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY',
+  'REPOSITORY_REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS'
+);
+]]></Statement>
+
+    <Comment>
       The repositories table stores the set of repositories used for builds. The
       server will regularly consult the repositories defined here to find new
       commits to build.
@@ -157,6 +170,7 @@ CREATE TABLE repositories (
   r_credentials_username     VARCHAR(8192),
   r_credentials_password     VARCHAR(8192),
   r_last_successful_update   TIMESTAMP WITH TIME ZONE,
+  r_signing_policy           repository_signing_policy_t    NOT NULL,
 
   -- [jooq ignore start]
   CONSTRAINT repositories_credentials_type_values_present CHECK (
@@ -967,6 +981,33 @@ CREATE TABLE public_keys (
     </Statement>
     <Statement>
       GRANT SELECT ON public_keys TO northpike_read_only
+    </Statement>
+
+    <Comment>
+      The repository_keys table associates keys with repositories.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE repository_keys (
+  rk_repository  UUID   NOT NULL,
+  rk_key         BIGINT NOT NULL,
+
+  CONSTRAINT repository_keys_primary_key
+    PRIMARY KEY (rk_repository, rk_key),
+
+  CONSTRAINT repository_keys_public_key_exists
+    FOREIGN KEY (rk_key) REFERENCES public_keys (pk_id),
+
+  CONSTRAINT repository_keys_repository_exists
+    FOREIGN KEY (rk_repository) REFERENCES repositories (r_id)
+)
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_keys TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON repository_keys TO northpike_read_only
     </Statement>
   </Schema>
 

@@ -40,6 +40,7 @@ import org.jooq.exception.DataAccessException;
 import java.net.URI;
 import java.util.List;
 
+import static com.io7m.northpike.database.postgres.internal.NPDBQRepositoryGet.signingPolicy;
 import static com.io7m.northpike.database.postgres.internal.NPDatabaseExceptions.handleDatabaseException;
 import static com.io7m.northpike.database.postgres.internal.Tables.SCM_PROVIDERS;
 import static com.io7m.northpike.database.postgres.internal.tables.Repositories.REPOSITORIES;
@@ -136,6 +137,7 @@ public final class NPDBQRepositoryList
             REPOSITORIES.R_CREDENTIALS_TYPE,
             REPOSITORIES.R_CREDENTIALS_USERNAME,
             REPOSITORIES.R_CREDENTIALS_PASSWORD,
+            REPOSITORIES.R_SIGNING_POLICY,
             SCM_PROVIDERS.SP_NAME
           ));
 
@@ -147,7 +149,8 @@ public final class NPDBQRepositoryList
               new RDottedName(record.get(SCM_PROVIDERS.SP_NAME)),
               record.get(REPOSITORIES.R_ID),
               URI.create(record.get(REPOSITORIES.R_URL)),
-              mapCredentials(record)
+              mapCredentials(record),
+              signingPolicy(record.get(REPOSITORIES.R_SIGNING_POLICY))
             );
           });
 

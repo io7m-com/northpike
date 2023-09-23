@@ -29,17 +29,24 @@ module com.io7m.northpike.scm_repository.jgit
   requires transitive com.io7m.northpike.strings;
   requires transitive com.io7m.northpike.scm_repository.spi;
 
+  requires com.io7m.northpike.clock;
+  requires com.io7m.northpike.keys;
   requires com.io7m.northpike.telemetry.api;
 
   requires com.io7m.jmulticlose.core;
   requires com.io7m.lanark.core;
   requires io.opentelemetry.api;
   requires io.opentelemetry.context;
+  requires org.bouncycastle.pg;
   requires org.eclipse.jgit.archive;
   requires org.eclipse.jgit;
+  requires org.slf4j;
 
   provides NPSCMRepositoryFactoryType
     with NPSCMRepositoriesJGit;
 
   exports com.io7m.northpike.repository.jgit;
+
+  exports com.io7m.northpike.repository.jgit.internal
+    to com.io7m.northpike.tests;
 }

@@ -27,6 +27,8 @@ import com.io7m.northpike.assignments.NPAssignmentExecution;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
 import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.assignments.NPAssignmentName;
+import com.io7m.northpike.clock.NPClock;
+import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
@@ -81,8 +83,6 @@ import com.io7m.northpike.server.internal.agents.NPAgentAuthenticated;
 import com.io7m.northpike.server.internal.agents.NPAgentTask;
 import com.io7m.northpike.server.internal.agents.NPAgentWorkItemAccepted;
 import com.io7m.northpike.server.internal.agents.NPAgentWorkItemStatusChanged;
-import com.io7m.northpike.server.internal.clock.NPClock;
-import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.server.internal.events.NPEventService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
@@ -123,6 +123,7 @@ import java.util.concurrent.Executors;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPFailureFail.FAIL;
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorApiMisuse;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPWorkItemStatus.WORK_ITEM_ACCEPTED;
@@ -270,7 +271,8 @@ public final class NPAgentTaskTest
         new RDottedName("x.y"),
         randomUUID(),
         URI.create("https://www.example.com/repos"),
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class)

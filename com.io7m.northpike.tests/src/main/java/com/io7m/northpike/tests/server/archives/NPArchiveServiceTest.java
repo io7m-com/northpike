@@ -19,6 +19,8 @@ package com.io7m.northpike.tests.server.archives;
 
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
+import com.io7m.northpike.clock.NPClock;
+import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConfiguration;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseCreate;
@@ -42,8 +44,6 @@ import com.io7m.northpike.server.api.NPServerMaintenanceConfiguration;
 import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.server.internal.archives.NPArchiveService;
 import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
-import com.io7m.northpike.server.internal.clock.NPClock;
-import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.server.internal.events.NPEventService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;

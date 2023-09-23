@@ -41,7 +41,15 @@ import com.io7m.northpike.protocol.user.NPUCommandPlanSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandPlanValidate;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeyGet;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeyPut;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeyAssign;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeyUnassign;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeysAssigned;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
@@ -115,6 +123,15 @@ public final class NPUCmd
       }
       if (command instanceof final NPUCommandRepositorySearchPrevious c) {
         return new NPUCmdRepositorySearchPrevious().execute(context, c);
+      }
+      if (command instanceof final NPUCommandRepositoryPublicKeyAssign c) {
+        return new NPUCmdRepositoryPublicKeyAssign().execute(context, c);
+      }
+      if (command instanceof final NPUCommandRepositoryPublicKeyUnassign c) {
+        return new NPUCmdRepositoryPublicKeyUnassign().execute(context, c);
+      }
+      if (command instanceof final NPUCommandRepositoryPublicKeysAssigned c) {
+        return new NPUCmdRepositoryPublicKeysAssigned().execute(context, c);
       }
 
       if (command instanceof final NPUCommandRolesAssign c) {
@@ -213,6 +230,22 @@ public final class NPUCmd
       }
       if (command instanceof final NPUCommandAssignmentExecutionSearchPrevious c) {
         return new NPUCmdAssignmentExecutionSearchPrevious().execute(context, c);
+      }
+
+      if (command instanceof final NPUCommandPublicKeyPut c) {
+        return new NPUCmdPublicKeyPut().execute(context, c);
+      }
+      if (command instanceof final NPUCommandPublicKeyGet c) {
+        return new NPUCmdPublicKeyGet().execute(context, c);
+      }
+      if (command instanceof final NPUCommandPublicKeySearchBegin c) {
+        return new NPUCmdPublicKeySearchBegin().execute(context, c);
+      }
+      if (command instanceof final NPUCommandPublicKeySearchNext c) {
+        return new NPUCmdPublicKeySearchNext().execute(context, c);
+      }
+      if (command instanceof final NPUCommandPublicKeySearchPrevious c) {
+        return new NPUCmdPublicKeySearchPrevious().execute(context, c);
       }
     }
     throw context.fail(ERROR_PROTOCOL, errorProtocol());

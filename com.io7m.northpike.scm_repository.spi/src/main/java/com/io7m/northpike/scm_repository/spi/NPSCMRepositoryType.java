@@ -17,9 +17,12 @@
 
 package com.io7m.northpike.scm_repository.spi;
 
+import com.io7m.northpike.keys.NPSignatureKeyLookupType;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPToken;
 
@@ -104,5 +107,21 @@ public interface NPSCMRepositoryType extends AutoCloseable
 
   NPSCMCommitSet commitsSinceTime(
     Optional<OffsetDateTime> since)
+    throws NPSCMRepositoryException;
+
+  /**
+   * Verify the signature on the given commit.
+   *
+   * @param commit The commit
+   * @param keys   The keys
+   *
+   * @return The fingerprint of the key that signed the commit
+   *
+   * @throws NPSCMRepositoryException On errors, or unsigned or unverified commits
+   */
+
+  NPFingerprint commitVerifySignature(
+    NPCommitUnqualifiedID commit,
+    NPSignatureKeyLookupType keys)
     throws NPSCMRepositoryException;
 }

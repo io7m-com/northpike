@@ -63,6 +63,20 @@
   [MatchAction  [WithName write]]
 ]
 
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAllRolesFrom repositories.writer public_keys.reader]]
+  [MatchObject  [WithType repositories]]
+  [MatchAction  [WithName key_assign]]
+]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAllRolesFrom repositories.writer public_keys.reader]]
+  [MatchObject  [WithType repositories]]
+  [MatchAction  [WithName key_unassign]]
+]
+
 #------------------------------------------------------------------------
 # Agent Labels
 #
@@ -165,4 +179,22 @@
   [MatchSubject [WithAnyRolesFrom assignments.executor]]
   [MatchObject  [WithType assignments]]
   [MatchAction  [WithName execute]]
+]
+
+#------------------------------------------------------------------------
+# Public Keys
+#
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom public_keys.reader]]
+  [MatchObject  [WithType public_keys]]
+  [MatchAction  [WithName read]]
+]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom public_keys.writer]]
+  [MatchObject  [WithType public_keys]]
+  [MatchAction  [WithName write]]
 ]

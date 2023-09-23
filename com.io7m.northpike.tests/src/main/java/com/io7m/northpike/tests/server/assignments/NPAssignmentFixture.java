@@ -19,11 +19,14 @@ package com.io7m.northpike.tests.server.assignments;
 
 import com.io7m.northpike.assignments.NPAssignment;
 import com.io7m.northpike.assignments.NPAssignmentName;
+import com.io7m.northpike.clock.NPClock;
+import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsGetMostRecentlyReceivedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsPutType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPArchive;
@@ -33,7 +36,7 @@ import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPHash;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
-import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPRepositorySigningPolicy;
 import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.plans.NPPlanType;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
@@ -43,8 +46,6 @@ import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryType;
 import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
 import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
-import com.io7m.northpike.server.internal.clock.NPClock;
-import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.events.NPEventService;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
 import com.io7m.northpike.server.internal.telemetry.NPTelemetryNoOp;
@@ -61,7 +62,7 @@ import com.io7m.repetoir.core.RPServiceDirectoryType;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import org.mockito.Mockito;
 
-import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.OffsetDateTime;
@@ -73,43 +74,48 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY;
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS;
 import static com.io7m.northpike.tests.scm_repository.NPSCMRepositoriesJGitTest.unpack;
 import static org.mockito.ArgumentMatchers.any;
 
 public final class NPAssignmentFixture implements AutoCloseable
 {
   private final NPTestContainers.NPDatabaseFixture dbFixture;
-  private final URI reposSource;
-  private final NPSCMRepositoriesJGit repositoryProvider;
-  private final NPRepositoryDescription repositoryDescription;
-  private final NPSCMRepositoryType repository;
-  private NPCommit commitHead;
+  private final NPSCMRepositoryType repositoryUnsigned;
+  private final NPSCMRepositoryType repositoryRequireSigned;
+  private final NPSCMRepositoryType repositoryRequireSignedSpecific;
+  private NPCommit commitHeadUnsigned;
   private RPServiceDirectory services;
   private NPDatabaseType database;
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
-  private NPAssignment assignment;
   private NPEventInterceptingService events;
   private NPAgentServiceType mockAgentService;
   private NPArchiveServiceType mockArchiveService;
+  private NPCommit commitHeadSigned;
+  private NPCommit commitHeadSignedSpecific;
+  private NPRepositoryServiceType mockRepositoryService;
 
   private NPAssignmentFixture(
     final NPTestContainers.NPDatabaseFixture inDbFixture,
-    final URI inReposSource,
-    final NPSCMRepositoriesJGit inRepositoryProvider,
-    final NPRepositoryDescription inRepositoryDescription,
-    final NPSCMRepositoryType inRepository)
+    final NPSCMRepositoryType inRepositoryUnsigned,
+    final NPSCMRepositoryType inRepositoryRequireSigned,
+    final NPSCMRepositoryType inRepositoryRequireSignedSpecific)
   {
     this.dbFixture =
       Objects.requireNonNull(inDbFixture, "fixture");
-    this.reposSource =
-      Objects.requireNonNull(inReposSource, "reposSource");
-    this.repositoryProvider =
-      Objects.requireNonNull(inRepositoryProvider, "repositoryProvider");
-    this.repositoryDescription =
-      Objects.requireNonNull(inRepositoryDescription, "repositoryDescription");
-    this.repository =
-      Objects.requireNonNull(inRepository, "repository");
+    this.repositoryUnsigned =
+      Objects.requireNonNull(inRepositoryUnsigned, "repository");
+    this.repositoryRequireSigned =
+      Objects.requireNonNull(
+        inRepositoryRequireSigned,
+        "repositoryRequireSigned");
+    this.repositoryRequireSignedSpecific =
+      Objects.requireNonNull(
+        inRepositoryRequireSignedSpecific,
+        "repositoryRequireSignedSpecific");
   }
 
   public static NPAssignmentFixture create(
@@ -117,18 +123,52 @@ public final class NPAssignmentFixture implements AutoCloseable
     final Path reposDirectory)
     throws Exception
   {
-    final var reposSource =
-      unpack("example.git.tar", reposDirectory);
+    final var reposDirectoryUnsigned =
+      reposDirectory.resolve("unsigned");
+    final var reposDirectorySigned =
+      reposDirectory.resolve("signed");
+    final var reposDirectorySignedSpecific =
+      reposDirectory.resolve("signedSpecific");
+
+    Files.createDirectories(reposDirectorySigned);
+    Files.createDirectories(reposDirectorySignedSpecific);
+    Files.createDirectories(reposDirectoryUnsigned);
+
+    final var reposSourceUnsigned =
+      unpack("example.git.tar", reposDirectoryUnsigned);
+    final var reposSourceSigned =
+      unpack("example.git.tar", reposDirectorySigned);
+    final var reposSourceSignedSpecific =
+      unpack("example.git.tar", reposDirectorySignedSpecific);
 
     final var repositoryProvider =
       new NPSCMRepositoriesJGit();
 
-    final var repositoryDescription =
+    final var repositoryDescriptionUnsigned =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
         UUID.randomUUID(),
-        reposSource,
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE
+        reposSourceUnsigned,
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
+      );
+
+    final var repositoryDescriptionRequireSigned =
+      new NPRepositoryDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        UUID.randomUUID(),
+        reposSourceSigned,
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY
+      );
+
+    final var repositoryDescriptionRequireSignedSpecific =
+      new NPRepositoryDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        UUID.randomUUID(),
+        reposSourceSignedSpecific,
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS
       );
 
     final var tmpServices =
@@ -137,20 +177,35 @@ public final class NPAssignmentFixture implements AutoCloseable
       NPStrings.class, NPStrings.create(Locale.ROOT));
     tmpServices.register(
       NPTelemetryServiceType.class, NPTelemetryNoOp.noop());
+    tmpServices.register(
+      NPClockServiceType.class, new NPClock(Clock.systemUTC()));
 
-    final var repository =
+    final var repositoryUnsigned =
       repositoryProvider.createRepository(
         tmpServices,
         reposDirectory,
-        repositoryDescription
+        repositoryDescriptionUnsigned
+      );
+
+    final var repositoryRequireSigned =
+      repositoryProvider.createRepository(
+        tmpServices,
+        reposDirectory,
+        repositoryDescriptionRequireSigned
+      );
+
+    final var repositoryRequireSignedSpecific =
+      repositoryProvider.createRepository(
+        tmpServices,
+        reposDirectory,
+        repositoryDescriptionRequireSignedSpecific
       );
 
     return new NPAssignmentFixture(
       databaseFixture,
-      reposSource,
-      repositoryProvider,
-      repositoryDescription,
-      repository
+      repositoryUnsigned,
+      repositoryRequireSigned,
+      repositoryRequireSignedSpecific
     );
   }
 
@@ -195,7 +250,7 @@ public final class NPAssignmentFixture implements AutoCloseable
       Mockito.mock(NPAgentServiceType.class);
     this.mockArchiveService =
       Mockito.mock(NPArchiveServiceType.class);
-    final var repositories =
+    this.mockRepositoryService =
       Mockito.mock(NPRepositoryServiceType.class);
 
     this.database =
@@ -220,55 +275,115 @@ public final class NPAssignmentFixture implements AutoCloseable
     this.services.register(
       NPArchiveServiceType.class, this.mockArchiveService);
     this.services.register(
-      NPRepositoryServiceType.class, repositories);
+      NPRepositoryServiceType.class, this.mockRepositoryService);
     this.services.register(
       NPPlanParserFactoryType.class, new NPPlanParsers());
     this.services.register(
       NPTXParserFactoryType.class, new NPTXParsers());
 
-    this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class)
-      .execute(new NPSCMProviderDescription(
-        this.repositoryDescription.provider(),
-        "Git",
-        URI.create("https://www.git-scm.com")
-      ));
-
-    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
-      .execute(this.repositoryDescription);
-
-    final var since =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetMostRecentlyReceivedType.class)
-        .execute(this.repositoryDescription.id())
-        .map(NPCommitSummary::timeReceived);
-
-    final var commits =
-      this.repository.commitsSinceTime(since);
-
-    this.commitHead =
-      commits.commits()
-        .stream()
-        .max(Comparator.comparing(NPCommit::timeCreated))
-        .orElseThrow();
-
-    this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class)
-      .execute(new NPDatabaseQueriesRepositoriesType.CommitsPutType.Parameters(
-        commits.commits(),
-        commits.commitGraph()
-      ));
-
+    this.createRepositories();
     this.transaction.commit();
 
-    Mockito.when(repositories.createArchiveFor(any()))
+    Mockito.when(this.mockRepositoryService.createArchiveFor(any()))
       .thenReturn(CompletableFuture.completedFuture(
         new NPArchive(
           NPToken.generate(),
-          this.commitHead.id(),
+          this.commitHeadUnsigned.id(),
           new NPHash(
             "SHA-256",
             "a939645e193074c683dd7132c65a5571e8fdb59d67cbe1c17ff7c29b5289647c"
           ),
           OffsetDateTime.now()
         )
+      ));
+  }
+
+  private void createRepositories()
+    throws Exception
+  {
+    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
+      .execute(this.repositoryRequireSignedSpecific.description());
+    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
+      .execute(this.repositoryRequireSigned.description());
+    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
+      .execute(this.repositoryUnsigned.description());
+    this.transaction.commit();
+
+    this.setupReposUnsigned();
+    this.setupReposSigned();
+    this.setupReposSignedSpecific();
+    this.transaction.commit();
+  }
+
+  private void setupReposSignedSpecific()
+    throws Exception
+  {
+    final var since =
+      this.transaction.queries(CommitsGetMostRecentlyReceivedType.class)
+        .execute(this.repositoryRequireSignedSpecific.description().id())
+        .map(NPCommitSummary::timeReceived);
+
+    final var commits =
+      this.repositoryRequireSignedSpecific.commitsSinceTime(since);
+
+    this.commitHeadSignedSpecific =
+      commits.commits()
+        .stream()
+        .max(Comparator.comparing(NPCommit::timeCreated))
+        .orElseThrow();
+
+    this.transaction.queries(CommitsPutType.class)
+      .execute(new CommitsPutType.Parameters(
+        commits.commits(),
+        commits.commitGraph()
+      ));
+  }
+
+  private void setupReposSigned()
+    throws Exception
+  {
+    final var since =
+      this.transaction.queries(CommitsGetMostRecentlyReceivedType.class)
+        .execute(this.repositoryRequireSigned.description().id())
+        .map(NPCommitSummary::timeReceived);
+
+    final var commits =
+      this.repositoryRequireSigned.commitsSinceTime(since);
+
+    this.commitHeadSigned =
+      commits.commits()
+        .stream()
+        .max(Comparator.comparing(NPCommit::timeCreated))
+        .orElseThrow();
+
+    this.transaction.queries(CommitsPutType.class)
+      .execute(new CommitsPutType.Parameters(
+        commits.commits(),
+        commits.commitGraph()
+      ));
+  }
+
+  private void setupReposUnsigned()
+    throws Exception
+  {
+    final var since =
+      this.transaction.queries(CommitsGetMostRecentlyReceivedType.class)
+        .execute(this.repositoryUnsigned.description().id())
+        .map(NPCommitSummary::timeReceived);
+
+    final var commits =
+      this.repositoryUnsigned.commitsSinceTime(since);
+
+    this.commitHeadUnsigned =
+      commits.commits()
+        .stream()
+        .max(Comparator.comparing(NPCommit::timeCreated))
+        .orElseThrow();
+
+    this.transaction.queries(CommitsPutType.class)
+      .execute(new CommitsPutType.Parameters(
+        commits.commits(),
+        commits.commitGraph()
       ));
   }
 
@@ -279,6 +394,11 @@ public final class NPAssignmentFixture implements AutoCloseable
     if (this.services != null) {
       this.services.close();
     }
+  }
+
+  public NPRepositoryServiceType mockRepositoryService()
+  {
+    return this.mockRepositoryService;
   }
 
   public NPArchiveServiceType mockArchiveService()
@@ -292,6 +412,7 @@ public final class NPAssignmentFixture implements AutoCloseable
   }
 
   public NPAssignment createAssignmentWithPlan(
+    final NPRepositorySigningPolicy signingPolicy,
     final NPPlanType plan)
     throws Exception
   {
@@ -301,18 +422,36 @@ public final class NPAssignmentFixture implements AutoCloseable
         new NPPlanSerializers()
       ));
 
-    this.assignment =
-      new NPAssignment(
-        NPAssignmentName.of("com.io7m.a1"),
-        this.repositoryDescription.id(),
-        plan.identifier()
-      );
+    final var assignment =
+      switch (signingPolicy) {
+        case REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY -> {
+          yield new NPAssignment(
+            NPAssignmentName.of("com.io7m.a1"),
+            this.repositoryRequireSigned.description().id(),
+            plan.identifier()
+          );
+        }
+        case ALLOW_UNSIGNED_COMMITS -> {
+          yield new NPAssignment(
+            NPAssignmentName.of("com.io7m.a1"),
+            this.repositoryUnsigned.description().id(),
+            plan.identifier()
+          );
+        }
+        case REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS -> {
+          yield new NPAssignment(
+            NPAssignmentName.of("com.io7m.a1"),
+            this.repositoryRequireSignedSpecific.description().id(),
+            plan.identifier()
+          );
+        }
+      };
 
     this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class)
-      .execute(this.assignment);
+      .execute(assignment);
 
     this.transaction.commit();
-    return this.assignment;
+    return assignment;
   }
 
   public RPServiceDirectoryType services()
@@ -320,13 +459,23 @@ public final class NPAssignmentFixture implements AutoCloseable
     return this.services;
   }
 
-  public NPCommitID commit()
+  public NPCommitID commitUnsigned()
   {
-    return this.commitHead.id();
+    return this.commitHeadUnsigned.id();
   }
 
   public Queue<NPEventType> events()
   {
     return this.events.eventQueue();
+  }
+
+  public NPCommitID commitSigned()
+  {
+    return this.commitHeadSigned.id();
+  }
+
+  public NPCommitID commitSignedSpecific()
+  {
+    return this.commitHeadSignedSpecific.id();
   }
 }

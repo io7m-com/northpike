@@ -86,6 +86,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.io7m.northpike.model.NPRepositoryCredentialsNone.CREDENTIALS_NONE;
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.security.NPSecRole.LOGIN;
 import static com.io7m.northpike.model.security.NPSecRole.REPOSITORIES_READER;
@@ -373,7 +374,8 @@ public final class NPUserClientTest
         NPSCMRepositoriesJGit.providerNameGet(),
         randomUUID(),
         URI.create("http://www.example.com"),
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     this.userClient.execute(
@@ -417,7 +419,8 @@ public final class NPUserClientTest
         NPSCMRepositoriesJGit.providerNameGet(),
         randomUUID(),
         URI.create("http://www.example.com/0"),
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     final var repository1 =
@@ -425,7 +428,8 @@ public final class NPUserClientTest
         NPSCMRepositoriesJGit.providerNameGet(),
         randomUUID(),
         URI.create("http://www.example.com/1"),
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     final var repository2 =
@@ -433,7 +437,8 @@ public final class NPUserClientTest
         NPSCMRepositoriesJGit.providerNameGet(),
         randomUUID(),
         URI.create("http://www.example.com/2"),
-        CREDENTIALS_NONE
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
     this.userClient.execute(

@@ -18,6 +18,7 @@
 package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.jmulticlose.core.CloseableType;
+import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
@@ -41,7 +42,6 @@ import com.io7m.northpike.protocol.agent.NPAResponseWorkOffered;
 import com.io7m.northpike.protocol.agent.NPAResponseWorkSent;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerExceptions;
-import com.io7m.northpike.server.internal.clock.NPClockServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;

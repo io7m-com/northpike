@@ -15,12 +15,14 @@
   <entry key="downloading">Downloading {0}</entry>
   <entry key="entry">Entry</entry>
   <entry key="error_authentication">Authentication failed.</entry>
+  <entry key="error_compilation_failed">Compilation failed.</entry>
   <entry key="error_duplicate">Object already exists.</entry>
   <entry key="error_duplicate_deleted">A previously deleted object exists with this ID.</entry>
   <entry key="error_format_unsupported">Unsupported format.</entry>
   <entry key="error_hash_mismatch">Hash value mismatch.</entry>
   <entry key="error_http">HTTP server error.</entry>
   <entry key="error_io">I/O error.</entry>
+  <entry key="error_key_not_assigned">The current commit is signed with a key that has not been assigned to the repository.</entry>
   <entry key="error_no_tool_execution">A task does not have a defined tool execution.</entry>
   <entry key="error_nonexistent">Object does not exist.</entry>
   <entry key="error_not_connected">Not connected.</entry>
@@ -42,8 +44,6 @@
   <entry key="error_work_item_not_created">This work item is not in the CREATED state.</entry>
   <entry key="error_work_item_not_executed">You cannot report status for work item that you did not execute.</entry>
   <entry key="error_work_item_not_yours">This work item has a different selected agent.</entry>
-  <entry key="error_compilation_failed">Compilation failed.</entry>
-  <entry key="suggest_compilation_failed">Use the validation API to check data before submitting it.</entry>
   <entry key="expected">Expected</entry>
   <entry key="file">File</entry>
   <entry key="format">Format</entry>
@@ -54,16 +54,19 @@
   <entry key="http_message">HTTP Message</entry>
   <entry key="http_status">HTTP Status</entry>
   <entry key="installing">Installing {0}</entry>
+  <entry key="key">Key</entry>
   <entry key="limit">Limit</entry>
   <entry key="location_numbered">Location {0}</entry>
   <entry key="offset">Offset</entry>
   <entry key="plan">Plan</entry>
   <entry key="plan_version">Plan Version</entry>
+  <entry key="public_key">Public Key</entry>
   <entry key="pull">Pull</entry>
   <entry key="received">Received</entry>
   <entry key="repository">Repository</entry>
   <entry key="scm_provider">SCM Provider</entry>
   <entry key="source">Source</entry>
+  <entry key="suggest_compilation_failed">Use the validation API to check data before submitting it.</entry>
   <entry key="target">Target</entry>
   <entry key="task">Task</entry>
   <entry key="tool_execution">Tool Execution</entry>
@@ -73,6 +76,7 @@
   <entry key="uri">URI</entry>
   <entry key="user">User</entry>
   <entry key="user_id">User ID</entry>
+  <entry key="verify">Verify</entry>
 
   <entry key="type_check_undefined_variable">Undefined variable.</entry>
   <entry key="type_check_expression">An expression did not have the expected type.</entry>

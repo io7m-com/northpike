@@ -26,25 +26,28 @@ import java.util.UUID;
 /**
  * A repository.
  *
- * @param provider             The SCM provider
- * @param id                   The repository ID
- * @param url                  The repository URL
- * @param credentials          The credentials
+ * @param provider      The SCM provider
+ * @param id            The repository ID
+ * @param url           The repository URL
+ * @param credentials   The credentials
+ * @param signingPolicy The signing policy
  */
 
 public record NPRepositoryDescription(
   RDottedName provider,
   UUID id,
   URI url,
-  NPRepositoryCredentialsType credentials)
+  NPRepositoryCredentialsType credentials,
+  NPRepositorySigningPolicy signingPolicy)
 {
   /**
    * A repository.
    *
-   * @param provider             The SCM provider
-   * @param id                   The repository ID
-   * @param url                  The repository URL
-   * @param credentials          The credentials
+   * @param provider      The SCM provider
+   * @param id            The repository ID
+   * @param url           The repository URL
+   * @param credentials   The credentials
+   * @param signingPolicy The signing policy
    */
 
   public NPRepositoryDescription
@@ -53,6 +56,7 @@ public record NPRepositoryDescription(
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(url, "url");
     Objects.requireNonNull(credentials, "credentials");
+    Objects.requireNonNull(signingPolicy, "signingPolicy");
 
     url = url.normalize();
   }

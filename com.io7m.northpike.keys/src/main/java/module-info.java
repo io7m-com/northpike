@@ -25,7 +25,9 @@ module com.io7m.northpike.keys
 
   requires com.io7m.northpike.model;
 
+  requires com.io7m.jaffirm.core;
   requires org.bouncycastle.pg;
+  requires org.slf4j;
 
   exports com.io7m.northpike.keys;
 }

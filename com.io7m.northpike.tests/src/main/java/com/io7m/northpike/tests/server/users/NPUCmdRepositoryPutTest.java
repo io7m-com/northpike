@@ -47,6 +47,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorSecurityPolicyDenied;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
@@ -128,7 +129,8 @@ public final class NPUCmdRepositoryPutTest
           new NPRepositoryCredentialsUsernamePassword(
             "user",
             "pass"
-          )
+          ),
+          ALLOW_UNSIGNED_COMMITS
         )
       );
 
@@ -163,7 +165,8 @@ public final class NPUCmdRepositoryPutTest
           new NPRepositoryCredentialsUsernamePassword(
             "user",
             "pass"
-          )
+          ),
+          ALLOW_UNSIGNED_COMMITS
         )
       );
 
@@ -208,7 +211,8 @@ public final class NPUCmdRepositoryPutTest
           new NPRepositoryCredentialsUsernamePassword(
             "user",
             "pass"
-          )
+          ),
+          ALLOW_UNSIGNED_COMMITS
         )
       );
 

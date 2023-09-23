@@ -19,9 +19,11 @@ package com.io7m.northpike.database.postgres.internal;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.GetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
+import com.io7m.northpike.database.postgres.internal.enums.RepositorySigningPolicyT;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositorySigningPolicy;
 import org.jooq.DSLContext;
 
 import java.net.URI;
@@ -75,6 +77,7 @@ public final class NPDBQRepositoryGet
           REPOSITORIES.R_CREDENTIALS_TYPE,
           REPOSITORIES.R_CREDENTIALS_USERNAME,
           REPOSITORIES.R_CREDENTIALS_PASSWORD,
+          REPOSITORIES.R_SIGNING_POLICY,
           SCM_PROVIDERS.SP_NAME
         ).from(REPOSITORIES)
         .join(SCM_PROVIDERS)
@@ -105,7 +108,21 @@ public final class NPDBQRepositoryGet
       new RDottedName(r.get(SCM_PROVIDERS.SP_NAME)),
       r.get(REPOSITORIES.R_ID),
       URI.create(r.get(REPOSITORIES.R_URL)),
-      credentials
+      credentials,
+      signingPolicy(r.get(REPOSITORIES.R_SIGNING_POLICY))
     );
+  }
+
+  static NPRepositorySigningPolicy signingPolicy(
+    final RepositorySigningPolicyT r)
+  {
+    return switch (r) {
+      case REPOSITORY_ALLOW_UNSIGNED_COMMITS ->
+        NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
+      case REPOSITORY_REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY ->
+        NPRepositorySigningPolicy.REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY;
+      case REPOSITORY_REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS ->
+        NPRepositorySigningPolicy.REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS;
+    };
   }
 }

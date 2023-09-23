@@ -14,11 +14,27 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/**
- * Continuous integration (Server)
- */
 
-@Version("1.0.0")
-package com.io7m.northpike.server.internal.clock;
+package com.io7m.northpike.tests.arbitraries;
 
-import org.osgi.annotation.versioning.Version;
+import com.io7m.northpike.model.NPFingerprint;
+import net.jqwik.api.Arbitraries;
+
+import java.util.HexFormat;
+
+public final class NPArbFingerprint extends NPArbAbstract<NPFingerprint>
+{
+  public NPArbFingerprint()
+  {
+    super(
+      NPFingerprint.class,
+      () -> {
+        return Arbitraries.bytes()
+          .array(byte[].class)
+          .ofSize(20)
+          .map(x -> HexFormat.of().formatHex(x))
+          .map(NPFingerprint::new);
+      }
+    );
+  }
+}

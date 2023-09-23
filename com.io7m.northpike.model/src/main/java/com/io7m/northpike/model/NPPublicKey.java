@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.model;
 
+import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -59,5 +60,25 @@ public record NPPublicKey(
     if (userIDs.isEmpty()) {
       throw new NPValidityException("Keys must have at least one user ID");
     }
+  }
+
+  /**
+   * @param clock The clock
+   *
+   * @return {@code true} if this key is expired based on the given clock
+   */
+
+  public boolean isExpired(
+    final Clock clock)
+  {
+    if (this.timeExpires.isPresent()) {
+      final var expires =
+        this.timeExpires.get();
+      final var timeNow =
+        OffsetDateTime.now(clock);
+
+      return timeNow.isAfter(expires);
+    }
+    return false;
   }
 }

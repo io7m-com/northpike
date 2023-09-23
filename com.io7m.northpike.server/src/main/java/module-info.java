@@ -30,8 +30,10 @@ module com.io7m.northpike.server
   requires static org.osgi.annotation.versioning;
 
   requires com.io7m.northpike.assignments;
+  requires com.io7m.northpike.clock;
   requires com.io7m.northpike.connections;
   requires com.io7m.northpike.database.api;
+  requires com.io7m.northpike.keys;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.plans.compiler;
   requires com.io7m.northpike.plans.parsers;
@@ -83,7 +85,6 @@ module com.io7m.northpike.server
   exports com.io7m.northpike.server.internal.agents to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.archives to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.assignments to com.io7m.northpike.tests;
-  exports com.io7m.northpike.server.internal.clock to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.configuration to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.events to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.metrics to com.io7m.northpike.tests;

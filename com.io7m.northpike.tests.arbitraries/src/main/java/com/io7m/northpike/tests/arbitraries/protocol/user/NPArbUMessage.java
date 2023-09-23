@@ -45,7 +45,15 @@ import com.io7m.northpike.protocol.user.NPUCommandPlanSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandPlanValidate;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeyGet;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeyPut;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeyAssign;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeyUnassign;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeysAssigned;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
@@ -72,7 +80,10 @@ import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponsePlanGet;
 import com.io7m.northpike.protocol.user.NPUResponsePlanSearch;
 import com.io7m.northpike.protocol.user.NPUResponsePlanValidate;
+import com.io7m.northpike.protocol.user.NPUResponsePublicKeyGet;
+import com.io7m.northpike.protocol.user.NPUResponsePublicKeySearch;
 import com.io7m.northpike.protocol.user.NPUResponseRepositoryGet;
+import com.io7m.northpike.protocol.user.NPUResponseRepositoryPublicKeysAssigned;
 import com.io7m.northpike.protocol.user.NPUResponseRepositorySearch;
 import com.io7m.northpike.protocol.user.NPUResponseRolesGet;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionGet;
@@ -121,7 +132,15 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUCommandPlanSearchNext.class,
               NPUCommandPlanSearchPrevious.class,
               NPUCommandPlanValidate.class,
+              NPUCommandPublicKeyGet.class,
+              NPUCommandPublicKeyPut.class,
+              NPUCommandPublicKeySearchBegin.class,
+              NPUCommandPublicKeySearchNext.class,
+              NPUCommandPublicKeySearchPrevious.class,
               NPUCommandRepositoryGet.class,
+              NPUCommandRepositoryPublicKeyAssign.class,
+              NPUCommandRepositoryPublicKeyUnassign.class,
+              NPUCommandRepositoryPublicKeysAssigned.class,
               NPUCommandRepositoryPut.class,
               NPUCommandRepositorySearchBegin.class,
               NPUCommandRepositorySearchNext.class,
@@ -147,7 +166,10 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUResponsePlanGet.class,
               NPUResponsePlanSearch.class,
               NPUResponsePlanValidate.class,
+              NPUResponsePublicKeyGet.class,
+              NPUResponsePublicKeySearch.class,
               NPUResponseRepositoryGet.class,
+              NPUResponseRepositoryPublicKeysAssigned.class,
               NPUResponseRepositorySearch.class,
               NPUResponseRolesGet.class,
               NPUResponseToolExecutionDescriptionGet.class,
