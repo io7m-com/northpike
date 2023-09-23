@@ -32,6 +32,7 @@ import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecute;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionWorkItems;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentGet;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentPut;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchBegin;
@@ -73,6 +74,7 @@ import com.io7m.northpike.protocol.user.NPUResponseAgentLabelGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAgentSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAssignmentExecutionSearch;
+import com.io7m.northpike.protocol.user.NPUResponseAssignmentExecutionWorkItems;
 import com.io7m.northpike.protocol.user.NPUResponseAssignmentGet;
 import com.io7m.northpike.protocol.user.NPUResponseAssignmentSearch;
 import com.io7m.northpike.protocol.user.NPUResponseError;
@@ -119,6 +121,7 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUCommandAssignmentExecutionSearchBegin.class,
               NPUCommandAssignmentExecutionSearchNext.class,
               NPUCommandAssignmentExecutionSearchPrevious.class,
+              NPUCommandAssignmentExecutionWorkItems.class,
               NPUCommandAssignmentGet.class,
               NPUCommandAssignmentPut.class,
               NPUCommandAssignmentSearchBegin.class,
@@ -159,6 +162,7 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUResponseAgentLabelSearch.class,
               NPUResponseAgentSearch.class,
               NPUResponseAssignmentExecutionSearch.class,
+              NPUResponseAssignmentExecutionWorkItems.class,
               NPUResponseAssignmentGet.class,
               NPUResponseAssignmentSearch.class,
               NPUResponseError.class,

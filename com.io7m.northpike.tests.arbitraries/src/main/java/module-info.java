@@ -35,6 +35,9 @@ open module com.io7m.northpike.tests.arbitraries
   uses ArbitraryProvider;
 
   provides ArbitraryProvider with
+    com.io7m.northpike.tests.arbitraries.NPArbWorkItem,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAssignmentExecutionWorkItems,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentExecutionWorkItems,
     com.io7m.northpike.tests.arbitraries.NPArbAgentDescription,
     com.io7m.northpike.tests.arbitraries.NPArbAgentID,
     com.io7m.northpike.tests.arbitraries.NPArbAgentLabel,

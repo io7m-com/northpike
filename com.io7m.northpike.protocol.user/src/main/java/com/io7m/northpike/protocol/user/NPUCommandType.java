@@ -37,6 +37,7 @@ public sealed interface NPUCommandType<R extends NPUResponseType>
   NPUCommandAssignmentExecute,
   NPUCommandAssignmentExecutionSearchNext,
   NPUCommandAssignmentExecutionSearchPrevious,
+  NPUCommandAssignmentExecutionWorkItems,
   NPUCommandAssignmentGet,
   NPUCommandAssignmentPut,
   NPUCommandAssignmentSearchNext,

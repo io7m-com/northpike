@@ -15,35 +15,28 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries;
 
-import java.util.UUID;
+import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.NPWorkItem;
+import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.NPWorkItemStatus;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-/**
- * The type of responses.
- */
-
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseAssignmentExecutionWorkItems,
-  NPUResponseAssignmentGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponsePublicKeyGet,
-  NPUResponseRepositoryGet,
-  NPUResponseRepositoryPublicKeysAssigned,
-  NPUResponseRolesGet,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate
+public final class NPArbWorkItem extends NPArbAbstract<NPWorkItem>
 {
-  /**
-   * @return The ID of the message to which this message correlates
-   */
-
-  UUID correlationID();
+  public NPArbWorkItem()
+  {
+    super(
+      NPWorkItem.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.defaultFor(NPWorkItemIdentifier.class),
+          Arbitraries.defaultFor(NPAgentID.class).optional(),
+          Arbitraries.defaultFor(NPWorkItemStatus.class)
+        ).as(NPWorkItem::new);
+      }
+    );
+  }
 }

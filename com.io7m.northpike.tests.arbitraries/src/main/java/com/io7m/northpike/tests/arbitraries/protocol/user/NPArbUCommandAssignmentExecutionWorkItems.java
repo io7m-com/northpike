@@ -15,35 +15,28 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries.protocol.user;
+
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionWorkItems;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
 import java.util.UUID;
 
-/**
- * The type of responses.
- */
-
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseAssignmentExecutionWorkItems,
-  NPUResponseAssignmentGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponsePublicKeyGet,
-  NPUResponseRepositoryGet,
-  NPUResponseRepositoryPublicKeysAssigned,
-  NPUResponseRolesGet,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate
+public final class NPArbUCommandAssignmentExecutionWorkItems
+  extends NPArbAbstract<NPUCommandAssignmentExecutionWorkItems>
 {
-  /**
-   * @return The ID of the message to which this message correlates
-   */
-
-  UUID correlationID();
+  public NPArbUCommandAssignmentExecutionWorkItems()
+  {
+    super(
+      NPUCommandAssignmentExecutionWorkItems.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.create(UUID::randomUUID)
+        ).as(NPUCommandAssignmentExecutionWorkItems::new);
+      }
+    );
+  }
 }

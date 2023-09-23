@@ -17,33 +17,39 @@
 
 package com.io7m.northpike.protocol.user;
 
+
+import com.io7m.northpike.model.NPWorkItem;
+
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
- * The type of responses.
+ * An assignment execution retrieval.
+ *
+ * @param messageID     The message ID
+ * @param correlationID The command that prompted this response
+ * @param results       The results
  */
 
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseAssignmentExecutionWorkItems,
-  NPUResponseAssignmentGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponsePublicKeyGet,
-  NPUResponseRepositoryGet,
-  NPUResponseRepositoryPublicKeysAssigned,
-  NPUResponseRolesGet,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate
+public record NPUResponseAssignmentExecutionWorkItems(
+  UUID messageID,
+  UUID correlationID,
+  Set<NPWorkItem> results)
+  implements NPUResponseType
 {
   /**
-   * @return The ID of the message to which this message correlates
+   * An assignment execution retrieval.
+   *
+   * @param messageID     The message ID
+   * @param correlationID The command that prompted this response
+   * @param results       The results
    */
 
-  UUID correlationID();
+  public NPUResponseAssignmentExecutionWorkItems
+  {
+    Objects.requireNonNull(messageID, "messageID");
+    Objects.requireNonNull(correlationID, "correlationID");
+    Objects.requireNonNull(results, "results");
+  }
 }

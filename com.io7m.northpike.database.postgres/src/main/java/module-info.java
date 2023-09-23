@@ -71,6 +71,7 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionLogAdd,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionLogList,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionPut,
+    com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionWorkItems,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionsCancelAll,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionsSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentGet,

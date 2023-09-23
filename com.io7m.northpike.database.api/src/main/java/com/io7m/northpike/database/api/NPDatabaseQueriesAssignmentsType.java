@@ -30,6 +30,7 @@ import com.io7m.northpike.model.NPWorkItemIdentifier;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -183,6 +184,17 @@ public sealed interface NPDatabaseQueriesAssignmentsType
 
   non-sealed interface ExecutionsCancelAllType
     extends NPDatabaseQueryType<NPDatabaseUnit, Long>,
+    NPDatabaseQueriesAssignmentsType
+  {
+
+  }
+
+  /**
+   * Obtain the work items in the given execution.
+   */
+
+  non-sealed interface ExecutionWorkItemsType
+    extends NPDatabaseQueryType<UUID, Set<NPWorkItem>>,
     NPDatabaseQueriesAssignmentsType
   {
 

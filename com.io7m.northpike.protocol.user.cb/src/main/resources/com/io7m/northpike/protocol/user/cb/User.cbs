@@ -366,6 +366,33 @@
   [field pageSize cb:IntegerUnsigned32]
 ]
 
+[documentation NPU1WorkItemStatus "The status of a work item."]
+[variant NPU1WorkItemStatus
+  [case Created]
+  [case Accepted]
+  [case Running]
+  [case Succeeded]
+  [case Failed]
+]
+
+[documentation NPU1WorkItemIdentifier "A work item identifier."]
+[record NPU1WorkItemIdentifier
+  [documentation execution "The assignment execution."]
+  [field execution cb:UUID]
+  [documentation planElement "The plan element name."]
+  [field planElement cb:String]
+]
+
+[documentation NPU1WorkItem "A work item within an assignment execution."]
+[record NPU1WorkItem
+  [documentation identifier "A work item identifier."]
+  [field identifier NPU1WorkItemIdentifier]
+  [documentation selectedAgent "The agent selected, if any."]
+  [field selectedAgent [cb:Option cb:UUID]]
+  [documentation status "The work item status."]
+  [field status NPU1WorkItemStatus]
+]
+
 ;
 ; Commands
 ;
@@ -742,6 +769,14 @@
   [field messageId cb:UUID]
 ]
 
+[documentation NPU1CommandAssignmentExecutionWorkItems "Get the work items for the given execution."]
+[record NPU1CommandAssignmentExecutionWorkItems
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation execution "The assignment execution."]
+  [field execution cb:UUID]
+]
+
 ;
 ; Public Keys
 ;
@@ -982,6 +1017,16 @@
   [field results [NPU1Page NPU1AssignmentExecutionState]]
 ]
 
+[documentation NPU1ResponseAssignmentExecutionWorkItems "A response to NPU1CommandAssignmentExecutionWorkItems."]
+[record NPU1ResponseAssignmentExecutionWorkItems
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [cb:List NPU1WorkItem]]
+]
+
 [documentation NPU1ResponsePublicKeyGet "A response to NPU1CommandPublicKeyGet."]
 [record NPU1ResponsePublicKeyGet
   [documentation messageId "The message ID"]
@@ -1021,6 +1066,7 @@
       NPU1CommandAssignmentExecutionSearchBegin
       NPU1CommandAssignmentExecutionSearchNext
       NPU1CommandAssignmentExecutionSearchPrevious
+      NPU1CommandAssignmentExecutionWorkItems
       NPU1CommandAssignmentGet
       NPU1CommandAssignmentPut
       NPU1CommandAssignmentSearchBegin
@@ -1061,6 +1107,7 @@
       NPU1ResponseAgentLabelSearch
       NPU1ResponseAgentSearch
       NPU1ResponseAssignmentExecutionSearch
+      NPU1ResponseAssignmentExecutionWorkItems
       NPU1ResponseAssignmentGet
       NPU1ResponseAssignmentSearch
       NPU1ResponseError

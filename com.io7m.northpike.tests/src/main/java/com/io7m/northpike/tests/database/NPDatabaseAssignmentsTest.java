@@ -42,6 +42,9 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.Executio
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogListType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionWorkItemsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsPutType;
@@ -436,9 +439,11 @@ public final class NPDatabaseAssignmentsTest
       this.transaction.queries(CommitsPutType.class);
 
     final var workPut =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.WorkItemPutType.class);
+      this.transaction.queries(WorkItemPutType.class);
     final var workGet =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.WorkItemGetType.class);
+      this.transaction.queries(WorkItemGetType.class);
+    final var workItemsGet =
+      this.transaction.queries(ExecutionWorkItemsType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -531,9 +536,9 @@ public final class NPDatabaseAssignmentsTest
         new RDottedName("some.task")
       );
 
+    NPWorkItem workItem = null;
     for (final var state : NPWorkItemStatus.values()) {
-      final var workItem =
-        new NPWorkItem(identifier, Optional.of(agent.id()), state);
+      workItem = new NPWorkItem(identifier, Optional.of(agent.id()), state);
 
       workPut.execute(workItem);
       assertEquals(
@@ -541,6 +546,11 @@ public final class NPDatabaseAssignmentsTest
         workGet.execute(identifier).orElseThrow()
       );
     }
+
+    final var items =
+      workItemsGet.execute(execution.id());
+
+    assertEquals(Set.of(workItem), items);
   }
 
   /**
