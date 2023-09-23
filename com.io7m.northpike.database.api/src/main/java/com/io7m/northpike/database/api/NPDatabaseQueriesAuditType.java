@@ -16,42 +16,35 @@
 
 package com.io7m.northpike.database.api;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-
-import static java.time.ZoneOffset.UTC;
+import com.io7m.northpike.model.NPAuditEvent;
+import com.io7m.northpike.model.NPAuditSearchParameters;
 
 /**
- * The base type of query interfaces.
+ * The database queries involving the audit log.
  */
 
-public sealed interface NPDatabaseQueriesType
-  permits NPDatabaseQueriesAgentsType,
-  NPDatabaseQueriesArchivesType,
-  NPDatabaseQueriesAssignmentsType,
-  NPDatabaseQueriesAuditType,
-  NPDatabaseQueriesMaintenanceType,
-  NPDatabaseQueriesPlansType,
-  NPDatabaseQueriesPublicKeysType,
-  NPDatabaseQueriesRepositoriesType,
-  NPDatabaseQueriesSCMProvidersType,
-  NPDatabaseQueriesToolsType,
-  NPDatabaseQueriesUsersType
+public sealed interface NPDatabaseQueriesAuditType
+  extends NPDatabaseQueriesType
 {
   /**
-   * The earliest possible time considered by the server
+   * Add an audit event.
    */
 
-  OffsetDateTime EARLIEST =
-    LocalDateTime.ofEpochSecond(0L, 0, UTC)
-      .atOffset(UTC);
+  non-sealed interface EventAddType
+    extends NPDatabaseQueryType<NPAuditEvent, NPDatabaseUnit>,
+    NPDatabaseQueriesAuditType
+  {
+
+  }
 
   /**
-   * @return The earliest possible time considered by the server
+   * Search for audit events.
    */
 
-  static OffsetDateTime earliest()
+  non-sealed interface EventSearchType
+    extends NPDatabaseQueryType<NPAuditSearchParameters, NPAuditPagedType>,
+    NPDatabaseQueriesAuditType
   {
-    return EARLIEST;
+
   }
 }

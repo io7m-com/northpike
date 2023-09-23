@@ -77,6 +77,8 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentGet,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentPut,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentSearch,
+    com.io7m.northpike.database.postgres.internal.NPDBQAuditEventAdd,
+    com.io7m.northpike.database.postgres.internal.NPDBQAuditEventSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQMaintenanceDeleteExpiredArchives,
     com.io7m.northpike.database.postgres.internal.NPDBQMaintenanceUpdateUserRoles,
     com.io7m.northpike.database.postgres.internal.NPDBQPlanGet,

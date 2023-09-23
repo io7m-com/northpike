@@ -101,6 +101,36 @@ CREATE TABLE users (
     </Statement>
 
     <Comment>
+      The audit table stores the audit log.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE audit (
+  au_id      BIGINT                   NOT NULL GENERATED ALWAYS AS IDENTITY,
+  au_time    TIMESTAMP WITH TIME ZONE NOT NULL,
+  au_user    UUID                     NOT NULL,
+  au_type    TEXT                     NOT NULL,
+
+  -- [jooq ignore start]
+  au_data    HSTORE                   NOT NULL,
+  -- [jooq ignore stop]
+
+  CONSTRAINT audit_primary_key
+    PRIMARY KEY (au_id),
+
+  CONSTRAINT audit_user_exists
+    FOREIGN KEY (au_user) REFERENCES users (id)
+)
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON audit TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON audit TO northpike_read_only
+    </Statement>
+
+    <Comment>
       The scm_providers table stores definitions for the available SCM
       providers.
     </Comment>
