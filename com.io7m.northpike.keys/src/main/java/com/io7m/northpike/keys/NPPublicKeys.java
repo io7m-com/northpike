@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -207,7 +208,10 @@ public final class NPPublicKeys
         output.write(encoded);
         output.flush();
       }
-      return outBytes.toString(UTF_8);
+      return outBytes.toString(UTF_8)
+        .lines()
+        .map(String::trim)
+        .collect(Collectors.joining("\r\n"));
     }
   }
 }

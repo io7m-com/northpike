@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +36,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class NPPublicKeysTest
 {
+  private static final String KEY_TEXT = """
+    -----BEGIN PGP PUBLIC KEY BLOCK-----
+    Version: BCPG v1.76.0
+
+    mDMEY7F/wRYJKwYBBAHaRw8BAQdA5iaeazlPKvs/ThTquJ4lYrjTwI9ALsyTu3/V
+    mWUYSfm0Lk1hcmsgUmF5bnNmb3JkICgyMDIzIHBlcnNvbmFsKSA8bWFya0Bpbzdt
+    LmNvbT6IlgQTFggAPhYhBKQ4pzfHcXhxlc/BZvhDUfcskYR2BQJjsYAuAhsDBQkB
+    4SmgBQsJCAcDBRUKCQgLBRYCAwEAAh4BAheAAAoJEPhDUfcskYR2sZUBAJ02ki3d
+    GSe+MjjDKXLOaS+8amInjuASuPF2LPbfDMWhAP9VxsqMpyIiseO0o0TeJze8PT58
+    33+QQL5aV5ZSUOAuB7Q+TWFyayBSYXluc2ZvcmQgKDIwMjMgcGVyc29uYWwgW0dp
+    dEh1YiBzdWJ1aWRdKSA8Y29kZUBpbzdtLmNvbT6IlgQTFggAPhYhBKQ4pzfHcXhx
+    lc/BZvhDUfcskYR2BQJjsX//AhsDBQkB4SmgBQsJCAcDBRUKCQgLBRYCAwEAAh4B
+    AheAAAoJEPhDUfcskYR2lGIBAJ8Nwbhntp+YhLYJM0j3jFDt7+S3QgnyAsIiUaHa
+    /wrmAQDv1ZAVG5D1D6UYlgDSHBFzoijRXb3XBvwTRogQM/zJCw==
+    =Ri3k
+    -----END PGP PUBLIC KEY BLOCK-----
+    """;
+
   @Test
   public void testDecodeSecret()
     throws Exception
@@ -94,23 +113,13 @@ public final class NPPublicKeysTest
       Optional.of(OffsetDateTime.parse("2024-01-01T12:00:33Z")),
       k.timeExpires()
     );
-    assertEquals("""
-                   -----BEGIN PGP PUBLIC KEY BLOCK-----
-                   Version: BCPG v1.76.0
 
-                   mDMEY7F/wRYJKwYBBAHaRw8BAQdA5iaeazlPKvs/ThTquJ4lYrjTwI9ALsyTu3/V
-                   mWUYSfm0Lk1hcmsgUmF5bnNmb3JkICgyMDIzIHBlcnNvbmFsKSA8bWFya0Bpbzdt
-                   LmNvbT6IlgQTFggAPhYhBKQ4pzfHcXhxlc/BZvhDUfcskYR2BQJjsYAuAhsDBQkB
-                   4SmgBQsJCAcDBRUKCQgLBRYCAwEAAh4BAheAAAoJEPhDUfcskYR2sZUBAJ02ki3d
-                   GSe+MjjDKXLOaS+8amInjuASuPF2LPbfDMWhAP9VxsqMpyIiseO0o0TeJze8PT58
-                   33+QQL5aV5ZSUOAuB7Q+TWFyayBSYXluc2ZvcmQgKDIwMjMgcGVyc29uYWwgW0dp
-                   dEh1YiBzdWJ1aWRdKSA8Y29kZUBpbzdtLmNvbT6IlgQTFggAPhYhBKQ4pzfHcXhx
-                   lc/BZvhDUfcskYR2BQJjsX//AhsDBQkB4SmgBQsJCAcDBRUKCQgLBRYCAwEAAh4B
-                   AheAAAoJEPhDUfcskYR2lGIBAJ8Nwbhntp+YhLYJM0j3jFDt7+S3QgnyAsIiUaHa
-                   /wrmAQDv1ZAVG5D1D6UYlgDSHBFzoijRXb3XBvwTRogQM/zJCw==
-                   =Ri3k
-                   -----END PGP PUBLIC KEY BLOCK-----
-                   """, k.encodedForm());
+    assertEquals(
+      KEY_TEXT.lines()
+        .map(String::trim)
+        .collect(Collectors.joining("\r\n")),
+      k.encodedForm()
+    );
   }
 
   private static InputStream resource(

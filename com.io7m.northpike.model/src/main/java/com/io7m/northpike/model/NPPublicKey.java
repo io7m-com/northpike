@@ -21,6 +21,7 @@ import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A public key.
@@ -56,6 +57,10 @@ public record NPPublicKey(
     Objects.requireNonNull(userIDs, "primaryUserID");
     Objects.requireNonNull(timeCreated, "timeCreated");
     Objects.requireNonNull(timeExpires, "expires");
+
+    encodedForm = encodedForm.lines()
+      .map(String::trim)
+      .collect(Collectors.joining("\r\n"));
 
     if (userIDs.isEmpty()) {
       throw new NPValidityException("Keys must have at least one user ID");
