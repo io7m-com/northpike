@@ -21,7 +21,10 @@ import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
 import com.io7m.northpike.assignments.NPAssignmentName;
+import com.io7m.northpike.clock.NPClock;
+import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAuditType.EventAddType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPErrorCode;
@@ -42,6 +45,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.Times;
 
+import java.time.Clock;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -77,7 +81,10 @@ public final class NPUCmdAssignmentExecuteTest
     this.assignments =
       Mockito.mock(NPAssignmentServiceType.class);
 
-    this.services.register(NPAssignmentServiceType.class, this.assignments);
+    this.services.register(
+      NPAssignmentServiceType.class, this.assignments);
+    this.services.register(
+      NPClockServiceType.class, new NPClock(Clock.systemUTC()));
 
     this.context =
       Mockito.mock(NPUserCommandContextType.class);
@@ -214,6 +221,12 @@ public final class NPUCmdAssignmentExecuteTest
 
     Mockito.when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
+
+    final var eventAdd =
+      Mockito.mock(EventAddType.class);
+
+    Mockito.when(this.transaction.queries(EventAddType.class))
+      .thenReturn(eventAdd);
 
     final var r = handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
