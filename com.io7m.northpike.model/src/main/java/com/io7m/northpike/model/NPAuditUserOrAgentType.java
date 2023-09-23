@@ -28,11 +28,17 @@ public sealed interface NPAuditUserOrAgentType
 {
   /**
    * A user ID.
+   *
+   * @param id The ID
    */
 
   record User(UUID id)
     implements NPAuditUserOrAgentType
   {
+    /**
+     * A user ID.
+     */
+
     public User
     {
       Objects.requireNonNull(id, "id");
@@ -41,11 +47,17 @@ public sealed interface NPAuditUserOrAgentType
 
   /**
    * An agent ID.
+   *
+   * @param id The ID
    */
 
   record Agent(NPAgentID id)
     implements NPAuditUserOrAgentType
   {
+    /**
+     * An agent ID.
+     */
+
     public Agent
     {
       Objects.requireNonNull(id, "id");
