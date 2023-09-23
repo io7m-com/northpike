@@ -19,6 +19,7 @@ package com.io7m.northpike.server.internal.users;
 import com.io7m.medrina.api.MRoleName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.NPUser;
@@ -49,11 +50,14 @@ public final class NPUCmdRolesRevoke
   private static NPUResponseOK revokeRoles(
     final NPUserCommandContextType context,
     final NPUCommandRolesRevoke command,
+    final NPUser user,
     final Set<MRoleName> rolesTaken)
     throws NPException
   {
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
+        transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
+
         final var put =
           transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
         final var get =
@@ -87,9 +91,10 @@ public final class NPUCmdRolesRevoke
     final NPUCommandRolesRevoke command)
     throws NPException
   {
+    final var user =
+      context.onAuthenticationRequire();
     final var subject =
-      context.onAuthenticationRequire()
-        .subject();
+      user.subject();
 
     /*
      * Does the current subject have all the roles that are being revoked,
@@ -102,11 +107,11 @@ public final class NPUCmdRolesRevoke
       subject.roles();
 
     if (rolesHeld.contains(NPSecRole.ADMINISTRATOR.role())) {
-      return revokeRoles(context, command, rolesTaken);
+      return revokeRoles(context, command, user, rolesTaken);
     }
 
     if (rolesHeld.containsAll(rolesTaken)) {
-      return revokeRoles(context, command, rolesTaken);
+      return revokeRoles(context, command, user, rolesTaken);
     }
 
     throw context.fail(

@@ -19,19 +19,18 @@ package com.io7m.northpike.model;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * The search parameters for the audit log.
  *
- * @param user      Limit events to the given user
+ * @param owner     Limit events to the given owner
  * @param type      Limit events to the given type
  * @param timeRange Limit events to the given time range
  * @param pageSize  The page size
  */
 
 public record NPAuditSearchParameters(
-  Optional<UUID> user,
+  Optional<NPAuditUserOrAgentType> owner,
   Optional<String> type,
   NPTimeRange timeRange,
   long pageSize)
@@ -40,7 +39,7 @@ public record NPAuditSearchParameters(
   /**
    * The search parameters for the audit log.
    *
-   * @param user      Limit events to the given user
+   * @param owner     Limit events to the given owner
    * @param type      Limit events to the given type
    * @param timeRange Limit events to the given time range
    * @param pageSize  The page size
@@ -48,7 +47,7 @@ public record NPAuditSearchParameters(
 
   public NPAuditSearchParameters
   {
-    Objects.requireNonNull(user, "user");
+    Objects.requireNonNull(owner, "owner");
     Objects.requireNonNull(type, "type");
     Objects.requireNonNull(timeRange, "timeRange");
     pageSize = NPPageSizes.clampPageSize(pageSize);

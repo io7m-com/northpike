@@ -30,6 +30,7 @@ import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPAuditSearchParameters;
+import com.io7m.northpike.model.NPAuditUserOrAgentType.User;
 import com.io7m.northpike.model.NPTimeRange;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
@@ -152,7 +153,7 @@ public final class NPDatabaseAuditTest
       final var page =
         search.execute(
           new NPAuditSearchParameters(
-            Optional.of(users.get(0).userId()),
+            Optional.of(new User(users.get(0).userId())),
             Optional.empty(),
             NPTimeRange.largest(),
             1000L
@@ -324,7 +325,7 @@ public final class NPDatabaseAuditTest
       final var agent =
         new NPAuditEvent(
           timeStart.plusSeconds(index),
-          user.userId(),
+          new User(user.userId()),
           "TYPE_" + index / 100,
           Map.ofEntries(
             Map.entry("INDEX", Integer.toUnsignedString(index)),

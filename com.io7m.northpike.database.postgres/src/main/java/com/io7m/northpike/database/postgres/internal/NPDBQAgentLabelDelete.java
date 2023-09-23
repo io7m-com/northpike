@@ -30,6 +30,7 @@ import java.util.Set;
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
 import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABELS;
 import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABEL_DEFINITIONS;
+import static java.util.Map.entry;
 
 /**
  * Delete an agent label.
@@ -88,6 +89,13 @@ public final class NPDBQAgentLabelDelete
 
       statements.add(deleteAssociations);
       statements.add(deleteLabel);
+      statements.add(
+        this.auditEvent(
+          context,
+          "AGENT_LABEL_DELETE",
+          entry("NAME", label.value())
+        )
+      );
     }
 
     context.batch(statements).execute();

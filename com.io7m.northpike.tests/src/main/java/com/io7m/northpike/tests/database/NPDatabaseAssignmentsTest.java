@@ -132,6 +132,13 @@ public final class NPDatabaseAssignmentsTest
 
     this.repositoryId =
       UUID.randomUUID();
+
+    this.transaction.setOwner(
+      NPTestContainers.NPDatabaseFixture.createUser(
+        this.transaction,
+        UUID.randomUUID()
+      )
+    );
   }
 
   /**

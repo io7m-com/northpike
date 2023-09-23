@@ -22,6 +22,7 @@ import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPCompilationMessage;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
@@ -45,6 +46,7 @@ import com.io7m.repetoir.core.RPServiceDirectory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.verification.Times;
 
 import java.util.List;
 import java.util.Locale;
@@ -287,7 +289,7 @@ public final class NPUCmdPlanPutTest
         PLAN_DESCRIPTION
       );
 
-    final var userId =
+    final var user =
       new NPUser(
         UUID.fromString("ab27f114-6b29-5ab2-a528-b41ef98abe76"),
         new IdName("x"),
@@ -295,7 +297,7 @@ public final class NPUCmdPlanPutTest
       );
 
     Mockito.when(this.context.onAuthenticationRequire())
-      .thenReturn(userId);
+      .thenReturn(user);
 
     Mockito.when(this.compiler.execute(any(), any()))
       .thenReturn(new NPPlanCompilationResultType.Success(
@@ -311,5 +313,8 @@ public final class NPUCmdPlanPutTest
     final var r =
       handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
+
+    Mockito.verify(this.transaction, new Times(1))
+      .setOwner(new NPAuditUserOrAgentType.User(user.userId()));
   }
 }

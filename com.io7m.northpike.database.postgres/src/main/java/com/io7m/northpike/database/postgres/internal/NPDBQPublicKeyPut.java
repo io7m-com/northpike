@@ -25,6 +25,7 @@ import org.jooq.DSLContext;
 
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
 import static com.io7m.northpike.database.postgres.internal.Tables.PUBLIC_KEYS;
+import static java.util.Map.entry;
 
 /**
  * Update an SCM provider.
@@ -83,6 +84,12 @@ public final class NPDBQPublicKeyPut
 
     recordQuery(query);
     query.execute();
+
+    this.auditEventPut(
+      context,
+      "PUBLIC_KEY_PUT",
+      entry("KEY", key.fingerprint().value())
+    );
     return UNIT;
   }
 }

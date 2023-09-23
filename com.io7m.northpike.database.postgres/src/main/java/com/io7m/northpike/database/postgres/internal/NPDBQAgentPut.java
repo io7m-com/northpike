@@ -25,6 +25,7 @@ import org.jooq.DSLContext;
 import org.jooq.Query;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
 import static com.io7m.northpike.database.postgres.internal.Tables.AGENTS;
@@ -129,6 +130,12 @@ public final class NPDBQAgentPut
           .set(AGENT_LABELS.AL_LABEL, labelId)
       );
     }
+
+    batches.add(this.auditEvent(
+      context,
+      "AGENT_PUT",
+      Map.entry("AGENT", agentId.toString()))
+    );
 
     recordQuery(batches);
     context.batch(batches).execute();

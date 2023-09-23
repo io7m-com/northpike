@@ -37,6 +37,7 @@ import static com.io7m.northpike.database.postgres.internal.tables.Repositories.
 import static com.io7m.northpike.database.postgres.internal.tables.ScmProviders.SCM_PROVIDERS;
 import static com.io7m.northpike.strings.NPStringConstants.REPOSITORY;
 import static com.io7m.northpike.strings.NPStringConstants.SCM_PROVIDER;
+import static java.util.Map.entry;
 
 /**
  * Update a repository.
@@ -120,6 +121,12 @@ public final class NPDBQRepositoryPut
 
     recordQuery(query);
     query.execute();
+
+    this.auditEventPut(
+      context,
+      "REPOSITORY_PUT",
+      entry("REPOSITORY", description.id().toString())
+    );
     return UNIT;
   }
 

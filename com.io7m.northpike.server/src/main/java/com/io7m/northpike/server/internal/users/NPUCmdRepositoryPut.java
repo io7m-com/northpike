@@ -18,6 +18,7 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
+import com.io7m.northpike.model.NPAuditUserOrAgentType.User;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
@@ -57,6 +58,7 @@ public final class NPUCmdRepositoryPut
 
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
+        transaction.setOwner(new User(user.userId()));
         transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
           .execute(command.repository());
         transaction.commit();

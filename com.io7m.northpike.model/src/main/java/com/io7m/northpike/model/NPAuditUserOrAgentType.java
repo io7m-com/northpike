@@ -17,39 +17,38 @@
 
 package com.io7m.northpike.model;
 
-import java.time.OffsetDateTime;
-import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
- * An audit event.
- *
- * @param time  The event time
- * @param owner The event owner
- * @param type  The event type
- * @param data  The event data
+ * A user or an agent ID.
  */
 
-public record NPAuditEvent(
-  OffsetDateTime time,
-  NPAuditUserOrAgentType owner,
-  String type,
-  Map<String, String> data)
+public sealed interface NPAuditUserOrAgentType
 {
   /**
-   * An audit event.
-   *
-   * @param time  The event time
-   * @param owner The event owner
-   * @param type  The event type
-   * @param data  The event data
+   * A user ID.
    */
 
-  public NPAuditEvent
+  record User(UUID id)
+    implements NPAuditUserOrAgentType
   {
-    Objects.requireNonNull(time, "time");
-    Objects.requireNonNull(owner, "owner");
-    Objects.requireNonNull(type, "type");
-    Objects.requireNonNull(data, "data");
+    public User
+    {
+      Objects.requireNonNull(id, "id");
+    }
+  }
+
+  /**
+   * An agent ID.
+   */
+
+  record Agent(NPAgentID id)
+    implements NPAuditUserOrAgentType
+  {
+    public Agent
+    {
+      Objects.requireNonNull(id, "id");
+    }
   }
 }

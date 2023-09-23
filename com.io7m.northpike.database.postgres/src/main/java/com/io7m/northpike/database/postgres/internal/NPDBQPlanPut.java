@@ -32,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
 import static com.io7m.northpike.database.postgres.internal.tables.Plans.PLANS;
+import static java.util.Map.entry;
 
 /**
  * Update a plan.
@@ -95,6 +96,14 @@ public final class NPDBQPlanPut
         .set(PLANS.P_ENCODING, charsetName)
         .set(PLANS.P_FORMAT, serializer.format().toString())
         .execute();
+
+      this.auditEventPut(
+        context,
+        "PLAN_PUT",
+        entry("PLAN", identifier.name().toString()),
+        entry("PLAN_VERSION", Long.toUnsignedString(identifier.version()))
+      );
+
     } catch (final IOException e) {
       throw NPDatabaseExceptions.ofIOError(
         this.transaction(),

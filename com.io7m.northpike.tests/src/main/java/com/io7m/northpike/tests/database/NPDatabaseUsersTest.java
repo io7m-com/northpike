@@ -29,6 +29,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
+import com.io7m.northpike.model.NPAuditUserOrAgentType.User;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
@@ -104,7 +105,7 @@ public final class NPDatabaseUsersTest
         new MSubject(Set.of())
       );
 
-    this.transaction.setUserId(user.userId());
+    this.transaction.setOwner(new User(user.userId()));
     put.execute(user);
     assertEquals(user, get.execute(user.userId()).orElseThrow());
   }
@@ -135,7 +136,7 @@ public final class NPDatabaseUsersTest
         ))
       );
 
-    this.transaction.setUserId(user.userId());
+    this.transaction.setOwner(new User(user.userId()));
     put.execute(user);
     assertEquals(user, get.execute(user.userId()).orElseThrow());
   }
@@ -193,7 +194,7 @@ public final class NPDatabaseUsersTest
         )
       );
 
-    this.transaction.setUserId(user.userId());
+    this.transaction.setOwner(new User(user.userId()));
     put.execute(user);
     maintenance.execute(NPDatabaseUnit.UNIT);
 

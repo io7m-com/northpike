@@ -29,6 +29,7 @@ import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENTS;
 import static com.io7m.northpike.database.postgres.internal.Tables.PLANS;
 import static com.io7m.northpike.strings.NPStringConstants.ASSIGNMENT;
+import static java.util.Map.entry;
 
 /**
  * Update an assignment.
@@ -93,6 +94,12 @@ public final class NPDBQAssignmentPut
 
     recordQuery(query);
     query.execute();
+
+    this.auditEventPut(
+      context,
+      "ASSIGNMENT_PUT",
+      entry("ASSIGNMENT", assignment.name().toString())
+    );
     return UNIT;
   }
 }

@@ -260,6 +260,13 @@ public final class NPAssignmentFixture implements AutoCloseable
     this.transaction =
       closeables.addPerTestResource(this.connection.openTransaction());
 
+    this.transaction.setOwner(
+      NPTestContainers.NPDatabaseFixture.createUser(
+        this.transaction,
+        UUID.randomUUID()
+      )
+    );
+
     this.services.register(
       NPTelemetryServiceType.class, NPTelemetryNoOp.noop());
     this.services.register(

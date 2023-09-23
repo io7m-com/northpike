@@ -138,6 +138,13 @@ public final class NPRepositoryServiceTest
     this.transaction =
       closeables.addPerTestResource(this.connection.openTransaction());
 
+    this.transaction.setOwner(
+      NPTestContainers.NPDatabaseFixture.createUser(
+        this.transaction,
+        UUID.randomUUID()
+      )
+    );
+
     this.services =
       new RPServiceDirectory();
     this.clock =

@@ -16,7 +16,7 @@
 
 package com.io7m.northpike.database.api;
 
-import java.util.UUID;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 
 /**
  * A database transaction. If the transaction is closed, it is automatically
@@ -62,17 +62,17 @@ public interface NPDatabaseTransactionType extends AutoCloseable
     throws NPDatabaseException;
 
   /**
-   * Set the transaction's user ID.
+   * Set the transaction's owner ID.
    *
-   * @param newUserId The user ID
+   * @param newOwner The owner ID
    */
 
-  void setUserId(
-    UUID newUserId);
+  void setOwner(
+    NPAuditUserOrAgentType newOwner);
 
   /**
-   * @return The transaction's user ID
+   * @return The transaction's owner ID
    */
 
-  UUID userId();
+  NPAuditUserOrAgentType owner();
 }

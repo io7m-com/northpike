@@ -25,6 +25,7 @@ import org.jooq.impl.DSL;
 
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
 import static com.io7m.northpike.database.postgres.internal.tables.ToolExecutionDescriptions.TOOL_EXECUTION_DESCRIPTIONS;
+import static java.util.Map.entry;
 
 /**
  * Update a tool execution description.
@@ -81,6 +82,13 @@ public final class NPDBQToolExecutionDescriptionPut
       .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TEXT, d.text())
       .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME, d.tool().toString())
       .execute();
+
+    this.auditEventPut(
+      context,
+      "TOOL_EXECUTION_PUT",
+      entry("TOOL_EXECUTION_NAME", id.name().toString()),
+      entry("TOOL_EXECUTION_VERSION", Long.toUnsignedString(id.version()))
+    );
     return UNIT;
   }
 }

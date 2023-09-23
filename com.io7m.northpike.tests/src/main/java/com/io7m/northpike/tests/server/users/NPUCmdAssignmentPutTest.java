@@ -24,6 +24,7 @@ import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
@@ -199,7 +200,7 @@ public final class NPUCmdAssignmentPutTest
         )
       );
 
-    final var userId =
+    final var user =
       new NPUser(
         UUID.fromString("ab27f114-6b29-5ab2-a528-b41ef98abe76"),
         new IdName("x"),
@@ -207,7 +208,7 @@ public final class NPUCmdAssignmentPutTest
       );
 
     Mockito.when(this.context.onAuthenticationRequire())
-      .thenReturn(userId);
+      .thenReturn(user);
 
     final var reposPut =
       Mockito.mock(NPDatabaseQueriesAssignmentsType.PutType.class);
@@ -218,6 +219,8 @@ public final class NPUCmdAssignmentPutTest
     final var r = handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
 
+    Mockito.verify(this.transaction, new Times(1))
+      .setOwner(new NPAuditUserOrAgentType.User(user.userId()));
     Mockito.verify(this.transaction, new Times(1))
       .commit();
   }

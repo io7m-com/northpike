@@ -25,8 +25,10 @@ import com.io7m.northpike.database.api.NPAuditPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAuditType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
+import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPAuditSearchParameters;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPPage;
 import io.opentelemetry.api.trace.Span;
 import org.jooq.DSLContext;
@@ -80,8 +82,16 @@ public final class NPDBQAuditEventSearch
     throws NPDatabaseException
   {
     final var conditionUser =
-      parameters.user()
-        .map(AUDIT.AU_USER::eq)
+      parameters.owner()
+        .map(userOrAgent -> {
+          if (userOrAgent instanceof final NPAuditUserOrAgentType.User user) {
+            return AUDIT.AU_USER.eq(user.id());
+          }
+          if (userOrAgent instanceof final NPAuditUserOrAgentType.Agent agent) {
+            return AUDIT.AU_AGENT.eq(agent.id().value());
+          }
+          throw new IllegalStateException();
+        })
         .orElse(DSL.trueCondition());
 
     final var conditionType =
@@ -144,13 +154,12 @@ public final class NPDBQAuditEventSearch
           "NPAuditSearch.page");
 
       try {
-
-
         final var query =
           page.queryFields(context, List.of(
             AUDIT.AU_TIME,
             AUDIT.AU_TYPE,
             AUDIT.AU_USER,
+            AUDIT.AU_AGENT,
             AU_DATA
           ));
 
@@ -158,9 +167,21 @@ public final class NPDBQAuditEventSearch
 
         final var items =
           query.fetch().map(record -> {
+            final var userId =
+              record.get(AUDIT.AU_USER);
+            final var agentId =
+              record.get(AUDIT.AU_AGENT);
+
+            final NPAuditUserOrAgentType owner;
+            if (userId != null) {
+              owner = new NPAuditUserOrAgentType.User(userId);
+            } else {
+              owner = new NPAuditUserOrAgentType.Agent(new NPAgentID(agentId));
+            }
+
             return new NPAuditEvent(
               record.get(AUDIT.AU_TIME),
-              record.get(AUDIT.AU_USER),
+              owner,
               record.get(AUDIT.AU_TYPE),
               record.get(AU_DATA).data()
             );

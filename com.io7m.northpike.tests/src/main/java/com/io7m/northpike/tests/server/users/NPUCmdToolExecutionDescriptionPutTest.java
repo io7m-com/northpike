@@ -22,6 +22,7 @@ import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
+import com.io7m.northpike.model.NPAuditUserOrAgentType.User;
 import com.io7m.northpike.model.NPCompilationMessage;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
@@ -48,6 +49,7 @@ import com.io7m.repetoir.core.RPServiceDirectory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.verification.Times;
 
 import java.util.List;
 import java.util.Locale;
@@ -294,7 +296,7 @@ public final class NPUCmdToolExecutionDescriptionPutTest
         TOOL_EXECUTION_DESCRIPTION
       );
 
-    final var userId =
+    final var user =
       new NPUser(
         UUID.fromString("ab27f114-6b29-5ab2-a528-b41ef98abe76"),
         new IdName("x"),
@@ -302,7 +304,7 @@ public final class NPUCmdToolExecutionDescriptionPutTest
       );
 
     Mockito.when(this.context.onAuthenticationRequire())
-      .thenReturn(userId);
+      .thenReturn(user);
 
     Mockito.when(this.compiler.execute(any(), any(), any()))
       .thenReturn(new NPTXCompilationResultType.Success(
@@ -318,5 +320,8 @@ public final class NPUCmdToolExecutionDescriptionPutTest
     final var r =
       handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
+
+    Mockito.verify(this.transaction, new Times(1))
+      .setOwner(new User(user.userId()));
   }
 }

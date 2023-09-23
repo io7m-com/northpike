@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -116,6 +117,13 @@ public final class NPDatabasePlansTest
         new ParsingException("Ouch!", List.of())
       ).when(this.failingParsers)
       .parse(any(), any());
+
+    this.transaction.setOwner(
+      NPTestContainers.NPDatabaseFixture.createUser(
+        this.transaction,
+        UUID.randomUUID()
+      )
+    );
   }
 
   /**

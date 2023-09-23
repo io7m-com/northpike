@@ -198,6 +198,13 @@ public final class NPAgentTaskTest
     this.transaction =
       closeables.addPerTestResource(this.connection.openTransaction());
 
+    this.transaction.setOwner(
+      NPTestContainers.NPDatabaseFixture.createUser(
+        this.transaction,
+        UUID.randomUUID()
+      )
+    );
+
     this.executor =
       Executors.newCachedThreadPool();
 

@@ -44,6 +44,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -78,6 +79,13 @@ public final class NPDatabaseToolsTest
       closeables.addPerTestResource(this.database.openConnection(NORTHPIKE));
     this.transaction =
       closeables.addPerTestResource(this.connection.openTransaction());
+
+    this.transaction.setOwner(
+      NPTestContainers.NPDatabaseFixture.createUser(
+        this.transaction,
+        UUID.randomUUID()
+      )
+    );
   }
 
   /**

@@ -17,7 +17,8 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.security.NPSecAction;
@@ -110,7 +111,8 @@ public final class NPUCmdToolExecutionDescriptionPut
     if (result instanceof NPTXCompilationResultType.Success) {
       try (var connection = context.databaseConnection()) {
         try (var transaction = connection.openTransaction()) {
-          transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+          transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
+          transaction.queries(PutExecutionDescriptionType.class)
             .execute(command.description());
           transaction.commit();
           return NPUResponseOK.createCorrelated(command);

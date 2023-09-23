@@ -27,6 +27,7 @@ import org.jooq.impl.DSL;
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
 import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABEL_DEFINITIONS;
 import static com.io7m.northpike.strings.NPStringConstants.AGENT_LABEL;
+import static java.util.Map.entry;
 
 /**
  * Update an agent label.
@@ -77,6 +78,12 @@ public final class NPDBQAgentLabelPut
 
     recordQuery(query);
     query.execute();
+
+    this.auditEventPut(
+      context,
+      "AGENT_LABEL_PUT",
+      entry("NAME", label.name().value())
+    );
     return UNIT;
   }
 }

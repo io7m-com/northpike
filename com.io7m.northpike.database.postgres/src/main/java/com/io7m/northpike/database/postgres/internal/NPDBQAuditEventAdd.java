@@ -21,8 +21,14 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAuditType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPAuditEvent;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import org.jooq.DSLContext;
+import org.jooq.Query;
 import org.jooq.postgres.extensions.types.Hstore;
+
+import java.time.OffsetDateTime;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.io7m.northpike.database.postgres.internal.NPDBQAuditEventSearch.AU_DATA;
 import static com.io7m.northpike.database.postgres.internal.tables.Audit.AUDIT;
@@ -50,19 +56,42 @@ public final class NPDBQAuditEventAdd
     super(transaction);
   }
 
-  @Override
-  protected NPDatabaseUnit onExecute(
+  private static Query auditEvent(
     final DSLContext context,
     final NPAuditEvent parameters)
-    throws NPDatabaseException
   {
-    context.insertInto(AUDIT)
-      .set(AUDIT.AU_TYPE, parameters.type())
-      .set(AUDIT.AU_USER, parameters.user())
-      .set(AUDIT.AU_TIME, parameters.time())
-      .set(AU_DATA, Hstore.valueOf(parameters.data()))
-      .execute();
-    return NPDatabaseUnit.UNIT;
+    final var set =
+      context.insertInto(AUDIT)
+        .set(AUDIT.AU_TYPE, parameters.type())
+        .set(AUDIT.AU_TIME, parameters.time())
+        .set(AU_DATA, Hstore.valueOf(parameters.data()));
+
+    final var owner = parameters.owner();
+    if (owner instanceof final NPAuditUserOrAgentType.User user) {
+      return set.set(AUDIT.AU_USER, user.id())
+        .set(AUDIT.AU_AGENT, (UUID) null);
+    }
+
+    if (owner instanceof final NPAuditUserOrAgentType.Agent agent) {
+      return set.set(AUDIT.AU_USER, (UUID) null)
+        .set(AUDIT.AU_AGENT, agent.id().value());
+    }
+
+    throw new IllegalStateException();
+  }
+
+  @SafeVarargs
+  static Query auditEvent(
+    final DSLContext context,
+    final OffsetDateTime time,
+    final NPAuditUserOrAgentType user,
+    final String type,
+    final Map.Entry<String, String>... entries)
+  {
+    return auditEvent(
+      context,
+      new NPAuditEvent(time, user, type, Map.ofEntries(entries))
+    );
   }
 
   /**
@@ -72,6 +101,16 @@ public final class NPDBQAuditEventAdd
   public static NPDBQueryProviderType provider()
   {
     return () -> SERVICE;
+  }
+
+  @Override
+  protected NPDatabaseUnit onExecute(
+    final DSLContext context,
+    final NPAuditEvent parameters)
+    throws NPDatabaseException
+  {
+    auditEvent(context, parameters).execute();
+    return NPDatabaseUnit.UNIT;
   }
 
 }

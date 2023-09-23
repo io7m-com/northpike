@@ -34,15 +34,20 @@ import com.io7m.idstore.model.IdPasswordAlgorithmPBKDF2HmacSHA256;
 import com.io7m.idstore.model.IdRealName;
 import com.io7m.idstore.protocol.admin.IdACommandUserCreate;
 import com.io7m.idstore.protocol.admin.IdAResponseUserCreate;
+import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConfiguration;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseCreate;
 import com.io7m.northpike.database.api.NPDatabaseException;
+import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseTelemetry;
+import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.api.NPDatabaseUpgrade;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.server.NPServers;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
@@ -71,6 +76,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.io7m.ervilla.api.EPortProtocol.TCP;
@@ -161,6 +167,21 @@ public final class NPTestContainers
           )
         )
       );
+    }
+
+    public static NPAuditUserOrAgentType.User createUser(
+      final NPDatabaseTransactionType transaction,
+      final UUID userId)
+      throws NPDatabaseException
+    {
+      transaction.queries(NPDatabaseQueriesUsersType.PutType.class)
+        .execute(new NPUser(
+          userId,
+          new IdName("example"),
+          new MSubject(Set.of())
+        ));
+      transaction.commit();
+      return new NPAuditUserOrAgentType.User(userId);
     }
   }
 

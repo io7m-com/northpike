@@ -18,6 +18,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueryType;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
 import io.opentelemetry.api.trace.Span;
@@ -26,6 +27,7 @@ import org.jooq.DSLContext;
 import org.jooq.Query;
 import org.jooq.exception.DataAccessException;
 
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -57,6 +59,11 @@ abstract class NPDBQAbstract<P, R>
   protected final NPDatabaseTransaction transaction()
   {
     return this.transaction;
+  }
+
+  protected NPAuditUserOrAgentType requireOwner()
+  {
+    return this.transaction.owner();
   }
 
   private NPStrings messages()
@@ -137,6 +144,40 @@ abstract class NPDBQAbstract<P, R>
       queries.stream()
         .map(Object::toString)
         .collect(Collectors.joining(";\n\n"))
+    );
+  }
+
+  @SafeVarargs
+  protected final Query auditEvent(
+    final DSLContext context,
+    final String type,
+    final Map.Entry<String, String>... entries)
+  {
+    return NPDBQAuditEventAdd.auditEvent(
+      context,
+      this.timeNow(),
+      this.requireOwner(),
+      type,
+      entries
+    );
+  }
+
+  @SafeVarargs
+  protected final void auditEventPut(
+    final DSLContext context,
+    final String type,
+    final Map.Entry<String, String>... entries)
+  {
+    this.auditEvent(context, type, entries)
+      .execute();
+  }
+
+  protected final OffsetDateTime timeNow()
+  {
+    return OffsetDateTime.now(
+      this.transaction.connection()
+        .database()
+        .clock()
     );
   }
 }

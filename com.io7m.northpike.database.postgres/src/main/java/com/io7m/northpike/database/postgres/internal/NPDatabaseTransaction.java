@@ -21,6 +21,7 @@ import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesType;
 import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.strings.NPStringConstantType;
 import io.opentelemetry.api.trace.Span;
@@ -34,7 +35,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import static io.opentelemetry.api.trace.SpanKind.INTERNAL;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_SYSTEM;
@@ -46,7 +46,7 @@ final class NPDatabaseTransaction
 {
   private final NPDatabaseConnection connection;
   private final Span transactionSpan;
-  private UUID userId;
+  private NPAuditUserOrAgentType owner;
 
   NPDatabaseTransaction(
     final NPDatabaseConnection inConnection,
@@ -214,19 +214,19 @@ final class NPDatabaseTransaction
   }
 
   @Override
-  public void setUserId(
-    final UUID newUserId)
+  public void setOwner(
+    final NPAuditUserOrAgentType newOwner)
   {
-    this.userId = Objects.requireNonNull(newUserId, "userId");
+    this.owner = Objects.requireNonNull(newOwner, "owner");
   }
 
   @Override
-  public UUID userId()
+  public NPAuditUserOrAgentType owner()
   {
-    if (this.userId == null) {
-      throw new IllegalStateException("No user ID has been set.");
+    if (this.owner == null) {
+      throw new IllegalStateException("No owner ID has been set.");
     }
-    return this.userId;
+    return this.owner;
   }
 
   @Override

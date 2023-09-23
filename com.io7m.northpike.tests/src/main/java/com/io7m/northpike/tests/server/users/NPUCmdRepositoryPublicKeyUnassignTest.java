@@ -23,6 +23,7 @@ import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyUnassignType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPFingerprint;
@@ -38,6 +39,7 @@ import com.io7m.northpike.strings.NPStringConstantType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.verification.Times;
 
 import java.util.Map;
 import java.util.Optional;
@@ -233,7 +235,7 @@ public final class NPUCmdRepositoryPublicKeyUnassignTest
         new NPFingerprint("f572d396fae9206628714fb2ce00f72e94f2258f")
       );
 
-    final var userId =
+    final var user =
       new NPUser(
         UUID.fromString("ab27f114-6b29-5ab2-a528-b41ef98abe76"),
         new IdName("x"),
@@ -244,7 +246,7 @@ public final class NPUCmdRepositoryPublicKeyUnassignTest
       );
 
     Mockito.when(this.context.onAuthenticationRequire())
-      .thenReturn(userId);
+      .thenReturn(user);
 
     final var keyUnassign =
       Mockito.mock(PublicKeyUnassignType.class);
@@ -257,5 +259,8 @@ public final class NPUCmdRepositoryPublicKeyUnassignTest
 
     final var r = handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
+
+    Mockito.verify(this.transaction, new Times(1))
+      .setOwner(new NPAuditUserOrAgentType.User(user.userId()));
   }
 }

@@ -19,6 +19,7 @@ package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType.Parameters;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.security.NPSecAction;
@@ -106,6 +107,7 @@ public final class NPUCmdPlanPut
     if (result instanceof final NPPlanCompilationResultType.Success s) {
       try (var connection = context.databaseConnection()) {
         try (var transaction = connection.openTransaction()) {
+          transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
           transaction.queries(NPDatabaseQueriesPlansType.PutType.class)
             .execute(new Parameters(s.plan(), serializer));
           transaction.commit();

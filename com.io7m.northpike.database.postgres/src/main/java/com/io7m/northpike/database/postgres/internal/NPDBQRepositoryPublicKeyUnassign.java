@@ -28,6 +28,7 @@ import static com.io7m.northpike.database.postgres.internal.Tables.PUBLIC_KEYS;
 import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_KEYS;
 import static com.io7m.northpike.strings.NPStringConstants.PUBLIC_KEY;
 import static com.io7m.northpike.strings.NPStringConstants.REPOSITORY;
+import static java.util.Map.entry;
 
 /**
  * Unassign a public key.
@@ -78,6 +79,13 @@ public final class NPDBQRepositoryPublicKeyUnassign
 
     recordQuery(query);
     query.execute();
+
+    this.auditEventPut(
+      context,
+      "PUBLIC_KEY_UNASSIGN",
+      entry("KEY", parameters.key().value()),
+      entry("REPOSITORY", parameters.repositoryId().toString())
+    );
     return NPDatabaseUnit.UNIT;
   }
 
