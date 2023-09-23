@@ -310,6 +310,21 @@ public enum NPSecRole
     {
       return NAME;
     }
+  },
+
+  /**
+   * A role for reading the audit log.
+   */
+
+  AUDIT_LOG_READER {
+    private static final MRoleName NAME =
+      MRoleName.of("audit_log.reader");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
   };
 
   private static final List<NPSecRole> ROLES_ALL =

@@ -164,6 +164,21 @@ public enum NPSecObject
   },
 
   /**
+   * The audit log.
+   */
+
+  AUDIT_LOG {
+    private static final MObject AUDIT_LOG_OBJECT =
+      new MObject(MTypeName.of("audit_log"), Map.of());
+
+    @Override
+    public MObject object()
+    {
+      return AUDIT_LOG_OBJECT;
+    }
+  },
+
+  /**
    * The users.
    */
 

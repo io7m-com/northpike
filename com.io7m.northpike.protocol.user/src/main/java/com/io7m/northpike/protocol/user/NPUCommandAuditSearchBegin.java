@@ -17,29 +17,42 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.model.NPPage;
+
+import com.io7m.northpike.model.NPAuditSearchParameters;
+
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- * The type of responses that contain paged results.
+ * Start searching audit events.
  *
- * @param <T> The type of results
+ * @param messageID  The message ID
+ * @param parameters The search parameters
  */
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
+public record NPUCommandAuditSearchBegin(
+  UUID messageID,
+  NPAuditSearchParameters parameters)
+  implements NPUCommandSearchBeginType<
   NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch
+  NPAuditSearchParameters>
 {
   /**
-   * @return The current results
+   * Start searching audit events.
+   *
+   * @param messageID  The message ID
+   * @param parameters The search parameters
    */
 
-  NPPage<T> results();
+  public NPUCommandAuditSearchBegin
+  {
+    Objects.requireNonNull(messageID, "messageId");
+    Objects.requireNonNull(parameters, "parameters");
+  }
+
+  @Override
+  public Class<NPUResponseAuditSearch> responseClass()
+  {
+    return NPUResponseAuditSearch.class;
+  }
 }

@@ -30,6 +30,7 @@ public sealed interface NPUCommandSearchBeginType<R extends NPUResponseType, T>
   NPUCommandAgentSearchBegin,
   NPUCommandAssignmentExecutionSearchBegin,
   NPUCommandAssignmentSearchBegin,
+  NPUCommandAuditSearchBegin,
   NPUCommandPlanSearchBegin,
   NPUCommandPublicKeySearchBegin,
   NPUCommandRepositorySearchBegin,

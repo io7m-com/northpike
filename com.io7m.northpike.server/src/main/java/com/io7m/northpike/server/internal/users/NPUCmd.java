@@ -33,6 +33,9 @@ import com.io7m.northpike.protocol.user.NPUCommandAssignmentPut;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandAuditSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandAuditSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandAuditSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandLogin;
 import com.io7m.northpike.protocol.user.NPUCommandPlanGet;
@@ -246,6 +249,16 @@ public final class NPUCmd
       }
       if (command instanceof final NPUCommandPublicKeySearchPrevious c) {
         return new NPUCmdPublicKeySearchPrevious().execute(context, c);
+      }
+
+      if (command instanceof final NPUCommandAuditSearchBegin c) {
+        return new NPUCmdAuditSearchBegin().execute(context, c);
+      }
+      if (command instanceof final NPUCommandAuditSearchNext c) {
+        return new NPUCmdAuditSearchNext().execute(context, c);
+      }
+      if (command instanceof final NPUCommandAuditSearchPrevious c) {
+        return new NPUCmdAuditSearchPrevious().execute(context, c);
       }
     }
     throw context.fail(ERROR_PROTOCOL, errorProtocol());

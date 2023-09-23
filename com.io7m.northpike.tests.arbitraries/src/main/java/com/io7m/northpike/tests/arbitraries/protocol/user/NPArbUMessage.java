@@ -38,6 +38,9 @@ import com.io7m.northpike.protocol.user.NPUCommandAssignmentPut;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandAuditSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandAuditSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandAuditSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandLogin;
 import com.io7m.northpike.protocol.user.NPUCommandPlanGet;
@@ -77,6 +80,7 @@ import com.io7m.northpike.protocol.user.NPUResponseAssignmentExecutionSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAssignmentExecutionWorkItems;
 import com.io7m.northpike.protocol.user.NPUResponseAssignmentGet;
 import com.io7m.northpike.protocol.user.NPUResponseAssignmentSearch;
+import com.io7m.northpike.protocol.user.NPUResponseAuditSearch;
 import com.io7m.northpike.protocol.user.NPUResponseError;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponsePlanGet;
@@ -127,6 +131,9 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUCommandAssignmentSearchBegin.class,
               NPUCommandAssignmentSearchNext.class,
               NPUCommandAssignmentSearchPrevious.class,
+              NPUCommandAuditSearchBegin.class,
+              NPUCommandAuditSearchNext.class,
+              NPUCommandAuditSearchPrevious.class,
               NPUCommandDisconnect.class,
               NPUCommandLogin.class,
               NPUCommandPlanGet.class,
@@ -165,6 +172,7 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUResponseAssignmentExecutionWorkItems.class,
               NPUResponseAssignmentGet.class,
               NPUResponseAssignmentSearch.class,
+              NPUResponseAuditSearch.class,
               NPUResponseError.class,
               NPUResponseOK.class,
               NPUResponsePlanGet.class,

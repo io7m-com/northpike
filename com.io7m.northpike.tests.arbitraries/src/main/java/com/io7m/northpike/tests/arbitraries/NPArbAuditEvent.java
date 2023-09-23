@@ -15,31 +15,30 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPAuditEvent;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-/**
- * The type of responses that contain paged results.
- *
- * @param <T> The type of results
- */
+import java.time.OffsetDateTime;
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch
+public final class NPArbAuditEvent extends NPArbAbstract<NPAuditEvent>
 {
-  /**
-   * @return The current results
-   */
-
-  NPPage<T> results();
+  public NPArbAuditEvent()
+  {
+    super(
+      NPAuditEvent.class,
+      () ->
+        Combinators.combine(
+          Arbitraries.defaultFor(OffsetDateTime.class),
+          Arbitraries.defaultFor(NPAuditUserOrAgentType.class),
+          Arbitraries.strings().alpha(),
+          Arbitraries.maps(
+            Arbitraries.strings().alpha(),
+            Arbitraries.strings().alpha())
+        ).as(NPAuditEvent::new)
+    );
+  }
 }

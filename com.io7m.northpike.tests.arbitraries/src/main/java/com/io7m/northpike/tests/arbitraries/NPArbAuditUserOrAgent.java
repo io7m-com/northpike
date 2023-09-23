@@ -15,31 +15,30 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPPage;
 
-/**
- * The type of responses that contain paged results.
- *
- * @param <T> The type of results
- */
+import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import net.jqwik.api.Arbitraries;
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch
+import java.util.UUID;
+
+public final class NPArbAuditUserOrAgent
+  extends NPArbAbstract<NPAuditUserOrAgentType>
 {
-  /**
-   * @return The current results
-   */
-
-  NPPage<T> results();
+  public NPArbAuditUserOrAgent()
+  {
+    super(
+      NPAuditUserOrAgentType.class,
+      () -> {
+        return Arbitraries.oneOf(
+          Arbitraries.create(UUID::randomUUID)
+            .map(NPAuditUserOrAgentType.User::new),
+          Arbitraries.defaultFor(NPAgentID.class)
+            .map(NPAuditUserOrAgentType.Agent::new)
+        );
+      }
+    );
+  }
 }

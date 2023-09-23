@@ -15,31 +15,29 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPAuditSearchParameters;
+import com.io7m.northpike.protocol.user.NPUCommandAuditSearchBegin;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-/**
- * The type of responses that contain paged results.
- *
- * @param <T> The type of results
- */
+import java.util.UUID;
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch
+public final class NPArbUCommandAuditSearchBegin
+  extends NPArbAbstract<NPUCommandAuditSearchBegin>
 {
-  /**
-   * @return The current results
-   */
-
-  NPPage<T> results();
+  public NPArbUCommandAuditSearchBegin()
+  {
+    super(
+      NPUCommandAuditSearchBegin.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(NPAuditSearchParameters.class)
+        ).as(NPUCommandAuditSearchBegin::new);
+      }
+    );
+  }
 }

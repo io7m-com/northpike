@@ -393,6 +393,42 @@
   [field status NPU1WorkItemStatus]
 ]
 
+[documentation NPU1UserOrAgentID "A user ID or agent ID."]
+[variant NPU1UserOrAgentID
+  [case User  [field id cb:UUID]]
+  [case Agent [field id cb:UUID]]
+]
+
+[documentation NPU1TimeRange "An inclusive time range."]
+[record NPU1TimeRange
+  [field timeLower ct:OffsetDateTime]
+  [field timeUpper ct:OffsetDateTime]
+]
+
+[documentation NPU1AuditSearchParameters "The audit search parameters."]
+[record NPU1AuditSearchParameters
+  [documentation owner "Limit to events with the given owner."]
+  [field owner [cb:Option NPU1UserOrAgentID]]
+  [documentation type "Limit to events with the given type."]
+  [field type [cb:Option cb:String]]
+  [documentation timeRange "Limit to events in the given time range."]
+  [field timeRange NPU1TimeRange]
+  [documentation pageSize "The page size."]
+  [field pageSize cb:IntegerUnsigned32]
+]
+
+[documentation NPU1AuditEvent "An audit event."]
+[record NPU1AuditEvent
+  [documentation time "The event time."]
+  [field time ct:OffsetDateTime]
+  [documentation owner "The event owner."]
+  [field owner NPU1UserOrAgentID]
+  [documentation type "The event type."]
+  [field type cb:String]
+  [documentation data "The event data."]
+  [field data [cb:Map cb:String cb:String]]
+]
+
 ;
 ; Commands
 ;
@@ -818,6 +854,30 @@
 ]
 
 ;
+; Audit
+;
+
+[documentation NPU1CommandAuditSearchBegin "Start searching audit events."]
+[record NPU1CommandAuditSearchBegin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation parameters "The search parameters."]
+  [field parameters NPU1AuditSearchParameters]
+]
+
+[documentation NPU1CommandAuditSearchNext "Continue searching audit events."]
+[record NPU1CommandAuditSearchNext
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandAuditSearchPrevious "Continue searching audit events."]
+[record NPU1CommandAuditSearchPrevious
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+;
 ; Events
 ;
 
@@ -1047,6 +1107,16 @@
   [field results [NPU1Page cb:String]]
 ]
 
+[documentation NPU1ResponseAuditSearch "A response to NPU1CommandAuditSearchBegin."]
+[record NPU1ResponseAuditSearch
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [NPU1Page NPU1AuditEvent]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -1072,6 +1142,9 @@
       NPU1CommandAssignmentSearchBegin
       NPU1CommandAssignmentSearchNext
       NPU1CommandAssignmentSearchPrevious
+      NPU1CommandAuditSearchBegin
+      NPU1CommandAuditSearchNext
+      NPU1CommandAuditSearchPrevious
       NPU1CommandDisconnect
       NPU1CommandLogin
       NPU1CommandPlanGet
@@ -1110,6 +1183,7 @@
       NPU1ResponseAssignmentExecutionWorkItems
       NPU1ResponseAssignmentGet
       NPU1ResponseAssignmentSearch
+      NPU1ResponseAuditSearch
       NPU1ResponseError
       NPU1ResponseOK
       NPU1ResponsePlanGet

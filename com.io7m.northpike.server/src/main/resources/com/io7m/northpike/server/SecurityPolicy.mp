@@ -198,3 +198,14 @@
   [MatchObject  [WithType public_keys]]
   [MatchAction  [WithName write]]
 ]
+
+#------------------------------------------------------------------------
+# Audit Log
+#
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom audit_log.reader]]
+  [MatchObject  [WithType audit_log]]
+  [MatchAction  [WithName read]]
+]
