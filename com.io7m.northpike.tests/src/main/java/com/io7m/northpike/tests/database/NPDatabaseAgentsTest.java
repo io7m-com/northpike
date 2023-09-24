@@ -453,6 +453,64 @@ public final class NPDatabaseAgentsTest
     }
   }
 
+
+  /**
+   * Deleted agents don't appear in searches.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentSearchDeleted0()
+    throws Exception
+  {
+    final var delete =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.DeleteType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+    final var labelPut =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+    final var list =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.ListType.class);
+
+    final var labelsByName = new HashMap<RDottedName, NPAgentLabel>();
+    for (int index = 0; index <= 9; ++index) {
+      final var label = new NPAgentLabel(
+        new RDottedName("label%d".formatted(Integer.valueOf(index))),
+        "Label %d".formatted(Integer.valueOf(index))
+      );
+      labelPut.execute(label);
+      labelsByName.put(label.name(), label);
+    }
+
+    final ArrayList<NPAgentDescription> agents =
+      generateLabelledAgents(put, labelsByName);
+
+    for (int index = 0; index < agents.size(); ++index) {
+      if (index % 2 == 0) {
+        delete.execute(agents.get(index).id());
+      }
+    }
+
+    {
+      final var page =
+        list.execute(new NPAgentSearchParameters(ANY_LABEL, 1000L));
+
+      final var page0 =
+        page.pageCurrent(this.transaction);
+
+      for (int index = 0; index < agents.size(); ++index) {
+        if (index % 2 == 0) {
+          assertFalse(page0.items().contains(agents.get(index).summary()));
+        }
+      }
+
+      assertEquals(450, page0.items().size());
+      assertEquals(1, page0.pageIndex());
+    }
+  }
+
+
   private static ArrayList<NPAgentDescription> generateLabelledAgents(
     final NPDatabaseQueriesAgentsType.PutType put,
     final HashMap<RDottedName, NPAgentLabel> labelsByName)
@@ -517,7 +575,7 @@ public final class NPDatabaseAgentsTest
   }
 
   /**
-   * Retrieving an agent by works.
+   * Retrieving an agent by id works.
    *
    * @throws Exception On errors
    */
@@ -545,6 +603,40 @@ public final class NPDatabaseAgentsTest
     this.transaction.commit();
 
     assertEquals(agent, get.execute(agent.id()).orElseThrow());
+  }
+
+  /**
+   * Deleted agents can't be retrieved.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentGetDeleted()
+    throws Exception
+  {
+    final var get =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+    final var delete =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.DeleteType.class);
+
+    final var agent =
+      new NPAgentDescription(
+        new NPAgentID(UUID.randomUUID()),
+        "Agent 0",
+        NPKey.generate(SecureRandom.getInstanceStrong()),
+        Map.of(),
+        Map.of(),
+        Map.of()
+      );
+
+    put.execute(agent);
+    this.transaction.commit();
+
+    delete.execute(agent.id());
+    assertEquals(Optional.empty(), get.execute(agent.id()));
   }
 
   /**

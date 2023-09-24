@@ -93,7 +93,11 @@ public final class NPDBQAgentGet
         .leftOuterJoin(AGENT_LABELS)
         .on(AGENTS.A_ID.eq(AGENT_LABELS.AL_AGENT))
         .leftOuterJoin(AGENT_LABEL_DEFINITIONS)
-        .on(AGENT_LABEL_DEFINITIONS.ALD_ID.eq(AGENT_LABELS.AL_LABEL));
+        .on(AGENT_LABEL_DEFINITIONS.ALD_ID.eq(AGENT_LABELS.AL_LABEL))
+        .where(
+          AGENTS.A_ID.eq(id.value())
+            .and(AGENTS.A_DELETED.eq(Boolean.FALSE))
+        );
 
     recordQuery(query);
     final var result = query.fetch();

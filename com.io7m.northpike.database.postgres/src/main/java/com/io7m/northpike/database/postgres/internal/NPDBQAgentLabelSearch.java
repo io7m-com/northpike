@@ -43,7 +43,7 @@ import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABEL_D
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_STATEMENT;
 
 /**
- * List repositories.
+ * List labels.
  */
 
 public final class NPDBQAgentLabelSearch

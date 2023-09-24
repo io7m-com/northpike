@@ -387,9 +387,10 @@ CREATE TABLE repository_commit_links (
 
     <Statement><![CDATA[
 CREATE TABLE agents (
-  a_id           UUID                      NOT NULL,
-  a_name         TEXT                      NOT NULL,
-  a_access_key   TEXT                      NOT NULL,
+  a_id           UUID    NOT NULL,
+  a_name         TEXT    NOT NULL,
+  a_access_key   TEXT    NOT NULL,
+  a_deleted      BOOLEAN NOT NULL,
 
   CONSTRAINT agents_primary_key
     PRIMARY KEY (a_id),

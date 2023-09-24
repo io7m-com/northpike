@@ -46,6 +46,17 @@ public sealed interface NPDatabaseQueriesAgentsType
   }
 
   /**
+   * Delete an agent.
+   */
+
+  non-sealed interface DeleteType
+    extends NPDatabaseQueryType<NPAgentID, NPDatabaseUnit>,
+    NPDatabaseQueriesAgentsType
+  {
+
+  }
+
+  /**
    * Retrieve an agent.
    */
 

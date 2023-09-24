@@ -35,6 +35,7 @@ import static com.io7m.northpike.database.postgres.internal.tables.AgentLabels.A
 import static com.io7m.northpike.database.postgres.internal.tables.AgentsEnvironments.AGENTS_ENVIRONMENTS;
 import static com.io7m.northpike.strings.NPStringConstants.AGENT;
 import static com.io7m.northpike.strings.NPStringConstants.AGENT_ID;
+import static java.lang.Boolean.FALSE;
 
 /**
  * Update an agent.
@@ -96,6 +97,7 @@ public final class NPDBQAgentPut
         .set(AGENTS.A_ID, agentId)
         .set(AGENTS.A_ACCESS_KEY, agent.accessKey().format())
         .set(AGENTS.A_NAME, agent.name())
+        .set(AGENTS.A_DELETED, FALSE)
         .onConflict(AGENTS.A_ID)
         .doUpdate()
         .set(AGENTS.A_ACCESS_KEY, agent.accessKey().format())

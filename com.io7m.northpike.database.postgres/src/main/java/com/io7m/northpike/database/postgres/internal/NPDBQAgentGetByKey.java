@@ -95,7 +95,10 @@ public final class NPDBQAgentGetByKey
         .on(AGENTS.A_ID.eq(AGENT_LABELS.AL_AGENT))
         .leftOuterJoin(AGENT_LABEL_DEFINITIONS)
         .on(AGENT_LABEL_DEFINITIONS.ALD_ID.eq(AGENT_LABELS.AL_LABEL))
-        .where(AGENTS.A_ACCESS_KEY.eq(key.format()));
+        .where(
+          AGENTS.A_ACCESS_KEY.eq(key.format())
+            .and(AGENTS.A_DELETED.eq(Boolean.FALSE))
+        );
 
     recordQuery(query);
     final var result = query.fetch();

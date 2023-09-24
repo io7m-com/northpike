@@ -52,6 +52,7 @@ import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABELS;
 import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABEL_DEFINITIONS;
 import static com.io7m.northpike.database.postgres.internal.tables.Agents.AGENTS;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_STATEMENT;
+import static java.lang.Boolean.FALSE;
 
 /**
  * Retrieve an agent.
@@ -77,6 +78,12 @@ public final class NPDBQAgentSearch
     DSL.field(
       DSL.name(AGENT_SEARCH, DSL.name("A_ID")),
       SQLDataType.UUID
+    );
+
+  private static final Field<Boolean> AGENT_SEARCH_DELETED_FIELD =
+    DSL.field(
+      DSL.name(AGENT_SEARCH, DSL.name("A_DELETED")),
+      SQLDataType.BOOLEAN
     );
 
   /**
@@ -135,7 +142,7 @@ public final class NPDBQAgentSearch
     if (querySet instanceof final QuerySetCondition c) {
       return context.select(AGENTS.A_ID, AGENTS.A_NAME)
         .from(tableSource)
-        .where(c.condition());
+        .where(c.condition().and(AGENTS.A_DELETED.eq(FALSE)));
     }
 
     if (querySet instanceof final QuerySetUnion u) {
