@@ -995,10 +995,14 @@ CREATE TABLE repository_keys (
     PRIMARY KEY (rk_repository, rk_key),
 
   CONSTRAINT repository_keys_public_key_exists
-    FOREIGN KEY (rk_key) REFERENCES public_keys (pk_id),
+    FOREIGN KEY (rk_key)
+    REFERENCES public_keys (pk_id)
+    ON DELETE CASCADE,
 
   CONSTRAINT repository_keys_repository_exists
-    FOREIGN KEY (rk_repository) REFERENCES repositories (r_id)
+    FOREIGN KEY (rk_repository)
+    REFERENCES repositories (r_id)
+    ON DELETE CASCADE
 )
 ]]></Statement>
 
