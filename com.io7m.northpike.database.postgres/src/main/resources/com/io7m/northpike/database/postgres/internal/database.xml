@@ -189,7 +189,8 @@ CREATE TABLE repositories (
     PRIMARY KEY (r_id),
 
   CONSTRAINT repositories_provider_exists
-    FOREIGN KEY (r_provider) REFERENCES scm_providers (sp_id),
+    FOREIGN KEY (r_provider)
+      REFERENCES scm_providers (sp_id),
 
   CONSTRAINT repositories_url_unique
     UNIQUE (r_url)
@@ -256,10 +257,12 @@ CREATE TABLE repository_commits (
     UNIQUE (rc_repository, rc_commit_id),
 
   CONSTRAINT repository_commits_repository_exists
-    FOREIGN KEY (rc_repository) REFERENCES repositories (r_id),
+    FOREIGN KEY (rc_repository)
+      REFERENCES repositories (r_id),
 
   CONSTRAINT repository_commits_author_exists
-    FOREIGN KEY (rc_commit_author) REFERENCES repository_commit_authors (rca_id),
+    FOREIGN KEY (rc_commit_author)
+      REFERENCES repository_commit_authors (rca_id),
 
   CONSTRAINT repository_commits_id_valid
     CHECK (rc_commit_id ~ '^[a-f0-9]+$')
@@ -293,7 +296,8 @@ CREATE TABLE repository_commit_tags (
   -- [jooq ignore stop]
 
   CONSTRAINT repository_commit_tags_commit_exists
-    FOREIGN KEY (rct_commit) REFERENCES repository_commits (rc_id)
+    FOREIGN KEY (rct_commit)
+      REFERENCES repository_commits (rc_id)
 )
 ]]></Statement>
 
@@ -325,7 +329,8 @@ CREATE TABLE repository_commit_branches (
   -- [jooq ignore stop]
 
   CONSTRAINT repository_commit_branches_commit_exists
-    FOREIGN KEY (rcb_commit) REFERENCES repository_commits (rc_id)
+    FOREIGN KEY (rcb_commit)
+      REFERENCES repository_commits (rc_id)
 )
 ]]></Statement>
 
@@ -354,10 +359,12 @@ CREATE TABLE repository_commit_links (
     PRIMARY KEY (rcl_commit, rcl_commit_next),
 
   CONSTRAINT repository_commit_links_commit_exists
-    FOREIGN KEY (rcl_commit) REFERENCES repository_commits (rc_id),
+    FOREIGN KEY (rcl_commit)
+      REFERENCES repository_commits (rc_id),
 
   CONSTRAINT repository_commit_links_commit_next_exists
-    FOREIGN KEY (rcl_commit_next) REFERENCES repository_commits (rc_id),
+    FOREIGN KEY (rcl_commit_next)
+      REFERENCES repository_commits (rc_id),
 
   CONSTRAINT repository_commit_links_next_well_formed
     CHECK (rcl_commit <> rcl_commit_next)
@@ -449,7 +456,8 @@ CREATE TABLE agents_properties (
   -- [jooq ignore stop]
 
   CONSTRAINT agents_properties_agent_exists
-    FOREIGN KEY (ap_id) REFERENCES agents (a_id)
+    FOREIGN KEY (ap_id)
+      REFERENCES agents (a_id)
 )
 ]]></Statement>
 
@@ -517,10 +525,12 @@ CREATE TABLE agent_labels (
     PRIMARY KEY (al_agent, al_label),
 
   CONSTRAINT agent_labels_label_exists
-    FOREIGN KEY (al_label) REFERENCES agent_label_definitions (ald_id),
+    FOREIGN KEY (al_label)
+      REFERENCES agent_label_definitions (ald_id),
 
   CONSTRAINT agent_labels_agent_exists
-    FOREIGN KEY (al_agent) REFERENCES agents (a_id)
+    FOREIGN KEY (al_agent)
+      REFERENCES agents (a_id)
 )
 ]]></Statement>
 
@@ -670,7 +680,8 @@ CREATE TABLE archives (
     CHECK (ar_hash_value ~ '^[a-f0-9]{64,128}$'),
 
   CONSTRAINT archives_commit_exists
-    FOREIGN KEY (ar_commit) REFERENCES repository_commits (rc_id)
+    FOREIGN KEY (ar_commit)
+      REFERENCES repository_commits (rc_id)
 )
 ]]></Statement>
 
@@ -713,7 +724,8 @@ CREATE TABLE assignments (
     PRIMARY KEY (a_id),
 
   CONSTRAINT assignments_repository_exists
-    FOREIGN KEY (a_repository) REFERENCES repositories (r_id),
+    FOREIGN KEY (a_repository)
+      REFERENCES repositories (r_id),
 
   CONSTRAINT assignments_plan_exists
     FOREIGN KEY (a_plan) REFERENCES plans (p_id),
@@ -810,10 +822,12 @@ CREATE TABLE assignment_executions (
     PRIMARY KEY (ae_id),
 
   CONSTRAINT assignment_executions_assignment_exists
-    FOREIGN KEY (ae_assignment) REFERENCES assignments (a_id),
+    FOREIGN KEY (ae_assignment)
+      REFERENCES assignments (a_id),
 
   CONSTRAINT assignment_executions_commit_exists
-    FOREIGN KEY (ae_commit) REFERENCES repository_commits (rc_id)
+    FOREIGN KEY (ae_commit)
+      REFERENCES repository_commits (rc_id)
 )
 ]]></Statement>
 
@@ -840,7 +854,8 @@ CREATE TABLE assignment_execution_logs (
   -- [jooq ignore stop]
 
   CONSTRAINT assignment_executions_logs_exists
-    FOREIGN KEY (ael_id) REFERENCES assignment_executions (ae_id)
+    FOREIGN KEY (ael_id)
+      REFERENCES assignment_executions (ae_id)
 )
 ]]></Statement>
 
@@ -901,13 +916,15 @@ CREATE TABLE work_items (
     PRIMARY KEY (wi_id),
 
   CONSTRAINT work_items_assignment_exists
-    FOREIGN KEY (wi_execution) REFERENCES assignment_executions (ae_id),
+    FOREIGN KEY (wi_execution)
+      REFERENCES assignment_executions (ae_id),
 
   CONSTRAINT work_items_name_valid
     CHECK (wi_name ~ '^([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}$'),
 
   CONSTRAINT work_items_agent_exists
-    FOREIGN KEY (wi_agent) REFERENCES agents (a_id)
+    FOREIGN KEY (wi_agent)
+      REFERENCES agents (a_id)
 )
 ]]></Statement>
 
@@ -934,7 +951,8 @@ CREATE TABLE work_item_logs (
     PRIMARY KEY (wil_id),
 
   CONSTRAINT work_item_logs_work_item_exists
-    FOREIGN KEY (wil_item) REFERENCES work_items (wi_id)
+    FOREIGN KEY (wil_item)
+      REFERENCES work_items (wi_id)
 )
 ]]></Statement>
 
@@ -996,13 +1014,13 @@ CREATE TABLE repository_keys (
 
   CONSTRAINT repository_keys_public_key_exists
     FOREIGN KEY (rk_key)
-    REFERENCES public_keys (pk_id)
-    ON DELETE CASCADE,
+      REFERENCES public_keys (pk_id)
+        ON DELETE CASCADE,
 
   CONSTRAINT repository_keys_repository_exists
     FOREIGN KEY (rk_repository)
-    REFERENCES repositories (r_id)
-    ON DELETE CASCADE
+      REFERENCES repositories (r_id)
+        ON DELETE CASCADE
 )
 ]]></Statement>
 
@@ -1039,10 +1057,12 @@ CREATE TABLE audit (
     ),
 
   CONSTRAINT audit_agent_exists
-    FOREIGN KEY (au_agent) REFERENCES agents (a_id),
+    FOREIGN KEY (au_agent)
+      REFERENCES agents (a_id),
 
   CONSTRAINT audit_user_exists
-    FOREIGN KEY (au_user) REFERENCES users (id)
+    FOREIGN KEY (au_user)
+      REFERENCES users (id)
 )
 ]]></Statement>
 
