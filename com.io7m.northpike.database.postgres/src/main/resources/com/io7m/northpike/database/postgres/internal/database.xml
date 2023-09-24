@@ -389,7 +389,7 @@ CREATE TABLE repository_commit_links (
 CREATE TABLE agents (
   a_id           UUID    NOT NULL,
   a_name         TEXT    NOT NULL,
-  a_access_key   TEXT    NOT NULL,
+  a_access_key   TEXT,
   a_deleted      BOOLEAN NOT NULL,
 
   CONSTRAINT agents_primary_key
@@ -399,6 +399,12 @@ CREATE TABLE agents (
   CONSTRAINT agents_access_key_unique
     UNIQUE (a_access_key),
   -- [jooq ignore stop]
+
+  CONSTRAINT agents_access_key_nullity
+    CHECK (
+         (a_deleted       AND (a_access_key IS NULL))
+      OR ((NOT a_deleted) AND (a_access_key IS NOT NULL))
+    ),
 
   CONSTRAINT agents_access_key_valid
     CHECK (a_access_key ~ '^[a-f0-9]{64}$')

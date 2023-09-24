@@ -218,7 +218,17 @@ public final class NPDatabaseExceptions
         .map(ServerErrorMessage::getConstraint)
         .orElse("");
 
-    return switch (constraint) {
+    return switch (constraint.toUpperCase(Locale.ROOT)) {
+      case "AGENTS_ACCESS_KEY_UNIQUE" -> {
+        yield new NPDatabaseException(
+          m,
+          e,
+          NPStandardErrorCodes.errorDuplicate(),
+          attributes,
+          Optional.empty()
+        );
+      }
+
       default -> {
         yield new NPDatabaseException(
           m,

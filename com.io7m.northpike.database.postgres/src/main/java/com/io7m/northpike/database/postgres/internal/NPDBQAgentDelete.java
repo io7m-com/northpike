@@ -67,6 +67,7 @@ public final class NPDBQAgentDelete
     final var updated =
       context.update(AGENTS)
         .set(AGENTS.A_DELETED, Boolean.TRUE)
+        .set(AGENTS.A_ACCESS_KEY, (String) null)
         .where(AGENTS.A_ID.eq(id.value()))
         .execute();
 

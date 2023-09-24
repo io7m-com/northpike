@@ -35,6 +35,7 @@ import com.io7m.northpike.model.NPAgentLabelMatchType.Specific;
 import com.io7m.northpike.model.NPAgentLabelSearchParameters;
 import com.io7m.northpike.model.NPAgentSearchParameters;
 import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
@@ -60,6 +61,7 @@ import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPAgentLabelMatchType.AnyLabel.ANY_LABEL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
@@ -637,6 +639,58 @@ public final class NPDatabaseAgentsTest
 
     delete.execute(agent.id());
     assertEquals(Optional.empty(), get.execute(agent.id()));
+  }
+
+  /**
+   * The access keys of deleted agents are no longer unique.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentGetDeletedAccessUnique()
+    throws Exception
+  {
+    final var get =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.GetByKeyType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+    final var delete =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.DeleteType.class);
+
+    final var key =
+      NPKey.generate(SecureRandom.getInstanceStrong());
+
+    final var agent0 =
+      new NPAgentDescription(
+        new NPAgentID(UUID.randomUUID()),
+        "Agent 0",
+        key,
+        Map.of(),
+        Map.of(),
+        Map.of()
+      );
+
+    final var agent1 =
+      new NPAgentDescription(
+        new NPAgentID(UUID.randomUUID()),
+        "Agent 0",
+        key,
+        Map.of(),
+        Map.of(),
+        Map.of()
+      );
+
+    put.execute(agent0);
+
+    final var ex =
+      assertThrows(NPDatabaseException.class, () -> put.execute(agent1));
+    assertEquals(NPStandardErrorCodes.errorDuplicate(), ex.errorCode());
+
+    delete.execute(agent0.id());
+    put.execute(agent1);
+
+    assertEquals(agent1, get.execute(key).orElseThrow());
   }
 
   /**
