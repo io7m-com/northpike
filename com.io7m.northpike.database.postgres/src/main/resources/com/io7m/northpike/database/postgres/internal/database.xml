@@ -675,7 +675,7 @@ CREATE TABLE archives (
 ]]></Statement>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE ON archives TO northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON archives TO northpike
     </Statement>
     <Statement>
       GRANT SELECT ON archives TO northpike_read_only
