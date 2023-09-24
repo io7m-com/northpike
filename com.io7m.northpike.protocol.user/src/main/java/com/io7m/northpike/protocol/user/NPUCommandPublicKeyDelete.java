@@ -23,33 +23,33 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Retrieve public keys.
+ * Delete public keys.
  *
  * @param messageID  The message ID
  * @param fingerprint The fingerprint
  */
 
-public record NPUCommandPublicKeyGet(
+public record NPUCommandPublicKeyDelete(
   UUID messageID,
   NPFingerprint fingerprint)
-  implements NPUCommandType<NPUResponsePublicKeyGet>
+  implements NPUCommandType<NPUResponseOK>
 {
   /**
-   * Retrieve public keys.
+   * Delete public keys.
    *
    * @param messageID  The message ID
    * @param fingerprint The fingerprint
    */
 
-  public NPUCommandPublicKeyGet
+  public NPUCommandPublicKeyDelete
   {
     Objects.requireNonNull(messageID, "messageId");
     Objects.requireNonNull(fingerprint, "fingerprint");
   }
 
   @Override
-  public Class<NPUResponsePublicKeyGet> responseClass()
+  public Class<NPUResponseOK> responseClass()
   {
-    return NPUResponsePublicKeyGet.class;
+    return NPUResponseOK.class;
   }
 }

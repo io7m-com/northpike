@@ -37,7 +37,7 @@ public record NPUCommandPublicKeySearchBegin(
   NPPublicKeySearchParameters>
 {
   /**
-   * Start searching repositories.
+   * Start searching public keys.
    *
    * @param messageID  The message ID
    * @param parameters The search parameters

@@ -44,6 +44,7 @@ import com.io7m.northpike.protocol.user.NPUCommandPlanSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandPlanValidate;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeyDelete;
 import com.io7m.northpike.protocol.user.NPUCommandPublicKeyGet;
 import com.io7m.northpike.protocol.user.NPUCommandPublicKeyPut;
 import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchBegin;
@@ -235,6 +236,9 @@ public final class NPUCmd
         return new NPUCmdAssignmentExecutionSearchPrevious().execute(context, c);
       }
 
+      if (command instanceof final NPUCommandPublicKeyDelete c) {
+        return new NPUCmdPublicKeyDelete().execute(context, c);
+      }
       if (command instanceof final NPUCommandPublicKeyPut c) {
         return new NPUCmdPublicKeyPut().execute(context, c);
       }

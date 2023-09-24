@@ -85,6 +85,7 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQPlanGetRaw,
     com.io7m.northpike.database.postgres.internal.NPDBQPlanPut,
     com.io7m.northpike.database.postgres.internal.NPDBQPlanSearch,
+    com.io7m.northpike.database.postgres.internal.NPDBQPublicKeyDelete,
     com.io7m.northpike.database.postgres.internal.NPDBQPublicKeyGet,
     com.io7m.northpike.database.postgres.internal.NPDBQPublicKeyPut,
     com.io7m.northpike.database.postgres.internal.NPDBQPublicKeySearch,

@@ -51,6 +51,7 @@ import com.io7m.northpike.protocol.user.NPUCommandPlanSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandPlanValidate;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeyDelete;
 import com.io7m.northpike.protocol.user.NPUCommandPublicKeyGet;
 import com.io7m.northpike.protocol.user.NPUCommandPublicKeyPut;
 import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchBegin;
@@ -133,6 +134,7 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanSearch
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanSearchNext.COMMAND_PLAN_SEARCH_NEXT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanSearchPrevious.COMMAND_PLAN_SEARCH_PREVIOUS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanValidate.COMMAND_PLAN_VALIDATE;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPublicKeyDelete.COMMAND_PUBLIC_KEY_DELETE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPublicKeyGet.COMMAND_PUBLIC_KEY_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPublicKeyPut.COMMAND_PUBLIC_KEY_PUT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPublicKeySearchBegin.COMMAND_PUBLIC_KEY_SEARCH_BEGIN;
@@ -346,6 +348,9 @@ public final class NPU1Validation
     if (command instanceof final NPUCommandPublicKeySearchPrevious c) {
       return COMMAND_PUBLIC_KEY_SEARCH_PREVIOUS.convertToWire(c);
     }
+    if (command instanceof final NPUCommandPublicKeyDelete c) {
+      return COMMAND_PUBLIC_KEY_DELETE.convertToWire(c);
+    }
 
     if (command instanceof final NPUCommandRolesAssign c) {
       return COMMAND_ROLES_ASSIGN.convertToWire(c);
@@ -534,6 +539,9 @@ public final class NPU1Validation
     }
     if (message instanceof final NPU1CommandPublicKeySearchPrevious c) {
       return COMMAND_PUBLIC_KEY_SEARCH_PREVIOUS.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandPublicKeyDelete c) {
+      return COMMAND_PUBLIC_KEY_DELETE.convertFromWire(c);
     }
 
     if (message instanceof final NPU1CommandAgentLabelPut c) {

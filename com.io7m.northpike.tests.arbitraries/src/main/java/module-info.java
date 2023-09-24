@@ -145,6 +145,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanSearchNext,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanSearchPrevious,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanValidate,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPublicKeyDelete,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPublicKeyGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPublicKeyPut,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPublicKeySearchBegin,

@@ -22,11 +22,18 @@ import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyAssignType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyIsAssignedType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPPublicKeySearchParameters;
+import com.io7m.northpike.model.NPRepositoryCredentialsNone;
+import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositorySigningPolicy;
+import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
@@ -38,6 +45,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.OffsetDateTime;
@@ -49,6 +57,7 @@ import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
@@ -107,6 +116,8 @@ public final class NPDatabasePublicKeysTest
       this.transaction.queries(NPDatabaseQueriesPublicKeysType.GetType.class);
     final var put =
       this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+    final var delete =
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.DeleteType.class);
 
     final var description =
       new NPPublicKey(
@@ -133,6 +144,9 @@ public final class NPDatabasePublicKeysTest
 
     put.execute(description);
     assertEquals(description, get.execute(description.fingerprint()).orElseThrow());
+
+    delete.execute(description.fingerprint());
+    assertEquals(Optional.empty(), get.execute(description.fingerprint()));
   }
 
   /**
@@ -151,6 +165,82 @@ public final class NPDatabasePublicKeysTest
     assertEquals(
       Optional.empty(),
       get.execute(new NPFingerprint("2fa1d7febfe758ffe9f91b5ff76e8bede95d8ce1"))
+    );
+  }
+
+  /**
+   * Assigned keys can be deleted.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPublicKeyAssignedDelete()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+    final var delete =
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.DeleteType.class);
+
+    final var reposPut =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+    final var reposKeyAssign =
+      this.transaction.queries(PublicKeyAssignType.class);
+    final var reposKeyAssigned =
+      this.transaction.queries(PublicKeyIsAssignedType.class);
+
+    final var description =
+      new NPPublicKey(
+        Set.of("Example (Example) <example@example.com>"),
+        new NPFingerprint("2fa1d7febfe758ffe9f91b5ff76e8bede95d8ce1"),
+        OffsetDateTime.now().withNano(0),
+        Optional.empty(),
+        """
+          -----BEGIN PGP PUBLIC KEY BLOCK-----
+
+          mDMEZQ2b3BYJKwYBBAHaRw8BAQdAlyurVHs8w5+VvhGU6++xmsQCfc+35lYZro0O
+          ugEroKu0J0V4YW1wbGUgKEV4YW1wbGUpIDxleGFtcGxlQGV4YW1wbGUuY29tPoiW
+          BBMWCAA+FiEEL6HX/r/nWP/p+Rtf926L7eldjOEFAmUNm9wCGwMFCTPoWgAFCwkI
+          BwMFFQoJCAsFFgIDAQACHgECF4AACgkQ926L7eldjOEclAEA2DG7KtzQ7A6tDQP3
+          pbXiNwK8fuMXR8ALJ01z9dDsPLgA/2wlWC/TAFuG7AdAvWfEU4U6snFDayz8YPot
+          zA1rFJcI
+          =bfKj
+          -----END PGP PUBLIC KEY BLOCK-----
+                    """
+      );
+
+    final var repositoryDescription =
+      new NPRepositoryDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        UUID.randomUUID(),
+        URI.create("http://www.example.com/git0"),
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS
+      );
+
+    reposPut.execute(repositoryDescription);
+    put.execute(description);
+
+    reposKeyAssign.execute(new PublicKeyAssignType.Parameters(
+      repositoryDescription.id(),
+      description.fingerprint()
+    ));
+
+    assertTrue(
+      reposKeyAssigned.execute(new PublicKeyIsAssignedType.Parameters(
+        repositoryDescription.id(),
+        description.fingerprint()
+      )).booleanValue()
+    );
+
+    delete.execute(description.fingerprint());
+
+    assertFalse(
+      reposKeyAssigned.execute(new PublicKeyIsAssignedType.Parameters(
+        repositoryDescription.id(),
+        description.fingerprint()
+      )).booleanValue()
     );
   }
 

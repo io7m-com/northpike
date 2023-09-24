@@ -853,6 +853,14 @@
   [field messageId cb:UUID]
 ]
 
+[documentation NPU1CommandPublicKeyDelete "Delete a public key."]
+[record NPU1CommandPublicKeyDelete
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation fingerprint "The public key fingerprint"]
+  [field fingerprint cb:String]
+]
+
 ;
 ; Audit
 ;
@@ -1153,6 +1161,7 @@
       NPU1CommandPlanSearchNext
       NPU1CommandPlanSearchPrevious
       NPU1CommandPlanValidate
+      NPU1CommandPublicKeyDelete
       NPU1CommandPublicKeyGet
       NPU1CommandPublicKeyPut
       NPU1CommandPublicKeySearchBegin

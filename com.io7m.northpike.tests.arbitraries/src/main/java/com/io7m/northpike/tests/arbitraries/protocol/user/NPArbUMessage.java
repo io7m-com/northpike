@@ -49,6 +49,7 @@ import com.io7m.northpike.protocol.user.NPUCommandPlanSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandPlanValidate;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeyDelete;
 import com.io7m.northpike.protocol.user.NPUCommandPublicKeyGet;
 import com.io7m.northpike.protocol.user.NPUCommandPublicKeyPut;
 import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchBegin;
@@ -142,6 +143,7 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUCommandPlanSearchNext.class,
               NPUCommandPlanSearchPrevious.class,
               NPUCommandPlanValidate.class,
+              NPUCommandPublicKeyDelete.class,
               NPUCommandPublicKeyGet.class,
               NPUCommandPublicKeyPut.class,
               NPUCommandPublicKeySearchBegin.class,

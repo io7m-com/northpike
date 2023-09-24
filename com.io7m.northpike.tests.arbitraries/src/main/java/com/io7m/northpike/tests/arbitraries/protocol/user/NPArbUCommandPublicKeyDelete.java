@@ -15,41 +15,29 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries.protocol.user;
 
 import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeyDelete;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-import java.util.Objects;
 import java.util.UUID;
 
-/**
- * Retrieve public keys.
- *
- * @param messageID  The message ID
- * @param fingerprint The fingerprint
- */
-
-public record NPUCommandPublicKeyGet(
-  UUID messageID,
-  NPFingerprint fingerprint)
-  implements NPUCommandType<NPUResponsePublicKeyGet>
+public final class NPArbUCommandPublicKeyDelete
+  extends NPArbAbstract<NPUCommandPublicKeyDelete>
 {
-  /**
-   * Retrieve public keys.
-   *
-   * @param messageID  The message ID
-   * @param fingerprint The fingerprint
-   */
-
-  public NPUCommandPublicKeyGet
+  public NPArbUCommandPublicKeyDelete()
   {
-    Objects.requireNonNull(messageID, "messageId");
-    Objects.requireNonNull(fingerprint, "fingerprint");
-  }
-
-  @Override
-  public Class<NPUResponsePublicKeyGet> responseClass()
-  {
-    return NPUResponsePublicKeyGet.class;
+    super(
+      NPUCommandPublicKeyDelete.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(NPFingerprint.class)
+        ).as(NPUCommandPublicKeyDelete::new);
+      }
+    );
   }
 }

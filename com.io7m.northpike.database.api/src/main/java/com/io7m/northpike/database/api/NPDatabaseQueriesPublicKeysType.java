@@ -62,4 +62,15 @@ public sealed interface NPDatabaseQueriesPublicKeysType
   {
 
   }
+
+  /**
+   * Delete the given public key.
+   */
+
+  non-sealed interface DeleteType
+    extends NPDatabaseQueryType<NPFingerprint, NPDatabaseUnit>,
+    NPDatabaseQueriesPublicKeysType
+  {
+
+  }
 }
