@@ -36,7 +36,7 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_SEARCH_NOT_STAR
  */
 
 public final class NPUCmdPublicKeySearchPrevious
-  implements NPUserCommandExecutorType<NPUResponsePublicKeySearch, NPUCommandPublicKeySearchPrevious>
+  extends NPUCmdAbstract<NPUResponsePublicKeySearch, NPUCommandPublicKeySearchPrevious>
 {
   /**
    * @see NPUCommandPublicKeySearchPrevious
@@ -44,7 +44,7 @@ public final class NPUCmdPublicKeySearchPrevious
 
   public NPUCmdPublicKeySearchPrevious()
   {
-
+    super(NPUCommandPublicKeySearchPrevious.class);
   }
 
   @Override

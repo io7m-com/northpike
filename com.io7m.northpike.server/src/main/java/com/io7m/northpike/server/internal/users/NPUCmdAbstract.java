@@ -17,34 +17,35 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
-import com.io7m.northpike.protocol.user.NPUResponseOK;
+import com.io7m.northpike.protocol.user.NPUCommandType;
+import com.io7m.northpike.protocol.user.NPUResponseType;
+
+import java.util.Objects;
 
 /**
- * @see NPUCommandDisconnect
+ * An abstract command executor.
+ *
+ * @param <R> The response type
+ * @param <C> The command type
  */
 
-public final class NPUCmdDisconnect
-  extends NPUCmdAbstract<NPUResponseOK, NPUCommandDisconnect>
+public abstract class NPUCmdAbstract<
+  R extends NPUResponseType,
+  C extends NPUCommandType<R>>
+  implements NPUserCommandExecutorType<R, C>
 {
-  /**
-   * @see NPUCommandDisconnect
-   */
+  private final Class<C> commandClass;
 
-  public NPUCmdDisconnect()
+  protected NPUCmdAbstract(
+    final Class<C> inCommandClass)
   {
-    super(NPUCommandDisconnect.class);
+    this.commandClass =
+      Objects.requireNonNull(inCommandClass, "commandClass");
   }
 
   @Override
-  public NPUResponseOK execute(
-    final NPUserCommandContextType context,
-    final NPUCommandDisconnect command)
-    throws NPException
+  public final Class<C> commandClass()
   {
-    context.onAuthenticationRequire();
-    context.disconnect();
-    return NPUResponseOK.createCorrelated(command);
+    return this.commandClass;
   }
 }

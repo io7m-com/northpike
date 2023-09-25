@@ -44,7 +44,7 @@ import static com.io7m.northpike.strings.NPStringConstants.SUGGEST_COMPILATION_F
  */
 
 public final class NPUCmdToolExecutionDescriptionPut
-  implements NPUserCommandExecutorType<NPUResponseOK, NPUCommandToolExecutionDescriptionPut>
+  extends NPUCmdAbstract<NPUResponseOK, NPUCommandToolExecutionDescriptionPut>
 {
   /**
    * @see NPUCommandToolExecutionDescriptionPut
@@ -52,7 +52,7 @@ public final class NPUCmdToolExecutionDescriptionPut
 
   public NPUCmdToolExecutionDescriptionPut()
   {
-
+    super(NPUCommandToolExecutionDescriptionPut.class);
   }
 
   @Override

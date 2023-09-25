@@ -70,6 +70,7 @@ public final class NPUserTask
 
   private final RPServiceDirectoryType services;
   private final NPUserServerConnectionType connection;
+  private final NPUCmd commandExecutor;
   private final NPConfigurationServiceType configuration;
   private final NPStrings strings;
   private final NPClockServiceType clock;
@@ -85,6 +86,7 @@ public final class NPUserTask
   private NPUserTask(
     final RPServiceDirectoryType inServices,
     final NPUserServerConnectionType inConnection,
+    final NPUCmd inCommandExecutor,
     final NPConfigurationServiceType inConfiguration,
     final NPStrings inStrings,
     final NPClockServiceType inClock,
@@ -97,6 +99,8 @@ public final class NPUserTask
       Objects.requireNonNull(inServices, "inServices");
     this.connection =
       Objects.requireNonNull(inConnection, "connection");
+    this.commandExecutor =
+      Objects.requireNonNull(inCommandExecutor, "commandExecutor");
     this.configuration =
       Objects.requireNonNull(inConfiguration, "configuration");
     this.strings =
@@ -149,6 +153,9 @@ public final class NPUserTask
     final var idstore =
       services.requireService(NPIdstoreClientsType.class);
 
+    final var commandExecutor =
+      NPUCmd.create();
+
     final var sizeLimit =
       configuration.configuration()
         .userConfiguration()
@@ -158,6 +165,7 @@ public final class NPUserTask
       return new NPUserTask(
         services,
         NPUserServerConnection.open(strings, sizeLimit, socket),
+        commandExecutor,
         configuration,
         strings,
         clock,
@@ -253,7 +261,7 @@ public final class NPUserTask
         this.attributes.put(this.strings.format(AGENT_ID), user.toString());
       });
 
-    this.connection.send(new NPUCmd().execute(this, message));
+    this.connection.send(this.commandExecutor.execute(this, message));
   }
 
   @Override

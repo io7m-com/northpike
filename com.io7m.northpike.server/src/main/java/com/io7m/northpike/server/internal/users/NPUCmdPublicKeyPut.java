@@ -32,7 +32,7 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
  */
 
 public final class NPUCmdPublicKeyPut
-  implements NPUserCommandExecutorType<NPUResponseOK, NPUCommandPublicKeyPut>
+  extends NPUCmdAbstract<NPUResponseOK, NPUCommandPublicKeyPut>
 {
   /**
    * @see NPUCommandPublicKeyPut
@@ -40,7 +40,7 @@ public final class NPUCmdPublicKeyPut
 
   public NPUCmdPublicKeyPut()
   {
-
+    super(NPUCommandPublicKeyPut.class);
   }
 
   @Override

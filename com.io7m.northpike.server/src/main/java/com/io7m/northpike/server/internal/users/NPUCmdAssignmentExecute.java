@@ -39,7 +39,7 @@ import static java.util.Map.ofEntries;
  */
 
 public final class NPUCmdAssignmentExecute
-  implements NPUserCommandExecutorType<NPUResponseOK, NPUCommandAssignmentExecute>
+  extends NPUCmdAbstract<NPUResponseOK, NPUCommandAssignmentExecute>
 {
   /**
    * @see NPUCommandAssignmentExecute
@@ -47,7 +47,7 @@ public final class NPUCmdAssignmentExecute
 
   public NPUCmdAssignmentExecute()
   {
-
+    super(NPUCommandAssignmentExecute.class);
   }
 
   private static void logAuditEvent(

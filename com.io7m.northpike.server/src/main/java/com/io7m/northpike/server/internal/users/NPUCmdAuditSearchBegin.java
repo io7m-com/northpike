@@ -33,7 +33,7 @@ import java.util.UUID;
  */
 
 public final class NPUCmdAuditSearchBegin
-  implements NPUserCommandExecutorType<NPUResponseAuditSearch, NPUCommandAuditSearchBegin>
+  extends NPUCmdAbstract<NPUResponseAuditSearch, NPUCommandAuditSearchBegin>
 {
   /**
    * @see NPUCommandAuditSearchBegin
@@ -41,7 +41,7 @@ public final class NPUCmdAuditSearchBegin
 
   public NPUCmdAuditSearchBegin()
   {
-
+    super(NPUCommandAuditSearchBegin.class);
   }
 
   @Override

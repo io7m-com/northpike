@@ -40,7 +40,7 @@ import static com.io7m.northpike.telemetry.api.NPTelemetryServiceType.recordSpan
  */
 
 public final class NPUCmdLogin
-  implements NPUserCommandExecutorType<NPUResponseOK, NPUCommandLogin>
+  extends NPUCmdAbstract<NPUResponseOK, NPUCommandLogin>
 {
   /**
    * @see NPUCommandLogin
@@ -48,7 +48,7 @@ public final class NPUCmdLogin
 
   public NPUCmdLogin()
   {
-
+    super(NPUCommandLogin.class);
   }
 
   @Override

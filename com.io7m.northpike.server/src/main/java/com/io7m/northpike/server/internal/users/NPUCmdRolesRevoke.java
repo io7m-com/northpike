@@ -36,7 +36,7 @@ import java.util.Set;
  */
 
 public final class NPUCmdRolesRevoke
-  implements NPUserCommandExecutorType<NPUResponseOK, NPUCommandRolesRevoke>
+  extends NPUCmdAbstract<NPUResponseOK, NPUCommandRolesRevoke>
 {
   /**
    * @see NPUCommandRolesRevoke
@@ -44,7 +44,7 @@ public final class NPUCmdRolesRevoke
 
   public NPUCmdRolesRevoke()
   {
-
+    super(NPUCommandRolesRevoke.class);
   }
 
   private static NPUResponseOK revokeRoles(

@@ -181,6 +181,27 @@
   [MatchAction  [WithName execute]]
 ]
 
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom assignment_executions.reader]]
+  [MatchObject  [WithType assignment_executions]]
+  [MatchAction  [WithName read]]
+]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom assignment_executions.writer]]
+  [MatchObject  [WithType assignment_executions]]
+  [MatchAction  [WithName delete]]
+]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom assignment_executions.writer]]
+  [MatchObject  [WithType assignment_executions]]
+  [MatchAction  [WithName write]]
+]
+
 #------------------------------------------------------------------------
 # Public Keys
 #

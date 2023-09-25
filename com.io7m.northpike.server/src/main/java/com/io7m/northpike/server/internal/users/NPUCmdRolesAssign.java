@@ -40,7 +40,7 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_OPERATION_NOT_P
  */
 
 public final class NPUCmdRolesAssign
-  implements NPUserCommandExecutorType<NPUResponseOK, NPUCommandRolesAssign>
+  extends NPUCmdAbstract<NPUResponseOK, NPUCommandRolesAssign>
 {
   /**
    * @see NPUCommandRolesAssign
@@ -48,7 +48,7 @@ public final class NPUCmdRolesAssign
 
   public NPUCmdRolesAssign()
   {
-
+    super(NPUCommandRolesAssign.class);
   }
 
   private static NPUResponseOK assignRoles(

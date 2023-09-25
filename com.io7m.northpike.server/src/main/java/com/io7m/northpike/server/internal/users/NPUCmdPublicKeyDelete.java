@@ -31,7 +31,7 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
  */
 
 public final class NPUCmdPublicKeyDelete
-  implements NPUserCommandExecutorType<NPUResponseOK, NPUCommandPublicKeyDelete>
+  extends NPUCmdAbstract<NPUResponseOK, NPUCommandPublicKeyDelete>
 {
   /**
    * @see NPUCommandPublicKeyDelete
@@ -39,7 +39,7 @@ public final class NPUCmdPublicKeyDelete
 
   public NPUCmdPublicKeyDelete()
   {
-
+    super(NPUCommandPublicKeyDelete.class);
   }
 
   @Override

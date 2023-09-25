@@ -31,7 +31,7 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
  */
 
 public final class NPUCmdAgentLabelDelete
-  implements NPUserCommandExecutorType<NPUResponseOK, NPUCommandAgentLabelDelete>
+  extends NPUCmdAbstract<NPUResponseOK, NPUCommandAgentLabelDelete>
 {
   /**
    * @see NPUCommandAgentLabelDelete
@@ -39,7 +39,7 @@ public final class NPUCmdAgentLabelDelete
 
   public NPUCmdAgentLabelDelete()
   {
-
+    super(NPUCommandAgentLabelDelete.class);
   }
 
   @Override

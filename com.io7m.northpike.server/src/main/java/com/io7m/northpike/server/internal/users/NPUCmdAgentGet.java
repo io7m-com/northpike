@@ -30,7 +30,7 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
  */
 
 public final class NPUCmdAgentGet
-  implements NPUserCommandExecutorType<NPUResponseAgentGet, NPUCommandAgentGet>
+  extends NPUCmdAbstract<NPUResponseAgentGet, NPUCommandAgentGet>
 {
   /**
    * @see NPUCommandAgentGet
@@ -38,7 +38,7 @@ public final class NPUCmdAgentGet
 
   public NPUCmdAgentGet()
   {
-
+    super(NPUCommandAgentGet.class);
   }
 
   @Override

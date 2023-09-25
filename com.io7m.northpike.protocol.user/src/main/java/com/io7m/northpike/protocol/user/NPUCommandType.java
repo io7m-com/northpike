@@ -34,6 +34,7 @@ public sealed interface NPUCommandType<R extends NPUResponseType>
   NPUCommandAgentPut,
   NPUCommandAgentSearchNext,
   NPUCommandAgentSearchPrevious,
+  NPUCommandAssignmentExecutionDelete,
   NPUCommandAssignmentExecute,
   NPUCommandAssignmentExecutionSearchNext,
   NPUCommandAssignmentExecutionSearchPrevious,

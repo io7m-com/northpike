@@ -31,7 +31,7 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
  */
 
 public final class NPUCmdRepositoryPut
-  implements NPUserCommandExecutorType<NPUResponseOK, NPUCommandRepositoryPut>
+  extends NPUCmdAbstract<NPUResponseOK, NPUCommandRepositoryPut>
 {
   /**
    * @see NPUCommandRepositoryPut
@@ -39,7 +39,7 @@ public final class NPUCmdRepositoryPut
 
   public NPUCmdRepositoryPut()
   {
-
+    super(NPUCommandRepositoryPut.class);
   }
 
   @Override

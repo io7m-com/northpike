@@ -35,7 +35,7 @@ import java.util.UUID;
  */
 
 public final class NPUCmdRepositorySearchBegin
-  implements NPUserCommandExecutorType<NPUResponseRepositorySearch, NPUCommandRepositorySearchBegin>
+  extends NPUCmdAbstract<NPUResponseRepositorySearch, NPUCommandRepositorySearchBegin>
 {
   /**
    * @see NPUCommandRepositorySearchBegin
@@ -43,7 +43,7 @@ public final class NPUCmdRepositorySearchBegin
 
   public NPUCmdRepositorySearchBegin()
   {
-
+    super(NPUCommandRepositorySearchBegin.class);
   }
 
   @Override

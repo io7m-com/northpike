@@ -33,7 +33,7 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
  */
 
 public final class NPUCmdRolesGet
-  implements NPUserCommandExecutorType<NPUResponseRolesGet, NPUCommandRolesGet>
+  extends NPUCmdAbstract<NPUResponseRolesGet, NPUCommandRolesGet>
 {
   /**
    * @see NPUCommandRolesGet
@@ -41,7 +41,7 @@ public final class NPUCmdRolesGet
 
   public NPUCmdRolesGet()
   {
-
+    super(NPUCommandRolesGet.class);
   }
 
   @Override

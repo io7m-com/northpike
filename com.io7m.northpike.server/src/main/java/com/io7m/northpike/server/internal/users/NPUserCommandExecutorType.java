@@ -33,6 +33,12 @@ public interface NPUserCommandExecutorType<
   C extends NPUCommandType<R>>
 {
   /**
+   * @return The command class
+   */
+
+  Class<C> commandClass();
+
+  /**
    * Execute a command.
    *
    * @param context The context

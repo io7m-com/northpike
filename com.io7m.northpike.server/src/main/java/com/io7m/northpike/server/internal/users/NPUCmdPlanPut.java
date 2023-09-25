@@ -44,7 +44,7 @@ import static com.io7m.northpike.strings.NPStringConstants.SUGGEST_COMPILATION_F
  */
 
 public final class NPUCmdPlanPut
-  implements NPUserCommandExecutorType<NPUResponseOK, NPUCommandPlanPut>
+  extends NPUCmdAbstract<NPUResponseOK, NPUCommandPlanPut>
 {
   /**
    * @see NPUCommandPlanPut
@@ -52,7 +52,7 @@ public final class NPUCmdPlanPut
 
   public NPUCmdPlanPut()
   {
-
+    super(NPUCommandPlanPut.class);
   }
 
   @Override

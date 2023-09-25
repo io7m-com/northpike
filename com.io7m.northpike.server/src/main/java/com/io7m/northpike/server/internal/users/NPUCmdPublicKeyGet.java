@@ -31,7 +31,7 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
  */
 
 public final class NPUCmdPublicKeyGet
-  implements NPUserCommandExecutorType<NPUResponsePublicKeyGet, NPUCommandPublicKeyGet>
+  extends NPUCmdAbstract<NPUResponsePublicKeyGet, NPUCommandPublicKeyGet>
 {
   /**
    * @see NPUCommandPublicKeyGet
@@ -39,7 +39,7 @@ public final class NPUCmdPublicKeyGet
 
   public NPUCmdPublicKeyGet()
   {
-
+    super(NPUCommandPublicKeyGet.class);
   }
 
   @Override

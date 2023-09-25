@@ -34,7 +34,7 @@ import java.util.UUID;
  */
 
 public final class NPUCmdPublicKeySearchBegin
-  implements NPUserCommandExecutorType<NPUResponsePublicKeySearch, NPUCommandPublicKeySearchBegin>
+  extends NPUCmdAbstract<NPUResponsePublicKeySearch, NPUCommandPublicKeySearchBegin>
 {
   /**
    * @see NPUCommandPublicKeySearchBegin
@@ -42,7 +42,7 @@ public final class NPUCmdPublicKeySearchBegin
 
   public NPUCmdPublicKeySearchBegin()
   {
-
+    super(NPUCommandPublicKeySearchBegin.class);
   }
 
   @Override

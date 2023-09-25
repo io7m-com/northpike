@@ -119,6 +119,21 @@ public enum NPSecObject
   },
 
   /**
+   * The assignment executions.
+   */
+
+  ASSIGNMENT_EXECUTIONS {
+    private static final MObject ASSIGNMENT_EXECUTIONS_OBJECT =
+      new MObject(MTypeName.of("assignment_executions"), Map.of());
+
+    @Override
+    public MObject object()
+    {
+      return ASSIGNMENT_EXECUTIONS_OBJECT;
+    }
+  },
+
+  /**
    * The SCM providers.
    */
 

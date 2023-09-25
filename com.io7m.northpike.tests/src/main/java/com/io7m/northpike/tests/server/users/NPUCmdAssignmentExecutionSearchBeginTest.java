@@ -222,7 +222,7 @@ public final class NPUCmdAssignmentExecutionSearchBeginTest
       new NPUser(
         UUID.fromString("ab27f114-6b29-5ab2-a528-b41ef98abe76"),
         new IdName("x"),
-        new MSubject(Set.of(NPSecRole.ASSIGNMENTS_READER.role()))
+        new MSubject(Set.of(NPSecRole.ASSIGNMENT_EXECUTIONS_READER.role()))
       );
 
     Mockito.when(this.context.onAuthenticationRequire())

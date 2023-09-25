@@ -30,7 +30,7 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
  */
 
 public final class NPUCmdRepositoryPublicKeysAssigned
-  implements NPUserCommandExecutorType<
+  extends NPUCmdAbstract<
   NPUResponseRepositoryPublicKeysAssigned, NPUCommandRepositoryPublicKeysAssigned>
 {
   /**
@@ -39,7 +39,7 @@ public final class NPUCmdRepositoryPublicKeysAssigned
 
   public NPUCmdRepositoryPublicKeysAssigned()
   {
-
+    super(NPUCommandRepositoryPublicKeysAssigned.class);
   }
 
   @Override

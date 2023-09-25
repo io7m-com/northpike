@@ -31,6 +31,7 @@ import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecute;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionDelete;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchPrevious;
@@ -114,6 +115,7 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentSearc
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentSearchNext.COMMAND_AGENT_SEARCH_NEXT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentSearchPrevious.COMMAND_AGENT_SEARCH_PREVIOUS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAssignmentExecute.COMMAND_ASSIGNMENT_EXECUTE;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAssignmentExecutionDelete.COMMAND_ASSIGNMENT_EXECUTION_DELETE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAssignmentExecutionSearchBegin.COMMAND_ASSIGNMENT_EXECUTION_SEARCH_BEGIN;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAssignmentExecutionSearchNext.COMMAND_ASSIGNMENT_EXECUTION_SEARCH_NEXT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAssignmentExecutionSearchPrevious.COMMAND_ASSIGNMENT_EXECUTION_SEARCH_PREVIOUS;
@@ -453,6 +455,9 @@ public final class NPU1Validation
     if (command instanceof final NPUCommandAssignmentExecute c) {
       return COMMAND_ASSIGNMENT_EXECUTE.convertToWire(c);
     }
+    if (command instanceof final NPUCommandAssignmentExecutionDelete c) {
+      return COMMAND_ASSIGNMENT_EXECUTION_DELETE.convertToWire(c);
+    }
     if (command instanceof final NPUCommandAssignmentExecutionSearchBegin c) {
       return COMMAND_ASSIGNMENT_EXECUTION_SEARCH_BEGIN.convertToWire(c);
     }
@@ -644,6 +649,9 @@ public final class NPU1Validation
     }
     if (message instanceof final NPU1CommandAssignmentExecute c) {
       return COMMAND_ASSIGNMENT_EXECUTE.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandAssignmentExecutionDelete c) {
+      return COMMAND_ASSIGNMENT_EXECUTION_DELETE.convertFromWire(c);
     }
     if (message instanceof final NPU1CommandAssignmentExecutionSearchBegin c) {
       return COMMAND_ASSIGNMENT_EXECUTION_SEARCH_BEGIN.convertFromWire(c);

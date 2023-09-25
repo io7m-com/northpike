@@ -18,58 +18,14 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.protocol.user.NPUCommandAgentLabelDelete;
-import com.io7m.northpike.protocol.user.NPUCommandAgentLabelGet;
-import com.io7m.northpike.protocol.user.NPUCommandAgentLabelPut;
-import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchBegin;
-import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchNext;
-import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchPrevious;
-import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecute;
-import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchBegin;
-import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchNext;
-import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchPrevious;
-import com.io7m.northpike.protocol.user.NPUCommandAssignmentGet;
-import com.io7m.northpike.protocol.user.NPUCommandAssignmentPut;
-import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchBegin;
-import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchNext;
-import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchPrevious;
-import com.io7m.northpike.protocol.user.NPUCommandAuditSearchBegin;
-import com.io7m.northpike.protocol.user.NPUCommandAuditSearchNext;
-import com.io7m.northpike.protocol.user.NPUCommandAuditSearchPrevious;
-import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
-import com.io7m.northpike.protocol.user.NPUCommandLogin;
-import com.io7m.northpike.protocol.user.NPUCommandPlanGet;
-import com.io7m.northpike.protocol.user.NPUCommandPlanPut;
-import com.io7m.northpike.protocol.user.NPUCommandPlanSearchBegin;
-import com.io7m.northpike.protocol.user.NPUCommandPlanSearchNext;
-import com.io7m.northpike.protocol.user.NPUCommandPlanSearchPrevious;
-import com.io7m.northpike.protocol.user.NPUCommandPlanValidate;
-import com.io7m.northpike.protocol.user.NPUCommandPublicKeyDelete;
-import com.io7m.northpike.protocol.user.NPUCommandPublicKeyGet;
-import com.io7m.northpike.protocol.user.NPUCommandPublicKeyPut;
-import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchBegin;
-import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchNext;
-import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchPrevious;
-import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
-import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeyAssign;
-import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeyUnassign;
-import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeysAssigned;
-import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
-import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchBegin;
-import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
-import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchPrevious;
-import com.io7m.northpike.protocol.user.NPUCommandRolesAssign;
-import com.io7m.northpike.protocol.user.NPUCommandRolesGet;
-import com.io7m.northpike.protocol.user.NPUCommandRolesRevoke;
-import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionGet;
-import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionPut;
-import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchBegin;
-import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchNext;
-import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchPrevious;
-import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
 import com.io7m.northpike.protocol.user.NPUCommandType;
 import com.io7m.northpike.protocol.user.NPUMessageType;
 import com.io7m.northpike.protocol.user.NPUResponseType;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.ServiceLoader;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorProtocol;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_PROTOCOL;
@@ -78,15 +34,40 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_PROTOCOL;
  * @see NPUMessageType
  */
 
+@SuppressWarnings({"rawtypes"})
 public final class NPUCmd
 {
+  private final Map<Class, NPUserCommandExecutorType> executors;
+
+  private NPUCmd(
+    final HashMap<Class, NPUserCommandExecutorType> inExecutors)
+  {
+    this.executors = Map.copyOf(
+      Objects.requireNonNull(inExecutors, "executors")
+    );
+  }
+
   /**
-   * @see NPUMessageType
+   * Create a new command executor, loading executors from {@link ServiceLoader}.
+   *
+   * @return A new command executor
    */
 
-  public NPUCmd()
+  public static NPUCmd create()
   {
+    final var iterator =
+      ServiceLoader.load(NPUserCommandExecutorType.class)
+        .iterator();
 
+    final var executors =
+      new HashMap<Class, NPUserCommandExecutorType>(64);
+
+    while (iterator.hasNext()) {
+      final var executor = iterator.next();
+      executors.put(executor.commandClass(), executor);
+    }
+
+    return new NPUCmd(executors);
   }
 
   /**
@@ -100,171 +81,33 @@ public final class NPUCmd
    * @throws NPException On errors
    */
 
+  @SuppressWarnings({"unchecked"})
   public NPUResponseType execute(
     final NPUserCommandContextType context,
     final NPUMessageType message)
     throws NPException
   {
     if (message instanceof final NPUCommandType<?> command) {
-      if (command instanceof final NPUCommandLogin c) {
-        return new NPUCmdLogin().execute(context, c);
-      }
-      if (command instanceof final NPUCommandDisconnect c) {
-        return new NPUCmdDisconnect().execute(context, c);
-      }
-
-      if (command instanceof final NPUCommandRepositoryPut c) {
-        return new NPUCmdRepositoryPut().execute(context, c);
-      }
-      if (command instanceof final NPUCommandRepositoryGet c) {
-        return new NPUCmdRepositoryGet().execute(context, c);
-      }
-      if (command instanceof final NPUCommandRepositorySearchBegin c) {
-        return new NPUCmdRepositorySearchBegin().execute(context, c);
-      }
-      if (command instanceof final NPUCommandRepositorySearchNext c) {
-        return new NPUCmdRepositorySearchNext().execute(context, c);
-      }
-      if (command instanceof final NPUCommandRepositorySearchPrevious c) {
-        return new NPUCmdRepositorySearchPrevious().execute(context, c);
-      }
-      if (command instanceof final NPUCommandRepositoryPublicKeyAssign c) {
-        return new NPUCmdRepositoryPublicKeyAssign().execute(context, c);
-      }
-      if (command instanceof final NPUCommandRepositoryPublicKeyUnassign c) {
-        return new NPUCmdRepositoryPublicKeyUnassign().execute(context, c);
-      }
-      if (command instanceof final NPUCommandRepositoryPublicKeysAssigned c) {
-        return new NPUCmdRepositoryPublicKeysAssigned().execute(context, c);
-      }
-
-      if (command instanceof final NPUCommandRolesAssign c) {
-        return new NPUCmdRolesAssign().execute(context, c);
-      }
-      if (command instanceof final NPUCommandRolesRevoke c) {
-        return new NPUCmdRolesRevoke().execute(context, c);
-      }
-      if (command instanceof final NPUCommandRolesGet c) {
-        return new NPUCmdRolesGet().execute(context, c);
-      }
-
-      if (command instanceof final NPUCommandAgentLabelPut c) {
-        return new NPUCmdAgentLabelPut().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAgentLabelGet c) {
-        return new NPUCmdAgentLabelGet().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAgentLabelSearchBegin c) {
-        return new NPUCmdAgentLabelSearchBegin().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAgentLabelSearchNext c) {
-        return new NPUCmdAgentLabelSearchNext().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAgentLabelSearchPrevious c) {
-        return new NPUCmdAgentLabelSearchPrevious().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAgentLabelDelete c) {
-        return new NPUCmdAgentLabelDelete().execute(context, c);
-      }
-
-      if (command instanceof final NPUCommandToolExecutionDescriptionValidate c) {
-        return new NPUCmdToolExecutionDescriptionValidate().execute(context, c);
-      }
-      if (command instanceof final NPUCommandToolExecutionDescriptionPut c) {
-        return new NPUCmdToolExecutionDescriptionPut().execute(context, c);
-      }
-      if (command instanceof final NPUCommandToolExecutionDescriptionGet c) {
-        return new NPUCmdToolExecutionDescriptionGet().execute(context, c);
-      }
-      if (command instanceof final NPUCommandToolExecutionDescriptionSearchBegin c) {
-        return new NPUCmdToolExecutionDescriptionSearchBegin()
-          .execute(context, c);
-      }
-      if (command instanceof final NPUCommandToolExecutionDescriptionSearchNext c) {
-        return new NPUCmdToolExecutionDescriptionSearchNext()
-          .execute(context, c);
-      }
-      if (command instanceof final NPUCommandToolExecutionDescriptionSearchPrevious c) {
-        return new NPUCmdToolExecutionDescriptionSearchPrevious()
-          .execute(context, c);
-      }
-
-      if (command instanceof final NPUCommandPlanValidate c) {
-        return new NPUCmdPlanValidate().execute(context, c);
-      }
-      if (command instanceof final NPUCommandPlanPut c) {
-        return new NPUCmdPlanPut().execute(context, c);
-      }
-      if (command instanceof final NPUCommandPlanGet c) {
-        return new NPUCmdPlanGet().execute(context, c);
-      }
-      if (command instanceof final NPUCommandPlanSearchBegin c) {
-        return new NPUCmdPlanSearchBegin().execute(context, c);
-      }
-      if (command instanceof final NPUCommandPlanSearchNext c) {
-        return new NPUCmdPlanSearchNext().execute(context, c);
-      }
-      if (command instanceof final NPUCommandPlanSearchPrevious c) {
-        return new NPUCmdPlanSearchPrevious().execute(context, c);
-      }
-
-      if (command instanceof final NPUCommandAssignmentPut c) {
-        return new NPUCmdAssignmentPut().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAssignmentGet c) {
-        return new NPUCmdAssignmentGet().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAssignmentSearchBegin c) {
-        return new NPUCmdAssignmentSearchBegin().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAssignmentSearchNext c) {
-        return new NPUCmdAssignmentSearchNext().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAssignmentSearchPrevious c) {
-        return new NPUCmdAssignmentSearchPrevious().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAssignmentExecute c) {
-        return new NPUCmdAssignmentExecute().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAssignmentExecutionSearchBegin c) {
-        return new NPUCmdAssignmentExecutionSearchBegin().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAssignmentExecutionSearchNext c) {
-        return new NPUCmdAssignmentExecutionSearchNext().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAssignmentExecutionSearchPrevious c) {
-        return new NPUCmdAssignmentExecutionSearchPrevious().execute(context, c);
-      }
-
-      if (command instanceof final NPUCommandPublicKeyDelete c) {
-        return new NPUCmdPublicKeyDelete().execute(context, c);
-      }
-      if (command instanceof final NPUCommandPublicKeyPut c) {
-        return new NPUCmdPublicKeyPut().execute(context, c);
-      }
-      if (command instanceof final NPUCommandPublicKeyGet c) {
-        return new NPUCmdPublicKeyGet().execute(context, c);
-      }
-      if (command instanceof final NPUCommandPublicKeySearchBegin c) {
-        return new NPUCmdPublicKeySearchBegin().execute(context, c);
-      }
-      if (command instanceof final NPUCommandPublicKeySearchNext c) {
-        return new NPUCmdPublicKeySearchNext().execute(context, c);
-      }
-      if (command instanceof final NPUCommandPublicKeySearchPrevious c) {
-        return new NPUCmdPublicKeySearchPrevious().execute(context, c);
-      }
-
-      if (command instanceof final NPUCommandAuditSearchBegin c) {
-        return new NPUCmdAuditSearchBegin().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAuditSearchNext c) {
-        return new NPUCmdAuditSearchNext().execute(context, c);
-      }
-      if (command instanceof final NPUCommandAuditSearchPrevious c) {
-        return new NPUCmdAuditSearchPrevious().execute(context, c);
+      final var executor = this.resolve(command);
+      if (executor != null) {
+        return executor.execute(context, command);
       }
     }
+
     throw context.fail(ERROR_PROTOCOL, errorProtocol());
+  }
+
+  /**
+   * Resolve an executor for the given command.
+   *
+   * @param command The command
+   *
+   * @return An executor
+   */
+
+  public NPUserCommandExecutorType resolve(
+    final NPUCommandType<?> command)
+  {
+    return this.executors.get(command.getClass());
   }
 }

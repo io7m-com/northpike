@@ -15,36 +15,28 @@
  */
 
 
-package com.io7m.northpike.server.internal.users;
+package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
-import com.io7m.northpike.protocol.user.NPUResponseOK;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionDelete;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-/**
- * @see NPUCommandDisconnect
- */
+import java.util.UUID;
 
-public final class NPUCmdDisconnect
-  extends NPUCmdAbstract<NPUResponseOK, NPUCommandDisconnect>
+public final class NPArbUCommandAssignmentExecutionDelete
+  extends NPArbAbstract<NPUCommandAssignmentExecutionDelete>
 {
-  /**
-   * @see NPUCommandDisconnect
-   */
-
-  public NPUCmdDisconnect()
+  public NPArbUCommandAssignmentExecutionDelete()
   {
-    super(NPUCommandDisconnect.class);
-  }
-
-  @Override
-  public NPUResponseOK execute(
-    final NPUserCommandContextType context,
-    final NPUCommandDisconnect command)
-    throws NPException
-  {
-    context.onAuthenticationRequire();
-    context.disconnect();
-    return NPUResponseOK.createCorrelated(command);
+    super(
+      NPUCommandAssignmentExecutionDelete.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.create(UUID::randomUUID).set()
+        ).as(NPUCommandAssignmentExecutionDelete::new);
+      }
+    );
   }
 }

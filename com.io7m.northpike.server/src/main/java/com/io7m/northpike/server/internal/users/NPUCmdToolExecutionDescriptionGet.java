@@ -32,7 +32,7 @@ import java.util.UUID;
  */
 
 public final class NPUCmdToolExecutionDescriptionGet
-  implements NPUserCommandExecutorType<
+  extends NPUCmdAbstract<
   NPUResponseToolExecutionDescriptionGet,
   NPUCommandToolExecutionDescriptionGet>
 {
@@ -42,7 +42,7 @@ public final class NPUCmdToolExecutionDescriptionGet
 
   public NPUCmdToolExecutionDescriptionGet()
   {
-
+    super(NPUCommandToolExecutionDescriptionGet.class);
   }
 
   @Override

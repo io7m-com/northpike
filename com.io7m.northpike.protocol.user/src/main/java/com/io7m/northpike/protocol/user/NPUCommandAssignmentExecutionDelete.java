@@ -15,36 +15,40 @@
  */
 
 
-package com.io7m.northpike.server.internal.users;
+package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
-import com.io7m.northpike.protocol.user.NPUResponseOK;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 /**
- * @see NPUCommandDisconnect
+ * Delete assignment executions.
+ *
+ * @param messageID  The message ID
+ * @param executions The assignment executions
  */
 
-public final class NPUCmdDisconnect
-  extends NPUCmdAbstract<NPUResponseOK, NPUCommandDisconnect>
+public record NPUCommandAssignmentExecutionDelete(
+  UUID messageID,
+  Set<UUID> executions)
+  implements NPUCommandType<NPUResponseOK>
 {
   /**
-   * @see NPUCommandDisconnect
+   * Delete assignment executions.
+   *
+   * @param messageID  The message ID
+   * @param executions The assignment executions
    */
 
-  public NPUCmdDisconnect()
+  public NPUCommandAssignmentExecutionDelete
   {
-    super(NPUCommandDisconnect.class);
+    Objects.requireNonNull(messageID, "messageId");
+    Objects.requireNonNull(executions, "executions");
   }
 
   @Override
-  public NPUResponseOK execute(
-    final NPUserCommandContextType context,
-    final NPUCommandDisconnect command)
-    throws NPException
+  public Class<NPUResponseOK> responseClass()
   {
-    context.onAuthenticationRequire();
-    context.disconnect();
-    return NPUResponseOK.createCorrelated(command);
+    return NPUResponseOK.class;
   }
 }

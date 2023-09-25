@@ -17,65 +17,59 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
-import com.io7m.northpike.database.api.NPToolExecutionDescriptionsPagedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
-import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchBegin;
-import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionSearch;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionDelete;
+import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 
-import java.util.UUID;
-
 /**
- * @see NPUCommandToolExecutionDescriptionSearchBegin
+ * @see NPUCommandAssignmentExecutionDelete
  */
 
-public final class NPUCmdToolExecutionDescriptionSearchBegin
+public final class NPUCmdAssignmentExecutionDelete
   extends NPUCmdAbstract<
-  NPUResponseToolExecutionDescriptionSearch,
-  NPUCommandToolExecutionDescriptionSearchBegin>
+  NPUResponseOK, NPUCommandAssignmentExecutionDelete>
 {
   /**
-   * @see NPUCommandToolExecutionDescriptionSearchBegin
+   * @see NPUCommandAssignmentExecutionDelete
    */
 
-  public NPUCmdToolExecutionDescriptionSearchBegin()
+  public NPUCmdAssignmentExecutionDelete()
   {
-    super(NPUCommandToolExecutionDescriptionSearchBegin.class);
+    super(NPUCommandAssignmentExecutionDelete.class);
   }
 
   @Override
-  public NPUResponseToolExecutionDescriptionSearch execute(
+  public NPUResponseOK execute(
     final NPUserCommandContextType context,
-    final NPUCommandToolExecutionDescriptionSearchBegin command)
+    final NPUCommandAssignmentExecutionDelete command)
     throws NPException
   {
     final var user = context.onAuthenticationRequire();
     NPSecurity.check(
       user.userId(),
       user.subject(),
-      NPSecObject.TOOLS.object(),
-      NPSecAction.READ.action()
+      NPSecObject.ASSIGNMENT_EXECUTIONS.object(),
+      NPSecAction.DELETE.action()
     );
 
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
-        final var paged =
-          transaction.queries(NPDatabaseQueriesToolsType.SearchExecutionDescriptionType.class)
-            .execute(command.parameters());
+        transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
 
-        context.setProperty(NPToolExecutionDescriptionsPagedType.class, paged);
+        final var execDelete =
+          transaction.queries(ExecutionDeleteType.class);
 
-        final var page =
-          paged.pageCurrent(transaction);
+        for (final var id : command.executions()) {
+          execDelete.execute(id);
+        }
 
-        return new NPUResponseToolExecutionDescriptionSearch(
-          UUID.randomUUID(),
-          command.messageID(),
-          page
-        );
+        transaction.commit();
+        return NPUResponseOK.createCorrelated(command);
       }
     }
   }

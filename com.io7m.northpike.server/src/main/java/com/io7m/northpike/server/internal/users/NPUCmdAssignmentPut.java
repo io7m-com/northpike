@@ -31,7 +31,7 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
  */
 
 public final class NPUCmdAssignmentPut
-  implements NPUserCommandExecutorType<NPUResponseOK, NPUCommandAssignmentPut>
+  extends NPUCmdAbstract<NPUResponseOK, NPUCommandAssignmentPut>
 {
   /**
    * @see NPUCommandAssignmentPut
@@ -39,7 +39,7 @@ public final class NPUCmdAssignmentPut
 
   public NPUCmdAssignmentPut()
   {
-
+    super(NPUCommandAssignmentPut.class);
   }
 
   @Override

@@ -30,7 +30,7 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
  */
 
 public final class NPUCmdAgentLabelGet
-  implements NPUserCommandExecutorType<NPUResponseAgentLabelGet, NPUCommandAgentLabelGet>
+  extends NPUCmdAbstract<NPUResponseAgentLabelGet, NPUCommandAgentLabelGet>
 {
   /**
    * @see NPUCommandAgentLabelGet
@@ -38,7 +38,7 @@ public final class NPUCmdAgentLabelGet
 
   public NPUCmdAgentLabelGet()
   {
-
+    super(NPUCommandAgentLabelGet.class);
   }
 
   @Override

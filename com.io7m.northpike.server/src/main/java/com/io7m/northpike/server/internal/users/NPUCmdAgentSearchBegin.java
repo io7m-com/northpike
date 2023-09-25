@@ -33,7 +33,7 @@ import java.util.UUID;
  */
 
 public final class NPUCmdAgentSearchBegin
-  implements NPUserCommandExecutorType<NPUResponseAgentSearch, NPUCommandAgentSearchBegin>
+  extends NPUCmdAbstract<NPUResponseAgentSearch, NPUCommandAgentSearchBegin>
 {
   /**
    * @see NPUCommandAgentSearchBegin
@@ -41,7 +41,7 @@ public final class NPUCmdAgentSearchBegin
 
   public NPUCmdAgentSearchBegin()
   {
-
+    super(NPUCommandAgentSearchBegin.class);
   }
 
   @Override

@@ -32,9 +32,7 @@ import java.util.UUID;
  */
 
 public final class NPUCmdPlanGet
-  implements NPUserCommandExecutorType<
-  NPUResponsePlanGet,
-  NPUCommandPlanGet>
+  extends NPUCmdAbstract<NPUResponsePlanGet, NPUCommandPlanGet>
 {
   /**
    * @see NPUCommandPlanGet
@@ -42,7 +40,7 @@ public final class NPUCmdPlanGet
 
   public NPUCmdPlanGet()
   {
-
+    super(NPUCommandPlanGet.class);
   }
 
   @Override

@@ -17,6 +17,7 @@
 import com.io7m.northpike.plans.compiler.NPPlanCompilerFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
 import com.io7m.northpike.server.internal.telemetry.NPTelemetryServices;
+import com.io7m.northpike.server.internal.users.NPUserCommandExecutorType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
 import com.io7m.northpike.toolexec.NPTXParserFactoryType;
 
@@ -75,9 +76,69 @@ module com.io7m.northpike.server
   uses NPPlanParserFactoryType;
   uses NPTXParserFactoryType;
   uses NPTelemetryServiceFactoryType;
+  uses NPUserCommandExecutorType;
 
   provides NPTelemetryServiceFactoryType
     with NPTelemetryServices;
+
+  provides NPUserCommandExecutorType with
+    com.io7m.northpike.server.internal.users.NPUCmdAgentGet,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLabelDelete,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLabelGet,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLabelPut,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLabelSearchBegin,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLabelSearchNext,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLabelSearchPrevious,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentPut,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentSearchBegin,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentSearchNext,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentSearchPrevious,
+    com.io7m.northpike.server.internal.users.NPUCmdAssignmentExecute,
+    com.io7m.northpike.server.internal.users.NPUCmdAssignmentExecutionDelete,
+    com.io7m.northpike.server.internal.users.NPUCmdAssignmentExecutionSearchBegin,
+    com.io7m.northpike.server.internal.users.NPUCmdAssignmentExecutionSearchNext,
+    com.io7m.northpike.server.internal.users.NPUCmdAssignmentExecutionSearchPrevious,
+    com.io7m.northpike.server.internal.users.NPUCmdAssignmentExecutionWorkItems,
+    com.io7m.northpike.server.internal.users.NPUCmdAssignmentGet,
+    com.io7m.northpike.server.internal.users.NPUCmdAssignmentPut,
+    com.io7m.northpike.server.internal.users.NPUCmdAssignmentSearchBegin,
+    com.io7m.northpike.server.internal.users.NPUCmdAssignmentSearchNext,
+    com.io7m.northpike.server.internal.users.NPUCmdAssignmentSearchPrevious,
+    com.io7m.northpike.server.internal.users.NPUCmdAuditSearchBegin,
+    com.io7m.northpike.server.internal.users.NPUCmdAuditSearchNext,
+    com.io7m.northpike.server.internal.users.NPUCmdAuditSearchPrevious,
+    com.io7m.northpike.server.internal.users.NPUCmdDisconnect,
+    com.io7m.northpike.server.internal.users.NPUCmdLogin,
+    com.io7m.northpike.server.internal.users.NPUCmdPlanGet,
+    com.io7m.northpike.server.internal.users.NPUCmdPlanPut,
+    com.io7m.northpike.server.internal.users.NPUCmdPlanSearchBegin,
+    com.io7m.northpike.server.internal.users.NPUCmdPlanSearchNext,
+    com.io7m.northpike.server.internal.users.NPUCmdPlanSearchPrevious,
+    com.io7m.northpike.server.internal.users.NPUCmdPlanValidate,
+    com.io7m.northpike.server.internal.users.NPUCmdPublicKeyDelete,
+    com.io7m.northpike.server.internal.users.NPUCmdPublicKeyGet,
+    com.io7m.northpike.server.internal.users.NPUCmdPublicKeyPut,
+    com.io7m.northpike.server.internal.users.NPUCmdPublicKeySearchBegin,
+    com.io7m.northpike.server.internal.users.NPUCmdPublicKeySearchNext,
+    com.io7m.northpike.server.internal.users.NPUCmdPublicKeySearchPrevious,
+    com.io7m.northpike.server.internal.users.NPUCmdRepositoryGet,
+    com.io7m.northpike.server.internal.users.NPUCmdRepositoryPublicKeyAssign,
+    com.io7m.northpike.server.internal.users.NPUCmdRepositoryPublicKeysAssigned,
+    com.io7m.northpike.server.internal.users.NPUCmdRepositoryPublicKeyUnassign,
+    com.io7m.northpike.server.internal.users.NPUCmdRepositoryPut,
+    com.io7m.northpike.server.internal.users.NPUCmdRepositorySearchBegin,
+    com.io7m.northpike.server.internal.users.NPUCmdRepositorySearchNext,
+    com.io7m.northpike.server.internal.users.NPUCmdRepositorySearchPrevious,
+    com.io7m.northpike.server.internal.users.NPUCmdRolesAssign,
+    com.io7m.northpike.server.internal.users.NPUCmdRolesGet,
+    com.io7m.northpike.server.internal.users.NPUCmdRolesRevoke,
+    com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionGet,
+    com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionPut,
+    com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchBegin,
+    com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchNext,
+    com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchPrevious,
+    com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionValidate
+    ;
 
   exports com.io7m.northpike.server;
 

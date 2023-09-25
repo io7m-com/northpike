@@ -29,6 +29,7 @@ import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecute;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionDelete;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchPrevious;
@@ -123,6 +124,7 @@ public final class NPArbUMessage extends NPArbAbstract<NPUMessageType>
               NPUCommandAgentSearchNext.class,
               NPUCommandAgentSearchPrevious.class,
               NPUCommandAssignmentExecute.class,
+              NPUCommandAssignmentExecutionDelete.class,
               NPUCommandAssignmentExecutionSearchBegin.class,
               NPUCommandAssignmentExecutionSearchNext.class,
               NPUCommandAssignmentExecutionSearchPrevious.class,

@@ -32,7 +32,7 @@ import java.util.UUID;
  */
 
 public final class NPUCmdAssignmentExecutionWorkItems
-  implements NPUserCommandExecutorType<
+  extends NPUCmdAbstract<
   NPUResponseAssignmentExecutionWorkItems, NPUCommandAssignmentExecutionWorkItems>
 {
   /**
@@ -41,7 +41,7 @@ public final class NPUCmdAssignmentExecutionWorkItems
 
   public NPUCmdAssignmentExecutionWorkItems()
   {
-
+    super(NPUCommandAssignmentExecutionWorkItems.class);
   }
 
   @Override
@@ -54,7 +54,7 @@ public final class NPUCmdAssignmentExecutionWorkItems
     NPSecurity.check(
       user.userId(),
       user.subject(),
-      NPSecObject.ASSIGNMENTS.object(),
+      NPSecObject.ASSIGNMENT_EXECUTIONS.object(),
       NPSecAction.READ.action()
     );
 

@@ -35,7 +35,7 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_SEARCH_NOT_STAR
  */
 
 public final class NPUCmdToolExecutionDescriptionSearchNext
-  implements NPUserCommandExecutorType<
+  extends NPUCmdAbstract<
   NPUResponseToolExecutionDescriptionSearch,
   NPUCommandToolExecutionDescriptionSearchNext>
 {
@@ -45,7 +45,7 @@ public final class NPUCmdToolExecutionDescriptionSearchNext
 
   public NPUCmdToolExecutionDescriptionSearchNext()
   {
-
+    super(NPUCommandToolExecutionDescriptionSearchNext.class);
   }
 
   @Override

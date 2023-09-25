@@ -163,6 +163,36 @@ public enum NPSecRole
   },
 
   /**
+   * A role for writing to assignment executions.
+   */
+
+  ASSIGNMENT_EXECUTIONS_WRITER {
+    private static final MRoleName NAME =
+      MRoleName.of("assignment_executions.writer");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
+  },
+
+  /**
+   * A role for reading assignment executions.
+   */
+
+  ASSIGNMENT_EXECUTIONS_READER {
+    private static final MRoleName NAME =
+      MRoleName.of("assignment_executions.reader");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
+  },
+
+  /**
    * A role for reading tools.
    */
 

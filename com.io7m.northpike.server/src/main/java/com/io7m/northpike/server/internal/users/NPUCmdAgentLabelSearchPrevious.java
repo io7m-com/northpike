@@ -35,7 +35,7 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_SEARCH_NOT_STAR
  */
 
 public final class NPUCmdAgentLabelSearchPrevious
-  implements NPUserCommandExecutorType<NPUResponseAgentLabelSearch, NPUCommandAgentLabelSearchPrevious>
+  extends NPUCmdAbstract<NPUResponseAgentLabelSearch, NPUCommandAgentLabelSearchPrevious>
 {
   /**
    * @see NPUCommandAgentLabelSearchPrevious
@@ -43,7 +43,7 @@ public final class NPUCmdAgentLabelSearchPrevious
 
   public NPUCmdAgentLabelSearchPrevious()
   {
-
+    super(NPUCommandAgentLabelSearchPrevious.class);
   }
 
   @Override

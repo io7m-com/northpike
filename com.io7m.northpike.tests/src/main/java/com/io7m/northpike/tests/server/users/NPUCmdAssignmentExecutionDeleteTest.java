@@ -19,40 +19,32 @@ package com.io7m.northpike.tests.server.users;
 
 import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCancelled;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
-import com.io7m.northpike.assignments.NPAssignmentName;
-import com.io7m.northpike.database.api.NPAssignmentExecutionsPagedType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
-import com.io7m.northpike.database.api.NPRepositoriesPagedType;
-import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.plans.NPPlanException;
-import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionDelete;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
-import com.io7m.northpike.server.internal.users.NPUCmdAssignmentExecutionSearchNext;
+import com.io7m.northpike.server.internal.users.NPUCmdAssignmentExecutionDelete;
 import com.io7m.northpike.server.internal.users.NPUserCommandContextType;
 import com.io7m.northpike.strings.NPStringConstantType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.NoInteractions;
+import org.mockito.internal.verification.Times;
 
-import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.io7m.northpike.model.NPStandardErrorCodes.errorApiMisuse;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorSecurityPolicyDenied;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
@@ -64,7 +56,7 @@ import static org.mockito.ArgumentMatchers.any;
  * Tests for a command.
  */
 
-public final class NPUCmdAssignmentExecutionSearchNextTest
+public final class NPUCmdAssignmentExecutionDeleteTest
 {
   private NPUserCommandContextType context;
   private NPDatabaseConnectionType connection;
@@ -114,7 +106,7 @@ public final class NPUCmdAssignmentExecutionSearchNextTest
   public void testFailure0()
     throws Exception
   {
-    final var handler = new NPUCmdAssignmentExecutionSearchNext();
+    final var handler = new NPUCmdAssignmentExecutionDelete();
 
     Mockito.when(this.context.onAuthenticationRequire())
       .thenThrow(new NPPlanException(
@@ -125,8 +117,13 @@ public final class NPUCmdAssignmentExecutionSearchNextTest
       ));
 
     final var command =
-      new NPUCommandAssignmentExecutionSearchNext(
-        UUID.randomUUID()
+      new NPUCommandAssignmentExecutionDelete(
+        UUID.randomUUID(),
+        Set.of(
+          UUID.randomUUID(),
+          UUID.randomUUID(),
+          UUID.randomUUID()
+        )
       );
 
     final var ex =
@@ -151,11 +148,16 @@ public final class NPUCmdAssignmentExecutionSearchNextTest
   public void testFailure1()
     throws Exception
   {
-    final var handler = new NPUCmdAssignmentExecutionSearchNext();
+    final var handler = new NPUCmdAssignmentExecutionDelete();
 
     final var command =
-      new NPUCommandAssignmentExecutionSearchNext(
-        UUID.randomUUID()
+      new NPUCommandAssignmentExecutionDelete(
+        UUID.randomUUID(),
+        Set.of(
+          UUID.randomUUID(),
+          UUID.randomUUID(),
+          UUID.randomUUID()
+        )
       );
 
     final var userId =
@@ -181,45 +183,7 @@ public final class NPUCmdAssignmentExecutionSearchNextTest
   }
 
   /**
-   * Requires an existing search.
-   *
-   * @throws Exception On errors
-   */
-
-  @Test
-  public void testFailure2()
-    throws Exception
-  {
-    final var handler = new NPUCmdAssignmentExecutionSearchNext();
-
-    final var command =
-      new NPUCommandAssignmentExecutionSearchNext(
-        UUID.randomUUID()
-      );
-
-    final var userId =
-      new NPUser(
-        UUID.fromString("ab27f114-6b29-5ab2-a528-b41ef98abe76"),
-        new IdName("x"),
-        new MSubject(Set.of(NPSecRole.ASSIGNMENT_EXECUTIONS_READER.role()))
-      );
-
-    Mockito.when(this.context.onAuthenticationRequire())
-      .thenReturn(userId);
-    Mockito.when(this.context.property(NPRepositoriesPagedType.class))
-      .thenReturn(Optional.empty());
-
-    final var ex =
-      assertThrows(NPException.class, () -> {
-        handler.execute(this.context, command);
-      });
-
-    assertEquals("ERROR_SEARCH_NOT_STARTED", ex.message());
-    assertEquals(errorApiMisuse(), ex.errorCode());
-  }
-
-  /**
-   * Succeeds if permitted and a search has been started.
+   * Succeeds if permitted.
    *
    * @throws Exception On errors
    */
@@ -228,53 +192,49 @@ public final class NPUCmdAssignmentExecutionSearchNextTest
   public void testSuccess0()
     throws Exception
   {
-    final var handler = new NPUCmdAssignmentExecutionSearchNext();
+    final var handler = new NPUCmdAssignmentExecutionDelete();
 
     final var command =
-      new NPUCommandAssignmentExecutionSearchNext(
-        UUID.randomUUID()
+      new NPUCommandAssignmentExecutionDelete(
+        UUID.randomUUID(),
+        Set.of(
+          UUID.randomUUID(),
+          UUID.randomUUID(),
+          UUID.randomUUID()
+        )
       );
 
-    final var userId =
+    final var user =
       new NPUser(
         UUID.fromString("ab27f114-6b29-5ab2-a528-b41ef98abe76"),
         new IdName("x"),
-        new MSubject(Set.of(NPSecRole.ASSIGNMENT_EXECUTIONS_READER.role()))
+        new MSubject(Set.of(NPSecRole.ASSIGNMENT_EXECUTIONS_WRITER.role()))
       );
 
     Mockito.when(this.context.onAuthenticationRequire())
-      .thenReturn(userId);
+      .thenReturn(user);
 
-    final var pageMain =
-      new NPPage<NPAssignmentExecutionStateType>(
-        List.of(
-          new NPAssignmentExecutionStateCancelled(
-            UUID.randomUUID(),
-            new NPAssignmentExecutionRequest(
-              NPAssignmentName.of("x"),
-              new NPCommitUnqualifiedID("a")
-            ),
-            OffsetDateTime.now(),
-            OffsetDateTime.now(),
-            OffsetDateTime.now()
-          )
-        ),
-        1,
-        1,
-        0L
-      );
+    final var execDelete =
+      Mockito.mock(ExecutionDeleteType.class);
 
-    final var paged =
-      Mockito.mock(NPAssignmentExecutionsPagedType.class);
-
-    Mockito.when(this.context.property(NPAssignmentExecutionsPagedType.class))
-      .thenReturn(Optional.of(paged));
-
-    Mockito.when(paged.pageNext(any()))
-      .thenReturn(pageMain);
+    Mockito.when(this.transaction.queries(ExecutionDeleteType.class))
+      .thenReturn(execDelete);
 
     final var r = handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
-    assertEquals(pageMain, r.results());
+
+    for (final var id : command.executions()) {
+      Mockito.verify(execDelete).execute(Mockito.eq(id));
+    }
+
+    Mockito.verify(this.transaction, new Times(1))
+      .setOwner(new NPAuditUserOrAgentType.User(user.userId()));
+    Mockito.verify(this.transaction, new Times(1))
+      .queries(ExecutionDeleteType.class);
+    Mockito.verify(this.transaction, new Times(1))
+      .commit();
+    Mockito.verify(this.transaction, new Times(1))
+      .close();
+    Mockito.verifyNoMoreInteractions(this.transaction);
   }
 }

@@ -35,7 +35,7 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_SEARCH_NOT_STAR
  */
 
 public final class NPUCmdAuditSearchNext
-  implements NPUserCommandExecutorType<NPUResponseAuditSearch, NPUCommandAuditSearchNext>
+  extends NPUCmdAbstract<NPUResponseAuditSearch, NPUCommandAuditSearchNext>
 {
   /**
    * @see NPUCommandAuditSearchNext
@@ -43,7 +43,7 @@ public final class NPUCmdAuditSearchNext
 
   public NPUCmdAuditSearchNext()
   {
-
+    super(NPUCommandAuditSearchNext.class);
   }
 
   @Override

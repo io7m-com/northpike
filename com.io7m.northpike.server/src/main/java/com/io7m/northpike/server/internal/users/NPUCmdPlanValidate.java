@@ -34,9 +34,7 @@ import java.util.UUID;
  */
 
 public final class NPUCmdPlanValidate
-  implements NPUserCommandExecutorType<
-  NPUResponsePlanValidate,
-  NPUCommandPlanValidate>
+  extends NPUCmdAbstract<NPUResponsePlanValidate, NPUCommandPlanValidate>
 {
   /**
    * @see NPUCommandPlanValidate
@@ -44,7 +42,7 @@ public final class NPUCmdPlanValidate
 
   public NPUCmdPlanValidate()
   {
-
+    super(NPUCommandPlanValidate.class);
   }
 
   @Override

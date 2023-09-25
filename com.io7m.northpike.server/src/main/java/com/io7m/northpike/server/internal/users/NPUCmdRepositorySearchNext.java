@@ -36,7 +36,7 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_SEARCH_NOT_STAR
  */
 
 public final class NPUCmdRepositorySearchNext
-  implements NPUserCommandExecutorType<NPUResponseRepositorySearch, NPUCommandRepositorySearchNext>
+  extends NPUCmdAbstract<NPUResponseRepositorySearch, NPUCommandRepositorySearchNext>
 {
   /**
    * @see NPUCommandRepositorySearchNext
@@ -44,7 +44,7 @@ public final class NPUCmdRepositorySearchNext
 
   public NPUCmdRepositorySearchNext()
   {
-
+    super(NPUCommandRepositorySearchNext.class);
   }
 
   @Override

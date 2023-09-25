@@ -785,6 +785,14 @@
   [field commitId cb:String]
 ]
 
+[documentation NPU1CommandAssignmentExecutionDelete "Delete assignment executions."]
+[record NPU1CommandAssignmentExecutionDelete
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation executions "The assignment executions."]
+  [field executions [cb:List cb:UUID]]
+]
+
 [documentation NPU1CommandAssignmentExecutionSearchBegin "Start searching assignment executions."]
 [record NPU1CommandAssignmentExecutionSearchBegin
   [documentation messageId "The message ID"]
@@ -1141,6 +1149,7 @@
       NPU1CommandAgentSearchNext
       NPU1CommandAgentSearchPrevious
       NPU1CommandAssignmentExecute
+      NPU1CommandAssignmentExecutionDelete
       NPU1CommandAssignmentExecutionSearchBegin
       NPU1CommandAssignmentExecutionSearchNext
       NPU1CommandAssignmentExecutionSearchPrevious

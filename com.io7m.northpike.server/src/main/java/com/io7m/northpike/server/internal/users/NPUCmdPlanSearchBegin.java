@@ -33,9 +33,7 @@ import java.util.UUID;
  */
 
 public final class NPUCmdPlanSearchBegin
-  implements NPUserCommandExecutorType<
-  NPUResponsePlanSearch,
-  NPUCommandPlanSearchBegin>
+  extends NPUCmdAbstract<NPUResponsePlanSearch, NPUCommandPlanSearchBegin>
 {
   /**
    * @see NPUCommandPlanSearchBegin
@@ -43,7 +41,7 @@ public final class NPUCmdPlanSearchBegin
 
   public NPUCmdPlanSearchBegin()
   {
-
+    super(NPUCommandPlanSearchBegin.class);
   }
 
   @Override

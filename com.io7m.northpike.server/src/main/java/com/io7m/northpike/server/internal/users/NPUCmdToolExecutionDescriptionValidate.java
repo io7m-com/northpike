@@ -37,7 +37,7 @@ import static com.io7m.northpike.strings.NPStringConstants.FORMAT;
  */
 
 public final class NPUCmdToolExecutionDescriptionValidate
-  implements NPUserCommandExecutorType<
+  extends NPUCmdAbstract<
   NPUResponseToolExecutionDescriptionValidate,
   NPUCommandToolExecutionDescriptionValidate>
 {
@@ -47,7 +47,7 @@ public final class NPUCmdToolExecutionDescriptionValidate
 
   public NPUCmdToolExecutionDescriptionValidate()
   {
-
+    super(NPUCommandToolExecutionDescriptionValidate.class);
   }
 
   @Override
