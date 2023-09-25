@@ -38,12 +38,15 @@ import com.io7m.northpike.assignments.NPAssignmentSearchParameters;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogAddType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogListType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionSearchType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionWorkItemsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemLogAddType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
@@ -235,7 +238,7 @@ public final class NPDatabaseAssignmentsTest
 
     final var execGet =
       this.transaction.queries(
-        NPDatabaseQueriesAssignmentsType.ExecutionGetType.class);
+        ExecutionGetType.class);
     final var execPut =
       this.transaction.queries(
         ExecutionPutType.class);
@@ -411,7 +414,7 @@ public final class NPDatabaseAssignmentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.ExecutionGetType.class);
+      this.transaction.queries(ExecutionGetType.class);
 
     assertEquals(Optional.empty(), get.execute(UUID.randomUUID()));
   }
@@ -433,8 +436,7 @@ public final class NPDatabaseAssignmentsTest
       this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
 
     final var execPut =
-      this.transaction.queries(
-        ExecutionPutType.class);
+      this.transaction.queries(ExecutionPutType.class);
 
     final var planPut =
       this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
@@ -1015,5 +1017,161 @@ public final class NPDatabaseAssignmentsTest
 
     this.transaction.commit();
     return List.copyOf(assignments);
+  }
+
+  /**
+   * Deleting assignment executions works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentExecutionDelete0()
+    throws Exception
+  {
+    final var agentPut =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
+    final var execGet =
+      this.transaction.queries(ExecutionGetType.class);
+    final var execPut =
+      this.transaction.queries(ExecutionPutType.class);
+    final var execLogAdd =
+      this.transaction.queries(ExecutionLogAddType.class);
+    final var execDelete =
+      this.transaction.queries(ExecutionDeleteType.class);
+    final var planPut =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+    final var reposPut =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+    final var scmPut =
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+    final var commitPut =
+      this.transaction.queries(CommitsPutType.class);
+    final var workPut =
+      this.transaction.queries(WorkItemPutType.class);
+    final var workLogAdd =
+      this.transaction.queries(WorkItemLogAddType.class);
+
+    final var scm =
+      new NPSCMProviderDescription(
+        new RDottedName("x.y"),
+        "A",
+        URI.create("https://www.example.com")
+      );
+    scmPut.execute(scm);
+
+    final var repositoryDescription =
+      new NPRepositoryDescription(
+        new RDottedName("x.y"),
+        UUID.randomUUID(),
+        URI.create("https://www.example.com"),
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
+      );
+    reposPut.execute(repositoryDescription);
+
+    final var commit =
+      new NPCommit(
+        new NPCommitID(
+          repositoryDescription.id(),
+          new NPCommitUnqualifiedID("e5dc6e8b6dad3c58692b5b6a6ebbeaa30abe3cd9")
+        ),
+        OffsetDateTime.now().withNano(0),
+        OffsetDateTime.now().withNano(0),
+        new NPCommitAuthor("Author", "email"),
+        "Subject",
+        "Body",
+        Set.of(),
+        Set.of()
+      );
+
+    final var commitGraph =
+      NPCommitGraph.create(Set.of());
+
+    commitPut.execute(
+      new CommitsPutType.Parameters(
+        Set.of(commit),
+        commitGraph
+      ));
+
+    final var plan =
+      NPPlans.builder(NPStrings.create(Locale.ROOT), "x", 1L)
+        .build();
+    planPut.execute(
+      new NPDatabaseQueriesPlansType.PutType.Parameters(
+        plan,
+        new NPPlanSerializers())
+    );
+
+    final var assignment =
+      new NPAssignment(
+        NPAssignmentName.of("x.y.z"),
+        repositoryDescription.id(),
+        plan.identifier()
+      );
+
+    put.execute(assignment);
+
+    final var agent =
+      new NPAgentDescription(
+        new NPAgentID(UUID.randomUUID()),
+        "Agent",
+        NPKey.generate(),
+        Map.of(),
+        Map.of(),
+        Map.of()
+      );
+
+    agentPut.execute(agent);
+
+    final var execution =
+      new NPAssignmentExecutionStateCreated(
+        OffsetDateTime.now()
+          .withNano(0),
+        new NPAssignmentExecution(
+          UUID.randomUUID(),
+          assignment,
+          commit.id().commitId()
+        )
+      );
+
+    execPut.execute(execution);
+
+    final var identifier =
+      new NPWorkItemIdentifier(
+        execution.execution().id(),
+        new RDottedName("some.task")
+      );
+
+    NPWorkItem workItem;
+    for (final var state : NPWorkItemStatus.values()) {
+      workItem = new NPWorkItem(identifier, Optional.of(agent.id()), state);
+      workPut.execute(workItem);
+
+      for (int index = 0; index < 10; ++index) {
+        workLogAdd.execute(new WorkItemLogAddType.Parameters(
+          workItem.identifier(),
+          "Line %d".formatted(Integer.valueOf(index))
+        ));
+      }
+    }
+
+    for (int index = 0; index < 100; ++index) {
+      execLogAdd.execute(new ExecutionLogAddType.Parameters(
+        execution.id(),
+        "TEST",
+        "Line " + index,
+        Map.ofEntries(
+          Map.entry("A", "X"),
+          Map.entry("B", "Y"),
+          Map.entry("C", "Z")
+        )
+      ));
+    }
+
+    execDelete.execute(execution.id());
+    assertEquals(Optional.empty(), execGet.execute(execution.id()));
   }
 }

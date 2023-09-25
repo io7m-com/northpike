@@ -68,6 +68,7 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQAgentSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQArchiveGet,
     com.io7m.northpike.database.postgres.internal.NPDBQArchivePut,
+    com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionDelete,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionGet,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionLogAdd,
     com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionLogList,

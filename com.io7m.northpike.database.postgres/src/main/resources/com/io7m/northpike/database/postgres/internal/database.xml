@@ -839,7 +839,7 @@ CREATE TABLE assignment_executions (
 ]]></Statement>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE ON assignment_executions TO northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON assignment_executions TO northpike
     </Statement>
     <Statement>
       GRANT SELECT ON assignment_executions TO northpike_read_only
@@ -867,7 +867,7 @@ CREATE TABLE assignment_execution_logs (
 ]]></Statement>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE ON assignment_execution_logs TO northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON assignment_execution_logs TO northpike
     </Statement>
     <Statement>
       GRANT SELECT ON assignment_execution_logs TO northpike_read_only
@@ -936,7 +936,7 @@ CREATE TABLE work_items (
 ]]></Statement>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE ON work_items TO northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON work_items TO northpike
     </Statement>
     <Statement>
       GRANT SELECT ON work_items TO northpike_read_only
@@ -964,7 +964,7 @@ CREATE TABLE work_item_logs (
 ]]></Statement>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE ON work_item_logs TO northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON work_item_logs TO northpike
     </Statement>
     <Statement>
       GRANT SELECT ON work_item_logs TO northpike_read_only

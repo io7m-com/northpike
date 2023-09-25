@@ -96,6 +96,17 @@ public sealed interface NPDatabaseQueriesAssignmentsType
   }
 
   /**
+   * Delete the given assignment execution.
+   */
+
+  non-sealed interface ExecutionDeleteType
+    extends NPDatabaseQueryType<UUID, NPDatabaseUnit>,
+    NPDatabaseQueriesAssignmentsType
+  {
+
+  }
+
+  /**
    * Search assignment executions.
    */
 
