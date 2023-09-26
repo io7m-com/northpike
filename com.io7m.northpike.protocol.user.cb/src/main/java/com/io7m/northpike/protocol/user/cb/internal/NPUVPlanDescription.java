@@ -18,7 +18,7 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.northpike.model.NPFormatName;
-import com.io7m.northpike.plans.NPPlanDescriptionUnparsed;
+import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1PlanDescription;
 

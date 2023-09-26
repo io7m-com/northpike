@@ -18,8 +18,9 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
-import com.io7m.northpike.assignments.NPAssignmentExecution;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecution;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AssignmentExecution;
 
@@ -44,7 +45,7 @@ public enum NPUVAssignmentExecution
     final NPAssignmentExecution message)
   {
     return new NPU1AssignmentExecution(
-      new CBUUID(message.id()),
+      new CBUUID(message.id().value()),
       ASSIGNMENT.convertToWire(message.assignment()),
       string(message.commit().value())
     );
@@ -55,7 +56,7 @@ public enum NPUVAssignmentExecution
     final NPU1AssignmentExecution message)
   {
     return new NPAssignmentExecution(
-      message.fieldId().value(),
+      new NPAssignmentExecutionID(message.fieldId().value()),
       ASSIGNMENT.convertFromWire(message.fieldAssignment()),
       new NPCommitUnqualifiedID(message.fieldCommit().value())
     );

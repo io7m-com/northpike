@@ -22,7 +22,8 @@ import com.io7m.anethum.api.ParseStatusType;
 import com.io7m.anethum.api.ParsingException;
 import com.io7m.northpike.model.NPCompilationMessage;
 import com.io7m.northpike.model.NPFormatName;
-import com.io7m.northpike.plans.NPPlanException;
+import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.compiler.NPPlanCompilationResultType.Success;
 
 import java.io.ByteArrayInputStream;
@@ -118,7 +119,7 @@ public final class NPPlanCompilers implements NPPlanCompilerFactoryType
               new ByteArrayInputStream(textBytes)
             );
 
-          return new Success(parsed.toPlan(strings));
+          return new Success(NPPlans.toPlan(parsed, strings));
         } catch (final ParsingException e) {
           messages.addAll(
             e.statusValues()

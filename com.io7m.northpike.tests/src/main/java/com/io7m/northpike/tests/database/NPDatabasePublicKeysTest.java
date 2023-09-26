@@ -32,6 +32,7 @@ import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPPublicKeySearchParameters;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPRepositorySigningPolicy;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
@@ -56,6 +57,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -213,7 +215,7 @@ public final class NPDatabasePublicKeysTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("http://www.example.com/git0"),
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS

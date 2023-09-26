@@ -18,8 +18,8 @@
 package com.io7m.northpike.protocol.user;
 
 
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 
 import java.util.Objects;
 import java.util.UUID;

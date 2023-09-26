@@ -27,11 +27,9 @@ module com.io7m.northpike.database.postgres
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
-  requires com.io7m.northpike.assignments;
   requires com.io7m.northpike.database.api;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.plans.parsers;
-  requires com.io7m.northpike.plans;
   requires com.io7m.northpike.strings;
 
   requires com.io7m.anethum.api;

@@ -18,17 +18,6 @@
 package com.io7m.northpike.server.internal.assignments;
 
 import com.io7m.jmulticlose.core.CloseableType;
-import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentExecution;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreatedType;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreationFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRequested;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRunning;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
@@ -56,10 +45,23 @@ import com.io7m.northpike.model.NPToolExecutionEvaluated;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
-import com.io7m.northpike.plans.NPPlanElementName;
-import com.io7m.northpike.plans.NPPlanIdentifier;
-import com.io7m.northpike.plans.NPPlanTaskType;
-import com.io7m.northpike.plans.NPPlanType;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentExecution;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreatedType;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreationFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRequested;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRunning;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateSucceeded;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.model.plans.NPPlanElementName;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.plans.NPPlanTaskType;
+import com.io7m.northpike.model.plans.NPPlanType;
+import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluation;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.ElementBecameReady;
@@ -103,7 +105,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Flow;
@@ -163,7 +164,7 @@ public final class NPAssignmentTask
   private final NPTelemetryServiceType telemetry;
   private final Set<NPPlanParserFactoryType> planParsers;
   private final Set<NPTXParserFactoryType> toolExecParsers;
-  private final UUID executionId;
+  private final NPAssignmentExecutionID executionId;
 
   private NPAssignmentTask(
     final NPDatabaseType inDatabase,
@@ -177,7 +178,7 @@ public final class NPAssignmentTask
     final Set<NPTXParserFactoryType> inToolExecParsers,
     final NPStrings inStrings,
     final NPAssignmentExecutionRequest inRequest,
-    final UUID inExecutionId)
+    final NPAssignmentExecutionID inExecutionId)
   {
     this.database =
       Objects.requireNonNull(inDatabase, "database");
@@ -232,7 +233,7 @@ public final class NPAssignmentTask
   public static NPAssignmentTask create(
     final RPServiceDirectoryType services,
     final NPAssignmentExecutionRequest assignment,
-    final UUID executionId)
+    final NPAssignmentExecutionID executionId)
   {
     return new NPAssignmentTask(
       services.requireService(NPDatabaseType.class),
@@ -314,12 +315,15 @@ public final class NPAssignmentTask
        */
 
       case REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY -> {
-        this.logInfo("Commit must be signed with a known key; verifying signature.");
+        this.logInfo(
+          "Commit must be signed with a known key; verifying signature.");
 
         try {
           final var fingerprint =
-          this.repositories.verifyCommitSignature(this.commit.id(), this::findKey)
-            .get(5L, TimeUnit.MINUTES);
+            this.repositories.verifyCommitSignature(
+                this.commit.id(),
+                this::findKey)
+              .get(5L, TimeUnit.MINUTES);
 
           this.logInfo("Commit has valid signature from key %s.", fingerprint);
         } catch (final ExecutionException e) {
@@ -334,11 +338,14 @@ public final class NPAssignmentTask
        */
 
       case REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS -> {
-        this.logInfo("Commit must be signed with a specific key; verifying signature.");
+        this.logInfo(
+          "Commit must be signed with a specific key; verifying signature.");
 
         try {
           final var fingerprint =
-            this.repositories.verifyCommitSignature(this.commit.id(), this::findKey)
+            this.repositories.verifyCommitSignature(
+                this.commit.id(),
+                this::findKey)
               .get(5L, TimeUnit.MINUTES);
 
           final var isKeyAssigned =
@@ -478,7 +485,7 @@ public final class NPAssignmentTask
         }
 
         this.plan =
-          planOpt.get().toPlan(this.strings);
+          NPPlans.toPlan(planOpt.get(), this.strings);
 
         this.planEvaluator =
           NPPlanEvaluation.create(
@@ -1233,7 +1240,7 @@ public final class NPAssignmentTask
    * @return The execution identifier
    */
 
-  public UUID executionId()
+  public NPAssignmentExecutionID executionId()
   {
     return this.executionId;
   }

@@ -22,10 +22,10 @@ import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeysAssignedType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPRepositoryID;
 import org.jooq.DSLContext;
 
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.io7m.northpike.database.postgres.internal.Tables.PUBLIC_KEYS;
@@ -37,10 +37,10 @@ import static com.io7m.northpike.strings.NPStringConstants.REPOSITORY;
  */
 
 public final class NPDBQRepositoryPublicKeysAssigned
-  extends NPDBQAbstract<UUID, Set<NPFingerprint>>
+  extends NPDBQAbstract<NPRepositoryID, Set<NPFingerprint>>
   implements PublicKeysAssignedType
 {
-  private static final Service<UUID, Set<NPFingerprint>, PublicKeysAssignedType> SERVICE =
+  private static final Service<NPRepositoryID, Set<NPFingerprint>, PublicKeysAssignedType> SERVICE =
     new Service<>(
       PublicKeysAssignedType.class,
       NPDBQRepositoryPublicKeysAssigned::new);
@@ -60,7 +60,7 @@ public final class NPDBQRepositoryPublicKeysAssigned
   @Override
   protected Set<NPFingerprint> onExecute(
     final DSLContext context,
-    final UUID id)
+    final NPRepositoryID id)
     throws NPDatabaseException
   {
     this.setAttribute(REPOSITORY, id.toString());
@@ -69,7 +69,7 @@ public final class NPDBQRepositoryPublicKeysAssigned
       .from(PUBLIC_KEYS)
       .join(REPOSITORY_KEYS)
       .on(REPOSITORY_KEYS.RK_KEY.eq(PUBLIC_KEYS.PK_ID))
-      .where(REPOSITORY_KEYS.RK_REPOSITORY.eq(id))
+      .where(REPOSITORY_KEYS.RK_REPOSITORY.eq(id.value()))
       .stream()
       .map(r -> new NPFingerprint(r.get(PUBLIC_KEYS.PK_FINGERPRINT)))
       .collect(Collectors.toUnmodifiableSet());

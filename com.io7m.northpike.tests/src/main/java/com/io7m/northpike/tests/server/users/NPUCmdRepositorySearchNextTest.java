@@ -28,9 +28,10 @@ import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
-import com.io7m.northpike.plans.NPPlanException;
+import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -54,6 +55,7 @@ import static com.io7m.northpike.model.NPStandardErrorCodes.errorApiMisuse;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorSecurityPolicyDenied;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -248,21 +250,21 @@ public final class NPUCmdRepositorySearchNextTest
         List.of(
           new NPRepositoryDescription(
             new RDottedName("x.y"),
-            UUID.randomUUID(),
+            new NPRepositoryID(randomUUID()),
             URI.create("http://example.com/1"),
             NPRepositoryCredentialsNone.CREDENTIALS_NONE,
             ALLOW_UNSIGNED_COMMITS
           ),
           new NPRepositoryDescription(
             new RDottedName("x.y"),
-            UUID.randomUUID(),
+            new NPRepositoryID(randomUUID()),
             URI.create("http://example.com/2"),
             NPRepositoryCredentialsNone.CREDENTIALS_NONE,
             ALLOW_UNSIGNED_COMMITS
           ),
           new NPRepositoryDescription(
             new RDottedName("x.y"),
-            UUID.randomUUID(),
+            new NPRepositoryID(randomUUID()),
             URI.create("http://example.com/3"),
             NPRepositoryCredentialsNone.CREDENTIALS_NONE,
             ALLOW_UNSIGNED_COMMITS

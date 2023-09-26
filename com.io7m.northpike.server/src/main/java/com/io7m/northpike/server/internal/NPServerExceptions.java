@@ -19,6 +19,7 @@ package com.io7m.northpike.server.internal;
 
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.strings.NPStringConstants;
@@ -29,7 +30,6 @@ import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_IO;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_REPOSITORY_UNSUPPORTED_PROVIDER;
@@ -81,7 +81,7 @@ public final class NPServerExceptions
 
   public static NPServerException errorUnsupportedSCMProvider(
     final NPStrings strings,
-    final UUID id,
+    final NPRepositoryID id,
     final URI uri,
     final RDottedName provider)
   {

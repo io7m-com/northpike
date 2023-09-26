@@ -86,7 +86,7 @@ public final class NPDBQRepositoryPut
 
     final var query =
       context.insertInto(REPOSITORIES)
-        .set(REPOSITORIES.R_ID, description.id())
+        .set(REPOSITORIES.R_ID, description.id().value())
         .set(REPOSITORIES.R_PROVIDER, selectedProvider)
         .set(REPOSITORIES.R_URL, description.url().toString())
         .set(
@@ -103,7 +103,7 @@ public final class NPDBQRepositoryPut
           signingPolicy(description.signingPolicy()))
         .onConflict(REPOSITORIES.R_URL)
         .doUpdate()
-        .set(REPOSITORIES.R_ID, description.id())
+        .set(REPOSITORIES.R_ID, description.id().value())
         .set(REPOSITORIES.R_PROVIDER, selectedProvider)
         .set(REPOSITORIES.R_URL, description.url().toString())
         .set(

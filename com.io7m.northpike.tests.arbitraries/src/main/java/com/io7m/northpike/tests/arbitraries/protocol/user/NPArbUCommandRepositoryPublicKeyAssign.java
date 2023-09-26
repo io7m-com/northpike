@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
 import com.io7m.northpike.model.NPFingerprint;
-import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeyAssign;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
@@ -36,7 +36,7 @@ public final class NPArbUCommandRepositoryPublicKeyAssign
       () -> {
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
-          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(NPRepositoryID.class),
           Arbitraries.defaultFor(NPFingerprint.class)
         ).as(NPUCommandRepositoryPublicKeyAssign::new);
       }

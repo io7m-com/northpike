@@ -20,6 +20,7 @@ package com.io7m.northpike.tests.arbitraries;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPRepositoryCredentialsType;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPRepositorySigningPolicy;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
@@ -36,7 +37,7 @@ public final class NPArbRepository extends NPArbAbstract<NPRepositoryDescription
       () -> {
         return Combinators.combine(
           Arbitraries.defaultFor(RDottedName.class),
-          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(NPRepositoryID.class),
           Arbitraries.create(() -> URI.create("urn:uuid:" + UUID.randomUUID())),
           Arbitraries.defaultFor(NPRepositoryCredentialsType.class),
           Arbitraries.defaultFor(NPRepositorySigningPolicy.class)

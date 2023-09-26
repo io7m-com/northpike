@@ -19,7 +19,7 @@ package com.io7m.northpike.plans.parsers.v1;
 
 import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
-import com.io7m.northpike.plans.NPPlanTimeouts;
+import com.io7m.northpike.model.plans.NPPlanTimeouts;
 import org.xml.sax.Attributes;
 
 import java.time.Duration;

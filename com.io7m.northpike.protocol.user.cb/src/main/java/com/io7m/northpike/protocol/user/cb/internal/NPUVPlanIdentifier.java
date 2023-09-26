@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.protocol.user.cb.internal;
 
-import com.io7m.northpike.plans.NPPlanIdentifier;
-import com.io7m.northpike.plans.NPPlanName;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.plans.NPPlanName;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1PlanIdentifier;
 

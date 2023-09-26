@@ -19,7 +19,8 @@ package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBOptionType;
 import com.io7m.cedarbridge.runtime.api.CBUUID;
-import com.io7m.northpike.assignments.NPAssignmentExecutionSearchParameters;
+import com.io7m.northpike.model.NPRepositoryID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionSearchParameters;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AssignmentExecutionSearchParameters;
 
@@ -45,7 +46,11 @@ public enum NPUVAssignmentExecutionSearchParameters
     final NPAssignmentExecutionSearchParameters message)
   {
     return new NPU1AssignmentExecutionSearchParameters(
-      CBOptionType.fromOptional(message.repositoryId().map(CBUUID::new)),
+      CBOptionType.fromOptional(
+        message.repositoryId()
+          .map(NPRepositoryID::value)
+          .map(CBUUID::new)
+      ),
       CBOptionType.fromOptional(message.plan().map(PLAN_IDENTIFIER::convertToWire)),
       NPUVNameMatch.NAME_MATCH.convertToWire(message.nameQuery()),
       unsigned32(message.pageSize())
@@ -57,8 +62,13 @@ public enum NPUVAssignmentExecutionSearchParameters
     final NPU1AssignmentExecutionSearchParameters message)
   {
     return new NPAssignmentExecutionSearchParameters(
-      message.fieldRepositoryId().asOptional().map(CBUUID::value),
-      message.fieldPlan().asOptional().map(PLAN_IDENTIFIER::convertFromWire),
+      message.fieldRepositoryId()
+        .asOptional()
+        .map(CBUUID::value)
+        .map(NPRepositoryID::new),
+      message.fieldPlan()
+        .asOptional()
+        .map(PLAN_IDENTIFIER::convertFromWire),
       NPUVNameMatch.NAME_MATCH.convertFromWire(message.fieldNameQuery()),
       message.fieldPageSize().value()
     );

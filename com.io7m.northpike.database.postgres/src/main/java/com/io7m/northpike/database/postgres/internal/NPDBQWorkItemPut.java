@@ -85,13 +85,13 @@ public final class NPDBQWorkItemPut
 
     final var query =
       context.insertInto(WORK_ITEMS)
-        .set(WORK_ITEMS.WI_EXECUTION, identifier.assignmentExecutionId())
+        .set(WORK_ITEMS.WI_EXECUTION, identifier.assignmentExecutionId().value())
         .set(WORK_ITEMS.WI_AGENT, agent)
         .set(WORK_ITEMS.WI_NAME, identifier.planElementName().toString())
         .set(WORK_ITEMS.WI_STATUS, status)
         .onConflictOnConstraint(DSL.name("work_items_assignment_item_unique"))
         .doUpdate()
-        .set(WORK_ITEMS.WI_EXECUTION, identifier.assignmentExecutionId())
+        .set(WORK_ITEMS.WI_EXECUTION, identifier.assignmentExecutionId().value())
         .set(WORK_ITEMS.WI_AGENT, agent)
         .set(WORK_ITEMS.WI_NAME, identifier.planElementName().toString())
         .set(WORK_ITEMS.WI_STATUS, status);

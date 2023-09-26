@@ -18,6 +18,7 @@
 package com.io7m.northpike.protocol.user;
 
 import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPRepositoryID;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -32,7 +33,7 @@ import java.util.UUID;
 
 public record NPUCommandRepositoryPublicKeyAssign(
   UUID messageID,
-  UUID repository,
+  NPRepositoryID repository,
   NPFingerprint key)
   implements NPUCommandType<NPUResponseOK>
 {

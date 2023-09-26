@@ -17,13 +17,13 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAuditType;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionRequest;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecute;

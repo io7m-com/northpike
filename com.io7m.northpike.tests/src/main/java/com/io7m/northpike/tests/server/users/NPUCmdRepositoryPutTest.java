@@ -28,9 +28,10 @@ import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
-import com.io7m.northpike.plans.NPPlanException;
+import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -52,6 +53,7 @@ import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorSecurityPolicyDenied;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -125,7 +127,7 @@ public final class NPUCmdRepositoryPutTest
         UUID.randomUUID(),
         new NPRepositoryDescription(
           new RDottedName("x.y.z"),
-          UUID.randomUUID(),
+          new NPRepositoryID(randomUUID()),
           URI.create("http://www.example.com"),
           new NPRepositoryCredentialsUsernamePassword(
             "user",
@@ -161,7 +163,7 @@ public final class NPUCmdRepositoryPutTest
         UUID.randomUUID(),
         new NPRepositoryDescription(
           new RDottedName("x.y.z"),
-          UUID.randomUUID(),
+          new NPRepositoryID(randomUUID()),
           URI.create("http://www.example.com"),
           new NPRepositoryCredentialsUsernamePassword(
             "user",
@@ -207,7 +209,7 @@ public final class NPUCmdRepositoryPutTest
         UUID.randomUUID(),
         new NPRepositoryDescription(
           new RDottedName("x.y.z"),
-          UUID.randomUUID(),
+          new NPRepositoryID(randomUUID()),
           URI.create("http://www.example.com"),
           new NPRepositoryCredentialsUsernamePassword(
             "user",

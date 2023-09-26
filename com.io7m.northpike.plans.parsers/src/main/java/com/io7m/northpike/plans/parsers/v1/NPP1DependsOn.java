@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.plans.parsers.v1;
 
-import com.io7m.northpike.plans.NPPlanElementName;
+import com.io7m.northpike.model.plans.NPPlanElementName;
 
 import java.util.Objects;
 

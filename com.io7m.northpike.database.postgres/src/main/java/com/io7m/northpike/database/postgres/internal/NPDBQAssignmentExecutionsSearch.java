@@ -24,14 +24,15 @@ import com.io7m.jqpage.core.JQKeysetRandomAccessPagination;
 import com.io7m.jqpage.core.JQKeysetRandomAccessPaginationParameters;
 import com.io7m.jqpage.core.JQOrder;
 import com.io7m.jqpage.core.JQSelectDistinct;
-import com.io7m.northpike.assignments.NPAssignmentExecutionSearchParameters;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.database.api.NPAssignmentExecutionsPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPNameMatchType;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPRepositoryID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionSearchParameters;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import io.opentelemetry.api.trace.Span;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -103,6 +104,7 @@ public final class NPDBQAssignmentExecutionsSearch
 
     final var reposCondition =
       parameters.repositoryId()
+        .map(NPRepositoryID::value)
         .map(ASSIGNMENTS.A_REPOSITORY::eq)
         .orElse(DSL.trueCondition());
 

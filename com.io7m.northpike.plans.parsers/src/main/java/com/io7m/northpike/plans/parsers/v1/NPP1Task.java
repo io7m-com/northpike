@@ -25,10 +25,10 @@ import com.io7m.blackthorne.core.Blackthorne;
 import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPFailureRetry;
-import com.io7m.northpike.plans.NPPlanElementDescriptionType;
-import com.io7m.northpike.plans.NPPlanElementName;
-import com.io7m.northpike.plans.NPPlanTaskDescription;
-import com.io7m.northpike.plans.NPPlanToolExecution;
+import com.io7m.northpike.model.plans.NPPlanElementDescriptionType;
+import com.io7m.northpike.model.plans.NPPlanElementName;
+import com.io7m.northpike.model.plans.NPPlanTaskDescription;
+import com.io7m.northpike.model.plans.NPPlanToolExecution;
 import org.xml.sax.Attributes;
 
 import java.time.Duration;

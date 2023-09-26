@@ -17,11 +17,11 @@
 package com.io7m.northpike.database.api;
 
 
-import com.io7m.northpike.plans.NPPlanDescription;
-import com.io7m.northpike.plans.NPPlanDescriptionUnparsed;
-import com.io7m.northpike.plans.NPPlanIdentifier;
-import com.io7m.northpike.plans.NPPlanSearchParameters;
-import com.io7m.northpike.plans.NPPlanType;
+import com.io7m.northpike.model.plans.NPPlanDescription;
+import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.plans.NPPlanSearchParameters;
+import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanSerializerFactoryType;
 

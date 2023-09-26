@@ -72,7 +72,7 @@ public final class NPDBQRepositoryPublicKeyAssign
     final var query =
       context.insertInto(REPOSITORY_KEYS)
         .set(REPOSITORY_KEYS.RK_KEY, keyId)
-        .set(REPOSITORY_KEYS.RK_REPOSITORY, parameters.repositoryId())
+        .set(REPOSITORY_KEYS.RK_REPOSITORY, parameters.repositoryId().value())
         .onConflictDoNothing();
 
     recordQuery(query);

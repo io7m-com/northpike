@@ -19,12 +19,12 @@ package com.io7m.northpike.plans.internal;
 
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
-import com.io7m.northpike.plans.NPPlanDependency;
-import com.io7m.northpike.plans.NPPlanElementName;
-import com.io7m.northpike.plans.NPPlanElementType;
-import com.io7m.northpike.plans.NPPlanIdentifier;
-import com.io7m.northpike.plans.NPPlanTimeouts;
-import com.io7m.northpike.plans.NPPlanType;
+import com.io7m.northpike.model.plans.NPPlanDependency;
+import com.io7m.northpike.model.plans.NPPlanElementName;
+import com.io7m.northpike.model.plans.NPPlanElementType;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.plans.NPPlanTimeouts;
+import com.io7m.northpike.model.plans.NPPlanType;
 import org.jgrapht.Graph;
 
 import java.util.Map;

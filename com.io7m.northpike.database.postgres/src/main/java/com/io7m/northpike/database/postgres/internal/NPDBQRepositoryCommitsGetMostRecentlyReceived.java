@@ -22,11 +22,11 @@ import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Servi
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import com.io7m.northpike.model.NPRepositoryID;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_COMMITS;
 
@@ -35,10 +35,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_CO
  */
 
 public final class NPDBQRepositoryCommitsGetMostRecentlyReceived
-  extends NPDBQAbstract<UUID, Optional<NPCommitSummary>>
+  extends NPDBQAbstract<NPRepositoryID, Optional<NPCommitSummary>>
   implements NPDatabaseQueriesRepositoriesType.CommitsGetMostRecentlyReceivedType
 {
-  private static final Service<UUID, Optional<NPCommitSummary>, CommitsGetMostRecentlyReceivedType> SERVICE =
+  private static final Service<NPRepositoryID, Optional<NPCommitSummary>, CommitsGetMostRecentlyReceivedType> SERVICE =
     new Service<>(
       CommitsGetMostRecentlyReceivedType.class,
       NPDBQRepositoryCommitsGetMostRecentlyReceived::new);
@@ -58,7 +58,7 @@ public final class NPDBQRepositoryCommitsGetMostRecentlyReceived
   @Override
   protected Optional<NPCommitSummary> onExecute(
     final DSLContext context,
-    final UUID parameters)
+    final NPRepositoryID parameters)
     throws NPDatabaseException
   {
     final var query =
@@ -69,7 +69,7 @@ public final class NPDBQRepositoryCommitsGetMostRecentlyReceived
           REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED,
           REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED
         ).from(REPOSITORY_COMMITS)
-        .where(REPOSITORY_COMMITS.RC_REPOSITORY.eq(parameters))
+        .where(REPOSITORY_COMMITS.RC_REPOSITORY.eq(parameters.value()))
         .groupBy(
           REPOSITORY_COMMITS.RC_COMMIT_ID,
           REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_SUBJECT,

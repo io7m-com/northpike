@@ -23,7 +23,7 @@ import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
-import com.io7m.northpike.plans.NPPlanException;
+import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.server.internal.users.NPUCmdDisconnect;
 import com.io7m.northpike.server.internal.users.NPUserCommandContextType;

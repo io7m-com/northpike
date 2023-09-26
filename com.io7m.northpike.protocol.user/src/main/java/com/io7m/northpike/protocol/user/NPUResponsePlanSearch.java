@@ -19,7 +19,7 @@ package com.io7m.northpike.protocol.user;
 
 
 import com.io7m.northpike.model.NPPage;
-import com.io7m.northpike.plans.NPPlanSummary;
+import com.io7m.northpike.model.plans.NPPlanSummary;
 
 import java.util.Objects;
 import java.util.UUID;

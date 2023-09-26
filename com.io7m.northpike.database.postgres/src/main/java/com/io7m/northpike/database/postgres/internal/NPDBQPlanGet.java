@@ -22,7 +22,7 @@ import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.GetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.GetType.Parameters;
 import com.io7m.northpike.model.NPStandardErrorCodes;
-import com.io7m.northpike.plans.NPPlanDescription;
+import com.io7m.northpike.model.plans.NPPlanDescription;
 import org.jooq.DSLContext;
 
 import java.io.ByteArrayInputStream;

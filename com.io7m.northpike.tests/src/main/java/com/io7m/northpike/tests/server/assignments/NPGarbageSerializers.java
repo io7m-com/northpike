@@ -20,7 +20,7 @@ package com.io7m.northpike.tests.server.assignments;
 import com.io7m.anethum.api.SerializationException;
 import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPPreserveLexical;
-import com.io7m.northpike.plans.NPPlanType;
+import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.parsers.NPPlanParsers;
 import com.io7m.northpike.plans.parsers.NPPlanSerializerFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanSerializerType;

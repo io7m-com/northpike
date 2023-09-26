@@ -18,8 +18,9 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
-import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentName;
+import com.io7m.northpike.model.NPRepositoryID;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1Assignment;
 
@@ -47,7 +48,7 @@ public enum NPUVAssignment
   {
     return new NPU1Assignment(
       string(message.name().toString()),
-      new CBUUID(message.repositoryId()),
+      new CBUUID(message.repositoryId().value()),
       PLAN_IDENTIFIER.convertToWire(message.plan())
     );
   }
@@ -58,7 +59,7 @@ public enum NPUVAssignment
   {
     return new NPAssignment(
       NPAssignmentName.of(message.fieldName().value()),
-      message.fieldRepository().value(),
+      new NPRepositoryID(message.fieldRepository().value()),
       PLAN_IDENTIFIER.convertFromWire(message.fieldPlan())
     );
   }

@@ -35,6 +35,7 @@ import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPHash;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
@@ -57,6 +58,7 @@ import java.util.UUID;
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPRepositoryCredentialsNone.CREDENTIALS_NONE;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
@@ -132,7 +134,7 @@ public final class NPDatabaseArchivesTest
     final var description =
       new NPRepositoryDescription(
         scm.name(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com"),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS

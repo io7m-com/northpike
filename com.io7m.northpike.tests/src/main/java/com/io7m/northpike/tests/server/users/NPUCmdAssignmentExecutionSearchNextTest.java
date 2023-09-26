@@ -19,10 +19,6 @@ package com.io7m.northpike.tests.server.users;
 
 import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCancelled;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
-import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.database.api.NPAssignmentExecutionsPagedType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
@@ -32,8 +28,13 @@ import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCancelled;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.security.NPSecRole;
-import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchNext;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -249,7 +250,7 @@ public final class NPUCmdAssignmentExecutionSearchNextTest
       new NPPage<NPAssignmentExecutionStateType>(
         List.of(
           new NPAssignmentExecutionStateCancelled(
-            UUID.randomUUID(),
+            new NPAssignmentExecutionID(UUID.randomUUID()),
             new NPAssignmentExecutionRequest(
               NPAssignmentName.of("x"),
               new NPCommitUnqualifiedID("a")

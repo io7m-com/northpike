@@ -25,6 +25,7 @@ import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import org.jooq.DSLContext;
 import org.jooq.Record4;
 
@@ -78,7 +79,7 @@ public final class NPDBQWorkItemGet
         WORK_ITEMS.WI_STATUS)
       .from(WORK_ITEMS)
       .where(
-        WORK_ITEMS.WI_EXECUTION.eq(id.assignmentExecutionId())
+        WORK_ITEMS.WI_EXECUTION.eq(id.assignmentExecutionId().value())
           .and(WORK_ITEMS.WI_NAME.eq(id.planElementName().toString()))
       ).fetchOptional()
       .map(NPDBQWorkItemGet::mapRecord);
@@ -89,7 +90,7 @@ public final class NPDBQWorkItemGet
   {
     return new NPWorkItem(
       new NPWorkItemIdentifier(
-        r.get(WORK_ITEMS.WI_EXECUTION),
+        new NPAssignmentExecutionID(r.get(WORK_ITEMS.WI_EXECUTION)),
         new RDottedName(r.get(WORK_ITEMS.WI_NAME))
       ),
       Optional.ofNullable(r.get(WORK_ITEMS.WI_AGENT))

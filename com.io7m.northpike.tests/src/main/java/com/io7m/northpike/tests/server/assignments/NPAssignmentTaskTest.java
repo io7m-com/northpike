@@ -21,15 +21,6 @@ import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreationFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRequested;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRunning;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
@@ -49,10 +40,20 @@ import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
-import com.io7m.northpike.plans.NPPlanException;
-import com.io7m.northpike.plans.NPPlanTimeouts;
-import com.io7m.northpike.plans.NPPlanToolExecution;
-import com.io7m.northpike.plans.NPPlanType;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreationFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRequested;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRunning;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateSucceeded;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.plans.NPPlanTimeouts;
+import com.io7m.northpike.model.plans.NPPlanToolExecution;
+import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
 import com.io7m.northpike.server.internal.agents.NPAgentWorkItemAccepted;
@@ -340,7 +341,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
       task.run();
     }
@@ -433,7 +434,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
       task.run();
     }
@@ -535,7 +536,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
 
       /*
@@ -681,7 +682,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
 
       /*
@@ -814,7 +815,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
       task.run();
     }
@@ -899,7 +900,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
       task.run();
     }
@@ -991,7 +992,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
       task.run();
     }
@@ -1083,7 +1084,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
       task.run();
     }
@@ -1184,7 +1185,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitUnsigned().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
 
       /*
@@ -1475,7 +1476,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitSigned().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
       task.run();
     }
@@ -1519,7 +1520,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitSignedSpecific().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
       task.run();
     }
@@ -1563,7 +1564,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitSignedSpecific().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
       task.run();
     }
@@ -1615,7 +1616,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitSigned().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
       task.run();
     }
@@ -1692,7 +1693,7 @@ public final class NPAssignmentTaskTest
         assignment.name(),
         ASSIGNMENT_FIXTURE.commitSignedSpecific().commitId()
       ),
-      UUID.randomUUID()
+      new NPAssignmentExecutionID(UUID.randomUUID())
     )) {
       task.run();
     }

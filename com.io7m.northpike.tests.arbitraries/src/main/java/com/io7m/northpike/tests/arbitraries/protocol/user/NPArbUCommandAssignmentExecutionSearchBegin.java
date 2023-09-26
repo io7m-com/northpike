@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-import com.io7m.northpike.assignments.NPAssignmentExecutionSearchParameters;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionSearchParameters;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchBegin;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;

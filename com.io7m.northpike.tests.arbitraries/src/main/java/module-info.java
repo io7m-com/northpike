@@ -24,9 +24,7 @@ open module com.io7m.northpike.tests.arbitraries
   requires net.jqwik.api;
   requires com.io7m.jlexing.core;
 
-  requires com.io7m.northpike.assignments;
   requires com.io7m.northpike.model;
-  requires com.io7m.northpike.plans;
   requires com.io7m.northpike.protocol.agent;
   requires com.io7m.northpike.protocol.intro;
   requires com.io7m.northpike.protocol.user;
@@ -46,6 +44,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbAgentWorkItem,
     com.io7m.northpike.tests.arbitraries.NPArbAssignment,
     com.io7m.northpike.tests.arbitraries.NPArbAssignmentExecution,
+    com.io7m.northpike.tests.arbitraries.NPArbAssignmentExecutionID,
     com.io7m.northpike.tests.arbitraries.NPArbAssignmentExecutionRequest,
     com.io7m.northpike.tests.arbitraries.NPArbAssignmentExecutionSearchParameters,
     com.io7m.northpike.tests.arbitraries.NPArbAssignmentExecutionState,
@@ -79,6 +78,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbRepository,
     com.io7m.northpike.tests.arbitraries.NPArbRepositoryCredentials,
     com.io7m.northpike.tests.arbitraries.NPArbRepositoryDescription,
+    com.io7m.northpike.tests.arbitraries.NPArbRepositoryID,
     com.io7m.northpike.tests.arbitraries.NPArbRepositorySearchParameters,
     com.io7m.northpike.tests.arbitraries.NPArbRepositorySummary,
     com.io7m.northpike.tests.arbitraries.NPArbSCMProviderDescription,
@@ -113,7 +113,6 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIMessage,
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIProtocol,
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIProtocolsAvailable,
-    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentExecutionDelete,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelDelete,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelGet,
@@ -126,6 +125,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentSearchNext,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentSearchPrevious,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentExecute,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentExecutionDelete,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentExecutionSearchBegin,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentExecutionSearchNext,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentExecutionSearchPrevious,

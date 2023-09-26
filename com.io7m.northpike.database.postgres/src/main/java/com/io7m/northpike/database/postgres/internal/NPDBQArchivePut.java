@@ -77,7 +77,8 @@ public final class NPDBQArchivePut
         .from(REPOSITORY_COMMITS)
         .where(
           REPOSITORY_COMMITS.RC_COMMIT_ID.eq(commitVal.commitId().value())
-            .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(commitVal.repository()))
+            .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(
+              commitVal.repository().value()))
         );
 
     final var query =

@@ -27,11 +27,11 @@ import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import org.jooq.DSLContext;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.io7m.northpike.database.postgres.internal.Tables.WORK_ITEMS;
@@ -41,10 +41,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.WORK_ITEMS;
  */
 
 public final class NPDBQAssignmentExecutionWorkItems
-  extends NPDBQAbstract<UUID, Set<NPWorkItem>>
+  extends NPDBQAbstract<NPAssignmentExecutionID, Set<NPWorkItem>>
   implements NPDatabaseQueriesAssignmentsType.ExecutionWorkItemsType
 {
-  private static final Service<UUID, Set<NPWorkItem>, ExecutionWorkItemsType> SERVICE =
+  private static final Service<NPAssignmentExecutionID, Set<NPWorkItem>, ExecutionWorkItemsType> SERVICE =
     new Service<>(ExecutionWorkItemsType.class, NPDBQAssignmentExecutionWorkItems::new);
 
   /**
@@ -62,7 +62,7 @@ public final class NPDBQAssignmentExecutionWorkItems
   @Override
   protected Set<NPWorkItem> onExecute(
     final DSLContext context,
-    final UUID execution)
+    final NPAssignmentExecutionID execution)
     throws NPDatabaseException
   {
     return context.select(
@@ -71,7 +71,7 @@ public final class NPDBQAssignmentExecutionWorkItems
       WORK_ITEMS.WI_STATUS,
       WORK_ITEMS.WI_EXECUTION
     ).from(WORK_ITEMS)
-      .where(WORK_ITEMS.WI_EXECUTION.eq(execution))
+      .where(WORK_ITEMS.WI_EXECUTION.eq(execution.value()))
       .stream()
       .map(NPDBQAssignmentExecutionWorkItems::mapRecord)
       .collect(Collectors.toUnmodifiableSet());
@@ -82,7 +82,7 @@ public final class NPDBQAssignmentExecutionWorkItems
   {
     return new NPWorkItem(
       new NPWorkItemIdentifier(
-        r.get(WORK_ITEMS.WI_EXECUTION),
+        new NPAssignmentExecutionID(r.get(WORK_ITEMS.WI_EXECUTION)),
         new RDottedName(r.get(WORK_ITEMS.WI_NAME))
       ),
       Optional.ofNullable(r.get(WORK_ITEMS.WI_AGENT))

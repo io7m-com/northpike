@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionDelete;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
@@ -34,7 +35,7 @@ public final class NPArbUCommandAssignmentExecutionDelete
       () -> {
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
-          Arbitraries.create(UUID::randomUUID).set()
+          Arbitraries.defaultFor(NPAssignmentExecutionID.class).set()
         ).as(NPUCommandAssignmentExecutionDelete::new);
       }
     );

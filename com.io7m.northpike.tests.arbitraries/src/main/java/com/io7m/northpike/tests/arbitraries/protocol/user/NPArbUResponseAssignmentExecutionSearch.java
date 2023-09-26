@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.protocol.user.NPUResponseAssignmentExecutionSearch;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;

@@ -22,7 +22,7 @@ import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPKey;
-import com.io7m.northpike.plans.NPPlanException;
+import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
 import com.io7m.northpike.server.internal.agents.NPACmdEnvironmentInfo;
 import com.io7m.northpike.server.internal.agents.NPAgentCommandContextType;

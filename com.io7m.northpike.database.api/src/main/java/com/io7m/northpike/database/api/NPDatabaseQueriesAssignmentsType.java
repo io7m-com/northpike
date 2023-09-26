@@ -17,21 +17,21 @@
 package com.io7m.northpike.database.api;
 
 
-import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentExecutionSearchParameters;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
-import com.io7m.northpike.assignments.NPAssignmentName;
-import com.io7m.northpike.assignments.NPAssignmentSearchParameters;
 import com.io7m.northpike.model.NPPageSizes;
 import com.io7m.northpike.model.NPSearchParametersType;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionSearchParameters;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * The database queries involving assignments.
@@ -89,7 +89,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    */
 
   non-sealed interface ExecutionGetType
-    extends NPDatabaseQueryType<UUID, Optional<NPAssignmentExecutionStateType>>,
+    extends NPDatabaseQueryType<NPAssignmentExecutionID, Optional<NPAssignmentExecutionStateType>>,
     NPDatabaseQueriesAssignmentsType
   {
 
@@ -100,7 +100,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    */
 
   non-sealed interface ExecutionDeleteType
-    extends NPDatabaseQueryType<UUID, NPDatabaseUnit>,
+    extends NPDatabaseQueryType<NPAssignmentExecutionID, NPDatabaseUnit>,
     NPDatabaseQueriesAssignmentsType
   {
 
@@ -136,7 +136,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
      */
 
     record Parameters(
-      UUID execution,
+      NPAssignmentExecutionID execution,
       String type,
       String message,
       Map<String, String> attributes)
@@ -172,7 +172,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
      */
 
     record Parameters(
-      UUID execution,
+      NPAssignmentExecutionID execution,
       boolean timeAscending,
       long pageSize)
       implements NPSearchParametersType
@@ -205,7 +205,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    */
 
   non-sealed interface ExecutionWorkItemsType
-    extends NPDatabaseQueryType<UUID, Set<NPWorkItem>>,
+    extends NPDatabaseQueryType<NPAssignmentExecutionID, Set<NPWorkItem>>,
     NPDatabaseQueriesAssignmentsType
   {
 

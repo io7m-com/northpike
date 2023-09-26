@@ -18,19 +18,19 @@
 package com.io7m.northpike.database.postgres.internal;
 
 
-import com.io7m.northpike.assignments.NPAssignmentExecution;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCancelled;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreationFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRequested;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRunning;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
+import com.io7m.northpike.model.assignments.NPAssignmentExecution;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCancelled;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreationFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRequested;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRunning;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateSucceeded;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
 import org.jooq.Select;
@@ -96,7 +96,7 @@ public final class NPDBQAssignmentExecutionPut
           request.assignment().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME, request.commit().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
-        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id().value())
         .set(
           ASSIGNMENT_EXECUTIONS.AE_STATUS,
           ASSIGNMENT_EXECUTION_CREATION_FAILED)
@@ -110,7 +110,7 @@ public final class NPDBQAssignmentExecutionPut
           request.assignment().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME, request.commit().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
-        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id().value())
         .set(
           ASSIGNMENT_EXECUTIONS.AE_STATUS,
           ASSIGNMENT_EXECUTION_CREATION_FAILED);
@@ -140,7 +140,7 @@ public final class NPDBQAssignmentExecutionPut
         .set(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME, request.commit().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
         .set(ASSIGNMENT_EXECUTIONS.AE_ENDED, r.timeEnded())
-        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id().value())
         .set(ASSIGNMENT_EXECUTIONS.AE_STARTED, r.timeStarted())
         .set(ASSIGNMENT_EXECUTIONS.AE_STATUS, ASSIGNMENT_EXECUTION_SUCCEEDED)
         .onConflictOnConstraint(DSL.name("assignment_executions_primary_key"))
@@ -157,7 +157,7 @@ public final class NPDBQAssignmentExecutionPut
         .set(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME, request.commit().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
         .set(ASSIGNMENT_EXECUTIONS.AE_ENDED, r.timeEnded())
-        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id().value())
         .set(ASSIGNMENT_EXECUTIONS.AE_STARTED, r.timeStarted())
         .set(ASSIGNMENT_EXECUTIONS.AE_STATUS, ASSIGNMENT_EXECUTION_SUCCEEDED);
 
@@ -186,7 +186,7 @@ public final class NPDBQAssignmentExecutionPut
         .set(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME, request.commit().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
         .set(ASSIGNMENT_EXECUTIONS.AE_ENDED, r.timeEnded())
-        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id().value())
         .set(ASSIGNMENT_EXECUTIONS.AE_STARTED, r.timeStarted())
         .set(ASSIGNMENT_EXECUTIONS.AE_STATUS, ASSIGNMENT_EXECUTION_FAILED)
         .onConflictOnConstraint(DSL.name("assignment_executions_primary_key"))
@@ -203,7 +203,7 @@ public final class NPDBQAssignmentExecutionPut
         .set(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME, request.commit().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
         .set(ASSIGNMENT_EXECUTIONS.AE_ENDED, r.timeEnded())
-        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id().value())
         .set(ASSIGNMENT_EXECUTIONS.AE_STARTED, r.timeStarted())
         .set(ASSIGNMENT_EXECUTIONS.AE_STATUS, ASSIGNMENT_EXECUTION_FAILED);
 
@@ -224,7 +224,7 @@ public final class NPDBQAssignmentExecutionPut
     return context.select(REPOSITORY_COMMITS.RC_ID)
       .from(REPOSITORY_COMMITS)
       .where(
-        REPOSITORY_COMMITS.RC_REPOSITORY.eq(repositoryId)
+        REPOSITORY_COMMITS.RC_REPOSITORY.eq(repositoryId.value())
           .and(REPOSITORY_COMMITS.RC_COMMIT_ID.eq(commit.value()))
       );
   }
@@ -257,7 +257,7 @@ public final class NPDBQAssignmentExecutionPut
           selectCommit(context, r.execution()))
         .set(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME, request.commit().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
-        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id().value())
         .set(ASSIGNMENT_EXECUTIONS.AE_STARTED, r.timeStarted())
         .set(ASSIGNMENT_EXECUTIONS.AE_STATUS, ASSIGNMENT_EXECUTION_RUNNING)
         .onConflictOnConstraint(DSL.name("assignment_executions_primary_key"))
@@ -273,7 +273,7 @@ public final class NPDBQAssignmentExecutionPut
           selectCommit(context, r.execution()))
         .set(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME, request.commit().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
-        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id().value())
         .set(ASSIGNMENT_EXECUTIONS.AE_STARTED, r.timeStarted())
         .set(ASSIGNMENT_EXECUTIONS.AE_STATUS, ASSIGNMENT_EXECUTION_RUNNING);
 
@@ -301,7 +301,7 @@ public final class NPDBQAssignmentExecutionPut
           selectCommit(context, r.execution()))
         .set(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME, request.commit().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
-        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id().value())
         .set(ASSIGNMENT_EXECUTIONS.AE_STATUS, ASSIGNMENT_EXECUTION_CREATED)
         .onConflictOnConstraint(DSL.name("assignment_executions_primary_key"))
         .doUpdate()
@@ -316,7 +316,7 @@ public final class NPDBQAssignmentExecutionPut
           selectCommit(context, r.execution()))
         .set(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME, request.commit().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
-        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id().value())
         .set(ASSIGNMENT_EXECUTIONS.AE_STATUS, ASSIGNMENT_EXECUTION_CREATED);
 
     recordQuery(query);
@@ -337,7 +337,7 @@ public final class NPDBQAssignmentExecutionPut
           request.assignment().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME, request.commit().toString())
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
-        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id().value())
         .set(ASSIGNMENT_EXECUTIONS.AE_STATUS, ASSIGNMENT_EXECUTION_REQUESTED)
         .onConflictOnConstraint(DSL.name("assignment_executions_primary_key"))
         .doUpdate()
@@ -368,7 +368,7 @@ public final class NPDBQAssignmentExecutionPut
         .set(ASSIGNMENT_EXECUTIONS.AE_CREATED, r.timeCreated())
         .set(ASSIGNMENT_EXECUTIONS.AE_STARTED, r.timeStarted())
         .set(ASSIGNMENT_EXECUTIONS.AE_ENDED, r.timeEnded())
-        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id())
+        .set(ASSIGNMENT_EXECUTIONS.AE_ID, r.id().value())
         .set(ASSIGNMENT_EXECUTIONS.AE_STATUS, ASSIGNMENT_EXECUTION_CANCELLED)
         .onConflictOnConstraint(DSL.name("assignment_executions_primary_key"))
         .doUpdate()

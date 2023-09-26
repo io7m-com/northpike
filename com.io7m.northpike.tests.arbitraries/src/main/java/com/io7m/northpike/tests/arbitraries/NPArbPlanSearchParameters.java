@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.arbitraries;
 
 
-import com.io7m.northpike.plans.NPPlanSearchParameters;
+import com.io7m.northpike.model.plans.NPPlanSearchParameters;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 

@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.plans.NPPlanDescriptionUnparsed;
+import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 
 import java.util.Objects;
 import java.util.UUID;

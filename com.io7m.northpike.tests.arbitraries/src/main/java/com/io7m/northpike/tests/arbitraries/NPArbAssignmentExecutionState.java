@@ -17,22 +17,22 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.assignments.NPAssignmentExecution;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCancelled;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreationFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRequested;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRunning;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.model.assignments.NPAssignmentExecution;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCancelled;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreationFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRequested;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRunning;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateSucceeded;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
 
 import java.time.OffsetDateTime;
-import java.util.UUID;
 
 public final class NPArbAssignmentExecutionState
   extends NPArbAbstract<NPAssignmentExecutionStateType>
@@ -77,7 +77,7 @@ public final class NPArbAssignmentExecutionState
   private static Arbitrary<NPAssignmentExecutionStateType> requested()
   {
     return Combinators.combine(
-      Arbitraries.create(UUID::randomUUID),
+      Arbitraries.defaultFor(NPAssignmentExecutionID.class),
       Arbitraries.defaultFor(NPAssignmentExecutionRequest.class),
       Arbitraries.defaultFor(OffsetDateTime.class)
     ).as(NPAssignmentExecutionStateRequested::new);
@@ -96,7 +96,7 @@ public final class NPArbAssignmentExecutionState
   private static Arbitrary<NPAssignmentExecutionStateType> creationFailed()
   {
     return Combinators.combine(
-      Arbitraries.create(UUID::randomUUID),
+      Arbitraries.defaultFor(NPAssignmentExecutionID.class),
       Arbitraries.defaultFor(NPAssignmentExecutionRequest.class),
       Arbitraries.defaultFor(OffsetDateTime.class)
     ).as(NPAssignmentExecutionStateCreationFailed::new);
@@ -113,7 +113,7 @@ public final class NPArbAssignmentExecutionState
   private static Arbitrary<NPAssignmentExecutionStateType> cancelled()
   {
     return Combinators.combine(
-      Arbitraries.create(UUID::randomUUID),
+      Arbitraries.defaultFor(NPAssignmentExecutionID.class),
       Arbitraries.defaultFor(NPAssignmentExecutionRequest.class),
       Arbitraries.defaultFor(OffsetDateTime.class),
       Arbitraries.defaultFor(OffsetDateTime.class),

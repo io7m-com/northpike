@@ -26,8 +26,9 @@ import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.security.NPSecRole;
-import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionDelete;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -120,9 +121,9 @@ public final class NPUCmdAssignmentExecutionDeleteTest
       new NPUCommandAssignmentExecutionDelete(
         UUID.randomUUID(),
         Set.of(
-          UUID.randomUUID(),
-          UUID.randomUUID(),
-          UUID.randomUUID()
+          new NPAssignmentExecutionID(UUID.randomUUID()),
+          new NPAssignmentExecutionID(UUID.randomUUID()),
+          new NPAssignmentExecutionID(UUID.randomUUID())
         )
       );
 
@@ -154,9 +155,9 @@ public final class NPUCmdAssignmentExecutionDeleteTest
       new NPUCommandAssignmentExecutionDelete(
         UUID.randomUUID(),
         Set.of(
-          UUID.randomUUID(),
-          UUID.randomUUID(),
-          UUID.randomUUID()
+          new NPAssignmentExecutionID(UUID.randomUUID()),
+          new NPAssignmentExecutionID(UUID.randomUUID()),
+          new NPAssignmentExecutionID(UUID.randomUUID())
         )
       );
 
@@ -198,9 +199,9 @@ public final class NPUCmdAssignmentExecutionDeleteTest
       new NPUCommandAssignmentExecutionDelete(
         UUID.randomUUID(),
         Set.of(
-          UUID.randomUUID(),
-          UUID.randomUUID(),
-          UUID.randomUUID()
+          new NPAssignmentExecutionID(UUID.randomUUID()),
+          new NPAssignmentExecutionID(UUID.randomUUID()),
+          new NPAssignmentExecutionID(UUID.randomUUID())
         )
       );
 

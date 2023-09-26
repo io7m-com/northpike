@@ -23,12 +23,13 @@ import com.io7m.jqpage.core.JQKeysetRandomAccessPageDefinition;
 import com.io7m.jqpage.core.JQKeysetRandomAccessPagination;
 import com.io7m.jqpage.core.JQKeysetRandomAccessPaginationParameters;
 import com.io7m.jqpage.core.JQOrder;
-import com.io7m.northpike.assignments.NPAssignmentExecutionLogMessage;
 import com.io7m.northpike.database.api.NPAssignmentExecutionLogPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogListType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionLogMessage;
 import io.opentelemetry.api.trace.Span;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
@@ -92,7 +93,8 @@ public final class NPDBQAssignmentExecutionLogList
       );
 
     final var executionCondition =
-      ASSIGNMENT_EXECUTION_LOGS.AEL_ID.eq(parameters.execution());
+      ASSIGNMENT_EXECUTION_LOGS.AEL_ID.eq(
+        parameters.execution().value());
 
     final var pageParameters =
       JQKeysetRandomAccessPaginationParameters.forTable(ASSIGNMENT_EXECUTION_LOGS)
@@ -152,7 +154,9 @@ public final class NPDBQAssignmentExecutionLogList
         final var items =
           query.fetch().map(record -> {
             return new NPAssignmentExecutionLogMessage(
-              record.get(ASSIGNMENT_EXECUTION_LOGS.AEL_ID),
+              new NPAssignmentExecutionID(
+                record.get(ASSIGNMENT_EXECUTION_LOGS.AEL_ID)
+              ),
               record.get(ASSIGNMENT_EXECUTION_LOGS.AEL_TIME),
               record.get(ASSIGNMENT_EXECUTION_LOGS.AEL_TYPE),
               record.get(ASSIGNMENT_EXECUTION_LOGS.AEL_MESSAGE),

@@ -21,20 +21,6 @@ import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentExecution;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
-import com.io7m.northpike.assignments.NPAssignmentExecutionSearchParameters;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCancelled;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreationFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRequested;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRunning;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
-import com.io7m.northpike.assignments.NPAssignmentName;
-import com.io7m.northpike.assignments.NPAssignmentSearchParameters;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
@@ -66,12 +52,28 @@ import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPNameMatchType;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
-import com.io7m.northpike.plans.NPPlanIdentifier;
-import com.io7m.northpike.plans.NPPlanName;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentExecution;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionSearchParameters;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCancelled;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreationFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRequested;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRunning;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateSucceeded;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.plans.NPPlanName;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.parsers.NPPlanSerializers;
 import com.io7m.northpike.strings.NPStrings;
@@ -92,11 +94,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPNameMatchType.AnyName.ANY_NAME;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -109,7 +111,7 @@ public final class NPDatabaseAssignmentsTest
   private NPDatabaseTransactionType transaction;
   private NPDatabaseType database;
   private final NPStrings strings = NPStrings.create(Locale.ROOT);
-  private UUID repositoryId;
+  private NPRepositoryID repositoryId;
 
   @BeforeAll
   public static void setupOnce(
@@ -134,12 +136,12 @@ public final class NPDatabaseAssignmentsTest
       closeables.addPerTestResource(this.connection.openTransaction());
 
     this.repositoryId =
-      UUID.randomUUID();
+      new NPRepositoryID(randomUUID());
 
     this.transaction.setOwner(
       NPTestContainers.NPDatabaseFixture.createUser(
         this.transaction,
-        UUID.randomUUID()
+        randomUUID()
       )
     );
   }
@@ -177,7 +179,7 @@ public final class NPDatabaseAssignmentsTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         new RDottedName("x.y"),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com"),
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -263,7 +265,7 @@ public final class NPDatabaseAssignmentsTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         new RDottedName("x.y"),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com"),
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -309,7 +311,7 @@ public final class NPDatabaseAssignmentsTest
 
     put.execute(assignment);
 
-    final var executionId = UUID.randomUUID();
+    final var executionId = new NPAssignmentExecutionID(randomUUID());
 
     NPAssignmentExecutionStateType execution =
       new NPAssignmentExecutionStateRequested(
@@ -416,7 +418,8 @@ public final class NPDatabaseAssignmentsTest
     final var get =
       this.transaction.queries(ExecutionGetType.class);
 
-    assertEquals(Optional.empty(), get.execute(UUID.randomUUID()));
+    assertEquals(Optional.empty(), get.execute(new NPAssignmentExecutionID(
+      randomUUID())));
   }
 
   /**
@@ -465,7 +468,7 @@ public final class NPDatabaseAssignmentsTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         new RDottedName("x.y"),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com"),
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -516,7 +519,7 @@ public final class NPDatabaseAssignmentsTest
 
     final var agent =
       new NPAgentDescription(
-        new NPAgentID(UUID.randomUUID()),
+        new NPAgentID(randomUUID()),
         "Agent",
         NPKey.generate(),
         Map.of(),
@@ -531,7 +534,7 @@ public final class NPDatabaseAssignmentsTest
         OffsetDateTime.now()
           .withNano(0),
         new NPAssignmentExecution(
-          UUID.randomUUID(),
+          new NPAssignmentExecutionID(randomUUID()),
           assignment,
           commit.id().commitId()
         )
@@ -738,7 +741,7 @@ public final class NPDatabaseAssignmentsTest
         OffsetDateTime.now()
           .withNano(0),
         new NPAssignmentExecution(
-          UUID.randomUUID(),
+          new NPAssignmentExecutionID(randomUUID()),
           assignments.get(0),
           new NPCommitUnqualifiedID("a")
         )
@@ -800,37 +803,37 @@ public final class NPDatabaseAssignmentsTest
     final var executions =
       List.of(
         new NPAssignmentExecution(
-          UUID.randomUUID(),
+          new NPAssignmentExecutionID(randomUUID()),
           assignments.get(0),
           new NPCommitUnqualifiedID("a")
         ),
         new NPAssignmentExecution(
-          UUID.randomUUID(),
+          new NPAssignmentExecutionID(randomUUID()),
           assignments.get(1),
           new NPCommitUnqualifiedID("a")
         ),
         new NPAssignmentExecution(
-          UUID.randomUUID(),
+          new NPAssignmentExecutionID(randomUUID()),
           assignments.get(2),
           new NPCommitUnqualifiedID("a")
         ),
         new NPAssignmentExecution(
-          UUID.randomUUID(),
+          new NPAssignmentExecutionID(randomUUID()),
           assignments.get(3),
           new NPCommitUnqualifiedID("a")
         ),
         new NPAssignmentExecution(
-          UUID.randomUUID(),
+          new NPAssignmentExecutionID(randomUUID()),
           assignments.get(4),
           new NPCommitUnqualifiedID("a")
         ),
         new NPAssignmentExecution(
-          UUID.randomUUID(),
+          new NPAssignmentExecutionID(randomUUID()),
           assignments.get(5),
           new NPCommitUnqualifiedID("a")
         ),
         new NPAssignmentExecution(
-          UUID.randomUUID(),
+          new NPAssignmentExecutionID(randomUUID()),
           assignments.get(6),
           new NPCommitUnqualifiedID("a")
         )
@@ -1065,7 +1068,7 @@ public final class NPDatabaseAssignmentsTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         new RDottedName("x.y"),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com"),
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -1116,7 +1119,7 @@ public final class NPDatabaseAssignmentsTest
 
     final var agent =
       new NPAgentDescription(
-        new NPAgentID(UUID.randomUUID()),
+        new NPAgentID(randomUUID()),
         "Agent",
         NPKey.generate(),
         Map.of(),
@@ -1131,7 +1134,7 @@ public final class NPDatabaseAssignmentsTest
         OffsetDateTime.now()
           .withNano(0),
         new NPAssignmentExecution(
-          UUID.randomUUID(),
+          new NPAssignmentExecutionID(randomUUID()),
           assignment,
           commit.id().commitId()
         )

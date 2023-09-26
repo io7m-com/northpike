@@ -34,4 +34,6 @@ module com.io7m.northpike.model
 
   exports com.io7m.northpike.model;
   exports com.io7m.northpike.model.security;
+  exports com.io7m.northpike.model.assignments;
+  exports com.io7m.northpike.model.plans;
 }

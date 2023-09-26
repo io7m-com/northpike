@@ -22,11 +22,6 @@ import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentExecution;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
-import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.clock.NPClock;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
@@ -49,6 +44,7 @@ import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPToolExecutionEvaluated;
 import com.io7m.northpike.model.NPToolName;
@@ -57,8 +53,14 @@ import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
-import com.io7m.northpike.plans.NPPlanName;
-import com.io7m.northpike.plans.NPPlanType;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentExecution;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.plans.NPPlanName;
+import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.parsers.NPPlanSerializers;
 import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
@@ -276,7 +278,7 @@ public final class NPAgentTaskTest
     this.repository =
       new NPRepositoryDescription(
         new RDottedName("x.y"),
-        randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com/repos"),
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -337,7 +339,7 @@ public final class NPAgentTaskTest
       new NPAssignmentExecutionStateCreated(
         OffsetDateTime.now(),
         new NPAssignmentExecution(
-          randomUUID(),
+          new NPAssignmentExecutionID(randomUUID()),
           this.assignment,
           this.commit.id().commitId()
         )

@@ -74,7 +74,8 @@ public final class NPDBQRepositoryPublicKeyIsAssigned
         .from(REPOSITORY_KEYS)
         .where(
           REPOSITORY_KEYS.RK_KEY.eq(keyId)
-            .and(REPOSITORY_KEYS.RK_REPOSITORY.eq(parameters.repositoryId()))
+            .and(REPOSITORY_KEYS.RK_REPOSITORY.eq(
+              parameters.repositoryId().value()))
         );
 
     recordQuery(query);

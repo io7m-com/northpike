@@ -81,7 +81,7 @@ public final class NPDBQWorkItemLogAdd
       context.select(WORK_ITEMS.WI_ID)
         .from(WORK_ITEMS)
         .where(
-          WORK_ITEMS.WI_EXECUTION.eq(identifier.assignmentExecutionId())
+          WORK_ITEMS.WI_EXECUTION.eq(identifier.assignmentExecutionId().value())
             .and(WORK_ITEMS.WI_NAME.eq(identifier.planElementName().toString()))
         );
 

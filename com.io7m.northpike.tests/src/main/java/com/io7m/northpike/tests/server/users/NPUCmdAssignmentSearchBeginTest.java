@@ -19,9 +19,6 @@ package com.io7m.northpike.tests.server.users;
 
 import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
-import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentName;
-import com.io7m.northpike.assignments.NPAssignmentSearchParameters;
 import com.io7m.northpike.database.api.NPAssignmentsPagedType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
@@ -30,10 +27,14 @@ import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPNameMatchType;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
 import com.io7m.northpike.model.security.NPSecRole;
-import com.io7m.northpike.plans.NPPlanException;
-import com.io7m.northpike.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchBegin;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -55,6 +56,7 @@ import java.util.UUID;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorSecurityPolicyDenied;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -229,17 +231,17 @@ public final class NPUCmdAssignmentSearchBeginTest
         List.of(
           new NPAssignment(
             NPAssignmentName.of("x.y.z0"),
-            UUID.randomUUID(),
+            new NPRepositoryID(randomUUID()),
             NPPlanIdentifier.of("p0", 1L)
           ),
           new NPAssignment(
             NPAssignmentName.of("x.y.z1"),
-            UUID.randomUUID(),
+            new NPRepositoryID(randomUUID()),
             NPPlanIdentifier.of("p0", 1L)
           ),
           new NPAssignment(
             NPAssignmentName.of("x.y.z2"),
-            UUID.randomUUID(),
+            new NPRepositoryID(randomUUID()),
             NPPlanIdentifier.of("p0", 1L)
           )
         ),

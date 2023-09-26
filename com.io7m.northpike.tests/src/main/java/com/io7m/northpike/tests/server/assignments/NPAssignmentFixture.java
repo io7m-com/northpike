@@ -17,8 +17,6 @@
 
 package com.io7m.northpike.tests.server.assignments;
 
-import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.clock.NPClock;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
@@ -36,9 +34,12 @@ import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPHash;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPRepositorySigningPolicy;
 import com.io7m.northpike.model.NPToken;
-import com.io7m.northpike.plans.NPPlanType;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanParsers;
 import com.io7m.northpike.plans.parsers.NPPlanSerializers;
@@ -78,6 +79,7 @@ import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS;
 import static com.io7m.northpike.tests.scm_repository.NPSCMRepositoriesJGitTest.unpack;
+import static java.util.UUID.randomUUID;
 import static org.mockito.ArgumentMatchers.any;
 
 public final class NPAssignmentFixture implements AutoCloseable
@@ -147,7 +149,7 @@ public final class NPAssignmentFixture implements AutoCloseable
     final var repositoryDescriptionUnsigned =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposSourceUnsigned,
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -156,7 +158,7 @@ public final class NPAssignmentFixture implements AutoCloseable
     final var repositoryDescriptionRequireSigned =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposSourceSigned,
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY
@@ -165,7 +167,7 @@ public final class NPAssignmentFixture implements AutoCloseable
     final var repositoryDescriptionRequireSignedSpecific =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposSourceSignedSpecific,
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS

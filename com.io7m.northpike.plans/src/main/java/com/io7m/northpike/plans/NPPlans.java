@@ -17,6 +17,14 @@
 
 package com.io7m.northpike.plans;
 
+import com.io7m.northpike.model.plans.NPPlanBarrierDescription;
+import com.io7m.northpike.model.plans.NPPlanBuilderType;
+import com.io7m.northpike.model.plans.NPPlanDescription;
+import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.plans.NPPlanName;
+import com.io7m.northpike.model.plans.NPPlanTaskDescription;
+import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.internal.NPPlanBuilder;
 import com.io7m.northpike.strings.NPStrings;
 
@@ -65,5 +73,50 @@ public final class NPPlans
     final long version)
   {
     return builder(strings, NPPlanName.of(name), version);
+  }
+
+  /**
+   * Convert a description into a plan, performing structural and validity
+   * checks.
+   *
+   * @param description The plan description
+   * @param strings     The string resources
+   *
+   * @return The plan
+   *
+   * @throws NPPlanException On errors
+   */
+
+  public static NPPlanType toPlan(
+    final NPPlanDescription description,
+    final NPStrings strings)
+    throws NPPlanException
+  {
+    final var builder =
+      NPPlans.builder(
+        strings,
+        description.identifier().name().name().value(),
+        description.identifier().version()
+      );
+
+    builder.setTimeouts(description.timeouts());
+    builder.setDescription(description.description());
+
+    for (final var refs : description.toolReferences().values()) {
+      builder.addToolReference(refs);
+    }
+
+    for (final var element : description.elements().values()) {
+      if (element instanceof final NPPlanTaskDescription task) {
+        task.toTask(builder.addTask(task.name()));
+        continue;
+      }
+      if (element instanceof final NPPlanBarrierDescription barrier) {
+        barrier.toBarrier(builder.addBarrier(barrier.name()));
+        continue;
+      }
+    }
+
+    return builder.build();
   }
 }

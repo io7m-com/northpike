@@ -19,6 +19,7 @@ package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1RepositorySummary;
@@ -46,7 +47,7 @@ public enum NPUVRepositorySummary
   {
     return new NPU1RepositorySummary(
       string(message.provider().value()),
-      new CBUUID(message.id()),
+      new CBUUID(message.id().value()),
       string(message.url().toString())
     );
   }
@@ -57,7 +58,7 @@ public enum NPUVRepositorySummary
   {
     return new NPRepositorySummary(
       new RDottedName(message.fieldProvider().value()),
-      message.fieldId().value(),
+      new NPRepositoryID(message.fieldId().value()),
       URI.create(message.fieldUrl().value())
     );
   }

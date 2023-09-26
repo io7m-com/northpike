@@ -30,15 +30,11 @@ module com.io7m.northpike.plans.parsers
 
   requires com.io7m.northpike.agent.expressions;
   requires com.io7m.northpike.model;
-  requires com.io7m.northpike.plans;
-  requires com.io7m.northpike.strings;
-  requires com.io7m.northpike.toolexec;
 
   requires com.io7m.anethum.api;
   requires com.io7m.blackthorne.core;
   requires com.io7m.blackthorne.jxe;
   requires com.io7m.jaffirm.core;
-  requires com.io7m.jdeferthrow.core;
   requires com.io7m.jxe.core;
   requires com.io7m.lanark.core;
   requires com.io7m.repetoir.core;

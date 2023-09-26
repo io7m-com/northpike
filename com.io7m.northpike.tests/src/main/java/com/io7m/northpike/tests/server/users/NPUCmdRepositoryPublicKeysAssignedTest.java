@@ -25,9 +25,10 @@ import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
-import com.io7m.northpike.plans.NPPlanException;
+import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeysAssigned;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -46,6 +47,7 @@ import java.util.UUID;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorSecurityPolicyDenied;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -117,7 +119,7 @@ public final class NPUCmdRepositoryPublicKeysAssignedTest
     final var command =
       new NPUCommandRepositoryPublicKeysAssigned(
         UUID.randomUUID(),
-        UUID.randomUUID()
+        new NPRepositoryID(randomUUID())
       );
 
     final var ex =
@@ -144,7 +146,7 @@ public final class NPUCmdRepositoryPublicKeysAssignedTest
     final var command =
       new NPUCommandRepositoryPublicKeysAssigned(
         UUID.randomUUID(),
-        UUID.randomUUID()
+        new NPRepositoryID(randomUUID())
       );
 
     final var userId =
@@ -181,7 +183,7 @@ public final class NPUCmdRepositoryPublicKeysAssignedTest
     final var command =
       new NPUCommandRepositoryPublicKeysAssigned(
         UUID.randomUUID(),
-        UUID.randomUUID()
+        new NPRepositoryID(randomUUID())
       );
 
     final var userId =
@@ -229,7 +231,7 @@ public final class NPUCmdRepositoryPublicKeysAssignedTest
     final var command =
       new NPUCommandRepositoryPublicKeysAssigned(
         UUID.randomUUID(),
-        UUID.randomUUID()
+        new NPRepositoryID(randomUUID())
       );
 
     final var userId =

@@ -49,6 +49,7 @@ import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPTimeRange;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
@@ -74,6 +75,7 @@ import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPRepositoryCredentialsNone.CREDENTIALS_NONE;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -148,7 +150,7 @@ public final class NPDatabaseRepositoriesTest
     final var description =
       new NPRepositoryDescription(
         scm.name(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com"),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -177,7 +179,7 @@ public final class NPDatabaseRepositoriesTest
     final var description =
       new NPRepositoryDescription(
         new RDottedName("x.y"),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com"),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -205,7 +207,7 @@ public final class NPDatabaseRepositoriesTest
 
     assertEquals(
       Optional.empty(),
-      get.execute(UUID.randomUUID())
+      get.execute(new NPRepositoryID(randomUUID()))
     );
   }
 
@@ -240,7 +242,7 @@ public final class NPDatabaseRepositoriesTest
     final var repository =
       new NPRepositoryDescription(
         scm.name(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com"),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -317,7 +319,7 @@ public final class NPDatabaseRepositoriesTest
     final var repository =
       new NPRepositoryDescription(
         scm.name(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com"),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -393,7 +395,7 @@ public final class NPDatabaseRepositoriesTest
     final var repository =
       new NPRepositoryDescription(
         scm.name(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com"),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -469,7 +471,7 @@ public final class NPDatabaseRepositoriesTest
     final var repository =
       new NPRepositoryDescription(
         scm.name(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com"),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -542,7 +544,7 @@ public final class NPDatabaseRepositoriesTest
     final var repository =
       new NPRepositoryDescription(
         scm.name(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com"),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -601,7 +603,7 @@ public final class NPDatabaseRepositoriesTest
 
     final var commit =
       new NPCommit(
-        new NPCommitID(UUID.randomUUID(), new NPCommitUnqualifiedID("a")),
+        new NPCommitID(new NPRepositoryID(randomUUID()), new NPCommitUnqualifiedID("a")),
         OffsetDateTime.now(),
         OffsetDateTime.now(),
         new NPCommitAuthor(
@@ -665,7 +667,7 @@ public final class NPDatabaseRepositoriesTest
       final var description =
         new NPRepositoryDescription(
           scm.name(),
-          UUID.randomUUID(),
+          new NPRepositoryID(randomUUID()),
           URI.create("https://www.example.com/%04d".formatted(index)),
           index % 2 == 0 ? CREDENTIALS_NONE : usernamePassword,
           ALLOW_UNSIGNED_COMMITS
@@ -741,7 +743,7 @@ public final class NPDatabaseRepositoriesTest
   }
 
   private static GeneratedCommits generateFakeCommits(
-    final UUID repository)
+    final NPRepositoryID repository)
     throws NPException
   {
     final var startTime =
@@ -842,7 +844,7 @@ public final class NPDatabaseRepositoriesTest
     final var description =
       new NPRepositoryDescription(
         scm.name(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("https://www.example.com"),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS

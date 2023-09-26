@@ -17,13 +17,12 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentExecution;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentExecution;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
-
-import java.util.UUID;
 
 public final class NPArbAssignmentExecution
   extends NPArbAbstract<NPAssignmentExecution>
@@ -34,7 +33,7 @@ public final class NPArbAssignmentExecution
       NPAssignmentExecution.class,
       () -> {
         return Combinators.combine(
-          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(NPAssignmentExecutionID.class),
           Arbitraries.defaultFor(NPAssignment.class),
           Arbitraries.defaultFor(NPCommitUnqualifiedID.class)
         ).as(NPAssignmentExecution::new);

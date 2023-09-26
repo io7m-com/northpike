@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.assignments.NPAssignmentSearchParameters;
+import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
 
 import java.util.Objects;
 import java.util.UUID;

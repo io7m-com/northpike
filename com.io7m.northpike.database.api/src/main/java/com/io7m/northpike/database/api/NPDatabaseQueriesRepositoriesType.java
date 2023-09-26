@@ -24,11 +24,11 @@ import com.io7m.northpike.model.NPCommitSearchParameters;
 import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * The database queries involving repositories.
@@ -53,7 +53,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    */
 
   non-sealed interface GetType
-    extends NPDatabaseQueryType<UUID, Optional<NPRepositoryDescription>>,
+    extends NPDatabaseQueryType<NPRepositoryID, Optional<NPRepositoryDescription>>,
     NPDatabaseQueriesRepositoriesType
   {
 
@@ -128,7 +128,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    */
 
   non-sealed interface CommitsGetMostRecentlyReceivedType
-    extends NPDatabaseQueryType<UUID, Optional<NPCommitSummary>>,
+    extends NPDatabaseQueryType<NPRepositoryID, Optional<NPCommitSummary>>,
     NPDatabaseQueriesRepositoriesType
   {
 
@@ -150,7 +150,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
      */
 
     record Parameters(
-      UUID repositoryId,
+      NPRepositoryID repositoryId,
       NPFingerprint key)
     {
       /**
@@ -181,7 +181,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
      */
 
     record Parameters(
-      UUID repositoryId,
+      NPRepositoryID repositoryId,
       NPFingerprint key)
     {
       /**
@@ -212,7 +212,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
      */
 
     record Parameters(
-      UUID repositoryId,
+      NPRepositoryID repositoryId,
       NPFingerprint key)
     {
       /**
@@ -232,7 +232,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    */
 
   non-sealed interface PublicKeysAssignedType
-    extends NPDatabaseQueryType<UUID, Set<NPFingerprint>>,
+    extends NPDatabaseQueryType<NPRepositoryID, Set<NPFingerprint>>,
     NPDatabaseQueriesRepositoriesType
   {
 

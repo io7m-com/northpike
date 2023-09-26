@@ -20,6 +20,7 @@ package com.io7m.northpike.protocol.user.cb.internal;
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.cedarbridge.runtime.convenience.CBLists;
 import com.io7m.cedarbridge.runtime.convenience.CBSets;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionDelete;
 import com.io7m.northpike.protocol.user.cb.NPU1CommandAssignmentExecutionDelete;
@@ -45,7 +46,10 @@ public enum NPUVCommandAssignmentExecutionDelete
   {
     return new NPU1CommandAssignmentExecutionDelete(
       new CBUUID(message.messageID()),
-      CBLists.ofCollection(message.executions(), CBUUID::new)
+      CBLists.ofCollection(
+        message.executions(),
+        x -> new CBUUID(x.value())
+      )
     );
   }
 
@@ -55,7 +59,10 @@ public enum NPUVCommandAssignmentExecutionDelete
   {
     return new NPUCommandAssignmentExecutionDelete(
       message.fieldMessageId().value(),
-      CBSets.toSet(message.fieldExecutions(), CBUUID::value)
+      CBSets.toSet(
+        message.fieldExecutions(),
+        x -> new NPAssignmentExecutionID(x.value())
+      )
     );
   }
 }

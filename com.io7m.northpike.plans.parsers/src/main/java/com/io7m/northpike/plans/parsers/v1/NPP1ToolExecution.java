@@ -24,7 +24,7 @@ import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolReferenceName;
-import com.io7m.northpike.plans.NPPlanToolExecution;
+import com.io7m.northpike.model.plans.NPPlanToolExecution;
 import org.xml.sax.Attributes;
 
 import java.util.Map;

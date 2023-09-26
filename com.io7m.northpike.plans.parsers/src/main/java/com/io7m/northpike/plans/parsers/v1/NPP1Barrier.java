@@ -22,9 +22,9 @@ import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.blackthorne.core.Blackthorne;
-import com.io7m.northpike.plans.NPPlanBarrierDescription;
-import com.io7m.northpike.plans.NPPlanElementDescriptionType;
-import com.io7m.northpike.plans.NPPlanElementName;
+import com.io7m.northpike.model.plans.NPPlanBarrierDescription;
+import com.io7m.northpike.model.plans.NPPlanElementDescriptionType;
+import com.io7m.northpike.model.plans.NPPlanElementName;
 import org.xml.sax.Attributes;
 
 import java.util.Map;

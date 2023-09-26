@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.plans.preparation;
 
-import com.io7m.northpike.plans.NPPlanElementName;
-import com.io7m.northpike.plans.NPPlanType;
+import com.io7m.northpike.model.plans.NPPlanElementName;
+import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.variables.NPPlanVariables;
 import com.io7m.northpike.toolexec.checker.NPTXTypeChecked;
 

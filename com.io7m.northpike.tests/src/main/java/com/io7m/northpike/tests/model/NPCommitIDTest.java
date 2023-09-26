@@ -19,13 +19,13 @@ package com.io7m.northpike.tests.model;
 
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPValidityException;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import org.junit.jupiter.api.Test;
 
-import java.util.UUID;
-
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -42,7 +42,10 @@ public final class NPCommitIDTest
   public void testParse1()
   {
     assertThrows(NPValidityException.class, () -> {
-      new NPCommitID(UUID.randomUUID(), new NPCommitUnqualifiedID("A"));
+      new NPCommitID(
+        new NPRepositoryID(randomUUID()),
+        new NPCommitUnqualifiedID("A")
+      );
     });
   }
 }

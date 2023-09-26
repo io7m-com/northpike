@@ -23,12 +23,12 @@ import com.io7m.northpike.database.postgres.internal.enums.RepositorySigningPoli
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPRepositorySigningPolicy;
 import org.jooq.DSLContext;
 
 import java.net.URI;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORIES;
 import static com.io7m.northpike.database.postgres.internal.Tables.SCM_PROVIDERS;
@@ -38,10 +38,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.SCM_PROVIDERS
  */
 
 public final class NPDBQRepositoryGet
-  extends NPDBQAbstract<UUID, Optional<NPRepositoryDescription>>
+  extends NPDBQAbstract<NPRepositoryID, Optional<NPRepositoryDescription>>
   implements GetType
 {
-  private static final Service<UUID, Optional<NPRepositoryDescription>, GetType> SERVICE =
+  private static final Service<NPRepositoryID, Optional<NPRepositoryDescription>, GetType> SERVICE =
     new Service<>(GetType.class, NPDBQRepositoryGet::new);
 
   /**
@@ -68,7 +68,7 @@ public final class NPDBQRepositoryGet
   @Override
   protected Optional<NPRepositoryDescription> onExecute(
     final DSLContext context,
-    final UUID name)
+    final NPRepositoryID name)
   {
     final var query =
       context.select(
@@ -82,7 +82,7 @@ public final class NPDBQRepositoryGet
         ).from(REPOSITORIES)
         .join(SCM_PROVIDERS)
         .on(SCM_PROVIDERS.SP_ID.eq(REPOSITORIES.R_PROVIDER))
-        .where(REPOSITORIES.R_ID.eq(name));
+        .where(REPOSITORIES.R_ID.eq(name.value()));
 
     recordQuery(query);
     return query.fetchOptional().map(NPDBQRepositoryGet::mapRepository);
@@ -106,7 +106,7 @@ public final class NPDBQRepositoryGet
 
     return new NPRepositoryDescription(
       new RDottedName(r.get(SCM_PROVIDERS.SP_NAME)),
-      r.get(REPOSITORIES.R_ID),
+      new NPRepositoryID(r.get(REPOSITORIES.R_ID)),
       URI.create(r.get(REPOSITORIES.R_URL)),
       credentials,
       signingPolicy(r.get(REPOSITORIES.R_SIGNING_POLICY))

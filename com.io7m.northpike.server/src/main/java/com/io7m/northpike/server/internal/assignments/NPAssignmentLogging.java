@@ -21,12 +21,12 @@ import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogAddType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogAddType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.seltzer.api.SStructuredErrorType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Map;
-import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -53,7 +53,7 @@ public final class NPAssignmentLogging
 
   public static void recordExceptionText(
     final NPDatabaseTransactionType transaction,
-    final UUID executionId,
+    final NPAssignmentExecutionID executionId,
     final Throwable e)
     throws NPDatabaseException
   {
@@ -93,7 +93,7 @@ public final class NPAssignmentLogging
 
   public static void recordInfoText(
     final NPDatabaseTransactionType transaction,
-    final UUID executionId,
+    final NPAssignmentExecutionID executionId,
     final String text)
     throws NPDatabaseException
   {
@@ -113,7 +113,7 @@ public final class NPAssignmentLogging
 
   public static void recordErrorText(
     final NPDatabaseTransactionType transaction,
-    final UUID executionId,
+    final NPAssignmentExecutionID executionId,
     final String text)
     throws NPDatabaseException
   {

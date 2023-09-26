@@ -20,6 +20,7 @@ package com.io7m.northpike.protocol.user.cb.internal;
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1WorkItemIdentifier;
 
@@ -43,7 +44,7 @@ public enum NPUVWorkItemIdentifier
     final NPWorkItemIdentifier message)
   {
     return new NPU1WorkItemIdentifier(
-      new CBUUID(message.assignmentExecutionId()),
+      new CBUUID(message.assignmentExecutionId().value()),
       string(message.planElementName().value())
     );
   }
@@ -53,7 +54,7 @@ public enum NPUVWorkItemIdentifier
     final NPU1WorkItemIdentifier message)
   {
     return new NPWorkItemIdentifier(
-      message.fieldExecution().value(),
+      new NPAssignmentExecutionID(message.fieldExecution().value()),
       new RDottedName(message.fieldPlanElement().value())
     );
   }

@@ -18,7 +18,7 @@
 package com.io7m.northpike.plans.parsers;
 
 import com.io7m.anethum.api.ParserType;
-import com.io7m.northpike.plans.NPPlanDescription;
+import com.io7m.northpike.model.plans.NPPlanDescription;
 
 /**
  * The type of plan parsers.

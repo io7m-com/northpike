@@ -18,10 +18,10 @@
 package com.io7m.northpike.database.postgres.internal;
 
 
-import com.io7m.northpike.assignments.NPAssignment;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
+import com.io7m.northpike.model.assignments.NPAssignment;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
@@ -84,12 +84,12 @@ public final class NPDBQAssignmentPut
     final var query =
       context.insertInto(ASSIGNMENTS)
         .set(ASSIGNMENTS.A_NAME, assignment.name().toString())
-        .set(ASSIGNMENTS.A_REPOSITORY, assignment.repositoryId())
+        .set(ASSIGNMENTS.A_REPOSITORY, assignment.repositoryId().value())
         .set(ASSIGNMENTS.A_PLAN, plan)
         .onConflictOnConstraint(DSL.name("assignments_name_unique"))
         .doUpdate()
         .set(ASSIGNMENTS.A_NAME, assignment.name().toString())
-        .set(ASSIGNMENTS.A_REPOSITORY, assignment.repositoryId())
+        .set(ASSIGNMENTS.A_REPOSITORY, assignment.repositoryId().value())
         .set(ASSIGNMENTS.A_PLAN, plan);
 
     recordQuery(query);

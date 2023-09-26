@@ -17,6 +17,8 @@
 
 package com.io7m.northpike.protocol.user;
 
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -30,7 +32,7 @@ import java.util.UUID;
 
 public record NPUCommandAssignmentExecutionDelete(
   UUID messageID,
-  Set<UUID> executions)
+  Set<NPAssignmentExecutionID> executions)
   implements NPUCommandType<NPUResponseOK>
 {
   /**

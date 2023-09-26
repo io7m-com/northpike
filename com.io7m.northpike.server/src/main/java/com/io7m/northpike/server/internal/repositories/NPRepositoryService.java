@@ -32,6 +32,7 @@ import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryException;
@@ -57,7 +58,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -90,7 +90,7 @@ public final class NPRepositoryService
   private final NPTelemetryServiceType telemetry;
   private final List<? extends NPSCMRepositoryFactoryType> scmFactories;
   private final NPStrings strings;
-  private final HashMap<UUID, NPSCMRepositoryType> repositories;
+  private final HashMap<NPRepositoryID, NPSCMRepositoryType> repositories;
   private final NPServerDirectoryConfiguration directories;
 
   private NPRepositoryService(
@@ -381,7 +381,7 @@ public final class NPRepositoryService
   }
 
   private NPSCMRepositoryType openOrGetRepository(
-    final UUID repositoryId)
+    final NPRepositoryID repositoryId)
     throws NPDatabaseException, NPServerException
   {
     final var repositoryDescriptions =
@@ -401,7 +401,7 @@ public final class NPRepositoryService
   }
 
   private NPServerException errorNoSuchRepository(
-    final UUID repositoryId)
+    final NPRepositoryID repositoryId)
   {
     return new NPServerException(
       this.strings.format(NPStringConstants.ERROR_NONEXISTENT),
@@ -498,9 +498,9 @@ public final class NPRepositoryService
   }
 
   private void repositoriesRemoveUnused(
-    final HashMap<UUID, NPRepositoryDescription> repositoryDescriptions)
+    final HashMap<NPRepositoryID, NPRepositoryDescription> repositoryDescriptions)
   {
-    final var remove = new HashSet<UUID>();
+    final var remove = new HashSet<NPRepositoryID>();
 
     for (final var existing : this.repositories.values()) {
       final var id = existing.description().id();
@@ -515,7 +515,7 @@ public final class NPRepositoryService
   }
 
   private void repositoryDelete(
-    final UUID id)
+    final NPRepositoryID id)
   {
     final var existing =
       this.repositories.remove(id);
@@ -543,7 +543,7 @@ public final class NPRepositoryService
   }
 
   private void repositoriesConfigureAll(
-    final HashMap<UUID, NPRepositoryDescription> repositoryDescriptions)
+    final HashMap<NPRepositoryID, NPRepositoryDescription> repositoryDescriptions)
   {
     for (final var description : repositoryDescriptions.values()) {
       try {
@@ -615,11 +615,11 @@ public final class NPRepositoryService
     }
   }
 
-  private HashMap<UUID, NPRepositoryDescription> repositoriesLoadDescriptions()
+  private HashMap<NPRepositoryID, NPRepositoryDescription> repositoriesLoadDescriptions()
     throws NPDatabaseException
   {
     final var descriptions =
-      new HashMap<UUID, NPRepositoryDescription>();
+      new HashMap<NPRepositoryID, NPRepositoryDescription>();
 
     try (var connection = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
       try (var transaction = connection.openTransaction()) {

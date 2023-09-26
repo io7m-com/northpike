@@ -24,17 +24,18 @@ import com.io7m.jqpage.core.JQKeysetRandomAccessPagination;
 import com.io7m.jqpage.core.JQKeysetRandomAccessPaginationParameters;
 import com.io7m.jqpage.core.JQOrder;
 import com.io7m.jqpage.core.JQSelectDistinct;
-import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentName;
-import com.io7m.northpike.assignments.NPAssignmentSearchParameters;
 import com.io7m.northpike.database.api.NPAssignmentsPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPNameMatchType;
 import com.io7m.northpike.model.NPPage;
-import com.io7m.northpike.plans.NPPlanIdentifier;
-import com.io7m.northpike.plans.NPPlanName;
+import com.io7m.northpike.model.NPRepositoryID;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.plans.NPPlanName;
 import io.opentelemetry.api.trace.Span;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -103,6 +104,7 @@ public final class NPDBQAssignmentSearch
 
     final var reposCondition =
       parameters.repositoryId()
+        .map(NPRepositoryID::value)
         .map(ASSIGNMENTS.A_REPOSITORY::eq)
         .orElse(DSL.trueCondition());
 
@@ -205,7 +207,7 @@ public final class NPDBQAssignmentSearch
           query.fetch().map(record -> {
             return new NPAssignment(
               NPAssignmentName.of(record.get(ASSIGNMENTS.A_NAME)),
-              record.get(ASSIGNMENTS.A_REPOSITORY),
+              new NPRepositoryID(record.get(ASSIGNMENTS.A_REPOSITORY)),
               new NPPlanIdentifier(
                 NPPlanName.of(record.get(PLANS.P_NAME)),
                 record.<Long>get(PLANS.P_VERSION).longValue()

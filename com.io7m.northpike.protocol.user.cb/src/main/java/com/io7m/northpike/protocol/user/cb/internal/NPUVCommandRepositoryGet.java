@@ -18,6 +18,7 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
 import com.io7m.northpike.protocol.user.cb.NPU1CommandRepositoryGet;
@@ -41,7 +42,7 @@ public enum NPUVCommandRepositoryGet
   {
     return new NPU1CommandRepositoryGet(
       new CBUUID(message.messageID()),
-      new CBUUID(message.repository())
+      new CBUUID(message.repository().value())
     );
   }
 
@@ -51,7 +52,7 @@ public enum NPUVCommandRepositoryGet
   {
     return new NPUCommandRepositoryGet(
       message.fieldMessageId().value(),
-      message.fieldRepository().value()
+      new NPRepositoryID(message.fieldRepository().value())
     );
   }
 }

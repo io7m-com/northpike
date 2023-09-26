@@ -18,9 +18,9 @@
 package com.io7m.northpike.model;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * The unique identifier for a work item.
@@ -30,7 +30,7 @@ import java.util.UUID;
  */
 
 public record NPWorkItemIdentifier(
-  UUID assignmentExecutionId,
+  NPAssignmentExecutionID assignmentExecutionId,
   RDottedName planElementName)
 {
   /**

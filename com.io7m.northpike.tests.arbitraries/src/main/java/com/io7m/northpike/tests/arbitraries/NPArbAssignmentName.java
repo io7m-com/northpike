@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.arbitraries;
 
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.assignments.NPAssignmentName;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
 import net.jqwik.api.Arbitraries;
 
 public final class NPArbAssignmentName extends NPArbAbstract<NPAssignmentName>

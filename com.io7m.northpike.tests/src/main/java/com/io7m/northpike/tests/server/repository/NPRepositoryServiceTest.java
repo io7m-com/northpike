@@ -34,6 +34,7 @@ import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryFactoryType;
@@ -82,13 +83,13 @@ import java.time.Clock;
 import java.time.Duration;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static com.io7m.northpike.tests.scm_repository.NPSCMRepositoriesJGitTest.unpack;
 import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -141,7 +142,7 @@ public final class NPRepositoryServiceTest
     this.transaction.setOwner(
       NPTestContainers.NPDatabaseFixture.createUser(
         this.transaction,
-        UUID.randomUUID()
+        randomUUID()
       )
     );
 
@@ -272,7 +273,7 @@ public final class NPRepositoryServiceTest
     this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
       .execute(new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposSource,
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -316,7 +317,7 @@ public final class NPRepositoryServiceTest
     this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
       .execute(new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposDirectory.toUri(),
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -355,7 +356,7 @@ public final class NPRepositoryServiceTest
     this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
       .execute(new NPRepositoryDescription(
         new RDottedName("com.io7m.unsupported"),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposDirectory.toUri(),
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -396,7 +397,7 @@ public final class NPRepositoryServiceTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposSource,
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -459,7 +460,7 @@ public final class NPRepositoryServiceTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposSource,
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -508,7 +509,7 @@ public final class NPRepositoryServiceTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposSource,
         NPRepositoryCredentialsNone.CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -523,7 +524,7 @@ public final class NPRepositoryServiceTest
 
     final var commit =
       new NPCommitID(
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         new NPCommitUnqualifiedID("11e4ee346c9a8708688acc4f32beac8955714b6c")
       );
 

@@ -85,7 +85,7 @@ public final class NPDBQAssignmentExecutionLogAdd
       DSL.field("AEL_ATTRIBUTES", attributesType);
 
     context.insertInto(ASSIGNMENT_EXECUTION_LOGS)
-      .set(ASSIGNMENT_EXECUTION_LOGS.AEL_ID, parameters.execution())
+      .set(ASSIGNMENT_EXECUTION_LOGS.AEL_ID, parameters.execution().value())
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_MESSAGE, parameters.message())
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_TIME, time)
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_TYPE, parameters.type())

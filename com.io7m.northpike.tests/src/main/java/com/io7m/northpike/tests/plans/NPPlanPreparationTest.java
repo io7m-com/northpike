@@ -27,13 +27,14 @@ import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPHash;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
-import com.io7m.northpike.plans.NPPlanException;
-import com.io7m.northpike.plans.NPPlanToolExecution;
+import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.plans.NPPlanToolExecution;
 import com.io7m.northpike.plans.NPPlanToolExecutionCompilerType;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.preparation.NPPlanPreparation;
@@ -55,8 +56,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -65,7 +66,10 @@ public final class NPPlanPreparationTest
 {
   private static final NPCommit COMMIT =
     new NPCommit(
-      new NPCommitID(UUID.randomUUID(), new NPCommitUnqualifiedID("deda21dfcddaf071d42e374db3bf2afc")),
+      new NPCommitID(
+        new NPRepositoryID(randomUUID()),
+        new NPCommitUnqualifiedID("deda21dfcddaf071d42e374db3bf2afc")
+      ),
       OffsetDateTime.now(),
       OffsetDateTime.now(),
       new NPCommitAuthor("Author", "someone@example.com"),

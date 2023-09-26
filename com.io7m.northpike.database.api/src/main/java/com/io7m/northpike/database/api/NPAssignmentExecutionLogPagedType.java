@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.database.api;
 
-import com.io7m.northpike.assignments.NPAssignmentExecutionLogMessage;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionLogMessage;
 
 /**
  * A paged query that returns log messages.

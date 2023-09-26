@@ -18,13 +18,14 @@
 package com.io7m.northpike.server.internal.assignments;
 
 import com.io7m.jmulticlose.core.CloseableCollectionType;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerResources;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
@@ -208,7 +209,7 @@ public final class NPAssignmentService implements NPAssignmentServiceType
   }
 
   private void recordExceptionText(
-    final UUID executionId,
+    final NPAssignmentExecutionID executionId,
     final Throwable e)
   {
     try (var connection =
@@ -225,7 +226,7 @@ public final class NPAssignmentService implements NPAssignmentServiceType
 
   private void executeRequest(
     final NPAssignmentExecutionRequest request,
-    final UUID executionId)
+    final NPAssignmentExecutionID executionId)
   {
     MDC.put("Assignment", request.assignment().toString());
     MDC.put("AssignmentExecutionID", executionId.toString());
@@ -279,7 +280,7 @@ public final class NPAssignmentService implements NPAssignmentServiceType
 
   record EnqueuedRequest(
     NPAssignmentExecutionRequest request,
-    UUID executionId,
+    NPAssignmentExecutionID executionId,
     CompletableFuture<NPAssignmentExecutionStateType> future)
   {
 
@@ -291,7 +292,7 @@ public final class NPAssignmentService implements NPAssignmentServiceType
   {
     Objects.requireNonNull(request, "request");
 
-    final var executionId = UUID.randomUUID();
+    final var executionId = new NPAssignmentExecutionID(UUID.randomUUID());
     final var future = new CompletableFuture<NPAssignmentExecutionStateType>();
     this.queue.add(new EnqueuedRequest(request, executionId, future));
     this.metrics.setAssignmentsQueueSize(this.queue.size());

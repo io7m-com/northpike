@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
 
 import java.util.Objects;
 import java.util.UUID;

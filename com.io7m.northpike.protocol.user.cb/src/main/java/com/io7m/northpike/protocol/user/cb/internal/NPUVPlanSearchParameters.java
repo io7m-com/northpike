@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.protocol.user.cb.internal;
 
-import com.io7m.northpike.plans.NPPlanSearchParameters;
+import com.io7m.northpike.model.plans.NPPlanSearchParameters;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1PlanSearchParameters;
 

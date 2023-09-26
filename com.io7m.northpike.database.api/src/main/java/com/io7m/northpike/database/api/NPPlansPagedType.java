@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.database.api;
 
-import com.io7m.northpike.plans.NPPlanSummary;
+import com.io7m.northpike.model.plans.NPPlanSummary;
 
 /**
  * A paged query that returns plan descriptions.

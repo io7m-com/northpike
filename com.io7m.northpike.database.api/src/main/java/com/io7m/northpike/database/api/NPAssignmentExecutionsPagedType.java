@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.database.api;
 
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 
 /**
  * A paged query that returns assignment executions.

@@ -18,7 +18,6 @@
 package com.io7m.northpike.model;
 
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * A fully-qualified commit ID. A commit along with the ID of the repository
@@ -29,7 +28,7 @@ import java.util.UUID;
  */
 
 public record NPCommitID(
-  UUID repository,
+  NPRepositoryID repository,
   NPCommitUnqualifiedID commitId)
 {
   /**

@@ -27,9 +27,10 @@ import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
-import com.io7m.northpike.plans.NPPlanException;
+import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeyAssign;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -49,6 +50,7 @@ import java.util.UUID;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorSecurityPolicyDenied;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -120,7 +122,7 @@ public final class NPUCmdRepositoryPublicKeyAssignTest
     final var command =
       new NPUCommandRepositoryPublicKeyAssign(
         UUID.randomUUID(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         new NPFingerprint("f572d396fae9206628714fb2ce00f72e94f2258f")
       );
 
@@ -148,7 +150,7 @@ public final class NPUCmdRepositoryPublicKeyAssignTest
     final var command =
       new NPUCommandRepositoryPublicKeyAssign(
         UUID.randomUUID(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         new NPFingerprint("f572d396fae9206628714fb2ce00f72e94f2258f")
       );
 
@@ -186,7 +188,7 @@ public final class NPUCmdRepositoryPublicKeyAssignTest
     final var command =
       new NPUCommandRepositoryPublicKeyAssign(
         UUID.randomUUID(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         new NPFingerprint("f572d396fae9206628714fb2ce00f72e94f2258f")
       );
 
@@ -231,7 +233,7 @@ public final class NPUCmdRepositoryPublicKeyAssignTest
     final var command =
       new NPUCommandRepositoryPublicKeyAssign(
         UUID.randomUUID(),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         new NPFingerprint("f572d396fae9206628714fb2ce00f72e94f2258f")
       );
 

@@ -25,13 +25,13 @@ import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
-import com.io7m.northpike.plans.NPPlanBarrierType;
-import com.io7m.northpike.plans.NPPlanElementName;
-import com.io7m.northpike.plans.NPPlanException;
-import com.io7m.northpike.plans.NPPlanName;
-import com.io7m.northpike.plans.NPPlanTaskType;
-import com.io7m.northpike.plans.NPPlanToolExecution;
-import com.io7m.northpike.plans.NPPlanType;
+import com.io7m.northpike.model.plans.NPPlanBarrierType;
+import com.io7m.northpike.model.plans.NPPlanElementName;
+import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.plans.NPPlanName;
+import com.io7m.northpike.model.plans.NPPlanTaskType;
+import com.io7m.northpike.model.plans.NPPlanToolExecution;
+import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.parsers.NPPlanParsers;
 import com.io7m.northpike.plans.parsers.NPPlanSerializer;
@@ -678,14 +678,16 @@ public final class NPPlansTest
     LOG.debug("{}", text);
 
     final var planAfter =
-      new NPPlanParsers()
-        .createParserWithContext(
-          NPPreserveLexical.DISCARD_LEXICAL_INFORMATION,
-          URI.create("urn:stdin"),
-          new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)),
-          status -> ParseStatusLogging.logWithAll(LOG, status)
-        ).execute()
-        .toPlan(this.strings);
+      NPPlans.toPlan(
+        new NPPlanParsers()
+          .createParserWithContext(
+            NPPreserveLexical.DISCARD_LEXICAL_INFORMATION,
+            URI.create("urn:stdin"),
+            new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)),
+            status -> ParseStatusLogging.logWithAll(LOG, status)
+          ).execute(),
+        this.strings
+      );
 
     assertEquals(planBefore.identifier(), planAfter.identifier());
     assertEquals(planBefore.toolReferences(), planAfter.toolReferences());

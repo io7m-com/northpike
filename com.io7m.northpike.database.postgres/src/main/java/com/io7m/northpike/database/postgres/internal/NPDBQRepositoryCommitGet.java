@@ -93,7 +93,7 @@ public final class NPDBQRepositoryCommitGet
         .leftOuterJoin(REPOSITORY_COMMIT_TAGS)
         .on(REPOSITORY_COMMITS.RC_ID.eq(REPOSITORY_COMMIT_TAGS.RCT_COMMIT))
         .where(
-          REPOSITORY_COMMITS.RC_REPOSITORY.eq(id.repository())
+          REPOSITORY_COMMITS.RC_REPOSITORY.eq(id.repository().value())
             .and(REPOSITORY_COMMITS.RC_COMMIT_ID.eq(id.commitId().value()))
         );
 

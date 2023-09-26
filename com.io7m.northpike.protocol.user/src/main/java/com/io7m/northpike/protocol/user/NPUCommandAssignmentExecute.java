@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
 
 import java.util.Objects;
 import java.util.UUID;

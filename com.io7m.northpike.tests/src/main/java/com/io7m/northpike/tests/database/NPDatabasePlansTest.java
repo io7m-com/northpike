@@ -28,8 +28,8 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.plans.NPPlanIdentifier;
-import com.io7m.northpike.plans.NPPlanSearchParameters;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.plans.NPPlanSearchParameters;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanParserType;
@@ -157,12 +157,14 @@ public final class NPDatabasePlansTest
     );
 
     final var planAfter =
-      get.execute(
+      NPPlans.toPlan(
+        get.execute(
           new NPDatabaseQueriesPlansType.GetType.Parameters(
             plan.identifier(),
             Set.of(new NPPlanParsers()))
-        ).orElseThrow()
-        .toPlan(strings);
+        ).orElseThrow(),
+        strings
+      );
 
     assertEquals(plan.identifier(), planAfter.identifier());
     assertEquals(plan.elements(), planAfter.elements());

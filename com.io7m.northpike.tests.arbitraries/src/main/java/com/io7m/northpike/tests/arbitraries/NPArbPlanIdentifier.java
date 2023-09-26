@@ -18,8 +18,8 @@
 package com.io7m.northpike.tests.arbitraries;
 
 
-import com.io7m.northpike.plans.NPPlanIdentifier;
-import com.io7m.northpike.plans.NPPlanName;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.plans.NPPlanName;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 

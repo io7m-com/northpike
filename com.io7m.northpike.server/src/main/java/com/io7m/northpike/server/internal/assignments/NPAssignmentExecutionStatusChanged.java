@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.server.internal.assignments;
 
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
 import java.util.Map;

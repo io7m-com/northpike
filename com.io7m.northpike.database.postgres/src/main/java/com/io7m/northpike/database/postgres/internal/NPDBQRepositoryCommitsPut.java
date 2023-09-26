@@ -124,7 +124,8 @@ public final class NPDBQRepositoryCommitsPut
         .from(REPOSITORY_COMMITS)
         .where(
           REPOSITORY_COMMITS.RC_COMMIT_ID.eq(commit.id().commitId().value())
-            .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(commit.id().repository()))
+            .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(
+              commit.id().repository().value()))
         );
 
     queries.add(
@@ -154,7 +155,8 @@ public final class NPDBQRepositoryCommitsPut
         .from(REPOSITORY_COMMITS)
         .where(
           REPOSITORY_COMMITS.RC_COMMIT_ID.eq(commit.id().commitId().value())
-            .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(commit.id().repository()))
+            .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(
+              commit.id().repository().value()))
         );
 
     queries.add(
@@ -183,7 +185,8 @@ public final class NPDBQRepositoryCommitsPut
         .from(REPOSITORY_COMMITS)
         .where(
           REPOSITORY_COMMITS.RC_COMMIT_ID.eq(link.commit().commitId().value())
-            .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(link.commit().repository()))
+            .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(
+              link.commit().repository().value()))
         );
 
     return link.next()
@@ -193,7 +196,8 @@ public final class NPDBQRepositoryCommitsPut
             .from(REPOSITORY_COMMITS)
             .where(
               REPOSITORY_COMMITS.RC_COMMIT_ID.eq(next.commitId().value())
-                .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(next.repository()))
+                .and(REPOSITORY_COMMITS.RC_REPOSITORY.eq(
+                  next.repository().value()))
             );
 
         return (Query) context.insertInto(REPOSITORY_COMMIT_LINKS)
@@ -227,7 +231,7 @@ public final class NPDBQRepositoryCommitsPut
       .set(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_BODY, com.messageBody())
       .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED, com.timeCreated())
       .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_RECEIVED, com.timeReceived())
-      .set(REPOSITORY_COMMITS.RC_REPOSITORY, com.id().repository())
+      .set(REPOSITORY_COMMITS.RC_REPOSITORY, com.id().repository().value())
       .onConflictOnConstraint(DSL.name("repository_commits_unique"))
       .doUpdate()
       .set(REPOSITORY_COMMITS.RC_COMMIT_AUTHOR, authorSelect)
@@ -236,6 +240,6 @@ public final class NPDBQRepositoryCommitsPut
       .set(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_BODY, com.messageBody())
       .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED, com.timeCreated())
       .set(REPOSITORY_COMMITS.RC_COMMIT_TIME_RECEIVED, com.timeReceived())
-      .set(REPOSITORY_COMMITS.RC_REPOSITORY, com.id().repository());
+      .set(REPOSITORY_COMMITS.RC_REPOSITORY, com.id().repository().value());
   }
 }

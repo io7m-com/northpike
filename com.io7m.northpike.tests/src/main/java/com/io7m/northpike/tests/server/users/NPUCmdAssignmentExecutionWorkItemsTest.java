@@ -30,8 +30,9 @@ import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.security.NPSecRole;
-import com.io7m.northpike.plans.NPPlanException;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionWorkItems;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -124,7 +125,7 @@ public final class NPUCmdAssignmentExecutionWorkItemsTest
     final var command =
       new NPUCommandAssignmentExecutionWorkItems(
         UUID.randomUUID(),
-        UUID.randomUUID()
+        new NPAssignmentExecutionID(UUID.randomUUID())
       );
 
     final var ex =
@@ -154,7 +155,7 @@ public final class NPUCmdAssignmentExecutionWorkItemsTest
     final var command =
       new NPUCommandAssignmentExecutionWorkItems(
         UUID.randomUUID(),
-        UUID.randomUUID()
+        new NPAssignmentExecutionID(UUID.randomUUID())
       );
 
     final var userId =
@@ -194,7 +195,7 @@ public final class NPUCmdAssignmentExecutionWorkItemsTest
     final var command =
       new NPUCommandAssignmentExecutionWorkItems(
         UUID.randomUUID(),
-        UUID.randomUUID()
+        new NPAssignmentExecutionID(UUID.randomUUID())
       );
 
     final var userId =
@@ -208,7 +209,7 @@ public final class NPUCmdAssignmentExecutionWorkItemsTest
       Arrays.stream(NPWorkItemStatus.values())
         .sequential()
         .map(status -> new NPWorkItem(
-          new NPWorkItemIdentifier(UUID.randomUUID(), new RDottedName("x.y")),
+          new NPWorkItemIdentifier(new NPAssignmentExecutionID(UUID.randomUUID()), new RDottedName("x.y")),
           Optional.of(new NPAgentID(UUID.randomUUID())),
           status
         )).collect(Collectors.toUnmodifiableSet());

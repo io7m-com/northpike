@@ -19,10 +19,9 @@ package com.io7m.northpike.tests.arbitraries;
 
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
-
-import java.util.UUID;
 
 public final class NPArbWorkItemIdentifier extends NPArbAbstract<NPWorkItemIdentifier>
 {
@@ -32,7 +31,7 @@ public final class NPArbWorkItemIdentifier extends NPArbAbstract<NPWorkItemIdent
       NPWorkItemIdentifier.class,
       () ->
         Combinators.combine(
-          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(NPAssignmentExecutionID.class),
           Arbitraries.defaultFor(RDottedName.class)
         ).as(NPWorkItemIdentifier::new)
     );

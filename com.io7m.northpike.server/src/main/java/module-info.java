@@ -30,7 +30,6 @@ module com.io7m.northpike.server
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
-  requires com.io7m.northpike.assignments;
   requires com.io7m.northpike.clock;
   requires com.io7m.northpike.connections;
   requires com.io7m.northpike.database.api;

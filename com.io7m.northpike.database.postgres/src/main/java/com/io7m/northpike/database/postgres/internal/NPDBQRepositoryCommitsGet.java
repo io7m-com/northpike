@@ -33,6 +33,7 @@ import com.io7m.northpike.model.NPCommitSummary;
 import com.io7m.northpike.model.NPCommitSummaryLinked;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPRepositoryID;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Name;
@@ -125,7 +126,7 @@ public final class NPDBQRepositoryCommitsGet
               .join(REPOSITORIES)
               .on(REPOSITORIES.R_ID.eq(REPOSITORY_COMMITS.RC_REPOSITORY))
               .where(
-                REPOSITORIES.R_ID.eq(sinceValue.repository())
+                REPOSITORIES.R_ID.eq(sinceValue.repository().value())
                   .and(REPOSITORY_COMMITS.RC_COMMIT_ID
                          .eq(sinceValue.commitId().value()))
               ).limit(Integer.valueOf(1));
@@ -142,7 +143,7 @@ public final class NPDBQRepositoryCommitsGet
               .join(REPOSITORIES)
               .on(REPOSITORIES.R_ID.eq(REPOSITORY_COMMITS.RC_REPOSITORY))
               .where(
-                REPOSITORIES.R_ID.eq(sinceValue.repository())
+                REPOSITORIES.R_ID.eq(sinceValue.repository().value())
                   .and(REPOSITORY_COMMITS.RC_COMMIT_ID
                          .eq(sinceValue.commitId().value()))
               ).limit(Integer.valueOf(1));
@@ -223,7 +224,7 @@ public final class NPDBQRepositoryCommitsGet
           query.fetch().map(record -> {
             final var commit =
               new NPCommitID(
-                record.get(REPOSITORY_COMMITS.RC_REPOSITORY),
+                new NPRepositoryID(record.get(REPOSITORY_COMMITS.RC_REPOSITORY)),
                 new NPCommitUnqualifiedID(record.get(REPOSITORY_COMMITS.RC_COMMIT_ID))
               );
 
@@ -244,7 +245,12 @@ public final class NPDBQRepositoryCommitsGet
               new NPCommitLink(
                 commit,
                 Optional.ofNullable(nextRepos)
-                  .map(u -> new NPCommitID(nextRepos, nextCommit))
+                  .map(u -> {
+                    return new NPCommitID(
+                      new NPRepositoryID(nextRepos),
+                      nextCommit
+                    );
+                  })
               )
             );
           });

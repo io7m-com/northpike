@@ -18,7 +18,7 @@
 package com.io7m.northpike.plans.evaluation;
 
 import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.plans.NPPlanElementName;
+import com.io7m.northpike.model.plans.NPPlanElementName;
 
 import java.util.Objects;
 

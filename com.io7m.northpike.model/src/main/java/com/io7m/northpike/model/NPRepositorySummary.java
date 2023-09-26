@@ -21,7 +21,6 @@ import com.io7m.lanark.core.RDottedName;
 
 import java.net.URI;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * A repository summary.
@@ -33,7 +32,7 @@ import java.util.UUID;
 
 public record NPRepositorySummary(
   RDottedName provider,
-  UUID id,
+  NPRepositoryID id,
   URI url)
 {
   /**

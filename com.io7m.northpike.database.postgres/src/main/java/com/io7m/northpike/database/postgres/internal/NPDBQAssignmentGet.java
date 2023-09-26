@@ -18,12 +18,13 @@
 package com.io7m.northpike.database.postgres.internal;
 
 
-import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.GetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
-import com.io7m.northpike.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.NPRepositoryID;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import org.jooq.DSLContext;
 
 import java.util.Optional;
@@ -78,7 +79,7 @@ public final class NPDBQAssignmentGet
   {
     return new NPAssignment(
       NPAssignmentName.of(r.get(ASSIGNMENTS.A_NAME)),
-      r.get(ASSIGNMENTS.A_REPOSITORY),
+      new NPRepositoryID(r.get(ASSIGNMENTS.A_REPOSITORY)),
       NPPlanIdentifier.of(
         r.get(PLANS.P_NAME),
         r.<Long>get(PLANS.P_VERSION).longValue()

@@ -18,12 +18,12 @@
 package com.io7m.northpike.server.internal.repositories;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 import com.io7m.northpike.telemetry.api.NPEventType;
 
 import java.net.URI;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * A repository was updated.
@@ -35,7 +35,7 @@ import java.util.UUID;
  */
 
 public record NPRepositoryUpdated(
-  UUID id,
+  NPRepositoryID id,
   URI url,
   RDottedName provider,
   long commits)

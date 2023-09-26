@@ -19,14 +19,15 @@ package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.cedarbridge.runtime.time.CBOffsetDateTime;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCancelled;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreationFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRequested;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRunning;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCancelled;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreationFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRequested;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRunning;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateSucceeded;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AssignmentExecutionState;
 
@@ -81,7 +82,7 @@ public enum NPUVAssignmentExecutionState
     final NPAssignmentExecutionStateCancelled c)
   {
     return new NPU1AssignmentExecutionState.Cancelled(
-      new CBUUID(c.id()),
+      new CBUUID(c.id().value()),
       ASSIGNMENT_EXECUTION_REQUEST.convertToWire(c.request()),
       new CBOffsetDateTime(c.timeCreated()),
       new CBOffsetDateTime(c.timeStarted()),
@@ -93,7 +94,7 @@ public enum NPUVAssignmentExecutionState
     final NPAssignmentExecutionStateCreationFailed c)
   {
     return new NPU1AssignmentExecutionState.CreationFailed(
-      new CBUUID(c.id()),
+      new CBUUID(c.id().value()),
       ASSIGNMENT_EXECUTION_REQUEST.convertToWire(c.request()),
       new CBOffsetDateTime(c.timeCreated())
     );
@@ -103,7 +104,7 @@ public enum NPUVAssignmentExecutionState
     final NPAssignmentExecutionStateRequested c)
   {
     return new NPU1AssignmentExecutionState.Requested(
-      new CBUUID(c.id()),
+      new CBUUID(c.id().value()),
       ASSIGNMENT_EXECUTION_REQUEST.convertToWire(c.request()),
       new CBOffsetDateTime(c.timeCreated())
     );
@@ -145,7 +146,7 @@ public enum NPUVAssignmentExecutionState
     final NPAssignmentExecutionStateCreated c)
   {
     return new NPU1AssignmentExecutionState.Created(
-      new CBUUID(c.id()),
+      new CBUUID(c.id().value()),
       new CBOffsetDateTime(c.timeCreated()),
       ASSIGNMENT_EXECUTION.convertToWire(c.execution())
     );
@@ -218,7 +219,7 @@ public enum NPUVAssignmentExecutionState
     final NPU1AssignmentExecutionState.CreationFailed c)
   {
     return new NPAssignmentExecutionStateCreationFailed(
-      c.fieldId().value(),
+      new NPAssignmentExecutionID(c.fieldId().value()),
       ASSIGNMENT_EXECUTION_REQUEST.convertFromWire(c.fieldRequest()),
       c.fieldTimeCreated().value()
     );
@@ -228,7 +229,7 @@ public enum NPUVAssignmentExecutionState
     final NPU1AssignmentExecutionState.Requested c)
   {
     return new NPAssignmentExecutionStateRequested(
-      c.fieldId().value(),
+      new NPAssignmentExecutionID(c.fieldId().value()),
       ASSIGNMENT_EXECUTION_REQUEST.convertFromWire(c.fieldRequest()),
       c.fieldTimeCreated().value()
     );
@@ -247,7 +248,7 @@ public enum NPUVAssignmentExecutionState
     final NPU1AssignmentExecutionState.Cancelled c)
   {
     return new NPAssignmentExecutionStateCancelled(
-      c.fieldId().value(),
+      new NPAssignmentExecutionID(c.fieldId().value()),
       ASSIGNMENT_EXECUTION_REQUEST.convertFromWire(c.fieldRequest()),
       c.fieldTimeCreated().value(),
       c.fieldTimeStarted().value(),

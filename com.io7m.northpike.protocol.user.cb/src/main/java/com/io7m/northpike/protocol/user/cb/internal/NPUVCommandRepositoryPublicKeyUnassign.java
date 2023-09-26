@@ -19,6 +19,7 @@ package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeyUnassign;
 import com.io7m.northpike.protocol.user.cb.NPU1CommandRepositoryPublicKeyUnassign;
@@ -45,7 +46,7 @@ public enum NPUVCommandRepositoryPublicKeyUnassign
   {
     return new NPU1CommandRepositoryPublicKeyUnassign(
       new CBUUID(message.messageID()),
-      new CBUUID(message.repository()),
+      new CBUUID(message.repository().value()),
       string(message.key().value())
     );
   }
@@ -56,7 +57,7 @@ public enum NPUVCommandRepositoryPublicKeyUnassign
   {
     return new NPUCommandRepositoryPublicKeyUnassign(
       message.fieldMessageId().value(),
-      message.fieldRepository().value(),
+      new NPRepositoryID(message.fieldRepository().value()),
       new NPFingerprint(message.fieldPublicKey().value())
     );
   }

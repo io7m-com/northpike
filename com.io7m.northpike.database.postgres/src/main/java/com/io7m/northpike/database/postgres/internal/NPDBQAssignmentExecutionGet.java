@@ -18,28 +18,29 @@
 package com.io7m.northpike.database.postgres.internal;
 
 
-import com.io7m.northpike.assignments.NPAssignment;
-import com.io7m.northpike.assignments.NPAssignmentExecution;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCancelled;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreated;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateCreationFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateFailed;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRequested;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateRunning;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateSucceeded;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
-import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionGetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
-import com.io7m.northpike.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.NPRepositoryID;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentExecution;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCancelled;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreated;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreationFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRequested;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRunning;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateSucceeded;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENTS;
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENT_EXECUTIONS;
@@ -50,10 +51,13 @@ import static com.io7m.northpike.database.postgres.internal.Tables.PLANS;
  */
 
 public final class NPDBQAssignmentExecutionGet
-  extends NPDBQAbstract<UUID, Optional<NPAssignmentExecutionStateType>>
-  implements NPDatabaseQueriesAssignmentsType.ExecutionGetType
+  extends NPDBQAbstract<NPAssignmentExecutionID, Optional<NPAssignmentExecutionStateType>>
+  implements ExecutionGetType
 {
-  private static final Service<UUID, Optional<NPAssignmentExecutionStateType>, ExecutionGetType> SERVICE =
+  private static final Service<
+    NPAssignmentExecutionID,
+    Optional<NPAssignmentExecutionStateType>,
+    ExecutionGetType> SERVICE =
     new Service<>(ExecutionGetType.class, NPDBQAssignmentExecutionGet::new);
 
   /**
@@ -71,7 +75,7 @@ public final class NPDBQAssignmentExecutionGet
   @Override
   protected Optional<NPAssignmentExecutionStateType> onExecute(
     final DSLContext context,
-    final UUID name)
+    final NPAssignmentExecutionID name)
     throws NPDatabaseException
   {
     return context.select(
@@ -91,7 +95,7 @@ public final class NPDBQAssignmentExecutionGet
       .on(ASSIGNMENT_EXECUTIONS.AE_ASSIGNMENT.eq(ASSIGNMENTS.A_ID))
       .leftOuterJoin(PLANS)
       .on(ASSIGNMENTS.A_PLAN.eq(PLANS.P_ID))
-      .where(ASSIGNMENT_EXECUTIONS.AE_ID.eq(name))
+      .where(ASSIGNMENT_EXECUTIONS.AE_ID.eq(name.value()))
       .fetchOptional()
       .map(NPDBQAssignmentExecutionGet::mapAssignmentExecutionRecord);
   }
@@ -115,7 +119,7 @@ public final class NPDBQAssignmentExecutionGet
     final Record r)
   {
     return new NPAssignmentExecutionStateCancelled(
-      r.get(ASSIGNMENT_EXECUTIONS.AE_ID),
+      new NPAssignmentExecutionID(r.get(ASSIGNMENT_EXECUTIONS.AE_ID)),
       mapRequest(r),
       r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED),
       r.get(ASSIGNMENT_EXECUTIONS.AE_STARTED),
@@ -168,10 +172,10 @@ public final class NPDBQAssignmentExecutionGet
     final Record r)
   {
     return new NPAssignmentExecution(
-      r.get(ASSIGNMENT_EXECUTIONS.AE_ID),
+      new NPAssignmentExecutionID(r.get(ASSIGNMENT_EXECUTIONS.AE_ID)),
       new NPAssignment(
         NPAssignmentName.of(r.get(ASSIGNMENT_EXECUTIONS.AE_ASSIGNMENT_NAME)),
-        r.get(ASSIGNMENTS.A_REPOSITORY),
+        new NPRepositoryID(r.get(ASSIGNMENTS.A_REPOSITORY)),
         NPPlanIdentifier.of(
           r.get(PLANS.P_NAME),
           r.<Long>get(PLANS.P_VERSION).longValue()
@@ -185,7 +189,7 @@ public final class NPDBQAssignmentExecutionGet
     final Record r)
   {
     return new NPAssignmentExecutionStateCreationFailed(
-      r.get(ASSIGNMENT_EXECUTIONS.AE_ID),
+      new NPAssignmentExecutionID(r.get(ASSIGNMENT_EXECUTIONS.AE_ID)),
       mapRequest(r),
       r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED)
     );
@@ -203,7 +207,7 @@ public final class NPDBQAssignmentExecutionGet
     final Record r)
   {
     return new NPAssignmentExecutionStateRequested(
-      r.get(ASSIGNMENT_EXECUTIONS.AE_ID),
+      new NPAssignmentExecutionID(r.get(ASSIGNMENT_EXECUTIONS.AE_ID)),
       mapRequest(r),
       r.get(ASSIGNMENT_EXECUTIONS.AE_CREATED)
     );

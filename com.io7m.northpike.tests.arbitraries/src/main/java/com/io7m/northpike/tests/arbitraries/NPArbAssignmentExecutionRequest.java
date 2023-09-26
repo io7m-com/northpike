@@ -17,9 +17,9 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
-import com.io7m.northpike.assignments.NPAssignmentName;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 

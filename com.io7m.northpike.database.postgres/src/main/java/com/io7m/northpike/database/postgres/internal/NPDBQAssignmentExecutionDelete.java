@@ -21,11 +21,11 @@ package com.io7m.northpike.database.postgres.internal;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import org.jooq.DSLContext;
 import org.jooq.Query;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENT_EXECUTIONS;
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENT_EXECUTION_LOGS;
@@ -37,10 +37,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.WORK_ITEM_LOG
  */
 
 public final class NPDBQAssignmentExecutionDelete
-  extends NPDBQAbstract<UUID, NPDatabaseUnit>
+  extends NPDBQAbstract<NPAssignmentExecutionID, NPDatabaseUnit>
   implements NPDatabaseQueriesAssignmentsType.ExecutionDeleteType
 {
-  private static final Service<UUID, NPDatabaseUnit, ExecutionDeleteType> SERVICE =
+  private static final Service<NPAssignmentExecutionID, NPDatabaseUnit, ExecutionDeleteType> SERVICE =
     new Service<>(
       ExecutionDeleteType.class,
       NPDBQAssignmentExecutionDelete::new);
@@ -69,14 +69,14 @@ public final class NPDBQAssignmentExecutionDelete
   @Override
   protected NPDatabaseUnit onExecute(
     final DSLContext context,
-    final UUID execution)
+    final NPAssignmentExecutionID execution)
   {
     final var batch = new ArrayList<Query>();
 
     final var executionWorkItems =
       context.select(WORK_ITEMS.WI_ID)
         .from(WORK_ITEMS)
-        .where(WORK_ITEMS.WI_EXECUTION.eq(execution));
+        .where(WORK_ITEMS.WI_EXECUTION.eq(execution.value()));
 
     /*
      * Delete the log associated with each work item, associated with this
@@ -94,7 +94,7 @@ public final class NPDBQAssignmentExecutionDelete
 
     batch.add(
       context.deleteFrom(WORK_ITEMS)
-        .where(WORK_ITEMS.WI_EXECUTION.eq(execution))
+        .where(WORK_ITEMS.WI_EXECUTION.eq(execution.value()))
     );
 
     /*
@@ -103,7 +103,7 @@ public final class NPDBQAssignmentExecutionDelete
 
     batch.add(
       context.deleteFrom(ASSIGNMENT_EXECUTION_LOGS)
-        .where(ASSIGNMENT_EXECUTION_LOGS.AEL_ID.eq(execution))
+        .where(ASSIGNMENT_EXECUTION_LOGS.AEL_ID.eq(execution.value()))
     );
 
     /*
@@ -112,7 +112,7 @@ public final class NPDBQAssignmentExecutionDelete
 
     batch.add(
       context.deleteFrom(ASSIGNMENT_EXECUTIONS)
-        .where(ASSIGNMENT_EXECUTIONS.AE_ID.eq(execution))
+        .where(ASSIGNMENT_EXECUTIONS.AE_ID.eq(execution.value()))
     );
 
     context.batch(batch).execute();

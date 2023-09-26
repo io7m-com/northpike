@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-import com.io7m.northpike.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.protocol.user.NPUCommandPlanGet;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;

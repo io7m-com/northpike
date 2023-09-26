@@ -28,7 +28,8 @@ import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
-import com.io7m.northpike.plans.NPPlanException;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.protocol.agent.NPACommandCWorkItemOutput;
 import com.io7m.northpike.server.internal.agents.NPACmdWorkItemOutput;
 import com.io7m.northpike.server.internal.agents.NPAgentCommandContextType;
@@ -122,7 +123,7 @@ public final class NPACmdWorkItemOutputTest
       new NPACommandCWorkItemOutput(
         UUID.randomUUID(),
         new NPWorkItemIdentifier(
-          UUID.randomUUID(),
+          new NPAssignmentExecutionID(UUID.randomUUID()),
           new RDottedName("some.task")
         ),
         "A line."
@@ -169,7 +170,7 @@ public final class NPACmdWorkItemOutputTest
       new NPACommandCWorkItemOutput(
         UUID.randomUUID(),
         new NPWorkItemIdentifier(
-          UUID.randomUUID(),
+          new NPAssignmentExecutionID(UUID.randomUUID()),
           new RDottedName("some.task")
         ),
         "A line."
@@ -215,7 +216,7 @@ public final class NPACmdWorkItemOutputTest
       .thenReturn(Optional.of(
         new NPWorkItem(
           new NPWorkItemIdentifier(
-            UUID.randomUUID(),
+            new NPAssignmentExecutionID(UUID.randomUUID()),
             new RDottedName("some.task")
           ),
           Optional.of(agentOtherId),
@@ -227,7 +228,7 @@ public final class NPACmdWorkItemOutputTest
       new NPACommandCWorkItemOutput(
         UUID.randomUUID(),
         new NPWorkItemIdentifier(
-          UUID.randomUUID(),
+          new NPAssignmentExecutionID(UUID.randomUUID()),
           new RDottedName("some.task")
         ),
         "A line."
@@ -259,7 +260,7 @@ public final class NPACmdWorkItemOutputTest
 
     final var identifier =
       new NPWorkItemIdentifier(
-        UUID.randomUUID(),
+        new NPAssignmentExecutionID(UUID.randomUUID()),
         new RDottedName("some.task")
       );
 

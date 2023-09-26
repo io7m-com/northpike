@@ -19,7 +19,7 @@ package com.io7m.northpike.plans.parsers;
 
 import com.io7m.anethum.api.SerializationException;
 import com.io7m.northpike.model.NPFormatName;
-import com.io7m.northpike.plans.NPPlanType;
+import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.parsers.v1.NPP1Serializer;
 
 import javax.xml.stream.XMLStreamException;

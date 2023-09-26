@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.plans.internal;
 
-import com.io7m.northpike.plans.NPPlanElementName;
+import com.io7m.northpike.model.plans.NPPlanElementName;
 
 import java.util.Objects;
 

@@ -18,14 +18,14 @@
 package com.io7m.northpike.server.internal.assignments;
 
 import com.io7m.jmulticlose.core.CloseableType;
-import com.io7m.northpike.assignments.NPAssignmentExecutionRequest;
-import com.io7m.northpike.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionRequest;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import com.io7m.repetoir.core.RPServiceType;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -45,7 +45,7 @@ public interface NPAssignmentServiceType
 
   record NPExecutionInProgress(
     NPAssignmentExecutionRequest request,
-    UUID executionId,
+    NPAssignmentExecutionID executionId,
     CompletableFuture<NPAssignmentExecutionStateType> future)
   {
     /**

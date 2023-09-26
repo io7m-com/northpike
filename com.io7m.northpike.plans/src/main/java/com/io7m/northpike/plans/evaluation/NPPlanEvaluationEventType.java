@@ -18,8 +18,8 @@
 package com.io7m.northpike.plans.evaluation;
 
 import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.plans.NPPlanElementType;
-import com.io7m.northpike.plans.NPPlanTaskType;
+import com.io7m.northpike.model.plans.NPPlanElementType;
+import com.io7m.northpike.model.plans.NPPlanTaskType;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.ElementBecameReady;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.ElementFailed;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.ElementSucceeded;

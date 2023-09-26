@@ -18,6 +18,7 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionWorkItems;
 import com.io7m.northpike.protocol.user.cb.NPU1CommandAssignmentExecutionWorkItems;
@@ -43,7 +44,7 @@ public enum NPUVCommandAssignmentExecutionWorkItems
   {
     return new NPU1CommandAssignmentExecutionWorkItems(
       new CBUUID(message.messageID()),
-      new CBUUID(message.execution())
+      new CBUUID(message.execution().value())
     );
   }
 
@@ -53,7 +54,7 @@ public enum NPUVCommandAssignmentExecutionWorkItems
   {
     return new NPUCommandAssignmentExecutionWorkItems(
       message.fieldMessageId().value(),
-      message.fieldExecution().value()
+      new NPAssignmentExecutionID(message.fieldExecution().value())
     );
   }
 }

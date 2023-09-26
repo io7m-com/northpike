@@ -32,6 +32,7 @@ import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryCredentialsType;
 import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import io.opentelemetry.api.trace.Span;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -147,7 +148,7 @@ public final class NPDBQRepositoryList
           query.fetch().map(record -> {
             return new NPRepositoryDescription(
               new RDottedName(record.get(SCM_PROVIDERS.SP_NAME)),
-              record.get(REPOSITORIES.R_ID),
+              new NPRepositoryID(record.get(REPOSITORIES.R_ID)),
               URI.create(record.get(REPOSITORIES.R_URL)),
               mapCredentials(record),
               signingPolicy(record.get(REPOSITORIES.R_SIGNING_POLICY))

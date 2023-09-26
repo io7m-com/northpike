@@ -25,6 +25,7 @@ import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPHash;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPToken;
 import org.jooq.DSLContext;
 import org.jooq.Record6;
@@ -86,7 +87,7 @@ public final class NPDBQArchiveGet
     return new NPArchive(
       new NPToken(r.get(ARCHIVES.AR_TOKEN)),
       new NPCommitID(
-        r.get(REPOSITORY_COMMITS.RC_REPOSITORY),
+        new NPRepositoryID(r.get(REPOSITORY_COMMITS.RC_REPOSITORY)),
         new NPCommitUnqualifiedID(r.get(REPOSITORY_COMMITS.RC_COMMIT_ID))
       ),
       new NPHash(

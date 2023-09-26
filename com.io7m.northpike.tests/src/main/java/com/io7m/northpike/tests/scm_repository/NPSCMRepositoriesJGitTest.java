@@ -26,6 +26,7 @@ import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
@@ -54,13 +55,13 @@ import java.time.OffsetDateTime;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import static com.io7m.northpike.model.NPRepositoryCredentialsNone.CREDENTIALS_NONE;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -114,7 +115,7 @@ public final class NPSCMRepositoriesJGitTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         new RDottedName("com.io7m.northpike.repository.jgit"),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposSource,
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -212,7 +213,7 @@ public final class NPSCMRepositoriesJGitTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         new RDottedName("com.io7m.northpike.repository.jgit"),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposSource,
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -312,7 +313,7 @@ public final class NPSCMRepositoriesJGitTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         new RDottedName("com.io7m.northpike.repository.jgit"),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         file.toUri(),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -406,7 +407,7 @@ public final class NPSCMRepositoriesJGitTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         new RDottedName("com.io7m.northpike.repository.jgit"),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposSource,
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -469,7 +470,7 @@ public final class NPSCMRepositoriesJGitTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         new RDottedName("com.io7m.northpike.repository.jgit"),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposSource,
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -509,7 +510,7 @@ public final class NPSCMRepositoriesJGitTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         new RDottedName("com.io7m.northpike.repository.jgit"),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposSource,
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -557,7 +558,7 @@ public final class NPSCMRepositoriesJGitTest
     final var repositoryDescription =
       new NPRepositoryDescription(
         new RDottedName("com.io7m.northpike.repository.jgit"),
-        UUID.randomUUID(),
+        new NPRepositoryID(randomUUID()),
         reposSource,
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS

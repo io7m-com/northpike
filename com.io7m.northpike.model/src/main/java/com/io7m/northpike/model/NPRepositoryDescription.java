@@ -21,7 +21,6 @@ import com.io7m.lanark.core.RDottedName;
 
 import java.net.URI;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * A repository.
@@ -35,7 +34,7 @@ import java.util.UUID;
 
 public record NPRepositoryDescription(
   RDottedName provider,
-  UUID id,
+  NPRepositoryID id,
   URI url,
   NPRepositoryCredentialsType credentials,
   NPRepositorySigningPolicy signingPolicy)

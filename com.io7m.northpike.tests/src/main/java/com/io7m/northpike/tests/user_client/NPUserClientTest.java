@@ -27,6 +27,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPRepositorySearchParameters;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSearchParameters;
@@ -372,7 +373,7 @@ public final class NPUserClientTest
     final var repository =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("http://www.example.com"),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -417,7 +418,7 @@ public final class NPUserClientTest
     final var repository0 =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("http://www.example.com/0"),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -426,7 +427,7 @@ public final class NPUserClientTest
     final var repository1 =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("http://www.example.com/1"),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS
@@ -435,7 +436,7 @@ public final class NPUserClientTest
     final var repository2 =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        randomUUID(),
+        new NPRepositoryID(randomUUID()),
         URI.create("http://www.example.com/2"),
         CREDENTIALS_NONE,
         ALLOW_UNSIGNED_COMMITS

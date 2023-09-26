@@ -34,6 +34,7 @@ import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPHash;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.server.api.NPServerArchiveConfiguration;
@@ -79,10 +80,10 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -285,7 +286,7 @@ public final class NPArchiveServiceTest
         new NPToken(
           "454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"),
         new NPCommitID(
-          UUID.randomUUID(),
+          new NPRepositoryID(randomUUID()),
           new NPCommitUnqualifiedID("432a852395d4d587440e508a9da46f3d05ab67dd6b784d7bef84a50ce25e9e16")
         ),
         new NPHash(
@@ -348,7 +349,7 @@ public final class NPArchiveServiceTest
         new NPToken(
           "454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"),
         new NPCommitID(
-          UUID.randomUUID(),
+          new NPRepositoryID(randomUUID()),
           new NPCommitUnqualifiedID("432a852395d4d587440e508a9da46f3d05ab67dd6b784d7bef84a50ce25e9e16")
         ),
         new NPHash(

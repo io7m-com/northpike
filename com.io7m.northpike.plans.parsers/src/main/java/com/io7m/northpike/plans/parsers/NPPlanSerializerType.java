@@ -19,7 +19,7 @@ package com.io7m.northpike.plans.parsers;
 
 import com.io7m.anethum.api.SerializerType;
 import com.io7m.northpike.model.NPFormatName;
-import com.io7m.northpike.plans.NPPlanType;
+import com.io7m.northpike.model.plans.NPPlanType;
 
 /**
  * The type of plan serializers.
