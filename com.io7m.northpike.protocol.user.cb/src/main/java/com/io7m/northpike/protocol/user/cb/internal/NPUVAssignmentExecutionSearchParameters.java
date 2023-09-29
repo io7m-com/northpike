@@ -18,14 +18,20 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBOptionType;
+import com.io7m.cedarbridge.runtime.api.CBString;
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionSearchParameters;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateKind;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AssignmentExecutionSearchParameters;
+import com.io7m.northpike.protocol.user.cb.NPU1AssignmentExecutionStateKind;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVAssignmentExecutionStateKind.ASSIGNMENT_EXECUTION_STATE_KIND;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVPlanIdentifier.PLAN_IDENTIFIER;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVStrings.STRINGS;
 
 /**
  * A validator.
@@ -41,9 +47,19 @@ public enum NPUVAssignmentExecutionSearchParameters
 
   ASSIGNMENT_EXECUTION_SEARCH_PARAMETERS;
 
+  private static final NPUVComparisonsExact<
+    NPAssignmentExecutionStateKind,
+    NPU1AssignmentExecutionStateKind> STATE_VALIDATOR =
+    new NPUVComparisonsExact<>(
+      ASSIGNMENT_EXECUTION_STATE_KIND);
+
+  private static final NPUVComparisonsFuzzy<String, CBString> NAME_VALIDATOR =
+    new NPUVComparisonsFuzzy<>(STRINGS);
+
   @Override
   public NPU1AssignmentExecutionSearchParameters convertToWire(
     final NPAssignmentExecutionSearchParameters message)
+    throws NPProtocolException
   {
     return new NPU1AssignmentExecutionSearchParameters(
       CBOptionType.fromOptional(
@@ -51,8 +67,12 @@ public enum NPUVAssignmentExecutionSearchParameters
           .map(NPRepositoryID::value)
           .map(CBUUID::new)
       ),
-      CBOptionType.fromOptional(message.plan().map(PLAN_IDENTIFIER::convertToWire)),
-      NPUVNameMatch.NAME_MATCH.convertToWire(message.nameQuery()),
+      CBOptionType.fromOptional(
+        message.plan()
+          .map(PLAN_IDENTIFIER::convertToWire)
+      ),
+      STATE_VALIDATOR.convertToWire(message.state()),
+      NAME_VALIDATOR.convertToWire(message.nameQuery()),
       unsigned32(message.pageSize())
     );
   }
@@ -60,6 +80,7 @@ public enum NPUVAssignmentExecutionSearchParameters
   @Override
   public NPAssignmentExecutionSearchParameters convertFromWire(
     final NPU1AssignmentExecutionSearchParameters message)
+    throws NPProtocolException
   {
     return new NPAssignmentExecutionSearchParameters(
       message.fieldRepositoryId()
@@ -69,7 +90,8 @@ public enum NPUVAssignmentExecutionSearchParameters
       message.fieldPlan()
         .asOptional()
         .map(PLAN_IDENTIFIER::convertFromWire),
-      NPUVNameMatch.NAME_MATCH.convertFromWire(message.fieldNameQuery()),
+      STATE_VALIDATOR.convertFromWire(message.fieldState()),
+      NAME_VALIDATOR.convertFromWire(message.fieldNameQuery()),
       message.fieldPageSize().value()
     );
   }

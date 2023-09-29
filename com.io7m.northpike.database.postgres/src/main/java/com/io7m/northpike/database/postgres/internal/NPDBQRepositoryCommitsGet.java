@@ -153,6 +153,7 @@ public final class NPDBQRepositoryCommitsGet
 
     final var repositoryCondition =
       description.repository()
+        .map(NPRepositoryID::value)
         .map(REPOSITORY_COMMITS.RC_REPOSITORY::eq)
         .orElseGet(DSL::trueCondition);
 

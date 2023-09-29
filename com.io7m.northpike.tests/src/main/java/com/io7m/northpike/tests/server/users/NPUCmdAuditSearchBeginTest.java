@@ -31,8 +31,9 @@ import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPTimeRange;
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.security.NPSecRole;
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchBegin;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -128,7 +129,7 @@ public final class NPUCmdAuditSearchBeginTest
         UUID.randomUUID(),
         new NPAuditSearchParameters(
           Optional.empty(),
-          Optional.empty(),
+          new NPComparisonExactType.Anything<>(),
           NPTimeRange.largest(),
           1000L
         )
@@ -163,7 +164,7 @@ public final class NPUCmdAuditSearchBeginTest
         UUID.randomUUID(),
         new NPAuditSearchParameters(
           Optional.empty(),
-          Optional.empty(),
+          new NPComparisonExactType.Anything<>(),
           NPTimeRange.largest(),
           1000L
         )
@@ -208,7 +209,7 @@ public final class NPUCmdAuditSearchBeginTest
         UUID.randomUUID(),
         new NPAuditSearchParameters(
           Optional.empty(),
-          Optional.empty(),
+          new NPComparisonExactType.Anything<>(),
           NPTimeRange.largest(),
           1000L
         )

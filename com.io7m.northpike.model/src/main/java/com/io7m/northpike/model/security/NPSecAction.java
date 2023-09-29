@@ -41,6 +41,21 @@ public enum NPSecAction
   },
 
   /**
+   * An enumerate operation.
+   */
+
+  ENUMERATE {
+    private static final MActionName ENUMERATE_OBJECT =
+      MActionName.of("enumerate");
+
+    @Override
+    public MActionName action()
+    {
+      return ENUMERATE_OBJECT;
+    }
+  },
+
+  /**
    * A write operation.
    */
 

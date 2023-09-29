@@ -53,12 +53,6 @@ public record NPAssignmentExecutionStateCreationFailed(
   }
 
   @Override
-  public String name()
-  {
-    return "CreationFailed";
-  }
-
-  @Override
   public Map<String, String> asAttributes()
   {
     return Map.ofEntries(
@@ -67,5 +61,11 @@ public record NPAssignmentExecutionStateCreationFailed(
       entry("Status", this.name()),
       entry("TimeCreated", this.timeCreated.toString())
     );
+  }
+
+  @Override
+  public NPAssignmentExecutionStateKind kind()
+  {
+    return NPAssignmentExecutionStateKind.CREATION_FAILED;
   }
 }

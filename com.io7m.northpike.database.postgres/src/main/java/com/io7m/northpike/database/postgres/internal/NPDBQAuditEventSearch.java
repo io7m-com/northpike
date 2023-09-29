@@ -42,6 +42,7 @@ import org.jooq.postgres.extensions.types.Hstore;
 
 import java.util.List;
 
+import static com.io7m.northpike.database.postgres.internal.NPDBComparisons.createExactMatchQuery;
 import static com.io7m.northpike.database.postgres.internal.NPDatabaseExceptions.handleDatabaseException;
 import static com.io7m.northpike.database.postgres.internal.tables.Audit.AUDIT;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_STATEMENT;
@@ -95,9 +96,7 @@ public final class NPDBQAuditEventSearch
         .orElse(DSL.trueCondition());
 
     final var conditionType =
-      parameters.type()
-        .map(AUDIT.AU_TYPE::eq)
-        .orElse(DSL.trueCondition());
+      createExactMatchQuery(parameters.type(), AUDIT.AU_TYPE);
 
     final var conditionTime =
       AUDIT.AU_TIME.ge(parameters.timeRange().lower())

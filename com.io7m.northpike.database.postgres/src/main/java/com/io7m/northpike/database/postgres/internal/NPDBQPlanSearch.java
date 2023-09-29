@@ -34,7 +34,6 @@ import com.io7m.northpike.model.plans.NPPlanName;
 import com.io7m.northpike.model.plans.NPPlanSearchParameters;
 import com.io7m.northpike.model.plans.NPPlanSummary;
 import io.opentelemetry.api.trace.Span;
-import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
@@ -74,30 +73,28 @@ public final class NPDBQPlanSearch
     final NPPlanSearchParameters parameters)
     throws NPDatabaseException
   {
-    final Condition condition;
-    if (parameters.query().isEmpty()) {
-      condition = DSL.trueCondition();
-    } else {
-      final var nameCondition =
-        DSL.condition(
-          "PLANS.P_NAME_SEARCH @@ websearch_to_tsquery(?)",
-          DSL.inline(parameters.query())
-        );
+    final var nameCondition =
+      NPDBComparisons.createFuzzyMatchQuery(
+        parameters.name(),
+        PLANS.P_NAME,
+        "PLANS.P_NAME_SEARCH"
+      );
 
-      final var descriptionCondition =
-        DSL.condition(
-          "PLANS.P_DESCRIPTION_SEARCH @@ websearch_to_tsquery(?)",
-          DSL.inline(parameters.query())
-        );
+    final var descCondition =
+      NPDBComparisons.createFuzzyMatchQuery(
+        parameters.description(),
+        PLANS.P_DESCRIPTION,
+        "PLANS.P_DESCRIPTION_SEARCH"
+      );
 
-      condition = nameCondition.or(descriptionCondition);
-    }
+    final var allConditions =
+      DSL.and(nameCondition, descCondition);
     
     final var pageParameters =
       JQKeysetRandomAccessPaginationParameters.forTable(PLANS)
         .addSortField(new JQField(PLANS.P_NAME, JQOrder.ASCENDING))
         .addSortField(new JQField(PLANS.P_VERSION, JQOrder.ASCENDING))
-        .addWhereCondition(condition)
+        .addWhereCondition(allConditions)
         .setDistinct(JQSelectDistinct.SELECT_DISTINCT)
         .setPageSize(parameters.pageSize())
         .setStatementListener(statement -> {

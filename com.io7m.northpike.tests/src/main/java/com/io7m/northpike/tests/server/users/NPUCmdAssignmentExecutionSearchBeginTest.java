@@ -27,7 +27,6 @@ import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPNameMatchType;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
@@ -36,6 +35,8 @@ import com.io7m.northpike.model.assignments.NPAssignmentExecutionSearchParameter
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCancelled;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchBegin;
@@ -134,7 +135,8 @@ public final class NPUCmdAssignmentExecutionSearchBeginTest
         new NPAssignmentExecutionSearchParameters(
           Optional.empty(),
           Optional.empty(),
-          NPNameMatchType.AnyName.ANY_NAME,
+          new NPComparisonExactType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
           1000L
         )
       );
@@ -169,7 +171,8 @@ public final class NPUCmdAssignmentExecutionSearchBeginTest
         new NPAssignmentExecutionSearchParameters(
           Optional.empty(),
           Optional.empty(),
-          NPNameMatchType.AnyName.ANY_NAME,
+          new NPComparisonExactType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
           1000L
         )
       );
@@ -214,7 +217,8 @@ public final class NPUCmdAssignmentExecutionSearchBeginTest
         new NPAssignmentExecutionSearchParameters(
           Optional.empty(),
           Optional.empty(),
-          NPNameMatchType.AnyName.ANY_NAME,
+          new NPComparisonExactType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
           1000L
         )
       );

@@ -36,6 +36,7 @@ import com.io7m.northpike.model.NPAgentLabelSearchParameters;
 import com.io7m.northpike.model.NPAgentSearchParameters;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPStandardErrorCodes;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
@@ -719,7 +720,13 @@ public final class NPDatabaseAgentsTest
     this.transaction.commit();
 
     final var paged =
-      labelSearch.execute(new NPAgentLabelSearchParameters("abacus", 1000L));
+      labelSearch.execute(
+        new NPAgentLabelSearchParameters(
+          new NPComparisonFuzzyType.IsSimilarTo<>("abacus3"),
+          new NPComparisonFuzzyType.Anything<>(),
+          1000L
+        )
+      );
 
     final var labelsByNameRetrieved =
       new HashMap<RDottedName, NPAgentLabel>();
@@ -735,7 +742,13 @@ public final class NPDatabaseAgentsTest
       paged.pageNext(this.transaction);
     }
 
-    assertEquals(labelsByName, labelsByNameRetrieved);
+    assertEquals(Map.of(
+      new RDottedName("drawer.abacus3"),
+      new NPAgentLabel(
+        new RDottedName("drawer.abacus3"),
+        "Drawer Abacus 3"
+      )
+    ), labelsByNameRetrieved);
   }
 
   /**
@@ -764,7 +777,13 @@ public final class NPDatabaseAgentsTest
     this.transaction.commit();
 
     final var paged =
-      labelSearch.execute(new NPAgentLabelSearchParameters("", 1000L));
+      labelSearch.execute(
+        new NPAgentLabelSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.IsSimilarTo<>("abacus"),
+          1000L
+        )
+      );
 
     final var labelsByNameRetrieved =
       new HashMap<RDottedName, NPAgentLabel>();

@@ -34,7 +34,7 @@ public final class NPArbAuditSearchParameters
       () -> {
         return Combinators.combine(
           Arbitraries.defaultFor(NPAuditUserOrAgentType.class).optional(),
-          Arbitraries.strings().alpha().optional(),
+          NPArbComparisons.exact(Arbitraries.strings().alpha()),
           Arbitraries.defaultFor(NPTimeRange.class),
           Arbitraries.longs()
         ).as(NPAuditSearchParameters::new);

@@ -30,8 +30,9 @@ import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.security.NPSecRole;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchBegin;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -124,7 +125,11 @@ public final class NPUCmdAgentLabelSearchBeginTest
     final var command =
       new NPUCommandAgentLabelSearchBegin(
         UUID.randomUUID(),
-        new NPAgentLabelSearchParameters("", 1000L)
+        new NPAgentLabelSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
+          1000L
+        )
       );
 
     final var ex =
@@ -154,7 +159,11 @@ public final class NPUCmdAgentLabelSearchBeginTest
     final var command =
       new NPUCommandAgentLabelSearchBegin(
         UUID.randomUUID(),
-        new NPAgentLabelSearchParameters("", 1000L)
+        new NPAgentLabelSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
+          1000L
+        )
       );
 
     final var userId =
@@ -194,7 +203,11 @@ public final class NPUCmdAgentLabelSearchBeginTest
     final var command =
       new NPUCommandAgentLabelSearchBegin(
         UUID.randomUUID(),
-        new NPAgentLabelSearchParameters("", 1000L)
+        new NPAgentLabelSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
+          1000L
+        )
       );
 
     final var userId =

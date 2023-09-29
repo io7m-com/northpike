@@ -28,7 +28,6 @@ import com.io7m.northpike.database.api.NPAssignmentsPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
-import com.io7m.northpike.model.NPNameMatchType;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.assignments.NPAssignment;
@@ -37,7 +36,6 @@ import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanName;
 import io.opentelemetry.api.trace.Span;
-import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
@@ -125,7 +123,11 @@ public final class NPDBQAssignmentSearch
         .orElse(DSL.trueCondition());
 
     final var nameCondition =
-      createAssignmentNameMatchQuery(parameters.nameQuery());
+      NPDBComparisons.createFuzzyMatchQuery(
+        parameters.nameQuery(),
+        ASSIGNMENTS.A_NAME,
+        "ASSIGNMENTS.A_NAME_SEARCH"
+      );
 
     final var allConditions =
       DSL.and(reposCondition, planCondition, nameCondition);
@@ -145,29 +147,6 @@ public final class NPDBQAssignmentSearch
         context, pageParameters);
 
     return new NPDBQAssignmentSearch.NPAssignmentSearch(pages);
-  }
-
-  private static Condition createAssignmentNameMatchQuery(
-    final NPNameMatchType nameQuery)
-  {
-    if (nameQuery instanceof NPNameMatchType.AnyName) {
-      return DSL.trueCondition();
-    }
-
-    if (nameQuery instanceof final NPNameMatchType.Exact exact) {
-      return ASSIGNMENTS.A_NAME.eq(exact.name());
-    }
-
-    if (nameQuery instanceof final NPNameMatchType.Similar similar) {
-      return DSL.condition(
-        "ASSIGNMENTS.A_NAME_SEARCH @@ websearch_to_tsquery(?)",
-        similar.name()
-      );
-    }
-
-    throw new IllegalStateException(
-      "Unrecognized name query: %s".formatted(nameQuery)
-    );
   }
 
   static final class NPAssignmentSearch

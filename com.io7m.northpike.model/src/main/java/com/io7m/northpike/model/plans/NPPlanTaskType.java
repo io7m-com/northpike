@@ -45,7 +45,7 @@ public non-sealed interface NPPlanTaskType
 
   /**
    * When multiple agents match against the {@link #agentRequireWithLabel()}
-   * expression, agents matching this expression will be preferred over others.
+   * expression, agents comparisons this expression will be preferred over others.
    *
    * @return The expression against which to match agents
    */

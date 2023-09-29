@@ -56,12 +56,6 @@ public record NPAssignmentExecutionStateCreated(
   }
 
   @Override
-  public String name()
-  {
-    return "Created";
-  }
-
-  @Override
   public Map<String, String> asAttributes()
   {
     final var assignment = this.execution.assignment();
@@ -75,5 +69,11 @@ public record NPAssignmentExecutionStateCreated(
       entry("Status", this.name()),
       entry("TimeCreated", this.timeCreated.toString())
     );
+  }
+
+  @Override
+  public NPAssignmentExecutionStateKind kind()
+  {
+    return NPAssignmentExecutionStateKind.CREATED;
   }
 }

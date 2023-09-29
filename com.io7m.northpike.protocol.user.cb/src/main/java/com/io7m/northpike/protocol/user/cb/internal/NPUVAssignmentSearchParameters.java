@@ -18,14 +18,17 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBOptionType;
+import com.io7m.cedarbridge.runtime.api.CBString;
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AssignmentSearchParameters;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVPlanIdentifier.PLAN_IDENTIFIER;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVStrings.STRINGS;
 
 /**
  * A validator.
@@ -40,9 +43,13 @@ public enum NPUVAssignmentSearchParameters
 
   ASSIGNMENT_SEARCH_PARAMETERS;
 
+  private static final NPUVComparisonsFuzzy<String, CBString> NAME_VALIDATOR =
+    new NPUVComparisonsFuzzy<>(STRINGS);
+
   @Override
   public NPU1AssignmentSearchParameters convertToWire(
     final NPAssignmentSearchParameters message)
+    throws NPProtocolException
   {
     return new NPU1AssignmentSearchParameters(
       CBOptionType.fromOptional(
@@ -51,7 +58,7 @@ public enum NPUVAssignmentSearchParameters
           .map(CBUUID::new)
       ),
       CBOptionType.fromOptional(message.plan().map(PLAN_IDENTIFIER::convertToWire)),
-      NPUVNameMatch.NAME_MATCH.convertToWire(message.nameQuery()),
+      NAME_VALIDATOR.convertToWire(message.nameQuery()),
       unsigned32(message.pageSize())
     );
   }
@@ -59,6 +66,7 @@ public enum NPUVAssignmentSearchParameters
   @Override
   public NPAssignmentSearchParameters convertFromWire(
     final NPU1AssignmentSearchParameters message)
+    throws NPProtocolException
   {
     return new NPAssignmentSearchParameters(
       message.fieldRepositoryId()
@@ -66,7 +74,7 @@ public enum NPUVAssignmentSearchParameters
         .map(CBUUID::value)
         .map(NPRepositoryID::new),
       message.fieldPlan().asOptional().map(PLAN_IDENTIFIER::convertFromWire),
-      NPUVNameMatch.NAME_MATCH.convertFromWire(message.fieldNameQuery()),
+      NAME_VALIDATOR.convertFromWire(message.fieldNameQuery()),
       message.fieldPageSize().value()
     );
   }

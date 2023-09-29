@@ -53,12 +53,6 @@ public record NPAssignmentExecutionStateRequested(
   }
 
   @Override
-  public String name()
-  {
-    return "Requested";
-  }
-
-  @Override
   public Map<String, String> asAttributes()
   {
     return Map.ofEntries(
@@ -68,5 +62,11 @@ public record NPAssignmentExecutionStateRequested(
       entry("Status", this.name()),
       entry("TimeCreated", this.timeCreated.toString())
     );
+  }
+
+  @Override
+  public NPAssignmentExecutionStateKind kind()
+  {
+    return NPAssignmentExecutionStateKind.REQUESTED;
   }
 }

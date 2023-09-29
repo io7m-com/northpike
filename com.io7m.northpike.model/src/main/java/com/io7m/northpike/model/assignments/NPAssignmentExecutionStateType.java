@@ -49,14 +49,23 @@ public sealed interface NPAssignmentExecutionStateType
   OffsetDateTime timeCreated();
 
   /**
-   * @return The name of this status value
-   */
-
-  String name();
-
-  /**
    * @return The execution status as a set of attributes for telemetry/logging
    */
 
   Map<String, String> asAttributes();
+
+  /**
+   * @return The state kind as a scalar enumeration
+   */
+
+  NPAssignmentExecutionStateKind kind();
+
+  /**
+   * @return The name of this status value
+   */
+
+  default String name()
+  {
+    return this.kind().name();
+  }
 }

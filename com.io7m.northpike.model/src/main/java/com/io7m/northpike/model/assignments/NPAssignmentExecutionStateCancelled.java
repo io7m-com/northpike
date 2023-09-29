@@ -61,12 +61,6 @@ public record NPAssignmentExecutionStateCancelled(
   }
 
   @Override
-  public String name()
-  {
-    return "Cancelled";
-  }
-
-  @Override
   public Map<String, String> asAttributes()
   {
     return Map.ofEntries(
@@ -78,5 +72,11 @@ public record NPAssignmentExecutionStateCancelled(
       entry("TimeEnded", this.timeEnded.toString()),
       entry("TimeStarted", this.timeStarted.toString())
     );
+  }
+
+  @Override
+  public NPAssignmentExecutionStateKind kind()
+  {
+    return NPAssignmentExecutionStateKind.CANCELLED;
   }
 }

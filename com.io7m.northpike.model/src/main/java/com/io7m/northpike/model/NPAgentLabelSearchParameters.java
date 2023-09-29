@@ -17,30 +17,37 @@
 
 package com.io7m.northpike.model;
 
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
+
 import java.util.Objects;
 
 /**
  * The search parameters for labels.
  *
- * @param query The search query
+ * @param name        The name match expression
+ * @param description The description match expression
  * @param pageSize    The page size
  */
 
 public record NPAgentLabelSearchParameters(
-  String query,
+  NPComparisonFuzzyType<String> name,
+  NPComparisonFuzzyType<String> description,
   long pageSize)
   implements NPSearchParametersType
 {
   /**
    * The search parameters for labels.
    *
-   * @param query The search query
+   * @param name        The name match expression
+   * @param description The description match expression
    * @param pageSize    The page size
    */
 
   public NPAgentLabelSearchParameters
   {
-    Objects.requireNonNull(query, "query");
+    Objects.requireNonNull(name, "name");
+    Objects.requireNonNull(description, "description");
+
     pageSize = NPPageSizes.clampPageSize(pageSize);
   }
 }

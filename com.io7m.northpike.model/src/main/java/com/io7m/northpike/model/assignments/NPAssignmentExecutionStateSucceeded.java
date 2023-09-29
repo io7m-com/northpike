@@ -63,12 +63,6 @@ public record NPAssignmentExecutionStateSucceeded(
   }
 
   @Override
-  public String name()
-  {
-    return "Succeeded";
-  }
-
-  @Override
   public Map<String, String> asAttributes()
   {
     final var assignment = this.execution.assignment();
@@ -84,5 +78,11 @@ public record NPAssignmentExecutionStateSucceeded(
       entry("TimeEnded", this.timeEnded.toString()),
       entry("TimeStarted", this.timeStarted.toString())
     );
+  }
+
+  @Override
+  public NPAssignmentExecutionStateKind kind()
+  {
+    return NPAssignmentExecutionStateKind.SUCCEEDED;
   }
 }

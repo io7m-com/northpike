@@ -31,7 +31,8 @@ public final class NPArbPlanSearchParameters
       NPPlanSearchParameters.class,
       () -> {
         return Combinators.combine(
-          Arbitraries.strings().alpha(),
+          NPArbComparisons.fuzzy(Arbitraries.strings().alpha()),
+          NPArbComparisons.fuzzy(Arbitraries.strings().alpha()),
           Arbitraries.longs()
         ).as(NPPlanSearchParameters::new);
       }

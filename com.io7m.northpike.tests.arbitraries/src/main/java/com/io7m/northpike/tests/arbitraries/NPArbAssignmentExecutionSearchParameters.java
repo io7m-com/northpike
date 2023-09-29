@@ -17,9 +17,9 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPNameMatchType;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionSearchParameters;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateKind;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
@@ -33,9 +33,16 @@ public final class NPArbAssignmentExecutionSearchParameters
       NPAssignmentExecutionSearchParameters.class,
       () -> {
         return Combinators.combine(
-          Arbitraries.defaultFor(NPRepositoryID.class).optional(),
-          Arbitraries.defaultFor(NPPlanIdentifier.class).optional(),
-          Arbitraries.defaultFor(NPNameMatchType.class),
+          Arbitraries.defaultFor(NPRepositoryID.class)
+            .optional(),
+          Arbitraries.defaultFor(NPPlanIdentifier.class)
+            .optional(),
+          NPArbComparisons.exact(
+            Arbitraries.defaultFor(NPAssignmentExecutionStateKind.class)
+          ),
+          NPArbComparisons.fuzzy(
+            Arbitraries.strings().alpha()
+          ),
           Arbitraries.longs()
         ).as(NPAssignmentExecutionSearchParameters::new);
       }

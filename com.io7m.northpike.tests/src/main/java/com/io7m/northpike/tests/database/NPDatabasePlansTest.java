@@ -28,8 +28,11 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
+import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanSearchParameters;
+import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanParserType;
@@ -79,6 +82,33 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     DATABASE_FIXTURE = NPTestContainerInstances.database(containers);
+  }
+
+  private static List<NPPlanType> createPlans(
+    final NPDatabaseQueriesPlansType.PutType put)
+    throws NPPlanException, NPDatabaseException
+  {
+    final var strings =
+      NPStrings.create(Locale.ROOT);
+
+    final var plan0 =
+      NPPlans.builder(strings, "com.io7m.p", 1L)
+        .setDescription("Abacus")
+        .build();
+    final var plan1 =
+      NPPlans.builder(strings, "com.io7m.q", 2L)
+        .setDescription("Marimba")
+        .build();
+    final var plan2 =
+      NPPlans.builder(strings, "com.io7m.r", 3L)
+        .setDescription("Nova")
+        .build();
+
+    put.execute(new Parameters(plan0, new NPPlanSerializers()));
+    put.execute(new Parameters(plan1, new NPPlanSerializers()));
+    put.execute(new Parameters(plan2, new NPPlanSerializers()));
+
+    return List.of(plan0, plan1, plan2);
   }
 
   @BeforeEach
@@ -339,13 +369,13 @@ public final class NPDatabasePlansTest
   }
 
   /**
-   * Creating plans works.
+   * Searching for plans works.
    *
    * @throws Exception On errors
    */
 
   @Test
-  public void testPlanSearch0()
+  public void testPlanSearch0D()
     throws Exception
   {
     final var search =
@@ -353,47 +383,39 @@ public final class NPDatabasePlansTest
     final var put =
       this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
 
-    final var strings =
-      NPStrings.create(Locale.ROOT);
-
-    final var plan0 =
-      NPPlans.builder(strings, "com.io7m.p", 1L)
-        .build();
-    final var plan1 =
-      NPPlans.builder(strings, "com.io7m.p", 2L)
-        .build();
-    final var plan2 =
-      NPPlans.builder(strings, "com.io7m.p", 3L)
-        .build();
-
-    put.execute(new Parameters(plan0, new NPPlanSerializers()));
-    put.execute(new Parameters(plan1, new NPPlanSerializers()));
-    put.execute(new Parameters(plan2, new NPPlanSerializers()));
+    final var plans =
+      createPlans(put);
 
     this.transaction.commit();
 
     final var r =
-      search.execute(new NPPlanSearchParameters("", 1000L));
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
+          1000L
+        )
+      );
 
     final var p =
       r.pageCurrent(this.transaction);
 
-    assertEquals(plan0.identifier(), p.items().get(0).identifier());
-    assertEquals(plan1.identifier(), p.items().get(1).identifier());
-    assertEquals(plan2.identifier(), p.items().get(2).identifier());
+    assertEquals(plans.get(0).identifier(), p.items().get(0).identifier());
+    assertEquals(plans.get(1).identifier(), p.items().get(1).identifier());
+    assertEquals(plans.get(2).identifier(), p.items().get(2).identifier());
     assertEquals(1, p.pageCount());
     assertEquals(1, p.pageIndex());
     assertEquals(0L, p.pageFirstOffset());
   }
 
   /**
-   * Creating plans works.
+   * Searching for plans works.
    *
    * @throws Exception On errors
    */
 
   @Test
-  public void testPlanSearch1()
+  public void testPlanSearch1D()
     throws Exception
   {
     final var search =
@@ -401,35 +423,360 @@ public final class NPDatabasePlansTest
     final var put =
       this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
 
-    final var strings =
-      NPStrings.create(Locale.ROOT);
-
-    final var plan0 =
-      NPPlans.builder(strings, "com.io7m.p", 1L)
-        .setDescription("Abacus")
-        .build();
-    final var plan1 =
-      NPPlans.builder(strings, "com.io7m.p", 2L)
-        .setDescription("Marimba")
-        .build();
-    final var plan2 =
-      NPPlans.builder(strings, "com.io7m.p", 3L)
-        .setDescription("Nova")
-        .build();
-
-    put.execute(new Parameters(plan0, new NPPlanSerializers()));
-    put.execute(new Parameters(plan1, new NPPlanSerializers()));
-    put.execute(new Parameters(plan2, new NPPlanSerializers()));
+    final var plans =
+      createPlans(put);
 
     this.transaction.commit();
 
     final var r =
-      search.execute(new NPPlanSearchParameters("marimba", 1000L));
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.IsSimilarTo<>("marimba"),
+          1000L
+        )
+      );
 
     final var p =
       r.pageCurrent(this.transaction);
 
-    assertEquals(plan1.identifier(), p.items().get(0).identifier());
+    assertEquals(plans.get(1).identifier(), p.items().get(0).identifier());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
+  /**
+   * Searching for plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearch2D()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+
+    final var plans =
+      createPlans(put);
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.IsNotSimilarTo<>("marimba"),
+          1000L
+        )
+      );
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plans.get(0).identifier(), p.items().get(0).identifier());
+    assertEquals(plans.get(2).identifier(), p.items().get(1).identifier());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
+  /**
+   * Searching for plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearch3D()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+
+    final var plans =
+      createPlans(put);
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.IsEqualTo<>("Marimba"),
+          1000L
+        )
+      );
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plans.get(1).identifier(), p.items().get(0).identifier());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
+  /**
+   * Searching for plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearch4D()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+
+    final var plans =
+      createPlans(put);
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.IsNotEqualTo<>("Marimba"),
+          1000L
+        )
+      );
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plans.get(0).identifier(), p.items().get(0).identifier());
+    assertEquals(plans.get(2).identifier(), p.items().get(1).identifier());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /**
+   * Searching for plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearch0N()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+
+    final var plans =
+      createPlans(put);
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
+          1000L
+        )
+      );
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plans.get(0).identifier(), p.items().get(0).identifier());
+    assertEquals(plans.get(1).identifier(), p.items().get(1).identifier());
+    assertEquals(plans.get(2).identifier(), p.items().get(2).identifier());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
+  /**
+   * Searching for plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearch1N()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+
+    final var plans =
+      createPlans(put);
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.IsSimilarTo<>("p"),
+          new NPComparisonFuzzyType.Anything<>(),
+          1000L
+        )
+      );
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plans.get(0).identifier(), p.items().get(0).identifier());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
+  /**
+   * Searching for plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearch2N()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+
+    final var plans =
+      createPlans(put);
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.IsNotSimilarTo<>("io7m"),
+          new NPComparisonFuzzyType.Anything<>(),
+          1000L
+        )
+      );
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(0, p.items().size());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
+  /**
+   * Searching for plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearch3N()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+
+    final var plans =
+      createPlans(put);
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.IsEqualTo<>("com.io7m.r"),
+          new NPComparisonFuzzyType.Anything<>(),
+          1000L
+        )
+      );
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plans.get(2).identifier(), p.items().get(0).identifier());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
+  /**
+   * Searching for plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearch4N()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+
+    final var plans =
+      createPlans(put);
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.IsNotEqualTo<>("com.io7m.q"),
+          new NPComparisonFuzzyType.Anything<>(),
+          1000L
+        )
+      );
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plans.get(0).identifier(), p.items().get(0).identifier());
+    assertEquals(plans.get(2).identifier(), p.items().get(1).identifier());
     assertEquals(1, p.pageCount());
     assertEquals(1, p.pageIndex());
     assertEquals(0L, p.pageFirstOffset());

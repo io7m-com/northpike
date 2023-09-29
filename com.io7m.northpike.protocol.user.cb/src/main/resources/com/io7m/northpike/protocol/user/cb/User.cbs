@@ -21,6 +21,22 @@
 [import com.io7m.cedarbridge cb]
 [import com.io7m.cedarbridge.time ct]
 
+[variant NPU1ComparisonExact
+  [parameter T]
+  [case Anything]
+  [case IsEqualTo    [field value T]]
+  [case IsNotEqualTo [field value T]]
+]
+
+[variant NPU1ComparisonFuzzy
+  [parameter T]
+  [case Anything]
+  [case IsEqualTo      [field value T]]
+  [case IsNotEqualTo   [field value T]]
+  [case IsSimilarTo    [field value T]]
+  [case IsNotSimilarTo [field value T]]
+]
+
 [documentation NPU1RepositoryCredentials "The credentials used to access a repository."]
 [variant NPU1RepositoryCredentials
   [documentation None "No credentials required."]
@@ -88,16 +104,20 @@
 
 [documentation NPU1PlanSearchParameters "The plan search parameters."]
 [record NPU1PlanSearchParameters
-  [documentation query "The search query."]
-  [field query cb:String]
+  [documentation name "The name match expression."]
+  [field name [NPU1ComparisonFuzzy cb:String]]
+  [documentation description "The description match expression."]
+  [field description [NPU1ComparisonFuzzy cb:String]]
   [documentation pageSize "The page size."]
   [field pageSize cb:IntegerUnsigned32]
 ]
 
 [documentation NPU1AgentLabelSearchParameters "The agent label search parameters."]
 [record NPU1AgentLabelSearchParameters
-  [documentation query "The search query."]
-  [field query cb:String]
+  [documentation name "The name match expression."]
+  [field name [NPU1ComparisonFuzzy cb:String]]
+  [documentation description "The description match expression."]
+  [field description [NPU1ComparisonFuzzy cb:String]]
   [documentation pageSize "The page size."]
   [field pageSize cb:IntegerUnsigned32]
 ]
@@ -255,7 +275,7 @@
   [documentation plan "Only include assignments with this plan."]
   [field plan [cb:Option NPU1PlanIdentifier]]
   [documentation nameQuery "Only include assignments with names matching this expression."]
-  [field nameQuery NPU1NameMatch]
+  [field nameQuery [NPU1ComparisonFuzzy cb:String]]
   [documentation pageSize "The page size."]
   [field pageSize cb:IntegerUnsigned32]
 ]
@@ -348,14 +368,27 @@
   ]
 ]
 
+[documentation NPU1AssignmentExecutionStateKind "The state of an execution as a scalar enumeration."]
+[variant NPU1AssignmentExecutionStateKind
+  [case Requested]
+  [case Created]
+  [case Cancelled]
+  [case CreationFailed]
+  [case Running]
+  [case Failed]
+  [case Succeeded]
+]
+
 [documentation NPU1AssignmentExecutionSearchParameters "The assignment execution search parameters."]
 [record NPU1AssignmentExecutionSearchParameters
   [documentation repositoryId "Only include assignments with this repository ID."]
   [field repositoryId [cb:Option cb:UUID]]
   [documentation plan "Only include assignments with this plan."]
   [field plan [cb:Option NPU1PlanIdentifier]]
+  [documentation state "Only include executions in the given state."]
+  [field state [NPU1ComparisonExact NPU1AssignmentExecutionStateKind]]
   [documentation nameQuery "Only include assignments with names matching this expression."]
-  [field nameQuery NPU1NameMatch]
+  [field nameQuery [NPU1ComparisonFuzzy cb:String]]
   [documentation pageSize "The page size."]
   [field pageSize cb:IntegerUnsigned32]
 ]
@@ -410,7 +443,7 @@
   [documentation owner "Limit to events with the given owner."]
   [field owner [cb:Option NPU1UserOrAgentID]]
   [documentation type "Limit to events with the given type."]
-  [field type [cb:Option cb:String]]
+  [field type [NPU1ComparisonExact cb:String]]
   [documentation timeRange "Limit to events in the given time range."]
   [field timeRange NPU1TimeRange]
   [documentation pageSize "The page size."]
@@ -595,6 +628,12 @@
   [field messageId cb:UUID]
   [documentation names "The label names"]
   [field names [cb:List cb:String]]
+]
+
+[documentation NPU1CommandAgentsConnected "List connected agents."]
+[record NPU1CommandAgentsConnected
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
 ]
 
 ;
@@ -1133,10 +1172,21 @@
   [field results [NPU1Page NPU1AuditEvent]]
 ]
 
+[documentation NPU1ResponseAgentsConnected "A response to NPU1CommandAgentsConnectedBegin."]
+[record NPU1ResponseAgentsConnected
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [cb:List cb:UUID]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
     [types-added
+      NPU1CommandAgentsConnected
       NPU1CommandAgentGet
       NPU1CommandAgentLabelDelete
       NPU1CommandAgentLabelGet
@@ -1193,6 +1243,7 @@
       NPU1CommandToolExecutionDescriptionSearchNext
       NPU1CommandToolExecutionDescriptionSearchPrevious
       NPU1CommandToolExecutionDescriptionValidate
+      NPU1ResponseAgentsConnected
       NPU1ResponseAgentGet
       NPU1ResponseAgentLabelGet
       NPU1ResponseAgentLabelSearch

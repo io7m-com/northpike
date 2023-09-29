@@ -17,10 +17,10 @@
 
 package com.io7m.northpike.model.assignments;
 
-import com.io7m.northpike.model.NPNameMatchType;
 import com.io7m.northpike.model.NPPageSizes;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSearchParametersType;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 
 import java.util.Objects;
@@ -38,7 +38,7 @@ import java.util.Optional;
 public record NPAssignmentSearchParameters(
   Optional<NPRepositoryID> repositoryId,
   Optional<NPPlanIdentifier> plan,
-  NPNameMatchType nameQuery,
+  NPComparisonFuzzyType<String> nameQuery,
   long pageSize)
   implements NPSearchParametersType
 {

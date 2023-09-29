@@ -30,7 +30,6 @@ import com.io7m.northpike.model.NPAgentLabel;
 import com.io7m.northpike.model.NPAgentLabelSearchParameters;
 import com.io7m.northpike.model.NPPage;
 import io.opentelemetry.api.trace.Span;
-import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
@@ -50,7 +49,10 @@ public final class NPDBQAgentLabelSearch
   extends NPDBQAbstract<NPAgentLabelSearchParameters, NPAgentLabelsPagedType>
   implements LabelSearchType
 {
-  private static final Service<NPAgentLabelSearchParameters, NPAgentLabelsPagedType, LabelSearchType> SERVICE =
+  private static final Service<
+    NPAgentLabelSearchParameters,
+    NPAgentLabelsPagedType,
+    LabelSearchType> SERVICE =
     new Service<>(LabelSearchType.class, NPDBQAgentLabelSearch::new);
 
   /**
@@ -71,31 +73,29 @@ public final class NPDBQAgentLabelSearch
     final NPAgentLabelSearchParameters parameters)
     throws NPDatabaseException
   {
-    final Condition condition;
-    if (parameters.query().isEmpty()) {
-      condition = DSL.trueCondition();
-    } else {
-      final var nameCondition =
-        DSL.condition(
-          "AGENT_LABEL_DEFINITIONS.ALD_NAME_SEARCH @@ websearch_to_tsquery(?)",
-          DSL.inline(parameters.query())
-        );
+    final var nameCondition =
+      NPDBComparisons.createFuzzyMatchQuery(
+        parameters.name(),
+        AGENT_LABEL_DEFINITIONS.ALD_NAME,
+        "AGENT_LABEL_DEFINITIONS.ALD_NAME_SEARCH"
+      );
 
-      final var descriptionCondition =
-        DSL.condition(
-          "AGENT_LABEL_DEFINITIONS.ALD_DESCRIPTION_SEARCH @@ websearch_to_tsquery(?)",
-          DSL.inline(parameters.query())
-        );
+    final var descCondition =
+      NPDBComparisons.createFuzzyMatchQuery(
+        parameters.description(),
+        AGENT_LABEL_DEFINITIONS.ALD_DESCRIPTION,
+        "AGENT_LABEL_DEFINITIONS.ALD_DESCRIPTION_SEARCH"
+      );
 
-      condition = nameCondition.or(descriptionCondition);
-    }
+    final var allConditions =
+      DSL.and(nameCondition, descCondition);
 
     final var sortField =
       new JQField(AGENT_LABEL_DEFINITIONS.ALD_NAME, ASCENDING);
 
     final var pageParameters =
       JQKeysetRandomAccessPaginationParameters.forTable(AGENT_LABEL_DEFINITIONS)
-        .addWhereCondition(condition)
+        .addWhereCondition(allConditions)
         .addSortField(sortField)
         .setDistinct(JQSelectDistinct.SELECT_DISTINCT)
         .setPageSize(parameters.pageSize())

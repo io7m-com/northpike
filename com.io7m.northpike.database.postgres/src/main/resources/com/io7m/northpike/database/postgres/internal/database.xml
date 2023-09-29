@@ -80,6 +80,26 @@ CREATE EXTENSION hstore;
 ]]></Statement>
 
     <Comment>
+      The database makes extensive use of Lanark dotted names. It's necessary to
+      tokenize those names in order to use them with full text searching.
+      Essentially, anything that isn't a letter or a number is converted to a
+      space. This translated string can then be given to the various full-text
+      search functions for indexing.
+    </Comment>
+
+    <Statement><![CDATA[
+-- [jooq ignore start]
+
+CREATE FUNCTION tokenize_dotted_name(x text) RETURNS text
+  LANGUAGE SQL
+  IMMUTABLE
+  RETURNS NULL ON NULL INPUT
+    RETURN TRANSLATE (x, '-_.', '   ')
+
+-- [jooq ignore stop]
+]]></Statement>
+
+    <Comment>
       The users table stores the current set of users. The name field is neither
       authoritative, nor expected to be unique, because the external identity
       server is the authoritative source for names.
@@ -496,7 +516,9 @@ CREATE TABLE agent_label_definitions (
 
   -- [jooq ignore start]
   ald_name_search TSVECTOR NOT NULL
-    GENERATED ALWAYS AS (to_tsvector(%1$S, ald_name)) STORED,
+    GENERATED ALWAYS AS (
+      to_tsvector(%1$S, tokenize_dotted_name (ald_name))
+    ) STORED,
 
   ald_description_search TSVECTOR NOT NULL
     GENERATED ALWAYS AS (to_tsvector(%1$S, ald_description)) STORED,
@@ -624,7 +646,7 @@ CREATE TABLE plans (
   -- [jooq ignore start]
   p_name_search TSVECTOR NOT NULL
     GENERATED ALWAYS AS (
-      to_tsvector(%1$S, REPLACE (p_name, '.', ' '))
+      to_tsvector(%1$S, tokenize_dotted_name (p_name))
     ) STORED,
 
   p_description_search TSVECTOR NOT NULL
@@ -720,7 +742,7 @@ CREATE TABLE assignments (
   -- [jooq ignore start]
   a_name_search TSVECTOR NOT NULL
     GENERATED ALWAYS AS (
-      to_tsvector(%1$S, REPLACE (a_name, '.', ' '))
+      to_tsvector(%1$S, tokenize_dotted_name (a_name))
     ) STORED,
 
   CONSTRAINT assignments_name_unique
@@ -867,7 +889,8 @@ CREATE TABLE assignment_execution_logs (
 ]]></Statement>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE, DELETE ON assignment_execution_logs TO northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON assignment_execution_logs TO
+      northpike
     </Statement>
     <Statement>
       GRANT SELECT ON assignment_execution_logs TO northpike_read_only

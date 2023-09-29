@@ -18,6 +18,7 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionSearchBegin;
 import com.io7m.northpike.protocol.user.cb.NPU1CommandAssignmentExecutionSearchBegin;
@@ -42,6 +43,7 @@ public enum NPUVCommandAssignmentExecutionSearchBegin
   @Override
   public NPU1CommandAssignmentExecutionSearchBegin convertToWire(
     final NPUCommandAssignmentExecutionSearchBegin message)
+    throws NPProtocolException
   {
     return new NPU1CommandAssignmentExecutionSearchBegin(
       new CBUUID(message.messageID()),
@@ -52,6 +54,7 @@ public enum NPUVCommandAssignmentExecutionSearchBegin
   @Override
   public NPUCommandAssignmentExecutionSearchBegin convertFromWire(
     final NPU1CommandAssignmentExecutionSearchBegin message)
+    throws NPProtocolException
   {
     return new NPUCommandAssignmentExecutionSearchBegin(
       message.fieldMessageId().value(),

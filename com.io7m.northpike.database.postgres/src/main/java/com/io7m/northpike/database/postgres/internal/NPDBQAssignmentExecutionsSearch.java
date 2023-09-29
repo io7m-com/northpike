@@ -28,11 +28,13 @@ import com.io7m.northpike.database.api.NPAssignmentExecutionsPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
-import com.io7m.northpike.model.NPNameMatchType;
+import com.io7m.northpike.database.postgres.internal.enums.AssignmentExecutionStatusT;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionSearchParameters;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateKind;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import io.opentelemetry.api.trace.Span;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -45,6 +47,12 @@ import static com.io7m.northpike.database.postgres.internal.NPDatabaseExceptions
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENTS;
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENT_EXECUTIONS;
 import static com.io7m.northpike.database.postgres.internal.Tables.PLANS;
+import static com.io7m.northpike.database.postgres.internal.enums.AssignmentExecutionStatusT.ASSIGNMENT_EXECUTION_CANCELLED;
+import static com.io7m.northpike.database.postgres.internal.enums.AssignmentExecutionStatusT.ASSIGNMENT_EXECUTION_CREATED;
+import static com.io7m.northpike.database.postgres.internal.enums.AssignmentExecutionStatusT.ASSIGNMENT_EXECUTION_FAILED;
+import static com.io7m.northpike.database.postgres.internal.enums.AssignmentExecutionStatusT.ASSIGNMENT_EXECUTION_REQUESTED;
+import static com.io7m.northpike.database.postgres.internal.enums.AssignmentExecutionStatusT.ASSIGNMENT_EXECUTION_RUNNING;
+import static com.io7m.northpike.database.postgres.internal.enums.AssignmentExecutionStatusT.ASSIGNMENT_EXECUTION_SUCCEEDED;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_STATEMENT;
 
 /**
@@ -124,11 +132,18 @@ public final class NPDBQAssignmentExecutionsSearch
         })
         .orElse(DSL.trueCondition());
 
+    final var stateCondition =
+      createAssignmentStateQuery(parameters.state());
+
     final var nameCondition =
-      createAssignmentNameMatchQuery(parameters.nameQuery());
+      NPDBComparisons.createFuzzyMatchQuery(
+        parameters.nameQuery(),
+        ASSIGNMENTS.A_NAME,
+        "ASSIGNMENTS.A_NAME_SEARCH"
+      );
 
     final var allConditions =
-      DSL.and(reposCondition, planCondition, nameCondition);
+      DSL.and(reposCondition, planCondition, nameCondition, stateCondition);
 
     final var pageParameters =
       JQKeysetRandomAccessPaginationParameters.forTable(tableSource)
@@ -147,27 +162,33 @@ public final class NPDBQAssignmentExecutionsSearch
     return new NPAssignmentExecutionSearch(pages);
   }
 
-  private static Condition createAssignmentNameMatchQuery(
-    final NPNameMatchType nameQuery)
+  private static Condition createAssignmentStateQuery(
+    final NPComparisonExactType<NPAssignmentExecutionStateKind> state)
   {
-    if (nameQuery instanceof NPNameMatchType.AnyName) {
+    if (state instanceof final NPComparisonExactType.IsEqualTo<NPAssignmentExecutionStateKind> equalTo) {
+      return ASSIGNMENT_EXECUTIONS.AE_STATUS.eq(toDBStatus(equalTo.value()));
+    }
+    if (state instanceof final NPComparisonExactType.IsNotEqualTo<NPAssignmentExecutionStateKind> notEqualTo) {
+      return ASSIGNMENT_EXECUTIONS.AE_STATUS.ne(toDBStatus(notEqualTo.value()));
+    }
+    if (state instanceof NPComparisonExactType.Anything<NPAssignmentExecutionStateKind>) {
       return DSL.trueCondition();
     }
+    throw new IllegalStateException("Unrecognized comparison: " + state);
+  }
 
-    if (nameQuery instanceof final NPNameMatchType.Exact exact) {
-      return ASSIGNMENTS.A_NAME.eq(exact.name());
-    }
-
-    if (nameQuery instanceof final NPNameMatchType.Similar similar) {
-      return DSL.condition(
-        "ASSIGNMENTS.A_NAME_SEARCH @@ websearch_to_tsquery(?)",
-        similar.name()
-      );
-    }
-
-    throw new IllegalStateException(
-      "Unrecognized name query: %s".formatted(nameQuery)
-    );
+  private static AssignmentExecutionStatusT toDBStatus(
+    final NPAssignmentExecutionStateKind s)
+  {
+    return switch (s) {
+      case CANCELLED -> ASSIGNMENT_EXECUTION_CANCELLED;
+      case CREATED -> ASSIGNMENT_EXECUTION_CREATED;
+      case CREATION_FAILED -> ASSIGNMENT_EXECUTION_FAILED;
+      case FAILED -> ASSIGNMENT_EXECUTION_FAILED;
+      case REQUESTED -> ASSIGNMENT_EXECUTION_REQUESTED;
+      case RUNNING -> ASSIGNMENT_EXECUTION_RUNNING;
+      case SUCCEEDED -> ASSIGNMENT_EXECUTION_SUCCEEDED;
+    };
   }
 
   static final class NPAssignmentExecutionSearch

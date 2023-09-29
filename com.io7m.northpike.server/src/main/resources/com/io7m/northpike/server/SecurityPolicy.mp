@@ -151,6 +151,13 @@
 
 [Rule
   [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom agents.reader]]
+  [MatchObject  [WithType agents]]
+  [MatchAction  [WithName enumerate]]
+]
+
+[Rule
+  [Conclusion   AllowImmediately]
   [MatchSubject [WithAnyRolesFrom agents.writer]]
   [MatchObject  [WithType agents]]
   [MatchAction  [WithName write]]

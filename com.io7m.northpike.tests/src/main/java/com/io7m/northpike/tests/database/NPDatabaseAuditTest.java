@@ -33,6 +33,7 @@ import com.io7m.northpike.model.NPAuditSearchParameters;
 import com.io7m.northpike.model.NPAuditUserOrAgentType.User;
 import com.io7m.northpike.model.NPTimeRange;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
@@ -51,6 +52,7 @@ import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
 @ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
@@ -112,7 +114,7 @@ public final class NPDatabaseAuditTest
         search.execute(
           new NPAuditSearchParameters(
             Optional.empty(),
-            Optional.empty(),
+            new NPComparisonExactType.Anything<>(),
             NPTimeRange.largest(),
             1000L
           )
@@ -154,7 +156,7 @@ public final class NPDatabaseAuditTest
         search.execute(
           new NPAuditSearchParameters(
             Optional.of(new User(users.get(0).userId())),
-            Optional.empty(),
+            new NPComparisonExactType.Anything<>(),
             NPTimeRange.largest(),
             1000L
           )
@@ -196,7 +198,7 @@ public final class NPDatabaseAuditTest
         search.execute(
           new NPAuditSearchParameters(
             Optional.empty(),
-            Optional.of("TYPE_2"),
+            new NPComparisonExactType.IsEqualTo<>("TYPE_2"),
             NPTimeRange.largest(),
             1000L
           )
@@ -238,7 +240,7 @@ public final class NPDatabaseAuditTest
         search.execute(
           new NPAuditSearchParameters(
             Optional.empty(),
-            Optional.empty(),
+            new NPComparisonExactType.Anything<>(),
             new NPTimeRange(
               events.get(0).time(),
               events.get(99).time()
@@ -254,6 +256,53 @@ public final class NPDatabaseAuditTest
       assertEquals(1, page0.pageIndex());
       assertEquals(events.get(0), page0.items().get(0));
       assertEquals(events.get(99), page0.items().get(99));
+    }
+  }
+
+  /**
+   * Searching for audit events works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAuditSearch4()
+    throws Exception
+  {
+    final var userPut =
+      this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
+    final var add =
+      this.transaction.queries(NPDatabaseQueriesAuditType.EventAddType.class);
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesAuditType.EventSearchType.class);
+
+    final ArrayList<NPUser> users =
+      createTestUsers(userPut);
+
+    final ArrayList<NPAuditEvent> events =
+      generateEvents(users, add);
+
+    {
+      final var page =
+        search.execute(
+          new NPAuditSearchParameters(
+            Optional.empty(),
+            new NPComparisonExactType.IsNotEqualTo<>("TYPE_2"),
+            NPTimeRange.largest(),
+            1000L
+          )
+        );
+
+      final var page0 =
+        page.pageCurrent(this.transaction);
+
+      assertEquals(800, page0.items().size());
+
+      for (final var i : page0.items()) {
+        assertNotEquals("TYPE_2", i.type());
+      }
+
+      assertEquals(1, page0.pageIndex());
     }
   }
 

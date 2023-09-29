@@ -17,6 +17,8 @@
 
 package com.io7m.northpike.model;
 
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -31,7 +33,7 @@ import java.util.Optional;
 
 public record NPAuditSearchParameters(
   Optional<NPAuditUserOrAgentType> owner,
-  Optional<String> type,
+  NPComparisonExactType<String> type,
   NPTimeRange timeRange,
   long pageSize)
   implements NPSearchParametersType

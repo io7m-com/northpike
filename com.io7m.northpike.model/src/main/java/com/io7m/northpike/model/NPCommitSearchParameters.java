@@ -19,7 +19,6 @@ package com.io7m.northpike.model;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * The parameters required to list commits.
@@ -33,7 +32,7 @@ import java.util.UUID;
  */
 
 public record NPCommitSearchParameters(
-  Optional<UUID> repository,
+  Optional<NPRepositoryID> repository,
   Optional<NPCommitID> sinceCreated,
   Optional<NPCommitID> sinceReceived,
   NPTimeRange timeRangeCreated,

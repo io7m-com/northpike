@@ -25,16 +25,16 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPNameMatchType;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
-import com.io7m.northpike.model.security.NPSecRole;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchBegin;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -131,7 +131,7 @@ public final class NPUCmdAssignmentSearchBeginTest
         new NPAssignmentSearchParameters(
           Optional.empty(),
           Optional.empty(),
-          NPNameMatchType.AnyName.ANY_NAME,
+          new NPComparisonFuzzyType.Anything<>(),
           1000L
         )
       );
@@ -166,7 +166,7 @@ public final class NPUCmdAssignmentSearchBeginTest
         new NPAssignmentSearchParameters(
           Optional.empty(),
           Optional.empty(),
-          NPNameMatchType.AnyName.ANY_NAME,
+          new NPComparisonFuzzyType.Anything<>(),
           1000L
         )
       );
@@ -211,7 +211,7 @@ public final class NPUCmdAssignmentSearchBeginTest
         new NPAssignmentSearchParameters(
           Optional.empty(),
           Optional.empty(),
-          NPNameMatchType.AnyName.ANY_NAME,
+          new NPComparisonFuzzyType.Anything<>(),
           1000L
         )
       );

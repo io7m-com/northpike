@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPNameMatchType;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
@@ -35,7 +34,9 @@ public final class NPArbAssignmentSearchParameters
         return Combinators.combine(
           Arbitraries.defaultFor(NPRepositoryID.class).optional(),
           Arbitraries.defaultFor(NPPlanIdentifier.class).optional(),
-          Arbitraries.defaultFor(NPNameMatchType.class),
+          NPArbComparisons.fuzzy(
+            Arbitraries.strings().alpha()
+          ),
           Arbitraries.longs()
         ).as(NPAssignmentSearchParameters::new);
       }

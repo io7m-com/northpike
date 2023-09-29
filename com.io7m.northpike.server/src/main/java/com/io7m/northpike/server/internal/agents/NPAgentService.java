@@ -37,6 +37,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -44,6 +45,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * The main agent service.
@@ -265,6 +267,14 @@ public final class NPAgentService implements NPAgentServiceType
     }
 
     return false;
+  }
+
+  @Override
+  public Set<NPAgentID> findAgentsConnected()
+  {
+    return this.agentTasks.stream()
+      .map(NPAgentTask::agentId)
+      .collect(Collectors.toUnmodifiableSet());
   }
 
   private void run()

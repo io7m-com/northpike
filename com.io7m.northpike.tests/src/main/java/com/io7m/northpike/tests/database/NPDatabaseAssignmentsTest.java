@@ -49,7 +49,6 @@ import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPKey;
-import com.io7m.northpike.model.NPNameMatchType;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
@@ -66,12 +65,15 @@ import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCancelled;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreated;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreationFailed;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateFailed;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateKind;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRequested;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRunning;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateSucceeded;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanName;
 import com.io7m.northpike.plans.NPPlans;
@@ -96,10 +98,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
-import static com.io7m.northpike.model.NPNameMatchType.AnyName.ANY_NAME;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
@@ -585,7 +588,7 @@ public final class NPDatabaseAssignmentsTest
       search.execute(new NPAssignmentSearchParameters(
         Optional.empty(),
         Optional.empty(),
-        ANY_NAME,
+        new NPComparisonFuzzyType.Anything<>(),
         1000L
       ));
 
@@ -619,7 +622,7 @@ public final class NPDatabaseAssignmentsTest
           NPPlanName.of("orchid"),
           1L
         )),
-        ANY_NAME,
+        new NPComparisonFuzzyType.Anything<>(),
         1000L
       ));
 
@@ -650,7 +653,7 @@ public final class NPDatabaseAssignmentsTest
       search.execute(new NPAssignmentSearchParameters(
         Optional.of(this.repositoryId),
         Optional.empty(),
-        ANY_NAME,
+        new NPComparisonFuzzyType.Anything<>(),
         1000L
       ));
 
@@ -681,7 +684,7 @@ public final class NPDatabaseAssignmentsTest
       search.execute(new NPAssignmentSearchParameters(
         Optional.of(this.repositoryId),
         Optional.empty(),
-        new NPNameMatchType.Similar("carrot"),
+        new NPComparisonFuzzyType.IsSimilarTo<>("carrot"),
         1000L
       ));
 
@@ -712,7 +715,7 @@ public final class NPDatabaseAssignmentsTest
       search.execute(new NPAssignmentSearchParameters(
         Optional.of(this.repositoryId),
         Optional.empty(),
-        new NPNameMatchType.Exact("a.lavender.carrot"),
+        new NPComparisonFuzzyType.IsEqualTo<>("a.lavender.carrot"),
         1000L
       ));
 
@@ -722,6 +725,103 @@ public final class NPDatabaseAssignmentsTest
     }
     assertEquals(1, p.items().size());
   }
+
+  /**
+   * Searching assignments works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentSearch5()
+    throws Exception
+  {
+    final var assignments =
+      this.createSampleAssignments();
+
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+
+    final var paged =
+      search.execute(new NPAssignmentSearchParameters(
+        Optional.of(this.repositoryId),
+        Optional.empty(),
+        new NPComparisonFuzzyType.IsNotEqualTo<>("a.lavender.carrot"),
+        1000L
+      ));
+
+    final var p = paged.pageCurrent(this.transaction);
+    for (final var i : p.items()) {
+      assertNotEquals("a.lavender.carrot", i.name().value().value());
+    }
+    assertEquals(8, p.items().size());
+  }
+
+  /**
+   * Searching assignments works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentSearch6()
+    throws Exception
+  {
+    final var assignments =
+      this.createSampleAssignments();
+
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+
+    final var paged =
+      search.execute(new NPAssignmentSearchParameters(
+        Optional.of(this.repositoryId),
+        Optional.empty(),
+        new NPComparisonFuzzyType.IsNotSimilarTo<>("carrot"),
+        1000L
+      ));
+
+    final var p = paged.pageCurrent(this.transaction);
+    for (final var i : p.items()) {
+      assertFalse(i.name().value().value().contains("carrot"));
+    }
+    assertEquals(6, p.items().size());
+  }
+
+  /**
+   * Searching assignments works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentSearch7()
+    throws Exception
+  {
+    final var assignments =
+      this.createSampleAssignments();
+
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+
+    final var paged =
+      search.execute(new NPAssignmentSearchParameters(
+        Optional.of(this.repositoryId),
+        Optional.of(new NPPlanIdentifier(NPPlanName.of("rose"), 1L)),
+        new NPComparisonFuzzyType.Anything<>(),
+        1000L
+      ));
+
+    final var p = paged.pageCurrent(this.transaction);
+    for (final var i : p.items()) {
+      assertEquals(
+        new NPPlanIdentifier(NPPlanName.of("rose"), 1L),
+        i.plan()
+      );
+    }
+    assertEquals(3, p.items().size());
+  }
+
 
   /**
    * Logging execution output works.
@@ -893,7 +993,8 @@ public final class NPDatabaseAssignmentsTest
         .execute(new NPAssignmentExecutionSearchParameters(
           Optional.empty(),
           Optional.empty(),
-          ANY_NAME,
+          new NPComparisonExactType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
           1000L
         ));
 
@@ -910,6 +1011,373 @@ public final class NPDatabaseAssignmentsTest
         "List %s must contain %s".formatted(page.items(), r)
       );
     }
+  }
+
+  /**
+   * Searching for executions works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentExecutionSearch1()
+    throws Exception
+  {
+    final var assignments =
+      this.createSampleAssignments();
+
+    final var executions =
+      List.of(
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(0),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(1),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(2),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(3),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(4),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(5),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(6),
+          new NPCommitUnqualifiedID("a")
+        )
+      );
+
+    final var executionRecords =
+      List.of(
+        new NPAssignmentExecutionStateCancelled(
+          executions.get(0).id(),
+          executions.get(0).request(),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateCreated(
+          OffsetDateTime.now().withNano(0),
+          executions.get(1)
+        ),
+        new NPAssignmentExecutionStateCreationFailed(
+          executions.get(2).id(),
+          executions.get(2).request(),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateFailed(
+          OffsetDateTime.now().withNano(0),
+          executions.get(3),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateRequested(
+          executions.get(4).id(),
+          executions.get(4).request(),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateRunning(
+          OffsetDateTime.now().withNano(0),
+          executions.get(5),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateSucceeded(
+          OffsetDateTime.now().withNano(0),
+          executions.get(6),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0)
+        )
+      );
+
+    for (final var r : executionRecords) {
+      this.transaction.queries(ExecutionPutType.class)
+        .execute(r);
+    }
+
+    this.transaction.commit();
+
+    for (final var status : NPAssignmentExecutionStateKind.values()) {
+      final var paged =
+        this.transaction.queries(ExecutionSearchType.class)
+          .execute(new NPAssignmentExecutionSearchParameters(
+            Optional.empty(),
+            Optional.empty(),
+            new NPComparisonExactType.IsEqualTo<>(status),
+            new NPComparisonFuzzyType.Anything<>(),
+            1000L
+          ));
+
+      final var page =
+        paged.pageCurrent(this.transaction);
+
+      assertEquals(1, page.pageIndex());
+      assertEquals(1, page.pageCount());
+      assertEquals(1, page.items().size());
+    }
+  }
+
+  /**
+   * Searching for executions works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentExecutionSearch2()
+    throws Exception
+  {
+    final var assignments =
+      this.createSampleAssignments();
+
+    final var executions =
+      List.of(
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(0),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(1),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(2),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(3),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(4),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(5),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(6),
+          new NPCommitUnqualifiedID("a")
+        )
+      );
+
+    final var executionRecords =
+      List.of(
+        new NPAssignmentExecutionStateCancelled(
+          executions.get(0).id(),
+          executions.get(0).request(),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateCreated(
+          OffsetDateTime.now().withNano(0),
+          executions.get(1)
+        ),
+        new NPAssignmentExecutionStateCreationFailed(
+          executions.get(2).id(),
+          executions.get(2).request(),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateFailed(
+          OffsetDateTime.now().withNano(0),
+          executions.get(3),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateRequested(
+          executions.get(4).id(),
+          executions.get(4).request(),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateRunning(
+          OffsetDateTime.now().withNano(0),
+          executions.get(5),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateSucceeded(
+          OffsetDateTime.now().withNano(0),
+          executions.get(6),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0)
+        )
+      );
+
+    for (final var r : executionRecords) {
+      this.transaction.queries(ExecutionPutType.class)
+        .execute(r);
+    }
+
+    this.transaction.commit();
+
+    for (final var status : NPAssignmentExecutionStateKind.values()) {
+      final var paged =
+        this.transaction.queries(ExecutionSearchType.class)
+          .execute(new NPAssignmentExecutionSearchParameters(
+            Optional.empty(),
+            Optional.empty(),
+            new NPComparisonExactType.IsNotEqualTo<>(status),
+            new NPComparisonFuzzyType.Anything<>(),
+            1000L
+          ));
+
+      final var page =
+        paged.pageCurrent(this.transaction);
+
+      assertEquals(1, page.pageIndex());
+      assertEquals(1, page.pageCount());
+      assertEquals(6, page.items().size());
+    }
+  }
+
+  /**
+   * Searching for executions works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentExecutionSearch3()
+    throws Exception
+  {
+    final var assignments =
+      this.createSampleAssignments();
+
+    final var executions =
+      List.of(
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(0),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(1),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(2),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(3),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(4),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(5),
+          new NPCommitUnqualifiedID("a")
+        ),
+        new NPAssignmentExecution(
+          new NPAssignmentExecutionID(randomUUID()),
+          assignments.get(6),
+          new NPCommitUnqualifiedID("a")
+        )
+      );
+
+    final var executionRecords =
+      List.of(
+        new NPAssignmentExecutionStateCancelled(
+          executions.get(0).id(),
+          executions.get(0).request(),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateCreated(
+          OffsetDateTime.now().withNano(0),
+          executions.get(1)
+        ),
+        new NPAssignmentExecutionStateCreationFailed(
+          executions.get(2).id(),
+          executions.get(2).request(),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateFailed(
+          OffsetDateTime.now().withNano(0),
+          executions.get(3),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateRequested(
+          executions.get(4).id(),
+          executions.get(4).request(),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateRunning(
+          OffsetDateTime.now().withNano(0),
+          executions.get(5),
+          OffsetDateTime.now().withNano(0)
+        ),
+        new NPAssignmentExecutionStateSucceeded(
+          OffsetDateTime.now().withNano(0),
+          executions.get(6),
+          OffsetDateTime.now().withNano(0),
+          OffsetDateTime.now().withNano(0)
+        )
+      );
+
+    for (final var r : executionRecords) {
+      this.transaction.queries(ExecutionPutType.class)
+        .execute(r);
+    }
+
+    this.transaction.commit();
+
+    final var paged =
+      this.transaction.queries(ExecutionSearchType.class)
+        .execute(new NPAssignmentExecutionSearchParameters(
+          Optional.empty(),
+          Optional.of(new NPPlanIdentifier(NPPlanName.of("rose"), 1L)),
+          new NPComparisonExactType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
+          1000L
+        ));
+
+    final var page =
+      paged.pageCurrent(this.transaction);
+
+    for (final var item : page.items()) {
+      assertTrue(
+        item.request().assignment().value().value().startsWith("a.rose.")
+      );
+    }
+
+    assertEquals(1, page.pageIndex());
+    assertEquals(1, page.pageCount());
+    assertEquals(2, page.items().size());
   }
 
   private List<NPAssignment> createSampleAssignments()

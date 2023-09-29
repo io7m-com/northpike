@@ -48,6 +48,6 @@ public final class NPUCmdTest
     final var exec =
       cmd.resolve(command);
 
-    assertNotNull(exec);
+    assertNotNull(exec, "Command %s must resolve".formatted(command.getClass()));
   }
 }

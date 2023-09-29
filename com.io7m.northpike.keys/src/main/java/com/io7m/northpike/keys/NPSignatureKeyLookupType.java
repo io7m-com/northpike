@@ -32,7 +32,7 @@ public interface NPSignatureKeyLookupType
    *
    * @param fingerprint The fingerprint
    *
-   * @return The key, if a matching key exists
+   * @return The key, if a comparisons key exists
    *
    * @throws NPException On errors and nonexistent keys
    */

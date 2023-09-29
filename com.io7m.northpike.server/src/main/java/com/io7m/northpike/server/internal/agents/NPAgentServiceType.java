@@ -47,7 +47,7 @@ public interface NPAgentServiceType
    * Find the connected agents that match the given expressions.
    *
    * @param require Agents must match this label expression
-   * @param prefer  Agents matching this label expression will be preferred
+   * @param prefer  Agents comparisons this label expression will be preferred
    *
    * @return The agents
    */
@@ -85,6 +85,12 @@ public interface NPAgentServiceType
   boolean sendWorkItem(
     NPAgentID agent,
     NPAgentWorkItem workItem);
+
+  /**
+   * @return The set of connected agents
+   */
+
+  Set<NPAgentID> findAgentsConnected();
 
   /**
    * The suitable agents.

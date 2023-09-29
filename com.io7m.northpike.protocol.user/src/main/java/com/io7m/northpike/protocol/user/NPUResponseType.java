@@ -27,6 +27,7 @@ public sealed interface NPUResponseType
   extends NPUMessageType
   permits NPUResponseAgentGet,
   NPUResponseAgentLabelGet,
+  NPUResponseAgentsConnected,
   NPUResponseAssignmentExecutionWorkItems,
   NPUResponseAssignmentGet,
   NPUResponseError,

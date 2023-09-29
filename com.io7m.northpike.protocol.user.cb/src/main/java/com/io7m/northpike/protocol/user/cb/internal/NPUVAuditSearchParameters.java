@@ -17,14 +17,15 @@
 
 package com.io7m.northpike.protocol.user.cb.internal;
 
-import com.io7m.cedarbridge.runtime.api.CBCore;
 import com.io7m.cedarbridge.runtime.api.CBOptionType;
 import com.io7m.cedarbridge.runtime.api.CBString;
 import com.io7m.northpike.model.NPAuditSearchParameters;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AuditSearchParameters;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVStrings.STRINGS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVTimeRange.TIME_RANGE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVUserOrAgent.USER_OR_AGENT;
 
@@ -41,13 +42,17 @@ public enum NPUVAuditSearchParameters
 
   AUDIT_SEARCH_PARAMETERS;
 
+  private static final NPUVComparisonsExact<String, CBString> EXACT_VALIDATOR =
+    new NPUVComparisonsExact<>(STRINGS);
+
   @Override
   public NPU1AuditSearchParameters convertToWire(
     final NPAuditSearchParameters message)
+    throws NPProtocolException
   {
     return new NPU1AuditSearchParameters(
       CBOptionType.fromOptional(message.owner().map(USER_OR_AGENT::convertToWire)),
-      CBOptionType.fromOptional(message.type().map(CBCore::string)),
+      EXACT_VALIDATOR.convertToWire(message.type()),
       TIME_RANGE.convertToWire(message.timeRange()),
       unsigned32(message.pageSize())
     );
@@ -56,10 +61,11 @@ public enum NPUVAuditSearchParameters
   @Override
   public NPAuditSearchParameters convertFromWire(
     final NPU1AuditSearchParameters message)
+    throws NPProtocolException
   {
     return new NPAuditSearchParameters(
       message.fieldOwner().asOptional().map(USER_OR_AGENT::convertFromWire),
-      message.fieldType().asOptional().map(CBString::value),
+      EXACT_VALIDATOR.convertFromWire(message.fieldType()),
       TIME_RANGE.convertFromWire(message.fieldTimeRange()),
       message.fieldPageSize().value()
     );

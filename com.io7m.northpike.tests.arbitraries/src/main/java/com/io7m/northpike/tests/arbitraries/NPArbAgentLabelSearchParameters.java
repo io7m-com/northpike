@@ -30,7 +30,8 @@ public final class NPArbAgentLabelSearchParameters
       NPAgentLabelSearchParameters.class,
       () -> {
         return Combinators.combine(
-          Arbitraries.strings().alpha(),
+          NPArbComparisons.fuzzy(Arbitraries.strings().alpha()),
+          NPArbComparisons.fuzzy(Arbitraries.strings().alpha()),
           Arbitraries.longs()
         ).as(NPAgentLabelSearchParameters::new);
       }

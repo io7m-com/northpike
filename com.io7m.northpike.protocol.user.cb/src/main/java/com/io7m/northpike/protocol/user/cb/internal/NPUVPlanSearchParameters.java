@@ -17,12 +17,14 @@
 
 package com.io7m.northpike.protocol.user.cb.internal;
 
+import com.io7m.cedarbridge.runtime.api.CBString;
 import com.io7m.northpike.model.plans.NPPlanSearchParameters;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1PlanSearchParameters;
 
-import static com.io7m.cedarbridge.runtime.api.CBCore.string;
 import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVStrings.STRINGS;
 
 /**
  * A validator.
@@ -39,12 +41,17 @@ public enum NPUVPlanSearchParameters
 
   PLAN_SEARCH_PARAMETERS;
 
+  private static final NPUVComparisonsFuzzy<String, CBString> FUZZY_VALIDATOR =
+    new NPUVComparisonsFuzzy<>(STRINGS);
+
   @Override
   public NPU1PlanSearchParameters convertToWire(
     final NPPlanSearchParameters message)
+    throws NPProtocolException
   {
     return new NPU1PlanSearchParameters(
-      string(message.query()),
+      FUZZY_VALIDATOR.convertToWire(message.name()),
+      FUZZY_VALIDATOR.convertToWire(message.description()),
       unsigned32(message.pageSize())
     );
   }
@@ -52,9 +59,11 @@ public enum NPUVPlanSearchParameters
   @Override
   public NPPlanSearchParameters convertFromWire(
     final NPU1PlanSearchParameters message)
+    throws NPProtocolException
   {
     return new NPPlanSearchParameters(
-      message.fieldQuery().value(),
+      FUZZY_VALIDATOR.convertFromWire(message.fieldName()),
+      FUZZY_VALIDATOR.convertFromWire(message.fieldDescription()),
       message.fieldPageSize().value()
     );
   }

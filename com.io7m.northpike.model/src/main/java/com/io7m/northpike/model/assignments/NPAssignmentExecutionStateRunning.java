@@ -60,12 +60,6 @@ public record NPAssignmentExecutionStateRunning(
   }
 
   @Override
-  public String name()
-  {
-    return "Running";
-  }
-
-  @Override
   public Map<String, String> asAttributes()
   {
     final var assignment = this.execution.assignment();
@@ -80,5 +74,11 @@ public record NPAssignmentExecutionStateRunning(
       entry("TimeCreated", this.timeCreated.toString()),
       entry("TimeStarted", this.timeStarted.toString())
     );
+  }
+
+  @Override
+  public NPAssignmentExecutionStateKind kind()
+  {
+    return NPAssignmentExecutionStateKind.RUNNING;
   }
 }

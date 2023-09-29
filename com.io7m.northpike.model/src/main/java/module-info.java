@@ -32,8 +32,9 @@ module com.io7m.northpike.model
   requires org.jgrapht.core;
   requires com.io7m.jaffirm.core;
 
-  exports com.io7m.northpike.model;
-  exports com.io7m.northpike.model.security;
   exports com.io7m.northpike.model.assignments;
+  exports com.io7m.northpike.model.comparisons;
   exports com.io7m.northpike.model.plans;
+  exports com.io7m.northpike.model.security;
+  exports com.io7m.northpike.model;
 }

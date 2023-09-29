@@ -33,7 +33,7 @@ public final class NPMapValidation
   }
 
   /**
-   * Check map invariants such as keys matching the extracted value keys.
+   * Check map invariants such as keys comparisons the extracted value keys.
    *
    * @param m   The map
    * @param key The key extraction function

@@ -17,19 +17,22 @@
 
 package com.io7m.northpike.protocol.user.cb.internal;
 
+import com.io7m.cedarbridge.runtime.api.CBString;
 import com.io7m.northpike.model.NPAgentLabelSearchParameters;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AgentLabelSearchParameters;
 
-import static com.io7m.cedarbridge.runtime.api.CBCore.string;
 import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVStrings.STRINGS;
 
 /**
  * A validator.
  */
 
 public enum NPUVAgentLabelSearchParameters
-  implements NPProtocolMessageValidatorType<NPAgentLabelSearchParameters, NPU1AgentLabelSearchParameters>
+  implements NPProtocolMessageValidatorType<
+  NPAgentLabelSearchParameters, NPU1AgentLabelSearchParameters>
 {
   /**
    * A validator.
@@ -37,12 +40,17 @@ public enum NPUVAgentLabelSearchParameters
 
   AGENT_LABEL_SEARCH_PARAMETERS;
 
+  private static final NPUVComparisonsFuzzy<String, CBString> FUZZY_VALIDATOR =
+    new NPUVComparisonsFuzzy<>(STRINGS);
+
   @Override
   public NPU1AgentLabelSearchParameters convertToWire(
     final NPAgentLabelSearchParameters message)
+    throws NPProtocolException
   {
     return new NPU1AgentLabelSearchParameters(
-      string(message.query()),
+      FUZZY_VALIDATOR.convertToWire(message.name()),
+      FUZZY_VALIDATOR.convertToWire(message.description()),
       unsigned32(message.pageSize())
     );
   }
@@ -50,9 +58,11 @@ public enum NPUVAgentLabelSearchParameters
   @Override
   public NPAgentLabelSearchParameters convertFromWire(
     final NPU1AgentLabelSearchParameters message)
+    throws NPProtocolException
   {
     return new NPAgentLabelSearchParameters(
-      message.fieldQuery().value(),
+      FUZZY_VALIDATOR.convertFromWire(message.fieldName()),
+      FUZZY_VALIDATOR.convertFromWire(message.fieldDescription()),
       message.fieldPageSize().value()
     );
   }
