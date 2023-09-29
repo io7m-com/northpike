@@ -15,33 +15,35 @@
  */
 
 
-package com.io7m.northpike.server.internal.users;
+package com.io7m.northpike.protocol.user;
 
-import com.io7m.jmulticlose.core.CloseableType;
-import com.io7m.northpike.model.NPUserConnected;
-import com.io7m.repetoir.core.RPServiceType;
-
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- * The service to which users connect.
+ * List the connected users.
+ *
+ * @param messageID The message ID
  */
 
-public interface NPUserServiceType
-  extends CloseableType, RPServiceType
+public record NPUCommandUsersConnected(
+  UUID messageID)
+  implements NPUCommandType<NPUResponseUsersConnected>
 {
   /**
-   * Start the service running.
+   * List the connected users.
    *
-   * @return A future representing the service startup
+   * @param messageID The message ID
    */
 
-  CompletableFuture<Void> start();
+  public NPUCommandUsersConnected
+  {
+    Objects.requireNonNull(messageID, "messageId");
+  }
 
-  /**
-   * @return The set of connected users
-   */
-
-  Set<NPUserConnected> findUsersConnected();
+  @Override
+  public Class<NPUResponseUsersConnected> responseClass()
+  {
+    return NPUResponseUsersConnected.class;
+  }
 }

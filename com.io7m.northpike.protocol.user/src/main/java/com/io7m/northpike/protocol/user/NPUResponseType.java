@@ -40,7 +40,8 @@ public sealed interface NPUResponseType
   NPUResponseRepositoryPublicKeysAssigned,
   NPUResponseRolesGet,
   NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate
+  NPUResponseToolExecutionDescriptionValidate,
+  NPUResponseUsersConnected
 {
   /**
    * @return The ID of the message to which this message correlates

@@ -462,6 +462,18 @@
   [field data [cb:Map cb:String cb:String]]
 ]
 
+[documentation NPU1UserConnected "A connected user."]
+[record NPU1UserConnected
+  [documentation id "The user ID."]
+  [field id cb:UUID]
+  [documentation name "The user name."]
+  [field name cb:String]
+  [documentation address "The user's remote address."]
+  [field address cb:String]
+  [documentation port "The user's remote port."]
+  [field port cb:IntegerUnsigned16]
+]
+
 ;
 ; Commands
 ;
@@ -632,6 +644,12 @@
 
 [documentation NPU1CommandAgentsConnected "List connected agents."]
 [record NPU1CommandAgentsConnected
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandUsersConnected "List connected users."]
+[record NPU1CommandUsersConnected
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
 ]
@@ -1182,11 +1200,20 @@
   [field results [cb:List cb:UUID]]
 ]
 
+[documentation NPU1ResponseUsersConnected "A response to NPU1CommandUsersConnectedBegin."]
+[record NPU1ResponseUsersConnected
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [cb:List NPU1UserConnected]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
     [types-added
-      NPU1CommandAgentsConnected
       NPU1CommandAgentGet
       NPU1CommandAgentLabelDelete
       NPU1CommandAgentLabelGet
@@ -1198,6 +1225,7 @@
       NPU1CommandAgentSearchBegin
       NPU1CommandAgentSearchNext
       NPU1CommandAgentSearchPrevious
+      NPU1CommandAgentsConnected
       NPU1CommandAssignmentExecute
       NPU1CommandAssignmentExecutionDelete
       NPU1CommandAssignmentExecutionSearchBegin
@@ -1243,11 +1271,12 @@
       NPU1CommandToolExecutionDescriptionSearchNext
       NPU1CommandToolExecutionDescriptionSearchPrevious
       NPU1CommandToolExecutionDescriptionValidate
-      NPU1ResponseAgentsConnected
+      NPU1CommandUsersConnected
       NPU1ResponseAgentGet
       NPU1ResponseAgentLabelGet
       NPU1ResponseAgentLabelSearch
       NPU1ResponseAgentSearch
+      NPU1ResponseAgentsConnected
       NPU1ResponseAssignmentExecutionSearch
       NPU1ResponseAssignmentExecutionWorkItems
       NPU1ResponseAssignmentGet
@@ -1267,6 +1296,7 @@
       NPU1ResponseToolExecutionDescriptionGet
       NPU1ResponseToolExecutionDescriptionSearch
       NPU1ResponseToolExecutionDescriptionValidate
+      NPU1ResponseUsersConnected
     ]
   ]
 ]

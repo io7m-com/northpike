@@ -355,6 +355,21 @@ public enum NPSecRole
     {
       return NAME;
     }
+  },
+
+  /**
+   * A role for reading users.
+   */
+
+  USERS_READER {
+    private static final MRoleName NAME =
+      MRoleName.of("users.reader");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
   };
 
   private static final List<NPSecRole> ROLES_ALL =

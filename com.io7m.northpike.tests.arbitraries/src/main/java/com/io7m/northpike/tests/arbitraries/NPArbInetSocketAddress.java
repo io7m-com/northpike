@@ -15,33 +15,33 @@
  */
 
 
-package com.io7m.northpike.server.internal.users;
+package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.jmulticlose.core.CloseableType;
-import com.io7m.northpike.model.NPUserConnected;
-import com.io7m.repetoir.core.RPServiceType;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.net.InetSocketAddress;
+import java.util.Locale;
 
-/**
- * The service to which users connect.
- */
-
-public interface NPUserServiceType
-  extends CloseableType, RPServiceType
+public final class NPArbInetSocketAddress extends NPArbAbstract<InetSocketAddress>
 {
-  /**
-   * Start the service running.
-   *
-   * @return A future representing the service startup
-   */
-
-  CompletableFuture<Void> start();
-
-  /**
-   * @return The set of connected users
-   */
-
-  Set<NPUserConnected> findUsersConnected();
+  public NPArbInetSocketAddress()
+  {
+    super(
+      InetSocketAddress.class,
+      () -> Combinators.combine(
+        Arbitraries.strings()
+          .alpha()
+          .ofMinLength(1)
+          .ofMaxLength(8)
+          .map(x -> x.toLowerCase(Locale.ROOT)),
+        Arbitraries.integers().between(1, 65535)
+      ).as((addr, port) -> {
+        return InetSocketAddress.createUnresolved(
+          addr + ".example.com",
+          port.intValue()
+        );
+      })
+    );
+  }
 }

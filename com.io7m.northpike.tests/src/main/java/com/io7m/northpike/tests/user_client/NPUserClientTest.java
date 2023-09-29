@@ -40,6 +40,7 @@ import com.io7m.northpike.protocol.intro.NPIError;
 import com.io7m.northpike.protocol.intro.NPIProtocol;
 import com.io7m.northpike.protocol.intro.NPIProtocolsAvailable;
 import com.io7m.northpike.protocol.intro.cb.NPIMessages;
+import com.io7m.northpike.protocol.user.NPUCommandAgentsConnected;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
@@ -52,6 +53,7 @@ import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearch
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
+import com.io7m.northpike.protocol.user.NPUCommandUsersConnected;
 import com.io7m.northpike.protocol.user.cb.NPU1Messages;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.strings.NPStrings;
@@ -89,11 +91,13 @@ import java.util.stream.Collectors;
 import static com.io7m.northpike.model.NPRepositoryCredentialsNone.CREDENTIALS_NONE;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
+import static com.io7m.northpike.model.security.NPSecRole.AGENTS_READER;
 import static com.io7m.northpike.model.security.NPSecRole.LOGIN;
 import static com.io7m.northpike.model.security.NPSecRole.REPOSITORIES_READER;
 import static com.io7m.northpike.model.security.NPSecRole.REPOSITORIES_WRITER;
 import static com.io7m.northpike.model.security.NPSecRole.TOOLS_READER;
 import static com.io7m.northpike.model.security.NPSecRole.TOOLS_WRITER;
+import static com.io7m.northpike.model.security.NPSecRole.USERS_READER;
 import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
 import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
@@ -563,6 +567,55 @@ public final class NPUserClientTest
     }
   }
 
+  /**
+   * Connected users can be listed.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testUsersConnected()
+    throws Exception
+  {
+    this.setupUser(Set.of(LOGIN, USERS_READER));
+
+    this.userClient.login(
+      this.serverAddress,
+      TLS_DISABLED,
+      this.userName,
+      this.userPassword
+    );
+
+    final var r =
+      this.userClient.execute(new NPUCommandUsersConnected(randomUUID()));
+
+    assertEquals(1, r.users().size());
+  }
+
+  /**
+   * Connected agents can be listed.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentsConnected()
+    throws Exception
+  {
+    this.setupUser(Set.of(LOGIN, AGENTS_READER));
+
+    this.userClient.login(
+      this.serverAddress,
+      TLS_DISABLED,
+      this.userName,
+      this.userPassword
+    );
+
+    final var r =
+      this.userClient.execute(new NPUCommandAgentsConnected(randomUUID()));
+
+    assertEquals(0, r.agents().size());
+  }
 
   private void setupUser(
     final Set<NPSecRole> roles)

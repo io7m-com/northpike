@@ -32,7 +32,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -172,6 +174,20 @@ public final class NPUserService implements NPUserServiceType
       this.mainExecutor.execute(this::run);
     }
     return this.future;
+  }
+
+  @Override
+  public Set<com.io7m.northpike.model.NPUserConnected> findUsersConnected()
+  {
+    final var results =
+      new HashSet<com.io7m.northpike.model.NPUserConnected>(
+        this.userTasks.size()
+      );
+
+    for (final var userTask : this.userTasks) {
+      userTask.user().ifPresent(results::add);
+    }
+    return Set.copyOf(results);
   }
 
   private void run()

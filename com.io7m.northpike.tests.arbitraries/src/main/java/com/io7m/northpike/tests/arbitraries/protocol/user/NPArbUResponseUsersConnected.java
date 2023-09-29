@@ -15,33 +15,30 @@
  */
 
 
-package com.io7m.northpike.server.internal.users;
+package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.model.NPUserConnected;
-import com.io7m.repetoir.core.RPServiceType;
+import com.io7m.northpike.protocol.user.NPUResponseUsersConnected;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.util.UUID;
 
-/**
- * The service to which users connect.
- */
-
-public interface NPUserServiceType
-  extends CloseableType, RPServiceType
+public final class NPArbUResponseUsersConnected
+  extends NPArbAbstract<NPUResponseUsersConnected>
 {
-  /**
-   * Start the service running.
-   *
-   * @return A future representing the service startup
-   */
-
-  CompletableFuture<Void> start();
-
-  /**
-   * @return The set of connected users
-   */
-
-  Set<NPUserConnected> findUsersConnected();
+  public NPArbUResponseUsersConnected()
+  {
+    super(
+      NPUResponseUsersConnected.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(NPUserConnected.class).set()
+        ).as(NPUResponseUsersConnected::new);
+      }
+    );
+  }
 }

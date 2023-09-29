@@ -275,7 +275,8 @@ public final class NPTestContainers
     UUID adminId,
     String adminName,
     String adminPassword,
-    int adminAPIPort, int userAPIPort)
+    int adminAPIPort,
+    int userAPIPort)
   {
     /**
      * Reset the container by dropping and recreating the database. This

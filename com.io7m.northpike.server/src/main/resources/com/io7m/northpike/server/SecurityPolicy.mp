@@ -237,3 +237,14 @@
   [MatchObject  [WithType audit_log]]
   [MatchAction  [WithName read]]
 ]
+
+#------------------------------------------------------------------------
+# Users
+#
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom users.reader]]
+  [MatchObject  [WithType users]]
+  [MatchAction  [WithName enumerate]]
+]

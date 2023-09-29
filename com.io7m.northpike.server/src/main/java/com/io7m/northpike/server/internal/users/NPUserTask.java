@@ -27,6 +27,7 @@ import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.NPUserConnected;
 import com.io7m.northpike.protocol.user.NPUMessageType;
 import com.io7m.northpike.protocol.user.NPUResponseError;
 import com.io7m.northpike.server.api.NPServerException;
@@ -457,5 +458,32 @@ public final class NPUserTask
       this.strings.format(key),
       value
     );
+  }
+
+  /**
+   * @return The currently connected/authenticated user (if any)
+   */
+
+  public Optional<NPUserConnected> user()
+  {
+    final var uid = this.userId;
+    if (uid != null) {
+      try {
+        try (var connection = this.databaseConnection()) {
+          try (var transaction = connection.openTransaction()) {
+            return transaction.queries(NPDatabaseQueriesUsersType.GetType.class)
+              .execute(uid)
+              .map(u -> new NPUserConnected(
+                u.userId(),
+                u.name(),
+                this.connection.remoteAddress()
+              ));
+          }
+        }
+      } catch (final NPException e) {
+        recordSpanException(e);
+      }
+    }
+    return Optional.empty();
   }
 }

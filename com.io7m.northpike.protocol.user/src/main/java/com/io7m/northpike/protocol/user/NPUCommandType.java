@@ -73,7 +73,8 @@ public sealed interface NPUCommandType<R extends NPUResponseType>
   NPUCommandToolExecutionDescriptionPut,
   NPUCommandToolExecutionDescriptionSearchNext,
   NPUCommandToolExecutionDescriptionSearchPrevious,
-  NPUCommandToolExecutionDescriptionValidate
+  NPUCommandToolExecutionDescriptionValidate,
+  NPUCommandUsersConnected
 {
   /**
    * @return The response class

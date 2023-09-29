@@ -14,34 +14,39 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.northpike.model;
 
-package com.io7m.northpike.server.internal.users;
+import com.io7m.idstore.model.IdName;
 
-import com.io7m.jmulticlose.core.CloseableType;
-import com.io7m.northpike.model.NPUserConnected;
-import com.io7m.repetoir.core.RPServiceType;
-
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.net.InetSocketAddress;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- * The service to which users connect.
+ * A snapshot of a connected user.
+ *
+ * @param userId  The user ID
+ * @param name    The user name
+ * @param address The address from which the user is connecting
  */
 
-public interface NPUserServiceType
-  extends CloseableType, RPServiceType
+public record NPUserConnected(
+  UUID userId,
+  IdName name,
+  InetSocketAddress address)
 {
   /**
-   * Start the service running.
+   * A snapshot of a user.
    *
-   * @return A future representing the service startup
+   * @param userId  The user ID
+   * @param name    The user name
+   * @param address The address from which the user is connecting
    */
 
-  CompletableFuture<Void> start();
-
-  /**
-   * @return The set of connected users
-   */
-
-  Set<NPUserConnected> findUsersConnected();
+  public NPUserConnected
+  {
+    Objects.requireNonNull(userId, "userId");
+    Objects.requireNonNull(name, "name");
+    Objects.requireNonNull(address, "address");
+  }
 }

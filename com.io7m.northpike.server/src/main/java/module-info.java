@@ -137,7 +137,8 @@ module com.io7m.northpike.server
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchBegin,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchNext,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchPrevious,
-    com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionValidate
+    com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionValidate,
+    com.io7m.northpike.server.internal.users.NPUCmdUsersConnected
     ;
 
   exports com.io7m.northpike.server;
