@@ -18,10 +18,12 @@
 package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.northpike.model.NPAuditEvent;
+import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
+import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.tabla.core.TTableRendererType;
 import com.io7m.tabla.core.TTableType;
 import com.io7m.tabla.core.TTableWidthConstraintRange;
@@ -32,6 +34,7 @@ import org.jline.terminal.Terminal;
 import java.io.PrintWriter;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.io7m.tabla.core.TColumnWidthConstraint.atLeastContentOrHeader;
 import static com.io7m.tabla.core.TConstraintHardness.SOFT_CONSTRAINT;
@@ -243,6 +246,48 @@ public final class NPFormatterPretty implements NPFormatterType
             String.join(", ", item.userIDs()), 30
           )
         );
+    }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatFingerprints(
+    final Set<NPFingerprint> keys)
+    throws Exception
+  {
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(2))
+        .declareColumn("Attribute", atLeastContentOrHeader())
+        .declareColumn("Value", atLeastContentOrHeader());
+
+    for (final var key : keys) {
+      builder.addRow()
+        .addCell("Fingerprint")
+        .addCell(key.value());
+    }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatSCMProviders(
+    final Set<NPSCMProviderDescription> providers)
+    throws Exception
+  {
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(3))
+        .declareColumn("Name", atLeastContentOrHeader())
+        .declareColumn("URI", atLeastContentOrHeader())
+        .declareColumn("Description", atLeastContentOrHeader());
+
+    for (final var provider : providers) {
+      builder.addRow()
+        .addCell(provider.name().value())
+        .addCell(provider.uri().toString())
+        .addCell(provider.description());
     }
 
     this.renderTable(builder.build());

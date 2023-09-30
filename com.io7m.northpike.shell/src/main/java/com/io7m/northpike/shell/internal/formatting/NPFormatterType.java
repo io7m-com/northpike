@@ -17,10 +17,14 @@
 package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.northpike.model.NPAuditEvent;
+import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
+import com.io7m.northpike.model.NPSCMProviderDescription;
+
+import java.util.Set;
 
 /**
  * A shell formatter for data.
@@ -84,5 +88,28 @@ public interface NPFormatterType
    */
 
   void formatPublicKeySummaries(NPPage<NPPublicKey> page)
+    throws Exception;
+
+  /**
+   * Format public key fingerprints.
+   *
+   * @param keys The keys
+   *
+   * @throws Exception On errors
+   */
+
+  void formatFingerprints(Set<NPFingerprint> keys)
+    throws Exception;
+
+  /**
+   * Format the SCM providers.
+   *
+   * @param providers The providers
+   *
+   * @throws Exception On errors
+   */
+
+  void formatSCMProviders(
+    Set<NPSCMProviderDescription> providers)
     throws Exception;
 }

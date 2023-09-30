@@ -19,12 +19,14 @@ package com.io7m.northpike.repository.jgit;
 
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.repository.jgit.internal.NPSCMJGRepository;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryException;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryFactoryType;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryType;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -37,6 +39,22 @@ public final class NPSCMRepositoriesJGit
 {
   private static final RDottedName NAME =
     new RDottedName("com.io7m.northpike.repository.jgit");
+
+  private static final NPSCMProviderDescription PROVIDER =
+    new NPSCMProviderDescription(
+      NAME,
+      "Eclipse JGit for Git repositories.",
+      URI.create("https://eclipse.dev/jgit/")
+    );
+
+  /**
+   * @return The provider
+   */
+
+  public static NPSCMProviderDescription providerGet()
+  {
+    return PROVIDER;
+  }
 
   /**
    * JGit repository.
@@ -54,6 +72,12 @@ public final class NPSCMRepositoriesJGit
   public static RDottedName providerNameGet()
   {
     return NAME;
+  }
+
+  @Override
+  public NPSCMProviderDescription provider()
+  {
+    return PROVIDER;
   }
 
   @Override

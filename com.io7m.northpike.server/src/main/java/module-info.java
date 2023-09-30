@@ -132,6 +132,7 @@ module com.io7m.northpike.server
     com.io7m.northpike.server.internal.users.NPUCmdRolesAssign,
     com.io7m.northpike.server.internal.users.NPUCmdRolesGet,
     com.io7m.northpike.server.internal.users.NPUCmdRolesRevoke,
+    com.io7m.northpike.server.internal.users.NPUCmdSCMProvidersSupported,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionGet,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionPut,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchBegin,

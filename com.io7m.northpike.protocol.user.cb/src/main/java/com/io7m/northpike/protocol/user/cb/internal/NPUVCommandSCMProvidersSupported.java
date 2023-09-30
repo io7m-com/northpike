@@ -17,48 +17,40 @@
 
 package com.io7m.northpike.protocol.user.cb.internal;
 
-import com.io7m.cedarbridge.runtime.api.CBURI;
 import com.io7m.cedarbridge.runtime.api.CBUUID;
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.model.NPRepositoryID;
-import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
-import com.io7m.northpike.protocol.user.cb.NPU1RepositorySummary;
-
-import static com.io7m.cedarbridge.runtime.api.CBCore.string;
+import com.io7m.northpike.protocol.user.NPUCommandSCMProvidersSupported;
+import com.io7m.northpike.protocol.user.cb.NPU1CommandSCMProvidersSupported;
 
 /**
  * A validator.
  */
 
-public enum NPUVRepositorySummary
-  implements NPProtocolMessageValidatorType<NPRepositorySummary, NPU1RepositorySummary>
+public enum NPUVCommandSCMProvidersSupported
+  implements NPProtocolMessageValidatorType<
+  NPUCommandSCMProvidersSupported, NPU1CommandSCMProvidersSupported>
 {
   /**
    * A validator.
    */
 
-  REPOSITORY_SUMMARY;
+  COMMAND_SCM_PROVIDERS_SUPPORTED;
 
   @Override
-  public NPU1RepositorySummary convertToWire(
-    final NPRepositorySummary message)
+  public NPU1CommandSCMProvidersSupported convertToWire(
+    final NPUCommandSCMProvidersSupported message)
   {
-    return new NPU1RepositorySummary(
-      string(message.provider().value()),
-      new CBUUID(message.id().value()),
-      new CBURI(message.url())
+    return new NPU1CommandSCMProvidersSupported(
+      new CBUUID(message.messageID())
     );
   }
 
   @Override
-  public NPRepositorySummary convertFromWire(
-    final NPU1RepositorySummary message)
+  public NPUCommandSCMProvidersSupported convertFromWire(
+    final NPU1CommandSCMProvidersSupported message)
   {
-    return new NPRepositorySummary(
-      new RDottedName(message.fieldProvider().value()),
-      new NPRepositoryID(message.fieldId().value()),
-      message.fieldUrl().value()
+    return new NPUCommandSCMProvidersSupported(
+      message.fieldMessageId().value()
     );
   }
 }

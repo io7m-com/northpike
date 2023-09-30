@@ -17,36 +17,33 @@
 
 package com.io7m.northpike.protocol.user;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
- * The type of responses.
+ * Retrieve the supported SCM providers.
+ *
+ * @param messageID  The message ID
  */
 
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseAgentsConnected,
-  NPUResponseAssignmentExecutionWorkItems,
-  NPUResponseAssignmentGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponsePublicKeyGet,
-  NPUResponseRepositoryGet,
-  NPUResponseRepositoryPublicKeysAssigned,
-  NPUResponseRolesGet,
-  NPUResponseSCMProvidersSupported,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate,
-  NPUResponseUsersConnected
+public record NPUCommandSCMProvidersSupported(
+  UUID messageID)
+  implements NPUCommandType<NPUResponseSCMProvidersSupported>
 {
   /**
-   * @return The ID of the message to which this message correlates
+   * Retrieve the supported SCM providers.
+   *
+   * @param messageID  The message ID
    */
 
-  UUID correlationID();
+  public NPUCommandSCMProvidersSupported
+  {
+    Objects.requireNonNull(messageID, "messageId");
+  }
+
+  @Override
+  public Class<NPUResponseSCMProvidersSupported> responseClass()
+  {
+    return NPUResponseSCMProvidersSupported.class;
+  }
 }

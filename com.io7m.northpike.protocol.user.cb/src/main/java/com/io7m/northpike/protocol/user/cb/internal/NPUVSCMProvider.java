@@ -18,12 +18,10 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBURI;
-import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.model.NPRepositoryID;
-import com.io7m.northpike.model.NPRepositorySummary;
+import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
-import com.io7m.northpike.protocol.user.cb.NPU1RepositorySummary;
+import com.io7m.northpike.protocol.user.cb.NPU1SCMProvider;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.string;
 
@@ -31,34 +29,34 @@ import static com.io7m.cedarbridge.runtime.api.CBCore.string;
  * A validator.
  */
 
-public enum NPUVRepositorySummary
-  implements NPProtocolMessageValidatorType<NPRepositorySummary, NPU1RepositorySummary>
+public enum NPUVSCMProvider
+  implements NPProtocolMessageValidatorType<NPSCMProviderDescription, NPU1SCMProvider>
 {
   /**
    * A validator.
    */
 
-  REPOSITORY_SUMMARY;
+  SCM_PROVIDER;
 
   @Override
-  public NPU1RepositorySummary convertToWire(
-    final NPRepositorySummary message)
+  public NPU1SCMProvider convertToWire(
+    final NPSCMProviderDescription message)
   {
-    return new NPU1RepositorySummary(
-      string(message.provider().value()),
-      new CBUUID(message.id().value()),
-      new CBURI(message.url())
+    return new NPU1SCMProvider(
+      string(message.name().toString()),
+      string(message.description()),
+      new CBURI(message.uri())
     );
   }
 
   @Override
-  public NPRepositorySummary convertFromWire(
-    final NPU1RepositorySummary message)
+  public NPSCMProviderDescription convertFromWire(
+    final NPU1SCMProvider message)
   {
-    return new NPRepositorySummary(
-      new RDottedName(message.fieldProvider().value()),
-      new NPRepositoryID(message.fieldId().value()),
-      message.fieldUrl().value()
+    return new NPSCMProviderDescription(
+      new RDottedName(message.fieldName().value()),
+      message.fieldDescription().value(),
+      message.fieldUri().value()
     );
   }
 }

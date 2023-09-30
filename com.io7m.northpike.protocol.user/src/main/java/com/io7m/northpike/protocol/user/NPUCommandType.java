@@ -68,6 +68,7 @@ public sealed interface NPUCommandType<R extends NPUResponseType>
   NPUCommandRolesAssign,
   NPUCommandRolesGet,
   NPUCommandRolesRevoke,
+  NPUCommandSCMProvidersSupported,
   NPUCommandSearchBeginType,
   NPUCommandToolExecutionDescriptionGet,
   NPUCommandToolExecutionDescriptionPut,

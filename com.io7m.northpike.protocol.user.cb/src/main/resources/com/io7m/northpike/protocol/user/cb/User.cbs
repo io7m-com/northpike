@@ -37,6 +37,16 @@
   [case IsNotSimilarTo [field value T]]
 ]
 
+[documentation NPU1SCMProvider "An SCM provider."]
+[record NPU1SCMProvider
+  [documentation name "The SCM provider name."]
+  [field name cb:String]
+  [documentation description "A description of the provider."]
+  [field description cb:String]
+  [documentation uri "A URI for the provider."]
+  [field uri cb:URI]
+]
+
 [documentation NPU1RepositoryCredentials "The credentials used to access a repository."]
 [variant NPU1RepositoryCredentials
   [documentation None "No credentials required."]
@@ -62,7 +72,7 @@
   [documentation id "The repository ID."]
   [field id cb:UUID]
   [documentation url "The repository URL."]
-  [field url cb:String]
+  [field url cb:URI]
   [documentation credentials "The repository credentials."]
   [field credentials NPU1RepositoryCredentials]
   [documentation signingPolicy "The repository signing policy."]
@@ -76,7 +86,7 @@
   [documentation id "The repository ID."]
   [field id cb:UUID]
   [documentation url "The repository URL."]
-  [field url cb:String]
+  [field url cb:URI]
 ]
 
 [documentation NPU1Page "A page of search results."]
@@ -953,6 +963,16 @@
 ]
 
 ;
+; SCM Providers
+;
+
+[documentation NPU1CommandSCMProvidersSupported "List the supported SCM providers."]
+[record NPU1CommandSCMProvidersSupported
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+;
 ; Events
 ;
 
@@ -1212,6 +1232,16 @@
   [field results [cb:List NPU1UserConnected]]
 ]
 
+[documentation NPU1ResponseSCMProvidersSupported "A response to NPU1ResponseSCMProvidersSupported."]
+[record NPU1ResponseSCMProvidersSupported
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation providers "The providers."]
+  [field providers [cb:List NPU1SCMProvider]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -1267,6 +1297,7 @@
       NPU1CommandRolesAssign
       NPU1CommandRolesGet
       NPU1CommandRolesRevoke
+      NPU1CommandSCMProvidersSupported
       NPU1CommandToolExecutionDescriptionGet
       NPU1CommandToolExecutionDescriptionPut
       NPU1CommandToolExecutionDescriptionSearchBegin
@@ -1295,6 +1326,7 @@
       NPU1ResponseRepositoryPublicKeysAssigned
       NPU1ResponseRepositorySearch
       NPU1ResponseRolesGet
+      NPU1ResponseSCMProvidersSupported
       NPU1ResponseToolExecutionDescriptionGet
       NPU1ResponseToolExecutionDescriptionSearch
       NPU1ResponseToolExecutionDescriptionValidate

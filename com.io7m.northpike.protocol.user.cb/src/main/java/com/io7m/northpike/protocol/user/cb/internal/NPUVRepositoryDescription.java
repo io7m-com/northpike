@@ -17,14 +17,13 @@
 
 package com.io7m.northpike.protocol.user.cb.internal;
 
+import com.io7m.cedarbridge.runtime.api.CBURI;
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1RepositoryDescription;
-
-import java.net.URI;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.string;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVRepositoryCredentials.REPOSITORY_CREDENTIALS;
@@ -50,7 +49,7 @@ public enum NPUVRepositoryDescription
     return new NPU1RepositoryDescription(
       string(message.provider().value()),
       new CBUUID(message.id().value()),
-      string(message.url().toString()),
+      new CBURI(message.url()),
       REPOSITORY_CREDENTIALS.convertToWire(message.credentials()),
       REPOSITORY_SIGNING_POLICY.convertToWire(message.signingPolicy())
     );
@@ -63,7 +62,7 @@ public enum NPUVRepositoryDescription
     return new NPRepositoryDescription(
       new RDottedName(message.fieldProvider().value()),
       new NPRepositoryID(message.fieldId().value()),
-      URI.create(message.fieldUrl().value()),
+      message.fieldUrl().value(),
       REPOSITORY_CREDENTIALS.convertFromWire(message.fieldCredentials()),
       REPOSITORY_SIGNING_POLICY.convertFromWire(message.fieldSigningPolicy())
     );

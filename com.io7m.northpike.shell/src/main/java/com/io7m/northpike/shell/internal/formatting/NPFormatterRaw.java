@@ -18,15 +18,18 @@
 package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.northpike.model.NPAuditEvent;
+import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
+import com.io7m.northpike.model.NPSCMProviderDescription;
 import org.jline.terminal.Terminal;
 
 import java.io.PrintWriter;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A raw formatter.
@@ -141,6 +144,35 @@ public final class NPFormatterRaw implements NPFormatterType
           .map(OffsetDateTime::toString)
           .orElse("Never"),
         item.userIDs()
+      );
+    }
+    out.flush();
+  }
+
+  @Override
+  public void formatFingerprints(
+    final Set<NPFingerprint> keys)
+  {
+    final var out = this.terminal.writer();
+    for (final var key : keys) {
+      out.println(key.value());
+    }
+    out.flush();
+  }
+
+  @Override
+  public void formatSCMProviders(
+    final Set<NPSCMProviderDescription> providers)
+  {
+    final var out = this.terminal.writer();
+    out.println("# Name | URI | Description");
+
+    for (final var provider : providers) {
+      out.printf(
+        "%s | %s | %s%n",
+        provider.name().value(),
+        provider.uri().toString(),
+        provider.description()
       );
     }
     out.flush();

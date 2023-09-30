@@ -18,6 +18,7 @@ package com.io7m.northpike.scm_repository.spi;
 
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 import com.io7m.repetoir.core.RPServiceType;
 
@@ -31,10 +32,19 @@ public interface NPSCMRepositoryFactoryType
   extends RPServiceType
 {
   /**
+   * @return The SCM provider description
+   */
+
+  NPSCMProviderDescription provider();
+
+  /**
    * @return The name of the SCM provider
    */
 
-  RDottedName providerName();
+  default RDottedName providerName()
+  {
+    return this.provider().name();
+  }
 
   /**
    * Create a new repository instance.

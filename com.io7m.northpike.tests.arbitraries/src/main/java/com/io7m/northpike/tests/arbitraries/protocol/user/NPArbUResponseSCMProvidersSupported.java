@@ -15,40 +15,30 @@
  */
 
 
-package com.io7m.northpike.tests.arbitraries;
+package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.protocol.user.NPUResponseSCMProvidersSupported;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
 
-import java.net.URI;
+import java.util.UUID;
 
-public final class NPArbSCMProviderDescription
-  extends NPArbAbstract<NPSCMProviderDescription>
+public final class NPArbUResponseSCMProvidersSupported
+  extends NPArbAbstract<NPUResponseSCMProvidersSupported>
 {
-  public NPArbSCMProviderDescription()
+  public NPArbUResponseSCMProvidersSupported()
   {
     super(
-      NPSCMProviderDescription.class,
+      NPUResponseSCMProvidersSupported.class,
       () -> {
         return Combinators.combine(
-          Arbitraries.defaultFor(RDottedName.class),
-          Arbitraries.strings(),
-          uris()
-        ).as(NPSCMProviderDescription::new);
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(NPSCMProviderDescription.class).set()
+        ).as(NPUResponseSCMProvidersSupported::new);
       }
     );
-  }
-
-  private static Arbitrary<URI> uris()
-  {
-    return Arbitraries.strings()
-      .alpha()
-      .ofMinLength(1)
-      .ofMaxLength(8)
-      .map("https://www.%s.com/"::formatted)
-      .map(URI::create);
   }
 }
