@@ -17,6 +17,12 @@
 
 package com.io7m.northpike.shell;
 
+import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPRepositoryCredentialsType;
+import com.io7m.northpike.model.NPRepositoryID;
+import com.io7m.northpike.shell.internal.NPRepositoryCredentialsConverter;
+import com.io7m.northpike.shell.internal.NPRepositoryIDConverter;
+import com.io7m.northpike.shell.internal.RDottedNameConverter;
 import com.io7m.quarrel.core.QValueConverterDirectory;
 import com.io7m.quarrel.core.QValueConverterDirectoryType;
 
@@ -27,7 +33,13 @@ import com.io7m.quarrel.core.QValueConverterDirectoryType;
 public final class NPShellValueConverters
 {
   private static final QValueConverterDirectoryType CONVERTERS =
-    QValueConverterDirectory.core();
+    QValueConverterDirectory.core()
+      .with(NPRepositoryID.class,
+            new NPRepositoryIDConverter())
+      .with(RDottedName.class,
+            new RDottedNameConverter())
+      .with(NPRepositoryCredentialsType.class,
+            new NPRepositoryCredentialsConverter());
 
   private NPShellValueConverters()
   {

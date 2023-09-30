@@ -18,6 +18,7 @@ package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPRepositoryDescription;
 
 /**
  * A shell formatter for data.
@@ -37,4 +38,15 @@ public interface NPFormatterType
     NPPage<NPAuditEvent> page)
     throws Exception;
 
+  /**
+   * Format a repository.
+   *
+   * @param repository The repository
+   *
+   * @throws Exception On errors
+   */
+
+  void formatRepository(
+    NPRepositoryDescription repository)
+    throws Exception;
 }

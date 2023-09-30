@@ -19,6 +19,7 @@ package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.tabla.core.TTableRendererType;
 import com.io7m.tabla.core.TTableType;
 import com.io7m.tabla.core.TTableWidthConstraintRange;
@@ -110,6 +111,36 @@ public final class NPFormatterPretty implements NPFormatterType
         .addCell(audit.type())
         .addCell(audit.data().toString());
     }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatRepository(
+    final NPRepositoryDescription repository)
+    throws Exception
+  {
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(2))
+        .declareColumn("Attribute", atLeastContentOrHeader())
+        .declareColumn("Value", atLeastContentOrHeader());
+
+    builder.addRow()
+      .addCell("Repository ID")
+      .addCell(repository.id().toString());
+    builder.addRow()
+      .addCell("SCM Provider")
+      .addCell(repository.provider().toString());
+    builder.addRow()
+      .addCell("URI")
+      .addCell(repository.url().toString());
+    builder.addRow()
+      .addCell("Credentials")
+      .addCell(repository.credentials().toString());
+    builder.addRow()
+      .addCell("Signing Policy")
+      .addCell(repository.signingPolicy().toString());
 
     this.renderTable(builder.build());
   }

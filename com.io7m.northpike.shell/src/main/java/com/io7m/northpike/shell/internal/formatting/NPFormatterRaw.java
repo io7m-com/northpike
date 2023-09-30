@@ -19,6 +19,7 @@ package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPRepositoryDescription;
 import org.jline.terminal.Terminal;
 
 import java.io.PrintWriter;
@@ -70,6 +71,24 @@ public final class NPFormatterRaw implements NPFormatterType
         audit.data()
       );
     }
+    out.flush();
+  }
+
+  @Override
+  public void formatRepository(
+    final NPRepositoryDescription repository)
+  {
+    final var out = this.terminal.writer();
+    out.print("ID: ");
+    out.println(repository.id());
+    out.print("SCM Provider: ");
+    out.println(repository.provider());
+    out.print("URI: ");
+    out.println(repository.url());
+    out.print("Credentials: ");
+    out.println(repository.credentials());
+    out.print("Signing Policy: ");
+    out.println(repository.signingPolicy());
     out.flush();
   }
 

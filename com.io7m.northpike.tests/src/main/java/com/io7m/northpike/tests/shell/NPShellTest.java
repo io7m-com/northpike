@@ -20,10 +20,18 @@ package com.io7m.northpike.tests.shell;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPRepositoryCredentialsNone;
+import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
+import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
 import com.io7m.northpike.protocol.user.NPUResponseAuditSearch;
+import com.io7m.northpike.protocol.user.NPUResponseOK;
+import com.io7m.northpike.protocol.user.NPUResponseRepositoryGet;
+import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.shell.NPShellConfiguration;
 import com.io7m.northpike.shell.NPShellType;
 import com.io7m.northpike.shell.NPShells;
@@ -40,6 +48,7 @@ import org.mockito.internal.verification.Times;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -53,6 +62,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.io7m.northpike.model.NPRepositorySigningPolicy.REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorIo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -206,6 +216,7 @@ public final class NPShellTest
       .login(any(), any(), any(), any());
 
     final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
     w.println(
       "login --user nobody --password 1234 --server localhost --port 30000");
     w.flush();
@@ -287,6 +298,64 @@ public final class NPShellTest
     w.println("audit-search-begin");
     w.println("audit-search-next");
     w.println("audit-search-previous");
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+  }
+
+  @Test
+  public void testRepositoryPutGet()
+    throws Exception
+  {
+    final var id =
+      UUID.randomUUID();
+    final var uri =
+      URI.create("http://www.example.com");
+
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandRepositoryPut.class))
+    ).thenReturn(new NPUResponseOK(
+      UUID.randomUUID(),
+      UUID.randomUUID()
+    ));
+
+    final var repository =
+      new NPRepositoryDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
+        new NPRepositoryID(id),
+        uri,
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS
+      );
+
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandRepositoryGet.class))
+    ).thenReturn(new NPUResponseRepositoryGet(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      Optional.of(repository)
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.print("repository-put ");
+    w.print(" --id ");
+    w.print(id);
+    w.print(" --provider ");
+    w.print(NPSCMRepositoriesJGit.providerNameGet());
+    w.print(" --uri ");
+    w.print(uri);
+    w.print(" --credentials ");
+    w.print("none");
+    w.print(" --signing-policy ");
+    w.print(REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS);
+    w.println();
+
+    w.print("repository-get ");
+    w.print(" --id ");
+    w.print(id);
+    w.println();
     w.flush();
     w.close();
 
