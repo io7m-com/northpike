@@ -57,6 +57,7 @@ import com.io7m.northpike.protocol.user.NPUCommandUsersConnected;
 import com.io7m.northpike.protocol.user.cb.NPU1Messages;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.tests.containers.NPIdstoreFixture;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
 import com.io7m.northpike.toolexec.NPTXFormats;
@@ -82,10 +83,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.io7m.northpike.model.NPRepositoryCredentialsNone.CREDENTIALS_NONE;
@@ -115,20 +116,17 @@ public final class NPUserClientTest
   private static final NPIMessages NPI_MESSAGES =
     new NPIMessages();
 
-  private static NPTestContainers.NPIdstoreFixture IDSTORE_FIXTURE;
+  private static NPIdstoreFixture IDSTORE_FIXTURE;
   private static NPTestContainers.NPServerFixture SERVER_FIXTURE;
 
   private ServerSocket socket;
   private NPStrings strings;
   private ExecutorService executor;
-  private CountDownLatch serverCloseLatch;
   private CountDownLatch serverAcceptLatch;
   private NPUserClientConfiguration configuration;
   private NPUserClients users;
   private NPUserClientType userClient;
   private InetSocketAddress serverAddress;
-  private IdName userName;
-  private String userPassword;
 
   @BeforeAll
   public static void setupOnce(
@@ -145,15 +143,12 @@ public final class NPUserClientTest
   public void setup()
     throws Exception
   {
-    IDSTORE_FIXTURE.reset();
     SERVER_FIXTURE.reset();
     SERVER_FIXTURE.start();
 
     this.executor =
       Executors.newSingleThreadExecutor();
     this.serverAcceptLatch =
-      new CountDownLatch(1);
-    this.serverCloseLatch =
       new CountDownLatch(1);
 
     this.strings =
@@ -177,11 +172,6 @@ public final class NPUserClientTest
     this.userClient =
       this.users.createUserClient(this.configuration);
 
-    this.userName =
-      new IdName("user0");
-    this.userPassword =
-      "12345678";
-
     this.serverAddress =
       new InetSocketAddress(
         SERVER_FIXTURE.server()
@@ -203,7 +193,6 @@ public final class NPUserClientTest
 
     this.userClient.close();
     this.socket.close();
-    this.serverCloseLatch.await(10L, TimeUnit.SECONDS);
   }
 
   /**
@@ -252,8 +241,6 @@ public final class NPUserClientTest
         clientSocket.close();
       } catch (final Exception e) {
         LOG.error("", e);
-      } finally {
-        this.serverCloseLatch.countDown();
       }
     });
 
@@ -289,8 +276,8 @@ public final class NPUserClientTest
         this.userClient.login(
           this.serverAddress,
           TLS_DISABLED,
-          this.userName,
-          this.userPassword
+          new IdName("nonexistent"),
+          "123"
         );
       });
 
@@ -307,16 +294,17 @@ public final class NPUserClientTest
   public void testLoginNoLoginRole()
     throws Exception
   {
-    final var id =
-      IDSTORE_FIXTURE.createUser(this.userName.value());
-
     final var connection =
       SERVER_FIXTURE.databaseConnection();
     final var transaction =
       connection.openTransaction();
 
     transaction.queries(NPDatabaseQueriesUsersType.PutType.class)
-      .execute(new NPUser(id, this.userName, new MSubject(Set.of())));
+      .execute(new NPUser(
+        IDSTORE_FIXTURE.userWithoutLogin(),
+        IDSTORE_FIXTURE.userWithoutLoginName(),
+        new MSubject(Set.of())
+      ));
 
     transaction.commit();
 
@@ -325,8 +313,8 @@ public final class NPUserClientTest
         this.userClient.login(
           this.serverAddress,
           TLS_DISABLED,
-          this.userName,
-          this.userPassword
+          IDSTORE_FIXTURE.userWithoutLoginName(),
+          IDSTORE_FIXTURE.password()
         );
       });
 
@@ -343,13 +331,17 @@ public final class NPUserClientTest
   public void testLoginOK()
     throws Exception
   {
-    this.setupUser(Set.of(LOGIN));
+    setupUser(
+      IDSTORE_FIXTURE.userWithLogin(),
+      IDSTORE_FIXTURE.userWithLoginName(),
+      Set.of(LOGIN)
+    );
 
     this.userClient.login(
       this.serverAddress,
       TLS_DISABLED,
-      this.userName,
-      this.userPassword
+      IDSTORE_FIXTURE.userWithLoginName(),
+      IDSTORE_FIXTURE.password()
     );
 
     this.userClient.execute(NPUCommandDisconnect.of());
@@ -365,13 +357,17 @@ public final class NPUserClientTest
   public void testRepositoryReadWrite()
     throws Exception
   {
-    this.setupUser(Set.of(LOGIN, REPOSITORIES_WRITER, REPOSITORIES_READER));
+    setupUser(
+      IDSTORE_FIXTURE.userWithLogin(),
+      IDSTORE_FIXTURE.userWithLoginName(),
+      Set.of(LOGIN, REPOSITORIES_WRITER, REPOSITORIES_READER)
+    );
 
     this.userClient.login(
       this.serverAddress,
       TLS_DISABLED,
-      this.userName,
-      this.userPassword
+      IDSTORE_FIXTURE.userWithLoginName(),
+      IDSTORE_FIXTURE.password()
     );
 
     final var repository =
@@ -410,13 +406,17 @@ public final class NPUserClientTest
   public void testRepositorySearch()
     throws Exception
   {
-    this.setupUser(Set.of(LOGIN, REPOSITORIES_WRITER, REPOSITORIES_READER));
+    setupUser(
+      IDSTORE_FIXTURE.userWithLogin(),
+      IDSTORE_FIXTURE.userWithLoginName(),
+      Set.of(LOGIN, REPOSITORIES_WRITER, REPOSITORIES_READER)
+    );
 
     this.userClient.login(
       this.serverAddress,
       TLS_DISABLED,
-      this.userName,
-      this.userPassword
+      IDSTORE_FIXTURE.userWithLoginName(),
+      IDSTORE_FIXTURE.password()
     );
 
     final var repository0 =
@@ -493,13 +493,17 @@ public final class NPUserClientTest
   public void testToolExecutions()
     throws Exception
   {
-    this.setupUser(Set.of(LOGIN, TOOLS_WRITER, TOOLS_READER));
+    setupUser(
+      IDSTORE_FIXTURE.userWithLogin(),
+      IDSTORE_FIXTURE.userWithLoginName(),
+      Set.of(LOGIN, TOOLS_WRITER, TOOLS_READER)
+    );
 
     this.userClient.login(
       this.serverAddress,
       TLS_DISABLED,
-      this.userName,
-      this.userPassword
+      IDSTORE_FIXTURE.userWithLoginName(),
+      IDSTORE_FIXTURE.password()
     );
 
     final var identifier =
@@ -577,13 +581,17 @@ public final class NPUserClientTest
   public void testUsersConnected()
     throws Exception
   {
-    this.setupUser(Set.of(LOGIN, USERS_READER));
+    setupUser(
+      IDSTORE_FIXTURE.userWithLogin(),
+      IDSTORE_FIXTURE.userWithLoginName(),
+      Set.of(LOGIN, USERS_READER)
+    );
 
     this.userClient.login(
       this.serverAddress,
       TLS_DISABLED,
-      this.userName,
-      this.userPassword
+      IDSTORE_FIXTURE.userWithLoginName(),
+      IDSTORE_FIXTURE.password()
     );
 
     final var r =
@@ -602,13 +610,17 @@ public final class NPUserClientTest
   public void testAgentsConnected()
     throws Exception
   {
-    this.setupUser(Set.of(LOGIN, AGENTS_READER));
+    setupUser(
+      IDSTORE_FIXTURE.userWithLogin(),
+      IDSTORE_FIXTURE.userWithLoginName(),
+      Set.of(LOGIN, AGENTS_READER)
+    );
 
     this.userClient.login(
       this.serverAddress,
       TLS_DISABLED,
-      this.userName,
-      this.userPassword
+      IDSTORE_FIXTURE.userWithLoginName(),
+      IDSTORE_FIXTURE.password()
     );
 
     final var r =
@@ -617,13 +629,12 @@ public final class NPUserClientTest
     assertEquals(0, r.agents().size());
   }
 
-  private void setupUser(
+  private static void setupUser(
+    final UUID userId,
+    final IdName userName,
     final Set<NPSecRole> roles)
     throws Exception
   {
-    final var id =
-      IDSTORE_FIXTURE.createUser(this.userName.value());
-
     final var connection =
       SERVER_FIXTURE.databaseConnection();
     final var transaction =
@@ -632,8 +643,8 @@ public final class NPUserClientTest
     transaction.queries(NPDatabaseQueriesUsersType.PutType.class)
       .execute(
         new NPUser(
-          id,
-          this.userName,
+          userId,
+          userName,
           new MSubject(
             roles.stream()
               .map(NPSecRole::role)

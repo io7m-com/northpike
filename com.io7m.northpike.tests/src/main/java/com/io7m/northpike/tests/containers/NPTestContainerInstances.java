@@ -23,7 +23,7 @@ import java.nio.file.Files;
 
 public final class NPTestContainerInstances
 {
-  private static NPTestContainers.NPIdstoreFixture IDSTORE_FIXTURE;
+  private static NPIdstoreFixture IDSTORE_FIXTURE;
   private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
   private static NPTestContainers.NPServerFixture SERVER_FIXTURE;
 
@@ -69,13 +69,13 @@ public final class NPTestContainerInstances
     return DATABASE_FIXTURE;
   }
 
-  public static NPTestContainers.NPIdstoreFixture idstore(
+  public static NPIdstoreFixture idstore(
     final EContainerSupervisorType supervisor)
     throws Exception
   {
     if (IDSTORE_FIXTURE == null) {
       IDSTORE_FIXTURE =
-        NPTestContainers.createIdstore(
+        NPIdstoreFixture.createIdstore(
           supervisor,
           Files.createTempDirectory("northpike-idstore"),
           idstoreDatabasePort(),
@@ -84,8 +84,6 @@ public final class NPTestContainerInstances
           idstoreUserViewPort()
         );
     }
-
-    IDSTORE_FIXTURE.reset();
     return IDSTORE_FIXTURE;
   }
 

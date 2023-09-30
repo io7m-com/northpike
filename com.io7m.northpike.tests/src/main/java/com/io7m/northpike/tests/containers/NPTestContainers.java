@@ -18,22 +18,10 @@
 package com.io7m.northpike.tests.containers;
 
 
-import com.io7m.ervilla.api.EContainerSpec;
 import com.io7m.ervilla.api.EContainerSupervisorType;
 import com.io7m.ervilla.api.EContainerType;
-import com.io7m.ervilla.api.EPortPublish;
-import com.io7m.ervilla.api.EVolumeMount;
 import com.io7m.ervilla.postgres.EPgSpecs;
-import com.io7m.idstore.admin_client.IdAClients;
-import com.io7m.idstore.admin_client.api.IdAClientConfiguration;
-import com.io7m.idstore.admin_client.api.IdAClientCredentials;
-import com.io7m.idstore.admin_client.api.IdAClientException;
-import com.io7m.idstore.model.IdEmail;
 import com.io7m.idstore.model.IdName;
-import com.io7m.idstore.model.IdPasswordAlgorithmPBKDF2HmacSHA256;
-import com.io7m.idstore.model.IdRealName;
-import com.io7m.idstore.protocol.admin.IdACommandUserCreate;
-import com.io7m.idstore.protocol.admin.IdAResponseUserCreate;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConfiguration;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
@@ -67,22 +55,16 @@ import org.junit.jupiter.api.Assertions;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.io7m.ervilla.api.EPortProtocol.TCP;
 import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.util.Optional.empty;
 
 public final class NPTestContainers
@@ -269,273 +251,47 @@ public final class NPTestContainers
     );
   }
 
-  public record NPIdstoreFixture(
-    EContainerType serverContainer,
-    EContainerType databaseContainer,
-    UUID adminId,
-    String adminName,
-    String adminPassword,
-    int adminAPIPort,
-    int userAPIPort)
-  {
-    /**
-     * Reset the container by dropping and recreating the database. This
-     * is significantly faster than destroying and recreating the container.
-     *
-     * @throws IOException          On errors
-     * @throws InterruptedException On interruption
-     */
-
-    public void reset()
-      throws IOException, InterruptedException
-    {
-      this.serverContainer.stop();
-
-      Assertions.assertEquals(
-        0,
-        this.databaseContainer.executeAndWaitIndefinitely(
-          List.of(
-            "dropdb",
-            "-w",
-            "-f",
-            "-U",
-            "idstore_install",
-            "idstore"
-          )
-        )
-      );
-
-      Assertions.assertEquals(
-        0,
-        this.databaseContainer.executeAndWaitIndefinitely(
-          List.of(
-            "createdb",
-            "-w",
-            "-U",
-            "idstore_install",
-            "idstore"
-          )
-        )
-      );
-
-      this.serverContainer.start();
-      this.initialAdmin();
-    }
-
-    private void initialAdmin()
-      throws IOException, InterruptedException
-    {
-      for (int index = 0; index < 5; ++index) {
-        final var r = this.serverContainer.executeAndWaitIndefinitely(
-          List.of(
-            "idstore",
-            "initial-admin",
-            "--configuration",
-            "/idstore/etc/server.xml",
-            "--admin-id",
-            this.adminId.toString(),
-            "--admin-username",
-            "admin",
-            "--admin-password",
-            "12345678",
-            "--admin-email",
-            "admin@example.com",
-            "--admin-realname",
-            "admin"
-          )
-        );
-        if (r == 0) {
-          return;
-        }
-        Thread.sleep(250L);
-      }
-
-      throw new IllegalStateException(
-        "Failed to create initial admin after several attempts."
-      );
-    }
-
-    public UUID createUser(
-      final String userName)
-      throws Exception
-    {
-      final var clients = new IdAClients();
-      try (var client =
-             clients.openSynchronousClient(
-               new IdAClientConfiguration(Locale.ROOT))) {
-
-        client.loginOrElseThrow(
-          new IdAClientCredentials(
-            this.adminName,
-            this.adminPassword,
-            URI.create(
-              "http://localhost:%d".formatted(Integer.valueOf(this.adminAPIPort))
-            ),
-            Map.of()
-          ),
-          IdAClientException::ofError
-        );
-
-        final IdAResponseUserCreate response =
-          (IdAResponseUserCreate) client.executeOrElseThrow(
-            new IdACommandUserCreate(
-              empty(),
-              new IdName(userName),
-              new IdRealName(userName),
-              new IdEmail("%s@example.com".formatted(userName)),
-              IdPasswordAlgorithmPBKDF2HmacSHA256.create()
-                .createHashed("12345678")
-            ),
-            IdAClientException::ofError
-          );
-
-        return response.user().id();
-      }
-    }
-  }
-
-  public static NPIdstoreFixture createIdstore(
-    final EContainerSupervisorType supervisor,
-    final Path configurationDirectory,
-    final int databasePort,
-    final int adminAPIPort,
-    final int userAPIPort,
-    final int userViewPort)
-    throws IOException, InterruptedException
-  {
-    final var pod =
-      supervisor.createPod(List.of(
-        new EPortPublish(empty(), databasePort, 5432, TCP),
-        new EPortPublish(empty(), adminAPIPort, 51000, TCP),
-        new EPortPublish(empty(), userAPIPort, 50000, TCP),
-        new EPortPublish(empty(), userViewPort, 50001, TCP)
-      ));
-
-    final var databaseContainer =
-      pod.start(
-        EPgSpecs.builderFromDockerIO(
-          NPTestProperties.POSTGRESQL_VERSION,
-          Optional.empty(),
-          databasePort,
-          "idstore",
-          "idstore_install",
-          "12345678"
-        ).build()
-      );
-
-    Files.writeString(
-      configurationDirectory.resolve("server.xml"),
-      IDSTORE_CONFIGURATION_TEMPLATE.trim(),
-      StandardCharsets.UTF_8,
-      CREATE,
-      TRUNCATE_EXISTING
-    );
-
-    final var serverContainer =
-      pod.start(
-        EContainerSpec.builder(
-            "quay.io",
-            "io7mcom/idstore",
-            NPTestProperties.IDSTORE_VERSION)
-          .addVolumeMount(
-            new EVolumeMount(
-              configurationDirectory, "/idstore/etc")
-          )
-          .addArgument("server")
-          .addArgument("--verbose")
-          .addArgument("debug")
-          .addArgument("--configuration")
-          .addArgument("/idstore/etc/server.xml")
-          .setReadyCheck(new NPIdstoreHealthcheck("localhost", adminAPIPort))
-          .build()
-      );
-
-    final var fixture =
-      new NPIdstoreFixture(
-        serverContainer,
-        databaseContainer,
-        UUID.randomUUID(),
-        "admin",
-        "12345678",
-        adminAPIPort,
-        userAPIPort
-      );
-
-    fixture.initialAdmin();
-    return fixture;
-  }
-
-  private static final String IDSTORE_CONFIGURATION_TEMPLATE = """
-    <?xml version="1.0" encoding="UTF-8" ?>
-    <Configuration xmlns="urn:com.io7m.idstore:configuration:1">
-      <Branding ProductTitle="idstore"/>
-      <Database Name="idstore"
-                Kind="POSTGRESQL"
-                OwnerRoleName="idstore_install"
-                OwnerRolePassword="12345678"
-                WorkerRolePassword="12345678"
-                Address="localhost"
-                Port="5432"
-                Create="true"
-                Upgrade="true"/>
-      <HTTPServices>
-        <HTTPServiceAdminAPI ListenAddress="[::]" ListenPort="51000" ExternalURI="http://[::]:51000/"/>
-        <HTTPServiceUserAPI ListenAddress="[::]" ListenPort="50000" ExternalURI="http://[::]:50000/"/>
-        <HTTPServiceUserView ListenAddress="[::]" ListenPort="50001" ExternalURI="http://[::]:50001/"/>
-      </HTTPServices>
-      <History UserLoginHistoryLimit="10" AdminLoginHistoryLimit="100"/>
-      <Mail SenderAddress="northpike@example.com" VerificationExpiration="PT24H">
-        <SMTP Host="localhost" Port="25"/>
-      </Mail>
-      <RateLimiting EmailVerificationRateLimit="PT1M"
-                    UserLoginRateLimit="PT0S"
-                    AdminLoginRateLimit="PT0S"
-                    PasswordResetRateLimit="PT1M"/>
-      <Sessions UserSessionExpiration="PT60M"
-                AdminSessionExpiration="PT60M"/>
-    </Configuration>
-    """;
-
   public record NPServerFixture(
-    NPDatabaseFixture databaseFixture,
-    NPServerType server)
-    implements AutoCloseable
+  NPDatabaseFixture databaseFixture,
+  NPServerType server)
+  implements AutoCloseable
+{
+  @Override
+  public void close()
+    throws Exception
   {
-    @Override
-    public void close()
-      throws Exception
-    {
-      this.server.close();
-    }
-
-    public void setUserAsAdmin(
-      final UUID userId,
-      final String userName)
-      throws NPServerException
-    {
-      this.server.setUserAsAdmin(userId, new IdName(userName));
-    }
-
-    public void reset()
-      throws Exception
-    {
-      this.databaseFixture.reset();
-      this.server.close();
-    }
-
-    public void start()
-      throws Exception
-    {
-      this.server.start();
-    }
-
-    public NPDatabaseConnectionType databaseConnection()
-      throws NPDatabaseException
-    {
-      return this.server.database()
-        .openConnection(NPDatabaseRole.NORTHPIKE);
-    }
+    this.server.close();
   }
+
+  public void setUserAsAdmin(
+    final UUID userId,
+    final String userName)
+    throws NPServerException
+  {
+    this.server.setUserAsAdmin(userId, new IdName(userName));
+  }
+
+  public void reset()
+    throws Exception
+  {
+    this.databaseFixture.reset();
+    this.server.close();
+  }
+
+  public void start()
+    throws Exception
+  {
+    this.server.start();
+  }
+
+  public NPDatabaseConnectionType databaseConnection()
+    throws NPDatabaseException
+  {
+    return this.server.database()
+      .openConnection(NPDatabaseRole.NORTHPIKE);
+  }
+
+}
 
   public static NPServerFixture createServer(
     final NPIdstoreFixture idstoreFixture,
@@ -557,8 +313,8 @@ public final class NPTestContainers
           baseDirectory.resolve("repositories"),
           baseDirectory.resolve("archives")),
         new NPServerIdstoreConfiguration(
-          URI.create("http://localhost:" + idstoreFixture.userAPIPort),
-          URI.create("http://localhost:" + idstoreFixture.userAPIPort)
+          URI.create("http://localhost:" + idstoreFixture.userAPIPort()),
+          URI.create("http://localhost:" + idstoreFixture.userAPIPort())
         ),
         new NPServerAgentConfiguration(
           InetAddress.getLocalHost(),

@@ -17,6 +17,7 @@
 package com.io7m.northpike.server.main;
 
 import com.io7m.northpike.server.main.internal.NPACmdRun;
+import com.io7m.northpike.server.main.internal.NPACmdSetAdmin;
 import com.io7m.quarrel.core.QApplication;
 import com.io7m.quarrel.core.QApplicationMetadata;
 import com.io7m.quarrel.core.QApplicationType;
@@ -65,6 +66,7 @@ public final class NPServerMain implements Runnable
 
     final var builder = QApplication.builder(metadata);
     builder.addCommand(new NPACmdRun());
+    builder.addCommand(new NPACmdSetAdmin());
 
     this.application = builder.build();
     this.exitCode = 0;

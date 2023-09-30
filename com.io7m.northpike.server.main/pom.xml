@@ -76,6 +76,10 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.idstore</groupId>
+      <artifactId>com.io7m.idstore.model</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.canonmill</groupId>
       <artifactId>com.io7m.canonmill.core</artifactId>
     </dependency>

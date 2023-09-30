@@ -30,9 +30,10 @@ module com.io7m.northpike.server.main
   requires com.io7m.northpike.server;
   requires com.io7m.northpike.strings;
 
-  requires com.io7m.canonmill.core;
   requires com.io7m.anethum.api;
   requires com.io7m.anethum.slf4j;
+  requires com.io7m.canonmill.core;
+  requires com.io7m.idstore.model;
   requires com.io7m.quarrel.core;
   requires com.io7m.quarrel.ext.logback;
   requires org.slf4j;
