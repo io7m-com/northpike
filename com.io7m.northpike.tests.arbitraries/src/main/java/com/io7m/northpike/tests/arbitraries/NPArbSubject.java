@@ -15,32 +15,19 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPPage;
+import com.io7m.medrina.api.MRoleName;
+import com.io7m.medrina.api.MSubject;
+import net.jqwik.api.Arbitraries;
 
-/**
- * The type of responses that contain paged results.
- *
- * @param <T> The type of results
- */
-
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch,
-  NPUResponseUserSearch
+public final class NPArbSubject extends NPArbAbstract<MSubject>
 {
-  /**
-   * @return The current results
-   */
-
-  NPPage<T> results();
+  public NPArbSubject()
+  {
+    super(
+      MSubject.class,
+      () -> Arbitraries.defaultFor(MRoleName.class).set().map(MSubject::new)
+    );
+  }
 }

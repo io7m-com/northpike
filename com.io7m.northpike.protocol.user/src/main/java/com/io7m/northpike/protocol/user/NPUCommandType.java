@@ -65,9 +65,6 @@ public sealed interface NPUCommandType<R extends NPUResponseType>
   NPUCommandRepositoryPut,
   NPUCommandRepositorySearchNext,
   NPUCommandRepositorySearchPrevious,
-  NPUCommandUserRolesAssign,
-  NPUCommandUserRolesGet,
-  NPUCommandUserRolesRevoke,
   NPUCommandSCMProvidersSupported,
   NPUCommandSearchBeginType,
   NPUCommandSelf,
@@ -76,6 +73,11 @@ public sealed interface NPUCommandType<R extends NPUResponseType>
   NPUCommandToolExecutionDescriptionSearchNext,
   NPUCommandToolExecutionDescriptionSearchPrevious,
   NPUCommandToolExecutionDescriptionValidate,
+  NPUCommandUserRolesAssign,
+  NPUCommandUserRolesGet,
+  NPUCommandUserRolesRevoke,
+  NPUCommandUserSearchNext,
+  NPUCommandUserSearchPrevious,
   NPUCommandUsersConnected
 {
   /**

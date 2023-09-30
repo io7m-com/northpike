@@ -17,30 +17,42 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.model.NPPage;
+
+import com.io7m.northpike.model.NPUserSearchParameters;
+
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- * The type of responses that contain paged results.
+ * Start searching users.
  *
- * @param <T> The type of results
+ * @param messageID  The message ID
+ * @param parameters The search parameters
  */
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch,
-  NPUResponseUserSearch
+public record NPUCommandUserSearchBegin(
+  UUID messageID,
+  NPUserSearchParameters parameters)
+  implements NPUCommandSearchBeginType<
+  NPUResponseUserSearch,
+  NPUserSearchParameters>
 {
   /**
-   * @return The current results
+   * Start searching users.
+   *
+   * @param messageID  The message ID
+   * @param parameters The search parameters
    */
 
-  NPPage<T> results();
+  public NPUCommandUserSearchBegin
+  {
+    Objects.requireNonNull(messageID, "messageId");
+    Objects.requireNonNull(parameters, "parameters");
+  }
+
+  @Override
+  public Class<NPUResponseUserSearch> responseClass()
+  {
+    return NPUResponseUserSearch.class;
+  }
 }

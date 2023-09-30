@@ -248,3 +248,10 @@
   [MatchObject  [WithType users]]
   [MatchAction  [WithName enumerate]]
 ]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom users.reader]]
+  [MatchObject  [WithType users]]
+  [MatchAction  [WithName read]]
+]

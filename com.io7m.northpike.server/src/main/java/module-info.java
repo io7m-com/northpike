@@ -81,7 +81,6 @@ module com.io7m.northpike.server
     with NPTelemetryServices;
 
   provides NPUserCommandExecutorType with
-    com.io7m.northpike.server.internal.users.NPUCmdSelf,
     com.io7m.northpike.server.internal.users.NPUCmdAgentGet,
     com.io7m.northpike.server.internal.users.NPUCmdAgentLabelDelete,
     com.io7m.northpike.server.internal.users.NPUCmdAgentLabelGet,
@@ -134,12 +133,16 @@ module com.io7m.northpike.server
     com.io7m.northpike.server.internal.users.NPUCmdRolesGet,
     com.io7m.northpike.server.internal.users.NPUCmdRolesRevoke,
     com.io7m.northpike.server.internal.users.NPUCmdSCMProvidersSupported,
+    com.io7m.northpike.server.internal.users.NPUCmdSelf,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionGet,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionPut,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchBegin,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchNext,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchPrevious,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionValidate,
+    com.io7m.northpike.server.internal.users.NPUCmdUserSearchBegin,
+    com.io7m.northpike.server.internal.users.NPUCmdUserSearchNext,
+    com.io7m.northpike.server.internal.users.NPUCmdUserSearchPrevious,
     com.io7m.northpike.server.internal.users.NPUCmdUsersConnected
     ;
 

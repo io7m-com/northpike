@@ -19,6 +19,7 @@ package com.io7m.northpike.tests.arbitraries;
 
 import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 
@@ -70,6 +71,28 @@ public final class NPArbComparisons
       values.map(NPComparisonFuzzyType.IsNotEqualTo::new),
       values.map(NPComparisonFuzzyType.IsSimilarTo::new),
       values.map(NPComparisonFuzzyType.IsNotSimilarTo::new)
+    );
+  }
+
+  /**
+   * Set comparisons.
+   *
+   * @param values The raw values
+   * @param <T>    The type of values
+   *
+   * @return Arbitraries
+   */
+
+  public static <T> Arbitrary<NPComparisonSetType<T>> set(
+    final Arbitrary<T> values)
+  {
+    return Arbitraries.oneOf(
+      Arbitraries.create(NPComparisonSetType.Anything::new),
+      values.set().map(NPComparisonSetType.IsEqualTo::new),
+      values.set().map(NPComparisonSetType.IsNotEqualTo::new),
+      values.set().map(NPComparisonSetType.IsSupersetOf::new),
+      values.set().map(NPComparisonSetType.IsSubsetOf::new),
+      values.set().map(NPComparisonSetType.IsOverlapping::new)
     );
   }
 }

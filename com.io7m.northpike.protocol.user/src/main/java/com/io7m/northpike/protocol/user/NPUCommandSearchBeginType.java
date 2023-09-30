@@ -34,7 +34,8 @@ public sealed interface NPUCommandSearchBeginType<R extends NPUResponseType, T>
   NPUCommandPlanSearchBegin,
   NPUCommandPublicKeySearchBegin,
   NPUCommandRepositorySearchBegin,
-  NPUCommandToolExecutionDescriptionSearchBegin
+  NPUCommandToolExecutionDescriptionSearchBegin,
+  NPUCommandUserSearchBegin
 {
   /**
    * @return The search parameters

@@ -79,6 +79,9 @@ import com.io7m.northpike.protocol.user.NPUCommandType;
 import com.io7m.northpike.protocol.user.NPUCommandUserRolesAssign;
 import com.io7m.northpike.protocol.user.NPUCommandUserRolesGet;
 import com.io7m.northpike.protocol.user.NPUCommandUserRolesRevoke;
+import com.io7m.northpike.protocol.user.NPUCommandUserSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandUserSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandUserSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandUsersConnected;
 import com.io7m.northpike.protocol.user.NPUEventType;
 import com.io7m.northpike.protocol.user.NPUMessageType;
@@ -109,6 +112,7 @@ import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionSearc
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionValidate;
 import com.io7m.northpike.protocol.user.NPUResponseType;
 import com.io7m.northpike.protocol.user.NPUResponseUserRolesGet;
+import com.io7m.northpike.protocol.user.NPUResponseUserSearch;
 import com.io7m.northpike.protocol.user.NPUResponseUsersConnected;
 
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentGet.COMMAND_AGENT_GET;
@@ -170,6 +174,9 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolExecut
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandUserRolesAssign.COMMAND_USER_ROLES_ASSIGN;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandUserRolesGet.COMMAND_USER_ROLES_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandUserRolesRevoke.COMMAND_USER_ROLES_REVOKE;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandUserSearchBegin.COMMAND_USER_SEARCH_BEGIN;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandUserSearchNext.COMMAND_USER_SEARCH_NEXT;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandUserSearchPrevious.COMMAND_USER_SEARCH_PREVIOUS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandUsersConnected.COMMAND_USERS_CONNECTED;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentGet.RESPONSE_AGENT_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentLabelGet.RESPONSE_AGENT_LABEL_GET;
@@ -197,6 +204,7 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseToolExecu
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseToolExecutionDescriptionSearch.RESPONSE_TOOL_EXECUTION_DESCRIPTION_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseToolExecutionDescriptionValidate.RESPONSE_TOOL_EXECUTION_DESCRIPTION_VALIDATE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseUserRolesGet.RESPONSE_USER_ROLES_GET;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseUserSearch.RESPONSE_USER_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseUsersConnected.RESPONSE_USERS_CONNECTED;
 
 /**
@@ -323,6 +331,9 @@ public final class NPU1Validation
     }
     if (response instanceof final NPUResponseSelf r) {
       return RESPONSE_SELF.convertToWire(r);
+    }
+    if (response instanceof final NPUResponseUserSearch r) {
+      return RESPONSE_USER_SEARCH.convertToWire(r);
     }
 
     throw new IllegalStateException("Unrecognized response: " + response);
@@ -516,6 +527,16 @@ public final class NPU1Validation
       return COMMAND_AUDIT_SEARCH_PREVIOUS.convertToWire(c);
     }
 
+    if (command instanceof final NPUCommandUserSearchBegin c) {
+      return COMMAND_USER_SEARCH_BEGIN.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandUserSearchNext c) {
+      return COMMAND_USER_SEARCH_NEXT.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandUserSearchPrevious c) {
+      return COMMAND_USER_SEARCH_PREVIOUS.convertToWire(c);
+    }
+
     if (command instanceof final NPUCommandSCMProvidersSupported c) {
       return COMMAND_SCM_PROVIDERS_SUPPORTED.convertToWire(c);
     }
@@ -681,6 +702,16 @@ public final class NPU1Validation
       return COMMAND_AUDIT_SEARCH_PREVIOUS.convertFromWire(c);
     }
 
+    if (message instanceof final NPU1CommandUserSearchBegin c) {
+      return COMMAND_USER_SEARCH_BEGIN.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandUserSearchNext c) {
+      return COMMAND_USER_SEARCH_NEXT.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandUserSearchPrevious c) {
+      return COMMAND_USER_SEARCH_PREVIOUS.convertFromWire(c);
+    }
+
     if (message instanceof final NPU1CommandAssignmentPut c) {
       return COMMAND_ASSIGNMENT_PUT.convertFromWire(c);
     }
@@ -782,6 +813,10 @@ public final class NPU1Validation
 
     if (message instanceof final NPU1ResponseAuditSearch r) {
       return RESPONSE_AUDIT_SEARCH.convertFromWire(r);
+    }
+
+    if (message instanceof final NPU1ResponseUserSearch r) {
+      return RESPONSE_USER_SEARCH.convertFromWire(r);
     }
 
     if (message instanceof final NPU1ResponseAssignmentGet r) {

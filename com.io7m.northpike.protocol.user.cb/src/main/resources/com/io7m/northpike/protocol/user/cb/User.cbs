@@ -37,6 +37,16 @@
   [case IsNotSimilarTo [field value T]]
 ]
 
+[variant NPU1ComparisonSet
+  [parameter T]
+  [case Anything]
+  [case IsEqualTo     [field value [cb:List T]]]
+  [case IsNotEqualTo  [field value [cb:List T]]]
+  [case IsSubsetOf    [field value [cb:List T]]]
+  [case IsSupersetOf  [field value [cb:List T]]]
+  [case IsOverlapping [field value [cb:List T]]]
+]
+
 [documentation NPU1SCMProvider "An SCM provider."]
 [record NPU1SCMProvider
   [documentation name "The SCM provider name."]
@@ -486,6 +496,26 @@
   [field port cb:IntegerUnsigned16]
 ]
 
+[documentation NPU1User "A user."]
+[record NPU1User
+  [documentation id "The user ID."]
+  [field id cb:UUID]
+  [documentation name "The user name."]
+  [field name cb:String]
+  [documentation roles "The user's roles."]
+  [field roles [cb:List cb:String]]
+]
+
+[documentation NPU1UserSearchParameters "The user search parameters."]
+[record NPU1UserSearchParameters
+  [documentation pageSize "The page size."]
+  [field pageSize cb:IntegerUnsigned32]
+  [documentation name "The name match expression."]
+  [field name [NPU1ComparisonFuzzy cb:String]]
+  [documentation roles "The roles match expression."]
+  [field roles [NPU1ComparisonSet cb:String]]
+]
+
 ;
 ; Commands
 ;
@@ -513,7 +543,7 @@
 ]
 
 ;
-; Roles
+; Users/Roles
 ;
 
 [documentation NPU1CommandUserRolesAssign "Assign a set of roles to a user."]
@@ -542,6 +572,26 @@
   [field messageId cb:UUID]
   [documentation user "The target user."]
   [field user cb:UUID]
+]
+
+[documentation NPU1CommandUserSearchBegin "Start searching users."]
+[record NPU1CommandUserSearchBegin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation parameters "The search parameters."]
+  [field parameters NPU1UserSearchParameters]
+]
+
+[documentation NPU1CommandUserSearchNext "Continue searching users."]
+[record NPU1CommandUserSearchNext
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandUserSearchPrevious "Continue searching users."]
+[record NPU1CommandUserSearchPrevious
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
 ]
 
 ;
@@ -1258,6 +1308,16 @@
   [field userId cb:UUID]
 ]
 
+[documentation NPU1ResponseUserSearch "A response to NPU1CommandUserSearchBegin."]
+[record NPU1ResponseUserSearch
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [NPU1Page NPU1User]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -1321,6 +1381,9 @@
       NPU1CommandUserRolesAssign
       NPU1CommandUserRolesGet
       NPU1CommandUserRolesRevoke
+      NPU1CommandUserSearchBegin
+      NPU1CommandUserSearchNext
+      NPU1CommandUserSearchPrevious
       NPU1CommandUsersConnected
       NPU1ResponseAgentGet
       NPU1ResponseAgentLabelGet
@@ -1348,6 +1411,7 @@
       NPU1ResponseToolExecutionDescriptionSearch
       NPU1ResponseToolExecutionDescriptionValidate
       NPU1ResponseUserRolesGet
+      NPU1ResponseUserSearch
       NPU1ResponseUsersConnected
     ]
   ]

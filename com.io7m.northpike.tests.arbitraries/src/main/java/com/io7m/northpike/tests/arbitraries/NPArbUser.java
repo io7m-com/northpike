@@ -15,32 +15,27 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPPage;
+import com.io7m.idstore.model.IdName;
+import com.io7m.medrina.api.MSubject;
+import com.io7m.northpike.model.NPUser;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-/**
- * The type of responses that contain paged results.
- *
- * @param <T> The type of results
- */
+import java.util.UUID;
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch,
-  NPUResponseUserSearch
+public final class NPArbUser extends NPArbAbstract<NPUser>
 {
-  /**
-   * @return The current results
-   */
-
-  NPPage<T> results();
+  public NPArbUser()
+  {
+    super(
+      NPUser.class,
+      () -> Combinators.combine(
+        Arbitraries.create(UUID::randomUUID),
+        Arbitraries.defaultFor(IdName.class),
+        Arbitraries.defaultFor(MSubject.class)
+      ).as(NPUser::new)
+    );
+  }
 }
