@@ -45,6 +45,7 @@ import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandSCMProvidersSupported;
+import com.io7m.northpike.protocol.user.NPUCommandSelf;
 import com.io7m.northpike.protocol.user.NPUResponseAuditSearch;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponsePublicKeyGet;
@@ -53,6 +54,7 @@ import com.io7m.northpike.protocol.user.NPUResponseRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUResponseRepositoryPublicKeysAssigned;
 import com.io7m.northpike.protocol.user.NPUResponseRepositorySearch;
 import com.io7m.northpike.protocol.user.NPUResponseSCMProvidersSupported;
+import com.io7m.northpike.protocol.user.NPUResponseSelf;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.shell.NPShellConfiguration;
 import com.io7m.northpike.shell.NPShellType;
@@ -632,6 +634,30 @@ public final class NPShellTest
     w.println("scm-providers-supported");
     w.println("set --formatter RAW");
     w.println("scm-providers-supported");
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+  }
+
+  @Test
+  public void testSelf()
+    throws Exception
+  {
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandSelf.class))
+    ).thenReturn(new NPUResponseSelf(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      UUID.randomUUID()
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+    w.println("self");
+    w.println("set --formatter RAW");
+    w.println("self");
     w.flush();
     w.close();
 

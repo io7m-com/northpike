@@ -15,39 +15,41 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.protocol.user.cb.internal;
 
-import java.util.UUID;
+import com.io7m.cedarbridge.runtime.api.CBUUID;
+import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
+import com.io7m.northpike.protocol.user.NPUCommandSelf;
+import com.io7m.northpike.protocol.user.cb.NPU1CommandSelf;
 
 /**
- * The type of responses.
+ * A validator.
  */
 
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseAgentsConnected,
-  NPUResponseAssignmentExecutionWorkItems,
-  NPUResponseAssignmentGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponsePublicKeyGet,
-  NPUResponseRepositoryGet,
-  NPUResponseRepositoryPublicKeysAssigned,
-  NPUResponseRolesGet,
-  NPUResponseSCMProvidersSupported,
-  NPUResponseSelf,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate,
-  NPUResponseUsersConnected
+public enum NPUVCommandSelf
+  implements NPProtocolMessageValidatorType<NPUCommandSelf, NPU1CommandSelf>
 {
   /**
-   * @return The ID of the message to which this message correlates
+   * A validator.
    */
 
-  UUID correlationID();
+  COMMAND_SELF;
+
+  @Override
+  public NPU1CommandSelf convertToWire(
+    final NPUCommandSelf message)
+  {
+    return new NPU1CommandSelf(
+      new CBUUID(message.messageID())
+    );
+  }
+
+  @Override
+  public NPUCommandSelf convertFromWire(
+    final NPU1CommandSelf message)
+  {
+    return new NPUCommandSelf(
+      message.fieldMessageId().value()
+    );
+  }
 }

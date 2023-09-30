@@ -15,39 +15,37 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.server.internal.users;
 
-import java.util.UUID;
+import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.protocol.user.NPUCommandSelf;
+import com.io7m.northpike.protocol.user.NPUResponseSelf;
 
 /**
- * The type of responses.
+ * @see NPUCommandSelf
  */
 
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseAgentsConnected,
-  NPUResponseAssignmentExecutionWorkItems,
-  NPUResponseAssignmentGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponsePublicKeyGet,
-  NPUResponseRepositoryGet,
-  NPUResponseRepositoryPublicKeysAssigned,
-  NPUResponseRolesGet,
-  NPUResponseSCMProvidersSupported,
-  NPUResponseSelf,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate,
-  NPUResponseUsersConnected
+public final class NPUCmdSelf
+  extends NPUCmdAbstract<NPUResponseSelf, NPUCommandSelf>
 {
   /**
-   * @return The ID of the message to which this message correlates
+   * @see NPUCommandSelf
    */
 
-  UUID correlationID();
+  public NPUCmdSelf()
+  {
+    super(NPUCommandSelf.class);
+  }
+
+  @Override
+  public NPUResponseSelf execute(
+    final NPUserCommandContextType context,
+    final NPUCommandSelf command)
+    throws NPException
+  {
+    return NPUResponseSelf.createCorrelated(
+      command,
+      context.onAuthenticationRequire().userId()
+    );
+  }
 }

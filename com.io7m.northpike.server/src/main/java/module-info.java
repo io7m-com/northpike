@@ -81,6 +81,7 @@ module com.io7m.northpike.server
     with NPTelemetryServices;
 
   provides NPUserCommandExecutorType with
+    com.io7m.northpike.server.internal.users.NPUCmdSelf,
     com.io7m.northpike.server.internal.users.NPUCmdAgentGet,
     com.io7m.northpike.server.internal.users.NPUCmdAgentLabelDelete,
     com.io7m.northpike.server.internal.users.NPUCmdAgentLabelGet,

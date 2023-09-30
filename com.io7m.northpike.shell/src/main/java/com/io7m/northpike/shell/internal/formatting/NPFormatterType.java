@@ -25,6 +25,7 @@ import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * A shell formatter for data.
@@ -111,5 +112,16 @@ public interface NPFormatterType
 
   void formatSCMProviders(
     Set<NPSCMProviderDescription> providers)
+    throws Exception;
+
+  /**
+   * Format the given user ID.
+   *
+   * @param id The user
+   *
+   * @throws Exception On errors
+   */
+
+  void formatUserID(UUID id)
     throws Exception;
 }

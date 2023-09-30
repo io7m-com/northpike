@@ -506,6 +506,12 @@
   [field messageId cb:UUID]
 ]
 
+[documentation NPU1CommandSelf "A request to get the current user ID."]
+[record NPU1CommandSelf
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
 ;
 ; Roles
 ;
@@ -1242,6 +1248,16 @@
   [field providers [cb:List NPU1SCMProvider]]
 ]
 
+[documentation NPU1ResponseSelf "A response to NPU1ResponseSelf."]
+[record NPU1ResponseSelf
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation userId "The user ID."]
+  [field userId cb:UUID]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -1298,6 +1314,7 @@
       NPU1CommandRolesGet
       NPU1CommandRolesRevoke
       NPU1CommandSCMProvidersSupported
+      NPU1CommandSelf
       NPU1CommandToolExecutionDescriptionGet
       NPU1CommandToolExecutionDescriptionPut
       NPU1CommandToolExecutionDescriptionSearchBegin
@@ -1327,6 +1344,7 @@
       NPU1ResponseRepositorySearch
       NPU1ResponseRolesGet
       NPU1ResponseSCMProvidersSupported
+      NPU1ResponseSelf
       NPU1ResponseToolExecutionDescriptionGet
       NPU1ResponseToolExecutionDescriptionSearch
       NPU1ResponseToolExecutionDescriptionValidate

@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * A raw formatter.
@@ -176,6 +177,13 @@ public final class NPFormatterRaw implements NPFormatterType
       );
     }
     out.flush();
+  }
+
+  @Override
+  public void formatUserID(final UUID id)
+  {
+    final var out = this.terminal.writer();
+    out.println(id.toString());
   }
 
   private static void formatPage(

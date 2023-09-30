@@ -17,37 +17,33 @@
 
 package com.io7m.northpike.protocol.user;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
- * The type of responses.
+ * Return the current user's ID.
+ *
+ * @param messageID The ID of this message
  */
 
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseAgentsConnected,
-  NPUResponseAssignmentExecutionWorkItems,
-  NPUResponseAssignmentGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponsePublicKeyGet,
-  NPUResponseRepositoryGet,
-  NPUResponseRepositoryPublicKeysAssigned,
-  NPUResponseRolesGet,
-  NPUResponseSCMProvidersSupported,
-  NPUResponseSelf,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate,
-  NPUResponseUsersConnected
+public record NPUCommandSelf(
+  UUID messageID)
+  implements NPUCommandType<NPUResponseSelf>
 {
   /**
-   * @return The ID of the message to which this message correlates
+   * Log in.
+   *
+   * @param messageID The ID of this message
    */
 
-  UUID correlationID();
+  public NPUCommandSelf
+  {
+    Objects.requireNonNull(messageID, "messageID");
+  }
+
+  @Override
+  public Class<NPUResponseSelf> responseClass()
+  {
+    return NPUResponseSelf.class;
+  }
 }

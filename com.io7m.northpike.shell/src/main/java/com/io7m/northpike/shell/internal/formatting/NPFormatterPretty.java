@@ -35,6 +35,7 @@ import java.io.PrintWriter;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.io7m.tabla.core.TColumnWidthConstraint.atLeastContentOrHeader;
 import static com.io7m.tabla.core.TConstraintHardness.SOFT_CONSTRAINT;
@@ -291,6 +292,13 @@ public final class NPFormatterPretty implements NPFormatterType
     }
 
     this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatUserID(final UUID id)
+  {
+    final var out = this.terminal.writer();
+    out.println(id.toString());
   }
 
   private static void formatPage(
