@@ -30,7 +30,7 @@ import java.util.UUID;
  * @param roles The role
  */
 
-public record NPUCommandRolesAssign(
+public record NPUCommandUserRolesAssign(
   UUID messageID,
   UUID user,
   Set<MRoleName> roles)
@@ -44,7 +44,7 @@ public record NPUCommandRolesAssign(
    * @param roles The role
    */
 
-  public NPUCommandRolesAssign
+  public NPUCommandUserRolesAssign
   {
     Objects.requireNonNull(messageID, "messageID");
     Objects.requireNonNull(user, "user");

@@ -19,8 +19,8 @@ package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.protocol.user.NPUCommandRolesGet;
-import com.io7m.northpike.protocol.user.NPUResponseRolesGet;
+import com.io7m.northpike.protocol.user.NPUCommandUserRolesGet;
+import com.io7m.northpike.protocol.user.NPUResponseUserRolesGet;
 
 import java.util.UUID;
 
@@ -29,25 +29,25 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
 
 
 /**
- * @see NPUCommandRolesGet
+ * @see NPUCommandUserRolesGet
  */
 
 public final class NPUCmdRolesGet
-  extends NPUCmdAbstract<NPUResponseRolesGet, NPUCommandRolesGet>
+  extends NPUCmdAbstract<NPUResponseUserRolesGet, NPUCommandUserRolesGet>
 {
   /**
-   * @see NPUCommandRolesGet
+   * @see NPUCommandUserRolesGet
    */
 
   public NPUCmdRolesGet()
   {
-    super(NPUCommandRolesGet.class);
+    super(NPUCommandUserRolesGet.class);
   }
 
   @Override
-  public NPUResponseRolesGet execute(
+  public NPUResponseUserRolesGet execute(
     final NPUserCommandContextType context,
-    final NPUCommandRolesGet command)
+    final NPUCommandUserRolesGet command)
     throws NPException
   {
     context.onAuthenticationRequire();
@@ -63,7 +63,7 @@ public final class NPUCmdRolesGet
               return context.fail(ERROR_NONEXISTENT, errorNonexistent());
             });
 
-        return new NPUResponseRolesGet(
+        return new NPUResponseUserRolesGet(
           UUID.randomUUID(),
           command.messageID(),
           targetUser.subject().roles()

@@ -18,47 +18,40 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
-import com.io7m.cedarbridge.runtime.convenience.CBLists;
-import com.io7m.cedarbridge.runtime.convenience.CBSets;
-import com.io7m.medrina.api.MRoleName;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
-import com.io7m.northpike.protocol.user.NPUCommandRolesRevoke;
-import com.io7m.northpike.protocol.user.cb.NPU1CommandRolesRevoke;
-
-import static com.io7m.cedarbridge.runtime.api.CBCore.string;
+import com.io7m.northpike.protocol.user.NPUCommandUserRolesGet;
+import com.io7m.northpike.protocol.user.cb.NPU1CommandUserRolesGet;
 
 /**
  * A validator.
  */
 
-public enum NPUVCommandRolesRevoke
-  implements NPProtocolMessageValidatorType<NPUCommandRolesRevoke, NPU1CommandRolesRevoke>
+public enum NPUVCommandUserRolesGet
+  implements NPProtocolMessageValidatorType<NPUCommandUserRolesGet, NPU1CommandUserRolesGet>
 {
   /**
    * A validator.
    */
 
-  COMMAND_ROLES_REVOKE;
+  COMMAND_USER_ROLES_GET;
 
   @Override
-  public NPU1CommandRolesRevoke convertToWire(
-    final NPUCommandRolesRevoke message)
+  public NPU1CommandUserRolesGet convertToWire(
+    final NPUCommandUserRolesGet message)
   {
-    return new NPU1CommandRolesRevoke(
+    return new NPU1CommandUserRolesGet(
       new CBUUID(message.messageID()),
-      new CBUUID(message.user()),
-      CBLists.ofCollection(message.roles(), x -> string(x.value().value()))
+      new CBUUID(message.user())
     );
   }
 
   @Override
-  public NPUCommandRolesRevoke convertFromWire(
-    final NPU1CommandRolesRevoke message)
+  public NPUCommandUserRolesGet convertFromWire(
+    final NPU1CommandUserRolesGet message)
   {
-    return new NPUCommandRolesRevoke(
+    return new NPUCommandUserRolesGet(
       message.fieldMessageId().value(),
-      message.fieldUser().value(),
-      CBSets.toSet(message.fieldRoles(), x -> MRoleName.of(x.value()))
+      message.fieldUser().value()
     );
   }
 }

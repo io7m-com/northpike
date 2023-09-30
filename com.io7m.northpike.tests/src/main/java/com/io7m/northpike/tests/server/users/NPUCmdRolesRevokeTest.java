@@ -27,9 +27,9 @@ import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.model.plans.NPPlanException;
-import com.io7m.northpike.protocol.user.NPUCommandRolesRevoke;
+import com.io7m.northpike.model.security.NPSecRole;
+import com.io7m.northpike.protocol.user.NPUCommandUserRolesRevoke;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
 import com.io7m.northpike.server.internal.users.NPUCmdRolesRevoke;
@@ -129,7 +129,7 @@ public final class NPUCmdRolesRevokeTest
       ));
 
     final var command =
-      new NPUCommandRolesRevoke(
+      new NPUCommandUserRolesRevoke(
         UUID.randomUUID(),
         UUID.randomUUID(),
         Set.of()
@@ -173,7 +173,7 @@ public final class NPUCmdRolesRevokeTest
       );
 
     final var command =
-      new NPUCommandRolesRevoke(
+      new NPUCommandUserRolesRevoke(
         UUID.randomUUID(),
         user1.userId(),
         Set.of(
@@ -223,7 +223,7 @@ public final class NPUCmdRolesRevokeTest
       );
 
     final var command =
-      new NPUCommandRolesRevoke(
+      new NPUCommandUserRolesRevoke(
         UUID.randomUUID(),
         user1.userId(),
         Set.of(
@@ -275,7 +275,7 @@ public final class NPUCmdRolesRevokeTest
       );
 
     final var command =
-      new NPUCommandRolesRevoke(
+      new NPUCommandUserRolesRevoke(
         UUID.randomUUID(),
         user1.userId(),
         Set.of(
@@ -325,7 +325,7 @@ public final class NPUCmdRolesRevokeTest
       );
 
     final var command =
-      new NPUCommandRolesRevoke(
+      new NPUCommandUserRolesRevoke(
         UUID.randomUUID(),
         user1.userId(),
         Set.of(

@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
 import com.io7m.medrina.api.MRoleName;
-import com.io7m.northpike.protocol.user.NPUCommandRolesRevoke;
+import com.io7m.northpike.protocol.user.NPUCommandUserRolesRevoke;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
@@ -26,19 +26,19 @@ import net.jqwik.api.Combinators;
 import java.util.UUID;
 
 public final class NPArbUCommandRolesRevoke
-  extends NPArbAbstract<NPUCommandRolesRevoke>
+  extends NPArbAbstract<NPUCommandUserRolesRevoke>
 {
   public NPArbUCommandRolesRevoke()
   {
     super(
-      NPUCommandRolesRevoke.class,
+      NPUCommandUserRolesRevoke.class,
       () -> {
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
           Arbitraries.create(UUID::randomUUID),
           Arbitraries.defaultFor(MRoleName.class)
             .set()
-        ).as(NPUCommandRolesRevoke::new);
+        ).as(NPUCommandUserRolesRevoke::new);
       }
     );
   }

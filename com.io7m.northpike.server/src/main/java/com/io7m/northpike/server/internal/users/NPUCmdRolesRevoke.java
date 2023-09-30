@@ -24,7 +24,7 @@ import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
-import com.io7m.northpike.protocol.user.NPUCommandRolesRevoke;
+import com.io7m.northpike.protocol.user.NPUCommandUserRolesRevoke;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.strings.NPStringConstants;
 
@@ -32,24 +32,24 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @see NPUCommandRolesRevoke
+ * @see NPUCommandUserRolesRevoke
  */
 
 public final class NPUCmdRolesRevoke
-  extends NPUCmdAbstract<NPUResponseOK, NPUCommandRolesRevoke>
+  extends NPUCmdAbstract<NPUResponseOK, NPUCommandUserRolesRevoke>
 {
   /**
-   * @see NPUCommandRolesRevoke
+   * @see NPUCommandUserRolesRevoke
    */
 
   public NPUCmdRolesRevoke()
   {
-    super(NPUCommandRolesRevoke.class);
+    super(NPUCommandUserRolesRevoke.class);
   }
 
   private static NPUResponseOK revokeRoles(
     final NPUserCommandContextType context,
-    final NPUCommandRolesRevoke command,
+    final NPUCommandUserRolesRevoke command,
     final NPUser user,
     final Set<MRoleName> rolesTaken)
     throws NPException
@@ -88,7 +88,7 @@ public final class NPUCmdRolesRevoke
   @Override
   public NPUResponseOK execute(
     final NPUserCommandContextType context,
-    final NPUCommandRolesRevoke command)
+    final NPUCommandUserRolesRevoke command)
     throws NPException
   {
     final var user =

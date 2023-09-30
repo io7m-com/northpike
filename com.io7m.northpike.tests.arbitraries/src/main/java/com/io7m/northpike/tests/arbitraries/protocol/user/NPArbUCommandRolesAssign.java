@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
 import com.io7m.medrina.api.MRoleName;
-import com.io7m.northpike.protocol.user.NPUCommandRolesAssign;
+import com.io7m.northpike.protocol.user.NPUCommandUserRolesAssign;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
@@ -26,19 +26,19 @@ import net.jqwik.api.Combinators;
 import java.util.UUID;
 
 public final class NPArbUCommandRolesAssign
-  extends NPArbAbstract<NPUCommandRolesAssign>
+  extends NPArbAbstract<NPUCommandUserRolesAssign>
 {
   public NPArbUCommandRolesAssign()
   {
     super(
-      NPUCommandRolesAssign.class,
+      NPUCommandUserRolesAssign.class,
       () -> {
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
           Arbitraries.create(UUID::randomUUID),
           Arbitraries.defaultFor(MRoleName.class)
             .set()
-        ).as(NPUCommandRolesAssign::new);
+        ).as(NPUCommandUserRolesAssign::new);
       }
     );
   }

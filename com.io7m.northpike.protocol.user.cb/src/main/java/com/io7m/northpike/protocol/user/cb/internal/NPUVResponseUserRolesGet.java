@@ -18,40 +18,47 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
+import com.io7m.cedarbridge.runtime.convenience.CBLists;
+import com.io7m.cedarbridge.runtime.convenience.CBSets;
+import com.io7m.medrina.api.MRoleName;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
-import com.io7m.northpike.protocol.user.NPUCommandRolesGet;
-import com.io7m.northpike.protocol.user.cb.NPU1CommandRolesGet;
+import com.io7m.northpike.protocol.user.NPUResponseUserRolesGet;
+import com.io7m.northpike.protocol.user.cb.NPU1ResponseUserRolesGet;
+
+import static com.io7m.cedarbridge.runtime.api.CBCore.string;
 
 /**
  * A validator.
  */
 
-public enum NPUVCommandRolesGet
-  implements NPProtocolMessageValidatorType<NPUCommandRolesGet, NPU1CommandRolesGet>
+public enum NPUVResponseUserRolesGet
+  implements NPProtocolMessageValidatorType<NPUResponseUserRolesGet, NPU1ResponseUserRolesGet>
 {
   /**
    * A validator.
    */
 
-  COMMAND_ROLES_GET;
+  RESPONSE_USER_ROLES_GET;
 
   @Override
-  public NPU1CommandRolesGet convertToWire(
-    final NPUCommandRolesGet message)
+  public NPU1ResponseUserRolesGet convertToWire(
+    final NPUResponseUserRolesGet message)
   {
-    return new NPU1CommandRolesGet(
+    return new NPU1ResponseUserRolesGet(
       new CBUUID(message.messageID()),
-      new CBUUID(message.user())
+      new CBUUID(message.correlationID()),
+      CBLists.ofCollection(message.roles(), x -> string(x.value().value()))
     );
   }
 
   @Override
-  public NPUCommandRolesGet convertFromWire(
-    final NPU1CommandRolesGet message)
+  public NPUResponseUserRolesGet convertFromWire(
+    final NPU1ResponseUserRolesGet message)
   {
-    return new NPUCommandRolesGet(
+    return new NPUResponseUserRolesGet(
       message.fieldMessageId().value(),
-      message.fieldUser().value()
+      message.fieldCorrelationId().value(),
+      CBSets.toSet(message.fieldRoles(), x -> MRoleName.of(x.value()))
     );
   }
 }

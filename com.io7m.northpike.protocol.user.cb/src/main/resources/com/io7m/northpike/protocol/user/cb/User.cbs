@@ -516,8 +516,8 @@
 ; Roles
 ;
 
-[documentation NPU1CommandRolesAssign "Assign a set of roles to a user."]
-[record NPU1CommandRolesAssign
+[documentation NPU1CommandUserRolesAssign "Assign a set of roles to a user."]
+[record NPU1CommandUserRolesAssign
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
   [documentation user "The target user."]
@@ -526,8 +526,8 @@
   [field roles [cb:List cb:String]]
 ]
 
-[documentation NPU1CommandRolesRevoke "Revoke a set of roles from a user."]
-[record NPU1CommandRolesRevoke
+[documentation NPU1CommandUserRolesRevoke "Revoke a set of roles from a user."]
+[record NPU1CommandUserRolesRevoke
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
   [documentation user "The target user."]
@@ -536,8 +536,8 @@
   [field roles [cb:List cb:String]]
 ]
 
-[documentation NPU1CommandRolesRevoke "Get the roles for a user."]
-[record NPU1CommandRolesGet
+[documentation NPU1CommandUserRolesRevoke "Get the roles for a user."]
+[record NPU1CommandUserRolesGet
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
   [documentation user "The target user."]
@@ -1028,8 +1028,8 @@
   [field keys [cb:List cb:String]]
 ]
 
-[documentation NPU1ResponseRolesGet "A response to NPU1ResponseRolesGet."]
-[record NPU1ResponseRolesGet
+[documentation NPU1ResponseUserRolesGet "A response to NPU1ResponseUserRolesGet."]
+[record NPU1ResponseUserRolesGet
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
   [documentation correlationId "The message correlation ID"]
@@ -1310,9 +1310,6 @@
       NPU1CommandRepositorySearchBegin
       NPU1CommandRepositorySearchNext
       NPU1CommandRepositorySearchPrevious
-      NPU1CommandRolesAssign
-      NPU1CommandRolesGet
-      NPU1CommandRolesRevoke
       NPU1CommandSCMProvidersSupported
       NPU1CommandSelf
       NPU1CommandToolExecutionDescriptionGet
@@ -1321,6 +1318,9 @@
       NPU1CommandToolExecutionDescriptionSearchNext
       NPU1CommandToolExecutionDescriptionSearchPrevious
       NPU1CommandToolExecutionDescriptionValidate
+      NPU1CommandUserRolesAssign
+      NPU1CommandUserRolesGet
+      NPU1CommandUserRolesRevoke
       NPU1CommandUsersConnected
       NPU1ResponseAgentGet
       NPU1ResponseAgentLabelGet
@@ -1342,12 +1342,12 @@
       NPU1ResponseRepositoryGet
       NPU1ResponseRepositoryPublicKeysAssigned
       NPU1ResponseRepositorySearch
-      NPU1ResponseRolesGet
       NPU1ResponseSCMProvidersSupported
       NPU1ResponseSelf
       NPU1ResponseToolExecutionDescriptionGet
       NPU1ResponseToolExecutionDescriptionSearch
       NPU1ResponseToolExecutionDescriptionValidate
+      NPU1ResponseUserRolesGet
       NPU1ResponseUsersConnected
     ]
   ]

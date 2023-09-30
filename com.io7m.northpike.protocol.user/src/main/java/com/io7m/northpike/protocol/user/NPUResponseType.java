@@ -38,7 +38,7 @@ public sealed interface NPUResponseType
   NPUResponsePublicKeyGet,
   NPUResponseRepositoryGet,
   NPUResponseRepositoryPublicKeysAssigned,
-  NPUResponseRolesGet,
+  NPUResponseUserRolesGet,
   NPUResponseSCMProvidersSupported,
   NPUResponseSelf,
   NPUResponseToolExecutionDescriptionGet,

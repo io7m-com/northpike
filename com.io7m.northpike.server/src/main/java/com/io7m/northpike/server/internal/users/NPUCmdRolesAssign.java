@@ -23,7 +23,7 @@ import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
-import com.io7m.northpike.protocol.user.NPUCommandRolesAssign;
+import com.io7m.northpike.protocol.user.NPUCommandUserRolesAssign;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 
 import java.util.HashSet;
@@ -36,24 +36,24 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_OPERATION_NOT_P
 
 
 /**
- * @see NPUCommandRolesAssign
+ * @see NPUCommandUserRolesAssign
  */
 
 public final class NPUCmdRolesAssign
-  extends NPUCmdAbstract<NPUResponseOK, NPUCommandRolesAssign>
+  extends NPUCmdAbstract<NPUResponseOK, NPUCommandUserRolesAssign>
 {
   /**
-   * @see NPUCommandRolesAssign
+   * @see NPUCommandUserRolesAssign
    */
 
   public NPUCmdRolesAssign()
   {
-    super(NPUCommandRolesAssign.class);
+    super(NPUCommandUserRolesAssign.class);
   }
 
   private static NPUResponseOK assignRoles(
     final NPUserCommandContextType context,
-    final NPUCommandRolesAssign command,
+    final NPUCommandUserRolesAssign command,
     final NPUser user,
     final Set<MRoleName> rolesGiven)
     throws NPException
@@ -92,7 +92,7 @@ public final class NPUCmdRolesAssign
   @Override
   public NPUResponseOK execute(
     final NPUserCommandContextType context,
-    final NPUCommandRolesAssign command)
+    final NPUCommandUserRolesAssign command)
     throws NPException
   {
     final var user =

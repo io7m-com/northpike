@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-import com.io7m.northpike.protocol.user.NPUCommandRolesGet;
+import com.io7m.northpike.protocol.user.NPUCommandUserRolesGet;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
@@ -25,17 +25,17 @@ import net.jqwik.api.Combinators;
 import java.util.UUID;
 
 public final class NPArbUCommandRolesGet
-  extends NPArbAbstract<NPUCommandRolesGet>
+  extends NPArbAbstract<NPUCommandUserRolesGet>
 {
   public NPArbUCommandRolesGet()
   {
     super(
-      NPUCommandRolesGet.class,
+      NPUCommandUserRolesGet.class,
       () -> {
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
           Arbitraries.create(UUID::randomUUID)
-        ).as(NPUCommandRolesGet::new);
+        ).as(NPUCommandUserRolesGet::new);
       }
     );
   }

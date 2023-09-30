@@ -23,37 +23,31 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Revoke the given roles from the given user.
+ * A response to {@link NPUCommandUserRolesGet}.
  *
- * @param messageID The message ID
- * @param user      The user
- * @param roles     The role
+ * @param messageID     The message ID
+ * @param correlationID The command that prompted this response
+ * @param roles     The roles
  */
 
-public record NPUCommandRolesRevoke(
+public record NPUResponseUserRolesGet(
   UUID messageID,
-  UUID user,
+  UUID correlationID,
   Set<MRoleName> roles)
-  implements NPUCommandType<NPUResponseOK>
+  implements NPUResponseType
 {
   /**
-   * Revoke the given roles from the given user.
+   * A response to {@link NPUCommandUserRolesGet}.
    *
-   * @param messageID The message ID
-   * @param user      The user
-   * @param roles     The role
+   * @param messageID     The message ID
+   * @param correlationID The command that prompted this response
+   * @param roles     The roles
    */
 
-  public NPUCommandRolesRevoke
+  public NPUResponseUserRolesGet
   {
     Objects.requireNonNull(messageID, "messageID");
-    Objects.requireNonNull(user, "user");
+    Objects.requireNonNull(correlationID, "correlationID");
     Objects.requireNonNull(roles, "roles");
-  }
-
-  @Override
-  public Class<NPUResponseOK> responseClass()
-  {
-    return NPUResponseOK.class;
   }
 }

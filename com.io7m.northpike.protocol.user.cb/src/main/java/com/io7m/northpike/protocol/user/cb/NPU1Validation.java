@@ -67,9 +67,6 @@ import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchPrevious;
-import com.io7m.northpike.protocol.user.NPUCommandRolesAssign;
-import com.io7m.northpike.protocol.user.NPUCommandRolesGet;
-import com.io7m.northpike.protocol.user.NPUCommandRolesRevoke;
 import com.io7m.northpike.protocol.user.NPUCommandSCMProvidersSupported;
 import com.io7m.northpike.protocol.user.NPUCommandSelf;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionGet;
@@ -79,6 +76,9 @@ import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearch
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
 import com.io7m.northpike.protocol.user.NPUCommandType;
+import com.io7m.northpike.protocol.user.NPUCommandUserRolesAssign;
+import com.io7m.northpike.protocol.user.NPUCommandUserRolesGet;
+import com.io7m.northpike.protocol.user.NPUCommandUserRolesRevoke;
 import com.io7m.northpike.protocol.user.NPUCommandUsersConnected;
 import com.io7m.northpike.protocol.user.NPUEventType;
 import com.io7m.northpike.protocol.user.NPUMessageType;
@@ -102,13 +102,13 @@ import com.io7m.northpike.protocol.user.NPUResponsePublicKeySearch;
 import com.io7m.northpike.protocol.user.NPUResponseRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUResponseRepositoryPublicKeysAssigned;
 import com.io7m.northpike.protocol.user.NPUResponseRepositorySearch;
-import com.io7m.northpike.protocol.user.NPUResponseRolesGet;
 import com.io7m.northpike.protocol.user.NPUResponseSCMProvidersSupported;
 import com.io7m.northpike.protocol.user.NPUResponseSelf;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionGet;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionSearch;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionValidate;
 import com.io7m.northpike.protocol.user.NPUResponseType;
+import com.io7m.northpike.protocol.user.NPUResponseUserRolesGet;
 import com.io7m.northpike.protocol.user.NPUResponseUsersConnected;
 
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentGet.COMMAND_AGENT_GET;
@@ -159,9 +159,6 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepository
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositorySearchBegin.COMMAND_REPOSITORY_SEARCH_BEGIN;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositorySearchNext.COMMAND_REPOSITORY_SEARCH_NEXT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRepositorySearchPrevious.COMMAND_REPOSITORY_SEARCH_PREVIOUS;
-import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRolesAssign.COMMAND_ROLES_ASSIGN;
-import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRolesGet.COMMAND_ROLES_GET;
-import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandRolesRevoke.COMMAND_ROLES_REVOKE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandSCMProvidersSupported.COMMAND_SCM_PROVIDERS_SUPPORTED;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandSelf.COMMAND_SELF;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolExecutionDescriptionGet.COMMAND_TOOL_EXECUTION_DESCRIPTION_GET;
@@ -170,6 +167,9 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolExecut
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolExecutionDescriptionSearchNext.COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_NEXT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolExecutionDescriptionSearchPrevious.COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_PREVIOUS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolExecutionDescriptionValidate.COMMAND_TOOL_EXECUTION_DESCRIPTION_VALIDATE;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandUserRolesAssign.COMMAND_USER_ROLES_ASSIGN;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandUserRolesGet.COMMAND_USER_ROLES_GET;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandUserRolesRevoke.COMMAND_USER_ROLES_REVOKE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandUsersConnected.COMMAND_USERS_CONNECTED;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentGet.RESPONSE_AGENT_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentLabelGet.RESPONSE_AGENT_LABEL_GET;
@@ -191,12 +191,12 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponsePublicKey
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRepositoryGet.RESPONSE_REPOSITORY_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRepositoryPublicKeysAssigned.RESPONSE_REPOSITORY_PUBLIC_KEYS_ASSIGNED;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRepositorySearch.RESPONSE_REPOSITORY_SEARCH;
-import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseRolesGet.RESPONSE_ROLES_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseSCMProvidersSupported.RESPONSE_SCM_PROVIDERS_SUPPORTED;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseSelf.RESPONSE_SELF;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseToolExecutionDescriptionGet.RESPONSE_TOOL_EXECUTION_DESCRIPTION_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseToolExecutionDescriptionSearch.RESPONSE_TOOL_EXECUTION_DESCRIPTION_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseToolExecutionDescriptionValidate.RESPONSE_TOOL_EXECUTION_DESCRIPTION_VALIDATE;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseUserRolesGet.RESPONSE_USER_ROLES_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseUsersConnected.RESPONSE_USERS_CONNECTED;
 
 /**
@@ -255,8 +255,8 @@ public final class NPU1Validation
     if (response instanceof final NPUResponseRepositorySearch r) {
       return RESPONSE_REPOSITORY_SEARCH.convertToWire(r);
     }
-    if (response instanceof final NPUResponseRolesGet r) {
-      return RESPONSE_ROLES_GET.convertToWire(r);
+    if (response instanceof final NPUResponseUserRolesGet r) {
+      return RESPONSE_USER_ROLES_GET.convertToWire(r);
     }
     if (response instanceof final NPUResponseAgentLabelGet r) {
       return RESPONSE_AGENT_LABEL_GET.convertToWire(r);
@@ -386,14 +386,14 @@ public final class NPU1Validation
     if (command instanceof final NPUCommandUsersConnected c) {
       return COMMAND_USERS_CONNECTED.convertToWire(c);
     }
-    if (command instanceof final NPUCommandRolesAssign c) {
-      return COMMAND_ROLES_ASSIGN.convertToWire(c);
+    if (command instanceof final NPUCommandUserRolesAssign c) {
+      return COMMAND_USER_ROLES_ASSIGN.convertToWire(c);
     }
-    if (command instanceof final NPUCommandRolesRevoke c) {
-      return COMMAND_ROLES_REVOKE.convertToWire(c);
+    if (command instanceof final NPUCommandUserRolesRevoke c) {
+      return COMMAND_USER_ROLES_REVOKE.convertToWire(c);
     }
-    if (command instanceof final NPUCommandRolesGet c) {
-      return COMMAND_ROLES_GET.convertToWire(c);
+    if (command instanceof final NPUCommandUserRolesGet c) {
+      return COMMAND_USER_ROLES_GET.convertToWire(c);
     }
 
     if (command instanceof final NPUCommandAgentLabelPut c) {
@@ -541,14 +541,14 @@ public final class NPU1Validation
     if (message instanceof final NPU1CommandUsersConnected c) {
       return COMMAND_USERS_CONNECTED.convertFromWire(c);
     }
-    if (message instanceof final NPU1CommandRolesAssign c) {
-      return COMMAND_ROLES_ASSIGN.convertFromWire(c);
+    if (message instanceof final NPU1CommandUserRolesAssign c) {
+      return COMMAND_USER_ROLES_ASSIGN.convertFromWire(c);
     }
-    if (message instanceof final NPU1CommandRolesRevoke c) {
-      return COMMAND_ROLES_REVOKE.convertFromWire(c);
+    if (message instanceof final NPU1CommandUserRolesRevoke c) {
+      return COMMAND_USER_ROLES_REVOKE.convertFromWire(c);
     }
-    if (message instanceof final NPU1CommandRolesGet c) {
-      return COMMAND_ROLES_GET.convertFromWire(c);
+    if (message instanceof final NPU1CommandUserRolesGet c) {
+      return COMMAND_USER_ROLES_GET.convertFromWire(c);
     }
 
     if (message instanceof final NPU1CommandRepositoryPut c) {
@@ -729,8 +729,8 @@ public final class NPU1Validation
       return RESPONSE_OK.convertFromWire(r);
     }
 
-    if (message instanceof final NPU1ResponseRolesGet r) {
-      return RESPONSE_ROLES_GET.convertFromWire(r);
+    if (message instanceof final NPU1ResponseUserRolesGet r) {
+      return RESPONSE_USER_ROLES_GET.convertFromWire(r);
     }
 
     if (message instanceof final NPU1ResponseRepositoryGet r) {

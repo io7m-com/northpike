@@ -26,10 +26,10 @@ import java.util.UUID;
  * @param user  The user
  */
 
-public record NPUCommandRolesGet(
+public record NPUCommandUserRolesGet(
   UUID messageID,
   UUID user)
-  implements NPUCommandType<NPUResponseRolesGet>
+  implements NPUCommandType<NPUResponseUserRolesGet>
 {
   /**
    * Retrieve the roles for the given user.
@@ -38,15 +38,15 @@ public record NPUCommandRolesGet(
    * @param user  The user
    */
 
-  public NPUCommandRolesGet
+  public NPUCommandUserRolesGet
   {
     Objects.requireNonNull(messageID, "messageID");
     Objects.requireNonNull(user, "user");
   }
 
   @Override
-  public Class<NPUResponseRolesGet> responseClass()
+  public Class<NPUResponseUserRolesGet> responseClass()
   {
-    return NPUResponseRolesGet.class;
+    return NPUResponseUserRolesGet.class;
   }
 }
