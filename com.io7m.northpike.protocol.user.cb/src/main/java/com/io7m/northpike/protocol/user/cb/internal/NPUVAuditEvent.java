@@ -24,6 +24,7 @@ import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AuditEvent;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.string;
+import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned64;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVUserOrAgent.USER_OR_AGENT;
 
 /**
@@ -44,6 +45,7 @@ public enum NPUVAuditEvent
     final NPAuditEvent message)
   {
     return new NPU1AuditEvent(
+      unsigned64(message.id()),
       new CBOffsetDateTime(message.time()),
       USER_OR_AGENT.convertToWire(message.owner()),
       string(message.type()),
@@ -56,6 +58,7 @@ public enum NPUVAuditEvent
     final NPU1AuditEvent message)
   {
     return new NPAuditEvent(
+      message.fieldId().value(),
       message.fieldTime().value(),
       USER_OR_AGENT.convertFromWire(message.fieldOwner()),
       message.fieldType().value(),

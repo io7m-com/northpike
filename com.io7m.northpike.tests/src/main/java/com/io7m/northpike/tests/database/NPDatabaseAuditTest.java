@@ -373,6 +373,7 @@ public final class NPDatabaseAuditTest
 
       final var agent =
         new NPAuditEvent(
+          index + 1,
           timeStart.plusSeconds(index),
           new User(user.userId()),
           "TYPE_" + index / 100,

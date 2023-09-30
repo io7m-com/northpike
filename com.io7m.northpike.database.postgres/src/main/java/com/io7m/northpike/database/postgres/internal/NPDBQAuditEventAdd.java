@@ -90,7 +90,7 @@ public final class NPDBQAuditEventAdd
   {
     return auditEvent(
       context,
-      new NPAuditEvent(time, user, type, Map.ofEntries(entries))
+      new NPAuditEvent(0L, time, user, type, Map.ofEntries(entries))
     );
   }
 
@@ -112,5 +112,4 @@ public final class NPDBQAuditEventAdd
     auditEvent(context, parameters).execute();
     return NPDatabaseUnit.UNIT;
   }
-
 }

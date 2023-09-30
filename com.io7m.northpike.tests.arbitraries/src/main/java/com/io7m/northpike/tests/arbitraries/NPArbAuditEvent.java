@@ -32,6 +32,7 @@ public final class NPArbAuditEvent extends NPArbAbstract<NPAuditEvent>
       NPAuditEvent.class,
       () ->
         Combinators.combine(
+          Arbitraries.longs(),
           Arbitraries.defaultFor(OffsetDateTime.class),
           Arbitraries.defaultFor(NPAuditUserOrAgentType.class),
           Arbitraries.strings().alpha(),

@@ -28,8 +28,8 @@ import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchPrevious;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -245,18 +245,21 @@ public final class NPUCmdAuditSearchPreviousTest
       new NPPage<>(
         List.of(
           new NPAuditEvent(
+            0L,
             OffsetDateTime.now().withNano(0).plusSeconds(1L),
             new NPAuditUserOrAgentType.User(UUID.randomUUID()),
             "T",
             Map.of()
           ),
           new NPAuditEvent(
+            1L,
             OffsetDateTime.now().withNano(0).plusSeconds(2L),
             new NPAuditUserOrAgentType.User(UUID.randomUUID()),
             "U",
             Map.of()
           ),
           new NPAuditEvent(
+            2L,
             OffsetDateTime.now().withNano(0).plusSeconds(3L),
             new NPAuditUserOrAgentType.User(UUID.randomUUID()),
             "V",

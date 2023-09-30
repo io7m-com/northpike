@@ -63,6 +63,7 @@ public final class NPUCmdAssignmentExecute
         transaction.setOwner(owner);
         transaction.queries(NPDatabaseQueriesAuditType.EventAddType.class)
           .execute(new NPAuditEvent(
+            0L,
             clock.now(),
             owner,
             "ASSIGNMENT_EXECUTE_REQUESTED",

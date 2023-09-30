@@ -452,6 +452,8 @@
 
 [documentation NPU1AuditEvent "An audit event."]
 [record NPU1AuditEvent
+  [documentation id "The event ID."]
+  [field id cb:IntegerUnsigned64]
   [documentation time "The event time."]
   [field time ct:OffsetDateTime]
   [documentation owner "The event owner."]

@@ -122,4 +122,10 @@ public final class NPUserClient implements NPUserClientType
     }
     return false;
   }
+
+  @Override
+  public String description()
+  {
+    return "User client service.";
+  }
 }

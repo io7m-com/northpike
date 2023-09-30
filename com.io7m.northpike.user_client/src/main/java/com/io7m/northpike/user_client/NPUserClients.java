@@ -43,4 +43,10 @@ public final class NPUserClients implements NPUserClientFactoryType
   {
     return new NPUserClient(configuration);
   }
+
+  @Override
+  public String description()
+  {
+    return "User client factory service.";
+  }
 }

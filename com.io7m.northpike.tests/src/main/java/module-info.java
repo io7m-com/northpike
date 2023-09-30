@@ -52,6 +52,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.server.api;
   requires com.io7m.northpike.server.configuration;
   requires com.io7m.northpike.server;
+  requires com.io7m.northpike.shell;
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
   requires com.io7m.northpike.tests.arbitraries;
@@ -79,6 +80,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.junreachable.core;
   requires com.io7m.medrina.api;
   requires com.io7m.percentpass.extension;
+  requires com.io7m.quarrel.core;
   requires com.io7m.quixote.core;
   requires com.io7m.repetoir.core;
   requires com.io7m.verdant.core.cb;
@@ -104,6 +106,7 @@ open module com.io7m.northpike.tests
   requires transitive org.junit.jupiter.engine;
   requires transitive org.junit.platform.commons;
   requires transitive org.junit.platform.engine;
+  requires org.jline;
 
   exports com.io7m.northpike.tests.database;
   exports com.io7m.northpike.tests.containers;

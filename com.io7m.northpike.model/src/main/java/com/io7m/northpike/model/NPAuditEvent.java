@@ -24,6 +24,7 @@ import java.util.Objects;
 /**
  * An audit event.
  *
+ * @param id    The event ID
  * @param time  The event time
  * @param owner The event owner
  * @param type  The event type
@@ -31,6 +32,7 @@ import java.util.Objects;
  */
 
 public record NPAuditEvent(
+  long id,
   OffsetDateTime time,
   NPAuditUserOrAgentType owner,
   String type,
@@ -39,6 +41,7 @@ public record NPAuditEvent(
   /**
    * An audit event.
    *
+   * @param id    The event ID
    * @param time  The event time
    * @param owner The event owner
    * @param type  The event type

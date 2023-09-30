@@ -21,6 +21,7 @@ import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.protocol.user.NPUCommandType;
 import com.io7m.northpike.protocol.user.NPUResponseType;
 import com.io7m.northpike.tls.NPTLSConfigurationType;
+import com.io7m.repetoir.core.RPServiceType;
 
 import java.net.InetSocketAddress;
 
@@ -28,7 +29,7 @@ import java.net.InetSocketAddress;
  * A user client.
  */
 
-public interface NPUserClientType extends CloseableType
+public interface NPUserClientType extends CloseableType, RPServiceType
 {
   /**
    * Log in to the given server.

@@ -49,6 +49,8 @@
     <module>com.io7m.northpike.server.main</module>
     <module>com.io7m.northpike.server.oci</module>
     <module>com.io7m.northpike.server</module>
+    <module>com.io7m.northpike.shell.main</module>
+    <module>com.io7m.northpike.shell</module>
     <module>com.io7m.northpike.strings</module>
     <module>com.io7m.northpike.telemetry.api</module>
     <module>com.io7m.northpike.tests.arbitraries</module>
@@ -700,6 +702,18 @@
         <groupId>com.io7m.quarrel</groupId>
         <artifactId>com.io7m.quarrel.ext.xstructural</artifactId>
         <version>${com.io7m.quarrel.version}</version>
+      </dependency>
+
+      <!-- Shell -->
+      <dependency>
+        <groupId>org.jline</groupId>
+        <artifactId>jline</artifactId>
+        <version>${org.jline.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.tabla</groupId>
+        <artifactId>com.io7m.tabla.core</artifactId>
+        <version>${com.io7m.tabla.version}</version>
       </dependency>
 
       <!-- Archive service -->

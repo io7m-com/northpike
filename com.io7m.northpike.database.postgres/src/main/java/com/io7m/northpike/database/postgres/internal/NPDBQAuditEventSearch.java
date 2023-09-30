@@ -155,6 +155,7 @@ public final class NPDBQAuditEventSearch
       try {
         final var query =
           page.queryFields(context, List.of(
+            AUDIT.AU_ID,
             AUDIT.AU_TIME,
             AUDIT.AU_TYPE,
             AUDIT.AU_USER,
@@ -179,6 +180,7 @@ public final class NPDBQAuditEventSearch
             }
 
             return new NPAuditEvent(
+              record.get(AUDIT.AU_ID).longValue(),
               record.get(AUDIT.AU_TIME),
               owner,
               record.get(AUDIT.AU_TYPE),

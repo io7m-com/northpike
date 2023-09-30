@@ -29,6 +29,7 @@ module com.io7m.northpike.user_client.api
   requires com.io7m.northpike.tls;
 
   requires com.io7m.jmulticlose.core;
+  requires com.io7m.repetoir.core;
 
   exports com.io7m.northpike.user_client.api;
 }

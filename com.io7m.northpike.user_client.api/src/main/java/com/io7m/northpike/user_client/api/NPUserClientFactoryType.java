@@ -17,11 +17,13 @@
 
 package com.io7m.northpike.user_client.api;
 
+import com.io7m.repetoir.core.RPServiceType;
+
 /**
  * A factory of user clients.
  */
 
-public interface NPUserClientFactoryType
+public interface NPUserClientFactoryType extends RPServiceType
 {
   /**
    * Create a new user client.
