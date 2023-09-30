@@ -22,8 +22,7 @@ package com.io7m.northpike.model.comparisons;
  */
 
 public sealed interface NPComparisonType
-  permits NPComparisonExactType,
-  NPComparisonFuzzyType
+  permits NPComparisonExactType, NPComparisonFuzzyType, NPComparisonSetType
 {
 
 }

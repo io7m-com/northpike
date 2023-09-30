@@ -27,7 +27,6 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType.GetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPUser;
 import org.jooq.DSLContext;
-import org.jooq.Record3;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -77,23 +76,23 @@ public final class NPDBQUserGet
   {
     final var query =
       context.select(
-        USERS.ID,
-        USERS.NAME,
-        USERS.ROLES
+        USERS.U_ID,
+        USERS.U_NAME,
+        USERS.U_ROLES
       ).from(USERS)
-      .where(USERS.ID.eq(id));
+      .where(USERS.U_ID.eq(id));
 
     recordQuery(query);
     return query.fetchOptional().map(NPDBQUserGet::mapUser);
   }
 
-  private static NPUser mapUser(
-    final Record3<UUID, String, String[]> r)
+  static NPUser mapUser(
+    final org.jooq.Record r)
   {
     return new NPUser(
-      r.get(USERS.ID),
-      new IdName(r.get(USERS.NAME)),
-      new MSubject(ofRoles(r.get(USERS.ROLES)))
+      r.get(USERS.U_ID),
+      new IdName(r.get(USERS.U_NAME)),
+      new MSubject(ofRoles(r.get(USERS.U_ROLES)))
     );
   }
 

@@ -88,14 +88,14 @@ public final class NPDBQUserPut
 
     final var query =
       context.insertInto(USERS)
-        .set(USERS.NAME, user.name().value())
-        .set(USERS.ID, user.userId())
-        .set(USERS.ROLES, roleSetToStringArray(user.subject().roles()))
-        .onConflict(USERS.ID)
+        .set(USERS.U_NAME, user.name().value())
+        .set(USERS.U_ID, user.userId())
+        .set(USERS.U_ROLES, roleSetToStringArray(user.subject().roles()))
+        .onConflict(USERS.U_ID)
         .doUpdate()
-        .set(USERS.NAME, user.name().value())
-        .set(USERS.ID, user.userId())
-        .set(USERS.ROLES, roleSetToStringArray(user.subject().roles()));
+        .set(USERS.U_NAME, user.name().value())
+        .set(USERS.U_ID, user.userId())
+        .set(USERS.U_ROLES, roleSetToStringArray(user.subject().roles()));
 
     recordQuery(query);
     query.execute();

@@ -21,6 +21,7 @@ import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.idstore.model.IdName;
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MRoleName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
@@ -31,6 +32,9 @@ import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.model.NPAuditUserOrAgentType.User;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.NPUserSearchParameters;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
@@ -41,6 +45,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -199,5 +206,350 @@ public final class NPDatabaseUsersTest
     maintenance.execute(NPDatabaseUnit.UNIT);
 
     assertEquals(userWithAllRoles, get.execute(user.userId()).orElseThrow());
+  }
+
+  /**
+   * Searching for users works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testUserSearch0()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesUsersType.SearchType.class);
+
+    final var users = generateUsers();
+    for (final var u : users) {
+      put.execute(u);
+    }
+
+    this.transaction.commit();
+
+    final var params =
+      new NPUserSearchParameters(
+        new NPComparisonFuzzyType.Anything<>(),
+        new NPComparisonSetType.Anything<>(),
+        1000L
+      );
+
+    final var paged = search.execute(params);
+    final var page = paged.pageCurrent(this.transaction);
+    assertEquals(Set.copyOf(users), Set.copyOf(page.items()));
+  }
+
+  /**
+   * Searching for users works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testUserSearch1()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesUsersType.SearchType.class);
+
+    final var users = generateUsers();
+    for (final var u : users) {
+      put.execute(u);
+    }
+
+    this.transaction.commit();
+
+    final var params =
+      new NPUserSearchParameters(
+        new NPComparisonFuzzyType.IsSimilarTo<>("user3"),
+        new NPComparisonSetType.Anything<>(),
+        1000L
+      );
+
+    final var paged = search.execute(params);
+    final var page = paged.pageCurrent(this.transaction);
+    assertEquals(
+      users.stream()
+        .filter(u -> "user3".equals(u.name().value()))
+        .collect(Collectors.toUnmodifiableSet()),
+      Set.copyOf(page.items())
+    );
+  }
+
+  /**
+   * Searching for users works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testUserSearch2()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesUsersType.SearchType.class);
+
+    final var users = generateUsers();
+    for (final var u : users) {
+      put.execute(u);
+    }
+
+    this.transaction.commit();
+
+    final var roleSet = Set.of(
+      MRoleName.of("top10"),
+      MRoleName.of("top20"),
+      MRoleName.of("top50"),
+      MRoleName.of("top80"),
+      MRoleName.of("top90"),
+      MRoleName.of("odd")
+    );
+
+    final var params =
+      new NPUserSearchParameters(
+        new NPComparisonFuzzyType.Anything<>(),
+        new NPComparisonSetType.IsSubsetOf<>(roleSet),
+        1000L
+      );
+
+    final var paged =
+      search.execute(params);
+    final var page =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(Set.copyOf(users), Set.copyOf(page.items()));
+  }
+
+  /**
+   * Searching for users works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testUserSearch3()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesUsersType.SearchType.class);
+
+    final var users = generateUsers();
+    for (final var u : users) {
+      put.execute(u);
+    }
+
+    this.transaction.commit();
+
+    final var roleSet = Set.of(
+      MRoleName.of("odd")
+    );
+
+    final var params =
+      new NPUserSearchParameters(
+        new NPComparisonFuzzyType.Anything<>(),
+        new NPComparisonSetType.IsOverlapping<>(roleSet),
+        1000L
+      );
+
+    final var paged =
+      search.execute(params);
+    final var page =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(
+      users.stream()
+        .filter(u -> u.subject().roles().contains(MRoleName.of("odd")))
+        .collect(Collectors.toUnmodifiableSet()),
+      Set.copyOf(page.items())
+    );
+  }
+
+  /**
+   * Searching for users works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testUserSearch4()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesUsersType.SearchType.class);
+
+    final var users = generateUsers();
+    for (final var u : users) {
+      put.execute(u);
+    }
+
+    this.transaction.commit();
+
+    final var roleSet = Set.of(
+      MRoleName.of("odd"),
+      MRoleName.of("top50")
+    );
+
+    final var params =
+      new NPUserSearchParameters(
+        new NPComparisonFuzzyType.Anything<>(),
+        new NPComparisonSetType.IsSupersetOf<>(roleSet),
+        1000L
+      );
+
+    final var paged =
+      search.execute(params);
+    final var page =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(
+      users.stream()
+        .filter(u -> {
+          final var roles = u.subject().roles();
+          return roles.contains(MRoleName.of("odd"))
+                 && roles.contains(MRoleName.of("top50"));
+        })
+        .collect(Collectors.toUnmodifiableSet()),
+      Set.copyOf(page.items())
+    );
+  }
+
+  /**
+   * Searching for users works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testUserSearch5()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesUsersType.SearchType.class);
+
+    final var users = generateUsers();
+    for (final var u : users) {
+      put.execute(u);
+    }
+
+    this.transaction.commit();
+
+    final var roleSet = Set.of(
+      MRoleName.of("top50"),
+      MRoleName.of("top80"),
+      MRoleName.of("top90")
+    );
+
+    final var params =
+      new NPUserSearchParameters(
+        new NPComparisonFuzzyType.Anything<>(),
+        new NPComparisonSetType.IsEqualTo<>(roleSet),
+        1000L
+      );
+
+    final var paged =
+      search.execute(params);
+    final var page =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(
+      users.stream()
+        .filter(u -> u.subject().roles().equals(roleSet))
+        .collect(Collectors.toUnmodifiableSet()),
+      Set.copyOf(page.items())
+    );
+  }
+
+  /**
+   * Searching for users works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testUserSearch6()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesUsersType.SearchType.class);
+
+    final var users = generateUsers();
+    for (final var u : users) {
+      put.execute(u);
+    }
+
+    this.transaction.commit();
+
+    final var roleSet = Set.of(
+      MRoleName.of("top90")
+    );
+
+    final var params =
+      new NPUserSearchParameters(
+        new NPComparisonFuzzyType.Anything<>(),
+        new NPComparisonSetType.IsNotEqualTo<>(roleSet),
+        1000L
+      );
+
+    final var paged =
+      search.execute(params);
+    final var page =
+      paged.pageCurrent(this.transaction);
+
+    assertEquals(
+      users.stream()
+        .filter(u -> !u.subject().roles().equals(roleSet))
+        .collect(Collectors.toUnmodifiableSet()),
+      Set.copyOf(page.items())
+    );
+  }
+
+  private static List<NPUser> generateUsers()
+  {
+    final var users = new ArrayList<NPUser>();
+    for (int index = 0; index < 100; ++index) {
+      final var roles = new HashSet<MRoleName>();
+      if (index >= 10) {
+        roles.add(new MRoleName(new RDottedName("top90")));
+      }
+      if (index >= 20) {
+        roles.add(new MRoleName(new RDottedName("top80")));
+      }
+      if (index >= 50) {
+        roles.add(new MRoleName(new RDottedName("top50")));
+      }
+      if (index >= 80) {
+        roles.add(new MRoleName(new RDottedName("top20")));
+      }
+      if (index >= 90) {
+        roles.add(new MRoleName(new RDottedName("top10")));
+      }
+      if (index % 2 != 0) {
+        roles.add(new MRoleName(new RDottedName("odd")));
+      }
+
+      users.add(
+        new NPUser(
+          UUID.randomUUID(),
+          new IdName("user%d".formatted(Integer.valueOf(index))),
+          new MSubject(Set.copyOf(roles))
+        )
+      );
+    }
+    return List.copyOf(users);
   }
 }

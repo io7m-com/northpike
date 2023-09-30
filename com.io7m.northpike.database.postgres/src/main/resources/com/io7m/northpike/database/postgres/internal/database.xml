@@ -105,13 +105,25 @@ CREATE FUNCTION tokenize_dotted_name(x text) RETURNS text
       server is the authoritative source for names.
     </Comment>
 
-    <Statement><![CDATA[
+    <StatementParameterized parameterInterpolation="STRING_FORMATTING">
+      <ParameterReferences>
+        <ParameterReference order="0"
+                            name="search.language"/>
+      </ParameterReferences>
+      <Text><![CDATA[
 CREATE TABLE users (
-  id    UUID   NOT NULL PRIMARY KEY,
-  name  TEXT   NOT NULL,
-  roles TEXT[] NOT NULL
+  u_id    UUID   NOT NULL PRIMARY KEY,
+  u_name  TEXT   NOT NULL,
+
+  -- [jooq ignore start]
+  u_name_search TSVECTOR NOT NULL
+    GENERATED ALWAYS AS (to_tsvector(%1$S, u_name)) STORED,
+  -- [jooq ignore stop]
+
+  u_roles TEXT[] NOT NULL
 )
-]]></Statement>
+]]></Text>
+    </StatementParameterized>
 
     <Statement>
       GRANT SELECT, INSERT, UPDATE ON users TO northpike
@@ -1090,7 +1102,7 @@ CREATE TABLE audit (
 
   CONSTRAINT audit_user_exists
     FOREIGN KEY (au_user)
-      REFERENCES users (id)
+      REFERENCES users (u_id)
 )
 ]]></Statement>
 

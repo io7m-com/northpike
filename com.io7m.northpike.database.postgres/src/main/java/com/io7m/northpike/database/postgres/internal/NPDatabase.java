@@ -106,7 +106,9 @@ public final class NPDatabase implements NPDatabaseType
       loadQueryProviders();
 
     this.settings =
-      new Settings().withRenderNameCase(RenderNameCase.LOWER);
+      new Settings()
+        .withRenderNameCase(RenderNameCase.LOWER);
+
     final var dataSourceBean =
       this.dataSource.getHikariPoolMXBean();
     final var meter =

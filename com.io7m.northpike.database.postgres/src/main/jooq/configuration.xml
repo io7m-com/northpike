@@ -7,21 +7,6 @@
     <database>
       <name>org.jooq.meta.extensions.ddl.DDLDatabase</name>
 
-      <forcedTypes>
-        <forcedType>
-          <userType>java.lang.String</userType>
-          <binding>org.jooq.postgres.extensions.bindings.CitextBinding</binding>
-          <includeTypes>citext</includeTypes>
-          <priority>100</priority>
-        </forcedType>
-        <forcedType>
-          <userType>java.lang.String[]</userType>
-          <binding>org.jooq.postgres.extensions.bindings.CitextArrayBinding</binding>
-          <includeTypes>_citext</includeTypes>
-          <priority>100</priority>
-        </forcedType>
-      </forcedTypes>
-
       <properties>
 
         <!-- Specify the location of your SQL script.

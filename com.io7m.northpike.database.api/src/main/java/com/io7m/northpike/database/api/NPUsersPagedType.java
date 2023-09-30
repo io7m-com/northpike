@@ -14,52 +14,17 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
 package com.io7m.northpike.database.api;
 
-
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.NPUserSearchParameters;
-
-import java.util.Optional;
-import java.util.UUID;
 
 /**
- * The database queries involving users.
+ * A paged query that returns users.
  */
 
-public sealed interface NPDatabaseQueriesUsersType
-  extends NPDatabaseQueriesType
+public interface NPUsersPagedType
+  extends NPDatabasePagedQueryType<NPUser>
 {
-  /**
-   * Update the given user.
-   */
 
-  non-sealed interface PutType
-    extends NPDatabaseQueryType<NPUser, NPDatabaseUnit>,
-    NPDatabaseQueriesUsersType
-  {
-
-  }
-
-  /**
-   * Retrieve a user.
-   */
-
-  non-sealed interface GetType
-    extends NPDatabaseQueryType<UUID, Optional<NPUser>>,
-    NPDatabaseQueriesUsersType
-  {
-
-  }
-
-  /**
-   * Search users.
-   */
-
-  non-sealed interface SearchType
-    extends NPDatabaseQueryType<NPUserSearchParameters, NPUsersPagedType>,
-    NPDatabaseQueriesUsersType
-  {
-
-  }
 }

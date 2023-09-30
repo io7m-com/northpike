@@ -107,6 +107,7 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQToolExecutionDescriptionSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQUserGet,
     com.io7m.northpike.database.postgres.internal.NPDBQUserPut,
+    com.io7m.northpike.database.postgres.internal.NPDBQUserSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQWorkItemGet,
     com.io7m.northpike.database.postgres.internal.NPDBQWorkItemLogAdd,
     com.io7m.northpike.database.postgres.internal.NPDBQWorkItemPut

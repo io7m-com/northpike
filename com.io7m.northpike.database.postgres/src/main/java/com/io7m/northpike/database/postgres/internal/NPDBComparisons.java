@@ -19,6 +19,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import org.jooq.Condition;
 import org.jooq.TableField;
 import org.jooq.impl.DSL;
@@ -84,9 +85,9 @@ public final class NPDBComparisons
   /**
    * Create an exact match expression.
    *
-   * @param query       The query
-   * @param fieldExact  The "exact" field
-   * @param <T>         The type of compared values
+   * @param query      The query
+   * @param fieldExact The "exact" field
+   * @param <T>        The type of compared values
    *
    * @return An exact match condition
    */
@@ -109,6 +110,92 @@ public final class NPDBComparisons
 
     throw new IllegalStateException(
       "Unrecognized name query: %s".formatted(query)
+    );
+  }
+
+  /**
+   * Create a set match expression.
+   *
+   * @param query    The query
+   * @param field    The array-typed field
+   *
+   * @return An exact match condition
+   */
+
+  public static Condition createSetMatchQuery(
+    final NPComparisonSetType<String> query,
+    final TableField<org.jooq.Record, String[]> field)
+  {
+    if (query instanceof NPComparisonSetType.Anything<String>) {
+      return DSL.trueCondition();
+    }
+
+    if (query instanceof final NPComparisonSetType.IsEqualTo<String> isEqualTo) {
+      final var set = isEqualTo.value();
+      final var values = new String[set.size()];
+      set.toArray(values);
+
+      return DSL.condition(
+        "(? <@ cast (? as text[])) AND (? @> cast (? as text[]))",
+        field,
+        DSL.array(values),
+        field,
+        DSL.array(values)
+      );
+    }
+
+    if (query instanceof final NPComparisonSetType.IsNotEqualTo<String> isNotEqualTo) {
+      final var set = isNotEqualTo.value();
+      final var values = new String[set.size()];
+      set.toArray(values);
+
+      return DSL.condition(
+        "NOT ((? <@ cast (? as text[])) AND (? @> cast (? as text[])))",
+        field,
+        DSL.array(values),
+        field,
+        DSL.array(values)
+      );
+    }
+
+    if (query instanceof final NPComparisonSetType.IsSubsetOf<String> isSubsetOf) {
+      final var set = isSubsetOf.value();
+      final var values = new String[set.size()];
+      set.toArray(values);
+
+      return DSL.condition(
+        "? <@ cast (? as text[])",
+        field,
+        DSL.array(values)
+      );
+    }
+
+    if (query instanceof final NPComparisonSetType.IsSupersetOf<String> isSupersetOf) {
+      final var set = isSupersetOf.value();
+      final var values = new String[set.size()];
+      set.toArray(values);
+
+      return DSL.condition(
+        "? @> cast (? as text[])",
+        field,
+        DSL.array(values)
+      );
+    }
+
+    if (query instanceof final NPComparisonSetType.IsOverlapping<String> isOverlapping) {
+      final var set = isOverlapping.value();
+      final var values = new String[set.size()];
+      set.toArray(values);
+
+      return DSL.condition(
+        "? && cast (? as text[])",
+        field,
+        DSL.array(values)
+      );
+    }
+
+    throw new IllegalStateException(
+      "Unrecognized set query: %s".formatted(query)
     );
   }
 }

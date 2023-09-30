@@ -88,8 +88,8 @@ public final class NPDBQMaintenanceUpdateUserRoles
 
     final var updated =
       context.update(USERS)
-        .set(USERS.ROLES, rolesArray)
-        .where(USERS.ROLES.contains(adminRoleNameA))
+        .set(USERS.U_ROLES, rolesArray)
+        .where(USERS.U_ROLES.contains(adminRoleNameA))
         .execute();
 
     LOG.debug(
