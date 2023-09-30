@@ -19,11 +19,13 @@ package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import org.jline.terminal.Terminal;
 
 import java.io.PrintWriter;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 /**
@@ -108,6 +110,37 @@ public final class NPFormatterRaw implements NPFormatterType
         item.id(),
         item.provider(),
         item.url()
+      );
+    }
+    out.flush();
+  }
+
+  @Override
+  public void formatPublicKey(
+    final NPPublicKey key)
+  {
+    final var out = this.terminal.writer();
+    out.println(key.encodedForm());
+  }
+
+  @Override
+  public void formatPublicKeySummaries(
+    final NPPage<NPPublicKey> page)
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    out.println("# Fingerprint | Time Created | Time Expires | User IDs");
+
+    for (final var item : page.items()) {
+      out.printf(
+        "%-40s | %s | %s | %s%n",
+        item.fingerprint(),
+        item.timeCreated(),
+        item.timeExpires()
+          .map(OffsetDateTime::toString)
+          .orElse("Never"),
+        item.userIDs()
       );
     }
     out.flush();

@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.tests.shell;
 
+import com.io7m.northpike.keys.NPPublicKeys;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPPage;
@@ -26,6 +27,12 @@ import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeyDelete;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeyGet;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeyPut;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchBegin;
@@ -33,6 +40,8 @@ import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchPrevious;
 import com.io7m.northpike.protocol.user.NPUResponseAuditSearch;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
+import com.io7m.northpike.protocol.user.NPUResponsePublicKeyGet;
+import com.io7m.northpike.protocol.user.NPUResponsePublicKeySearch;
 import com.io7m.northpike.protocol.user.NPUResponseRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUResponseRepositorySearch;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
@@ -40,6 +49,7 @@ import com.io7m.northpike.shell.NPShellConfiguration;
 import com.io7m.northpike.shell.NPShellType;
 import com.io7m.northpike.shell.NPShells;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.tests.keys.NPPublicKeysTest;
 import com.io7m.northpike.user_client.api.NPUserClientException;
 import com.io7m.northpike.user_client.api.NPUserClientFactoryType;
 import com.io7m.northpike.user_client.api.NPUserClientType;
@@ -47,13 +57,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.Times;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Locale;
@@ -68,6 +80,7 @@ import java.util.stream.Collectors;
 
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorIo;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -158,7 +171,7 @@ public final class NPShellTest
     final var out =
       this.terminal.terminalProducedOutput();
 
-    System.out.println(out.toString(StandardCharsets.UTF_8));
+    System.out.println(out.toString(UTF_8));
   }
 
   @Test
@@ -235,6 +248,7 @@ public final class NPShellTest
     throws Exception
   {
     final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
     w.println("logout");
     w.flush();
     w.close();
@@ -295,6 +309,7 @@ public final class NPShellTest
     ).thenReturn(response);
 
     final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
     w.println("audit-search-begin");
     w.println("audit-search-next");
     w.println("audit-search-previous");
@@ -369,6 +384,7 @@ public final class NPShellTest
     ).thenReturn(searchResponse);
 
     final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
     w.print("repository-put ");
     w.print(" --id ");
     w.print(id);
@@ -401,6 +417,100 @@ public final class NPShellTest
     w.println("repository-search-begin");
     w.println("repository-search-next");
     w.println("repository-search-previous");
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+  }
+
+  @Test
+  public void testPublicKeyPutGet(
+    final @TempDir Path directory)
+    throws Exception
+  {
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandPublicKeyPut.class))
+    ).thenReturn(new NPUResponseOK(
+      UUID.randomUUID(),
+      UUID.randomUUID()
+    ));
+
+    final var publicKey =
+      NPPublicKeys.decodeString(NPPublicKeysTest.KEY_TEXT).get(0);
+
+    final var keyFile = directory.resolve("key.txt");
+    Files.writeString(keyFile, publicKey.encodedForm(), UTF_8);
+
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandPublicKeyGet.class))
+    ).thenReturn(new NPUResponsePublicKeyGet(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      Optional.of(publicKey.encodedForm())
+    ));
+
+    final var searchResponse =
+      new NPUResponsePublicKeySearch(
+        UUID.randomUUID(),
+        UUID.randomUUID(),
+        new NPPage<>(
+          List.of(
+            publicKey.encodedForm(),
+            publicKey.encodedForm(),
+            publicKey.encodedForm()
+          ),
+          1,
+          1,
+          0L
+        )
+      );
+
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandPublicKeySearchBegin.class))
+    ).thenReturn(searchResponse);
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandPublicKeySearchNext.class))
+    ).thenReturn(searchResponse);
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandPublicKeySearchPrevious.class))
+    ).thenReturn(searchResponse);
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandPublicKeyDelete.class))
+    ).thenReturn(new NPUResponseOK(
+      UUID.randomUUID(),
+      UUID.randomUUID()
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+    w.print("public-key-put ");
+    w.print(" --file ");
+    w.print(keyFile);
+    w.println();
+
+    w.print("public-key-get ");
+    w.print(" --fingerprint ");
+    w.print(publicKey.fingerprint().value());
+    w.println();
+
+    w.println("public-key-search-begin");
+    w.println("public-key-search-next");
+    w.println("public-key-search-previous");
+
+    w.println("set --formatter RAW");
+
+    w.print("public-key-get ");
+    w.print(" --fingerprint ");
+    w.print(publicKey.fingerprint().value());
+    w.println();
+
+    w.println("public-key-search-begin");
+    w.println("public-key-search-next");
+    w.println("public-key-search-previous");
+
+    w.println("public-key-delete --fingerprint " + publicKey.fingerprint());
 
     w.flush();
     w.close();

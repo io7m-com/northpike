@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class NPPublicKeysTest
 {
-  private static final String KEY_TEXT = """
+  public static final String KEY_TEXT = """
     -----BEGIN PGP PUBLIC KEY BLOCK-----
     Version: BCPG v1.76.0
 

@@ -14,43 +14,57 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.model;
 
-import java.util.Objects;
+package com.io7m.northpike.shell.internal;
+
+import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.quarrel.core.QValueConverterType;
 
 /**
- * An exception indicating that parameters given to a model type are invalid.
- * This is a more strongly-typed replacement for
- * {@link IllegalArgumentException}.
+ * @see NPFingerprint
  */
 
-public final class NPValidityException extends RuntimeException
+public final class NPFingerprintConverter
+  implements QValueConverterType<NPFingerprint>
 {
   /**
-   * Construct an exception.
-   *
-   * @param message The message
+   * @see NPFingerprint
    */
 
-  public NPValidityException(final String message)
+  public NPFingerprintConverter()
   {
-    super(Objects.requireNonNull(message, "message"));
+
   }
 
-  /**
-   * Construct an exception.
-   *
-   * @param message The message
-   * @param cause   The cause
-   */
-
-  public NPValidityException(
-    final String message,
-    final Throwable cause)
+  @Override
+  public NPFingerprint convertFromString(
+    final String text)
   {
-    super(
-      Objects.requireNonNull(message, "message"),
-      Objects.requireNonNull(cause, "cause")
-    );
+    return new NPFingerprint(text);
+  }
+
+  @Override
+  public String convertToString(
+    final NPFingerprint value)
+  {
+    return value.toString();
+  }
+
+  @Override
+  public NPFingerprint exampleValue()
+  {
+    return new NPFingerprint("79c9d3b52db46780c17771af9b6adba81ee082b1");
+  }
+
+  @Override
+  public String syntax()
+  {
+    return NPFingerprint.syntax();
+  }
+
+  @Override
+  public Class<NPFingerprint> convertedClass()
+  {
+    return NPFingerprint.class;
   }
 }

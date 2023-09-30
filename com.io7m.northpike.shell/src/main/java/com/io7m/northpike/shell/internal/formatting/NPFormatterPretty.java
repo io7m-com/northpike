@@ -19,15 +19,18 @@ package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.tabla.core.TTableRendererType;
 import com.io7m.tabla.core.TTableType;
 import com.io7m.tabla.core.TTableWidthConstraintRange;
 import com.io7m.tabla.core.Tabla;
+import org.apache.commons.lang3.StringUtils;
 import org.jline.terminal.Terminal;
 
 import java.io.PrintWriter;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 import static com.io7m.tabla.core.TColumnWidthConstraint.atLeastContentOrHeader;
@@ -166,6 +169,80 @@ public final class NPFormatterPretty implements NPFormatterType
         .addCell(item.id().toString())
         .addCell(item.provider().value())
         .addCell(item.url().toString());
+    }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatPublicKey(
+    final NPPublicKey key)
+    throws Exception
+  {
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(2))
+        .declareColumn("Attribute", atLeastContentOrHeader())
+        .declareColumn("Value", atLeastContentOrHeader());
+
+    builder.addRow()
+      .addCell("Fingerprint")
+      .addCell(key.fingerprint().value());
+    builder.addRow()
+      .addCell("Time Created")
+      .addCell(key.timeCreated().toString());
+    builder.addRow()
+      .addCell("Time Expires")
+      .addCell(
+        key.timeExpires()
+          .map(OffsetDateTime::toString)
+          .orElse("Never")
+      );
+
+    for (final var user : key.userIDs()) {
+      builder.addRow()
+        .addCell("User ID")
+        .addCell(user);
+    }
+
+    this.renderTable(builder.build());
+
+    final var out = this.terminal.writer();
+    out.println(key.encodedForm());
+    out.flush();
+  }
+
+  @Override
+  public void formatPublicKeySummaries(
+    final NPPage<NPPublicKey> page)
+    throws Exception
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(4))
+        .declareColumn("Fingerprint", atLeastContentOrHeader())
+        .declareColumn("Time Created", atLeastContentOrHeader())
+        .declareColumn("Time Expires", atLeastContentOrHeader())
+        .declareColumn("User IDs", atLeastContentOrHeader());
+
+    for (final var item : page.items()) {
+      builder.addRow()
+        .addCell(item.fingerprint().toString())
+        .addCell(item.timeCreated().withNano(0).toString())
+        .addCell(
+          item.timeExpires()
+            .map(x -> x.withNano(0))
+            .map(OffsetDateTime::toString)
+            .orElse("Never")
+        )
+        .addCell(
+          StringUtils.abbreviate(
+            String.join(", ", item.userIDs()), 30
+          )
+        );
     }
 
     this.renderTable(builder.build());

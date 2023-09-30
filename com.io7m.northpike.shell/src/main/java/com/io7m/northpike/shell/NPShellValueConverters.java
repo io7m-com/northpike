@@ -18,8 +18,10 @@
 package com.io7m.northpike.shell;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPRepositoryCredentialsType;
 import com.io7m.northpike.model.NPRepositoryID;
+import com.io7m.northpike.shell.internal.NPFingerprintConverter;
 import com.io7m.northpike.shell.internal.NPRepositoryCredentialsConverter;
 import com.io7m.northpike.shell.internal.NPRepositoryIDConverter;
 import com.io7m.northpike.shell.internal.RDottedNameConverter;
@@ -39,7 +41,9 @@ public final class NPShellValueConverters
       .with(RDottedName.class,
             new RDottedNameConverter())
       .with(NPRepositoryCredentialsType.class,
-            new NPRepositoryCredentialsConverter());
+            new NPRepositoryCredentialsConverter())
+      .with(NPFingerprint.class,
+            new NPFingerprintConverter());
 
   private NPShellValueConverters()
   {

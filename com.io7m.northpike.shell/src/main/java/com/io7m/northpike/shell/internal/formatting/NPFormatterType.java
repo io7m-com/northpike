@@ -18,6 +18,7 @@ package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 
@@ -61,5 +62,27 @@ public interface NPFormatterType
 
   void formatRepositorySummaries(
     NPPage<NPRepositorySummary> page)
+    throws Exception;
+
+  /**
+   * Format a public key.
+   *
+   * @param key The key
+   *
+   * @throws Exception On errors
+   */
+
+  void formatPublicKey(NPPublicKey key)
+    throws Exception;
+
+  /**
+   * Format public key summaries.
+   *
+   * @param page The keys
+   *
+   * @throws Exception On errors
+   */
+
+  void formatPublicKeySummaries(NPPage<NPPublicKey> page)
     throws Exception;
 }

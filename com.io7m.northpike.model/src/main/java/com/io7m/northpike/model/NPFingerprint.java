@@ -51,6 +51,15 @@ public record NPFingerprint(String value)
     }
   }
 
+  /**
+   * @return That pattern that defines a valid fingerprint
+   */
+
+  public static String syntax()
+  {
+    return VALID_FINGERPRINT.pattern();
+  }
+
   @Override
   public String toString()
   {
