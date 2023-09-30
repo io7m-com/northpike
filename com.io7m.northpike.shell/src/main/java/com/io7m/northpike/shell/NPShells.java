@@ -27,6 +27,9 @@ import com.io7m.northpike.shell.internal.NPShellCmdLogin;
 import com.io7m.northpike.shell.internal.NPShellCmdLogout;
 import com.io7m.northpike.shell.internal.NPShellCmdRepositoryGet;
 import com.io7m.northpike.shell.internal.NPShellCmdRepositoryPut;
+import com.io7m.northpike.shell.internal.NPShellCmdRepositorySearchBegin;
+import com.io7m.northpike.shell.internal.NPShellCmdRepositorySearchNext;
+import com.io7m.northpike.shell.internal.NPShellCmdRepositorySearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdSet;
 import com.io7m.northpike.shell.internal.NPShellCmdType;
 import com.io7m.northpike.shell.internal.NPShellCmdVersion;
@@ -111,6 +114,9 @@ public final class NPShells implements NPShellFactoryType
         new NPShellCmdLogout(services),
         new NPShellCmdRepositoryGet(services),
         new NPShellCmdRepositoryPut(services),
+        new NPShellCmdRepositorySearchBegin(services),
+        new NPShellCmdRepositorySearchNext(services),
+        new NPShellCmdRepositorySearchPrevious(services),
         new NPShellCmdSet(services),
         new NPShellCmdVersion(services)
       );

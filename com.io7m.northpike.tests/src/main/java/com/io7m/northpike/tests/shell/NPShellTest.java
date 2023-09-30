@@ -28,9 +28,13 @@ import com.io7m.northpike.protocol.user.NPUCommandAuditSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
+import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchPrevious;
 import com.io7m.northpike.protocol.user.NPUResponseAuditSearch;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponseRepositoryGet;
+import com.io7m.northpike.protocol.user.NPUResponseRepositorySearch;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.shell.NPShellConfiguration;
 import com.io7m.northpike.shell.NPShellType;
@@ -338,6 +342,32 @@ public final class NPShellTest
       Optional.of(repository)
     ));
 
+    final var searchResponse =
+      new NPUResponseRepositorySearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      new NPPage<>(
+        List.of(
+          repository.summary(),
+          repository.summary(),
+          repository.summary()
+        ),
+        1,
+        1,
+        0L
+      )
+    );
+
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandRepositorySearchBegin.class))
+    ).thenReturn(searchResponse);
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandRepositorySearchNext.class))
+    ).thenReturn(searchResponse);
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandRepositorySearchPrevious.class))
+    ).thenReturn(searchResponse);
+
     final var w = this.terminal.sendInputToTerminalWriter();
     w.print("repository-put ");
     w.print(" --id ");
@@ -356,6 +386,22 @@ public final class NPShellTest
     w.print(" --id ");
     w.print(id);
     w.println();
+
+    w.println("repository-search-begin");
+    w.println("repository-search-next");
+    w.println("repository-search-previous");
+
+    w.println("set --formatter RAW");
+
+    w.print("repository-get ");
+    w.print(" --id ");
+    w.print(id);
+    w.println();
+
+    w.println("repository-search-begin");
+    w.println("repository-search-next");
+    w.println("repository-search-previous");
+
     w.flush();
     w.close();
 

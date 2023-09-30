@@ -20,6 +20,7 @@ package com.io7m.northpike.shell.internal.formatting;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.tabla.core.TTableRendererType;
 import com.io7m.tabla.core.TTableType;
 import com.io7m.tabla.core.TTableWidthConstraintRange;
@@ -141,6 +142,31 @@ public final class NPFormatterPretty implements NPFormatterType
     builder.addRow()
       .addCell("Signing Policy")
       .addCell(repository.signingPolicy().toString());
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatRepositorySummaries(
+    final NPPage<NPRepositorySummary> page)
+    throws Exception
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(3))
+        .declareColumn("ID", atLeastContentOrHeader())
+        .declareColumn("Provider", atLeastContentOrHeader())
+        .declareColumn("URI", atLeastContentOrHeader());
+
+    for (final var item : page.items()) {
+      builder.addRow()
+        .addCell(item.id().toString())
+        .addCell(item.provider().value())
+        .addCell(item.url().toString());
+    }
 
     this.renderTable(builder.build());
   }
