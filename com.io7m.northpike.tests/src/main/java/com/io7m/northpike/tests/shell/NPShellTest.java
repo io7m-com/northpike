@@ -38,6 +38,12 @@ import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAgentGet;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelDelete;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelGet;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelPut;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchNext;
@@ -65,6 +71,8 @@ import com.io7m.northpike.protocol.user.NPUCommandUserSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandUserSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandUserSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUResponseAgentGet;
+import com.io7m.northpike.protocol.user.NPUResponseAgentLabelGet;
+import com.io7m.northpike.protocol.user.NPUResponseAgentLabelSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAgentSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAuditSearch;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
@@ -91,10 +99,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
+import org.mockito.internal.verification.AtLeast;
 import org.mockito.internal.verification.Times;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -117,6 +127,8 @@ import static com.io7m.northpike.model.NPStandardErrorCodes.errorIo;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 
 @Timeout(30L)
 public final class NPShellTest
@@ -255,6 +267,14 @@ public final class NPShellTest
 
     this.waitForShell();
     assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .login(
+        eq(InetSocketAddress.createUnresolved("localhost", 30000)),
+        any(),
+        eq(new IdName("nobody")),
+        eq("1234")
+      );
   }
 
   @Test
@@ -333,13 +353,13 @@ public final class NPShellTest
       );
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandAuditSearchBegin.class))
+      this.userClient.execute(isA(NPUCommandAuditSearchBegin.class))
     ).thenReturn(response);
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandAuditSearchNext.class))
+      this.userClient.execute(isA(NPUCommandAuditSearchNext.class))
     ).thenReturn(response);
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandAuditSearchPrevious.class))
+      this.userClient.execute(isA(NPUCommandAuditSearchPrevious.class))
     ).thenReturn(response);
 
     final var w = this.terminal.sendInputToTerminalWriter();
@@ -356,6 +376,13 @@ public final class NPShellTest
 
     this.waitForShell();
     assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAuditSearchBegin.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAuditSearchNext.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAuditSearchPrevious.class));
   }
 
   @Test
@@ -368,7 +395,7 @@ public final class NPShellTest
       URI.create("http://www.example.com");
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandRepositoryPut.class))
+      this.userClient.execute(isA(NPUCommandRepositoryPut.class))
     ).thenReturn(new NPUResponseOK(
       UUID.randomUUID(),
       UUID.randomUUID()
@@ -384,7 +411,7 @@ public final class NPShellTest
       );
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandRepositoryGet.class))
+      this.userClient.execute(isA(NPUCommandRepositoryGet.class))
     ).thenReturn(new NPUResponseRepositoryGet(
       UUID.randomUUID(),
       UUID.randomUUID(),
@@ -393,28 +420,28 @@ public final class NPShellTest
 
     final var searchResponse =
       new NPUResponseRepositorySearch(
-      UUID.randomUUID(),
-      UUID.randomUUID(),
-      new NPPage<>(
-        List.of(
-          repository.summary(),
-          repository.summary(),
-          repository.summary()
-        ),
-        1,
-        1,
-        0L
-      )
-    );
+        UUID.randomUUID(),
+        UUID.randomUUID(),
+        new NPPage<>(
+          List.of(
+            repository.summary(),
+            repository.summary(),
+            repository.summary()
+          ),
+          1,
+          1,
+          0L
+        )
+      );
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandRepositorySearchBegin.class))
+      this.userClient.execute(isA(NPUCommandRepositorySearchBegin.class))
     ).thenReturn(searchResponse);
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandRepositorySearchNext.class))
+      this.userClient.execute(isA(NPUCommandRepositorySearchNext.class))
     ).thenReturn(searchResponse);
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandRepositorySearchPrevious.class))
+      this.userClient.execute(isA(NPUCommandRepositorySearchPrevious.class))
     ).thenReturn(searchResponse);
 
     final var w = this.terminal.sendInputToTerminalWriter();
@@ -457,6 +484,17 @@ public final class NPShellTest
 
     this.waitForShell();
     assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandRepositoryPut.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandRepositoryGet.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandRepositorySearchBegin.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandRepositorySearchNext.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandRepositorySearchPrevious.class));
   }
 
   @Test
@@ -465,7 +503,7 @@ public final class NPShellTest
     throws Exception
   {
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandPublicKeyPut.class))
+      this.userClient.execute(isA(NPUCommandPublicKeyPut.class))
     ).thenReturn(new NPUResponseOK(
       UUID.randomUUID(),
       UUID.randomUUID()
@@ -478,7 +516,7 @@ public final class NPShellTest
     Files.writeString(keyFile, publicKey.encodedForm(), UTF_8);
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandPublicKeyGet.class))
+      this.userClient.execute(isA(NPUCommandPublicKeyGet.class))
     ).thenReturn(new NPUResponsePublicKeyGet(
       UUID.randomUUID(),
       UUID.randomUUID(),
@@ -502,16 +540,16 @@ public final class NPShellTest
       );
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandPublicKeySearchBegin.class))
+      this.userClient.execute(isA(NPUCommandPublicKeySearchBegin.class))
     ).thenReturn(searchResponse);
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandPublicKeySearchNext.class))
+      this.userClient.execute(isA(NPUCommandPublicKeySearchNext.class))
     ).thenReturn(searchResponse);
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandPublicKeySearchPrevious.class))
+      this.userClient.execute(isA(NPUCommandPublicKeySearchPrevious.class))
     ).thenReturn(searchResponse);
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandPublicKeyDelete.class))
+      this.userClient.execute(isA(NPUCommandPublicKeyDelete.class))
     ).thenReturn(new NPUResponseOK(
       UUID.randomUUID(),
       UUID.randomUUID()
@@ -551,6 +589,19 @@ public final class NPShellTest
 
     this.waitForShell();
     assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandPublicKeyPut.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandPublicKeyGet.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandPublicKeySearchBegin.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandPublicKeySearchNext.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandPublicKeySearchPrevious.class));
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandPublicKeyDelete.class));
   }
 
   @Test
@@ -558,21 +609,21 @@ public final class NPShellTest
     throws Exception
   {
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandRepositoryPublicKeyAssign.class))
+      this.userClient.execute(isA(NPUCommandRepositoryPublicKeyAssign.class))
     ).thenReturn(new NPUResponseOK(
       UUID.randomUUID(),
       UUID.randomUUID()
     ));
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandRepositoryPublicKeyUnassign.class))
+      this.userClient.execute(isA(NPUCommandRepositoryPublicKeyUnassign.class))
     ).thenReturn(new NPUResponseOK(
       UUID.randomUUID(),
       UUID.randomUUID()
     ));
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandRepositoryPublicKeysAssigned.class))
+      this.userClient.execute(isA(NPUCommandRepositoryPublicKeysAssigned.class))
     ).thenReturn(new NPUResponseRepositoryPublicKeysAssigned(
       UUID.randomUUID(),
       UUID.randomUUID(),
@@ -621,6 +672,13 @@ public final class NPShellTest
 
     this.waitForShell();
     assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandRepositoryPublicKeyAssign.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandRepositoryPublicKeysAssigned.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandRepositoryPublicKeyUnassign.class));
   }
 
   @Test
@@ -628,7 +686,7 @@ public final class NPShellTest
     throws Exception
   {
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandSCMProvidersSupported.class))
+      this.userClient.execute(isA(NPUCommandSCMProvidersSupported.class))
     ).thenReturn(new NPUResponseSCMProvidersSupported(
       UUID.randomUUID(),
       UUID.randomUUID(),
@@ -661,6 +719,9 @@ public final class NPShellTest
 
     this.waitForShell();
     assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandSCMProvidersSupported.class));
   }
 
   @Test
@@ -668,7 +729,7 @@ public final class NPShellTest
     throws Exception
   {
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandSelf.class))
+      this.userClient.execute(isA(NPUCommandSelf.class))
     ).thenReturn(new NPUResponseSelf(
       UUID.randomUUID(),
       UUID.randomUUID(),
@@ -685,6 +746,9 @@ public final class NPShellTest
 
     this.waitForShell();
     assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandSelf.class));
   }
 
   @Test
@@ -706,7 +770,7 @@ public final class NPShellTest
       new NPPage<>(List.of(user, user, user), 1, 1, 0L);
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandUserSearchBegin.class))
+      this.userClient.execute(isA(NPUCommandUserSearchBegin.class))
     ).thenReturn(new NPUResponseUserSearch(
       UUID.randomUUID(),
       UUID.randomUUID(),
@@ -714,7 +778,7 @@ public final class NPShellTest
     ));
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandUserSearchNext.class))
+      this.userClient.execute(isA(NPUCommandUserSearchNext.class))
     ).thenReturn(new NPUResponseUserSearch(
       UUID.randomUUID(),
       UUID.randomUUID(),
@@ -722,7 +786,7 @@ public final class NPShellTest
     ));
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandUserSearchPrevious.class))
+      this.userClient.execute(isA(NPUCommandUserSearchPrevious.class))
     ).thenReturn(new NPUResponseUserSearch(
       UUID.randomUUID(),
       UUID.randomUUID(),
@@ -769,6 +833,13 @@ public final class NPShellTest
 
     this.waitForShell();
     assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(10))
+      .execute(isA(NPUCommandUserSearchBegin.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandUserSearchNext.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandUserSearchPrevious.class));
   }
 
   @Test
@@ -779,7 +850,8 @@ public final class NPShellTest
       new NPAgentDescription(
         new NPAgentID(UUID.randomUUID()),
         "AgentExample",
-        NPKey.parse("8ea1b01d8fe352552e97cb727eee4f5a948a0919dc3f1d0c2f194c2aed52e4e1"),
+        NPKey.parse(
+          "8ea1b01d8fe352552e97cb727eee4f5a948a0919dc3f1d0c2f194c2aed52e4e1"),
         Map.ofEntries(
           Map.entry(
             "PATH",
@@ -809,14 +881,14 @@ public final class NPShellTest
       );
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandAgentPut.class))
+      this.userClient.execute(isA(NPUCommandAgentPut.class))
     ).thenReturn(new NPUResponseOK(
       UUID.randomUUID(),
       UUID.randomUUID()
     ));
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandAgentGet.class))
+      this.userClient.execute(isA(NPUCommandAgentGet.class))
     ).thenReturn(new NPUResponseAgentGet(
       UUID.randomUUID(),
       UUID.randomUUID(),
@@ -829,7 +901,8 @@ public final class NPShellTest
     w.print("agent-put ");
     w.print(" --id e10f1d49-3e4c-40e3-81dd-b771a38ec243 ");
     w.print(" --name AgentExample ");
-    w.print(" --access-key 8ea1b01d8fe352552e97cb727eee4f5a948a0919dc3f1d0c2f194c2aed52e4e1");
+    w.print(
+      " --access-key 8ea1b01d8fe352552e97cb727eee4f5a948a0919dc3f1d0c2f194c2aed52e4e1");
     w.println();
 
     w.print("agent-get ");
@@ -847,6 +920,11 @@ public final class NPShellTest
 
     this.waitForShell();
     assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandAgentPut.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAgentGet.class));
   }
 
   @Test
@@ -863,7 +941,7 @@ public final class NPShellTest
       new NPPage<>(List.of(agent, agent, agent), 1, 1, 0L);
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandAgentSearchBegin.class))
+      this.userClient.execute(isA(NPUCommandAgentSearchBegin.class))
     ).thenReturn(new NPUResponseAgentSearch(
       UUID.randomUUID(),
       UUID.randomUUID(),
@@ -871,7 +949,7 @@ public final class NPShellTest
     ));
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandAgentSearchNext.class))
+      this.userClient.execute(isA(NPUCommandAgentSearchNext.class))
     ).thenReturn(new NPUResponseAgentSearch(
       UUID.randomUUID(),
       UUID.randomUUID(),
@@ -879,7 +957,7 @@ public final class NPShellTest
     ));
 
     Mockito.when(
-      this.userClient.execute(Mockito.isA(NPUCommandAgentSearchPrevious.class))
+      this.userClient.execute(isA(NPUCommandAgentSearchPrevious.class))
     ).thenReturn(new NPUResponseAgentSearch(
       UUID.randomUUID(),
       UUID.randomUUID(),
@@ -894,10 +972,14 @@ public final class NPShellTest
     w.println("agent-search-previous");
 
     w.println("agent-search-begin --labels-equal-to agents.reader,agents.writer");
-    w.println("agent-search-begin --labels-not-equal-to agents.reader,agents.writer");
-    w.println("agent-search-begin --labels-subset-of agents.reader,agents.writer");
-    w.println("agent-search-begin --labels-superset-of agents.reader,agents.writer");
-    w.println("agent-search-begin --labels-overlapping agents.reader,agents.writer");
+    w.println(
+      "agent-search-begin --labels-not-equal-to agents.reader,agents.writer");
+    w.println(
+      "agent-search-begin --labels-subset-of agents.reader,agents.writer");
+    w.println(
+      "agent-search-begin --labels-superset-of agents.reader,agents.writer");
+    w.println(
+      "agent-search-begin --labels-overlapping agents.reader,agents.writer");
 
     w.println("set --formatter RAW");
 
@@ -906,15 +988,338 @@ public final class NPShellTest
     w.println("agent-search-previous");
 
     w.println("agent-search-begin --labels-equal-to agents.reader,agents.writer");
-    w.println("agent-search-begin --labels-not-equal-to agents.reader,agents.writer");
-    w.println("agent-search-begin --labels-subset-of agents.reader,agents.writer");
-    w.println("agent-search-begin --labels-superset-of agents.reader,agents.writer");
-    w.println("agent-search-begin --labels-overlapping agents.reader,agents.writer");
+    w.println(
+      "agent-search-begin --labels-not-equal-to agents.reader,agents.writer");
+    w.println(
+      "agent-search-begin --labels-subset-of agents.reader,agents.writer");
+    w.println(
+      "agent-search-begin --labels-superset-of agents.reader,agents.writer");
+    w.println(
+      "agent-search-begin --labels-overlapping agents.reader,agents.writer");
 
     w.flush();
     w.close();
 
     this.waitForShell();
     assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(10))
+      .execute(isA(NPUCommandAgentSearchBegin.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAgentSearchNext.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAgentSearchPrevious.class));
+  }
+
+  @Test
+  public void testAgentLabelPutGet()
+    throws Exception
+  {
+    final var label =
+      new NPAgentLabel(NPAgentLabelName.of("label2"), "Label 2");
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentLabelPut.class))
+    ).thenReturn(new NPUResponseOK(
+      UUID.randomUUID(),
+      UUID.randomUUID()
+    ));
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentLabelGet.class))
+    ).thenReturn(new NPUResponseAgentLabelGet(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      Optional.of(label)
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.print("agent-label-put ");
+    w.print(" --name label2 ");
+    w.print(" --description 'Label 2'");
+    w.println();
+
+    w.print("agent-label-get ");
+    w.print(" --name label2 ");
+    w.println();
+
+    w.println("set --formatter RAW");
+
+    w.print("agent-label-get ");
+    w.print(" --name label2 ");
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandAgentLabelPut.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAgentLabelGet.class));
+  }
+
+  @Test
+  public void testAgentLabelSearch()
+    throws Exception
+  {
+    final var label =
+      new NPAgentLabel(NPAgentLabelName.of("label2"), "Label 2");
+
+    final var page =
+      new NPPage<>(List.of(label, label, label), 1, 1, 0L);
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentLabelSearchBegin.class))
+    ).thenReturn(new NPUResponseAgentLabelSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentLabelSearchNext.class))
+    ).thenReturn(new NPUResponseAgentLabelSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentLabelSearchPrevious.class))
+    ).thenReturn(new NPUResponseAgentLabelSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.println("agent-label-search-begin");
+    w.println("agent-label-search-next");
+    w.println("agent-label-search-previous");
+
+    w.println("agent-label-search-begin --name-equal-to label2");
+    w.println("agent-label-search-begin --name-not-equal-to label2");
+    w.println("agent-label-search-begin --name-similar-to label2");
+    w.println("agent-label-search-begin --name-not-similar-to label2");
+    w.println("agent-label-search-begin --description-equal-to label2");
+    w.println("agent-label-search-begin --description-not-equal-to label2");
+    w.println("agent-label-search-begin --description-similar-to label2");
+    w.println("agent-label-search-begin --description-not-similar-to label2");
+
+    w.println("set --formatter RAW");
+
+    w.println("agent-label-search-begin");
+    w.println("agent-label-search-next");
+    w.println("agent-label-search-previous");
+
+    w.println("agent-label-search-begin --name-equal-to label2");
+    w.println("agent-label-search-begin --name-not-equal-to label2");
+    w.println("agent-label-search-begin --name-similar-to label2");
+    w.println("agent-label-search-begin --name-not-similar-to label2");
+    w.println("agent-label-search-begin --description-equal-to label2");
+    w.println("agent-label-search-begin --description-not-equal-to label2");
+    w.println("agent-label-search-begin --description-similar-to label2");
+    w.println("agent-label-search-begin --description-not-similar-to label2");
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(10))
+      .execute(isA(NPUCommandAgentLabelSearchBegin.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAgentLabelSearchNext.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAgentLabelSearchPrevious.class));
+  }
+
+  @Test
+  public void testAgentLabelDelete()
+    throws Exception
+  {
+    final var label =
+      new NPAgentLabel(NPAgentLabelName.of("label2"), "Label 2");
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentLabelDelete.class))
+    ).thenReturn(new NPUResponseOK(
+      UUID.randomUUID(),
+      UUID.randomUUID()
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.print("agent-label-delete ");
+    w.print(" --name label2 ");
+    w.println();
+
+    w.println("set --formatter RAW");
+
+    w.print("agent-label-delete ");
+    w.print(" --name label2 ");
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAgentLabelDelete.class));
+  }
+
+  @Test
+  public void testAgentLabelAssignNonexistent()
+    throws Exception
+  {
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentGet.class))
+    ).thenReturn(new NPUResponseAgentGet(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      Optional.empty()
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.print("agent-label-assign ");
+    w.print(" --agent d5247381-e96c-436f-b378-1072edb0f534 ");
+    w.print(" --label label2 ");
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(1, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandAgentGet.class));
+  }
+
+  @Test
+  public void testAgentLabelUnassignNonexistent()
+    throws Exception
+  {
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentGet.class))
+    ).thenReturn(new NPUResponseAgentGet(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      Optional.empty()
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.print("agent-label-unassign ");
+    w.print(" --agent d5247381-e96c-436f-b378-1072edb0f534 ");
+    w.print(" --label label2 ");
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(1, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandAgentGet.class));
+  }
+
+  @Test
+  public void testAgentLabelAssign()
+    throws Exception
+  {
+    final var agent =
+      new NPAgentDescription(
+        new NPAgentID(UUID.randomUUID()),
+        "Agent0",
+        NPKey.generate(),
+        Map.of(),
+        Map.of(),
+        Map.of()
+      );
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentGet.class))
+    ).thenReturn(new NPUResponseAgentGet(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      Optional.of(agent)
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.print("agent-label-assign ");
+    w.print(" --agent d5247381-e96c-436f-b378-1072edb0f534 ");
+    w.print(" --label label2 ");
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandAgentGet.class));
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandAgentPut.class));
+  }
+
+  @Test
+  public void testAgentLabelUnassign()
+    throws Exception
+  {
+    final var agent =
+      new NPAgentDescription(
+        new NPAgentID(UUID.randomUUID()),
+        "Agent0",
+        NPKey.generate(),
+        Map.of(),
+        Map.of(),
+        Map.of()
+      );
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentGet.class))
+    ).thenReturn(new NPUResponseAgentGet(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      Optional.of(agent)
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.print("agent-label-unassign ");
+    w.print(" --agent d5247381-e96c-436f-b378-1072edb0f534 ");
+    w.print(" --label label2 ");
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandAgentGet.class));
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandAgentPut.class));
   }
 }

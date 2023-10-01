@@ -17,7 +17,11 @@
 
 package com.io7m.northpike.shell.internal;
 
+import com.io7m.northpike.model.NPErrorCode;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.shell.internal.formatting.NPFormatterType;
+import com.io7m.northpike.strings.NPStringConstantType;
+import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.user_client.api.NPUserClientType;
 import com.io7m.quarrel.core.QCommandMetadata;
 import com.io7m.quarrel.core.QParameterType;
@@ -26,7 +30,10 @@ import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * The abstract base class for shell commands.
@@ -35,6 +42,7 @@ import java.util.Objects;
 public abstract class NPShellCmdAbstract
   implements NPShellCmdType
 {
+  private final HashMap<String, String> attributes;
   private final RPServiceDirectoryType services;
   private final QCommandMetadata metadata;
 
@@ -46,6 +54,14 @@ public abstract class NPShellCmdAbstract
       Objects.requireNonNull(inServices, "services");
     this.metadata =
       Objects.requireNonNull(inMetadata, "metadata");
+    this.attributes =
+      new HashMap<String, String>();
+  }
+
+  @Override
+  public final void reset()
+  {
+    this.attributes.clear();
   }
 
   @Override
@@ -79,6 +95,29 @@ public abstract class NPShellCmdAbstract
   protected final NPFormatterType formatter()
   {
     return this.options().formatter();
+  }
+
+  protected final void setAttribute(
+    final NPStringConstantType name,
+    final Object value)
+  {
+    this.attributes.put(
+      this.services.requireService(NPStrings.class).format(name),
+      value.toString()
+    );
+  }
+
+  protected final NPException fail(
+    final NPErrorCode errorCode,
+    final NPStringConstantType message)
+  {
+    return new NPException(
+      this.services.requireService(NPStrings.class)
+        .format(message),
+      errorCode,
+      Map.copyOf(this.attributes),
+      Optional.empty()
+    );
   }
 
   @Override

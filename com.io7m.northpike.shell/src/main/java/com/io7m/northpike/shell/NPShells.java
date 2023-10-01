@@ -20,6 +20,14 @@ package com.io7m.northpike.shell;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.shell.internal.NPShell;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentGet;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelAssign;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelDelete;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelGet;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelPut;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelSearchBegin;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelSearchNext;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelSearchPrevious;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelUnassign;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentPut;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentSearchBegin;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentSearchNext;
@@ -54,6 +62,7 @@ import com.io7m.northpike.shell.internal.NPShellCmdUserSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdVersion;
 import com.io7m.northpike.shell.internal.NPShellOptions;
 import com.io7m.northpike.shell.internal.NPShellTerminalHolder;
+import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.user_client.api.NPUserClientConfiguration;
 import com.io7m.northpike.user_client.api.NPUserClientType;
 import com.io7m.repetoir.core.RPServiceDirectory;
@@ -116,16 +125,26 @@ public final class NPShells implements NPShellFactoryType
       new NPShellOptions(terminal);
 
     final var services = new RPServiceDirectory();
-    services.register(NPUserClientType.class, client);
-    services.register(NPShellOptions.class, options);
     services.register(
-      NPShellTerminalHolder.class,
-      new NPShellTerminalHolder(terminal)
-    );
+      NPUserClientType.class, client);
+    services.register(
+      NPShellOptions.class, options);
+    services.register(
+      NPShellTerminalHolder.class, new NPShellTerminalHolder(terminal));
+    services.register(
+      NPStrings.class, configuration.strings());
 
     final List<NPShellCmdType> commands =
       List.of(
         new NPShellCmdAgentGet(services),
+        new NPShellCmdAgentLabelAssign(services),
+        new NPShellCmdAgentLabelDelete(services),
+        new NPShellCmdAgentLabelGet(services),
+        new NPShellCmdAgentLabelPut(services),
+        new NPShellCmdAgentLabelSearchBegin(services),
+        new NPShellCmdAgentLabelSearchNext(services),
+        new NPShellCmdAgentLabelSearchPrevious(services),
+        new NPShellCmdAgentLabelUnassign(services),
         new NPShellCmdAgentPut(services),
         new NPShellCmdAgentSearchBegin(services),
         new NPShellCmdAgentSearchNext(services),

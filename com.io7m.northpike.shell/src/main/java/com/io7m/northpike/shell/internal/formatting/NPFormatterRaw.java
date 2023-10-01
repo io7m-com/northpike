@@ -18,6 +18,7 @@
 package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.northpike.model.NPAgentDescription;
+import com.io7m.northpike.model.NPAgentLabel;
 import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
@@ -264,6 +265,37 @@ public final class NPFormatterRaw implements NPFormatterType
         "%-40s | %s%n",
         item.id(),
         item.name()
+      );
+    }
+    out.flush();
+  }
+
+  @Override
+  public void formatAgentLabel(
+    final NPAgentLabel label)
+  {
+    final var out = this.terminal.writer();
+    out.print(label.name());
+    out.print(": ");
+    out.print(label.description());
+    out.println();
+    out.flush();
+  }
+
+  @Override
+  public void formatAgentLabels(
+    final NPPage<NPAgentLabel> page)
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    out.println("# Name | Description");
+
+    for (final var item : page.items()) {
+      out.printf(
+        "%s | %s%n",
+        item.name(),
+        item.description()
       );
     }
     out.flush();

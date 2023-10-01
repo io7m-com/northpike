@@ -19,6 +19,7 @@ package com.io7m.northpike.shell;
 
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentLabelSet;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPKey;
@@ -26,6 +27,7 @@ import com.io7m.northpike.model.NPRepositoryCredentialsType;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.security.NPRoleSet;
 import com.io7m.northpike.shell.internal.NPAgentIDConverter;
+import com.io7m.northpike.shell.internal.NPAgentLabelNameConverter;
 import com.io7m.northpike.shell.internal.NPAgentLabelSetConverter;
 import com.io7m.northpike.shell.internal.NPFingerprintConverter;
 import com.io7m.northpike.shell.internal.NPKeyConverter;
@@ -56,6 +58,9 @@ public final class NPShellValueConverters
       .with(
         RDottedName.class,
         new RDottedNameConverter())
+      .with(
+        NPAgentLabelName.class,
+        new NPAgentLabelNameConverter())
       .with(
         NPRepositoryCredentialsType.class,
         new NPRepositoryCredentialsConverter())

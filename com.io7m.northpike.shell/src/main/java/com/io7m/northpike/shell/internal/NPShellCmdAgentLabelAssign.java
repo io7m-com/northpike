@@ -18,55 +18,52 @@ package com.io7m.northpike.shell.internal;
 
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.protocol.user.NPUCommandAgentGet;
 import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
+import com.io7m.northpike.strings.NPStringConstants;
 import com.io7m.quarrel.core.QCommandContextType;
 import com.io7m.quarrel.core.QCommandMetadata;
 import com.io7m.quarrel.core.QCommandStatus;
+import com.io7m.quarrel.core.QParameterNamed0N;
 import com.io7m.quarrel.core.QParameterNamed1;
 import com.io7m.quarrel.core.QParameterNamedType;
 import com.io7m.quarrel.core.QStringType.QConstant;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
+import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
 import static com.io7m.quarrel.core.QCommandStatus.SUCCESS;
 
 /**
- * "agent-put"
+ * "agent-label-assign"
  */
 
-public final class NPShellCmdAgentPut extends NPShellCmdAbstract
+public final class NPShellCmdAgentLabelAssign extends NPShellCmdAbstract
 {
   private static final QParameterNamed1<NPAgentID> AGENT_ID =
     new QParameterNamed1<>(
-      "--id",
+      "--agent",
       List.of(),
       new QConstant("The agent ID."),
       Optional.empty(),
       NPAgentID.class
     );
 
-  private static final QParameterNamed1<String> AGENT_NAME =
-    new QParameterNamed1<>(
-      "--name",
+  private static final QParameterNamed0N<NPAgentLabelName> LABEL_NAME =
+    new QParameterNamed0N<>(
+      "--label",
       List.of(),
-      new QConstant("The agent name."),
-      Optional.empty(),
-      String.class
-    );
-
-  private static final QParameterNamed1<NPKey> AGENT_ACCESS_KEY =
-    new QParameterNamed1<>(
-      "--access-key",
+      new QConstant("The label name."),
       List.of(),
-      new QConstant("The agent access key."),
-      Optional.empty(),
-      NPKey.class
+      NPAgentLabelName.class
     );
 
   /**
@@ -75,14 +72,14 @@ public final class NPShellCmdAgentPut extends NPShellCmdAbstract
    * @param inServices The service directory
    */
 
-  public NPShellCmdAgentPut(
+  public NPShellCmdAgentLabelAssign(
     final RPServiceDirectoryType inServices)
   {
     super(
       inServices,
       new QCommandMetadata(
-        "agent-put",
-        new QConstant("Create/update a agent."),
+        "agent-label-assign",
+        new QConstant("Assign labels to an agent."),
         Optional.empty()
       )
     );
@@ -93,8 +90,7 @@ public final class NPShellCmdAgentPut extends NPShellCmdAbstract
   {
     return List.of(
       AGENT_ID,
-      AGENT_NAME,
-      AGENT_ACCESS_KEY
+      LABEL_NAME
     );
   }
 
@@ -103,37 +99,40 @@ public final class NPShellCmdAgentPut extends NPShellCmdAbstract
     final QCommandContextType context)
     throws Exception
   {
+    final var agentId =
+      context.parameterValue(AGENT_ID);
+
+    this.setAttribute(NPStringConstants.AGENT_ID, agentId);
+
     final var client =
       this.client();
 
     final var rGet =
-      client.execute(
-        new NPUCommandAgentGet(
-          UUID.randomUUID(),
-          context.parameterValue(AGENT_ID)
-        )
-      );
+      client.execute(new NPUCommandAgentGet(UUID.randomUUID(), agentId));
+
+    final var existing = rGet.agent();
+    if (existing.isEmpty()) {
+      throw this.fail(errorNonexistent(), ERROR_NONEXISTENT);
+    }
+
+    final var existingAgent =
+      existing.get();
+    final var existingLabels =
+      new HashMap<>(existingAgent.labels());
+
+    for (final var label : context.parameterValues(LABEL_NAME)) {
+      existingLabels.put(label, new NPAgentLabel(label, ""));
+    }
 
     final var newAgent =
-      rGet.agent()
-        .map(existing -> {
-          return new NPAgentDescription(
-            existing.id(),
-            context.parameterValue(AGENT_NAME),
-            context.parameterValue(AGENT_ACCESS_KEY),
-            existing.environmentVariables(),
-            existing.systemProperties(),
-            existing.labels()
-          );
-        })
-        .orElse(new NPAgentDescription(
-          context.parameterValue(AGENT_ID),
-          context.parameterValue(AGENT_NAME),
-          context.parameterValue(AGENT_ACCESS_KEY),
-          Map.of(),
-          Map.of(),
-          Map.of()
-        ));
+      new NPAgentDescription(
+        existingAgent.id(),
+        existingAgent.name(),
+        existingAgent.accessKey(),
+        Map.of(),
+        Map.of(),
+        existingLabels
+      );
 
     client.execute(new NPUCommandAgentPut(UUID.randomUUID(), newAgent));
     return SUCCESS;

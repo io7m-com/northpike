@@ -30,4 +30,10 @@ public interface NPShellCmdType extends QCommandType
    */
 
   Completer completer();
+
+  /**
+   * Reset any internal command state for a new execution
+   */
+
+  void reset();
 }

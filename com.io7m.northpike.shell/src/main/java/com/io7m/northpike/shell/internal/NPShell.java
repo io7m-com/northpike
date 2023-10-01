@@ -241,6 +241,7 @@ public final class NPShell implements NPShellType
     }
 
     try {
+      command.reset();
       this.status = command.onExecute(context);
     } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();

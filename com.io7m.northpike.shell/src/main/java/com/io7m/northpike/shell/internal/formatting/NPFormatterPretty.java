@@ -19,6 +19,7 @@ package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.medrina.api.MRoleName;
 import com.io7m.northpike.model.NPAgentDescription;
+import com.io7m.northpike.model.NPAgentLabel;
 import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
@@ -421,10 +422,66 @@ public final class NPFormatterPretty implements NPFormatterType
 
   @Override
   public void formatAgentSummaries(
-    final NPPage<NPAgentSummary> agents)
+    final NPPage<NPAgentSummary> page)
     throws Exception
   {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
 
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(2))
+        .declareColumn("ID", atLeastContentOrHeader())
+        .declareColumn("Name", atLeastContentOrHeader());
+
+    for (final var item : page.items()) {
+      builder.addRow()
+        .addCell(item.id().toString())
+        .addCell(item.name());
+    }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatAgentLabel(
+    final NPAgentLabel label)
+    throws Exception
+  {
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(2))
+        .declareColumn("Name", atLeastContentOrHeader())
+        .declareColumn("Description", atLeastContentOrHeader());
+
+    builder.addRow()
+      .addCell(label.name().toString())
+      .addCell(label.description());
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatAgentLabels(
+    final NPPage<NPAgentLabel> page)
+    throws Exception
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(2))
+        .declareColumn("Name", atLeastContentOrHeader())
+        .declareColumn("Description", atLeastContentOrHeader());
+
+    for (final var item : page.items()) {
+      builder.addRow()
+        .addCell(item.name().toString())
+        .addCell(item.description());
+    }
+
+    this.renderTable(builder.build());
   }
 
   private static void formatPage(

@@ -70,10 +70,9 @@ public final class NPUCmdAgentPut
             .execute(givenAgent.id());
 
         /*
-         * The environment variables, system properties, and labels are
+         * The environment variables and system properties are
          * ignored for the incoming agent. The environment and system properties
-         * are set via agents upon authenticating, and the labels are set
-         * via a separate API.
+         * are set via agents upon authenticating.
          */
 
         final NPAgentDescription savedAgent;
@@ -85,7 +84,7 @@ public final class NPUCmdAgentPut
             givenAgent.accessKey(),
             existingAgent.environmentVariables(),
             existingAgent.systemProperties(),
-            existingAgent.labels()
+            givenAgent.labels()
           );
         } else {
           savedAgent = new NPAgentDescription(
@@ -94,7 +93,7 @@ public final class NPUCmdAgentPut
             givenAgent.accessKey(),
             Map.of(),
             Map.of(),
-            Map.of()
+            givenAgent.labels()
           );
         }
 

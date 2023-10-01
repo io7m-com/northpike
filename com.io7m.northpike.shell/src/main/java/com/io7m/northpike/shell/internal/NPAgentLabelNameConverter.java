@@ -17,44 +17,45 @@
 
 package com.io7m.northpike.shell.internal;
 
-import com.io7m.lanark.core.RDottedName;
+
 import com.io7m.lanark.core.RDottedNamePatterns;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.quarrel.core.QValueConverterType;
 
 /**
- * @see RDottedName
+ * @see NPAgentLabelName
  */
 
-public final class RDottedNameConverter
-  implements QValueConverterType<RDottedName>
+public final class NPAgentLabelNameConverter
+  implements QValueConverterType<NPAgentLabelName>
 {
   /**
-   * @see RDottedName
+   * @see NPAgentLabelName
    */
 
-  public RDottedNameConverter()
+  public NPAgentLabelNameConverter()
   {
 
   }
 
   @Override
-  public RDottedName convertFromString(
+  public NPAgentLabelName convertFromString(
     final String text)
   {
-    return new RDottedName(text);
+    return NPAgentLabelName.of(text);
   }
 
   @Override
   public String convertToString(
-    final RDottedName value)
+    final NPAgentLabelName value)
   {
     return value.toString();
   }
 
   @Override
-  public RDottedName exampleValue()
+  public NPAgentLabelName exampleValue()
   {
-    return new RDottedName("com.io7m.example");
+    return NPAgentLabelName.of("com.io7m.example");
   }
 
   @Override
@@ -64,8 +65,8 @@ public final class RDottedNameConverter
   }
 
   @Override
-  public Class<RDottedName> convertedClass()
+  public Class<NPAgentLabelName> convertedClass()
   {
-    return RDottedName.class;
+    return NPAgentLabelName.class;
   }
 }

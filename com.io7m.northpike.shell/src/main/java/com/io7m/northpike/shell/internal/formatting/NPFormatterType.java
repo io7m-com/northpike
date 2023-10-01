@@ -17,6 +17,7 @@
 package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.northpike.model.NPAgentDescription;
+import com.io7m.northpike.model.NPAgentLabel;
 import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
@@ -161,5 +162,29 @@ public interface NPFormatterType
 
   void formatAgentSummaries(
     NPPage<NPAgentSummary> agents)
+    throws Exception;
+
+  /**
+   * Format an agent label.
+   *
+   * @param label The label
+   *
+   * @throws Exception On errors
+   */
+
+  void formatAgentLabel(
+    NPAgentLabel label)
+    throws Exception;
+
+  /**
+   * Format agent labels.
+   *
+   * @param page The page
+   *
+   * @throws Exception On errors
+   */
+
+  void formatAgentLabels(
+    NPPage<NPAgentLabel> page)
     throws Exception;
 }
