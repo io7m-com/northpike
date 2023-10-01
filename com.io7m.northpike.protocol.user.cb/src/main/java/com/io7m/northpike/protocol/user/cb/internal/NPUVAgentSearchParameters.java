@@ -17,12 +17,15 @@
 
 package com.io7m.northpike.protocol.user.cb.internal;
 
+import com.io7m.cedarbridge.runtime.api.CBString;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentSearchParameters;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AgentSearchParameters;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
-import static com.io7m.northpike.protocol.user.cb.internal.NPUVAgentLabelMatch.AGENT_LABEL_MATCH;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVStrings.STRINGS;
 
 /**
  * A validator.
@@ -37,12 +40,18 @@ public enum NPUVAgentSearchParameters
 
   AGENT_SEARCH_PARAMETERS;
 
+  private static final NPUVComparisonsSet<String, CBString> SET_VALIDATOR =
+    new NPUVComparisonsSet<>(STRINGS);
+
   @Override
   public NPU1AgentSearchParameters convertToWire(
     final NPAgentSearchParameters message)
+    throws NPProtocolException
   {
     return new NPU1AgentSearchParameters(
-      AGENT_LABEL_MATCH.convertToWire(message.matchLabels()),
+      SET_VALIDATOR.convertToWire(
+        message.matchLabels().map(NPAgentLabelName::toString)
+      ),
       unsigned32(message.pageSize())
     );
   }
@@ -50,9 +59,11 @@ public enum NPUVAgentSearchParameters
   @Override
   public NPAgentSearchParameters convertFromWire(
     final NPU1AgentSearchParameters message)
+    throws NPProtocolException
   {
     return new NPAgentSearchParameters(
-      AGENT_LABEL_MATCH.convertFromWire(message.fieldMatchLabels()),
+      SET_VALIDATOR.convertFromWire(message.fieldMatchLabels())
+        .map(NPAgentLabelName::of),
       message.fieldPageSize().value()
     );
   }

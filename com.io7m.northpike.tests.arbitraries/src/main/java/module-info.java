@@ -33,12 +33,10 @@ open module com.io7m.northpike.tests.arbitraries
   uses ArbitraryProvider;
 
   provides ArbitraryProvider with
-    com.io7m.northpike.tests.arbitraries.NPArbSubject,
-    com.io7m.northpike.tests.arbitraries.NPArbUser,
     com.io7m.northpike.tests.arbitraries.NPArbAgentDescription,
     com.io7m.northpike.tests.arbitraries.NPArbAgentID,
     com.io7m.northpike.tests.arbitraries.NPArbAgentLabel,
-    com.io7m.northpike.tests.arbitraries.NPArbAgentLabelMatch,
+    com.io7m.northpike.tests.arbitraries.NPArbAgentLabelName,
     com.io7m.northpike.tests.arbitraries.NPArbAgentLabelSearchParameters,
     com.io7m.northpike.tests.arbitraries.NPArbAgentResourceName,
     com.io7m.northpike.tests.arbitraries.NPArbAgentSearchParameters,
@@ -85,6 +83,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbRepositorySearchParameters,
     com.io7m.northpike.tests.arbitraries.NPArbRepositorySummary,
     com.io7m.northpike.tests.arbitraries.NPArbSCMProviderDescription,
+    com.io7m.northpike.tests.arbitraries.NPArbSubject,
     com.io7m.northpike.tests.arbitraries.NPArbTimeRange,
     com.io7m.northpike.tests.arbitraries.NPArbToolExecutionDescription,
     com.io7m.northpike.tests.arbitraries.NPArbToolExecutionDescriptionSearchParameters,
@@ -95,6 +94,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbToolName,
     com.io7m.northpike.tests.arbitraries.NPArbToolReference,
     com.io7m.northpike.tests.arbitraries.NPArbToolReferenceName,
+    com.io7m.northpike.tests.arbitraries.NPArbUser,
     com.io7m.northpike.tests.arbitraries.NPArbUserConnected,
     com.io7m.northpike.tests.arbitraries.NPArbUserSearchParameters,
     com.io7m.northpike.tests.arbitraries.NPArbVersion,

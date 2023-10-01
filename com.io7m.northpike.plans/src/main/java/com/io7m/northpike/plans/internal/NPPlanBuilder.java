@@ -17,12 +17,13 @@
 
 package com.io7m.northpike.plans.internal;
 
-import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.model.NPFailureFail;
 import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.plans.NPPlanBarrierBuilderType;
 import com.io7m.northpike.model.plans.NPPlanBarrierType;
 import com.io7m.northpike.model.plans.NPPlanBuilderType;
@@ -52,7 +53,6 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static com.io7m.northpike.model.NPAgentLabelMatchType.AnyLabel.ANY_LABEL;
 import static com.io7m.northpike.plans.internal.NPPlanExceptions.errorCycle;
 import static com.io7m.northpike.plans.internal.NPPlanExceptions.errorDuplicateElement;
 import static com.io7m.northpike.plans.internal.NPPlanExceptions.errorDuplicateToolReference;
@@ -347,8 +347,8 @@ public final class NPPlanBuilder
   {
     private final TreeSet<NPAgentResourceName> lockAgentResources;
     private NPFailurePolicyType failurePolicy;
-    private NPAgentLabelMatchType preferWithLabels;
-    private NPAgentLabelMatchType requireWithLabels;
+    private NPComparisonSetType<NPAgentLabelName> preferWithLabels;
+    private NPComparisonSetType<NPAgentLabelName> requireWithLabels;
     private Optional<NPPlanToolExecution> toolExecution;
     private Optional<NPPlanElementName> sameAgentAs;
     private Optional<Duration> agentSelectionTimeout;
@@ -359,8 +359,8 @@ public final class NPPlanBuilder
       final NPPlanElementName inName)
     {
       super(inBuilder, inName);
-      this.preferWithLabels = ANY_LABEL;
-      this.requireWithLabels = ANY_LABEL;
+      this.preferWithLabels = new NPComparisonSetType.Anything<>();
+      this.requireWithLabels = new NPComparisonSetType.Anything<>();
       this.lockAgentResources = new TreeSet<>();
       this.toolExecution = Optional.empty();
       this.sameAgentAs = Optional.empty();
@@ -424,7 +424,7 @@ public final class NPPlanBuilder
 
     @Override
     public NPPlanTaskBuilderType setAgentRequireWithLabels(
-      final NPAgentLabelMatchType match)
+      final NPComparisonSetType<NPAgentLabelName> match)
     {
       this.requireWithLabels = Objects.requireNonNull(match, "match");
       return this;
@@ -432,7 +432,7 @@ public final class NPPlanBuilder
 
     @Override
     public NPPlanTaskBuilderType setAgentPreferWithLabels(
-      final NPAgentLabelMatchType match)
+      final NPComparisonSetType<NPAgentLabelName> match)
     {
       this.preferWithLabels = Objects.requireNonNull(match, "match");
       return this;
@@ -515,8 +515,8 @@ public final class NPPlanBuilder
     NPPlanElementName name,
     String description,
     List<NPPlanElementName> dependsOn,
-    NPAgentLabelMatchType agentRequireWithLabel,
-    NPAgentLabelMatchType agentPreferWithLabel,
+    NPComparisonSetType<NPAgentLabelName> agentRequireWithLabel,
+    NPComparisonSetType<NPAgentLabelName> agentPreferWithLabel,
     SortedSet<NPAgentResourceName> lockAgentResources,
     NPPlanToolExecution toolExecution,
     Optional<NPPlanTaskType> agentMustBeSameAs,

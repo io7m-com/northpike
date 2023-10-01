@@ -16,11 +16,11 @@
 
 package com.io7m.northpike.database.postgres.internal;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelName;
 import org.jooq.DSLContext;
 
 import java.util.Optional;
@@ -33,10 +33,10 @@ import static com.io7m.northpike.strings.NPStringConstants.AGENT_LABEL;
  */
 
 public final class NPDBQAgentLabelGet
-  extends NPDBQAbstract<RDottedName, Optional<NPAgentLabel>>
+  extends NPDBQAbstract<NPAgentLabelName, Optional<NPAgentLabel>>
   implements NPDatabaseQueriesAgentsType.LabelGetType
 {
-  private static final Service<RDottedName, Optional<NPAgentLabel>, LabelGetType> SERVICE =
+  private static final Service<NPAgentLabelName, Optional<NPAgentLabel>, LabelGetType> SERVICE =
     new Service<>(LabelGetType.class, NPDBQAgentLabelGet::new);
 
   /**
@@ -54,15 +54,15 @@ public final class NPDBQAgentLabelGet
   @Override
   protected Optional<NPAgentLabel> onExecute(
     final DSLContext context,
-    final RDottedName parameters)
+    final NPAgentLabelName parameters)
     throws NPDatabaseException
   {
-    this.setAttribute(AGENT_LABEL, parameters.value());
+    this.setAttribute(AGENT_LABEL, parameters.toString());
 
     final var query =
       context.select(AGENT_LABEL_DEFINITIONS.ALD_DESCRIPTION)
         .from(AGENT_LABEL_DEFINITIONS)
-        .where(AGENT_LABEL_DEFINITIONS.ALD_NAME.eq(parameters.value()));
+        .where(AGENT_LABEL_DEFINITIONS.ALD_NAME.eq(parameters.toString()));
 
     recordQuery(query);
     return query.fetchOptional(AGENT_LABEL_DEFINITIONS.ALD_DESCRIPTION)

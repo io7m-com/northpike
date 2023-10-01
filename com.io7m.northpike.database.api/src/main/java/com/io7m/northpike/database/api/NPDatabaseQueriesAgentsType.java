@@ -16,10 +16,10 @@
 
 package com.io7m.northpike.database.api;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentLabelSearchParameters;
 import com.io7m.northpike.model.NPAgentSearchParameters;
 import com.io7m.northpike.model.NPKey;
@@ -105,7 +105,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    */
 
   non-sealed interface LabelGetType
-    extends NPDatabaseQueryType<RDottedName, Optional<NPAgentLabel>>,
+    extends NPDatabaseQueryType<NPAgentLabelName, Optional<NPAgentLabel>>,
     NPDatabaseQueriesAgentsType
   {
 
@@ -127,7 +127,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    */
 
   non-sealed interface LabelDeleteType
-    extends NPDatabaseQueryType<Set<RDottedName>, NPDatabaseUnit>,
+    extends NPDatabaseQueryType<Set<NPAgentLabelName>, NPDatabaseUnit>,
     NPDatabaseQueriesAgentsType
   {
 

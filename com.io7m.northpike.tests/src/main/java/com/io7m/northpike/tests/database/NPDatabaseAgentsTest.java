@@ -20,7 +20,6 @@ import com.io7m.ervilla.api.EContainerSupervisorType;
 import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
@@ -29,14 +28,17 @@ import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentLabel;
-import com.io7m.northpike.model.NPAgentLabelMatchType.And;
-import com.io7m.northpike.model.NPAgentLabelMatchType.Or;
-import com.io7m.northpike.model.NPAgentLabelMatchType.Specific;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentLabelSearchParameters;
 import com.io7m.northpike.model.NPAgentSearchParameters;
+import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.Anything;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsEqualTo;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsSubsetOf;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsSupersetOf;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
@@ -51,15 +53,17 @@ import org.slf4j.LoggerFactory;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
-import static com.io7m.northpike.model.NPAgentLabelMatchType.AnyLabel.ANY_LABEL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -132,7 +136,7 @@ public final class NPDatabaseAgentsTest
         .ofMinSize(1)
         .sample();
 
-    final var labelsByName = new HashMap<RDottedName, NPAgentLabel>();
+    final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (final var label : labels) {
       labelPut.execute(label);
       assertEquals(label, labelGet.execute(label.name()).orElseThrow());
@@ -183,7 +187,7 @@ public final class NPDatabaseAgentsTest
         .list()
         .sample();
 
-    final var labelsByName = new HashMap<RDottedName, NPAgentLabel>();
+    final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (final var label : labels) {
       labelPut.execute(label);
       assertEquals(label, labelGet.execute(label.name()).orElseThrow());
@@ -239,8 +243,6 @@ public final class NPDatabaseAgentsTest
   public void testAgentSearch0()
     throws Exception
   {
-    final var get =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
     final var put =
       this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
     final var labelPut =
@@ -248,28 +250,37 @@ public final class NPDatabaseAgentsTest
     final var list =
       this.transaction.queries(NPDatabaseQueriesAgentsType.ListType.class);
 
-    final var labelsByName = new HashMap<RDottedName, NPAgentLabel>();
+    final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index <= 9; ++index) {
       final var label = new NPAgentLabel(
-        new RDottedName("label%d".formatted(Integer.valueOf(index))),
+        NPAgentLabelName.of("label%d".formatted(Integer.valueOf(index))),
         "Label %d".formatted(Integer.valueOf(index))
       );
       labelPut.execute(label);
       labelsByName.put(label.name(), label);
     }
 
-    final ArrayList<NPAgentDescription> agents =
+    final Map<NPAgentID, NPAgentDescription> agents =
       generateLabelledAgents(put, labelsByName);
 
     {
       final var page =
-        list.execute(new NPAgentSearchParameters(ANY_LABEL, 1000L));
+        list.execute(new NPAgentSearchParameters(new Anything<>(), 1000L));
 
       final var page0 =
         page.pageCurrent(this.transaction);
 
-      for (final var agent : agents) {
-        assertTrue(page0.items().contains(agent.summary()));
+      final var pageAgents =
+        page0.items()
+          .stream()
+          .collect(Collectors.toMap(NPAgentSummary::id, Function.identity()));
+
+      /*
+       * The returned agents are all the agents.
+       */
+
+      for (final var agent : agents.values()) {
+        assertTrue(pageAgents.containsKey(agent.id()));
       }
 
       assertEquals(900, page0.items().size());
@@ -287,8 +298,6 @@ public final class NPDatabaseAgentsTest
   public void testAgentSearch1()
     throws Exception
   {
-    final var get =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
     final var put =
       this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
     final var labelPut =
@@ -296,38 +305,50 @@ public final class NPDatabaseAgentsTest
     final var list =
       this.transaction.queries(NPDatabaseQueriesAgentsType.ListType.class);
 
-    final var labelsByName = new HashMap<RDottedName, NPAgentLabel>();
+    final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index <= 9; ++index) {
       final var label = new NPAgentLabel(
-        new RDottedName("label%d".formatted(Integer.valueOf(index))),
+        NPAgentLabelName.of("label%d".formatted(Integer.valueOf(index))),
         "Label %d".formatted(Integer.valueOf(index))
       );
       labelPut.execute(label);
       labelsByName.put(label.name(), label);
     }
 
-    final ArrayList<NPAgentDescription> agents =
+    final Map<NPAgentID, NPAgentDescription> agents =
       generateLabelledAgents(put, labelsByName);
 
     {
-      final var label0 = new RDottedName("label0");
+      final var label0 =
+        NPAgentLabelName.of("label0");
+
       final var page =
         list.execute(
-          new NPAgentSearchParameters(new Specific(label0), 1000L)
+          new NPAgentSearchParameters(
+            new IsEqualTo<>(Set.of(label0)), 1000L)
         );
 
       final var page0 =
         page.pageCurrent(this.transaction);
 
-      for (final var agent : agents) {
-        if (agent.labels().containsKey(label0)) {
-          assertTrue(page0.items().contains(agent.summary()));
-        } else {
-          assertFalse(page0.items().contains(agent.summary()));
-        }
+      final var pageAgents =
+        page0.items()
+          .stream()
+          .collect(Collectors.toMap(NPAgentSummary::id, Function.identity()));
+
+      /*
+       * The returned agents are those that have the exact label set.
+       */
+
+      for (final var pageAgent : pageAgents.values()) {
+        final var agent = agents.get(pageAgent.id());
+        assertEquals(
+          Set.of(label0),
+          Set.copyOf(agent.labels().keySet())
+        );
       }
 
-      assertEquals(180, page0.items().size());
+      assertEquals(10, pageAgents.size());
       assertEquals(1, page0.pageIndex());
     }
   }
@@ -342,8 +363,6 @@ public final class NPDatabaseAgentsTest
   public void testAgentSearch2()
     throws Exception
   {
-    final var get =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
     final var put =
       this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
     final var labelPut =
@@ -351,45 +370,64 @@ public final class NPDatabaseAgentsTest
     final var list =
       this.transaction.queries(NPDatabaseQueriesAgentsType.ListType.class);
 
-    final var labelsByName = new HashMap<RDottedName, NPAgentLabel>();
+    final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index <= 9; ++index) {
       final var label = new NPAgentLabel(
-        new RDottedName("label%d".formatted(Integer.valueOf(index))),
+        NPAgentLabelName.of("label%d".formatted(Integer.valueOf(index))),
         "Label %d".formatted(Integer.valueOf(index))
       );
       labelPut.execute(label);
       labelsByName.put(label.name(), label);
     }
 
-    final ArrayList<NPAgentDescription> agents =
+    final Map<NPAgentID, NPAgentDescription> agents =
       generateLabelledAgents(put, labelsByName);
 
     {
       final var label0 =
-        new RDottedName("label0");
+        NPAgentLabelName.of("label0");
       final var label3 =
-        new RDottedName("label3");
+        NPAgentLabelName.of("label3");
 
       final var page =
         list.execute(
           new NPAgentSearchParameters(
-            new Or(new Specific(label0), new Specific(label3)),
+            new IsSubsetOf<>(Set.of(label0, label3)),
             1000L)
         );
 
       final var page0 =
         page.pageCurrent(this.transaction);
 
-      for (final var agent : agents) {
-        final var agentLabels = agent.labels();
-        if (agentLabels.containsKey(label0) || agentLabels.containsKey(label3)) {
-          assertTrue(page0.items().contains(agent.summary()));
-        } else {
-          assertFalse(page0.items().contains(agent.summary()));
-        }
+      final var pageAgents =
+        page0.items()
+          .stream()
+          .collect(Collectors.toMap(NPAgentSummary::id, Function.identity()));
+
+      /*
+       * The returned agents are those that have a subset of the given labels
+       */
+
+      for (final var agent : pageAgents.values()) {
+        final var original =
+          agents.get(agent.id());
+        final var originalLabels =
+          original.labels().keySet();
+
+        var ok =
+          Objects.equals(originalLabels, Set.<NPAgentLabelName>of());
+        ok = ok || originalLabels.equals(Set.of(label0));
+        ok = ok || originalLabels.equals(Set.of(label3));
+        ok = ok || originalLabels.equals(Set.of(label0, label3));
+
+        assertTrue(
+          ok,
+          "Agent labels %s must be a subset of %s"
+            .formatted(originalLabels, Set.of(label0, label3))
+        );
       }
 
-      assertEquals(340, page0.items().size());
+      assertEquals(40, page0.items().size());
       assertEquals(1, page0.pageIndex());
     }
   }
@@ -404,8 +442,6 @@ public final class NPDatabaseAgentsTest
   public void testAgentSearch3()
     throws Exception
   {
-    final var get =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
     final var put =
       this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
     final var labelPut =
@@ -413,49 +449,58 @@ public final class NPDatabaseAgentsTest
     final var list =
       this.transaction.queries(NPDatabaseQueriesAgentsType.ListType.class);
 
-    final var labelsByName = new HashMap<RDottedName, NPAgentLabel>();
+    final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index <= 9; ++index) {
       final var label = new NPAgentLabel(
-        new RDottedName("label%d".formatted(Integer.valueOf(index))),
+        NPAgentLabelName.of("label%d".formatted(Integer.valueOf(index))),
         "Label %d".formatted(Integer.valueOf(index))
       );
       labelPut.execute(label);
       labelsByName.put(label.name(), label);
     }
 
-    final ArrayList<NPAgentDescription> agents =
+    final Map<NPAgentID, NPAgentDescription> agents =
       generateLabelledAgents(put, labelsByName);
 
     {
       final var label0 =
-        new RDottedName("label0");
+        NPAgentLabelName.of("label0");
       final var label3 =
-        new RDottedName("label3");
+        NPAgentLabelName.of("label3");
 
       final var page =
         list.execute(
           new NPAgentSearchParameters(
-            new And(new Specific(label0), new Specific(label3)),
+            new IsSupersetOf<>(Set.of(label0, label3)),
             1000L)
         );
 
       final var page0 =
         page.pageCurrent(this.transaction);
 
-      for (final var agent : agents) {
-        final var agentLabels = agent.labels();
-        if (agentLabels.containsKey(label0) && agentLabels.containsKey(label3)) {
-          assertTrue(page0.items().contains(agent.summary()));
-        } else {
-          assertFalse(page0.items().contains(agent.summary()));
-        }
+      final var pageAgents =
+        page0.items()
+          .stream()
+          .collect(Collectors.toMap(NPAgentSummary::id, Function.identity()));
+
+      /*
+       * The returned agents are those that have a superset of the given labels
+       */
+
+      for (final var agent : pageAgents.values()) {
+        final var original =
+          agents.get(agent.id());
+        final var originalLabels =
+          original.labels().keySet();
+
+        assertTrue(originalLabels.contains(label0));
+        assertTrue(originalLabels.contains(label3));
       }
 
       assertEquals(20, page0.items().size());
       assertEquals(1, page0.pageIndex());
     }
   }
-
 
   /**
    * Deleted agents don't appear in searches.
@@ -476,36 +521,43 @@ public final class NPDatabaseAgentsTest
     final var list =
       this.transaction.queries(NPDatabaseQueriesAgentsType.ListType.class);
 
-    final var labelsByName = new HashMap<RDottedName, NPAgentLabel>();
+    final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index <= 9; ++index) {
       final var label = new NPAgentLabel(
-        new RDottedName("label%d".formatted(Integer.valueOf(index))),
+        NPAgentLabelName.of("label%d".formatted(Integer.valueOf(index))),
         "Label %d".formatted(Integer.valueOf(index))
       );
       labelPut.execute(label);
       labelsByName.put(label.name(), label);
     }
 
-    final ArrayList<NPAgentDescription> agents =
+    final Map<NPAgentID, NPAgentDescription> agents =
       generateLabelledAgents(put, labelsByName);
 
-    for (int index = 0; index < agents.size(); ++index) {
+    final var deleted =
+      new HashSet<NPAgentID>();
+
+    int index = 0;
+    for (final var agent : agents.values()) {
       if (index % 2 == 0) {
-        delete.execute(agents.get(index).id());
+        delete.execute(agent.id());
+        deleted.add(agent.id());
       }
+      ++index;
     }
 
     {
       final var page =
-        list.execute(new NPAgentSearchParameters(ANY_LABEL, 1000L));
+        list.execute(new NPAgentSearchParameters(
+          new Anything<>(),
+          1000L)
+        );
 
       final var page0 =
         page.pageCurrent(this.transaction);
 
-      for (int index = 0; index < agents.size(); ++index) {
-        if (index % 2 == 0) {
-          assertFalse(page0.items().contains(agents.get(index).summary()));
-        }
+      for (final var agent : page0.items()) {
+        assertFalse(deleted.contains(agent.id()));
       }
 
       assertEquals(450, page0.items().size());
@@ -514,19 +566,19 @@ public final class NPDatabaseAgentsTest
   }
 
 
-  private static ArrayList<NPAgentDescription> generateLabelledAgents(
+  private static Map<NPAgentID, NPAgentDescription> generateLabelledAgents(
     final NPDatabaseQueriesAgentsType.PutType put,
-    final HashMap<RDottedName, NPAgentLabel> labelsByName)
+    final HashMap<NPAgentLabelName, NPAgentLabel> labelsByName)
     throws NoSuchAlgorithmException, NPDatabaseException
   {
-    final var agents = new ArrayList<NPAgentDescription>();
+    final var agents = new HashMap<NPAgentID, NPAgentDescription>();
     for (int index = 0; index <= 899; ++index) {
       final var name0 =
-        new RDottedName("label%d".formatted(Integer.valueOf(index % 10)));
+        NPAgentLabelName.of("label%d".formatted(Integer.valueOf(index % 10)));
       final var name1 =
-        new RDottedName("label%d".formatted(Integer.valueOf(index / 100)));
+        NPAgentLabelName.of("label%d".formatted(Integer.valueOf(index / 100)));
 
-      final var agentLabels = new HashMap<RDottedName, NPAgentLabel>();
+      final var agentLabels = new HashMap<NPAgentLabelName, NPAgentLabel>();
       agentLabels.put(name0, labelsByName.get(name0));
       agentLabels.put(name1, labelsByName.get(name1));
 
@@ -541,7 +593,7 @@ public final class NPDatabaseAgentsTest
         );
 
       put.execute(agent);
-      agents.add(agent);
+      agents.put(agent.id(), agent);
     }
     return agents;
   }
@@ -709,9 +761,9 @@ public final class NPDatabaseAgentsTest
     final var labelSearch =
       this.transaction.queries(NPDatabaseQueriesAgentsType.LabelSearchType.class);
 
-    final var labelsByName = new HashMap<RDottedName, NPAgentLabel>();
+    final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index < 1000; ++index) {
-      final var name = new RDottedName("drawer.abacus" + index);
+      final var name = NPAgentLabelName.of("drawer.abacus" + index);
       final var label = new NPAgentLabel(name, "Drawer Abacus " + index);
       labelPut.execute(label);
       labelsByName.put(name, label);
@@ -729,7 +781,7 @@ public final class NPDatabaseAgentsTest
       );
 
     final var labelsByNameRetrieved =
-      new HashMap<RDottedName, NPAgentLabel>();
+      new HashMap<NPAgentLabelName, NPAgentLabel>();
 
     for (int index = 0; index < 10; ++index) {
       final var page =
@@ -743,9 +795,9 @@ public final class NPDatabaseAgentsTest
     }
 
     assertEquals(Map.of(
-      new RDottedName("drawer.abacus3"),
+      NPAgentLabelName.of("drawer.abacus3"),
       new NPAgentLabel(
-        new RDottedName("drawer.abacus3"),
+        NPAgentLabelName.of("drawer.abacus3"),
         "Drawer Abacus 3"
       )
     ), labelsByNameRetrieved);
@@ -766,9 +818,9 @@ public final class NPDatabaseAgentsTest
     final var labelSearch =
       this.transaction.queries(NPDatabaseQueriesAgentsType.LabelSearchType.class);
 
-    final var labelsByName = new HashMap<RDottedName, NPAgentLabel>();
+    final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index < 1000; ++index) {
-      final var name = new RDottedName("drawer.abacus" + index);
+      final var name = NPAgentLabelName.of("drawer.abacus" + index);
       final var label = new NPAgentLabel(name, "Drawer Abacus " + index);
       labelPut.execute(label);
       labelsByName.put(name, label);
@@ -786,7 +838,7 @@ public final class NPDatabaseAgentsTest
       );
 
     final var labelsByNameRetrieved =
-      new HashMap<RDottedName, NPAgentLabel>();
+      new HashMap<NPAgentLabelName, NPAgentLabel>();
 
     for (int index = 0; index < 10; ++index) {
       final var page =
@@ -827,7 +879,7 @@ public final class NPDatabaseAgentsTest
         .ofSize(100)
         .sample();
 
-    final var byName = new HashMap<RDottedName, NPAgentLabel>();
+    final var byName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (final var label : labels) {
       labelPut.execute(label);
       byName.put(label.name(), label);

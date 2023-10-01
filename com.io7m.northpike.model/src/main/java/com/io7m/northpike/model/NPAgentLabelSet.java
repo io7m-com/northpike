@@ -15,36 +15,28 @@
  */
 
 
-package com.io7m.northpike.agent.expressions.v1;
+package com.io7m.northpike.model;
 
-import com.io7m.blackthorne.core.BTQualifiedName;
-import com.io7m.northpike.agent.expressions.NAESchemas;
+import java.util.Objects;
+import java.util.Set;
 
 /**
- * Functions over v1 elements.
+ * A set of labels.
+ *
+ * @param labels The labels
  */
 
-public final class NAE1
+public record NPAgentLabelSet(
+  Set<NPAgentLabelName> labels)
 {
-  private NAE1()
-  {
-
-  }
-
   /**
-   * The element with the given name.
+   * A set of labels.
    *
-   * @param localName The local name
-   *
-   * @return The qualified name
+   * @param labels The labels
    */
 
-  public static BTQualifiedName element(
-    final String localName)
+  public NPAgentLabelSet
   {
-    return BTQualifiedName.of(
-      NAESchemas.labelExpressions1().namespace().toString(),
-      localName
-    );
+    labels = Set.copyOf(Objects.requireNonNull(labels, "labels"));
   }
 }

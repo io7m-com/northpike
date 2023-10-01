@@ -66,11 +66,11 @@ public final class NPDBQAgentLabelPut
     final DSLContext context,
     final NPAgentLabel label)
   {
-    this.setAttribute(AGENT_LABEL, label.name().value());
+    this.setAttribute(AGENT_LABEL, label.name().toString());
 
     final var query =
       context.insertInto(AGENT_LABEL_DEFINITIONS)
-        .set(AGENT_LABEL_DEFINITIONS.ALD_NAME, label.name().value())
+        .set(AGENT_LABEL_DEFINITIONS.ALD_NAME, label.name().toString())
         .set(AGENT_LABEL_DEFINITIONS.ALD_DESCRIPTION, label.description())
         .onConflictOnConstraint(DSL.name("agent_label_definitions_name_unique"))
         .doUpdate()
@@ -82,7 +82,7 @@ public final class NPDBQAgentLabelPut
     this.auditEventPut(
       context,
       "AGENT_LABEL_PUT",
-      entry("NAME", label.name().value())
+      entry("NAME", label.name().toString())
     );
     return UNIT;
   }

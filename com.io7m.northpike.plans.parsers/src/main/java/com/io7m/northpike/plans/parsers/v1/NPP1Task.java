@@ -25,6 +25,7 @@ import com.io7m.blackthorne.core.Blackthorne;
 import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPFailureRetry;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.plans.NPPlanElementDescriptionType;
 import com.io7m.northpike.model.plans.NPPlanElementName;
 import com.io7m.northpike.model.plans.NPPlanTaskDescription;
@@ -37,7 +38,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.io7m.northpike.model.NPAgentLabelMatchType.AnyLabel.ANY_LABEL;
 import static com.io7m.northpike.model.NPFailureFail.FAIL;
 import static com.io7m.northpike.model.NPFailureIgnore.IGNORE_FAILURE;
 import static com.io7m.northpike.plans.parsers.v1.NPP1.element;
@@ -53,10 +53,14 @@ public final class NPP1Task
   private String description;
 
   private NPP1AgentRequireWithLabelsMatchingExpression requireWithLabels =
-    new NPP1AgentRequireWithLabelsMatchingExpression(ANY_LABEL);
+    new NPP1AgentRequireWithLabelsMatchingExpression(
+      new NPComparisonSetType.Anything<>()
+    );
 
   private NPP1AgentPreferWithLabelsMatchingExpression preferWithLabels =
-    new NPP1AgentPreferWithLabelsMatchingExpression(ANY_LABEL);
+    new NPP1AgentPreferWithLabelsMatchingExpression(
+      new NPComparisonSetType.Anything<>()
+    );
 
   private Optional<NPP1AgentRequireSameAsUsedFor> sameAsUsedFor =
     Optional.empty();

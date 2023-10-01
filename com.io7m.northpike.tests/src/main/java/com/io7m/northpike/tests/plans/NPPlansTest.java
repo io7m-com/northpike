@@ -17,14 +17,14 @@
 package com.io7m.northpike.tests.plans;
 
 import com.io7m.anethum.slf4j.ParseStatusLogging;
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.model.NPAgentLabelMatchType.Specific;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.model.NPPreserveLexical;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsEqualTo;
 import com.io7m.northpike.model.plans.NPPlanBarrierType;
 import com.io7m.northpike.model.plans.NPPlanElementName;
 import com.io7m.northpike.model.plans.NPPlanException;
@@ -392,8 +392,12 @@ public final class NPPlansTest
     b0.addLockAgentResource(NPAgentResourceName.of("r0"))
       .addLockAgentResource(NPAgentResourceName.of("r1"))
       .addLockAgentResource(NPAgentResourceName.of("r2"))
-      .setAgentPreferWithLabels(new Specific(new RDottedName("x")))
-      .setAgentRequireWithLabels(new Specific(new RDottedName("y")))
+      .setAgentPreferWithLabels(
+        new IsEqualTo<>(
+          Set.of(NPAgentLabelName.of("x"))))
+      .setAgentRequireWithLabels(
+        new IsEqualTo<>(
+          Set.of(NPAgentLabelName.of("y"))))
       .setDescription("A task.")
       .setToolExecution(toolExecution);
 
@@ -409,8 +413,12 @@ public final class NPPlansTest
 
     assertEquals("A task.", t.description());
     assertEquals(NPPlanElementName.of("x"), t.name());
-    assertEquals(new Specific(new RDottedName("x")), t.agentPreferWithLabel());
-    assertEquals(new Specific(new RDottedName("y")), t.agentRequireWithLabel());
+    assertEquals(
+      new IsEqualTo<>(
+        Set.of(NPAgentLabelName.of("x"))), t.agentPreferWithLabel());
+    assertEquals(
+      new IsEqualTo<>(
+        Set.of(NPAgentLabelName.of("y"))), t.agentRequireWithLabel());
     assertEquals(Set.of(
       NPAgentResourceName.of("r0"),
       NPAgentResourceName.of("r1"),

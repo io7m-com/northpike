@@ -19,7 +19,6 @@ package com.io7m.northpike.plans.parsers;
 
 import com.io7m.jxe.core.JXESchemaDefinition;
 import com.io7m.jxe.core.JXESchemaResolutionMappings;
-import com.io7m.northpike.agent.expressions.NAESchemas;
 
 import java.net.URI;
 
@@ -40,7 +39,6 @@ public final class NPPlanSchemas
   private static final JXESchemaResolutionMappings PLANS_SCHEMA_MAPPINGS =
     JXESchemaResolutionMappings.builder()
       .putMappings(PLANS_SCHEMA_1.namespace(), PLANS_SCHEMA_1)
-      .putMappings(NAESchemas.labelExpressions1().namespace(), NAESchemas.labelExpressions1())
       .build();
 
   /**

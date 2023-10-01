@@ -21,12 +21,12 @@ import com.io7m.jqpage.core.JQKeysetRandomAccessPageDefinition;
 import com.io7m.jqpage.core.JQKeysetRandomAccessPagination;
 import com.io7m.jqpage.core.JQKeysetRandomAccessPaginationParameters;
 import com.io7m.jqpage.core.JQSelectDistinct;
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPAgentLabelsPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LabelSearchType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentLabelSearchParameters;
 import com.io7m.northpike.model.NPPage;
 import io.opentelemetry.api.trace.Span;
@@ -153,7 +153,7 @@ public final class NPDBQAgentLabelSearch
         final var items =
           query.fetch().map(record -> {
             return new NPAgentLabel(
-              new RDottedName(record.get(AGENT_LABEL_DEFINITIONS.ALD_NAME)),
+              NPAgentLabelName.of(record.get(AGENT_LABEL_DEFINITIONS.ALD_NAME)),
               record.get(AGENT_LABEL_DEFINITIONS.ALD_DESCRIPTION)
             );
           });

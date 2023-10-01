@@ -18,6 +18,7 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
+import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
@@ -25,6 +26,8 @@ import com.io7m.northpike.model.security.NPSecObject;
 import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.server.internal.security.NPSecurity;
+
+import java.util.Map;
 
 /**
  * @see NPUCommandAgentPut
@@ -59,8 +62,44 @@ public final class NPUCmdAgentPut
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
+
+        final var givenAgent =
+          command.agent();
+        final var existing =
+          transaction.queries(NPDatabaseQueriesAgentsType.GetType.class)
+            .execute(givenAgent.id());
+
+        /*
+         * The environment variables, system properties, and labels are
+         * ignored for the incoming agent. The environment and system properties
+         * are set via agents upon authenticating, and the labels are set
+         * via a separate API.
+         */
+
+        final NPAgentDescription savedAgent;
+        if (existing.isPresent()) {
+          final var existingAgent = existing.get();
+          savedAgent = new NPAgentDescription(
+            givenAgent.id(),
+            givenAgent.name(),
+            givenAgent.accessKey(),
+            existingAgent.environmentVariables(),
+            existingAgent.systemProperties(),
+            existingAgent.labels()
+          );
+        } else {
+          savedAgent = new NPAgentDescription(
+            givenAgent.id(),
+            givenAgent.name(),
+            givenAgent.accessKey(),
+            Map.of(),
+            Map.of(),
+            Map.of()
+          );
+        }
+
         transaction.queries(NPDatabaseQueriesAgentsType.PutType.class)
-          .execute(command.agent());
+          .execute(savedAgent);
         transaction.commit();
       }
     }

@@ -17,8 +17,6 @@
 
 package com.io7m.northpike.model;
 
-import com.io7m.lanark.core.RDottedName;
-
 import java.util.Map;
 import java.util.Objects;
 
@@ -39,7 +37,7 @@ public record NPAgentDescription(
   NPKey accessKey,
   Map<String, String> environmentVariables,
   Map<String, String> systemProperties,
-  Map<RDottedName, NPAgentLabel> labels)
+  Map<NPAgentLabelName, NPAgentLabel> labels)
 {
   /**
    * A description of an agent.

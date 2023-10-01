@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPAgentLabelName;
 
 import java.util.Objects;
 import java.util.Set;
@@ -32,7 +32,7 @@ import java.util.UUID;
 
 public record NPUCommandAgentLabelDelete(
   UUID messageID,
-  Set<RDottedName> labels)
+  Set<NPAgentLabelName> labels)
   implements NPUCommandType<NPUResponseOK>
 {
   /**

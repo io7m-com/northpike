@@ -31,8 +31,9 @@ import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.security.NPSecRole;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -51,7 +52,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.io7m.northpike.model.NPAgentLabelMatchType.AnyLabel.ANY_LABEL;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorSecurityPolicyDenied;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
@@ -126,7 +126,7 @@ public final class NPUCmdAgentSearchBeginTest
     final var command =
       new NPUCommandAgentSearchBegin(
         UUID.randomUUID(),
-        new NPAgentSearchParameters(ANY_LABEL, 1000L)
+        new NPAgentSearchParameters(new NPComparisonSetType.Anything<>(), 1000L)
       );
 
     final var ex =
@@ -156,7 +156,7 @@ public final class NPUCmdAgentSearchBeginTest
     final var command =
       new NPUCommandAgentSearchBegin(
         UUID.randomUUID(),
-        new NPAgentSearchParameters(ANY_LABEL,1000L)
+        new NPAgentSearchParameters(new NPComparisonSetType.Anything<>(),1000L)
       );
 
     final var userId =
@@ -196,7 +196,7 @@ public final class NPUCmdAgentSearchBeginTest
     final var command =
       new NPUCommandAgentSearchBegin(
         UUID.randomUUID(),
-        new NPAgentSearchParameters(ANY_LABEL,1000L)
+        new NPAgentSearchParameters(new NPComparisonSetType.Anything<>(),1000L)
       );
 
     final var userId =

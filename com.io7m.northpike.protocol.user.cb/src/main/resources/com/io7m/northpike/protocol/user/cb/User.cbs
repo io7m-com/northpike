@@ -264,26 +264,10 @@
   [field labels [cb:Map cb:String NPU1AgentLabel]]
 ]
 
-[documentation NPU1AgentLabelMatch "A label match expression."]
-[variant NPU1AgentLabelMatch
-  [case AnyLabel]
-  [case And
-    [field e0 NPU1AgentLabelMatch]
-    [field e1 NPU1AgentLabelMatch]
-  ]
-  [case Or
-    [field e0 NPU1AgentLabelMatch]
-    [field e1 NPU1AgentLabelMatch]
-  ]
-  [case Specific
-    [field name cb:String]
-  ]
-]
-
 [documentation NPU1AgentSearchParameters "The agent search parameters."]
 [record NPU1AgentSearchParameters
   [documentation matchLabels "The expression against which to match agent labels."]
-  [field matchLabels NPU1AgentLabelMatch]
+  [field matchLabels [NPU1ComparisonSet cb:String]]
   [documentation pageSize "The page size."]
   [field pageSize cb:IntegerUnsigned32]
 ]
@@ -308,13 +292,6 @@
   [field repository cb:UUID]
   [documentation plan "The plan ID."]
   [field plan NPU1PlanIdentifier]
-]
-
-[documentation NPU1NameMatch "A name match expression."]
-[variant NPU1NameMatch
-  [case AnyName]
-  [case Exact [field name cb:String]]
-  [case Similar [field name cb:String]]
 ]
 
 [documentation NPU1AssignmentExecutionRequest "A request to start an assignment execution."]

@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.model.comparisons;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
@@ -43,6 +44,14 @@ public sealed interface NPComparisonSetType<T>
   <U> NPComparisonSetType<U> map(Function<T, U> f);
 
   /**
+   * @param other The set
+   *
+   * @return {@code true} if this comparison matches the given set
+   */
+
+  boolean matches(Set<T> other);
+
+  /**
    * Match any set.
    *
    * @param <T> The type of values
@@ -55,6 +64,13 @@ public sealed interface NPComparisonSetType<T>
       final Function<T, U> f)
     {
       return new Anything<>();
+    }
+
+    @Override
+    public boolean matches(
+      final Set<T> other)
+    {
+      return true;
     }
   }
 
@@ -85,6 +101,13 @@ public sealed interface NPComparisonSetType<T>
         this.value.stream().map(f).collect(Collectors.toUnmodifiableSet())
       );
     }
+
+    @Override
+    public boolean matches(
+      final Set<T> other)
+    {
+      return other.containsAll(this.value);
+    }
   }
 
   /**
@@ -113,6 +136,13 @@ public sealed interface NPComparisonSetType<T>
       return new IsSupersetOf<>(
         this.value.stream().map(f).collect(Collectors.toUnmodifiableSet())
       );
+    }
+
+    @Override
+    public boolean matches(
+      final Set<T> other)
+    {
+      return this.value.containsAll(other);
     }
   }
 
@@ -143,6 +173,15 @@ public sealed interface NPComparisonSetType<T>
         this.value.stream().map(f).collect(Collectors.toUnmodifiableSet())
       );
     }
+
+    @Override
+    public boolean matches(
+      final Set<T> other)
+    {
+      final var intersect = new HashSet<>(other);
+      intersect.retainAll(this.value);
+      return !intersect.isEmpty();
+    }
   }
 
   /**
@@ -172,6 +211,13 @@ public sealed interface NPComparisonSetType<T>
         this.value.stream().map(f).collect(Collectors.toUnmodifiableSet())
       );
     }
+
+    @Override
+    public boolean matches(
+      final Set<T> other)
+    {
+      return this.value.equals(other);
+    }
   }
 
   /**
@@ -200,6 +246,13 @@ public sealed interface NPComparisonSetType<T>
       return new IsNotEqualTo<>(
         this.value.stream().map(f).collect(Collectors.toUnmodifiableSet())
       );
+    }
+
+    @Override
+    public boolean matches(
+      final Set<T> other)
+    {
+      return !this.value.equals(other);
     }
   }
 }

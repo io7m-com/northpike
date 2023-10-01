@@ -18,16 +18,161 @@
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns:np="urn:com.io7m.northpike.plans:1"
-            xmlns:le="urn:com.io7m.northpike.agent.label_expressions:1"
             targetNamespace="urn:com.io7m.northpike.plans:1">
-
-  <xsd:import namespace="urn:com.io7m.northpike.agent.label_expressions:1"/>
 
   <xsd:simpleType name="NameType">
     <xsd:restriction base="xsd:string">
       <xsd:pattern value="([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}"/>
     </xsd:restriction>
   </xsd:simpleType>
+
+  <xsd:element name="SetElement">
+    <xsd:annotation>
+      <xsd:documentation>
+        An element in a set.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Value"
+                     type="xsd:string"
+                     use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="SetComparisonType"
+                   abstract="true">
+    <xsd:annotation>
+      <xsd:documentation>
+        The base type of set comparisons.
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:complexType>
+
+  <xsd:complexType name="SetIsAnythingType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A comparison that is true for all sets.
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:complexType>
+
+  <xsd:complexType name="SetIsEqualToType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Compare an incoming set for exact equality with the given set. For sets
+        α and β, α is equal to β iff α ⊃ β ∧ α ⊂ β.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="np:SetComparisonType">
+        <xsd:sequence minOccurs="0"
+                      maxOccurs="unbounded">
+          <xsd:element ref="np:SetElement"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="SetIsNotEqualToType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Compare an incoming set for exact inequality with the given set. For
+        sets α and β, α is not equal to β iff ¬ (α ⊃ β) ∨ ¬ (α ⊂ β).
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="np:SetComparisonType">
+        <xsd:sequence minOccurs="0"
+                      maxOccurs="unbounded">
+          <xsd:element ref="np:SetElement"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="SetIsSubsetOfType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Is the incoming set a subset of the given set?
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="np:SetComparisonType">
+        <xsd:sequence minOccurs="0"
+                      maxOccurs="unbounded">
+          <xsd:element ref="np:SetElement"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="SetIsSupersetOfType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Is the incoming set a superset of the given set?
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="np:SetComparisonType">
+        <xsd:sequence minOccurs="0"
+                      maxOccurs="unbounded">
+          <xsd:element ref="np:SetElement"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="SetIsOverlappingType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Is the incoming set overlapping the given set? That is, for sets α and
+        β, α overlaps β iff ∃μ, μ ∈ α ∧ μ ∈ β.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="np:SetComparisonType">
+        <xsd:sequence minOccurs="0"
+                      maxOccurs="unbounded">
+          <xsd:element ref="np:SetElement"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="SetIsAnything"
+               type="np:SetIsAnythingType"/>
+
+  <xsd:element name="SetIsEqualTo"
+               type="np:SetIsEqualToType"/>
+
+  <xsd:element name="SetIsNotEqualTo"
+               type="np:SetIsNotEqualToType"/>
+
+  <xsd:element name="SetIsSubsetOf"
+               type="np:SetIsSubsetOfType"/>
+
+  <xsd:element name="SetIsSupersetOf"
+               type="np:SetIsSupersetOfType"/>
+
+  <xsd:element name="SetIsOverlapping"
+               type="np:SetIsOverlappingType"/>
+
+  <xsd:group name="SetComparisonGroup">
+    <xsd:choice>
+      <xsd:element ref="np:SetIsAnything"/>
+      <xsd:element ref="np:SetIsEqualTo"/>
+      <xsd:element ref="np:SetIsNotEqualTo"/>
+      <xsd:element ref="np:SetIsSubsetOf"/>
+      <xsd:element ref="np:SetIsSupersetOf"/>
+      <xsd:element ref="np:SetIsOverlapping"/>
+    </xsd:choice>
+  </xsd:group>
 
   <xsd:complexType name="FailurePolicyType"
                    abstract="true">
@@ -224,7 +369,7 @@
 
     <xsd:complexContent>
       <xsd:extension base="np:AgentPreferenceType">
-        <xsd:group ref="le:ExpressionGroup"/>
+        <xsd:group ref="np:SetComparisonGroup"/>
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
@@ -250,7 +395,7 @@
 
     <xsd:complexContent>
       <xsd:extension base="np:AgentRequirementType">
-        <xsd:group ref="le:ExpressionGroup"/>
+        <xsd:group ref="np:SetComparisonGroup"/>
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>

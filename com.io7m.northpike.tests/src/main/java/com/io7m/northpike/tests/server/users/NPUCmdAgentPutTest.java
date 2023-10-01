@@ -29,8 +29,8 @@ import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -219,11 +219,17 @@ public final class NPUCmdAgentPutTest
     Mockito.when(this.context.onAuthenticationRequire())
       .thenReturn(user);
 
-    final var reposPut =
+    final var put =
       Mockito.mock(NPDatabaseQueriesAgentsType.PutType.class);
+    final var get =
+      Mockito.mock(NPDatabaseQueriesAgentsType.GetType.class);
 
+    Mockito.when(get.execute(any()))
+      .thenReturn(Optional.of(command.agent()));
     Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class))
-      .thenReturn(reposPut);
+      .thenReturn(put);
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class))
+      .thenReturn(get);
 
     final var r = handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());

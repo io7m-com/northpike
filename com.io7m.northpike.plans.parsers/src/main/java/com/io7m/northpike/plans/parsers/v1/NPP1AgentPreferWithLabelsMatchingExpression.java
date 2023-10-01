@@ -17,24 +17,28 @@
 
 package com.io7m.northpike.plans.parsers.v1;
 
-import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentLabelName;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 
 import java.util.Objects;
 
 /**
  * A "prefer" agent match expression.
+ *
  * @param match The expression
  */
 
 public record NPP1AgentPreferWithLabelsMatchingExpression(
-  NPAgentLabelMatchType match)
+  NPComparisonSetType<NPAgentLabelName> match)
 {
   /**
    * A "prefer" agent match expression.
+   *
    * @param match The expression
    */
 
-  public NPP1AgentPreferWithLabelsMatchingExpression {
+  public NPP1AgentPreferWithLabelsMatchingExpression
+  {
     Objects.requireNonNull(match, "match");
   }
 }

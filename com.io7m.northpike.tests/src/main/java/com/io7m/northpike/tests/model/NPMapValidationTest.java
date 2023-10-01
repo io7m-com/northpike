@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.tests.model;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPMapValidation;
 import com.io7m.northpike.model.NPValidityException;
 import org.junit.jupiter.api.Test;
@@ -38,13 +38,13 @@ public final class NPMapValidationTest
   {
     final var label =
       new NPAgentLabel(
-        new RDottedName("x.y"),
+        NPAgentLabelName.of("x.y"),
         "X Y"
       );
 
     final var m =
       Map.of(
-        new RDottedName("a.b"),
+        NPAgentLabelName.of("a.b"),
         label
       );
 

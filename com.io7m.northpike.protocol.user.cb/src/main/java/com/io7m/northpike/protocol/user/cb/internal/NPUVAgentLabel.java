@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.protocol.user.cb.internal;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AgentLabel;
 
@@ -42,7 +42,7 @@ public enum NPUVAgentLabel
     final NPAgentLabel message)
   {
     return new NPU1AgentLabel(
-      string(message.name().value()),
+      string(message.name().value().value()),
       string(message.description())
     );
   }
@@ -52,7 +52,7 @@ public enum NPUVAgentLabel
     final NPU1AgentLabel message)
   {
     return new NPAgentLabel(
-      new RDottedName(message.fieldName().value()),
+      NPAgentLabelName.of(message.fieldName().value()),
       message.fieldDescription().value()
     );
   }

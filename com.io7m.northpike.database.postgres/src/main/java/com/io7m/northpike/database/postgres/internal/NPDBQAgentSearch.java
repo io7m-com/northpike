@@ -25,34 +25,22 @@ import com.io7m.jqpage.core.JQSelectDistinct;
 import com.io7m.northpike.database.api.NPAgentPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.ListType;
-import com.io7m.northpike.database.postgres.internal.NPDBMatch.QuerySetType.QuerySetCondition;
-import com.io7m.northpike.database.postgres.internal.NPDBMatch.QuerySetType.QuerySetIntersection;
-import com.io7m.northpike.database.postgres.internal.NPDBMatch.QuerySetType.QuerySetUnion;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentSearchParameters;
 import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPPage;
 import io.opentelemetry.api.trace.Span;
 import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.Name;
-import org.jooq.Record2;
-import org.jooq.Select;
-import org.jooq.Table;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
-import org.jooq.impl.SQLDataType;
 
 import java.util.List;
-import java.util.UUID;
 
 import static com.io7m.northpike.database.postgres.internal.NPDatabaseExceptions.handleDatabaseException;
-import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABELS;
-import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABEL_DEFINITIONS;
-import static com.io7m.northpike.database.postgres.internal.tables.Agents.AGENTS;
+import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABEL_SEARCH;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_STATEMENT;
-import static java.lang.Boolean.FALSE;
 
 /**
  * Retrieve an agent.
@@ -64,27 +52,6 @@ public final class NPDBQAgentSearch
 {
   private static final Service<NPAgentSearchParameters, NPAgentPagedType, ListType> SERVICE =
     new Service<>(ListType.class, NPDBQAgentSearch::new);
-
-  private static final Name AGENT_SEARCH =
-    DSL.name("AGENT_SEARCH");
-
-  private static final Field<String> AGENT_SEARCH_NAME_FIELD =
-    DSL.field(
-      DSL.name(AGENT_SEARCH, DSL.name("A_NAME")),
-      SQLDataType.VARCHAR
-    );
-
-  private static final Field<UUID> AGENT_SEARCH_ID_FIELD =
-    DSL.field(
-      DSL.name(AGENT_SEARCH, DSL.name("A_ID")),
-      SQLDataType.UUID
-    );
-
-  private static final Field<Boolean> AGENT_SEARCH_DELETED_FIELD =
-    DSL.field(
-      DSL.name(AGENT_SEARCH, DSL.name("A_DELETED")),
-      SQLDataType.BOOLEAN
-    );
 
   /**
    * Construct a query.
@@ -104,23 +71,22 @@ public final class NPDBQAgentSearch
     final NPAgentSearchParameters parameters)
     throws NPDatabaseException
   {
-    final var tableSource =
-      AGENTS
-        .leftOuterJoin(AGENT_LABELS)
-        .on(AGENTS.A_ID.eq(AGENT_LABELS.AL_AGENT))
-        .join(AGENT_LABEL_DEFINITIONS)
-        .on(AGENT_LABELS.AL_LABEL.eq(AGENT_LABEL_DEFINITIONS.ALD_ID));
+    final var labelCondition =
+      NPDBComparisons.createSetMatchQuery(
+        parameters.matchLabels().map(NPAgentLabelName::toString),
+        AGENT_LABEL_SEARCH.ALS_LABELS
+      );
 
-    final var querySet =
-      NPDBMatch.ofAgentLabelMatch(parameters.matchLabels());
+    final var deletedCondition =
+      DSL.condition(AGENT_LABEL_SEARCH.A_DELETED.eq(Boolean.FALSE));
 
-    final var query =
-      generateQuerySetFor(context, tableSource, querySet)
-        .asTable(AGENT_SEARCH);
+    final var allConditions =
+      DSL.and(labelCondition, deletedCondition);
 
     final var pageParameters =
-      JQKeysetRandomAccessPaginationParameters.forTable(query)
-        .addSortField(new JQField(AGENT_SEARCH_NAME_FIELD, JQOrder.ASCENDING))
+      JQKeysetRandomAccessPaginationParameters.forTable(AGENT_LABEL_SEARCH)
+        .addSortField(new JQField(AGENT_LABEL_SEARCH.A_NAME, JQOrder.ASCENDING))
+        .addWhereCondition(allConditions)
         .setDistinct(JQSelectDistinct.SELECT_DISTINCT)
         .setPageSize(parameters.pageSize())
         .setStatementListener(statement -> {
@@ -132,32 +98,6 @@ public final class NPDBQAgentSearch
         context, pageParameters);
 
     return new NPAgentSearch(pages);
-  }
-
-  private static Select<Record2<UUID, String>> generateQuerySetFor(
-    final DSLContext context,
-    final Table<?> tableSource,
-    final NPDBMatch.QuerySetType querySet)
-  {
-    if (querySet instanceof final QuerySetCondition c) {
-      return context.select(AGENTS.A_ID, AGENTS.A_NAME)
-        .from(tableSource)
-        .where(c.condition().and(AGENTS.A_DELETED.eq(FALSE)));
-    }
-
-    if (querySet instanceof final QuerySetUnion u) {
-      final var rq0 = generateQuerySetFor(context, tableSource, u.q0());
-      final var rq1 = generateQuerySetFor(context, tableSource, u.q1());
-      return rq0.union(rq1);
-    }
-
-    if (querySet instanceof final QuerySetIntersection u) {
-      final var rq0 = generateQuerySetFor(context, tableSource, u.q0());
-      final var rq1 = generateQuerySetFor(context, tableSource, u.q1());
-      return rq0.intersect(rq1);
-    }
-
-    throw new IllegalStateException();
   }
 
   /**
@@ -194,8 +134,8 @@ public final class NPDBQAgentSearch
       try {
         final var query =
           page.queryFields(context, List.of(
-            AGENT_SEARCH_ID_FIELD,
-            AGENT_SEARCH_NAME_FIELD
+            AGENT_LABEL_SEARCH.A_NAME,
+            AGENT_LABEL_SEARCH.A_ID
           ));
 
         querySpan.setAttribute(DB_STATEMENT, query.toString());
@@ -203,8 +143,8 @@ public final class NPDBQAgentSearch
         final var items =
           query.fetch().map(record -> {
             return new NPAgentSummary(
-              new NPAgentID(record.get(AGENT_SEARCH_ID_FIELD)),
-              record.get(AGENT_SEARCH_NAME_FIELD)
+              new NPAgentID(record.get(AGENT_LABEL_SEARCH.A_ID)),
+              record.get(AGENT_LABEL_SEARCH.A_NAME)
             );
           });
 

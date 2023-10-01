@@ -17,10 +17,10 @@
 
 package com.io7m.northpike.database.postgres.internal;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
+import com.io7m.northpike.model.NPAgentLabelName;
 import org.jooq.DSLContext;
 import org.jooq.Query;
 
@@ -37,10 +37,10 @@ import static java.util.Map.entry;
  */
 
 public final class NPDBQAgentLabelDelete
-  extends NPDBQAbstract<Set<RDottedName>, NPDatabaseUnit>
+  extends NPDBQAbstract<Set<NPAgentLabelName>, NPDatabaseUnit>
   implements NPDatabaseQueriesAgentsType.LabelDeleteType
 {
-  private static final Service<Set<RDottedName>, NPDatabaseUnit, LabelDeleteType> SERVICE =
+  private static final Service<Set<NPAgentLabelName>, NPDatabaseUnit, LabelDeleteType> SERVICE =
     new Service<>(LabelDeleteType.class, NPDBQAgentLabelDelete::new);
 
   /**
@@ -67,7 +67,7 @@ public final class NPDBQAgentLabelDelete
   @Override
   protected NPDatabaseUnit onExecute(
     final DSLContext context,
-    final Set<RDottedName> labels)
+    final Set<NPAgentLabelName> labels)
   {
     final var statements =
       new ArrayList<Query>(labels.size() * 2);
@@ -76,7 +76,7 @@ public final class NPDBQAgentLabelDelete
       final var eqId =
         AGENT_LABELS.AL_LABEL.eq(AGENT_LABEL_DEFINITIONS.ALD_ID);
       final var eqName =
-        AGENT_LABEL_DEFINITIONS.ALD_NAME.eq(label.value());
+        AGENT_LABEL_DEFINITIONS.ALD_NAME.eq(label.toString());
 
       final var deleteAssociations =
         context.deleteFrom(AGENT_LABELS)
@@ -85,7 +85,7 @@ public final class NPDBQAgentLabelDelete
 
       final var deleteLabel =
         context.deleteFrom(AGENT_LABEL_DEFINITIONS)
-          .where(AGENT_LABEL_DEFINITIONS.ALD_NAME.eq(label.value()));
+          .where(AGENT_LABEL_DEFINITIONS.ALD_NAME.eq(label.toString()));
 
       statements.add(deleteAssociations);
       statements.add(deleteLabel);
@@ -93,7 +93,7 @@ public final class NPDBQAgentLabelDelete
         this.auditEvent(
           context,
           "AGENT_LABEL_DELETE",
-          entry("NAME", label.value())
+          entry("NAME", label.toString())
         )
       );
     }

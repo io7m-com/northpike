@@ -18,19 +18,19 @@
 package com.io7m.northpike.tests.server.users;
 
 import com.io7m.idstore.model.IdName;
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPAgentLabelsPagedType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPRepositoriesPagedType;
 import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchNext;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -245,15 +245,15 @@ public final class NPUCmdAgentLabelSearchNextTest
       new NPPage<>(
         List.of(
           new NPAgentLabel(
-            new RDottedName("x.y.a"),
+            NPAgentLabelName.of("x.y.a"),
             "Label 0"
           ),
           new NPAgentLabel(
-            new RDottedName("x.y.b"),
+            NPAgentLabelName.of("x.y.b"),
             "Label 1"
           ),
           new NPAgentLabel(
-            new RDottedName("x.y.c"),
+            NPAgentLabelName.of("x.y.c"),
             "Label 2"
           )
         ),

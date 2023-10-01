@@ -14,13 +14,21 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/**
- * Continuous integration (Agent Expressions)
- */
 
-@Export
-@Version("1.0.0")
-package com.io7m.northpike.agent.expressions.v1;
+package com.io7m.northpike.tests.arbitraries;
 
-import org.osgi.annotation.bundle.Export;
-import org.osgi.annotation.versioning.Version;
+import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPAgentLabelName;
+import net.jqwik.api.Arbitraries;
+
+public final class NPArbAgentLabelName extends NPArbAbstract<NPAgentLabelName>
+{
+  public NPArbAgentLabelName()
+  {
+    super(
+      NPAgentLabelName.class,
+      () -> Arbitraries.defaultFor(RDottedName.class)
+        .map(NPAgentLabelName::new)
+    );
+  }
+}

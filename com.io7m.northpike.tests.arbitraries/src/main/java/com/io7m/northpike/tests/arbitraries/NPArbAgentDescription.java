@@ -17,10 +17,10 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPKey;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
@@ -55,12 +55,12 @@ public final class NPArbAgentDescription
     );
   }
 
-  private static Arbitrary<Map<RDottedName, NPAgentLabel>> labelMap()
+  private static Arbitrary<Map<NPAgentLabelName, NPAgentLabel>> labelMap()
   {
     return Arbitraries.defaultFor(NPAgentLabel.class)
       .list()
       .map(labels -> {
-        final var m = new HashMap<RDottedName, NPAgentLabel>(labels.size());
+        final var m = new HashMap<NPAgentLabelName, NPAgentLabel>(labels.size());
         for (final var x : labels) {
           m.put(x.name(), x);
         }

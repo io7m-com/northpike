@@ -124,7 +124,7 @@ public final class NPDBQAgentPut
       final var labelId =
         context.select(AGENT_LABEL_DEFINITIONS.ALD_ID)
           .from(AGENT_LABEL_DEFINITIONS)
-          .where(AGENT_LABEL_DEFINITIONS.ALD_NAME.eq(entry.name().value()));
+          .where(AGENT_LABEL_DEFINITIONS.ALD_NAME.eq(entry.name().toString()));
 
       batches.add(
         context.insertInto(AGENT_LABELS)

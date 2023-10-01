@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.plans.parsers.v1;
 
-import com.io7m.northpike.agent.expressions.v1.NAE1Serializer;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.model.NPFailureFail;
 import com.io7m.northpike.model.NPFailureIgnore;
@@ -25,6 +25,13 @@ import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPFailureRetry;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.Anything;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsEqualTo;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsNotEqualTo;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsOverlapping;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsSubsetOf;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsSupersetOf;
 import com.io7m.northpike.model.plans.NPPlanBarrierType;
 import com.io7m.northpike.model.plans.NPPlanElementName;
 import com.io7m.northpike.model.plans.NPPlanElementType;
@@ -292,10 +299,73 @@ public final class NPP1Serializer
     throws XMLStreamException
   {
     this.output.writeStartElement("AgentPreferWithLabelsMatching");
+    this.serializeSetComparison(task.agentPreferWithLabel());
+    this.output.writeEndElement();
+  }
 
-    NAE1Serializer.createFromWriter(this.output)
-      .serialize(task.agentPreferWithLabel());
+  private void serializeSetComparison(
+    final NPComparisonSetType<NPAgentLabelName> comparison)
+    throws XMLStreamException
+  {
+    if (comparison instanceof Anything<NPAgentLabelName>) {
+      this.output.writeEmptyElement("SetIsAnything");
+      return;
+    }
 
+    if (comparison instanceof final IsOverlapping<NPAgentLabelName> e) {
+      this.output.writeStartElement("SetIsOverlapping");
+      for (final var ee : e.value()) {
+        this.serializeSetElement(ee);
+      }
+      this.output.writeEndElement();
+      return;
+    }
+
+    if (comparison instanceof final IsSupersetOf<NPAgentLabelName> e) {
+      this.output.writeStartElement("SetIsSupersetOf");
+      for (final var ee : e.value()) {
+        this.serializeSetElement(ee);
+      }
+      this.output.writeEndElement();
+      return;
+    }
+
+    if (comparison instanceof final IsSubsetOf<NPAgentLabelName> e) {
+      this.output.writeStartElement("SetIsSubsetOf");
+      for (final var ee : e.value()) {
+        this.serializeSetElement(ee);
+      }
+      this.output.writeEndElement();
+      return;
+    }
+
+    if (comparison instanceof final IsEqualTo<NPAgentLabelName> e) {
+      this.output.writeStartElement("SetIsEqualTo");
+      for (final var ee : e.value()) {
+        this.serializeSetElement(ee);
+      }
+      this.output.writeEndElement();
+      return;
+    }
+
+    if (comparison instanceof final IsNotEqualTo<NPAgentLabelName> e) {
+      this.output.writeStartElement("SetIsNotEqualTo");
+      for (final var ee : e.value()) {
+        this.serializeSetElement(ee);
+      }
+      this.output.writeEndElement();
+      return;
+    }
+
+    throw new IllegalStateException("Unrecognized comparison: " + comparison);
+  }
+
+  private void serializeSetElement(
+    final NPAgentLabelName ee)
+    throws XMLStreamException
+  {
+    this.output.writeStartElement("SetElement");
+    this.output.writeAttribute("Value", ee.toString());
     this.output.writeEndElement();
   }
 
@@ -313,10 +383,7 @@ public final class NPP1Serializer
     }
 
     this.output.writeStartElement("AgentRequireWithLabelsMatching");
-
-    NAE1Serializer.createFromWriter(this.output)
-      .serialize(task.agentRequireWithLabel());
-
+    this.serializeSetComparison(task.agentRequireWithLabel());
     this.output.writeEndElement();
   }
 

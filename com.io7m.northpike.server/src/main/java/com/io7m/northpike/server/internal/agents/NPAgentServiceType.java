@@ -20,8 +20,9 @@ package com.io7m.northpike.server.internal.agents;
 import com.io7m.jaffirm.core.Preconditions;
 import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentWorkItem;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.repetoir.core.RPServiceType;
 
 import java.util.Objects;
@@ -53,8 +54,8 @@ public interface NPAgentServiceType
    */
 
   NPSuitableAgents findSuitableAgentsFor(
-    NPAgentLabelMatchType require,
-    NPAgentLabelMatchType prefer);
+    NPComparisonSetType<NPAgentLabelName> require,
+    NPComparisonSetType<NPAgentLabelName> prefer);
 
   /**
    * Offer the given work item to the given agent.

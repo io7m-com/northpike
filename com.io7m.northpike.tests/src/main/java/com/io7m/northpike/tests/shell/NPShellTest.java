@@ -21,9 +21,15 @@ import com.io7m.idstore.model.IdName;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.keys.NPPublicKeys;
+import com.io7m.northpike.model.NPAgentDescription;
+import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelName;
+import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
@@ -31,6 +37,11 @@ import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
+import com.io7m.northpike.protocol.user.NPUCommandAgentGet;
+import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
+import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandAgentSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandAgentSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchPrevious;
@@ -53,6 +64,8 @@ import com.io7m.northpike.protocol.user.NPUCommandSelf;
 import com.io7m.northpike.protocol.user.NPUCommandUserSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandUserSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandUserSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUResponseAgentGet;
+import com.io7m.northpike.protocol.user.NPUResponseAgentSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAuditSearch;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponsePublicKeyGet;
@@ -750,6 +763,153 @@ public final class NPShellTest
     w.println("user-search-begin --roles-subset-of users.reader,users.writer");
     w.println("user-search-begin --roles-superset-of users.reader,users.writer");
     w.println("user-search-begin --roles-overlapping users.reader,users.writer");
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+  }
+
+  @Test
+  public void testAgentPutGet()
+    throws Exception
+  {
+    final var agent =
+      new NPAgentDescription(
+        new NPAgentID(UUID.randomUUID()),
+        "AgentExample",
+        NPKey.parse("8ea1b01d8fe352552e97cb727eee4f5a948a0919dc3f1d0c2f194c2aed52e4e1"),
+        Map.ofEntries(
+          Map.entry(
+            "PATH",
+            "/sbin:/bin:/usr/bin:/usr/sbin"
+          )
+        ),
+        Map.ofEntries(
+          Map.entry(
+            "java.runtime.name",
+            "OpenJDK Runtime Environment"
+          )
+        ),
+        Map.ofEntries(
+          Map.entry(
+            NPAgentLabelName.of("label0"),
+            new NPAgentLabel(NPAgentLabelName.of("label0"), "Label 0")
+          ),
+          Map.entry(
+            NPAgentLabelName.of("label1"),
+            new NPAgentLabel(NPAgentLabelName.of("label1"), "Label 1")
+          ),
+          Map.entry(
+            NPAgentLabelName.of("label2"),
+            new NPAgentLabel(NPAgentLabelName.of("label2"), "Label 2")
+          )
+        )
+      );
+
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandAgentPut.class))
+    ).thenReturn(new NPUResponseOK(
+      UUID.randomUUID(),
+      UUID.randomUUID()
+    ));
+
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandAgentGet.class))
+    ).thenReturn(new NPUResponseAgentGet(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      Optional.of(agent)
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.print("agent-put ");
+    w.print(" --id e10f1d49-3e4c-40e3-81dd-b771a38ec243 ");
+    w.print(" --name AgentExample ");
+    w.print(" --access-key 8ea1b01d8fe352552e97cb727eee4f5a948a0919dc3f1d0c2f194c2aed52e4e1");
+    w.println();
+
+    w.print("agent-get ");
+    w.print(" --id e10f1d49-3e4c-40e3-81dd-b771a38ec243 ");
+    w.println();
+
+    w.println("set --formatter RAW");
+
+    w.print("agent-get ");
+    w.print(" --id e10f1d49-3e4c-40e3-81dd-b771a38ec243 ");
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+  }
+
+  @Test
+  public void testAgentSearch()
+    throws Exception
+  {
+    final var agent =
+      new NPAgentSummary(
+        new NPAgentID(UUID.randomUUID()),
+        "AgentExample"
+      );
+
+    final var page =
+      new NPPage<>(List.of(agent, agent, agent), 1, 1, 0L);
+
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandAgentSearchBegin.class))
+    ).thenReturn(new NPUResponseAgentSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandAgentSearchNext.class))
+    ).thenReturn(new NPUResponseAgentSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandAgentSearchPrevious.class))
+    ).thenReturn(new NPUResponseAgentSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.println("agent-search-begin");
+    w.println("agent-search-next");
+    w.println("agent-search-previous");
+
+    w.println("agent-search-begin --labels-equal-to agents.reader,agents.writer");
+    w.println("agent-search-begin --labels-not-equal-to agents.reader,agents.writer");
+    w.println("agent-search-begin --labels-subset-of agents.reader,agents.writer");
+    w.println("agent-search-begin --labels-superset-of agents.reader,agents.writer");
+    w.println("agent-search-begin --labels-overlapping agents.reader,agents.writer");
+
+    w.println("set --formatter RAW");
+
+    w.println("agent-search-begin");
+    w.println("agent-search-next");
+    w.println("agent-search-previous");
+
+    w.println("agent-search-begin --labels-equal-to agents.reader,agents.writer");
+    w.println("agent-search-begin --labels-not-equal-to agents.reader,agents.writer");
+    w.println("agent-search-begin --labels-subset-of agents.reader,agents.writer");
+    w.println("agent-search-begin --labels-superset-of agents.reader,agents.writer");
+    w.println("agent-search-begin --labels-overlapping agents.reader,agents.writer");
 
     w.flush();
     w.close();

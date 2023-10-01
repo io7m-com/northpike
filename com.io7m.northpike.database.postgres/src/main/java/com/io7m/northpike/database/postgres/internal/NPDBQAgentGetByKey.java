@@ -16,13 +16,13 @@
 
 package com.io7m.northpike.database.postgres.internal;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.GetByKeyType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPKey;
 import org.jooq.DSLContext;
 
@@ -114,7 +114,7 @@ public final class NPDBQAgentGetByKey
     final var properties =
       new HashMap<String, String>();
     final var labels =
-      new HashMap<RDottedName, NPAgentLabel>();
+      new HashMap<NPAgentLabelName, NPAgentLabel>();
 
     boolean first = true;
     for (final var record : result) {
@@ -144,7 +144,7 @@ public final class NPDBQAgentGetByKey
         properties.put(pName, pVal);
       }
       if (lName != null) {
-        final var label = new NPAgentLabel(new RDottedName(lName), lDesc);
+        final var label = new NPAgentLabel(NPAgentLabelName.of(lName), lDesc);
         labels.put(label.name(), label);
       }
     }

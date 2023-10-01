@@ -105,7 +105,7 @@
     Once dependencies [{0}] have completed, barrier {1} will complete.
   </entry>
   <entry key="plan_explain_task_requires_matching_agent">
-    Task {0} will require a hypothetical agent "{1}" matching the expression "{2}".
+    Task {0} will require a hypothetical agent "{1}" that satisfies "{2}".
   </entry>
   <entry key="plan_explain_task_requires_specific_agent">
     Task {0} will require the specific agent "{1}" that executed task "{2}" previously.
@@ -118,6 +118,25 @@
   </entry>
   <entry key="plan_explain_task_execution_timeout">
     The task {0} will be considered to have failed if execution on the agent takes longer than {1}.
+  </entry>
+
+  <entry key="plan_explain_any_label">
+    An agent with any labels.
+  </entry>
+  <entry key="plan_explain_label_superset">
+    An agent with a superset of the labels in {0}.
+  </entry>
+  <entry key="plan_explain_label_subset">
+    An agent with a subset of the labels in {0}.
+  </entry>
+  <entry key="plan_explain_label_overlapping">
+    An agent with labels that overlap the set {0}.
+  </entry>
+  <entry key="plan_explain_label_is_equal_to">
+    An agent with labels equal to the set {0}.
+  </entry>
+  <entry key="plan_explain_label_is_not_equal_to">
+    An agent with labels not equal to the set {0}.
   </entry>
 
 </properties>

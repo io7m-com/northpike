@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.arbitraries;
 
 
-import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentSearchParameters;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
@@ -32,7 +32,7 @@ public final class NPArbAgentSearchParameters
       NPAgentSearchParameters.class,
       () -> {
         return Combinators.combine(
-          Arbitraries.defaultFor(NPAgentLabelMatchType.class),
+          NPArbComparisons.set(Arbitraries.defaultFor(NPAgentLabelName.class)),
           Arbitraries.longs()
         ).as(NPAgentSearchParameters::new);
       }

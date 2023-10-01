@@ -19,9 +19,9 @@ package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.cedarbridge.runtime.convenience.CBMaps;
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AgentDescription;
@@ -35,8 +35,7 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVAgentLabel.AGENT_
 
 public enum NPUVAgentDescription
   implements NPProtocolMessageValidatorType<
-  NPAgentDescription,
-  NPU1AgentDescription>
+  NPAgentDescription, NPU1AgentDescription>
 {
   /**
    * A validator.
@@ -56,7 +55,7 @@ public enum NPUVAgentDescription
       CBMaps.ofMapString(message.systemProperties()),
       CBMaps.ofMap(
         message.labels(),
-        name -> string(name.value()),
+        name -> string(name.value().value()),
         AGENT_LABEL::convertToWire
       )
     );
@@ -74,7 +73,7 @@ public enum NPUVAgentDescription
       CBMaps.toMapString(message.fieldSystemProperties()),
       CBMaps.toMap(
         message.fieldLabels(),
-        name -> new RDottedName(name.value()),
+        name -> NPAgentLabelName.of(name.value()),
         AGENT_LABEL::convertFromWire
       )
     );

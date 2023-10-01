@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPAgentLabelName;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -25,20 +25,20 @@ import java.util.UUID;
 /**
  * Retrieve a label.
  *
- * @param messageID  The message ID
- * @param name The name
+ * @param messageID The message ID
+ * @param name      The name
  */
 
 public record NPUCommandAgentLabelGet(
   UUID messageID,
-  RDottedName name)
+  NPAgentLabelName name)
   implements NPUCommandType<NPUResponseAgentLabelGet>
 {
   /**
    * Retrieve a label.
    *
-   * @param messageID  The message ID
-   * @param name The name
+   * @param messageID The message ID
+   * @param name      The name
    */
 
   public NPUCommandAgentLabelGet

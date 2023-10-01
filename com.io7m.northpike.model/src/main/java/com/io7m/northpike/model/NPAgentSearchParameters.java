@@ -17,6 +17,8 @@
 
 package com.io7m.northpike.model;
 
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
+
 import java.util.Objects;
 
 /**
@@ -27,7 +29,7 @@ import java.util.Objects;
  */
 
 public record NPAgentSearchParameters(
-  NPAgentLabelMatchType matchLabels,
+  NPComparisonSetType<NPAgentLabelName> matchLabels,
   long pageSize)
   implements NPSearchParametersType
 {

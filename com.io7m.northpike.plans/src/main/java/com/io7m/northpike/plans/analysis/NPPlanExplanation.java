@@ -17,9 +17,16 @@
 
 package com.io7m.northpike.plans.analysis;
 
-import com.io7m.northpike.agent.expressions.NPASerializer;
 import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.Anything;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsEqualTo;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsNotEqualTo;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsOverlapping;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsSubsetOf;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsSupersetOf;
 import com.io7m.northpike.model.plans.NPPlanBarrierType;
 import com.io7m.northpike.model.plans.NPPlanElementName;
 import com.io7m.northpike.model.plans.NPPlanException;
@@ -45,10 +52,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.io7m.northpike.strings.NPStringConstantApplied.applied;
+import static com.io7m.northpike.strings.NPStringConstants.PLAN_EXPLAIN_ANY_LABEL;
 import static com.io7m.northpike.strings.NPStringConstants.PLAN_EXPLAIN_BARRIER_BECOMES_READY_DEPENDENCIES;
 import static com.io7m.northpike.strings.NPStringConstants.PLAN_EXPLAIN_BARRIER_BECOMES_READY_EMPTY;
 import static com.io7m.northpike.strings.NPStringConstants.PLAN_EXPLAIN_DONE;
 import static com.io7m.northpike.strings.NPStringConstants.PLAN_EXPLAIN_EMPTY;
+import static com.io7m.northpike.strings.NPStringConstants.PLAN_EXPLAIN_LABEL_IS_EQUAL_TO;
+import static com.io7m.northpike.strings.NPStringConstants.PLAN_EXPLAIN_LABEL_IS_NOT_EQUAL_TO;
+import static com.io7m.northpike.strings.NPStringConstants.PLAN_EXPLAIN_LABEL_OVERLAPPING;
+import static com.io7m.northpike.strings.NPStringConstants.PLAN_EXPLAIN_LABEL_SUBSET;
+import static com.io7m.northpike.strings.NPStringConstants.PLAN_EXPLAIN_LABEL_SUPERSET;
 import static com.io7m.northpike.strings.NPStringConstants.PLAN_EXPLAIN_TASK_AGENT_TIMEOUT;
 import static com.io7m.northpike.strings.NPStringConstants.PLAN_EXPLAIN_TASK_BECOMES_READY_DEPENDENCIES;
 import static com.io7m.northpike.strings.NPStringConstants.PLAN_EXPLAIN_TASK_BECOMES_READY_EMPTY;
@@ -119,6 +132,7 @@ public final class NPPlanExplanation implements NPPlanExplanationType
         updatesNext.clear();
 
         evaluateStatus(
+          strings,
           updates,
           updatesNext,
           messages,
@@ -142,6 +156,7 @@ public final class NPPlanExplanation implements NPPlanExplanationType
   }
 
   private static void evaluateStatus(
+    final NPStrings strings,
     final ArrayList<NPPlanEvaluationUpdateType> updates,
     final ArrayList<NPPlanEvaluationUpdateType> updatesNext,
     final ArrayList<NPStringConstantType> messages,
@@ -208,7 +223,7 @@ public final class NPPlanExplanation implements NPPlanExplanationType
             PLAN_EXPLAIN_TASK_REQUIRES_MATCHING_AGENT,
             task.name(),
             agent,
-            NPASerializer.serializeToString(task.agentRequireWithLabel())
+            serializeToString(strings, task.agentRequireWithLabel())
           )
         );
 
@@ -282,6 +297,31 @@ public final class NPPlanExplanation implements NPPlanExplanationType
         continue;
       }
     }
+  }
+
+  private static String serializeToString(
+    final NPStrings strings,
+    final NPComparisonSetType<NPAgentLabelName> comparison)
+  {
+    if (comparison instanceof Anything<NPAgentLabelName>) {
+      return strings.format(PLAN_EXPLAIN_ANY_LABEL);
+    }
+    if (comparison instanceof final IsSupersetOf<NPAgentLabelName> e) {
+      return strings.format(PLAN_EXPLAIN_LABEL_SUPERSET, e.value());
+    }
+    if (comparison instanceof final IsSubsetOf<NPAgentLabelName> e) {
+      return strings.format(PLAN_EXPLAIN_LABEL_SUBSET, e.value());
+    }
+    if (comparison instanceof final IsOverlapping<NPAgentLabelName> e) {
+      return strings.format(PLAN_EXPLAIN_LABEL_OVERLAPPING, e.value());
+    }
+    if (comparison instanceof final IsEqualTo<NPAgentLabelName> e) {
+      return strings.format(PLAN_EXPLAIN_LABEL_IS_EQUAL_TO, e.value());
+    }
+    if (comparison instanceof final IsNotEqualTo<NPAgentLabelName> e) {
+      return strings.format(PLAN_EXPLAIN_LABEL_IS_NOT_EQUAL_TO, e.value());
+    }
+    throw new IllegalStateException("Unrecognized comparison: " + comparison);
   }
 
   @Override

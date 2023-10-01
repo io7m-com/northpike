@@ -21,8 +21,8 @@ import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
 import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
-import com.io7m.northpike.agent.expressions.v1.NAE1Expressions;
-import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentLabelName;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 
 import java.util.Map;
 import java.util.Objects;
@@ -32,9 +32,9 @@ import java.util.Objects;
  */
 
 public final class NPP1AgentRequireWithLabelsMatching
-  implements BTElementHandlerType<NPAgentLabelMatchType, NPP1AgentRequireWithLabelsMatchingExpression>
+  implements BTElementHandlerType<NPComparisonSetType<NPAgentLabelName>, NPP1AgentRequireWithLabelsMatchingExpression>
 {
-  private NPAgentLabelMatchType expression;
+  private NPComparisonSetType<NPAgentLabelName> expression;
 
   /**
    * An element handler for match expressions.
@@ -49,17 +49,17 @@ public final class NPP1AgentRequireWithLabelsMatching
   }
 
   @Override
-  public Map<BTQualifiedName, BTElementHandlerConstructorType<?, ? extends NPAgentLabelMatchType>>
+  public Map<BTQualifiedName, BTElementHandlerConstructorType<?, ? extends NPComparisonSetType<NPAgentLabelName>>>
   onChildHandlersRequested(
     final BTElementParsingContextType context)
   {
-    return NAE1Expressions.expressions();
+    return NPP1SetComparisons.expressions();
   }
 
   @Override
   public void onChildValueProduced(
     final BTElementParsingContextType context,
-    final NPAgentLabelMatchType result)
+    final NPComparisonSetType<NPAgentLabelName> result)
   {
     this.expression = Objects.requireNonNull(result, "result");
   }

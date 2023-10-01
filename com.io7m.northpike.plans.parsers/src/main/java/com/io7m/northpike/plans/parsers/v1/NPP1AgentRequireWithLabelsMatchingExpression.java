@@ -17,7 +17,8 @@
 
 package com.io7m.northpike.plans.parsers.v1;
 
-import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentLabelName;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 
 import java.util.Objects;
 
@@ -28,7 +29,7 @@ import java.util.Objects;
  */
 
 public record NPP1AgentRequireWithLabelsMatchingExpression(
-  NPAgentLabelMatchType match)
+  NPComparisonSetType<NPAgentLabelName> match)
 {
   /**
    * A "require" agent match expression.

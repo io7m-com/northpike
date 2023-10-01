@@ -18,11 +18,17 @@
 package com.io7m.northpike.shell;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.NPAgentLabelSet;
 import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPRepositoryCredentialsType;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.security.NPRoleSet;
+import com.io7m.northpike.shell.internal.NPAgentIDConverter;
+import com.io7m.northpike.shell.internal.NPAgentLabelSetConverter;
 import com.io7m.northpike.shell.internal.NPFingerprintConverter;
+import com.io7m.northpike.shell.internal.NPKeyConverter;
 import com.io7m.northpike.shell.internal.NPRepositoryCredentialsConverter;
 import com.io7m.northpike.shell.internal.NPRepositoryIDConverter;
 import com.io7m.northpike.shell.internal.NPRoleSetConverter;
@@ -38,16 +44,30 @@ public final class NPShellValueConverters
 {
   private static final QValueConverterDirectoryType CONVERTERS =
     QValueConverterDirectory.core()
-      .with(NPRepositoryID.class,
-            new NPRepositoryIDConverter())
-      .with(RDottedName.class,
-            new RDottedNameConverter())
-      .with(NPRepositoryCredentialsType.class,
-            new NPRepositoryCredentialsConverter())
-      .with(NPFingerprint.class,
-            new NPFingerprintConverter())
-      .with(NPRoleSet.class,
-            new NPRoleSetConverter());
+      .with(
+        NPRepositoryID.class,
+        new NPRepositoryIDConverter())
+      .with(
+        NPAgentID.class,
+        new NPAgentIDConverter())
+      .with(
+        NPKey.class,
+        new NPKeyConverter())
+      .with(
+        RDottedName.class,
+        new RDottedNameConverter())
+      .with(
+        NPRepositoryCredentialsType.class,
+        new NPRepositoryCredentialsConverter())
+      .with(
+        NPFingerprint.class,
+        new NPFingerprintConverter())
+      .with(
+        NPRoleSet.class,
+        new NPRoleSetConverter())
+      .with(
+        NPAgentLabelSet.class,
+        new NPAgentLabelSetConverter());
 
   private NPShellValueConverters()
   {

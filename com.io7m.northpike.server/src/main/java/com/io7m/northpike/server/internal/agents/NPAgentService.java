@@ -19,8 +19,9 @@ package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentWorkItem;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerResources;
@@ -202,8 +203,8 @@ public final class NPAgentService implements NPAgentServiceType
 
   @Override
   public NPSuitableAgents findSuitableAgentsFor(
-    final NPAgentLabelMatchType require,
-    final NPAgentLabelMatchType prefer)
+    final NPComparisonSetType<NPAgentLabelName> require,
+    final NPComparisonSetType<NPAgentLabelName> prefer)
   {
     Objects.requireNonNull(require, "require");
     Objects.requireNonNull(prefer, "prefer");

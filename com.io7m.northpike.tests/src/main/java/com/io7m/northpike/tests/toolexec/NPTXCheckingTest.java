@@ -43,9 +43,12 @@ import com.io7m.northpike.toolexec.model.NPTXSEnvironmentRemove;
 import com.io7m.northpike.toolexec.model.NPTXSEnvironmentSet;
 import com.io7m.northpike.toolexec.model.NPTXSIf;
 import com.io7m.northpike.toolexec.parser.NPTXDescriptionParser;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Example;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
+import net.jqwik.api.Provide;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -67,10 +70,22 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public final class NPTXCheckingTest
 {
+  @Provide
+  public static Arbitrary<Long> longs()
+  {
+    return Arbitraries.longs();
+  }
+
+  @Provide
+  public static Arbitrary<String> strings()
+  {
+    return Arbitraries.strings();
+  }
+
   @Property
   public void testCheckSArgumentAdd(
     final @ForAll NPTXPlanVariables variables,
-    final @ForAll String text)
+    final @ForAll("strings") String text)
     throws Exception
   {
     assertEquals(
@@ -99,7 +114,7 @@ public final class NPTXCheckingTest
   @Property
   public void testCheckSEnvironmentPass(
     final @ForAll NPTXPlanVariables variables,
-    final @ForAll String text)
+    final @ForAll("strings") String text)
     throws Exception
   {
     assertEquals(
@@ -114,7 +129,7 @@ public final class NPTXCheckingTest
   @Property
   public void testCheckSEnvironmentRemove(
     final @ForAll NPTXPlanVariables variables,
-    final @ForAll String text)
+    final @ForAll("strings") String text)
     throws Exception
   {
     assertEquals(
@@ -129,8 +144,8 @@ public final class NPTXCheckingTest
   @Property
   public void testCheckSEnvironmentSet(
     final @ForAll NPTXPlanVariables variables,
-    final @ForAll String key,
-    final @ForAll String val)
+    final @ForAll("strings") String key,
+    final @ForAll("strings") String val)
     throws Exception
   {
     assertEquals(
@@ -398,7 +413,7 @@ public final class NPTXCheckingTest
   @Property
   public void testCheckENumber(
     final @ForAll NPTXPlanVariables variables,
-    final @ForAll long value)
+    final @ForAll("longs") long value)
     throws Exception
   {
     assertEquals(
@@ -413,7 +428,7 @@ public final class NPTXCheckingTest
   @Property
   public void testCheckEString(
     final @ForAll NPTXPlanVariables variables,
-    final @ForAll String value)
+    final @ForAll("strings") String value)
     throws Exception
   {
     assertEquals(

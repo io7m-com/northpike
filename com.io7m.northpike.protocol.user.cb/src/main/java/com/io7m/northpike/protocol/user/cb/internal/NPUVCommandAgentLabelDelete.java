@@ -19,7 +19,7 @@ package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.cedarbridge.runtime.convenience.CBLists;
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelDelete;
 import com.io7m.northpike.protocol.user.cb.NPU1CommandAgentLabelDelete;
@@ -47,7 +47,7 @@ public enum NPUVCommandAgentLabelDelete
   {
     return new NPU1CommandAgentLabelDelete(
       new CBUUID(message.messageID()),
-      CBLists.ofCollection(message.labels(), n -> string(n.value()))
+      CBLists.ofCollection(message.labels(), n -> string(n.toString()))
     );
   }
 
@@ -60,7 +60,7 @@ public enum NPUVCommandAgentLabelDelete
       message.fieldNames()
         .values()
         .stream()
-        .map(s -> new RDottedName(s.value()))
+        .map(s -> NPAgentLabelName.of(s.value()))
         .collect(Collectors.toUnmodifiableSet())
     );
   }

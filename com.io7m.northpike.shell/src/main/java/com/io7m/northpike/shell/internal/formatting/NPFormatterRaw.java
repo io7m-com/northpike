@@ -17,6 +17,8 @@
 
 package com.io7m.northpike.shell.internal.formatting;
 
+import com.io7m.northpike.model.NPAgentDescription;
+import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
@@ -207,6 +209,61 @@ public final class NPFormatterRaw implements NPFormatterType
           .stream()
           .map(x -> x.value().value())
           .collect(Collectors.toUnmodifiableSet())
+      );
+    }
+    out.flush();
+  }
+
+  @Override
+  public void formatAgent(
+    final NPAgentDescription agent)
+  {
+    final var out = this.terminal.writer();
+    out.print("ID: ");
+    out.println(agent.id());
+    out.print("Name: ");
+    out.println(agent.name());
+    out.print("Access Key: ");
+    out.println(agent.accessKey().format());
+
+    if (agent.labels().size() > 0) {
+      for (final var name : agent.labels().values()) {
+        out.print("Label: ");
+        out.println(name.name().toString());
+      }
+    }
+
+    if (agent.systemProperties().size() > 0) {
+      for (final var entry : agent.systemProperties().entrySet()) {
+        out.print("SystemProperty: ");
+        out.println(entry.getKey() + " " + entry.getValue());
+      }
+    }
+
+    if (agent.environmentVariables().size() > 0) {
+      for (final var entry : agent.environmentVariables().entrySet()) {
+        out.print("Environment: ");
+        out.println(entry.getKey() + " " + entry.getValue());
+      }
+    }
+
+    out.flush();
+  }
+
+  @Override
+  public void formatAgentSummaries(
+    final NPPage<NPAgentSummary> page)
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    out.println("# ID | Name");
+
+    for (final var item : page.items()) {
+      out.printf(
+        "%-40s | %s%n",
+        item.id(),
+        item.name()
       );
     }
     out.flush();

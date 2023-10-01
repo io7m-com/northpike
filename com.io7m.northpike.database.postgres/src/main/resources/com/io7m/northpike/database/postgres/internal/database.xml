@@ -583,6 +583,37 @@ CREATE TABLE agent_labels (
     </Statement>
 
     <Comment>
+      The agent_label_search view provides a convenient view for performing
+      label-based agent searches.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE VIEW agent_label_search AS
+  SELECT
+    agents.a_id,
+    agents.a_name,
+    agents.a_deleted,
+    array_agg (agent_label_definitions.ald_name) AS als_labels
+  FROM
+    agents
+  LEFT JOIN agent_labels
+    ON agent_labels.al_agent = agents.a_id
+  LEFT JOIN agent_label_definitions
+    ON agent_label_definitions.ald_id = agent_labels.al_label
+  GROUP BY
+    agents.a_id,
+    agents.a_name,
+    agents.a_deleted
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT ON agent_label_search TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON agent_label_search TO northpike_read_only
+    </Statement>
+
+    <Comment>
       The tool_execution_descriptions table stores the tool execution
       descriptions that can be used in plans to execute code on agents.
     </Comment>

@@ -17,11 +17,12 @@
 
 package com.io7m.northpike.model.plans;
 
-import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -41,7 +42,7 @@ public non-sealed interface NPPlanTaskType
    * @return The expression against which to match agents
    */
 
-  NPAgentLabelMatchType agentRequireWithLabel();
+  NPComparisonSetType<NPAgentLabelName> agentRequireWithLabel();
 
   /**
    * When multiple agents match against the {@link #agentRequireWithLabel()}
@@ -50,7 +51,7 @@ public non-sealed interface NPPlanTaskType
    * @return The expression against which to match agents
    */
 
-  NPAgentLabelMatchType agentPreferWithLabel();
+  NPComparisonSetType<NPAgentLabelName> agentPreferWithLabel();
 
   /**
    * If specified, this task must be executed by the same agent that

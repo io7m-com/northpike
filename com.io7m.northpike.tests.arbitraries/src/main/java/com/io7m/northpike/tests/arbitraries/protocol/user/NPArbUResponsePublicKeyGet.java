@@ -35,7 +35,7 @@ public final class NPArbUResponsePublicKeyGet
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
           Arbitraries.create(UUID::randomUUID),
-          Arbitraries.defaultFor(String.class).optional()
+          Arbitraries.strings().optional()
         ).as(NPUResponsePublicKeyGet::new);
       }
     );

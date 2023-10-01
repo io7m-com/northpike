@@ -19,6 +19,11 @@ package com.io7m.northpike.shell;
 
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.shell.internal.NPShell;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentGet;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentPut;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentSearchBegin;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentSearchNext;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdAuditSearchBegin;
 import com.io7m.northpike.shell.internal.NPShellCmdAuditSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdAuditSearchPrevious;
@@ -120,6 +125,11 @@ public final class NPShells implements NPShellFactoryType
 
     final List<NPShellCmdType> commands =
       List.of(
+        new NPShellCmdAgentGet(services),
+        new NPShellCmdAgentPut(services),
+        new NPShellCmdAgentSearchBegin(services),
+        new NPShellCmdAgentSearchNext(services),
+        new NPShellCmdAgentSearchPrevious(services),
         new NPShellCmdAuditSearchBegin(services),
         new NPShellCmdAuditSearchNext(services),
         new NPShellCmdAuditSearchPrevious(services),

@@ -18,7 +18,7 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelGet;
 import com.io7m.northpike.protocol.user.cb.NPU1CommandAgentLabelGet;
@@ -44,7 +44,7 @@ public enum NPUVCommandAgentLabelGet
   {
     return new NPU1CommandAgentLabelGet(
       new CBUUID(message.messageID()),
-      string(message.name().value())
+      string(message.name().toString())
     );
   }
 
@@ -54,7 +54,7 @@ public enum NPUVCommandAgentLabelGet
   {
     return new NPUCommandAgentLabelGet(
       message.fieldMessageId().value(),
-      new RDottedName(message.fieldName().value())
+      NPAgentLabelName.of(message.fieldName().value())
     );
   }
 }

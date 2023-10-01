@@ -18,6 +18,8 @@
 package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.medrina.api.MRoleName;
+import com.io7m.northpike.model.NPAgentDescription;
+import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
@@ -335,6 +337,94 @@ public final class NPFormatterPretty implements NPFormatterType
     }
 
     this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatAgent(
+    final NPAgentDescription agent)
+    throws Exception
+  {
+    final var out = this.terminal.writer();
+
+    {
+      final var builder =
+        Tabla.builder()
+          .setWidthConstraint(this.softTableWidth(2))
+          .declareColumn("Attribute", atLeastContentOrHeader())
+          .declareColumn("Value", atLeastContentOrHeader());
+
+      builder.addRow()
+        .addCell("ID")
+        .addCell(agent.id().toString());
+      builder.addRow()
+        .addCell("Name")
+        .addCell(agent.name());
+      builder.addRow()
+        .addCell("Access Key")
+        .addCell(agent.accessKey().format());
+
+      this.renderTable(builder.build());
+    }
+
+    if (agent.labels().size() > 0) {
+      out.println("Labels");
+
+      final var builder =
+        Tabla.builder()
+          .setWidthConstraint(this.softTableWidth(1))
+          .declareColumn("Name", any());
+
+      for (final var name : agent.labels().values()) {
+        builder.addRow()
+          .addCell(name.name().toString());
+      }
+
+      this.renderTable(builder.build());
+    }
+
+    if (agent.systemProperties().size() > 0) {
+      out.println("System Properties");
+
+      final var builder =
+        Tabla.builder()
+          .setWidthConstraint(this.softTableWidth(1))
+          .declareColumn("Name", atLeastContentOrHeader())
+          .declareColumn("Value", atLeastContentOrHeader());
+
+      for (final var entry : agent.systemProperties().entrySet()) {
+        builder.addRow()
+          .addCell(entry.getKey())
+          .addCell(entry.getValue());
+      }
+
+      this.renderTable(builder.build());
+    }
+
+    if (agent.environmentVariables().size() > 0) {
+      out.println("Environment Variables");
+
+      final var builder =
+        Tabla.builder()
+          .setWidthConstraint(this.softTableWidth(1))
+          .declareColumn("Name", atLeastContentOrHeader())
+          .declareColumn("Value", atLeastContentOrHeader());
+
+      for (final var entry : agent.environmentVariables().entrySet()) {
+        builder.addRow()
+          .addCell(entry.getKey())
+          .addCell(entry.getValue());
+      }
+
+      this.renderTable(builder.build());
+    }
+  }
+
+  @Override
+  public void formatAgentSummaries(
+    final NPPage<NPAgentSummary> agents)
+    throws Exception
+  {
+
   }
 
   private static void formatPage(

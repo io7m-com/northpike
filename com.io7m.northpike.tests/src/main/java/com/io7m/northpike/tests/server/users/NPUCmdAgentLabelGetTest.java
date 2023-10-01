@@ -18,17 +18,17 @@
 package com.io7m.northpike.tests.server.users;
 
 import com.io7m.idstore.model.IdName;
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelGet;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -118,7 +118,7 @@ public final class NPUCmdAgentLabelGetTest
     final var command =
       new NPUCommandAgentLabelGet(
         UUID.randomUUID(),
-        new RDottedName("x.y")
+        NPAgentLabelName.of("x.y")
       );
 
     final var ex =
@@ -145,7 +145,7 @@ public final class NPUCmdAgentLabelGetTest
     final var command =
       new NPUCommandAgentLabelGet(
         UUID.randomUUID(),
-        new RDottedName("x.y")
+        NPAgentLabelName.of("x.y")
       );
 
     final var userId =
@@ -182,7 +182,7 @@ public final class NPUCmdAgentLabelGetTest
     final var command =
       new NPUCommandAgentLabelGet(
         UUID.randomUUID(),
-        new RDottedName("x.y")
+        NPAgentLabelName.of("x.y")
       );
 
     final var userId =
@@ -225,7 +225,7 @@ public final class NPUCmdAgentLabelGetTest
     final var command =
       new NPUCommandAgentLabelGet(
         UUID.randomUUID(),
-        new RDottedName("x.y")
+        NPAgentLabelName.of("x.y")
       );
 
     final var userId =
@@ -246,7 +246,7 @@ public final class NPUCmdAgentLabelGetTest
 
     final var label =
       new NPAgentLabel(
-        new RDottedName("x.y"),
+        NPAgentLabelName.of("x.y"),
         "Label 0"
       );
 

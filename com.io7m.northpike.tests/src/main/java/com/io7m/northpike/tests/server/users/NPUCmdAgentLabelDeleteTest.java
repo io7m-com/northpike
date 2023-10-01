@@ -18,17 +18,17 @@
 package com.io7m.northpike.tests.server.users;
 
 import com.io7m.idstore.model.IdName;
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelDelete;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -119,7 +119,7 @@ public final class NPUCmdAgentLabelDeleteTest
     final var command =
       new NPUCommandAgentLabelDelete(
         UUID.randomUUID(),
-        Set.of(new RDottedName("x.y.z"))
+        Set.of(NPAgentLabelName.of("x.y.z"))
       );
 
     final var ex =
@@ -146,7 +146,7 @@ public final class NPUCmdAgentLabelDeleteTest
     final var command =
       new NPUCommandAgentLabelDelete(
         UUID.randomUUID(),
-        Set.of(new RDottedName("x.y.z"))
+        Set.of(NPAgentLabelName.of("x.y.z"))
       );
 
     final var userId =
@@ -183,7 +183,7 @@ public final class NPUCmdAgentLabelDeleteTest
     final var command =
       new NPUCommandAgentLabelDelete(
         UUID.randomUUID(),
-        Set.of(new RDottedName("x.y.z"))
+        Set.of(NPAgentLabelName.of("x.y.z"))
       );
 
     final var user =

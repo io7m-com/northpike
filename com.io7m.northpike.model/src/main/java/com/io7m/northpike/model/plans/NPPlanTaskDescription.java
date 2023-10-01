@@ -17,9 +17,10 @@
 
 package com.io7m.northpike.model.plans;
 
-import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentResourceName;
 import com.io7m.northpike.model.NPFailurePolicyType;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -45,8 +46,8 @@ import java.util.Set;
 public record NPPlanTaskDescription(
   NPPlanElementName name,
   String description,
-  NPAgentLabelMatchType agentRequireWithLabel,
-  NPAgentLabelMatchType agentPreferWithLabel,
+  NPComparisonSetType<NPAgentLabelName> agentRequireWithLabel,
+  NPComparisonSetType<NPAgentLabelName> agentPreferWithLabel,
   Optional<NPPlanElementName> agentMustBeSameAs,
   Optional<Duration> agentSelectionTimeout,
   Optional<Duration> executionTimeout,

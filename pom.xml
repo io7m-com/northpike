@@ -23,7 +23,6 @@
   <modules>
     <module>com.io7m.northpike.agent.api</module>
     <module>com.io7m.northpike.agent.configuration</module>
-    <module>com.io7m.northpike.agent.expressions</module>
     <module>com.io7m.northpike.agent.main</module>
     <module>com.io7m.northpike.agent</module>
     <module>com.io7m.northpike.clock</module>

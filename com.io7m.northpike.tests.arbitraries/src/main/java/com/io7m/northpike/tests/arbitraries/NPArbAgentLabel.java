@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelName;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 
@@ -30,7 +30,7 @@ public final class NPArbAgentLabel extends NPArbAbstract<NPAgentLabel>
       NPAgentLabel.class,
       () -> {
         return Combinators.combine(
-          Arbitraries.defaultFor(RDottedName.class),
+          Arbitraries.defaultFor(NPAgentLabelName.class),
           Arbitraries.strings().alpha()
         ).as(NPAgentLabel::new);
       }

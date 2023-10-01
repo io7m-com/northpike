@@ -25,7 +25,8 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabelMatchType;
+import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentWorkItem;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
@@ -33,6 +34,7 @@ import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.protocol.agent.NPACommandSLatencyCheck;
 import com.io7m.northpike.protocol.agent.NPACommandSWorkOffered;
 import com.io7m.northpike.protocol.agent.NPACommandSWorkSent;
@@ -62,6 +64,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
@@ -536,7 +539,7 @@ public final class NPAgentTask
    */
 
   public boolean matches(
-    final NPAgentLabelMatchType match)
+    final NPComparisonSetType<NPAgentLabelName> match)
   {
     Objects.requireNonNull(match, "match");
 
@@ -546,7 +549,13 @@ public final class NPAgentTask
 
       if (descriptionOpt.isPresent()) {
         final var description = descriptionOpt.get();
-        return match.matches(description.labels().values());
+        return match.matches(
+          description.labels()
+            .values()
+            .stream()
+            .map(NPAgentLabel::name)
+            .collect(Collectors.toUnmodifiableSet())
+        );
       }
 
       return false;

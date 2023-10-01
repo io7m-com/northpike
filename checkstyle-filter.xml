@@ -9,13 +9,13 @@
   <suppress files="NPToolArchives.java"
             checks="IllegalInstantiation"/>
 
-  <!-- Lacking pattern comparisons. -->
+  <!-- Lacking pattern matching. -->
   <suppress files="NPA1Validation.java"
             checks="NPathComplexity"/>
   <suppress files="NPA1Validation.java"
             checks="CyclomaticComplexity"/>
 
-  <!-- Lacking pattern comparisons. -->
+  <!-- Lacking pattern matching. -->
   <suppress files="NPU1Validation.java"
             checks="NPathComplexity"/>
   <suppress files="NPU1Validation.java"
@@ -27,19 +27,23 @@
   <suppress files="NPU1Validation.java"
             checks="ClassFanOutComplexity"/>
 
-  <!-- Lacking pattern comparisons. -->
+  <!-- Lacking pattern matching. -->
   <suppress files="NPTX1Serializer.java"
             checks="NPathComplexity"/>
 
-  <!-- Lacking pattern comparisons. -->
+  <!-- Lacking pattern matching. -->
   <suppress files="NPTXChecker.java"
             checks="NPathComplexity"/>
 
-  <!-- Lacking pattern comparisons. -->
+  <!-- Lacking pattern matching. -->
   <suppress files="NPSC1File.java"
             checks="NPathComplexity"/>
 
-  <!-- Lacking pattern comparisons. -->
+  <!-- Lacking pattern matching. -->
+  <suppress files="NPP1Serializer.java"
+            checks="NPathComplexity"/>
+
+  <!-- Lacking pattern matching. -->
   <suppress files="NPTXEvaluator.java"
             checks="NPathComplexity"/>
   <suppress files="NPTXEvaluator.java"

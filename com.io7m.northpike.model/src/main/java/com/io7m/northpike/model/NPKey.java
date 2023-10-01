@@ -52,6 +52,15 @@ public final class NPKey
   }
 
   /**
+   * @return The valid key pattern
+   */
+
+  public static Pattern validKeyPattern()
+  {
+    return VALID_KEY;
+  }
+
+  /**
    * Generate a shared secret key.
    *
    * @param rng The RNG
