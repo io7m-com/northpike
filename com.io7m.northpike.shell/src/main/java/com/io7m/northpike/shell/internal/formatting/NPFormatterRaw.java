@@ -24,6 +24,7 @@ import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPUser;
 import org.jline.terminal.Terminal;
 
 import java.io.PrintWriter;
@@ -31,6 +32,7 @@ import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * A raw formatter.
@@ -184,6 +186,30 @@ public final class NPFormatterRaw implements NPFormatterType
   {
     final var out = this.terminal.writer();
     out.println(id.toString());
+  }
+
+  @Override
+  public void formatUsers(
+    final NPPage<NPUser> page)
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    out.println("# ID | Name | Roles");
+
+    for (final var item : page.items()) {
+      out.printf(
+        "%-40s | %s | %s%n",
+        item.userId(),
+        item.name().value(),
+        item.subject()
+          .roles()
+          .stream()
+          .map(x -> x.value().value())
+          .collect(Collectors.toUnmodifiableSet())
+      );
+    }
+    out.flush();
   }
 
   private static void formatPage(

@@ -23,6 +23,7 @@ import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPUser;
 
 import java.util.Set;
 import java.util.UUID;
@@ -123,5 +124,16 @@ public interface NPFormatterType
    */
 
   void formatUserID(UUID id)
+    throws Exception;
+
+  /**
+   * Format user summaries.
+   *
+   * @param users The users
+   *
+   * @throws Exception On errors
+   */
+
+  void formatUsers(NPPage<NPUser> users)
     throws Exception;
 }

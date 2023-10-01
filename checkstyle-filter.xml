@@ -65,4 +65,8 @@
   <suppress files="NPDBQPlanGetRaw.java"
             checks="IllegalInstantiation"/>
 
+  <!-- Dispatching to command classes. -->
+  <suppress files="NPShells.java"
+            checks="ClassDataAbstractionCoupling"/>
+
 </suppressions>

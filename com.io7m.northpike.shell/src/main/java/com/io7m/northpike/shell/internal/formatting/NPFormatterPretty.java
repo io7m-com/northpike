@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.shell.internal.formatting;
 
+import com.io7m.medrina.api.MRoleName;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
@@ -24,6 +25,7 @@ import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPUser;
 import com.io7m.tabla.core.TTableRendererType;
 import com.io7m.tabla.core.TTableType;
 import com.io7m.tabla.core.TTableWidthConstraintRange;
@@ -37,6 +39,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.io7m.tabla.core.TColumnWidthConstraint.any;
 import static com.io7m.tabla.core.TColumnWidthConstraint.atLeastContentOrHeader;
 import static com.io7m.tabla.core.TConstraintHardness.SOFT_CONSTRAINT;
 import static com.io7m.tabla.core.TTableWidthConstraintType.tableWidthExact;
@@ -299,6 +302,39 @@ public final class NPFormatterPretty implements NPFormatterType
   {
     final var out = this.terminal.writer();
     out.println(id.toString());
+  }
+
+  @Override
+  public void formatUsers(
+    final NPPage<NPUser> page)
+    throws Exception
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(3))
+        .declareColumn("ID", atLeastContentOrHeader())
+        .declareColumn("Name", atLeastContentOrHeader())
+        .declareColumn("Roles", any());
+
+    for (final var item : page.items()) {
+      builder.addRow()
+        .addCell(item.userId().toString())
+        .addCell(item.name().value())
+        .addCell(
+          item.subject()
+            .roles()
+            .stream()
+            .map(MRoleName::value)
+            .sorted()
+            .toList()
+            .toString()
+        );
+    }
+
+    this.renderTable(builder.build());
   }
 
   private static void formatPage(

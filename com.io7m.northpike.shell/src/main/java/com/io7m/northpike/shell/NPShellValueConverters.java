@@ -21,9 +21,11 @@ import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPRepositoryCredentialsType;
 import com.io7m.northpike.model.NPRepositoryID;
+import com.io7m.northpike.model.security.NPRoleSet;
 import com.io7m.northpike.shell.internal.NPFingerprintConverter;
 import com.io7m.northpike.shell.internal.NPRepositoryCredentialsConverter;
 import com.io7m.northpike.shell.internal.NPRepositoryIDConverter;
+import com.io7m.northpike.shell.internal.NPRoleSetConverter;
 import com.io7m.northpike.shell.internal.RDottedNameConverter;
 import com.io7m.quarrel.core.QValueConverterDirectory;
 import com.io7m.quarrel.core.QValueConverterDirectoryType;
@@ -43,7 +45,9 @@ public final class NPShellValueConverters
       .with(NPRepositoryCredentialsType.class,
             new NPRepositoryCredentialsConverter())
       .with(NPFingerprint.class,
-            new NPFingerprintConverter());
+            new NPFingerprintConverter())
+      .with(NPRoleSet.class,
+            new NPRoleSetConverter());
 
   private NPShellValueConverters()
   {

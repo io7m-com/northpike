@@ -17,7 +17,9 @@
 
 package com.io7m.northpike.tests.shell;
 
+import com.io7m.idstore.model.IdName;
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.keys.NPPublicKeys;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
@@ -27,6 +29,8 @@ import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchPrevious;
@@ -46,6 +50,9 @@ import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandRepositorySearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandSCMProvidersSupported;
 import com.io7m.northpike.protocol.user.NPUCommandSelf;
+import com.io7m.northpike.protocol.user.NPUCommandUserSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandUserSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandUserSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUResponseAuditSearch;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponsePublicKeyGet;
@@ -55,6 +62,7 @@ import com.io7m.northpike.protocol.user.NPUResponseRepositoryPublicKeysAssigned;
 import com.io7m.northpike.protocol.user.NPUResponseRepositorySearch;
 import com.io7m.northpike.protocol.user.NPUResponseSCMProvidersSupported;
 import com.io7m.northpike.protocol.user.NPUResponseSelf;
+import com.io7m.northpike.protocol.user.NPUResponseUserSearch;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.shell.NPShellConfiguration;
 import com.io7m.northpike.shell.NPShellType;
@@ -78,6 +86,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -658,6 +667,90 @@ public final class NPShellTest
     w.println("self");
     w.println("set --formatter RAW");
     w.println("self");
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+  }
+
+  @Test
+  public void testUserSearch()
+    throws Exception
+  {
+    final var user =
+      new NPUser(
+        UUID.randomUUID(),
+        new IdName("user"),
+        new MSubject(
+          Arrays.stream(NPSecRole.values())
+            .map(NPSecRole::role)
+            .collect(Collectors.toUnmodifiableSet())
+        )
+      );
+
+    final var page =
+      new NPPage<>(List.of(user, user, user), 1, 1, 0L);
+
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandUserSearchBegin.class))
+    ).thenReturn(new NPUResponseUserSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandUserSearchNext.class))
+    ).thenReturn(new NPUResponseUserSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(Mockito.isA(NPUCommandUserSearchPrevious.class))
+    ).thenReturn(new NPUResponseUserSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.println("user-search-begin");
+    w.println("user-search-next");
+    w.println("user-search-previous");
+
+    w.println("user-search-begin --name-equal-to user");
+    w.println("user-search-begin --name-not-equal-to user");
+    w.println("user-search-begin --name-similar-to user");
+    w.println("user-search-begin --name-not-similar-to user");
+
+    w.println("user-search-begin --roles-equal-to users.reader,users.writer");
+    w.println("user-search-begin --roles-not-equal-to users.reader,users.writer");
+    w.println("user-search-begin --roles-subset-of users.reader,users.writer");
+    w.println("user-search-begin --roles-superset-of users.reader,users.writer");
+    w.println("user-search-begin --roles-overlapping users.reader,users.writer");
+
+    w.println("set --formatter RAW");
+
+    w.println("user-search-begin");
+    w.println("user-search-next");
+    w.println("user-search-previous");
+
+    w.println("user-search-begin --name-equal-to user");
+    w.println("user-search-begin --name-not-equal-to user");
+    w.println("user-search-begin --name-similar-to user");
+    w.println("user-search-begin --name-not-similar-to user");
+
+    w.println("user-search-begin --roles-equal-to users.reader,users.writer");
+    w.println("user-search-begin --roles-not-equal-to users.reader,users.writer");
+    w.println("user-search-begin --roles-subset-of users.reader,users.writer");
+    w.println("user-search-begin --roles-superset-of users.reader,users.writer");
+    w.println("user-search-begin --roles-overlapping users.reader,users.writer");
+
     w.flush();
     w.close();
 
