@@ -55,6 +55,7 @@ import com.io7m.northpike.shell.internal.NPShellCmdRepositorySearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdSCMProvidersSupported;
 import com.io7m.northpike.shell.internal.NPShellCmdSelf;
 import com.io7m.northpike.shell.internal.NPShellCmdSet;
+import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionValidate;
 import com.io7m.northpike.shell.internal.NPShellCmdType;
 import com.io7m.northpike.shell.internal.NPShellCmdUserSearchBegin;
 import com.io7m.northpike.shell.internal.NPShellCmdUserSearchNext;
@@ -172,6 +173,7 @@ public final class NPShells implements NPShellFactoryType
         new NPShellCmdSCMProvidersSupported(services),
         new NPShellCmdSelf(services),
         new NPShellCmdSet(services),
+        new NPShellCmdToolExecutionDescriptionValidate(services),
         new NPShellCmdUserSearchBegin(services),
         new NPShellCmdUserSearchNext(services),
         new NPShellCmdUserSearchPrevious(services),
