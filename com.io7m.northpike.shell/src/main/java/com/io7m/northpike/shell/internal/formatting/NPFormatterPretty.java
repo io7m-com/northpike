@@ -28,6 +28,8 @@ import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPToolExecutionDescription;
+import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.tabla.core.TTableRendererType;
 import com.io7m.tabla.core.TTableType;
@@ -482,6 +484,41 @@ public final class NPFormatterPretty implements NPFormatterType
     }
 
     this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatToolExecutionDescriptionSummaries(
+    final NPPage<NPToolExecutionDescriptionSummary> page)
+    throws Exception
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(4))
+        .declareColumn("Name", atLeastContentOrHeader())
+        .declareColumn("Version", atLeastContentOrHeader())
+        .declareColumn("Tool", atLeastContentOrHeader())
+        .declareColumn("Description", atLeastContentOrHeader());
+
+    for (final var item : page.items()) {
+      builder.addRow()
+        .addCell(item.identifier().name().toString())
+        .addCell(Long.toUnsignedString(item.identifier().version()))
+        .addCell(item.tool().toString())
+        .addCell(item.description());
+    }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatToolExecutionDescription(
+    final NPToolExecutionDescription data)
+  {
+    final var out = this.terminal.writer();
+    out.println(data.text());
   }
 
   private static void formatPage(

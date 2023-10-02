@@ -55,6 +55,11 @@ import com.io7m.northpike.shell.internal.NPShellCmdRepositorySearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdSCMProvidersSupported;
 import com.io7m.northpike.shell.internal.NPShellCmdSelf;
 import com.io7m.northpike.shell.internal.NPShellCmdSet;
+import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionGet;
+import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionPut;
+import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearchBegin;
+import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearchNext;
+import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionValidate;
 import com.io7m.northpike.shell.internal.NPShellCmdType;
 import com.io7m.northpike.shell.internal.NPShellCmdUserSearchBegin;
@@ -173,6 +178,11 @@ public final class NPShells implements NPShellFactoryType
         new NPShellCmdSCMProvidersSupported(services),
         new NPShellCmdSelf(services),
         new NPShellCmdSet(services),
+        new NPShellCmdToolExecutionDescriptionGet(services),
+        new NPShellCmdToolExecutionDescriptionPut(services),
+        new NPShellCmdToolExecutionDescriptionSearchBegin(services),
+        new NPShellCmdToolExecutionDescriptionSearchNext(services),
+        new NPShellCmdToolExecutionDescriptionSearchPrevious(services),
         new NPShellCmdToolExecutionDescriptionValidate(services),
         new NPShellCmdUserSearchBegin(services),
         new NPShellCmdUserSearchNext(services),

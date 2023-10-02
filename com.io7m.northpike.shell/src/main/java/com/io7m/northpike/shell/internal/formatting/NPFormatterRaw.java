@@ -27,6 +27,8 @@ import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPToolExecutionDescription;
+import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPUser;
 import org.jline.terminal.Terminal;
 
@@ -299,6 +301,35 @@ public final class NPFormatterRaw implements NPFormatterType
       );
     }
     out.flush();
+  }
+
+  @Override
+  public void formatToolExecutionDescriptionSummaries(
+    final NPPage<NPToolExecutionDescriptionSummary> page)
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    out.println("# Name | Version | Tool | Description");
+
+    for (final var item : page.items()) {
+      out.printf(
+        "%s | %s | %s | %s%n",
+        item.identifier().name(),
+        Long.toUnsignedString(item.identifier().version()),
+        item.tool(),
+        item.description()
+      );
+    }
+    out.flush();
+  }
+
+  @Override
+  public void formatToolExecutionDescription(
+    final NPToolExecutionDescription data)
+  {
+    final var out = this.terminal.writer();
+    out.println(data.text());
   }
 
   private static void formatPage(

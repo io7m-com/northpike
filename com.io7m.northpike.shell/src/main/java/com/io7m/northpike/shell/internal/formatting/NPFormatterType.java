@@ -26,6 +26,8 @@ import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPToolExecutionDescription;
+import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPUser;
 
 import java.util.Set;
@@ -186,5 +188,29 @@ public interface NPFormatterType
 
   void formatAgentLabels(
     NPPage<NPAgentLabel> page)
+    throws Exception;
+
+  /**
+   * Format tool execution description summaries.
+   *
+   * @param page The tool execution descriptions
+   *
+   * @throws Exception On errors
+   */
+
+  void formatToolExecutionDescriptionSummaries(
+    NPPage<NPToolExecutionDescriptionSummary> page)
+    throws Exception;
+
+  /**
+   * Format a tool execution description.
+   *
+   * @param data The tool execution description
+   *
+   * @throws Exception On errors
+   */
+
+  void formatToolExecutionDescription(
+    NPToolExecutionDescription data)
     throws Exception;
 }

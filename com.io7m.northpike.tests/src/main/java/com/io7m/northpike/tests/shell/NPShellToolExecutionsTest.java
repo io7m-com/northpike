@@ -18,7 +18,22 @@
 package com.io7m.northpike.tests.shell;
 
 import com.io7m.northpike.model.NPCompilationMessage;
+import com.io7m.northpike.model.NPFormatName;
+import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPToolExecutionDescription;
+import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPToolExecutionName;
+import com.io7m.northpike.model.NPToolName;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionGet;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionPut;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
+import com.io7m.northpike.protocol.user.NPUResponseOK;
+import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionGet;
+import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionSearch;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionValidate;
 import com.io7m.northpike.shell.NPShellConfiguration;
 import com.io7m.northpike.shell.NPShellType;
@@ -169,6 +184,7 @@ public final class NPShellToolExecutionsTest
       Files.writeString(directory.resolve("file.txt"), "Data!");
 
     final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
     w.print("tool-execution-validate ");
     w.print("  --file ");
     w.print(data);
@@ -186,5 +202,183 @@ public final class NPShellToolExecutionsTest
 
     Mockito.verify(this.userClient, new AtLeast(1))
       .execute(isA(NPUCommandToolExecutionDescriptionValidate.class));
+  }
+
+  @Test
+  public void testToolExecutionPut(
+    final @TempDir Path directory)
+    throws Exception
+  {
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandToolExecutionDescriptionPut.class))
+    ).thenReturn(new NPUResponseOK(
+      UUID.randomUUID(),
+      UUID.randomUUID()
+    ));
+
+    final var data =
+      Files.writeString(directory.resolve("file.txt"), "Data!");
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+    w.print("tool-execution-put ");
+    w.print("  --file ");
+    w.print(data);
+    w.print("  --name com.io7m.example ");
+    w.print("  --version 3 ");
+    w.print("  --format-name format ");
+    w.print("  --tool com.io7m.tool ");
+    w.print("  --description Something ");
+    w.println();
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandToolExecutionDescriptionPut.class));
+  }
+
+  @Test
+  public void testToolExecutionGet()
+    throws Exception
+  {
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandToolExecutionDescriptionGet.class))
+    ).thenReturn(new NPUResponseToolExecutionDescriptionGet(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      Optional.of(
+        new NPToolExecutionDescription(
+          new NPToolExecutionIdentifier(
+            NPToolExecutionName.of("com.io7m.example"),
+            3L
+          ),
+          NPToolName.of("com.io7m.tool"),
+          "Something",
+          NPFormatName.of("format"),
+          "Data!"
+        )
+      )
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+    w.print("tool-execution-get ");
+    w.print("  --name com.io7m.example ");
+    w.print("  --version 3 ");
+    w.println();
+
+    w.println("set --formatter RAW");
+    w.print("tool-execution-get ");
+    w.print("  --name com.io7m.example ");
+    w.print("  --version 3 ");
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandToolExecutionDescriptionGet.class));
+  }
+
+  @Test
+  public void testToolExecutionSearch()
+    throws Exception
+  {
+    final var page =
+      new NPPage<>(
+        List.of(
+          new NPToolExecutionDescriptionSummary(
+            new NPToolExecutionIdentifier(
+              NPToolExecutionName.of("com.io7m.example"),
+              3L
+            ),
+            NPToolName.of("com.io7m.tool"),
+            "Execution 1"
+          ),
+          new NPToolExecutionDescriptionSummary(
+            new NPToolExecutionIdentifier(
+              NPToolExecutionName.of("com.io7m.example"),
+              4L
+            ),
+            NPToolName.of("com.io7m.tool"),
+            "Execution 2"
+          ),
+          new NPToolExecutionDescriptionSummary(
+            new NPToolExecutionIdentifier(
+              NPToolExecutionName.of("com.io7m.example"),
+              5L
+            ),
+            NPToolName.of("com.io7m.tool"),
+            "Execution 3"
+          )
+        ),
+        1,
+        1,
+        0L
+      );
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandToolExecutionDescriptionSearchBegin.class))
+    ).thenReturn(new NPUResponseToolExecutionDescriptionSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandToolExecutionDescriptionSearchNext.class))
+    ).thenReturn(new NPUResponseToolExecutionDescriptionSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandToolExecutionDescriptionSearchPrevious.class))
+    ).thenReturn(new NPUResponseToolExecutionDescriptionSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.println("tool-execution-search-begin");
+    w.println("tool-execution-search-next");
+    w.println("tool-execution-search-previous");
+
+    w.println("tool-execution-search-begin --tool com.io7m.example");
+    w.println("tool-execution-search-next");
+    w.println("tool-execution-search-previous");
+
+    w.println("set --formatter RAW");
+
+    w.println("tool-execution-search-begin");
+    w.println("tool-execution-search-next");
+    w.println("tool-execution-search-previous");
+
+    w.println("tool-execution-search-begin --tool com.io7m.example");
+    w.println("tool-execution-search-next");
+    w.println("tool-execution-search-previous");
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(4))
+      .execute(isA(NPUCommandToolExecutionDescriptionSearchBegin.class));
+    Mockito.verify(this.userClient, new AtLeast(4))
+      .execute(isA(NPUCommandToolExecutionDescriptionSearchNext.class));
+    Mockito.verify(this.userClient, new AtLeast(4))
+      .execute(isA(NPUCommandToolExecutionDescriptionSearchPrevious.class));
   }
 }
