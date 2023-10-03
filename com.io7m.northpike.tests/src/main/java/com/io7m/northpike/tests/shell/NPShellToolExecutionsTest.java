@@ -66,6 +66,7 @@ import static com.io7m.northpike.model.NPCompilationMessage.Kind.ERROR;
 import static com.io7m.northpike.model.NPCompilationMessage.Kind.INFO;
 import static com.io7m.northpike.model.NPCompilationMessage.Kind.WARNING;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.text.StringEscapeUtils.escapeJava;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
@@ -182,12 +183,14 @@ public final class NPShellToolExecutionsTest
 
     final var data =
       Files.writeString(directory.resolve("file.txt"), "Data!");
+    final var pathEscaped =
+      escapeJava(escapeJava(data.toString()));
 
     final var w = this.terminal.sendInputToTerminalWriter();
     w.println("set --terminate-on-errors true");
     w.print("tool-execution-validate ");
     w.print("  --file ");
-    w.print(data);
+    w.print(pathEscaped);
     w.print("  --format-name format ");
     w.print("  --variable-boolean com.io7m.b0 ");
     w.print("  --variable-integer com.io7m.i0 ");
@@ -218,12 +221,14 @@ public final class NPShellToolExecutionsTest
 
     final var data =
       Files.writeString(directory.resolve("file.txt"), "Data!");
+    final var pathEscaped =
+      escapeJava(escapeJava(data.toString()));
 
     final var w = this.terminal.sendInputToTerminalWriter();
     w.println("set --terminate-on-errors true");
     w.print("tool-execution-put ");
     w.print("  --file ");
-    w.print(data);
+    w.print(pathEscaped);
     w.print("  --name com.io7m.example ");
     w.print("  --version 3 ");
     w.print("  --format-name format ");

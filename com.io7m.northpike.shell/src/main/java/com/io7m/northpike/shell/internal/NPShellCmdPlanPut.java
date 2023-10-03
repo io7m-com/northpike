@@ -117,8 +117,10 @@ public final class NPShellCmdPlanPut
     final QCommandContextType context)
     throws IOException, ParsingException
   {
+    final var file =
+      context.parameterValue(FILE);
     final var data =
-      Files.readString(context.parameterValue(FILE));
+      Files.readString(file);
 
     final var toolExecution =
       new NPPlanDescriptionUnparsed(

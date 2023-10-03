@@ -29,6 +29,7 @@ import java.util.Optional;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorIo;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorProtocol;
+import static com.io7m.northpike.strings.NPStringConstants.ERROR_IO;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_READ_SHORT;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_SIZE_LIMIT_EXCEEDED;
 
@@ -75,7 +76,18 @@ public interface NPProtocolMessagesType<T extends NPProtocolMessageType>
     final InputStream stream)
     throws NPProtocolException, IOException
   {
-    final var size = stream.readNBytes(4);
+    final byte[] size;
+    try {
+      size = stream.readNBytes(4);
+    } catch (IOException e) {
+      throw new NPProtocolException(
+        strings.format(ERROR_IO),
+        errorIo(),
+        Map.of(),
+        Optional.empty()
+      );
+    }
+
     if (size.length < 4) {
       throw new NPProtocolException(
         strings.format(ERROR_READ_SHORT),

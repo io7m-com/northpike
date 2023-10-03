@@ -66,6 +66,7 @@ import static com.io7m.northpike.model.NPCompilationMessage.Kind.ERROR;
 import static com.io7m.northpike.model.NPCompilationMessage.Kind.INFO;
 import static com.io7m.northpike.model.NPCompilationMessage.Kind.WARNING;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.text.StringEscapeUtils.escapeJava;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
@@ -182,12 +183,14 @@ public final class NPShellPlansTest
 
     final var data =
       Files.writeString(directory.resolve("file.txt"), "Data!");
+    final var pathEscaped =
+      escapeJava(escapeJava(data.toString()));
 
     final var w = this.terminal.sendInputToTerminalWriter();
     w.println("set --terminate-on-errors true");
     w.print("plan-validate ");
     w.print("  --file ");
-    w.print(data);
+    w.print(pathEscaped);
     w.print("  --format-name format ");
     w.println();
     w.flush();
@@ -214,12 +217,14 @@ public final class NPShellPlansTest
 
     final var data =
       Files.writeString(directory.resolve("file.txt"), "Data!");
+    final var pathEscaped =
+      escapeJava(escapeJava(data.toString()));
 
     final var w = this.terminal.sendInputToTerminalWriter();
     w.println("set --terminate-on-errors true");
     w.print("plan-put ");
     w.print("  --file ");
-    w.print(data);
+    w.print(pathEscaped);
     w.print("  --name com.io7m.example ");
     w.print("  --version 3 ");
     w.print("  --format-name format ");

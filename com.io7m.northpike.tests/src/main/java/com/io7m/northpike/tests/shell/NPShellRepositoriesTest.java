@@ -80,6 +80,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.text.StringEscapeUtils.escapeJava;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
@@ -344,11 +345,14 @@ public final class NPShellRepositoriesTest
       UUID.randomUUID()
     ));
 
+    final var pathEscaped =
+      escapeJava(escapeJava(keyFile.toString()));
+
     final var w = this.terminal.sendInputToTerminalWriter();
     w.println("set --terminate-on-errors true");
     w.print("public-key-put ");
     w.print(" --file ");
-    w.print(keyFile);
+    w.print(pathEscaped);
     w.println();
 
     w.print("public-key-get ");

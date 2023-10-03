@@ -95,6 +95,8 @@ open module com.io7m.northpike.tests
   requires net.jqwik.api;
   requires org.apache.commons.compress;
   requires org.apache.commons.io;
+  requires org.apache.commons.lang3;
+  requires org.apache.commons.text;
   requires org.bouncycastle.pg;
   requires org.jgrapht.core;
   requires org.mockito;
