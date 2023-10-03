@@ -109,6 +109,7 @@ module com.io7m.northpike.server
     com.io7m.northpike.server.internal.users.NPUCmdAuditSearchPrevious,
     com.io7m.northpike.server.internal.users.NPUCmdDisconnect,
     com.io7m.northpike.server.internal.users.NPUCmdLogin,
+    com.io7m.northpike.server.internal.users.NPUCmdPlanDelete,
     com.io7m.northpike.server.internal.users.NPUCmdPlanGet,
     com.io7m.northpike.server.internal.users.NPUCmdPlanPut,
     com.io7m.northpike.server.internal.users.NPUCmdPlanSearchBegin,

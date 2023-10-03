@@ -138,6 +138,13 @@
   [MatchAction  [WithName write]]
 ]
 
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom plans.writer]]
+  [MatchObject  [WithType plans]]
+  [MatchAction  [WithName delete]]
+]
+
 #------------------------------------------------------------------------
 # Agents
 #

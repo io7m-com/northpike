@@ -24,6 +24,7 @@ import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanName;
 import com.io7m.northpike.model.plans.NPPlanSummary;
+import com.io7m.northpike.protocol.user.NPUCommandPlanDelete;
 import com.io7m.northpike.protocol.user.NPUCommandPlanGet;
 import com.io7m.northpike.protocol.user.NPUCommandPlanPut;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchBegin;
@@ -376,5 +377,39 @@ public final class NPShellPlansTest
       .execute(isA(NPUCommandPlanSearchNext.class));
     Mockito.verify(this.userClient, new AtLeast(2))
       .execute(isA(NPUCommandPlanSearchPrevious.class));
+  }
+
+  @Test
+  public void testPlanDelete()
+    throws Exception
+  {
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandPlanDelete.class))
+    ).thenReturn(new NPUResponseOK(
+      UUID.randomUUID(),
+      UUID.randomUUID()
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+    w.print("plan-delete ");
+    w.print("  --name com.io7m.example ");
+    w.print("  --version 3 ");
+    w.println();
+
+    w.println("set --formatter RAW");
+    w.print("plan-delete ");
+    w.print("  --name com.io7m.example ");
+    w.print("  --version 3 ");
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandPlanDelete.class));
   }
 }

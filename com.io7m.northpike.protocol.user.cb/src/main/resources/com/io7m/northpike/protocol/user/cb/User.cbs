@@ -797,6 +797,14 @@
   [field messageId cb:UUID]
 ]
 
+[documentation NPU1CommandPlanDelete "A request to delete plans."]
+[record NPU1CommandPlanDelete
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation plans "The plans"]
+  [field plans [cb:List NPU1PlanIdentifier]]
+]
+
 ;
 ; Agents
 ;
@@ -1327,6 +1335,7 @@
       NPU1CommandAuditSearchPrevious
       NPU1CommandDisconnect
       NPU1CommandLogin
+      NPU1CommandPlanDelete
       NPU1CommandPlanGet
       NPU1CommandPlanPut
       NPU1CommandPlanSearchBegin

@@ -146,6 +146,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAuditSearchPrevious,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandDisconnect,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandLogin,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanDelete,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanPut,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanSearchBegin,

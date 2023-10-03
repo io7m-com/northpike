@@ -47,6 +47,7 @@ import com.io7m.northpike.protocol.user.NPUCommandAuditSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandLogin;
+import com.io7m.northpike.protocol.user.NPUCommandPlanDelete;
 import com.io7m.northpike.protocol.user.NPUCommandPlanGet;
 import com.io7m.northpike.protocol.user.NPUCommandPlanPut;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchBegin;
@@ -143,6 +144,7 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAuditSearc
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAuditSearchPrevious.COMMAND_AUDIT_SEARCH_PREVIOUS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandDisconnect.COMMAND_DISCONNECT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandLogin.COMMAND_LOGIN;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanDelete.COMMAND_PLAN_DELETE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanGet.COMMAND_PLAN_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanPut.COMMAND_PLAN_PUT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanSearchBegin.COMMAND_PLAN_SEARCH_BEGIN;
@@ -463,6 +465,9 @@ public final class NPU1Validation
     if (command instanceof final NPUCommandPlanSearchPrevious c) {
       return COMMAND_PLAN_SEARCH_PREVIOUS.convertToWire(c);
     }
+    if (command instanceof final NPUCommandPlanDelete c) {
+      return COMMAND_PLAN_DELETE.convertToWire(c);
+    }
 
     if (command instanceof final NPUCommandAgentPut c) {
       return COMMAND_AGENT_PUT.convertToWire(c);
@@ -671,6 +676,9 @@ public final class NPU1Validation
     }
     if (message instanceof final NPU1CommandPlanSearchPrevious c) {
       return COMMAND_PLAN_SEARCH_PREVIOUS.convertFromWire(c);
+    }
+    if (message instanceof final NPU1CommandPlanDelete c) {
+      return COMMAND_PLAN_DELETE.convertFromWire(c);
     }
 
     if (message instanceof final NPU1CommandAgentPut c) {

@@ -48,6 +48,7 @@ public sealed interface NPUCommandType<R extends NPUResponseType>
   NPUCommandAuditSearchPrevious,
   NPUCommandDisconnect,
   NPUCommandLogin,
+  NPUCommandPlanDelete,
   NPUCommandPlanGet,
   NPUCommandPlanPut,
   NPUCommandPlanSearchNext,

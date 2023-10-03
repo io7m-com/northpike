@@ -38,6 +38,7 @@ import com.io7m.northpike.shell.internal.NPShellCmdAuditSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdHelp;
 import com.io7m.northpike.shell.internal.NPShellCmdLogin;
 import com.io7m.northpike.shell.internal.NPShellCmdLogout;
+import com.io7m.northpike.shell.internal.NPShellCmdPlanDelete;
 import com.io7m.northpike.shell.internal.NPShellCmdPlanGet;
 import com.io7m.northpike.shell.internal.NPShellCmdPlanPut;
 import com.io7m.northpike.shell.internal.NPShellCmdPlanSearchBegin;
@@ -167,6 +168,7 @@ public final class NPShells implements NPShellFactoryType
         new NPShellCmdHelp(services),
         new NPShellCmdLogin(services),
         new NPShellCmdLogout(services),
+        new NPShellCmdPlanDelete(services),
         new NPShellCmdPlanGet(services),
         new NPShellCmdPlanPut(services),
         new NPShellCmdPlanSearchBegin(services),
