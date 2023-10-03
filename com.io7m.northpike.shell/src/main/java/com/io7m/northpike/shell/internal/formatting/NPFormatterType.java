@@ -29,6 +29,8 @@ import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
+import com.io7m.northpike.model.plans.NPPlanSummary;
 
 import java.util.Set;
 import java.util.UUID;
@@ -213,4 +215,29 @@ public interface NPFormatterType
   void formatToolExecutionDescription(
     NPToolExecutionDescription data)
     throws Exception;
+
+  /**
+   * Format a plan.
+   *
+   * @param plan The data
+   *
+   * @throws Exception On errors
+   */
+
+  void formatPlan(
+    NPPlanDescriptionUnparsed plan)
+    throws Exception;
+
+  /**
+   * Format plan summaries.
+   *
+   * @param page The plan descriptions
+   *
+   * @throws Exception On errors
+   */
+
+  void formatPlanSummaries(
+    NPPage<NPPlanSummary> page)
+    throws Exception;
+
 }

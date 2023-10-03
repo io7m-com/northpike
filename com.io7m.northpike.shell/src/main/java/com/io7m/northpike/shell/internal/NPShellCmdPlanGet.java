@@ -16,10 +16,14 @@
 
 package com.io7m.northpike.shell.internal;
 
-import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchPrevious;
-import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionSearch;
+
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.plans.NPPlanName;
+import com.io7m.northpike.protocol.user.NPUCommandPlanGet;
+import com.io7m.northpike.protocol.user.NPUResponsePlanGet;
 import com.io7m.quarrel.core.QCommandContextType;
 import com.io7m.quarrel.core.QCommandMetadata;
+import com.io7m.quarrel.core.QParameterNamed1;
 import com.io7m.quarrel.core.QParameterNamedType;
 import com.io7m.quarrel.core.QStringType.QConstant;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
@@ -29,54 +33,80 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * "tool-execution-search-previous"
+ * "plan-get"
  */
 
-public final class NPShellCmdToolExecutionDescriptionSearchPrevious
-  extends NPShellCmdAbstractCR<
-  NPUCommandToolExecutionDescriptionSearchPrevious,
-  NPUResponseToolExecutionDescriptionSearch>
+public final class NPShellCmdPlanGet
+  extends NPShellCmdAbstractCR<NPUCommandPlanGet, NPUResponsePlanGet>
 {
+  private static final QParameterNamed1<NPPlanName> NAME =
+    new QParameterNamed1<>(
+      "--name",
+      List.of(),
+      new QConstant("The plan name."),
+      Optional.empty(),
+      NPPlanName.class
+    );
+
+  private static final QParameterNamed1<Long> VERSION =
+    new QParameterNamed1<>(
+      "--version",
+      List.of(),
+      new QConstant("The plan version."),
+      Optional.empty(),
+      Long.class
+    );
+
   /**
    * Construct a command.
    *
    * @param inServices The service directory
    */
 
-  public NPShellCmdToolExecutionDescriptionSearchPrevious(
+  public NPShellCmdPlanGet(
     final RPServiceDirectoryType inServices)
   {
     super(
       inServices,
       new QCommandMetadata(
-        "tool-execution-search-previous",
-        new QConstant("Go to the previous page of tool executions."),
+        "plan-get",
+        new QConstant("Retrieve a plan."),
         Optional.empty()
       ),
-      NPUCommandToolExecutionDescriptionSearchPrevious.class,
-      NPUResponseToolExecutionDescriptionSearch.class
+      NPUCommandPlanGet.class,
+      NPUResponsePlanGet.class
     );
   }
 
   @Override
   public List<QParameterNamedType<?>> onListNamedParameters()
   {
-    return List.of();
+    return List.of(NAME, VERSION);
   }
 
   @Override
-  protected NPUCommandToolExecutionDescriptionSearchPrevious onCreateCommand(
+  protected NPUCommandPlanGet onCreateCommand(
     final QCommandContextType context)
   {
-    return new NPUCommandToolExecutionDescriptionSearchPrevious(UUID.randomUUID());
+    return new NPUCommandPlanGet(
+      UUID.randomUUID(),
+      new NPPlanIdentifier(
+        context.parameterValue(NAME),
+        context.parameterValue(VERSION).longValue()
+      )
+    );
   }
 
   @Override
   protected void onFormatResponse(
     final QCommandContextType context,
-    final NPUResponseToolExecutionDescriptionSearch response)
+    final NPUResponsePlanGet response)
     throws Exception
   {
-    this.formatter().formatToolExecutionDescriptionSummaries(response.results());
+    final var opt = response.plan();
+    if (opt.isPresent()) {
+      final var data = opt.get();
+      this.formatter().formatPlan(data);
+    }
   }
 }

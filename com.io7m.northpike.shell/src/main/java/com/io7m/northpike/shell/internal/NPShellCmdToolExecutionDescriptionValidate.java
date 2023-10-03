@@ -71,7 +71,7 @@ public final class NPShellCmdToolExecutionDescriptionValidate
     new QParameterNamed1<>(
       "--format-name",
       List.of(),
-      new QConstant("The tool exection description format."),
+      new QConstant("The tool execution description format."),
       Optional.empty(),
       NPFormatName.class
     );

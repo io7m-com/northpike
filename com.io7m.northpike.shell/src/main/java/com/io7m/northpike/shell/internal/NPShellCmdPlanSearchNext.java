@@ -16,8 +16,8 @@
 
 package com.io7m.northpike.shell.internal;
 
-import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchPrevious;
-import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionSearch;
+import com.io7m.northpike.protocol.user.NPUCommandPlanSearchNext;
+import com.io7m.northpike.protocol.user.NPUResponsePlanSearch;
 import com.io7m.quarrel.core.QCommandContextType;
 import com.io7m.quarrel.core.QCommandMetadata;
 import com.io7m.quarrel.core.QParameterNamedType;
@@ -29,13 +29,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * "tool-execution-search-previous"
+ * "plan-search-next"
  */
 
-public final class NPShellCmdToolExecutionDescriptionSearchPrevious
-  extends NPShellCmdAbstractCR<
-  NPUCommandToolExecutionDescriptionSearchPrevious,
-  NPUResponseToolExecutionDescriptionSearch>
+public final class NPShellCmdPlanSearchNext
+  extends NPShellCmdAbstractCR<NPUCommandPlanSearchNext, NPUResponsePlanSearch>
 {
   /**
    * Construct a command.
@@ -43,18 +41,18 @@ public final class NPShellCmdToolExecutionDescriptionSearchPrevious
    * @param inServices The service directory
    */
 
-  public NPShellCmdToolExecutionDescriptionSearchPrevious(
+  public NPShellCmdPlanSearchNext(
     final RPServiceDirectoryType inServices)
   {
     super(
       inServices,
       new QCommandMetadata(
-        "tool-execution-search-previous",
-        new QConstant("Go to the previous page of tool executions."),
+        "plan-search-next",
+        new QConstant("Go to the next page of plans."),
         Optional.empty()
       ),
-      NPUCommandToolExecutionDescriptionSearchPrevious.class,
-      NPUResponseToolExecutionDescriptionSearch.class
+      NPUCommandPlanSearchNext.class,
+      NPUResponsePlanSearch.class
     );
   }
 
@@ -65,18 +63,18 @@ public final class NPShellCmdToolExecutionDescriptionSearchPrevious
   }
 
   @Override
-  protected NPUCommandToolExecutionDescriptionSearchPrevious onCreateCommand(
+  protected NPUCommandPlanSearchNext onCreateCommand(
     final QCommandContextType context)
   {
-    return new NPUCommandToolExecutionDescriptionSearchPrevious(UUID.randomUUID());
+    return new NPUCommandPlanSearchNext(UUID.randomUUID());
   }
 
   @Override
   protected void onFormatResponse(
     final QCommandContextType context,
-    final NPUResponseToolExecutionDescriptionSearch response)
+    final NPUResponsePlanSearch response)
     throws Exception
   {
-    this.formatter().formatToolExecutionDescriptionSummaries(response.results());
+    this.formatter().formatPlanSummaries(response.results());
   }
 }

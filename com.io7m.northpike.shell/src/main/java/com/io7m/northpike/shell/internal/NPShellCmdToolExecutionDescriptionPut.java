@@ -58,7 +58,7 @@ public final class NPShellCmdToolExecutionDescriptionPut
     new QParameterNamed1<>(
       "--name",
       List.of(),
-      new QConstant("The tool exection name."),
+      new QConstant("The tool execution name."),
       Optional.empty(),
       NPToolExecutionName.class
     );
@@ -67,7 +67,7 @@ public final class NPShellCmdToolExecutionDescriptionPut
     new QParameterNamed1<>(
       "--version",
       List.of(),
-      new QConstant("The tool exection version."),
+      new QConstant("The tool execution version."),
       Optional.empty(),
       Long.class
     );
@@ -76,7 +76,7 @@ public final class NPShellCmdToolExecutionDescriptionPut
     new QParameterNamed1<>(
       "--format-name",
       List.of(),
-      new QConstant("The tool exection description format."),
+      new QConstant("The tool execution description format."),
       Optional.empty(),
       NPFormatName.class
     );

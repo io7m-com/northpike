@@ -30,6 +30,8 @@ import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
+import com.io7m.northpike.model.plans.NPPlanSummary;
 import org.jline.terminal.Terminal;
 
 import java.io.PrintWriter;
@@ -330,6 +332,34 @@ public final class NPFormatterRaw implements NPFormatterType
   {
     final var out = this.terminal.writer();
     out.println(data.text());
+  }
+
+  @Override
+  public void formatPlan(
+    final NPPlanDescriptionUnparsed plan)
+  {
+    final var out = this.terminal.writer();
+    out.println(plan.text());
+  }
+
+  @Override
+  public void formatPlanSummaries(
+    final NPPage<NPPlanSummary> page)
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    out.println("# Name | Version | Description");
+
+    for (final var item : page.items()) {
+      out.printf(
+        "%s | %s | %s%n",
+        item.identifier().name(),
+        Long.toUnsignedString(item.identifier().version()),
+        item.description()
+      );
+    }
+    out.flush();
   }
 
   private static void formatPage(
