@@ -24,10 +24,18 @@ import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
+import com.io7m.northpike.model.NPRepositoryCredentialsNone;
+import com.io7m.northpike.model.NPRepositoryDescription;
+import com.io7m.northpike.model.NPRepositoryID;
+import com.io7m.northpike.model.NPRepositorySigningPolicy;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
@@ -40,6 +48,7 @@ import com.io7m.northpike.plans.parsers.NPPlanParsers;
 import com.io7m.northpike.plans.parsers.NPPlanSerializerFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanSerializerType;
 import com.io7m.northpike.plans.parsers.NPPlanSerializers;
+import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
@@ -51,6 +60,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -58,8 +68,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorPlanStillReferenced;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -562,33 +574,6 @@ public final class NPDatabasePlansTest
     assertEquals(0L, p.pageFirstOffset());
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   /**
    * Searching for plans works.
    *
@@ -780,5 +765,99 @@ public final class NPDatabasePlansTest
     assertEquals(1, p.pageCount());
     assertEquals(1, p.pageIndex());
     assertEquals(0L, p.pageFirstOffset());
+  }
+
+  /**
+   * Unreferenced plans can be deleted.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanDeleteIntegrity0()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+    final var delete =
+      this.transaction.queries(NPDatabaseQueriesPlansType.DeleteType.class);
+    final var get =
+      this.transaction.queries(NPDatabaseQueriesPlansType.GetUnparsedType.class);
+
+    final var strings =
+      NPStrings.create(Locale.ROOT);
+
+    final var plan =
+      NPPlans.builder(strings, "com.io7m.p", 1L)
+        .build();
+
+    put.execute(new Parameters(plan, new NPPlanSerializers()));
+
+    assertNotEquals(
+      Optional.empty(),
+      get.execute(plan.identifier())
+    );
+
+    delete.execute(plan.identifier());
+
+    assertEquals(
+      Optional.empty(),
+      get.execute(plan.identifier())
+    );
+  }
+
+  /**
+   * Referenced plans give a usable error message on deletion attempts.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanDeleteIntegrity1()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+    final var delete =
+      this.transaction.queries(NPDatabaseQueriesPlansType.DeleteType.class);
+    final var get =
+      this.transaction.queries(NPDatabaseQueriesPlansType.GetUnparsedType.class);
+    final var assignPut =
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
+    final var reposPut =
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+
+    final var strings =
+      NPStrings.create(Locale.ROOT);
+
+    final var plan =
+      NPPlans.builder(strings, "com.io7m.p", 1L)
+        .build();
+
+    put.execute(new Parameters(plan, new NPPlanSerializers()));
+
+    final var repositoryID =
+      new NPRepositoryID(UUID.randomUUID());
+
+    reposPut.execute(new NPRepositoryDescription(
+      NPSCMRepositoriesJGit.providerNameGet(),
+      repositoryID,
+      URI.create("http://www.example.com"),
+      NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+      NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS
+    ));
+
+    assignPut.execute(new NPAssignment(
+      NPAssignmentName.of("x"),
+      repositoryID,
+      plan.identifier()
+    ));
+
+    final var ex =
+      assertThrows(NPDatabaseException.class, () -> {
+        delete.execute(plan.identifier());
+      });
+
+    assertEquals(errorPlanStillReferenced(), ex.errorCode());
   }
 }

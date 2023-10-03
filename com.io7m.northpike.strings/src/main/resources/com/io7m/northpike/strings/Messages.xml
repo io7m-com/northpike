@@ -14,6 +14,10 @@
   <entry key="commit">Commit</entry>
   <entry key="downloading">Downloading {0}</entry>
   <entry key="entry">Entry</entry>
+  <entry key="error_plan_referenced_by_assignment">
+    The given plan cannot be deleted because it is still referenced by one or more assignments.
+  </entry>
+  <entry key="remediate_plan_referenced_by_assignment">Search for assignments by filtering on the plan identifier.</entry>
   <entry key="error_authentication">Authentication failed.</entry>
   <entry key="error_compilation_failed">Compilation failed.</entry>
   <entry key="error_duplicate">Object already exists.</entry>

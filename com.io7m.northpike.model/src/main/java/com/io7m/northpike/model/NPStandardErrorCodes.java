@@ -453,5 +453,18 @@ public final class NPStandardErrorCodes
   {
     return ERROR_SIGNATURE_VERIFICATION_FAILED;
   }
+
+  private static final NPErrorCode ERROR_PLAN_STILL_REFERENCED =
+    new NPErrorCode("error-plan-still-referenced");
+
+  /**
+   * The given plan cannot be deleted because it is still referenced by one or more assignments.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorPlanStillReferenced()
+  {
+    return ERROR_PLAN_STILL_REFERENCED;
+  }
 }
 

@@ -81,6 +81,7 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQAuditEventSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQMaintenanceDeleteExpiredArchives,
     com.io7m.northpike.database.postgres.internal.NPDBQMaintenanceUpdateUserRoles,
+    com.io7m.northpike.database.postgres.internal.NPDBQPlanDelete,
     com.io7m.northpike.database.postgres.internal.NPDBQPlanGet,
     com.io7m.northpike.database.postgres.internal.NPDBQPlanGetRaw,
     com.io7m.northpike.database.postgres.internal.NPDBQPlanPut,

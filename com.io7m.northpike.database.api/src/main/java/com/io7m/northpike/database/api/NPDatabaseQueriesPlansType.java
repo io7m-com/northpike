@@ -119,4 +119,15 @@ public sealed interface NPDatabaseQueriesPlansType
   {
 
   }
+
+  /**
+   * Delete a plan.
+   */
+
+  non-sealed interface DeleteType
+    extends NPDatabaseQueryType<NPPlanIdentifier, NPDatabaseUnit>,
+    NPDatabaseQueriesPlansType
+  {
+
+  }
 }

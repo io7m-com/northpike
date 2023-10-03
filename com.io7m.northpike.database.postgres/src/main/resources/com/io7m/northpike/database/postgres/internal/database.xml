@@ -716,7 +716,7 @@ CREATE TABLE plans (
     </StatementParameterized>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE ON plans TO northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON plans TO northpike
     </Statement>
     <Statement>
       GRANT SELECT ON plans TO northpike_read_only

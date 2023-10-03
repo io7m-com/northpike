@@ -34,8 +34,11 @@ import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorPlanStillReferenced;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_IO;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
+import static com.io7m.northpike.strings.NPStringConstants.ERROR_PLAN_REFERENCED_BY_ASSIGNMENT;
+import static com.io7m.northpike.strings.NPStringConstants.REMEDIATE_PLAN_REFERENCED_BY_ASSIGNMENT;
 
 
 /**
@@ -297,6 +300,19 @@ public final class NPDatabaseExceptions
           Optional.empty()
         );
       }
+
+      case "ASSIGNMENTS_PLAN_EXISTS" -> {
+        yield new NPDatabaseException(
+          transaction.localize(ERROR_PLAN_REFERENCED_BY_ASSIGNMENT),
+          root,
+          errorPlanStillReferenced(),
+          attributes,
+          Optional.of(
+            transaction.localize(REMEDIATE_PLAN_REFERENCED_BY_ASSIGNMENT)
+          )
+        );
+      }
+
       default -> {
         yield new NPDatabaseException(
           m,
