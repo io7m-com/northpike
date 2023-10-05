@@ -76,7 +76,7 @@ public final class NPDBQUserSearch
       );
 
     final var rolesCondition =
-      NPDBComparisons.createSetMatchQuery(
+      NPDBComparisons.createSetMatchQueryString(
         parameters.roles().map(roleName -> roleName.value().value()),
         USERS.U_ROLES
       );

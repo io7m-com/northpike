@@ -35,10 +35,13 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorPlanStillReferenced;
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorToolExecutionStillReferenced;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_IO;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_PLAN_REFERENCED_BY_ASSIGNMENT;
+import static com.io7m.northpike.strings.NPStringConstants.ERROR_TOOL_EXECUTION_REFERENCED_BY_PLAN;
 import static com.io7m.northpike.strings.NPStringConstants.REMEDIATE_PLAN_REFERENCED_BY_ASSIGNMENT;
+import static com.io7m.northpike.strings.NPStringConstants.REMEDIATE_TOOL_EXECUTION_REFERENCED_BY_PLAN;
 
 
 /**
@@ -309,6 +312,18 @@ public final class NPDatabaseExceptions
           attributes,
           Optional.of(
             transaction.localize(REMEDIATE_PLAN_REFERENCED_BY_ASSIGNMENT)
+          )
+        );
+      }
+
+      case "PLAN_TOOL_EXECUTIONS_TOOLEXEC_EXISTS" -> {
+        yield new NPDatabaseException(
+          transaction.localize(ERROR_TOOL_EXECUTION_REFERENCED_BY_PLAN),
+          root,
+          errorToolExecutionStillReferenced(),
+          attributes,
+          Optional.of(
+            transaction.localize(REMEDIATE_TOOL_EXECUTION_REFERENCED_BY_PLAN)
           )
         );
       }

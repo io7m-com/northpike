@@ -466,5 +466,18 @@ public final class NPStandardErrorCodes
   {
     return ERROR_PLAN_STILL_REFERENCED;
   }
+
+  private static final NPErrorCode ERROR_TOOL_EXECUTION_STILL_REFERENCED =
+    new NPErrorCode("error-tool-execution-still-referenced");
+
+  /**
+   * The tool execution cannot be deleted because it is still referenced by one or more plans.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorToolExecutionStillReferenced()
+  {
+    return ERROR_TOOL_EXECUTION_STILL_REFERENCED;
+  }
 }
 

@@ -18,6 +18,7 @@
 package com.io7m.northpike.tests.arbitraries;
 
 
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.plans.NPPlanSearchParameters;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
@@ -31,8 +32,12 @@ public final class NPArbPlanSearchParameters
       NPPlanSearchParameters.class,
       () -> {
         return Combinators.combine(
-          NPArbComparisons.fuzzy(Arbitraries.strings().alpha()),
-          NPArbComparisons.fuzzy(Arbitraries.strings().alpha()),
+          NPArbComparisons.fuzzy(
+            Arbitraries.strings().alpha()),
+          NPArbComparisons.fuzzy(
+            Arbitraries.strings().alpha()),
+          NPArbComparisons.set(
+            Arbitraries.defaultFor(NPToolExecutionIdentifier.class)),
           Arbitraries.longs()
         ).as(NPPlanSearchParameters::new);
       }

@@ -103,6 +103,7 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQRepositoryPut,
     com.io7m.northpike.database.postgres.internal.NPDBQSCMProviderGet,
     com.io7m.northpike.database.postgres.internal.NPDBQSCMProviderPut,
+    com.io7m.northpike.database.postgres.internal.NPDBQToolExecutionDescriptionDelete,
     com.io7m.northpike.database.postgres.internal.NPDBQToolExecutionDescriptionGet,
     com.io7m.northpike.database.postgres.internal.NPDBQToolExecutionDescriptionPut,
     com.io7m.northpike.database.postgres.internal.NPDBQToolExecutionDescriptionSearch,

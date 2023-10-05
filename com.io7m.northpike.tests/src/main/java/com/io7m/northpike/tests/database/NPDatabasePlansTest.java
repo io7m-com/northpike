@@ -28,18 +28,27 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPRepositorySigningPolicy;
+import com.io7m.northpike.model.NPToolExecutionDescription;
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPToolExecutionName;
+import com.io7m.northpike.model.NPToolName;
+import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanSearchParameters;
+import com.io7m.northpike.model.plans.NPPlanToolExecution;
 import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
@@ -52,6 +61,8 @@ import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.northpike.toolexec.NPTXFormats;
+import com.io7m.verona.core.Version;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -61,6 +72,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -405,6 +417,7 @@ public final class NPDatabasePlansTest
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.Anything<>(),
           new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.Anything<>(),
           1000L
         )
       );
@@ -445,6 +458,7 @@ public final class NPDatabasePlansTest
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.Anything<>(),
           new NPComparisonFuzzyType.IsSimilarTo<>("marimba"),
+          new NPComparisonSetType.Anything<>(),
           1000L
         )
       );
@@ -483,6 +497,7 @@ public final class NPDatabasePlansTest
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.Anything<>(),
           new NPComparisonFuzzyType.IsNotSimilarTo<>("marimba"),
+          new NPComparisonSetType.Anything<>(),
           1000L
         )
       );
@@ -522,6 +537,7 @@ public final class NPDatabasePlansTest
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.Anything<>(),
           new NPComparisonFuzzyType.IsEqualTo<>("Marimba"),
+          new NPComparisonSetType.Anything<>(),
           1000L
         )
       );
@@ -560,6 +576,7 @@ public final class NPDatabasePlansTest
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.Anything<>(),
           new NPComparisonFuzzyType.IsNotEqualTo<>("Marimba"),
+          new NPComparisonSetType.Anything<>(),
           1000L
         )
       );
@@ -599,6 +616,7 @@ public final class NPDatabasePlansTest
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.Anything<>(),
           new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.Anything<>(),
           1000L
         )
       );
@@ -639,6 +657,7 @@ public final class NPDatabasePlansTest
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.IsSimilarTo<>("p"),
           new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.Anything<>(),
           1000L
         )
       );
@@ -677,6 +696,7 @@ public final class NPDatabasePlansTest
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.IsNotSimilarTo<>("io7m"),
           new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.Anything<>(),
           1000L
         )
       );
@@ -715,6 +735,7 @@ public final class NPDatabasePlansTest
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.IsEqualTo<>("com.io7m.r"),
           new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.Anything<>(),
           1000L
         )
       );
@@ -753,6 +774,7 @@ public final class NPDatabasePlansTest
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.IsNotEqualTo<>("com.io7m.q"),
           new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.Anything<>(),
           1000L
         )
       );
@@ -859,5 +881,395 @@ public final class NPDatabasePlansTest
       });
 
     assertEquals(errorPlanStillReferenced(), ex.errorCode());
+  }
+
+  /**
+   * Searching for plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearchToolsSet0()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+    final var toolPut =
+      this.transaction.queries(PutExecutionDescriptionType.class);
+
+    final var plans =
+      createPlansWithMultipleTools(put, toolPut);
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.IsEqualTo<>(
+            Set.of(
+              new NPToolExecutionIdentifier(
+                NPToolExecutionName.of("com.io7m.example"),
+                23L
+              ),
+              new NPToolExecutionIdentifier(
+                NPToolExecutionName.of("com.io7m.example"),
+                24L
+              ),
+              new NPToolExecutionIdentifier(
+                NPToolExecutionName.of("com.io7m.example"),
+                25L
+              )
+            )
+          ),
+          1000L
+        )
+      );
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plans.get(0).identifier(), p.items().get(0).identifier());
+    assertEquals(1, p.items().size());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
+  /**
+   * Searching for plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearchToolsSet1()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+    final var toolPut =
+      this.transaction.queries(PutExecutionDescriptionType.class);
+
+    final var plans =
+      createPlansWithMultipleTools(put, toolPut);
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.IsSupersetOf<>(
+            Set.of(
+              new NPToolExecutionIdentifier(
+                NPToolExecutionName.of("com.io7m.example"),
+                23L
+              ),
+              new NPToolExecutionIdentifier(
+                NPToolExecutionName.of("com.io7m.example"),
+                24L
+              ),
+              new NPToolExecutionIdentifier(
+                NPToolExecutionName.of("com.io7m.example"),
+                25L
+              )
+            )
+          ),
+          1000L
+        )
+      );
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plans.get(0).identifier(), p.items().get(0).identifier());
+    assertEquals(1, p.items().size());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
+  /**
+   * Searching for plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearchToolsSet2()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+    final var toolPut =
+      this.transaction.queries(PutExecutionDescriptionType.class);
+
+    final var plans =
+      createPlansWithMultipleTools(put, toolPut);
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.IsSubsetOf<>(
+            Set.of(
+              new NPToolExecutionIdentifier(
+                NPToolExecutionName.of("com.io7m.example"),
+                23L
+              ),
+              new NPToolExecutionIdentifier(
+                NPToolExecutionName.of("com.io7m.example"),
+                24L
+              ),
+              new NPToolExecutionIdentifier(
+                NPToolExecutionName.of("com.io7m.example"),
+                25L
+              )
+            )
+          ),
+          1000L
+        )
+      );
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plans.get(0).identifier(), p.items().get(0).identifier());
+    assertEquals(plans.get(1).identifier(), p.items().get(1).identifier());
+    assertEquals(plans.get(2).identifier(), p.items().get(2).identifier());
+    assertEquals(3, p.items().size());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
+  /**
+   * Searching for plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearchToolsSet3()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+    final var toolPut =
+      this.transaction.queries(PutExecutionDescriptionType.class);
+
+    final var plans =
+      createPlansWithMultipleTools(put, toolPut);
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.IsNotEqualTo<>(
+            Set.of(
+              new NPToolExecutionIdentifier(
+                NPToolExecutionName.of("com.io7m.example"),
+                23L
+              ),
+              new NPToolExecutionIdentifier(
+                NPToolExecutionName.of("com.io7m.example"),
+                24L
+              ),
+              new NPToolExecutionIdentifier(
+                NPToolExecutionName.of("com.io7m.example"),
+                25L
+              )
+            )
+          ),
+          1000L
+        )
+      );
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plans.get(1).identifier(), p.items().get(0).identifier());
+    assertEquals(plans.get(2).identifier(), p.items().get(1).identifier());
+    assertEquals(2, p.items().size());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
+  private static List<NPPlanType> createPlansWithMultipleTools(
+    final NPDatabaseQueriesPlansType.PutType put,
+    final PutExecutionDescriptionType toolPut)
+    throws NPDatabaseException, NPPlanException
+  {
+    final var tool0 =
+      new NPToolExecutionDescription(
+        new NPToolExecutionIdentifier(
+          NPToolExecutionName.of("com.io7m.example"),
+          23L
+        ),
+        NPToolName.of("com.io7m.tool"),
+        "A description.",
+        NPTXFormats.nptx1(),
+        "Data."
+      );
+
+    final var tool1 =
+      new NPToolExecutionDescription(
+        new NPToolExecutionIdentifier(
+          NPToolExecutionName.of("com.io7m.example"),
+          24L
+        ),
+        NPToolName.of("com.io7m.tool"),
+        "A description.",
+        NPTXFormats.nptx1(),
+        "Data."
+      );
+
+    final var tool2 =
+      new NPToolExecutionDescription(
+        new NPToolExecutionIdentifier(
+          NPToolExecutionName.of("com.io7m.example"),
+          25L
+        ),
+        NPToolName.of("com.io7m.tool"),
+        "A description.",
+        NPTXFormats.nptx1(),
+        "Data."
+      );
+
+    toolPut.execute(tool0);
+    toolPut.execute(tool1);
+    toolPut.execute(tool2);
+
+    final var strings =
+      NPStrings.create(Locale.ROOT);
+
+    final var plans =
+      new ArrayList<NPPlanType>();
+
+    {
+      final var planBuilder =
+        NPPlans.builder(strings, "com.io7m.p0", 1L);
+
+      planBuilder.addToolReference(
+        new NPToolReference(
+          NPToolReferenceName.of("t0"),
+          NPToolName.of("t1"),
+          Version.of(1, 0, 0)
+        )
+      );
+
+      planBuilder.addTask("e")
+        .setToolExecution(
+          new NPPlanToolExecution(
+            NPToolReferenceName.of("t0"),
+            tool0.identifier(),
+            Set.of()
+          )
+        );
+
+      planBuilder.addTask("f")
+        .setToolExecution(
+          new NPPlanToolExecution(
+            NPToolReferenceName.of("t0"),
+            tool1.identifier(),
+            Set.of()
+          )
+        );
+
+      planBuilder.addTask("g")
+        .setToolExecution(
+          new NPPlanToolExecution(
+            NPToolReferenceName.of("t0"),
+            tool2.identifier(),
+            Set.of()
+          )
+        );
+
+      final var plan = planBuilder.build();
+      put.execute(new Parameters(plan, new NPPlanSerializers()));
+      plans.add(plan);
+    }
+
+    {
+      final var planBuilder =
+        NPPlans.builder(strings, "com.io7m.p1", 1L);
+
+      planBuilder.addToolReference(
+        new NPToolReference(
+          NPToolReferenceName.of("t0"),
+          NPToolName.of("t1"),
+          Version.of(1, 0, 0)
+        )
+      );
+
+      planBuilder.addTask("e")
+        .setToolExecution(
+          new NPPlanToolExecution(
+            NPToolReferenceName.of("t0"),
+            tool0.identifier(),
+            Set.of()
+          )
+        );
+
+      planBuilder.addTask("f")
+        .setToolExecution(
+          new NPPlanToolExecution(
+            NPToolReferenceName.of("t0"),
+            tool1.identifier(),
+            Set.of()
+          )
+        );
+
+      final var plan = planBuilder.build();
+      put.execute(new Parameters(plan, new NPPlanSerializers()));
+      plans.add(plan);
+    }
+
+    {
+      final var planBuilder =
+        NPPlans.builder(strings, "com.io7m.p2", 1L);
+
+      planBuilder.addToolReference(
+        new NPToolReference(
+          NPToolReferenceName.of("t0"),
+          NPToolName.of("t1"),
+          Version.of(1, 0, 0)
+        )
+      );
+
+      planBuilder.addTask("e")
+        .setToolExecution(
+          new NPPlanToolExecution(
+            NPToolReferenceName.of("t0"),
+            tool0.identifier(),
+            Set.of()
+          )
+        );
+
+      final var plan = planBuilder.build();
+      put.execute(new Parameters(plan, new NPPlanSerializers()));
+      plans.add(plan);
+    }
+
+    return plans;
   }
 }

@@ -61,4 +61,15 @@ public sealed interface NPDatabaseQueriesToolsType
   {
 
   }
+
+  /**
+   * Delete a tool execution description.
+   */
+
+  non-sealed interface DeleteExecutionDescriptionType
+    extends NPDatabaseQueryType<NPToolExecutionIdentifier, NPDatabaseUnit>,
+    NPDatabaseQueriesToolsType
+  {
+
+  }
 }

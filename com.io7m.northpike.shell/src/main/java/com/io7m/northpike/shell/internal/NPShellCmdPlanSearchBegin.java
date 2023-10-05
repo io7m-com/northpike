@@ -16,7 +16,9 @@
 
 package com.io7m.northpike.shell.internal;
 
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.plans.NPPlanSearchParameters;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchBegin;
 import com.io7m.northpike.protocol.user.NPUResponsePlanSearch;
@@ -215,10 +217,14 @@ public final class NPShellCmdPlanSearchBegin
         .or(() -> descriptionNotSimilar)
         .orElse(new NPComparisonFuzzyType.Anything<>());
 
+    final var toolExecutionMatch =
+      new NPComparisonSetType.Anything<NPToolExecutionIdentifier>();
+
     final var parameters =
       new NPPlanSearchParameters(
         nameMatch,
         descriptionMatch,
+        toolExecutionMatch,
         context.parameterValue(LIMIT).longValue()
       );
 

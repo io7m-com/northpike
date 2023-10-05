@@ -17,11 +17,15 @@
 
 package com.io7m.northpike.model.plans;
 
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
 import org.jgrapht.Graph;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * An execution plan.
@@ -72,5 +76,23 @@ public interface NPPlanType
   default NPPlanSummary summary()
   {
     return new NPPlanSummary(this.identifier(), this.description());
+  }
+
+  /**
+   * @return The set of tool executions upon which this plan depends
+   */
+
+  default Set<NPToolExecutionIdentifier> toolExecutions()
+  {
+    return this.elements()
+      .values()
+      .stream()
+      .flatMap(e -> {
+        if (e instanceof final NPPlanTaskType task) {
+          return Stream.of(task.toolExecution().execution());
+        }
+        return Stream.of();
+      })
+      .collect(Collectors.toUnmodifiableSet());
   }
 }

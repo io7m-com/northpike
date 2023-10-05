@@ -122,7 +122,7 @@ public final class NPDBComparisons
    * @return An exact match condition
    */
 
-  public static Condition createSetMatchQuery(
+  public static Condition createSetMatchQueryString(
     final NPComparisonSetType<String> query,
     final TableField<org.jooq.Record, String[]> field)
   {
@@ -189,6 +189,92 @@ public final class NPDBComparisons
 
       return DSL.condition(
         "? && cast (? as text[])",
+        field,
+        DSL.array(values)
+      );
+    }
+
+    throw new IllegalStateException(
+      "Unrecognized set query: %s".formatted(query)
+    );
+  }
+
+  /**
+   * Create a set match expression.
+   *
+   * @param query    The query
+   * @param field    The array-typed field
+   *
+   * @return An exact match condition
+   */
+
+  public static Condition createSetMatchQueryLong(
+    final NPComparisonSetType<Long> query,
+    final TableField<org.jooq.Record, Long[]> field)
+  {
+    if (query instanceof NPComparisonSetType.Anything<Long>) {
+      return DSL.trueCondition();
+    }
+
+    if (query instanceof final NPComparisonSetType.IsEqualTo<Long> isEqualTo) {
+      final var set = isEqualTo.value();
+      final var values = new Long[set.size()];
+      set.toArray(values);
+
+      return DSL.condition(
+        "(? <@ cast (? as bigint[])) AND (? @> cast (? as bigint[]))",
+        field,
+        DSL.array(values),
+        field,
+        DSL.array(values)
+      );
+    }
+
+    if (query instanceof final NPComparisonSetType.IsNotEqualTo<Long> isNotEqualTo) {
+      final var set = isNotEqualTo.value();
+      final var values = new Long[set.size()];
+      set.toArray(values);
+
+      return DSL.condition(
+        "NOT ((? <@ cast (? as bigint[])) AND (? @> cast (? as bigint[])))",
+        field,
+        DSL.array(values),
+        field,
+        DSL.array(values)
+      );
+    }
+
+    if (query instanceof final NPComparisonSetType.IsSubsetOf<Long> isSubsetOf) {
+      final var set = isSubsetOf.value();
+      final var values = new Long[set.size()];
+      set.toArray(values);
+
+      return DSL.condition(
+        "? <@ cast (? as bigint[])",
+        field,
+        DSL.array(values)
+      );
+    }
+
+    if (query instanceof final NPComparisonSetType.IsSupersetOf<Long> isSupersetOf) {
+      final var set = isSupersetOf.value();
+      final var values = new Long[set.size()];
+      set.toArray(values);
+
+      return DSL.condition(
+        "? @> cast (? as bigint[])",
+        field,
+        DSL.array(values)
+      );
+    }
+
+    if (query instanceof final NPComparisonSetType.IsOverlapping<Long> isOverlapping) {
+      final var set = isOverlapping.value();
+      final var values = new Long[set.size()];
+      set.toArray(values);
+
+      return DSL.condition(
+        "? && cast (? as bigint[])",
         field,
         DSL.array(values)
       );

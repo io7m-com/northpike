@@ -21,6 +21,10 @@ import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
+import com.io7m.northpike.database.api.NPDatabaseException;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.DeleteExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.GetExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.SearchExecutionDescriptionType;
@@ -32,9 +36,16 @@ import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
+import com.io7m.northpike.model.NPToolReference;
+import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.model.plans.NPPlanToolExecution;
+import com.io7m.northpike.plans.NPPlans;
+import com.io7m.northpike.plans.parsers.NPPlanSerializers;
+import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
 import com.io7m.northpike.toolexec.NPTXFormats;
+import com.io7m.verona.core.Version;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -43,11 +54,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorToolExecutionStillReferenced;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
 @ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
@@ -341,5 +356,72 @@ public final class NPDatabaseToolsTest
       ),
       p.items()
     );
+  }
+
+  /**
+   * Deleting referenced tool executions works as expected.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testToolExecIntegrity0()
+    throws Exception
+  {
+    final var planPut =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+    final var put =
+      this.transaction.queries(PutExecutionDescriptionType.class);
+    final var delete =
+      this.transaction.queries(DeleteExecutionDescriptionType.class);
+
+    final var tool =
+      new NPToolExecutionDescription(
+        new NPToolExecutionIdentifier(
+          NPToolExecutionName.of("com.io7m.example"),
+          23L
+        ),
+        NPToolName.of("com.io7m.tool"),
+        "A description.",
+        NPTXFormats.nptx1(),
+        "Data."
+      );
+
+    put.execute(tool);
+
+    final var strings =
+      NPStrings.create(Locale.ROOT);
+
+    final var planBuilder =
+      NPPlans.builder(strings, "com.io7m.p", 1L);
+
+    planBuilder.addToolReference(
+      new NPToolReference(
+        NPToolReferenceName.of("t0"),
+        NPToolName.of("t1"),
+        Version.of(1, 0, 0)
+      )
+    );
+
+    planBuilder.addTask("e")
+      .setToolExecution(
+        new NPPlanToolExecution(
+          NPToolReferenceName.of("t0"),
+          tool.identifier(),
+          Set.of()
+        )
+      );
+
+    final var plan =
+      planBuilder.build();
+
+    planPut.execute(new Parameters(plan, new NPPlanSerializers()));
+
+    final var ex =
+      assertThrows(NPDatabaseException.class, () -> {
+        delete.execute(tool.identifier());
+      });
+
+    assertEquals(errorToolExecutionStillReferenced(), ex.errorCode());
   }
 }

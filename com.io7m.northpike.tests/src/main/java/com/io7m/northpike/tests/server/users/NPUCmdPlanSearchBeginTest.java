@@ -28,6 +28,7 @@ import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanSearchParameters;
@@ -129,6 +130,7 @@ public final class NPUCmdPlanSearchBeginTest
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.Anything<>(),
           new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.Anything<>(),
           1000L
         )
       );
@@ -163,6 +165,7 @@ public final class NPUCmdPlanSearchBeginTest
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.Anything<>(),
           new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.Anything<>(),
           1000L
         )
       );
@@ -207,6 +210,7 @@ public final class NPUCmdPlanSearchBeginTest
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.Anything<>(),
           new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.Anything<>(),
           1000L
         )
       );

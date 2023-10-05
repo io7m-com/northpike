@@ -29,6 +29,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPPlansPagedType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanName;
 import com.io7m.northpike.model.plans.NPPlanSearchParameters;
@@ -42,6 +43,8 @@ import java.util.List;
 
 import static com.io7m.northpike.database.postgres.internal.NPDatabaseExceptions.handleDatabaseException;
 import static com.io7m.northpike.database.postgres.internal.Tables.PLANS;
+import static com.io7m.northpike.database.postgres.internal.Tables.PLAN_TOOL_EXECUTIONS_SEARCH;
+import static com.io7m.northpike.database.postgres.internal.Tables.TOOL_EXECUTION_DESCRIPTIONS;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_STATEMENT;
 
 /**
@@ -73,6 +76,10 @@ public final class NPDBQPlanSearch
     final NPPlanSearchParameters parameters)
     throws NPDatabaseException
   {
+    final var tableSource =
+      PLANS.leftJoin(PLAN_TOOL_EXECUTIONS_SEARCH)
+        .on(PLANS.P_ID.eq(PLAN_TOOL_EXECUTIONS_SEARCH.PTE_PLAN));
+
     final var nameCondition =
       NPDBComparisons.createFuzzyMatchQuery(
         parameters.name(),
@@ -87,11 +94,31 @@ public final class NPDBQPlanSearch
         "PLANS.P_DESCRIPTION_SEARCH"
       );
 
+    final NPComparisonSetType<Long> comparisonSet =
+      parameters.toolExecutions()
+        .map(x -> {
+          return context.select(TOOL_EXECUTION_DESCRIPTIONS.TED_ID)
+            .from(TOOL_EXECUTION_DESCRIPTIONS)
+            .where(
+              TOOL_EXECUTION_DESCRIPTIONS.TED_NAME
+                .eq(x.name().toString())
+                .and(TOOL_EXECUTION_DESCRIPTIONS.TED_VERSION
+                       .eq(Long.valueOf(x.version())))
+            )
+            .fetchOne(TOOL_EXECUTION_DESCRIPTIONS.TED_ID);
+        });
+
+    final var toolSetCondition =
+      NPDBComparisons.createSetMatchQueryLong(
+        comparisonSet,
+        PLAN_TOOL_EXECUTIONS_SEARCH.PTES_TOOLEXECS
+      );
+
     final var allConditions =
-      DSL.and(nameCondition, descCondition);
-    
+      DSL.and(nameCondition, descCondition, toolSetCondition);
+
     final var pageParameters =
-      JQKeysetRandomAccessPaginationParameters.forTable(PLANS)
+      JQKeysetRandomAccessPaginationParameters.forTable(tableSource)
         .addSortField(new JQField(PLANS.P_NAME, JQOrder.ASCENDING))
         .addSortField(new JQField(PLANS.P_VERSION, JQOrder.ASCENDING))
         .addWhereCondition(allConditions)

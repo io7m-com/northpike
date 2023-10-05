@@ -14,6 +14,14 @@
   <entry key="commit">Commit</entry>
   <entry key="downloading">Downloading {0}</entry>
   <entry key="entry">Entry</entry>
+
+  <entry key="error_tool_execution_referenced_by_plan">
+    The given tool execution cannot be deleted because it is still referenced by one or more plans.
+  </entry>
+  <entry key="remediate_tool_execution_referenced_by_plan">
+    Search for plans by filtering on the tool execution identifier.
+  </entry>
+
   <entry key="error_plan_referenced_by_assignment">
     The given plan cannot be deleted because it is still referenced by one or more assignments.
   </entry>

@@ -23,14 +23,18 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import org.jooq.DSLContext;
+import org.jooq.Query;
 import org.jooq.impl.DSL;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
+import static com.io7m.northpike.database.postgres.internal.Tables.PLAN_TOOL_EXECUTIONS;
+import static com.io7m.northpike.database.postgres.internal.Tables.TOOL_EXECUTION_DESCRIPTIONS;
 import static com.io7m.northpike.database.postgres.internal.tables.Plans.PLANS;
 import static java.util.Map.entry;
 
@@ -82,27 +86,68 @@ public final class NPDBQPlanPut
       final var data =
         output.toByteArray();
 
-      context.insertInto(PLANS)
-        .set(PLANS.P_DATA, data)
-        .set(PLANS.P_DESCRIPTION, plan.description())
-        .set(PLANS.P_ENCODING, charsetName)
-        .set(PLANS.P_FORMAT, serializer.format().toString())
-        .set(PLANS.P_NAME, identifier.name().toString())
-        .set(PLANS.P_VERSION, Long.valueOf(identifier.version()))
-        .onConflictOnConstraint(DSL.name("plans_name_version_unique"))
-        .doUpdate()
-        .set(PLANS.P_DATA, data)
-        .set(PLANS.P_DESCRIPTION, plan.description())
-        .set(PLANS.P_ENCODING, charsetName)
-        .set(PLANS.P_FORMAT, serializer.format().toString())
-        .execute();
-
-      this.auditEventPut(
-        context,
-        "PLAN_PUT",
-        entry("PLAN", identifier.name().toString()),
-        entry("PLAN_VERSION", Long.toUnsignedString(identifier.version()))
+      final var batch = new ArrayList<Query>();
+      batch.add(
+        context.insertInto(PLANS)
+          .set(PLANS.P_DATA, data)
+          .set(PLANS.P_DESCRIPTION, plan.description())
+          .set(PLANS.P_ENCODING, charsetName)
+          .set(PLANS.P_FORMAT, serializer.format().toString())
+          .set(PLANS.P_NAME, identifier.name().toString())
+          .set(PLANS.P_VERSION, Long.valueOf(identifier.version()))
+          .onConflictOnConstraint(DSL.name("plans_name_version_unique"))
+          .doUpdate()
+          .set(PLANS.P_DATA, data)
+          .set(PLANS.P_DESCRIPTION, plan.description())
+          .set(PLANS.P_ENCODING, charsetName)
+          .set(PLANS.P_FORMAT, serializer.format().toString())
       );
+
+      final var planId =
+        context.select(PLANS.P_ID)
+          .from(PLANS)
+          .where(
+            PLANS.P_NAME.eq(identifier.name().toString())
+              .and(PLANS.P_VERSION.eq(Long.valueOf(identifier.version())))
+          );
+
+      batch.add(
+        context.deleteFrom(PLAN_TOOL_EXECUTIONS)
+          .where(PLAN_TOOL_EXECUTIONS.PTE_PLAN.eq(planId))
+      );
+
+      for (final var toolExec : plan.toolExecutions()) {
+        final var toolNameMatches =
+          TOOL_EXECUTION_DESCRIPTIONS.TED_NAME.eq(
+            toolExec.name().toString());
+        final var toolVersionMatches =
+          TOOL_EXECUTION_DESCRIPTIONS.TED_VERSION.eq(
+            Long.valueOf(toolExec.version()));
+
+        final var toolExecId =
+          context.select(TOOL_EXECUTION_DESCRIPTIONS.TED_ID)
+            .from(TOOL_EXECUTION_DESCRIPTIONS)
+            .where(toolNameMatches.and(toolVersionMatches));
+
+        batch.add(
+          context.insertInto(PLAN_TOOL_EXECUTIONS)
+            .set(PLAN_TOOL_EXECUTIONS.PTE_PLAN, planId)
+            .set(PLAN_TOOL_EXECUTIONS.PTE_TOOLEXEC, toolExecId)
+            .onConflictDoNothing()
+        );
+      }
+
+      batch.add(
+        this.auditEvent(
+          context,
+          "PLAN_PUT",
+          entry("PLAN", identifier.name().toString()),
+          entry("PLAN_VERSION", Long.toUnsignedString(identifier.version()))
+        )
+      );
+
+      context.batch(batch)
+        .execute();
 
     } catch (final IOException e) {
       throw NPDatabaseExceptions.ofIOError(

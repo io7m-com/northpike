@@ -32,3 +32,4 @@ USER_NONEXISTENT|user-nonexistent|An attempt was made to reference a user that d
 COMPILATION_FAILED|compilation-failed|Compilation failed.
 SIGNATURE_VERIFICATION_FAILED|signature-verification-failed|Signature verification failed.
 PLAN_STILL_REFERENCED|plan-still-referenced|The given plan cannot be deleted because it is still referenced by one or more assignments.
+TOOL_EXECUTION_STILL_REFERENCED|tool-execution-still-referenced|The tool execution cannot be deleted because it is still referenced by one or more plans.

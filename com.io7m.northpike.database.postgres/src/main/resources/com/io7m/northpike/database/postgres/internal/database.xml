@@ -660,7 +660,7 @@ CREATE TABLE tool_execution_descriptions (
     </StatementParameterized>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE ON tool_execution_descriptions TO northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON tool_execution_descriptions TO northpike
     </Statement>
     <Statement>
       GRANT SELECT ON tool_execution_descriptions TO northpike_read_only
@@ -720,6 +720,60 @@ CREATE TABLE plans (
     </Statement>
     <Statement>
       GRANT SELECT ON plans TO northpike_read_only
+    </Statement>
+
+    <Comment>
+      The plan_tool_executions table records the tool executions upon which
+      a given plan depends.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE plan_tool_executions (
+  pte_plan       BIGINT NOT NULL,
+  pte_toolexec   BIGINT NOT NULL,
+
+  CONSTRAINT plan_tool_executions_primary_key
+    PRIMARY KEY (pte_plan, pte_toolexec),
+
+  CONSTRAINT plan_tool_executions_plan_exists
+    FOREIGN KEY (pte_plan)
+      REFERENCES plans (p_id),
+
+  CONSTRAINT plan_tool_executions_toolexec_exists
+    FOREIGN KEY (pte_toolexec)
+      REFERENCES tool_execution_descriptions (ted_id)
+)
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE, DELETE ON plan_tool_executions TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON plan_tool_executions TO northpike_read_only
+    </Statement>
+
+    <Comment>
+      The plan_tool_executions_search view provides a convenient view of
+      the plan_tool_executions table used to perform operations over the set
+      of tool executions referenced by a plan.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE VIEW plan_tool_executions_search AS
+  SELECT
+    plan_tool_executions.pte_plan,
+    array_agg (plan_tool_executions.pte_toolexec) AS ptes_toolexecs
+  FROM
+    plan_tool_executions
+  GROUP BY
+    plan_tool_executions.pte_plan
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT ON plan_tool_executions_search TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON plan_tool_executions_search TO northpike_read_only
     </Statement>
 
     <Comment>

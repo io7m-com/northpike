@@ -72,7 +72,7 @@ public final class NPDBQAgentSearch
     throws NPDatabaseException
   {
     final var labelCondition =
-      NPDBComparisons.createSetMatchQuery(
+      NPDBComparisons.createSetMatchQueryString(
         parameters.matchLabels().map(NPAgentLabelName::toString),
         AGENT_LABEL_SEARCH.ALS_LABELS
       );

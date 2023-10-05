@@ -19,36 +19,42 @@ package com.io7m.northpike.model.plans;
 
 import com.io7m.northpike.model.NPPageSizes;
 import com.io7m.northpike.model.NPSearchParametersType;
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 
 import java.util.Objects;
 
 /**
  * The search parameters for plans.
  *
- * @param name        The name match expression
- * @param description The description match expression
- * @param pageSize    The page size
+ * @param name           The name match expression
+ * @param description    The description match expression
+ * @param toolExecutions The referenced tool execution expression
+ * @param pageSize       The page size
  */
 
 public record NPPlanSearchParameters(
   NPComparisonFuzzyType<String> name,
   NPComparisonFuzzyType<String> description,
+  NPComparisonSetType<NPToolExecutionIdentifier> toolExecutions,
   long pageSize)
   implements NPSearchParametersType
 {
   /**
    * The search parameters for plans.
    *
-   * @param name        The name match expression
-   * @param description The description match expression
-   * @param pageSize    The page size
+   * @param name           The name match expression
+   * @param description    The description match expression
+   * @param toolExecutions The referenced tool execution expression
+   * @param pageSize       The page size
    */
 
   public NPPlanSearchParameters
   {
     Objects.requireNonNull(name, "query");
     Objects.requireNonNull(description, "description");
+    Objects.requireNonNull(toolExecutions, "toolExecutions");
 
     pageSize = NPPageSizes.clampPageSize(pageSize);
   }
