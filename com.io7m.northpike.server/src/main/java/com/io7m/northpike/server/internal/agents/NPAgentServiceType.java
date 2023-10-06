@@ -22,6 +22,7 @@ import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentWorkItem;
+import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.repetoir.core.RPServiceType;
 
@@ -92,6 +93,12 @@ public interface NPAgentServiceType
    */
 
   Set<NPAgentID> findAgentsConnected();
+
+  /**
+   * @return The set of currently executing work items
+   */
+
+  Set<NPWorkItem> findAgentWorkItemsExecuting();
 
   /**
    * The suitable agents.

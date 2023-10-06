@@ -59,20 +59,4 @@ public record NPWorkItem(
   {
     return this.selectedAgent.equals(Optional.of(id));
   }
-
-  /**
-   * @param newStatus The new status
-   *
-   * @return This work item with the new status
-   */
-
-  public NPWorkItem withStatus(
-    final NPWorkItemStatus newStatus)
-  {
-    return new NPWorkItem(
-      this.identifier,
-      this.selectedAgent,
-      newStatus
-    );
-  }
 }

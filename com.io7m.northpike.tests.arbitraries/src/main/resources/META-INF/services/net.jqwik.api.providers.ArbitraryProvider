@@ -110,6 +110,7 @@ com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentPut
 com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentSearchBegin
 com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentSearchNext
 com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentSearchPrevious
+com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentWorkItems
 com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentsConnected
 com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentExecute
 com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAssignmentExecutionDelete
@@ -168,6 +169,7 @@ com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAgentGet
 com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAgentLabelGet
 com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAgentLabelSearch
 com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAgentSearch
+com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAgentWorkItems
 com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAgentsConnected
 com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAssignmentExecutionSearch
 com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseAssignmentExecutionWorkItems

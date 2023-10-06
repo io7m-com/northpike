@@ -573,6 +573,12 @@
   [field messageId cb:UUID]
 ]
 
+[documentation NPU1CommandUsersConnected "List connected users."]
+[record NPU1CommandUsersConnected
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
 ;
 ; Repositories
 ;
@@ -687,18 +693,6 @@
   [field messageId cb:UUID]
   [documentation names "The label names"]
   [field names [cb:List cb:String]]
-]
-
-[documentation NPU1CommandAgentsConnected "List connected agents."]
-[record NPU1CommandAgentsConnected
-  [documentation messageId "The message ID"]
-  [field messageId cb:UUID]
-]
-
-[documentation NPU1CommandUsersConnected "List connected users."]
-[record NPU1CommandUsersConnected
-  [documentation messageId "The message ID"]
-  [field messageId cb:UUID]
 ]
 
 ;
@@ -843,6 +837,18 @@
 
 [documentation NPU1CommandAgentSearchPrevious "Continue searching agents."]
 [record NPU1CommandAgentSearchPrevious
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandAgentsConnected "List connected agents."]
+[record NPU1CommandAgentsConnected
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandAgentWorkItems "List work items being executed now."]
+[record NPU1CommandAgentWorkItems
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
 ]
@@ -1165,6 +1171,16 @@
   [field results [NPU1Page NPU1PlanSummary]]
 ]
 
+[documentation NPU1ResponseAgentWorkItems "A response to NPU1CommandAgentWorkItems."]
+[record NPU1ResponseAgentWorkItems
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation workItems "The work items."]
+  [field workItems [cb:List NPU1WorkItem]]
+]
+
 [documentation NPU1ResponseAgentGet "A response to NPU1CommandAgentGet."]
 [record NPU1ResponseAgentGet
   [documentation messageId "The message ID"]
@@ -1320,6 +1336,7 @@
       NPU1CommandAgentSearchBegin
       NPU1CommandAgentSearchNext
       NPU1CommandAgentSearchPrevious
+      NPU1CommandAgentWorkItems
       NPU1CommandAgentsConnected
       NPU1CommandAssignmentExecute
       NPU1CommandAssignmentExecutionDelete
@@ -1377,6 +1394,7 @@
       NPU1ResponseAgentLabelGet
       NPU1ResponseAgentLabelSearch
       NPU1ResponseAgentSearch
+      NPU1ResponseAgentWorkItems
       NPU1ResponseAgentsConnected
       NPU1ResponseAssignmentExecutionSearch
       NPU1ResponseAssignmentExecutionWorkItems

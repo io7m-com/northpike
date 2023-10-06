@@ -18,6 +18,7 @@
 package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.northpike.model.NPAgentDescription;
+import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentLabel;
 import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPAuditEvent;
@@ -30,6 +31,7 @@ import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanSummary;
 import org.jline.terminal.Terminal;
@@ -357,6 +359,38 @@ public final class NPFormatterRaw implements NPFormatterType
         item.identifier().name(),
         Long.toUnsignedString(item.identifier().version()),
         item.description()
+      );
+    }
+    out.flush();
+  }
+
+  @Override
+  public void formatAgentIDs(
+    final Set<NPAgentID> agents)
+  {
+    final var out = this.terminal.writer();
+    out.println("# ID");
+
+    for (final var item : agents) {
+      out.printf("%s%n", item);
+    }
+    out.flush();
+  }
+
+  @Override
+  public void formatWorkItems(
+    final Set<NPWorkItem> workItems)
+  {
+    final var out = this.terminal.writer();
+    out.println("# Assignment Execution | Task | Agent | Status");
+
+    for (final var item : workItems) {
+      out.printf(
+        "%s | %s | %s | %s%n",
+        item.identifier().assignmentExecutionId(),
+        item.identifier().planElementName(),
+        item.selectedAgent().orElse(null),
+        item.status()
       );
     }
     out.flush();

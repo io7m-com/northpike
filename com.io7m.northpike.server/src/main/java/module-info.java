@@ -92,6 +92,7 @@ module com.io7m.northpike.server
     com.io7m.northpike.server.internal.users.NPUCmdAgentSearchBegin,
     com.io7m.northpike.server.internal.users.NPUCmdAgentSearchNext,
     com.io7m.northpike.server.internal.users.NPUCmdAgentSearchPrevious,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentWorkItems,
     com.io7m.northpike.server.internal.users.NPUCmdAgentsConnected,
     com.io7m.northpike.server.internal.users.NPUCmdAssignmentExecute,
     com.io7m.northpike.server.internal.users.NPUCmdAssignmentExecutionDelete,

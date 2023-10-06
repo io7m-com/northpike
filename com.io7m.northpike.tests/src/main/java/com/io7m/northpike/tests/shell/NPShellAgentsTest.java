@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.tests.shell;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentLabel;
@@ -24,6 +25,10 @@ import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPWorkItem;
+import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.protocol.user.NPUCommandAgentGet;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelDelete;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelGet;
@@ -35,10 +40,14 @@ import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandAgentWorkItems;
+import com.io7m.northpike.protocol.user.NPUCommandAgentsConnected;
 import com.io7m.northpike.protocol.user.NPUResponseAgentGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAgentSearch;
+import com.io7m.northpike.protocol.user.NPUResponseAgentWorkItems;
+import com.io7m.northpike.protocol.user.NPUResponseAgentsConnected;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.shell.NPShellConfiguration;
 import com.io7m.northpike.shell.NPShellType;
@@ -59,6 +68,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -639,5 +649,100 @@ public final class NPShellAgentsTest
       .execute(isA(NPUCommandAgentGet.class));
     Mockito.verify(this.userClient, new AtLeast(1))
       .execute(isA(NPUCommandAgentPut.class));
+  }
+
+  @Test
+  public void testAgentsConnected()
+    throws Exception
+  {
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentsConnected.class))
+    ).thenReturn(new NPUResponseAgentsConnected(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      Set.of(
+        new NPAgentID(UUID.randomUUID()),
+        new NPAgentID(UUID.randomUUID()),
+        new NPAgentID(UUID.randomUUID()),
+        new NPAgentID(UUID.randomUUID()),
+        new NPAgentID(UUID.randomUUID())
+      )
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.print("agents-connected");
+    w.println();
+
+    w.println("set --formatter RAW");
+    w.print("agents-connected");
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAgentsConnected.class));
+  }
+
+  @Test
+  public void testAgentWorkItems()
+    throws Exception
+  {
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentWorkItems.class))
+    ).thenReturn(new NPUResponseAgentWorkItems(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      Set.of(
+        new NPWorkItem(
+          new NPWorkItemIdentifier(
+            new NPAssignmentExecutionID(UUID.randomUUID()),
+            new RDottedName("e")
+          ),
+          Optional.of(new NPAgentID(UUID.randomUUID())),
+          NPWorkItemStatus.WORK_ITEM_ACCEPTED
+        ),
+        new NPWorkItem(
+          new NPWorkItemIdentifier(
+            new NPAssignmentExecutionID(UUID.randomUUID()),
+            new RDottedName("f")
+          ),
+          Optional.of(new NPAgentID(UUID.randomUUID())),
+          NPWorkItemStatus.WORK_ITEM_RUNNING
+        ),
+        new NPWorkItem(
+          new NPWorkItemIdentifier(
+            new NPAssignmentExecutionID(UUID.randomUUID()),
+            new RDottedName("g")
+          ),
+          Optional.of(new NPAgentID(UUID.randomUUID())),
+          NPWorkItemStatus.WORK_ITEM_RUNNING
+        )
+      )
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.print("agent-work-items");
+    w.println();
+
+    w.println("set --formatter RAW");
+    w.print("agent-work-items");
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAgentWorkItems.class));
   }
 }

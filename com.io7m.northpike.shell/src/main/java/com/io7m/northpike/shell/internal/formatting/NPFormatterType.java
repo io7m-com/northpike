@@ -17,6 +17,7 @@
 package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.northpike.model.NPAgentDescription;
+import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentLabel;
 import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPAuditEvent;
@@ -29,6 +30,7 @@ import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanSummary;
 
@@ -238,6 +240,30 @@ public interface NPFormatterType
 
   void formatPlanSummaries(
     NPPage<NPPlanSummary> page)
+    throws Exception;
+
+  /**
+   * Format agent IDs.
+   *
+   * @param agents The IDs
+   *
+   * @throws Exception On errors
+   */
+
+  void formatAgentIDs(
+    Set<NPAgentID> agents)
+    throws Exception;
+
+  /**
+   * Format work items.
+   *
+   * @param workItems The work items
+   *
+   * @throws Exception On errors
+   */
+
+  void formatWorkItems(
+    Set<NPWorkItem> workItems)
     throws Exception;
 
 }

@@ -19,6 +19,7 @@ package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.medrina.api.MRoleName;
 import com.io7m.northpike.model.NPAgentDescription;
+import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentLabel;
 import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPAuditEvent;
@@ -31,6 +32,7 @@ import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanSummary;
 import com.io7m.tabla.core.TTableRendererType;
@@ -551,6 +553,48 @@ public final class NPFormatterPretty implements NPFormatterType
         .addCell(item.identifier().name().toString())
         .addCell(Long.toUnsignedString(item.identifier().version()))
         .addCell(item.description());
+    }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatAgentIDs(
+    final Set<NPAgentID> agents)
+    throws Exception
+  {
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(1))
+        .declareColumn("ID", atLeastContentOrHeader());
+
+    for (final var item : agents) {
+      builder.addRow()
+        .addCell(item.toString());
+    }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatWorkItems(
+    final Set<NPWorkItem> workItems)
+    throws Exception
+  {
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(4))
+        .declareColumn("Assignment Execution", atLeastContentOrHeader())
+        .declareColumn("Element", atLeastContentOrHeader())
+        .declareColumn("Agent", atLeastContentOrHeader())
+        .declareColumn("Status", atLeastContentOrHeader());
+
+    for (final var item : workItems) {
+      builder.addRow()
+        .addCell(item.identifier().assignmentExecutionId().toString())
+        .addCell(item.identifier().planElementName().toString())
+        .addCell(item.selectedAgent().map(NPAgentID::toString).orElse(null))
+        .addCell(item.status().toString());
     }
 
     this.renderTable(builder.build());

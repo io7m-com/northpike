@@ -30,6 +30,7 @@ import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandAgentWorkItems;
 import com.io7m.northpike.protocol.user.NPUCommandAgentsConnected;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecute;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionDelete;
@@ -90,6 +91,7 @@ import com.io7m.northpike.protocol.user.NPUResponseAgentGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAgentSearch;
+import com.io7m.northpike.protocol.user.NPUResponseAgentWorkItems;
 import com.io7m.northpike.protocol.user.NPUResponseAgentsConnected;
 import com.io7m.northpike.protocol.user.NPUResponseAssignmentExecutionSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAssignmentExecutionWorkItems;
@@ -127,6 +129,7 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentPut.C
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentSearchBegin.COMMAND_AGENT_SEARCH_BEGIN;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentSearchNext.COMMAND_AGENT_SEARCH_NEXT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentSearchPrevious.COMMAND_AGENT_SEARCH_PREVIOUS;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentWorkItems.COMMAND_AGENT_WORK_ITEMS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentsConnected.COMMAND_AGENTS_CONNECTED;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAssignmentExecute.COMMAND_ASSIGNMENT_EXECUTE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAssignmentExecutionDelete.COMMAND_ASSIGNMENT_EXECUTION_DELETE;
@@ -184,6 +187,7 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentGet.
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentLabelGet.RESPONSE_AGENT_LABEL_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentLabelSearch.RESPONSE_AGENT_LABEL_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentSearch.RESPONSE_AGENT_SEARCH;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentWorkItems.RESPONSE_AGENT_WORK_ITEMS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentsConnected.RESPONSE_AGENTS_CONNECTED;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAssignmentExecutionSearch.RESPONSE_ASSIGNMENT_EXECUTION_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAssignmentExecutionWorkItems.RESPONSE_ASSIGNMENT_EXECUTION_WORK_ITEMS;
@@ -294,6 +298,9 @@ public final class NPU1Validation
     }
     if (response instanceof final NPUResponseAgentGet r) {
       return RESPONSE_AGENT_GET.convertToWire(r);
+    }
+    if (response instanceof final NPUResponseAgentWorkItems r) {
+      return RESPONSE_AGENT_WORK_ITEMS.convertToWire(r);
     }
     if (response instanceof final NPUResponseAgentsConnected r) {
       return RESPONSE_AGENTS_CONNECTED.convertToWire(r);
@@ -477,6 +484,9 @@ public final class NPU1Validation
     }
     if (command instanceof final NPUCommandAgentsConnected c) {
       return COMMAND_AGENTS_CONNECTED.convertToWire(c);
+    }
+    if (command instanceof final NPUCommandAgentWorkItems c) {
+      return COMMAND_AGENT_WORK_ITEMS.convertToWire(c);
     }
     if (command instanceof final NPUCommandAgentSearchBegin c) {
       return COMMAND_AGENT_SEARCH_BEGIN.convertToWire(c);
@@ -690,6 +700,9 @@ public final class NPU1Validation
     if (message instanceof final NPU1CommandAgentsConnected c) {
       return COMMAND_AGENTS_CONNECTED.convertFromWire(c);
     }
+    if (message instanceof final NPU1CommandAgentWorkItems c) {
+      return COMMAND_AGENT_WORK_ITEMS.convertFromWire(c);
+    }
     if (message instanceof final NPU1CommandAgentSearchBegin c) {
       return COMMAND_AGENT_SEARCH_BEGIN.convertFromWire(c);
     }
@@ -817,6 +830,9 @@ public final class NPU1Validation
     }
     if (message instanceof final NPU1ResponseAgentSearch r) {
       return RESPONSE_AGENT_SEARCH.convertFromWire(r);
+    }
+    if (message instanceof final NPU1ResponseAgentWorkItems r) {
+      return RESPONSE_AGENT_WORK_ITEMS.convertFromWire(r);
     }
 
     if (message instanceof final NPU1ResponseAuditSearch r) {

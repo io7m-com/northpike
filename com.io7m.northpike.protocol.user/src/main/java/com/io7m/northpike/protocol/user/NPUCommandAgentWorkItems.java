@@ -17,38 +17,33 @@
 
 package com.io7m.northpike.protocol.user;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
- * The type of responses.
+ * List all the work items being executed by agents.
+ *
+ * @param messageID The message ID
  */
 
-public sealed interface NPUResponseType
-  extends NPUMessageType
-  permits NPUResponseAgentGet,
-  NPUResponseAgentLabelGet,
-  NPUResponseAgentWorkItems,
-  NPUResponseAgentsConnected,
-  NPUResponseAssignmentExecutionWorkItems,
-  NPUResponseAssignmentGet,
-  NPUResponseError,
-  NPUResponseOK,
-  NPUResponsePagedType,
-  NPUResponsePlanGet,
-  NPUResponsePlanValidate,
-  NPUResponsePublicKeyGet,
-  NPUResponseRepositoryGet,
-  NPUResponseRepositoryPublicKeysAssigned,
-  NPUResponseSCMProvidersSupported,
-  NPUResponseSelf,
-  NPUResponseToolExecutionDescriptionGet,
-  NPUResponseToolExecutionDescriptionValidate,
-  NPUResponseUserRolesGet,
-  NPUResponseUsersConnected
+public record NPUCommandAgentWorkItems(
+  UUID messageID)
+  implements NPUCommandType<NPUResponseAgentWorkItems>
 {
   /**
-   * @return The ID of the message to which this message correlates
+   * List all the work items being executed by agents.
+   *
+   * @param messageID The message ID
    */
 
-  UUID correlationID();
+  public NPUCommandAgentWorkItems
+  {
+    Objects.requireNonNull(messageID, "messageId");
+  }
+
+  @Override
+  public Class<NPUResponseAgentWorkItems> responseClass()
+  {
+    return NPUResponseAgentWorkItems.class;
+  }
 }

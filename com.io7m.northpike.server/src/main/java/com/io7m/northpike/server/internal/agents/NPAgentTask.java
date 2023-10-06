@@ -32,6 +32,7 @@ import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
@@ -96,6 +97,7 @@ public final class NPAgentTask
   private final HashMap<String, String> attributes;
   private NPAgentID agentId;
   private NPAMessageType messageCurrent;
+  private volatile NPWorkItem workItemNow;
 
   private NPAgentTask(
     final NPAgentServerConnectionType inConnection,
@@ -449,6 +451,9 @@ public final class NPAgentTask
     Objects.requireNonNull(identifier, "identifier");
     Objects.requireNonNull(status, "status");
 
+    this.workItemNow =
+      new NPWorkItem(identifier, Optional.of(this.agentId), status);
+
     this.events.emit(
       new NPAgentWorkItemStatusChanged(this.agentId, identifier, status)
     );
@@ -504,6 +509,9 @@ public final class NPAgentTask
     final NPWorkItemIdentifier identifier)
     throws NPException
   {
+    this.workItemNow =
+      new NPWorkItem(identifier, Optional.of(this.agentId), WORK_ITEM_ACCEPTED);
+
     try (var dbConn = this.database.openConnection(NORTHPIKE)) {
       NPWorkItemUpdates.setWorkItemStatus(
         dbConn,
@@ -616,6 +624,15 @@ public final class NPAgentTask
       LOG.debug("Work item send failed: ", e);
       return false;
     }
+  }
+
+  /**
+   * @return The work item executing on the agent right now
+   */
+
+  public Optional<NPWorkItem> workItemExecutingNow()
+  {
+    return Optional.ofNullable(this.workItemNow);
   }
 
   /**

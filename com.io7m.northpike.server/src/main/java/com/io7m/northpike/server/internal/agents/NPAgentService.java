@@ -21,6 +21,7 @@ import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAgentLabelName;
 import com.io7m.northpike.model.NPAgentWorkItem;
+import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
@@ -38,6 +39,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -275,6 +277,15 @@ public final class NPAgentService implements NPAgentServiceType
   {
     return this.agentTasks.stream()
       .map(NPAgentTask::agentId)
+      .collect(Collectors.toUnmodifiableSet());
+  }
+
+  @Override
+  public Set<NPWorkItem> findAgentWorkItemsExecuting()
+  {
+    return this.agentTasks.stream()
+      .map(NPAgentTask::workItemExecutingNow)
+      .flatMap(Optional::stream)
       .collect(Collectors.toUnmodifiableSet());
   }
 
