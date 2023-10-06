@@ -47,6 +47,10 @@ public final class NPRoleSetConverter
   public NPRoleSet convertFromString(
     final String text)
   {
+    if (text.trim().isEmpty()) {
+      return new NPRoleSet(Set.of());
+    }
+
     return new NPRoleSet(
       Arrays.stream(text.split(","))
         .map(MRoleName::of)
@@ -58,7 +62,10 @@ public final class NPRoleSetConverter
   public String convertToString(
     final NPRoleSet value)
   {
-    return value.toString();
+    return value.roles()
+      .stream()
+      .map(name -> name.value().value())
+      .collect(Collectors.joining(","));
   }
 
   @Override

@@ -18,8 +18,8 @@
 package com.io7m.northpike.shell.internal;
 
 
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentLabelSet;
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPToolExecutionIdentifierSet;
 import com.io7m.quarrel.core.QValueConverterType;
 
 import java.util.Arrays;
@@ -27,54 +27,57 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * @see NPAgentLabelSet
+ * @see NPToolExecutionIdentifierSet
  */
 
-public final class NPAgentLabelSetConverter
-  implements QValueConverterType<NPAgentLabelSet>
+public final class NPToolExecutionIdentifierSetConverter
+  implements QValueConverterType<NPToolExecutionIdentifierSet>
 {
+  private static final NPToolExecutionIdentifierConverter IDENTIFIER_CONVERTER =
+    new NPToolExecutionIdentifierConverter();
+
   /**
-   * @see NPAgentLabelSet
+   * @see NPToolExecutionIdentifierSet
    */
 
-  public NPAgentLabelSetConverter()
+  public NPToolExecutionIdentifierSetConverter()
   {
 
   }
 
   @Override
-  public NPAgentLabelSet convertFromString(
+  public NPToolExecutionIdentifierSet convertFromString(
     final String text)
   {
     if (text.trim().isEmpty()) {
-      return new NPAgentLabelSet(Set.of());
+      return new NPToolExecutionIdentifierSet(Set.of());
     }
 
-    return new NPAgentLabelSet(
+    return new NPToolExecutionIdentifierSet(
       Arrays.stream(text.split(","))
-        .map(NPAgentLabelName::of)
+        .map(IDENTIFIER_CONVERTER::convertFromString)
         .collect(Collectors.toUnmodifiableSet())
     );
   }
 
   @Override
   public String convertToString(
-    final NPAgentLabelSet value)
+    final NPToolExecutionIdentifierSet value)
   {
-    return value.labels()
+    return value.identifiers()
       .stream()
-      .map(NPAgentLabelName::toString)
+      .map(IDENTIFIER_CONVERTER::convertToString)
       .collect(Collectors.joining(","));
   }
 
   @Override
-  public NPAgentLabelSet exampleValue()
+  public NPToolExecutionIdentifierSet exampleValue()
   {
-    return new NPAgentLabelSet(
+    return new NPToolExecutionIdentifierSet(
       Set.of(
-        NPAgentLabelName.of("label0"),
-        NPAgentLabelName.of("label1"),
-        NPAgentLabelName.of("label2")
+        NPToolExecutionIdentifier.of("com.io7m.example", 23L),
+        NPToolExecutionIdentifier.of("org.apache.maven", 3L),
+        NPToolExecutionIdentifier.of("com.example", 100L)
       )
     );
   }
@@ -82,12 +85,15 @@ public final class NPAgentLabelSetConverter
   @Override
   public String syntax()
   {
-    return "<label-name> [',' <label-name>]";
+    return "%s [ ',' %s ] ".formatted(
+      IDENTIFIER_CONVERTER.syntax(),
+      IDENTIFIER_CONVERTER.syntax()
+    );
   }
 
   @Override
-  public Class<NPAgentLabelSet> convertedClass()
+  public Class<NPToolExecutionIdentifierSet> convertedClass()
   {
-    return NPAgentLabelSet.class;
+    return NPToolExecutionIdentifierSet.class;
   }
 }

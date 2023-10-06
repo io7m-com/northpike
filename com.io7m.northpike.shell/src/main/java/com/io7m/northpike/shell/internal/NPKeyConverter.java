@@ -49,7 +49,7 @@ public final class NPKeyConverter
   public String convertToString(
     final NPKey value)
   {
-    return value.toString();
+    return value.format();
   }
 
   @Override

@@ -26,6 +26,8 @@ import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPRepositoryCredentialsType;
 import com.io7m.northpike.model.NPRepositoryID;
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPToolExecutionIdentifierSet;
 import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.plans.NPPlanName;
@@ -40,6 +42,8 @@ import com.io7m.northpike.shell.internal.NPPlanNameConverter;
 import com.io7m.northpike.shell.internal.NPRepositoryCredentialsConverter;
 import com.io7m.northpike.shell.internal.NPRepositoryIDConverter;
 import com.io7m.northpike.shell.internal.NPRoleSetConverter;
+import com.io7m.northpike.shell.internal.NPToolExecutionIdentifierConverter;
+import com.io7m.northpike.shell.internal.NPToolExecutionIdentifierSetConverter;
 import com.io7m.northpike.shell.internal.NPToolExecutionNameConverter;
 import com.io7m.northpike.shell.internal.NPToolNameConverter;
 import com.io7m.northpike.shell.internal.RDottedNameConverter;
@@ -75,6 +79,12 @@ public final class NPShellValueConverters
       .with(
         NPToolExecutionName.class,
         new NPToolExecutionNameConverter())
+      .with(
+        NPToolExecutionIdentifier.class,
+        new NPToolExecutionIdentifierConverter())
+      .with(
+        NPToolExecutionIdentifierSet.class,
+        new NPToolExecutionIdentifierSetConverter())
       .with(
         NPToolName.class,
         new NPToolNameConverter())

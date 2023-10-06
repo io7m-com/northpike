@@ -17,6 +17,7 @@
 package com.io7m.northpike.shell.internal;
 
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPToolExecutionIdentifierSet;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.plans.NPPlanSearchParameters;
@@ -122,6 +123,51 @@ public final class NPShellCmdPlanSearchBegin
       String.class
     );
 
+  private static final QParameterNamed01<NPToolExecutionIdentifierSet> TOOLEXECS_EQUALS =
+    new QParameterNamed01<>(
+      "--toolexecs-equal-to",
+      List.of(),
+      new QConstant("Filter plans by tool executions."),
+      Optional.empty(),
+      NPToolExecutionIdentifierSet.class
+    );
+
+  private static final QParameterNamed01<NPToolExecutionIdentifierSet> TOOLEXECS_NEQUALS =
+    new QParameterNamed01<>(
+      "--toolexecs-not-equal-to",
+      List.of(),
+      new QConstant("Filter plans by tool executions."),
+      Optional.empty(),
+      NPToolExecutionIdentifierSet.class
+    );
+
+  private static final QParameterNamed01<NPToolExecutionIdentifierSet> TOOLEXECS_SUBSET =
+    new QParameterNamed01<>(
+      "--toolexecs-subset-of",
+      List.of(),
+      new QConstant("Filter plans by tool executions."),
+      Optional.empty(),
+      NPToolExecutionIdentifierSet.class
+    );
+
+  private static final QParameterNamed01<NPToolExecutionIdentifierSet> TOOLEXECS_SUPERSET =
+    new QParameterNamed01<>(
+      "--toolexecs-superset-of",
+      List.of(),
+      new QConstant("Filter plans by tool executions."),
+      Optional.empty(),
+      NPToolExecutionIdentifierSet.class
+    );
+
+  private static final QParameterNamed01<NPToolExecutionIdentifierSet> TOOLEXECS_OVERLAPPING =
+    new QParameterNamed01<>(
+      "--toolexecs-overlapping",
+      List.of(),
+      new QConstant("Filter plans by tool executions."),
+      Optional.empty(),
+      NPToolExecutionIdentifierSet.class
+    );
+
   /**
    * Construct a command.
    *
@@ -155,7 +201,12 @@ public final class NPShellCmdPlanSearchBegin
       DESCRIPTION_EQUALS,
       DESCRIPTION_NEQUALS,
       DESCRIPTION_SIMILAR,
-      DESCRIPTION_NOT_SIMILAR
+      DESCRIPTION_NOT_SIMILAR,
+      TOOLEXECS_OVERLAPPING,
+      TOOLEXECS_EQUALS,
+      TOOLEXECS_NEQUALS,
+      TOOLEXECS_SUBSET,
+      TOOLEXECS_SUPERSET
     );
   }
 
@@ -203,6 +254,44 @@ public final class NPShellCmdPlanSearchBegin
         .map(NPComparisonFuzzyType.IsNotSimilarTo::new)
         .map(x -> (NPComparisonFuzzyType<String>) x);
 
+    final var toolexecsEquals =
+      context.parameterValue(TOOLEXECS_EQUALS)
+        .map(NPToolExecutionIdentifierSet::identifiers)
+        .map(NPComparisonSetType.IsEqualTo::new)
+        .map(x -> (NPComparisonSetType<NPToolExecutionIdentifier>) x);
+
+    final var toolexecsNequals =
+      context.parameterValue(TOOLEXECS_NEQUALS)
+        .map(NPToolExecutionIdentifierSet::identifiers)
+        .map(NPComparisonSetType.IsNotEqualTo::new)
+        .map(x -> (NPComparisonSetType<NPToolExecutionIdentifier>) x);
+
+    final var toolexecsSubset =
+      context.parameterValue(TOOLEXECS_SUBSET)
+        .map(NPToolExecutionIdentifierSet::identifiers)
+        .map(NPComparisonSetType.IsSubsetOf::new)
+        .map(x -> (NPComparisonSetType<NPToolExecutionIdentifier>) x);
+
+    final var toolexecsSuperset =
+      context.parameterValue(TOOLEXECS_SUPERSET)
+        .map(NPToolExecutionIdentifierSet::identifiers)
+        .map(NPComparisonSetType.IsSupersetOf::new)
+        .map(x -> (NPComparisonSetType<NPToolExecutionIdentifier>) x);
+
+    final var toolexecsOverlapping =
+      context.parameterValue(TOOLEXECS_OVERLAPPING)
+        .map(NPToolExecutionIdentifierSet::identifiers)
+        .map(NPComparisonSetType.IsOverlapping::new)
+        .map(x -> (NPComparisonSetType<NPToolExecutionIdentifier>) x);
+
+    final var toolexecsMatch =
+      toolexecsEquals
+        .or(() -> toolexecsNequals)
+        .or(() -> toolexecsSubset)
+        .or(() -> toolexecsSuperset)
+        .or(() -> toolexecsOverlapping)
+        .orElse(new NPComparisonSetType.Anything<>());
+
     final var nameMatch =
       nameEquals
         .or(() -> nameNequals)
@@ -217,14 +306,11 @@ public final class NPShellCmdPlanSearchBegin
         .or(() -> descriptionNotSimilar)
         .orElse(new NPComparisonFuzzyType.Anything<>());
 
-    final var toolExecutionMatch =
-      new NPComparisonSetType.Anything<NPToolExecutionIdentifier>();
-
     final var parameters =
       new NPPlanSearchParameters(
         nameMatch,
         descriptionMatch,
-        toolExecutionMatch,
+        toolexecsMatch,
         context.parameterValue(LIMIT).longValue()
       );
 

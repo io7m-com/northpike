@@ -352,6 +352,11 @@ public final class NPShellPlansTest
     w.println("plan-search-begin --description-not-equal-to label2");
     w.println("plan-search-begin --description-similar-to label2");
     w.println("plan-search-begin --description-not-similar-to label2");
+    w.println("plan-search-begin --toolexecs-equal-to x:23,y:24");
+    w.println("plan-search-begin --toolexecs-not-equal-to x:23,y:24");
+    w.println("plan-search-begin --toolexecs-subset-of x:23,y:24");
+    w.println("plan-search-begin --toolexecs-superset-of x:23,y:24");
+    w.println("plan-search-begin --toolexecs-overlapping x:23,y:24");
     w.println("plan-search-begin");
     w.println("plan-search-next");
     w.println("plan-search-previous");
@@ -366,6 +371,11 @@ public final class NPShellPlansTest
     w.println("plan-search-begin --description-not-equal-to label2");
     w.println("plan-search-begin --description-similar-to label2");
     w.println("plan-search-begin --description-not-similar-to label2");
+    w.println("plan-search-begin --toolexecs-equal-to x:23,y:24");
+    w.println("plan-search-begin --toolexecs-not-equal-to x:23,y:24");
+    w.println("plan-search-begin --toolexecs-subset-of x:23,y:24");
+    w.println("plan-search-begin --toolexecs-superset-of x:23,y:24");
+    w.println("plan-search-begin --toolexecs-overlapping x:23,y:24");
     w.println("plan-search-begin");
     w.println("plan-search-next");
     w.println("plan-search-previous");
@@ -376,7 +386,7 @@ public final class NPShellPlansTest
     this.waitForShell();
     assertEquals(0, this.exitCode);
 
-    Mockito.verify(this.userClient, new AtLeast(18))
+    Mockito.verify(this.userClient, new AtLeast(26))
       .execute(isA(NPUCommandPlanSearchBegin.class));
     Mockito.verify(this.userClient, new AtLeast(2))
       .execute(isA(NPUCommandPlanSearchNext.class));

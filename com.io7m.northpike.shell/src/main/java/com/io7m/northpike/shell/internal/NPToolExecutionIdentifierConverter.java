@@ -18,76 +18,68 @@
 package com.io7m.northpike.shell.internal;
 
 
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentLabelSet;
+import com.io7m.northpike.model.NPToolExecutionIdentifier;
+import com.io7m.northpike.model.NPValidityException;
 import com.io7m.quarrel.core.QValueConverterType;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 /**
- * @see NPAgentLabelSet
+ * @see NPToolExecutionIdentifier
  */
 
-public final class NPAgentLabelSetConverter
-  implements QValueConverterType<NPAgentLabelSet>
+public final class NPToolExecutionIdentifierConverter
+  implements QValueConverterType<NPToolExecutionIdentifier>
 {
   /**
-   * @see NPAgentLabelSet
+   * @see NPToolExecutionIdentifier
    */
 
-  public NPAgentLabelSetConverter()
+  public NPToolExecutionIdentifierConverter()
   {
 
   }
 
   @Override
-  public NPAgentLabelSet convertFromString(
+  public NPToolExecutionIdentifier convertFromString(
     final String text)
   {
-    if (text.trim().isEmpty()) {
-      return new NPAgentLabelSet(Set.of());
+    final var segments = text.split(":");
+    if (segments.length == 2) {
+      return NPToolExecutionIdentifier.of(
+        segments[0],
+        Long.parseUnsignedLong(segments[1])
+      );
     }
 
-    return new NPAgentLabelSet(
-      Arrays.stream(text.split(","))
-        .map(NPAgentLabelName::of)
-        .collect(Collectors.toUnmodifiableSet())
+    throw new NPValidityException(
+      "Unparseable identifier: %s".formatted(text)
     );
   }
 
   @Override
   public String convertToString(
-    final NPAgentLabelSet value)
+    final NPToolExecutionIdentifier value)
   {
-    return value.labels()
-      .stream()
-      .map(NPAgentLabelName::toString)
-      .collect(Collectors.joining(","));
+    return "%s:%s".formatted(
+      value.name().toString(),
+      Long.toUnsignedString(value.version())
+    );
   }
 
   @Override
-  public NPAgentLabelSet exampleValue()
+  public NPToolExecutionIdentifier exampleValue()
   {
-    return new NPAgentLabelSet(
-      Set.of(
-        NPAgentLabelName.of("label0"),
-        NPAgentLabelName.of("label1"),
-        NPAgentLabelName.of("label2")
-      )
-    );
+    return NPToolExecutionIdentifier.of("org.apache.maven", 3L);
   }
 
   @Override
   public String syntax()
   {
-    return "<label-name> [',' <label-name>]";
+    return "<execution-name> ':' <execution-version>";
   }
 
   @Override
-  public Class<NPAgentLabelSet> convertedClass()
+  public Class<NPToolExecutionIdentifier> convertedClass()
   {
-    return NPAgentLabelSet.class;
+    return NPToolExecutionIdentifier.class;
   }
 }

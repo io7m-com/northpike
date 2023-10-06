@@ -1114,6 +1114,56 @@ public final class NPDatabasePlansTest
     assertEquals(0L, p.pageFirstOffset());
   }
 
+  /**
+   * Searching for plans works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanSearchToolsSet4()
+    throws Exception
+  {
+    final var search =
+      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+    final var toolPut =
+      this.transaction.queries(PutExecutionDescriptionType.class);
+
+    final var plans =
+      createPlansWithMultipleTools(put, toolPut);
+
+    this.transaction.commit();
+
+    final var r =
+      search.execute(
+        new NPPlanSearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonFuzzyType.Anything<>(),
+          new NPComparisonSetType.IsOverlapping<>(
+            Set.of(
+              new NPToolExecutionIdentifier(
+                NPToolExecutionName.of("com.io7m.example"),
+                24L
+              )
+            )
+          ),
+          1000L
+        )
+      );
+
+    final var p =
+      r.pageCurrent(this.transaction);
+
+    assertEquals(plans.get(0).identifier(), p.items().get(0).identifier());
+    assertEquals(plans.get(1).identifier(), p.items().get(1).identifier());
+    assertEquals(2, p.items().size());
+    assertEquals(1, p.pageCount());
+    assertEquals(1, p.pageIndex());
+    assertEquals(0L, p.pageFirstOffset());
+  }
+
   private static List<NPPlanType> createPlansWithMultipleTools(
     final NPDatabaseQueriesPlansType.PutType put,
     final PutExecutionDescriptionType toolPut)

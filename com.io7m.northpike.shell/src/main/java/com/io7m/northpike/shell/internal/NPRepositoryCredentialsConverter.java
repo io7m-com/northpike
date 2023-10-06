@@ -49,16 +49,44 @@ public final class NPRepositoryCredentialsConverter
     }
 
     if (text.startsWith("username-password:")) {
-      final var segments = text.split(":");
-      if (segments.length == 3) {
-        return new NPRepositoryCredentialsUsernamePassword(
+      return convertFromStringUsernamePassword(text);
+    }
+
+    throw new IllegalArgumentException(
+      "Unparseable credentials: %s".formatted(text)
+    );
+  }
+
+  private static NPRepositoryCredentialsUsernamePassword
+  convertFromStringUsernamePassword(
+    final String text)
+  {
+    final var segments = text.split(":");
+    return switch (segments.length) {
+      case 1 -> {
+        yield new NPRepositoryCredentialsUsernamePassword(
+          "",
+          ""
+        );
+      }
+      case 2 -> {
+        yield new NPRepositoryCredentialsUsernamePassword(
+          segments[1],
+          ""
+        );
+      }
+      case 3 -> {
+        yield new NPRepositoryCredentialsUsernamePassword(
           segments[1],
           segments[2]
         );
       }
-    }
-
-    throw new IllegalArgumentException("Unparseable credentials.");
+      default -> {
+        throw new IllegalArgumentException(
+          "Unparseable username/password credentials: %s".formatted(text)
+        );
+      }
+    };
   }
 
   @Override
