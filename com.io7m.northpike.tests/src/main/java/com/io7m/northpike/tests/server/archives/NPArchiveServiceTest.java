@@ -216,6 +216,8 @@ public final class NPArchiveServiceTest
           ),
           new NPServerMaintenanceConfiguration(
             Optional.empty(),
+            Duration.ofDays(1L),
+            Duration.ofDays(1L),
             Duration.ofDays(1L)
           ),
           Optional.empty()

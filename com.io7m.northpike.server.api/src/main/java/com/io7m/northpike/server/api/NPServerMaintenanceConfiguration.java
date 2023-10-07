@@ -23,24 +23,36 @@ import java.util.Optional;
 /**
  * Configuration information for the server's maintenance service.
  *
- * @param tlsReloadInterval  The interval at which to reload TLS contexts
- * @param archivesMaximumAge The maximum age of archives
+ * @param tlsReloadInterval              The interval at which to reload TLS contexts
+ * @param archivesMaximumAge             The maximum age of archives
+ * @param auditMaximumAge                The maximum age of audit records
+ * @param assignmentExecutionsMaximumAge The maximum age of assignment execution logs
  */
 
 public record NPServerMaintenanceConfiguration(
   Optional<Duration> tlsReloadInterval,
-  Duration archivesMaximumAge)
+  Duration archivesMaximumAge,
+  Duration auditMaximumAge,
+  Duration assignmentExecutionsMaximumAge)
 {
   /**
    * Configuration information for the server's maintenance service.
    *
-   * @param tlsReloadInterval  The interval at which to reload TLS contexts
-   * @param archivesMaximumAge The maximum age of archives
+   * @param tlsReloadInterval              The interval at which to reload TLS contexts
+   * @param archivesMaximumAge             The maximum age of archives
+   * @param auditMaximumAge                The maximum age of audit records
+   * @param assignmentExecutionsMaximumAge The maximum age of assignment execution logs
    */
 
   public NPServerMaintenanceConfiguration
   {
-    Objects.requireNonNull(tlsReloadInterval, "tlsReloadInterval");
-    Objects.requireNonNull(archivesMaximumAge, "archivesMaximumAge");
+    Objects.requireNonNull(
+      tlsReloadInterval, "tlsReloadInterval");
+    Objects.requireNonNull(
+      archivesMaximumAge, "archivesMaximumAge");
+    Objects.requireNonNull(
+      auditMaximumAge, "auditMaximumAge");
+    Objects.requireNonNull(
+      assignmentExecutionsMaximumAge, "assignmentExecutionsMaximumAge");
   }
 }

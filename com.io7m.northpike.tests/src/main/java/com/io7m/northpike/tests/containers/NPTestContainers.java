@@ -335,7 +335,9 @@ public final class NPTestContainers
           1_000_000
         ),
         new NPServerMaintenanceConfiguration(
-          Optional.empty(),
+          empty(),
+          Duration.ofDays(1L),
+          Duration.ofDays(1L),
           Duration.ofDays(1L)
         ),
         empty()

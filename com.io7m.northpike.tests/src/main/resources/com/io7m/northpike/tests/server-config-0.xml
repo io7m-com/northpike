@@ -41,7 +41,9 @@
   <c:IdStore BaseURI="https://idstore.example.com"
              PasswordResetURI="https://idstore.example.com"/>
 
-  <c:Maintenance ArchiveMaximumAge="PT24H"/>
+  <c:Maintenance ArchiveMaximumAge="PT24H"
+                 AssignmentExecutionsMaximumAge="P14D"
+                 AuditMaximumAge="P365D"/>
 
   <c:OpenTelemetry LogicalServiceName="northpike">
     <c:Logs Endpoint="http://logs.telemetry.example.com:4317"
@@ -53,8 +55,8 @@
   </c:OpenTelemetry>
 
   <c:UserService ListenAddress="example.com"
-                  ListenPort="20050"
-                  MaximumCommandSizeOctets="1000000">
+                 ListenPort="20050"
+                 MaximumCommandSizeOctets="1000000">
     <t:TLSEnabled>
       <t:KeyStore Type="CANONMILL"
                   Provider="CANONMILL"

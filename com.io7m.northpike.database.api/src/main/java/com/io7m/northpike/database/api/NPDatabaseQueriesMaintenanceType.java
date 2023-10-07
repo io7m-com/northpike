@@ -49,4 +49,26 @@ public sealed interface NPDatabaseQueriesMaintenanceType
   {
 
   }
+
+  /**
+   * Delete expired audit log records.
+   */
+
+  non-sealed interface DeleteExpiredAuditType
+    extends NPDatabaseQueryType<OffsetDateTime, Long>,
+    NPDatabaseQueriesMaintenanceType
+  {
+
+  }
+
+  /**
+   * Delete expired assignment execution records.
+   */
+
+  non-sealed interface DeleteExpiredAssignmentExecutionsType
+    extends NPDatabaseQueryType<OffsetDateTime, Long>,
+    NPDatabaseQueriesMaintenanceType
+  {
+
+  }
 }

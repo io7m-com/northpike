@@ -72,7 +72,16 @@ public final class NPDBQAssignmentExecutionDelete
     final NPAssignmentExecutionID execution)
   {
     final var batch = new ArrayList<Query>();
+    deletionStatements(context, execution, batch);
+    context.batch(batch).execute();
+    return NPDatabaseUnit.UNIT;
+  }
 
+  static void deletionStatements(
+    final DSLContext context,
+    final NPAssignmentExecutionID execution,
+    final ArrayList<Query> batch)
+  {
     final var executionWorkItems =
       context.select(WORK_ITEMS.WI_ID)
         .from(WORK_ITEMS)
@@ -114,8 +123,5 @@ public final class NPDBQAssignmentExecutionDelete
       context.deleteFrom(ASSIGNMENT_EXECUTIONS)
         .where(ASSIGNMENT_EXECUTIONS.AE_ID.eq(execution.value()))
     );
-
-    context.batch(batch).execute();
-    return NPDatabaseUnit.UNIT;
   }
 }
