@@ -15,6 +15,7 @@ com.io7m.northpike.tests.arbitraries.NPArbAssignmentExecutionRequest
 com.io7m.northpike.tests.arbitraries.NPArbAssignmentExecutionSearchParameters
 com.io7m.northpike.tests.arbitraries.NPArbAssignmentExecutionState
 com.io7m.northpike.tests.arbitraries.NPArbAssignmentName
+com.io7m.northpike.tests.arbitraries.NPArbAssignmentSchedule
 com.io7m.northpike.tests.arbitraries.NPArbAssignmentSearchParameters
 com.io7m.northpike.tests.arbitraries.NPArbAuditEvent
 com.io7m.northpike.tests.arbitraries.NPArbAuditSearchParameters

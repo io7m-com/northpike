@@ -660,7 +660,8 @@ CREATE TABLE tool_execution_descriptions (
     </StatementParameterized>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE, DELETE ON tool_execution_descriptions TO northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON tool_execution_descriptions TO
+      northpike
     </Statement>
     <Statement>
       GRANT SELECT ON tool_execution_descriptions TO northpike_read_only
@@ -723,8 +724,8 @@ CREATE TABLE plans (
     </Statement>
 
     <Comment>
-      The plan_tool_executions table records the tool executions upon which
-      a given plan depends.
+      The plan_tool_executions table records the tool executions upon which a
+      given plan depends.
     </Comment>
 
     <Statement><![CDATA[
@@ -753,9 +754,9 @@ CREATE TABLE plan_tool_executions (
     </Statement>
 
     <Comment>
-      The plan_tool_executions_search view provides a convenient view of
-      the plan_tool_executions table used to perform operations over the set
-      of tool executions referenced by a plan.
+      The plan_tool_executions_search view provides a convenient view of the
+      plan_tool_executions table used to perform operations over the set of tool
+      executions referenced by a plan.
     </Comment>
 
     <Statement><![CDATA[
@@ -818,6 +819,13 @@ CREATE TABLE archives (
       GRANT SELECT ON archives TO northpike_read_only
     </Statement>
 
+    <Statement><![CDATA[
+CREATE TYPE assignment_schedule_t AS ENUM(
+  'ASSIGNMENT_SCHEDULE_NONE',
+  'ASSIGNMENT_SCHEDULE_HOURLY_HASHED'
+);
+]]></Statement>
+
     <Comment>
       The assignments table stores assignment definitions. An assignment is
       essentially a promise to compile commits from a given repository using a
@@ -831,10 +839,12 @@ CREATE TABLE archives (
       </ParameterReferences>
       <Text><![CDATA[
 CREATE TABLE assignments (
-  a_id          BIGINT  NOT NULL GENERATED ALWAYS AS IDENTITY,
-  a_name        TEXT    NOT NULL,
-  a_repository  UUID    NOT NULL,
-  a_plan        BIGINT  NOT NULL,
+  a_id               BIGINT                   NOT NULL GENERATED ALWAYS AS IDENTITY,
+  a_name             TEXT                     NOT NULL,
+  a_repository       UUID                     NOT NULL,
+  a_plan             BIGINT                   NOT NULL,
+  a_schedule         assignment_schedule_t    NOT NULL,
+  a_schedule_cutoff  TIMESTAMP WITH TIME ZONE,
 
   -- [jooq ignore start]
   a_name_search TSVECTOR NOT NULL
@@ -844,6 +854,19 @@ CREATE TABLE assignments (
 
   CONSTRAINT assignments_name_unique
     UNIQUE (a_name),
+
+  CONSTRAINT assignments_schedule_values_present CHECK (
+    CASE
+      WHEN a_schedule = 'ASSIGNMENT_SCHEDULE_NONE' THEN (
+        (a_schedule_cutoff IS NULL)
+      )
+      WHEN a_schedule = 'ASSIGNMENT_SCHEDULE_HOURLY_HASHED' THEN (
+        (a_schedule_cutoff IS NOT NULL)
+      )
+      ELSE
+        'f'::boolean
+    END
+  ),
   -- [jooq ignore stop]
 
   CONSTRAINT assignments_primary_key

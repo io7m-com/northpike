@@ -59,6 +59,7 @@ import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateCreated;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
 import com.io7m.northpike.model.plans.NPPlanName;
 import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.NPPlans;
@@ -329,7 +330,8 @@ public final class NPAgentTaskTest
       new NPAssignment(
         NPAssignmentName.of("some.assignment"),
         this.repository.id(),
-        this.plan.identifier()
+        this.plan.identifier(),
+        NPAssignmentScheduleNone.SCHEDULE_NONE
       );
 
     this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class)

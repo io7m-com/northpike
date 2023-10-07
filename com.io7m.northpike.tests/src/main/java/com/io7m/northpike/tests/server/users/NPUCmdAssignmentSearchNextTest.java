@@ -30,9 +30,10 @@ import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
-import com.io7m.northpike.model.security.NPSecRole;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchNext;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -250,17 +251,20 @@ public final class NPUCmdAssignmentSearchNextTest
           new NPAssignment(
             NPAssignmentName.of("x.y.z0"),
             new NPRepositoryID(randomUUID()),
-            NPPlanIdentifier.of("p0", 1L)
+            NPPlanIdentifier.of("p0", 1L),
+            NPAssignmentScheduleNone.SCHEDULE_NONE
           ),
           new NPAssignment(
             NPAssignmentName.of("x.y.z1"),
             new NPRepositoryID(randomUUID()),
-            NPPlanIdentifier.of("p0", 1L)
+            NPPlanIdentifier.of("p0", 1L),
+            NPAssignmentScheduleNone.SCHEDULE_NONE
           ),
           new NPAssignment(
             NPAssignmentName.of("x.y.z2"),
             new NPRepositoryID(randomUUID()),
-            NPPlanIdentifier.of("p0", 1L)
+            NPPlanIdentifier.of("p0", 1L),
+            NPAssignmentScheduleNone.SCHEDULE_NONE
           )
         ),
         1,

@@ -21,13 +21,21 @@ package com.io7m.northpike.database.postgres.internal;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
+import com.io7m.northpike.database.postgres.internal.enums.AssignmentScheduleT;
 import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleHourlyHashed;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleType;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
+
+import java.time.OffsetDateTime;
 
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENTS;
 import static com.io7m.northpike.database.postgres.internal.Tables.PLANS;
+import static com.io7m.northpike.database.postgres.internal.enums.AssignmentScheduleT.ASSIGNMENT_SCHEDULE_HOURLY_HASHED;
+import static com.io7m.northpike.database.postgres.internal.enums.AssignmentScheduleT.ASSIGNMENT_SCHEDULE_NONE;
 import static com.io7m.northpike.strings.NPStringConstants.ASSIGNMENT;
 import static java.util.Map.entry;
 
@@ -86,11 +94,15 @@ public final class NPDBQAssignmentPut
         .set(ASSIGNMENTS.A_NAME, assignment.name().toString())
         .set(ASSIGNMENTS.A_REPOSITORY, assignment.repositoryId().value())
         .set(ASSIGNMENTS.A_PLAN, plan)
+        .set(ASSIGNMENTS.A_SCHEDULE, mapScheduleType(assignment.schedule()))
+        .set(ASSIGNMENTS.A_SCHEDULE_CUTOFF, mapScheduleCutoff(assignment.schedule()))
         .onConflictOnConstraint(DSL.name("assignments_name_unique"))
         .doUpdate()
         .set(ASSIGNMENTS.A_NAME, assignment.name().toString())
         .set(ASSIGNMENTS.A_REPOSITORY, assignment.repositoryId().value())
-        .set(ASSIGNMENTS.A_PLAN, plan);
+        .set(ASSIGNMENTS.A_PLAN, plan)
+        .set(ASSIGNMENTS.A_SCHEDULE, mapScheduleType(assignment.schedule()))
+        .set(ASSIGNMENTS.A_SCHEDULE_CUTOFF, mapScheduleCutoff(assignment.schedule()));
 
     recordQuery(query);
     query.execute();
@@ -101,5 +113,34 @@ public final class NPDBQAssignmentPut
       entry("ASSIGNMENT", assignment.name().toString())
     );
     return UNIT;
+  }
+
+  private static OffsetDateTime mapScheduleCutoff(
+    final NPAssignmentScheduleType schedule)
+  {
+    if (schedule instanceof NPAssignmentScheduleHourlyHashed hashed) {
+      return hashed.ageCutoff();
+    }
+    if (schedule instanceof NPAssignmentScheduleNone) {
+      return null;
+    }
+    throw new IllegalStateException(
+      "Unrecognized schedule type: %s".formatted(schedule)
+    );
+  }
+
+  private static AssignmentScheduleT mapScheduleType(
+    final NPAssignmentScheduleType schedule)
+  {
+    if (schedule instanceof NPAssignmentScheduleHourlyHashed) {
+      return ASSIGNMENT_SCHEDULE_HOURLY_HASHED;
+    }
+    if (schedule instanceof NPAssignmentScheduleNone) {
+      return ASSIGNMENT_SCHEDULE_NONE;
+    }
+
+    throw new IllegalStateException(
+      "Unrecognized schedule type: %s".formatted(schedule)
+    );
   }
 }

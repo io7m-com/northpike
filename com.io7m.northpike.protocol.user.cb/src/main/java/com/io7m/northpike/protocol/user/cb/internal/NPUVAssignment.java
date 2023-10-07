@@ -25,6 +25,7 @@ import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1Assignment;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.string;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVAssignmentSchedule.ASSIGNMENT_SCHEDULE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVPlanIdentifier.PLAN_IDENTIFIER;
 
 /**
@@ -49,7 +50,8 @@ public enum NPUVAssignment
     return new NPU1Assignment(
       string(message.name().toString()),
       new CBUUID(message.repositoryId().value()),
-      PLAN_IDENTIFIER.convertToWire(message.plan())
+      PLAN_IDENTIFIER.convertToWire(message.plan()),
+      ASSIGNMENT_SCHEDULE.convertToWire(message.schedule())
     );
   }
 
@@ -60,7 +62,8 @@ public enum NPUVAssignment
     return new NPAssignment(
       NPAssignmentName.of(message.fieldName().value()),
       new NPRepositoryID(message.fieldRepository().value()),
-      PLAN_IDENTIFIER.convertFromWire(message.fieldPlan())
+      PLAN_IDENTIFIER.convertFromWire(message.fieldPlan()),
+      ASSIGNMENT_SCHEDULE.convertFromWire(message.fieldSchedule())
     );
   }
 }

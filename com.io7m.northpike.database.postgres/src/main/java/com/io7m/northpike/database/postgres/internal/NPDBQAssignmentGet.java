@@ -24,13 +24,17 @@ import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Servi
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleHourlyHashed;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleType;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 
 import java.util.Optional;
 
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENTS;
 import static com.io7m.northpike.database.postgres.internal.Tables.PLANS;
+import static com.io7m.northpike.model.assignments.NPAssignmentScheduleNone.SCHEDULE_NONE;
 
 /**
  * Retrieve an archive.
@@ -62,11 +66,13 @@ public final class NPDBQAssignmentGet
     throws NPDatabaseException
   {
     return context.select(
-      ASSIGNMENTS.A_NAME,
-      ASSIGNMENTS.A_REPOSITORY,
-      PLANS.P_NAME,
-      PLANS.P_VERSION
-    ).from(ASSIGNMENTS)
+        ASSIGNMENTS.A_NAME,
+        ASSIGNMENTS.A_REPOSITORY,
+        ASSIGNMENTS.A_SCHEDULE,
+        ASSIGNMENTS.A_SCHEDULE_CUTOFF,
+        PLANS.P_NAME,
+        PLANS.P_VERSION
+      ).from(ASSIGNMENTS)
       .join(PLANS)
       .on(ASSIGNMENTS.A_PLAN.eq(PLANS.P_ID))
       .where(ASSIGNMENTS.A_NAME.eq(name.value().value()))
@@ -83,8 +89,19 @@ public final class NPDBQAssignmentGet
       NPPlanIdentifier.of(
         r.get(PLANS.P_NAME),
         r.<Long>get(PLANS.P_VERSION).longValue()
-      )
+      ),
+      mapSchedule(r)
     );
+  }
+
+  static NPAssignmentScheduleType mapSchedule(
+    final Record r)
+  {
+    return switch (r.get(ASSIGNMENTS.A_SCHEDULE)) {
+      case ASSIGNMENT_SCHEDULE_NONE -> SCHEDULE_NONE;
+      case ASSIGNMENT_SCHEDULE_HOURLY_HASHED ->
+        new NPAssignmentScheduleHourlyHashed(r.get(ASSIGNMENTS.A_SCHEDULE_CUTOFF));
+    };
   }
 
   /**

@@ -17,28 +17,27 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPRepositoryID;
-import com.io7m.northpike.model.assignments.NPAssignment;
-import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleHourlyHashed;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleType;
-import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Combinators;
 
-public final class NPArbAssignment
-  extends NPArbAbstract<NPAssignment>
+import java.time.OffsetDateTime;
+
+import static com.io7m.northpike.model.assignments.NPAssignmentScheduleNone.SCHEDULE_NONE;
+
+public final class NPArbAssignmentSchedule
+  extends NPArbAbstract<NPAssignmentScheduleType>
 {
-  public NPArbAssignment()
+  public NPArbAssignmentSchedule()
   {
     super(
-      NPAssignment.class,
+      NPAssignmentScheduleType.class,
       () -> {
-        return Combinators.combine(
-          Arbitraries.defaultFor(NPAssignmentName.class),
-          Arbitraries.defaultFor(NPRepositoryID.class),
-          Arbitraries.defaultFor(NPPlanIdentifier.class),
-          Arbitraries.defaultFor(NPAssignmentScheduleType.class)
-        ).as(NPAssignment::new);
+        return Arbitraries.oneOf(
+          Arbitraries.create(() -> SCHEDULE_NONE),
+          Arbitraries.defaultFor(OffsetDateTime.class)
+            .map(NPAssignmentScheduleHourlyHashed::new)
+        );
       }
     );
   }

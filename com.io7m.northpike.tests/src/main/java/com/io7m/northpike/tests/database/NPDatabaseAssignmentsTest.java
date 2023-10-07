@@ -71,6 +71,8 @@ import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRunning;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateSucceeded;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleHourlyHashed;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
 import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
 import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
@@ -201,7 +203,8 @@ public final class NPDatabaseAssignmentsTest
       new NPAssignment(
         NPAssignmentName.of("x.y.z"),
         repositoryDescription.id(),
-        plan.identifier()
+        plan.identifier(),
+        new NPAssignmentScheduleHourlyHashed(OffsetDateTime.now().withNano(0))
       );
 
     put.execute(assignment);
@@ -309,7 +312,8 @@ public final class NPDatabaseAssignmentsTest
       new NPAssignment(
         NPAssignmentName.of("x.y.z"),
         repositoryDescription.id(),
-        plan.identifier()
+        plan.identifier(),
+        NPAssignmentScheduleNone.SCHEDULE_NONE
       );
 
     put.execute(assignment);
@@ -515,7 +519,8 @@ public final class NPDatabaseAssignmentsTest
       new NPAssignment(
         NPAssignmentName.of("x.y.z"),
         repositoryDescription.id(),
-        plan.identifier()
+        plan.identifier(),
+        NPAssignmentScheduleNone.SCHEDULE_NONE
       );
 
     put.execute(assignment);
@@ -1478,7 +1483,8 @@ public final class NPDatabaseAssignmentsTest
           new NPAssignment(
             assignmentName,
             repositoryDescription.id(),
-            p.identifier()
+            p.identifier(),
+            NPAssignmentScheduleNone.SCHEDULE_NONE
           );
 
         assignments.add(assignment);
@@ -1580,7 +1586,8 @@ public final class NPDatabaseAssignmentsTest
       new NPAssignment(
         NPAssignmentName.of("x.y.z"),
         repositoryDescription.id(),
-        plan.identifier()
+        plan.identifier(),
+        NPAssignmentScheduleNone.SCHEDULE_NONE
       );
 
     put.execute(assignment);

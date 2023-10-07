@@ -42,6 +42,7 @@ import org.jooq.impl.DSL;
 
 import java.util.List;
 
+import static com.io7m.northpike.database.postgres.internal.NPDBQAssignmentGet.mapSchedule;
 import static com.io7m.northpike.database.postgres.internal.NPDatabaseExceptions.handleDatabaseException;
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENTS;
 import static com.io7m.northpike.database.postgres.internal.Tables.PLANS;
@@ -176,6 +177,8 @@ public final class NPDBQAssignmentSearch
           page.queryFields(context, List.of(
             ASSIGNMENTS.A_NAME,
             ASSIGNMENTS.A_REPOSITORY,
+            ASSIGNMENTS.A_SCHEDULE,
+            ASSIGNMENTS.A_SCHEDULE_CUTOFF,
             PLANS.P_NAME,
             PLANS.P_VERSION
           ));
@@ -190,7 +193,8 @@ public final class NPDBQAssignmentSearch
               new NPPlanIdentifier(
                 NPPlanName.of(record.get(PLANS.P_NAME)),
                 record.<Long>get(PLANS.P_VERSION).longValue()
-              )
+              ),
+              mapSchedule(record)
             );
           });
 

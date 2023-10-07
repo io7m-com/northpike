@@ -218,6 +218,8 @@ public final class NPDBQAssignmentExecutionsSearch
           page.queryFields(context, List.of(
             ASSIGNMENTS.A_NAME,
             ASSIGNMENTS.A_REPOSITORY,
+            ASSIGNMENTS.A_SCHEDULE,
+            ASSIGNMENTS.A_SCHEDULE_CUTOFF,
             ASSIGNMENT_EXECUTIONS.AE_ASSIGNMENT_NAME,
             ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME,
             ASSIGNMENT_EXECUTIONS.AE_CREATED,

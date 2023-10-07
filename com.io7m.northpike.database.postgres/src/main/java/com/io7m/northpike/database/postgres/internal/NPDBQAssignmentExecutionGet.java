@@ -42,6 +42,7 @@ import org.jooq.Record;
 
 import java.util.Optional;
 
+import static com.io7m.northpike.database.postgres.internal.NPDBQAssignmentGet.mapSchedule;
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENTS;
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENT_EXECUTIONS;
 import static com.io7m.northpike.database.postgres.internal.Tables.PLANS;
@@ -81,6 +82,8 @@ public final class NPDBQAssignmentExecutionGet
     return context.select(
         ASSIGNMENTS.A_NAME,
         ASSIGNMENTS.A_REPOSITORY,
+        ASSIGNMENTS.A_SCHEDULE,
+        ASSIGNMENTS.A_SCHEDULE_CUTOFF,
         ASSIGNMENT_EXECUTIONS.AE_ASSIGNMENT_NAME,
         ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME,
         ASSIGNMENT_EXECUTIONS.AE_CREATED,
@@ -179,7 +182,8 @@ public final class NPDBQAssignmentExecutionGet
         NPPlanIdentifier.of(
           r.get(PLANS.P_NAME),
           r.<Long>get(PLANS.P_VERSION).longValue()
-        )
+        ),
+        mapSchedule(r)
       ),
       new NPCommitUnqualifiedID(r.get(ASSIGNMENT_EXECUTIONS.AE_COMMIT_NAME))
     );

@@ -39,6 +39,7 @@ import com.io7m.northpike.model.NPRepositorySigningPolicy;
 import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
 import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanParsers;
@@ -437,21 +438,24 @@ public final class NPAssignmentFixture implements AutoCloseable
           yield new NPAssignment(
             NPAssignmentName.of("com.io7m.a1"),
             this.repositoryRequireSigned.description().id(),
-            plan.identifier()
+            plan.identifier(),
+            NPAssignmentScheduleNone.SCHEDULE_NONE
           );
         }
         case ALLOW_UNSIGNED_COMMITS -> {
           yield new NPAssignment(
             NPAssignmentName.of("com.io7m.a1"),
             this.repositoryUnsigned.description().id(),
-            plan.identifier()
+            plan.identifier(),
+            NPAssignmentScheduleNone.SCHEDULE_NONE
           );
         }
         case REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS -> {
           yield new NPAssignment(
             NPAssignmentName.of("com.io7m.a1"),
             this.repositoryRequireSignedSpecific.description().id(),
-            plan.identifier()
+            plan.identifier(),
+            NPAssignmentScheduleNone.SCHEDULE_NONE
           );
         }
       };

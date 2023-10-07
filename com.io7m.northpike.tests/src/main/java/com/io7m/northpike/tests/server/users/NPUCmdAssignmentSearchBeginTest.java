@@ -30,6 +30,7 @@ import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
 import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.plans.NPPlanException;
@@ -232,17 +233,20 @@ public final class NPUCmdAssignmentSearchBeginTest
           new NPAssignment(
             NPAssignmentName.of("x.y.z0"),
             new NPRepositoryID(randomUUID()),
-            NPPlanIdentifier.of("p0", 1L)
+            NPPlanIdentifier.of("p0", 1L),
+            NPAssignmentScheduleNone.SCHEDULE_NONE
           ),
           new NPAssignment(
             NPAssignmentName.of("x.y.z1"),
             new NPRepositoryID(randomUUID()),
-            NPPlanIdentifier.of("p0", 1L)
+            NPPlanIdentifier.of("p0", 1L),
+            NPAssignmentScheduleNone.SCHEDULE_NONE
           ),
           new NPAssignment(
             NPAssignmentName.of("x.y.z2"),
             new NPRepositoryID(randomUUID()),
-            NPPlanIdentifier.of("p0", 1L)
+            NPPlanIdentifier.of("p0", 1L),
+            NPAssignmentScheduleNone.SCHEDULE_NONE
           )
         ),
         1,

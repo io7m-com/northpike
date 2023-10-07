@@ -28,10 +28,11 @@ import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
-import com.io7m.northpike.model.security.NPSecRole;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanName;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentGet;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -252,7 +253,8 @@ public final class NPUCmdAssignmentGetTest
       new NPAssignment(
         NPAssignmentName.of("a.x.y"),
         new NPRepositoryID(randomUUID()),
-        new NPPlanIdentifier(NPPlanName.of("p0"), 1L)
+        new NPPlanIdentifier(NPPlanName.of("p0"), 1L),
+        NPAssignmentScheduleNone.SCHEDULE_NONE
       );
 
     Mockito.when(assignGet.execute(any()))

@@ -17,40 +17,27 @@
 
 package com.io7m.northpike.model.assignments;
 
-import com.io7m.northpike.model.NPRepositoryID;
-import com.io7m.northpike.model.plans.NPPlanIdentifier;
-
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 /**
- * An assignment.
+ * Execute hourly with an offset based on the hash of the assignment ID.
  *
- * @param name         The assignment name
- * @param repositoryId The repository ID
- * @param plan         The plan identifier
- * @param schedule     The assignment schedule
+ * @param ageCutoff No commits before this date will be built
  */
 
-public record NPAssignment(
-  NPAssignmentName name,
-  NPRepositoryID repositoryId,
-  NPPlanIdentifier plan,
-  NPAssignmentScheduleType schedule)
+public record NPAssignmentScheduleHourlyHashed(
+  OffsetDateTime ageCutoff)
+  implements NPAssignmentScheduleType
 {
   /**
-   * An assignment.
+   * Execute hourly with an offset based on the hash of the assignment ID.
    *
-   * @param name         The assignment name
-   * @param repositoryId The repository ID
-   * @param plan         The plan identifier
-   * @param schedule     The assignment schedule
+   * @param ageCutoff No commits before this date will be built
    */
 
-  public NPAssignment
+  public NPAssignmentScheduleHourlyHashed
   {
-    Objects.requireNonNull(name, "name");
-    Objects.requireNonNull(repositoryId, "repositoryId");
-    Objects.requireNonNull(plan, "plan");
-    Objects.requireNonNull(schedule, "schedule");
+    Objects.requireNonNull(ageCutoff, "ageCutoff");
   }
 }

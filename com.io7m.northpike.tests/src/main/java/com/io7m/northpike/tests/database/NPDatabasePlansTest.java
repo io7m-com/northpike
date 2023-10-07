@@ -43,6 +43,7 @@ import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.plans.NPPlanException;
@@ -872,7 +873,8 @@ public final class NPDatabasePlansTest
     assignPut.execute(new NPAssignment(
       NPAssignmentName.of("x"),
       repositoryID,
-      plan.identifier()
+      plan.identifier(),
+      NPAssignmentScheduleNone.SCHEDULE_NONE
     ));
 
     final var ex =

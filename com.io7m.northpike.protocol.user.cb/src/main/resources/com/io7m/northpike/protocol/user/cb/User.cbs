@@ -294,6 +294,8 @@
   [field repository cb:UUID]
   [documentation plan "The plan ID."]
   [field plan NPU1PlanIdentifier]
+  [documentation schedule "The assignment schedule."]
+  [field schedule NPU1AssignmentSchedule]
 ]
 
 [documentation NPU1AssignmentExecutionRequest "A request to start an assignment execution."]
@@ -376,6 +378,14 @@
   [case Running]
   [case Failed]
   [case Succeeded]
+]
+
+[documentation NPU1AssignmentSchedule "The assignment schedule."]
+[variant NPU1AssignmentSchedule
+  [case None]
+  [case HourlyHashed
+    [field ageCutoff ct:OffsetDateTime]
+  ]
 ]
 
 [documentation NPU1AssignmentExecutionSearchParameters "The assignment execution search parameters."]
