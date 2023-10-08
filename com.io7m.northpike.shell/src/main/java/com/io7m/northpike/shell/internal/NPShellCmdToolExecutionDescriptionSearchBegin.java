@@ -18,6 +18,7 @@ package com.io7m.northpike.shell.internal;
 
 import com.io7m.northpike.model.NPToolExecutionDescriptionSearchParameters;
 import com.io7m.northpike.model.NPToolName;
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchBegin;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionSearch;
 import com.io7m.quarrel.core.QCommandContextType;
@@ -48,14 +49,24 @@ public final class NPShellCmdToolExecutionDescriptionSearchBegin
       Integer.class
     );
 
-  private static final QParameterNamed01<NPToolName> TOOL_NAME =
+  private static final QParameterNamed01<NPToolName> TOOL_EQUALS =
     new QParameterNamed01<>(
-      "--tool",
+      "--tool-equal-to",
       List.of(),
-      new QConstant("Restrict results to this tool."),
+      new QConstant("Filter executions by tool."),
       Optional.empty(),
       NPToolName.class
     );
+
+  private static final QParameterNamed01<NPToolName> TOOL_NEQUALS =
+    new QParameterNamed01<>(
+      "--tool-not-equal-to",
+      List.of(),
+      new QConstant("Filter executions by tool."),
+      Optional.empty(),
+      NPToolName.class
+    );
+
 
   /**
    * Construct a command.
@@ -82,7 +93,9 @@ public final class NPShellCmdToolExecutionDescriptionSearchBegin
   public List<QParameterNamedType<?>> onListNamedParameters()
   {
     return List.of(
-      LIMIT, TOOL_NAME
+      LIMIT,
+      TOOL_EQUALS,
+      TOOL_NEQUALS
     );
   }
 
@@ -90,9 +103,19 @@ public final class NPShellCmdToolExecutionDescriptionSearchBegin
   protected NPUCommandToolExecutionDescriptionSearchBegin onCreateCommand(
     final QCommandContextType context)
   {
+    final var toolEquals =
+      context.parameterValue(TOOL_EQUALS);
+    final var toolNequals =
+      context.parameterValue(TOOL_NEQUALS);
+    final var toolMatch =
+      toolEquals.map(NPComparisonExactType.IsEqualTo::new)
+        .map(x -> (NPComparisonExactType<NPToolName>) x)
+        .or(() -> toolNequals.map(NPComparisonExactType.IsNotEqualTo::new))
+        .orElse(new NPComparisonExactType.Anything<>());
+
     final var parameters =
       new NPToolExecutionDescriptionSearchParameters(
-        context.parameterValue(TOOL_NAME),
+        toolMatch,
         context.parameterValue(LIMIT).longValue()
       );
 

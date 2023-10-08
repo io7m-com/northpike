@@ -17,14 +17,15 @@
 
 package com.io7m.northpike.protocol.user.cb.internal;
 
-import com.io7m.cedarbridge.runtime.api.CBCore;
-import com.io7m.cedarbridge.runtime.api.CBOptionType;
+import com.io7m.cedarbridge.runtime.api.CBString;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSearchParameters;
 import com.io7m.northpike.model.NPToolName;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1ToolExecutionDescriptionSearchParameters;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVToolName.TOOL_NAME;
 
 /**
  * A validator.
@@ -41,16 +42,16 @@ public enum NPUVToolExecutionDescriptionSearchParameters
 
   TOOL_EXECUTION_DESCRIPTION_SEARCH_PARAMETERS;
 
+  private static final NPUVComparisonsExact<NPToolName, CBString> TOOL_NAME_VALIDATOR =
+    new NPUVComparisonsExact<>(TOOL_NAME);
+
   @Override
   public NPU1ToolExecutionDescriptionSearchParameters convertToWire(
     final NPToolExecutionDescriptionSearchParameters message)
+    throws NPProtocolException
   {
     return new NPU1ToolExecutionDescriptionSearchParameters(
-      CBOptionType.fromOptional(
-        message.forTool()
-          .map(NPToolName::toString)
-          .map(CBCore::string)
-      ),
+      TOOL_NAME_VALIDATOR.convertToWire(message.forTool()),
       unsigned32(message.pageSize())
     );
   }
@@ -58,11 +59,10 @@ public enum NPUVToolExecutionDescriptionSearchParameters
   @Override
   public NPToolExecutionDescriptionSearchParameters convertFromWire(
     final NPU1ToolExecutionDescriptionSearchParameters message)
+    throws NPProtocolException
   {
     return new NPToolExecutionDescriptionSearchParameters(
-      message.fieldToolName()
-        .asOptional()
-        .map(x -> NPToolName.of(x.value())),
+      TOOL_NAME_VALIDATOR.convertFromWire(message.fieldToolName()),
       message.fieldPageSize().value()
     );
   }

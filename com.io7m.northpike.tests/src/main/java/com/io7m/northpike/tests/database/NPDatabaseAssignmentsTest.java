@@ -999,8 +999,8 @@ public final class NPDatabaseAssignmentsTest
     final var paged =
       this.transaction.queries(ExecutionSearchType.class)
         .execute(new NPAssignmentExecutionSearchParameters(
-          Optional.empty(),
-          Optional.empty(),
+          new NPComparisonExactType.Anything<>(),
+          new NPComparisonExactType.Anything<>(),
           new NPComparisonExactType.Anything<>(),
           new NPComparisonFuzzyType.Anything<>(),
           1000L
@@ -1126,8 +1126,8 @@ public final class NPDatabaseAssignmentsTest
       final var paged =
         this.transaction.queries(ExecutionSearchType.class)
           .execute(new NPAssignmentExecutionSearchParameters(
-            Optional.empty(),
-            Optional.empty(),
+            new NPComparisonExactType.Anything<>(),
+            new NPComparisonExactType.Anything<>(),
             new NPComparisonExactType.IsEqualTo<>(status),
             new NPComparisonFuzzyType.Anything<>(),
             1000L
@@ -1247,8 +1247,8 @@ public final class NPDatabaseAssignmentsTest
       final var paged =
         this.transaction.queries(ExecutionSearchType.class)
           .execute(new NPAssignmentExecutionSearchParameters(
-            Optional.empty(),
-            Optional.empty(),
+            new NPComparisonExactType.Anything<>(),
+            new NPComparisonExactType.Anything<>(),
             new NPComparisonExactType.IsNotEqualTo<>(status),
             new NPComparisonFuzzyType.Anything<>(),
             1000L
@@ -1367,8 +1367,10 @@ public final class NPDatabaseAssignmentsTest
     final var paged =
       this.transaction.queries(ExecutionSearchType.class)
         .execute(new NPAssignmentExecutionSearchParameters(
-          Optional.empty(),
-          Optional.of(new NPPlanIdentifier(NPPlanName.of("rose"), 1L)),
+          new NPComparisonExactType.Anything<>(),
+          new NPComparisonExactType.IsEqualTo<>(
+            new NPPlanIdentifier(NPPlanName.of("rose"), 1L)
+          ),
           new NPComparisonExactType.Anything<>(),
           new NPComparisonFuzzyType.Anything<>(),
           1000L

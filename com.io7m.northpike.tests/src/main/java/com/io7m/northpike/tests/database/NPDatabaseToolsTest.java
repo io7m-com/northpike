@@ -38,6 +38,7 @@ import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.model.plans.NPPlanToolExecution;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.parsers.NPPlanSerializers;
@@ -194,7 +195,10 @@ public final class NPDatabaseToolsTest
 
     final var paged =
       search.execute(new NPToolExecutionDescriptionSearchParameters(
-        Optional.of(NPToolName.of("com.io7m.tool_2")), 1000L)
+        new NPComparisonExactType.IsEqualTo<>(
+          NPToolName.of("com.io7m.tool_2")
+        ),
+        1000L)
       );
 
     final var p = paged.pageCurrent(this.transaction);
@@ -272,7 +276,7 @@ public final class NPDatabaseToolsTest
 
     final var paged =
       search.execute(new NPToolExecutionDescriptionSearchParameters(
-        Optional.empty(), 1000L)
+        new NPComparisonExactType.Anything<>(), 1000L)
       );
 
     final var p = paged.pageCurrent(this.transaction);

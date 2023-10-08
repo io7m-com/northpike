@@ -31,8 +31,7 @@ public final class NPArbToolExecutionDescriptionSearchParameters
       NPToolExecutionDescriptionSearchParameters.class,
       () -> {
         return Combinators.combine(
-          Arbitraries.defaultFor(NPToolName.class)
-            .optional(),
+          NPArbComparisons.exact(Arbitraries.defaultFor(NPToolName.class)),
           Arbitraries.longs()
         ).as(NPToolExecutionDescriptionSearchParameters::new);
       }

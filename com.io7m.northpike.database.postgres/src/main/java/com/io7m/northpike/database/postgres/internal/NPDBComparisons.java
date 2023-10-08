@@ -20,9 +20,14 @@ package com.io7m.northpike.database.postgres.internal;
 import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import org.jooq.Condition;
+import org.jooq.DSLContext;
 import org.jooq.TableField;
 import org.jooq.impl.DSL;
+
+import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENTS;
+import static com.io7m.northpike.database.postgres.internal.Tables.PLANS;
 
 /**
  * Functions to perform comparisons over fields/columns.
@@ -116,8 +121,8 @@ public final class NPDBComparisons
   /**
    * Create a set match expression.
    *
-   * @param query    The query
-   * @param field    The array-typed field
+   * @param query The query
+   * @param field The array-typed field
    *
    * @return An exact match condition
    */
@@ -202,8 +207,8 @@ public final class NPDBComparisons
   /**
    * Create a set match expression.
    *
-   * @param query    The query
-   * @param field    The array-typed field
+   * @param query The query
+   * @param field The array-typed field
    *
    * @return An exact match condition
    */
@@ -283,5 +288,49 @@ public final class NPDBComparisons
     throw new IllegalStateException(
       "Unrecognized set query: %s".formatted(query)
     );
+  }
+
+  /**
+   * Create a plan match expression.
+   *
+   * @param context The context
+   * @param plan    The plan
+   *
+   * @return An exact match condition
+   */
+
+  public static Condition createAssignmentPlanCondition(
+    final DSLContext context,
+    final NPComparisonExactType<NPPlanIdentifier> plan)
+  {
+    if (plan instanceof NPComparisonExactType.Anything<NPPlanIdentifier>) {
+      return DSL.trueCondition();
+    }
+
+    if (plan instanceof final NPComparisonExactType.IsEqualTo<NPPlanIdentifier> isEqualTo) {
+      final var id = isEqualTo.value();
+      return ASSIGNMENTS.A_PLAN.eq(
+        context.select(PLANS.P_ID)
+          .from(PLANS)
+          .where(
+            PLANS.P_NAME.eq(id.name().name().value())
+              .and(PLANS.P_VERSION.eq(Long.valueOf(id.version())))
+          )
+      );
+    }
+
+    if (plan instanceof final NPComparisonExactType.IsNotEqualTo<NPPlanIdentifier> isNotEqualTo) {
+      final var id = isNotEqualTo.value();
+      return ASSIGNMENTS.A_PLAN.ne(
+        context.select(PLANS.P_ID)
+          .from(PLANS)
+          .where(
+            PLANS.P_NAME.eq(id.name().name().value())
+              .and(PLANS.P_VERSION.eq(Long.valueOf(id.version())))
+          )
+      );
+    }
+
+    throw new IllegalStateException("Unrecognized match: %s".formatted(plan));
   }
 }

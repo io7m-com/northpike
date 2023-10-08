@@ -35,6 +35,7 @@ import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.intro.NPIError;
 import com.io7m.northpike.protocol.intro.NPIProtocol;
@@ -100,7 +101,6 @@ import static com.io7m.northpike.model.security.NPSecRole.TOOLS_READER;
 import static com.io7m.northpike.model.security.NPSecRole.TOOLS_WRITER;
 import static com.io7m.northpike.model.security.NPSecRole.USERS_READER;
 import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
-import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -554,7 +554,10 @@ public final class NPUserClientTest
         this.userClient.execute(
           new NPUCommandToolExecutionDescriptionSearchBegin(
             randomUUID(),
-            new NPToolExecutionDescriptionSearchParameters(empty(), 1000L))
+            new NPToolExecutionDescriptionSearchParameters(
+              new NPComparisonExactType.Anything<>(),
+              1000L)
+          )
         );
 
       assertEquals(

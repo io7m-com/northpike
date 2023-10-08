@@ -25,7 +25,6 @@ import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * The parameters required to list assignment executions.
@@ -38,8 +37,8 @@ import java.util.Optional;
  */
 
 public record NPAssignmentExecutionSearchParameters(
-  Optional<NPRepositoryID> repositoryId,
-  Optional<NPPlanIdentifier> plan,
+  NPComparisonExactType<NPRepositoryID> repositoryId,
+  NPComparisonExactType<NPPlanIdentifier> plan,
   NPComparisonExactType<NPAssignmentExecutionStateKind> state,
   NPComparisonFuzzyType<String> nameQuery,
   long pageSize)

@@ -111,26 +111,13 @@ public final class NPDBQAssignmentExecutionsSearch
       new JQField(ASSIGNMENTS.A_NAME, JQOrder.ASCENDING);
 
     final var reposCondition =
-      parameters.repositoryId()
-        .map(NPRepositoryID::value)
-        .map(ASSIGNMENTS.A_REPOSITORY::eq)
-        .orElse(DSL.trueCondition());
+      NPDBComparisons.createExactMatchQuery(
+        parameters.repositoryId().map(NPRepositoryID::value),
+        ASSIGNMENTS.A_REPOSITORY
+      );
 
     final var planCondition =
-      parameters.plan()
-        .map(id -> {
-          return DSL.and(
-            ASSIGNMENTS.A_PLAN.eq(
-              context.select(PLANS.P_ID)
-                .from(PLANS)
-                .where(
-                  PLANS.P_NAME.eq(id.name().name().value())
-                    .and(PLANS.P_VERSION.eq(Long.valueOf(id.version())))
-                )
-            )
-          );
-        })
-        .orElse(DSL.trueCondition());
+      NPDBComparisons.createAssignmentPlanCondition(context, parameters.plan());
 
     final var stateCondition =
       createAssignmentStateQuery(parameters.state());

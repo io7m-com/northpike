@@ -359,7 +359,8 @@ public final class NPShellToolExecutionsTest
     w.println("tool-execution-search-next");
     w.println("tool-execution-search-previous");
 
-    w.println("tool-execution-search-begin --tool com.io7m.example");
+    w.println("tool-execution-search-begin --tool-equal-to com.io7m.example");
+    w.println("tool-execution-search-begin --tool-not-equal-to com.io7m.example");
     w.println("tool-execution-search-next");
     w.println("tool-execution-search-previous");
 
@@ -369,7 +370,8 @@ public final class NPShellToolExecutionsTest
     w.println("tool-execution-search-next");
     w.println("tool-execution-search-previous");
 
-    w.println("tool-execution-search-begin --tool com.io7m.example");
+    w.println("tool-execution-search-begin --tool-equal-to com.io7m.example");
+    w.println("tool-execution-search-begin --tool-not-equal-to com.io7m.example");
     w.println("tool-execution-search-next");
     w.println("tool-execution-search-previous");
 
@@ -379,7 +381,7 @@ public final class NPShellToolExecutionsTest
     this.waitForShell();
     assertEquals(0, this.exitCode);
 
-    Mockito.verify(this.userClient, new AtLeast(4))
+    Mockito.verify(this.userClient, new AtLeast(6))
       .execute(isA(NPUCommandToolExecutionDescriptionSearchBegin.class));
     Mockito.verify(this.userClient, new AtLeast(4))
       .execute(isA(NPUCommandToolExecutionDescriptionSearchNext.class));

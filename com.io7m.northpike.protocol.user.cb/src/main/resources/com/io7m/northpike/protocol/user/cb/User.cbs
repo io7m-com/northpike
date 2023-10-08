@@ -211,7 +211,7 @@
 [documentation NPU1ToolExecutionDescriptionSearchParameters "The tool execution description search parameters."]
 [record NPU1ToolExecutionDescriptionSearchParameters
   [documentation toolName "Restrict searching to executions compatible with this tool."]
-  [field toolName [cb:Option cb:String]]
+  [field toolName [NPU1ComparisonExact cb:String]]
   [documentation pageSize "The page size."]
   [field pageSize cb:IntegerUnsigned32]
 ]
@@ -391,9 +391,9 @@
 [documentation NPU1AssignmentExecutionSearchParameters "The assignment execution search parameters."]
 [record NPU1AssignmentExecutionSearchParameters
   [documentation repositoryId "Only include assignments with this repository ID."]
-  [field repositoryId [cb:Option cb:UUID]]
+  [field repositoryId [NPU1ComparisonExact cb:UUID]]
   [documentation plan "Only include assignments with this plan."]
-  [field plan [cb:Option NPU1PlanIdentifier]]
+  [field plan [NPU1ComparisonExact NPU1PlanIdentifier]]
   [documentation state "Only include executions in the given state."]
   [field state [NPU1ComparisonExact NPU1AssignmentExecutionStateKind]]
   [documentation nameQuery "Only include assignments with names matching this expression."]

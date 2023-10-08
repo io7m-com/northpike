@@ -33,16 +33,14 @@ public final class NPArbAssignmentExecutionSearchParameters
       NPAssignmentExecutionSearchParameters.class,
       () -> {
         return Combinators.combine(
-          Arbitraries.defaultFor(NPRepositoryID.class)
-            .optional(),
-          Arbitraries.defaultFor(NPPlanIdentifier.class)
-            .optional(),
           NPArbComparisons.exact(
-            Arbitraries.defaultFor(NPAssignmentExecutionStateKind.class)
-          ),
+            Arbitraries.defaultFor(NPRepositoryID.class)),
+          NPArbComparisons.exact(
+            Arbitraries.defaultFor(NPPlanIdentifier.class)),
+          NPArbComparisons.exact(
+            Arbitraries.defaultFor(NPAssignmentExecutionStateKind.class)),
           NPArbComparisons.fuzzy(
-            Arbitraries.strings().alpha()
-          ),
+            Arbitraries.strings().alpha()),
           Arbitraries.longs()
         ).as(NPAssignmentExecutionSearchParameters::new);
       }

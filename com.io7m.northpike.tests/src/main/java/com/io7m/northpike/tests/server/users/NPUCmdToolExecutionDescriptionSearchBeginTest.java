@@ -31,8 +31,9 @@ import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.security.NPSecRole;
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchBegin;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -127,7 +128,7 @@ public final class NPUCmdToolExecutionDescriptionSearchBeginTest
       new NPUCommandToolExecutionDescriptionSearchBegin(
         UUID.randomUUID(),
         new NPToolExecutionDescriptionSearchParameters(
-          Optional.empty(),
+          new NPComparisonExactType.Anything<>(),
           1000L
         )
       );
@@ -160,7 +161,7 @@ public final class NPUCmdToolExecutionDescriptionSearchBeginTest
       new NPUCommandToolExecutionDescriptionSearchBegin(
         UUID.randomUUID(),
         new NPToolExecutionDescriptionSearchParameters(
-          Optional.empty(),
+          new NPComparisonExactType.Anything<>(),
           1000L
         )
       );
@@ -203,7 +204,7 @@ public final class NPUCmdToolExecutionDescriptionSearchBeginTest
       new NPUCommandToolExecutionDescriptionSearchBegin(
         UUID.randomUUID(),
         new NPToolExecutionDescriptionSearchParameters(
-          Optional.empty(),
+          new NPComparisonExactType.Anything<>(),
           1000L
         )
       );

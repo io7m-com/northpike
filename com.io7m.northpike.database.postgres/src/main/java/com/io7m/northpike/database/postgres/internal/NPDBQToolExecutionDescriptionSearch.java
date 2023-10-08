@@ -99,11 +99,10 @@ public final class NPDBQToolExecutionDescriptionSearch
       new JQField(TOOL_EXECUTION_DESCRIPTIONS.TED_VERSION, JQOrder.ASCENDING);
 
     final var toolCondition =
-      parameters.forTool()
-        .map(t -> {
-          return TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME.eq(t.value().value());
-        })
-        .orElse(DSL.trueCondition());
+      NPDBComparisons.createExactMatchQuery(
+        parameters.forTool().map(NPToolName::toString),
+        TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME
+      );
 
     final var allConditions =
       DSL.and(toolCondition);

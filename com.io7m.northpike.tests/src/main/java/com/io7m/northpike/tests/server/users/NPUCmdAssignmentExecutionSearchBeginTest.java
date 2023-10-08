@@ -133,8 +133,8 @@ public final class NPUCmdAssignmentExecutionSearchBeginTest
       new NPUCommandAssignmentExecutionSearchBegin(
         UUID.randomUUID(),
         new NPAssignmentExecutionSearchParameters(
-          Optional.empty(),
-          Optional.empty(),
+          new NPComparisonExactType.Anything<>(),
+          new NPComparisonExactType.Anything<>(),
           new NPComparisonExactType.Anything<>(),
           new NPComparisonFuzzyType.Anything<>(),
           1000L
@@ -169,8 +169,8 @@ public final class NPUCmdAssignmentExecutionSearchBeginTest
       new NPUCommandAssignmentExecutionSearchBegin(
         UUID.randomUUID(),
         new NPAssignmentExecutionSearchParameters(
-          Optional.empty(),
-          Optional.empty(),
+          new NPComparisonExactType.Anything<>(),
+          new NPComparisonExactType.Anything<>(),
           new NPComparisonExactType.Anything<>(),
           new NPComparisonFuzzyType.Anything<>(),
           1000L
@@ -215,8 +215,8 @@ public final class NPUCmdAssignmentExecutionSearchBeginTest
       new NPUCommandAssignmentExecutionSearchBegin(
         UUID.randomUUID(),
         new NPAssignmentExecutionSearchParameters(
-          Optional.empty(),
-          Optional.empty(),
+          new NPComparisonExactType.Anything<>(),
+          new NPComparisonExactType.Anything<>(),
           new NPComparisonExactType.Anything<>(),
           new NPComparisonFuzzyType.Anything<>(),
           1000L

@@ -14,34 +14,38 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.model;
+package com.io7m.northpike.protocol.user.cb.internal;
 
-import com.io7m.northpike.model.comparisons.NPComparisonExactType;
+import com.io7m.cedarbridge.runtime.api.CBString;
+import com.io7m.northpike.model.NPToolName;
+import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 
-import java.util.Objects;
+import static com.io7m.cedarbridge.runtime.api.CBCore.string;
 
 /**
- * The search parameters for tool execution descriptions.
- *
- * @param forTool  Only include executions for the given tool
- * @param pageSize The page size
+ * A validator.
  */
 
-public record NPToolExecutionDescriptionSearchParameters(
-  NPComparisonExactType<NPToolName> forTool,
-  long pageSize)
-  implements NPSearchParametersType
+public enum NPUVToolName
+  implements NPProtocolMessageValidatorType<NPToolName, CBString>
 {
   /**
-   * The search parameters for tool execution descriptions.
-   *
-   * @param forTool  Only include executions for the given tool
-   * @param pageSize The page size
+   * A validator.
    */
 
-  public NPToolExecutionDescriptionSearchParameters
+  TOOL_NAME;
+
+  @Override
+  public CBString convertToWire(
+    final NPToolName message)
   {
-    Objects.requireNonNull(forTool, "forTool");
-    pageSize = NPPageSizes.clampPageSize(pageSize);
+    return string(message.toString());
+  }
+
+  @Override
+  public NPToolName convertFromWire(
+    final CBString message)
+  {
+    return NPToolName.of(message.value());
   }
 }
