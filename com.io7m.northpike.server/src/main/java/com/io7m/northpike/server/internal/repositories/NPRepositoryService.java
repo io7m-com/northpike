@@ -205,9 +205,22 @@ public final class NPRepositoryService
   }
 
   @Override
+  public CompletableFuture<Void> checkOne(
+    final NPRepositoryID id)
+  {
+    Objects.requireNonNull(id, "id");
+
+    final var command = new CheckOne(id, new CompletableFuture<>());
+    this.commands.add(command);
+    return command.future;
+  }
+
+  @Override
   public CompletableFuture<NPArchive> createArchiveFor(
     final NPCommitID commit)
   {
+    Objects.requireNonNull(commit, "commit");
+
     final var command = new CreateArchive(new CompletableFuture<>(), commit);
     this.commands.add(command);
     return command.future;
@@ -218,6 +231,9 @@ public final class NPRepositoryService
     final NPCommitID commit,
     final NPSignatureKeyLookupType keyLookup)
   {
+    Objects.requireNonNull(commit, "commit");
+    Objects.requireNonNull(keyLookup, "keyLookup");
+
     final var command =
       new VerifyCommit(new CompletableFuture<>(), keyLookup, commit);
     this.commands.add(command);
@@ -266,6 +282,10 @@ public final class NPRepositoryService
   private void processCommand(
     final NPRepositoryCommandType command)
   {
+    if (command instanceof final CheckOne check) {
+      this.processCommandCheckOne(check);
+      return;
+    }
     if (command instanceof final CheckAll check) {
       this.processCommandCheckAll(check);
       return;
@@ -414,6 +434,25 @@ public final class NPRepositoryService
       ),
       Optional.empty()
     );
+  }
+
+  private void processCommandCheckOne(
+    final CheckOne check)
+  {
+    try {
+      final var existing =
+        this.repositories.get(check.id);
+
+      if (existing == null) {
+        throw this.errorNoSuchRepository(check.id);
+      }
+
+      this.repositoryUpdate(existing);
+    } catch (final Throwable e) {
+      check.future.completeExceptionally(e);
+    } finally {
+      check.future.complete(null);
+    }
   }
 
   private void processCommandCheckAll(
@@ -681,6 +720,14 @@ public final class NPRepositoryService
   }
 
   record CheckAll(
+    CompletableFuture<Void> future)
+    implements NPRepositoryCommandType
+  {
+
+  }
+
+  record CheckOne(
+    NPRepositoryID id,
     CompletableFuture<Void> future)
     implements NPRepositoryCommandType
   {

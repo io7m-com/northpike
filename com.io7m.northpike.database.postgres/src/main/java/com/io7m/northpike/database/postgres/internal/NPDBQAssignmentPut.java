@@ -95,14 +95,14 @@ public final class NPDBQAssignmentPut
         .set(ASSIGNMENTS.A_REPOSITORY, assignment.repositoryId().value())
         .set(ASSIGNMENTS.A_PLAN, plan)
         .set(ASSIGNMENTS.A_SCHEDULE, mapScheduleType(assignment.schedule()))
-        .set(ASSIGNMENTS.A_SCHEDULE_CUTOFF, mapScheduleCutoff(assignment.schedule()))
+        .set(ASSIGNMENTS.A_SCHEDULE_COMMIT_AGE_CUTOFF, mapScheduleCommitAgeCutoff(assignment.schedule()))
         .onConflictOnConstraint(DSL.name("assignments_name_unique"))
         .doUpdate()
         .set(ASSIGNMENTS.A_NAME, assignment.name().toString())
         .set(ASSIGNMENTS.A_REPOSITORY, assignment.repositoryId().value())
         .set(ASSIGNMENTS.A_PLAN, plan)
         .set(ASSIGNMENTS.A_SCHEDULE, mapScheduleType(assignment.schedule()))
-        .set(ASSIGNMENTS.A_SCHEDULE_CUTOFF, mapScheduleCutoff(assignment.schedule()));
+        .set(ASSIGNMENTS.A_SCHEDULE_COMMIT_AGE_CUTOFF, mapScheduleCommitAgeCutoff(assignment.schedule()));
 
     recordQuery(query);
     query.execute();
@@ -115,11 +115,11 @@ public final class NPDBQAssignmentPut
     return UNIT;
   }
 
-  private static OffsetDateTime mapScheduleCutoff(
+  private static OffsetDateTime mapScheduleCommitAgeCutoff(
     final NPAssignmentScheduleType schedule)
   {
-    if (schedule instanceof NPAssignmentScheduleHourlyHashed hashed) {
-      return hashed.ageCutoff();
+    if (schedule instanceof final NPAssignmentScheduleHourlyHashed hashed) {
+      return hashed.commitAgeCutoff();
     }
     if (schedule instanceof NPAssignmentScheduleNone) {
       return null;

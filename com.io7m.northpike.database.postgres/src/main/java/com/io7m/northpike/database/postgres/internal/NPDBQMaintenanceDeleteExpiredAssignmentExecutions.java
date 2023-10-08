@@ -26,6 +26,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType.DeletionScope.DELETE_LOGS;
 import static com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionDelete.deletionStatements;
 import static com.io7m.northpike.database.postgres.internal.tables.AssignmentExecutions.ASSIGNMENT_EXECUTIONS;
 
@@ -79,6 +80,7 @@ public final class NPDBQMaintenanceDeleteExpiredAssignmentExecutions
       deletionStatements(
         context,
         new NPAssignmentExecutionID(id.get(ASSIGNMENT_EXECUTIONS.AE_ID)),
+        DELETE_LOGS,
         batch
       );
     }

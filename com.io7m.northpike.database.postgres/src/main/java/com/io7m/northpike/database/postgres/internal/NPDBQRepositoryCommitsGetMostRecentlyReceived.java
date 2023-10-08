@@ -17,7 +17,7 @@
 package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsGetMostRecentlyReceivedType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
@@ -36,7 +36,7 @@ import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_CO
 
 public final class NPDBQRepositoryCommitsGetMostRecentlyReceived
   extends NPDBQAbstract<NPRepositoryID, Optional<NPCommitSummary>>
-  implements NPDatabaseQueriesRepositoriesType.CommitsGetMostRecentlyReceivedType
+  implements CommitsGetMostRecentlyReceivedType
 {
   private static final Service<NPRepositoryID, Optional<NPCommitSummary>, CommitsGetMostRecentlyReceivedType> SERVICE =
     new Service<>(

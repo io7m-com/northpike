@@ -19,6 +19,7 @@ package com.io7m.northpike.database.api;
 
 import com.io7m.northpike.model.NPPageSizes;
 import com.io7m.northpike.model.NPSearchParametersType;
+import com.io7m.northpike.model.NPTimeRange;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.assignments.NPAssignment;
@@ -74,6 +75,40 @@ public sealed interface NPDatabaseQueriesAssignmentsType
   }
 
   /**
+   * Search assignments.
+   */
+
+  non-sealed interface CommitsNotExecutedType
+    extends NPDatabaseQueryType<CommitsNotExecutedType.Parameters, NPCommitSummaryPagedType>,
+    NPDatabaseQueriesAssignmentsType
+  {
+    /**
+     * The search parameters.
+     *
+     * @param assignment The assignment name
+     * @param timeRange  Only return commits created within this time range
+     * @param pageSize The page size
+     */
+
+    record Parameters(
+      NPAssignmentName assignment,
+      NPTimeRange timeRange,
+      long pageSize)
+    {
+      /**
+       * The search parameters.
+       */
+
+      public Parameters
+      {
+        Objects.requireNonNull(assignment, "assignment");
+        Objects.requireNonNull(timeRange, "timeRange");
+        pageSize = NPPageSizes.clampPageSize(pageSize);
+      }
+    }
+  }
+
+  /**
    * Update the given assignment execution.
    */
 
@@ -100,10 +135,50 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    */
 
   non-sealed interface ExecutionDeleteType
-    extends NPDatabaseQueryType<NPAssignmentExecutionID, NPDatabaseUnit>,
+    extends NPDatabaseQueryType<ExecutionDeleteType.Parameters, NPDatabaseUnit>,
     NPDatabaseQueriesAssignmentsType
   {
+    /**
+     * The scope of deletion.
+     */
 
+    enum DeletionScope
+    {
+
+      /**
+       * Delete the logs associated with the execution.
+       */
+
+      DELETE_LOGS,
+
+      /**
+       * Delete the execution and everything associated with it.
+       */
+
+      DELETE_EVERYTHING
+    }
+
+    /**
+     * The deletion parameters.
+     *
+     * @param execution The assignment execution
+     * @param scope     The deletion scope
+     */
+
+    record Parameters(
+      NPAssignmentExecutionID execution,
+      DeletionScope scope)
+    {
+      /**
+       * The deletion parameters.
+       */
+
+      public Parameters
+      {
+        Objects.requireNonNull(execution, "execution");
+        Objects.requireNonNull(scope, "scope");
+      }
+    }
   }
 
   /**

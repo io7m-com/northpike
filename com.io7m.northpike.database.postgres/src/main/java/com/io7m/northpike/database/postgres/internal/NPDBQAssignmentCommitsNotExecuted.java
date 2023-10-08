@@ -22,19 +22,16 @@ import com.io7m.jqpage.core.JQField;
 import com.io7m.jqpage.core.JQKeysetRandomAccessPageDefinition;
 import com.io7m.jqpage.core.JQKeysetRandomAccessPagination;
 import com.io7m.jqpage.core.JQKeysetRandomAccessPaginationParameters;
-import com.io7m.jqpage.core.JQOrder;
 import com.io7m.jqpage.core.JQSelectDistinct;
-import com.io7m.northpike.database.api.NPAssignmentsPagedType;
+import com.io7m.northpike.database.api.NPCommitSummaryPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.CommitsNotExecutedType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
+import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.model.NPCommitSummary;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryID;
-import com.io7m.northpike.model.assignments.NPAssignment;
-import com.io7m.northpike.model.assignments.NPAssignmentName;
-import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
-import com.io7m.northpike.model.plans.NPPlanIdentifier;
-import com.io7m.northpike.model.plans.NPPlanName;
 import io.opentelemetry.api.trace.Span;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
@@ -42,29 +39,25 @@ import org.jooq.impl.DSL;
 
 import java.util.List;
 
-import static com.io7m.northpike.database.postgres.internal.NPDBQAssignmentGet.mapSchedule;
+import static com.io7m.jqpage.core.JQOrder.ASCENDING;
 import static com.io7m.northpike.database.postgres.internal.NPDatabaseExceptions.handleDatabaseException;
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENTS;
-import static com.io7m.northpike.database.postgres.internal.Tables.PLANS;
+import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENT_EXECUTIONS;
+import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_COMMITS;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_STATEMENT;
 
 /**
- * Search for tool execution descriptions.
+ * Retrieve commits that have not been executed.
  */
 
-public final class NPDBQAssignmentSearch
-  extends NPDBQAbstract<NPAssignmentSearchParameters, NPAssignmentsPagedType>
-  implements NPDatabaseQueriesAssignmentsType.SearchType
+public final class NPDBQAssignmentCommitsNotExecuted
+  extends NPDBQAbstract<CommitsNotExecutedType.Parameters, NPCommitSummaryPagedType>
+  implements CommitsNotExecutedType
 {
-  private static final Service<
-    NPAssignmentSearchParameters,
-    NPAssignmentsPagedType,
-    SearchType
-    > SERVICE =
+  private static final Service<Parameters, NPCommitSummaryPagedType, CommitsNotExecutedType> SERVICE =
     new Service<>(
-      SearchType.class,
-      NPDBQAssignmentSearch::new
-    );
+      CommitsNotExecutedType.class,
+      NPDBQAssignmentCommitsNotExecuted::new);
 
   /**
    * Construct a query.
@@ -72,70 +65,48 @@ public final class NPDBQAssignmentSearch
    * @param transaction The transaction
    */
 
-  public NPDBQAssignmentSearch(
+  public NPDBQAssignmentCommitsNotExecuted(
     final NPDatabaseTransaction transaction)
   {
     super(transaction);
   }
 
-  /**
-   * @return A query provider
-   */
-
-  public static NPDBQueryProviderType provider()
-  {
-    return () -> SERVICE;
-  }
-
   @Override
-  protected NPAssignmentsPagedType onExecute(
+  protected NPCommitSummaryPagedType onExecute(
     final DSLContext context,
-    final NPAssignmentSearchParameters parameters)
+    final Parameters parameters)
     throws NPDatabaseException
   {
     final var tableSource =
-      ASSIGNMENTS
-        .join(PLANS)
-        .on(ASSIGNMENTS.A_PLAN.eq(PLANS.P_ID));
+      REPOSITORY_COMMITS
+        .leftAntiJoin(ASSIGNMENT_EXECUTIONS)
+        .on(REPOSITORY_COMMITS.RC_ID.eq(ASSIGNMENT_EXECUTIONS.AE_COMMIT));
 
-    final var sortName =
-      new JQField(ASSIGNMENTS.A_NAME, JQOrder.ASCENDING);
-
-    final var reposCondition =
-      parameters.repositoryId()
-        .map(NPRepositoryID::value)
-        .map(ASSIGNMENTS.A_REPOSITORY::eq)
-        .orElse(DSL.trueCondition());
-
-    final var planCondition =
-      parameters.plan()
-        .map(id -> {
-          return DSL.and(
-            ASSIGNMENTS.A_PLAN.eq(
-              context.select(PLANS.P_ID)
-                .from(PLANS)
-                .where(
-                  PLANS.P_NAME.eq(id.name().name().value())
-                    .and(PLANS.P_VERSION.eq(Long.valueOf(id.version())))
-                )
-            )
-          );
-        })
-        .orElse(DSL.trueCondition());
-
-    final var nameCondition =
-      NPDBComparisons.createFuzzyMatchQuery(
-        parameters.nameQuery(),
-        ASSIGNMENTS.A_NAME,
-        "ASSIGNMENTS.A_NAME_SEARCH"
+    final var repositoryCondition =
+      REPOSITORY_COMMITS.RC_REPOSITORY.eq(
+        context.select(ASSIGNMENTS.A_REPOSITORY)
+          .from(ASSIGNMENTS)
+          .where(ASSIGNMENTS.A_NAME.eq(parameters.assignment().toString()))
       );
 
+    final var timeRange = parameters.timeRange();
+    final var timeConditionGe =
+      REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED.ge(timeRange.lower());
+    final var timeConditionLe =
+      REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED.le(timeRange.upper());
+
     final var allConditions =
-      DSL.and(reposCondition, planCondition, nameCondition);
+      DSL.and(
+        repositoryCondition,
+        timeConditionGe,
+        timeConditionLe
+      );
 
     final var pageParameters =
       JQKeysetRandomAccessPaginationParameters.forTable(tableSource)
-        .addSortField(sortName)
+        .addSortField(new JQField(
+          REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED,
+          ASCENDING))
         .addWhereCondition(allConditions)
         .setDistinct(JQSelectDistinct.SELECT_DISTINCT)
         .setPageSize(parameters.pageSize())
@@ -147,21 +118,30 @@ public final class NPDBQAssignmentSearch
       JQKeysetRandomAccessPagination.createPageDefinitions(
         context, pageParameters);
 
-    return new NPDBQAssignmentSearch.NPAssignmentSearch(pages);
+    return new NPDBQAssignmentCommitsNotExecuted.NPCommitsNotExecuted(pages);
   }
 
-  static final class NPAssignmentSearch
-    extends NPAbstractSearch<NPAssignment>
-    implements NPAssignmentsPagedType
+  /**
+   * @return A query provider
+   */
+
+  public static NPDBQueryProviderType provider()
   {
-    NPAssignmentSearch(
+    return () -> SERVICE;
+  }
+
+  static final class NPCommitsNotExecuted
+    extends NPAbstractSearch<NPCommitSummary>
+    implements NPCommitSummaryPagedType
+  {
+    NPCommitsNotExecuted(
       final List<JQKeysetRandomAccessPageDefinition> pages)
     {
       super(pages);
     }
 
     @Override
-    protected NPPage<NPAssignment> page(
+    protected NPPage<NPCommitSummary> page(
       final NPDatabaseTransaction transaction,
       final JQKeysetRandomAccessPageDefinition page)
       throws NPDatabaseException
@@ -170,31 +150,32 @@ public final class NPDBQAssignmentSearch
         transaction.createContext();
       final var querySpan =
         transaction.createQuerySpan(
-          "NPAssignmentSearch.page");
+          "NPCommitsNotExecuted.page");
 
       try {
         final var query =
           page.queryFields(context, List.of(
-            ASSIGNMENTS.A_NAME,
-            ASSIGNMENTS.A_REPOSITORY,
-            ASSIGNMENTS.A_SCHEDULE,
-            ASSIGNMENTS.A_SCHEDULE_COMMIT_AGE_CUTOFF,
-            PLANS.P_NAME,
-            PLANS.P_VERSION
+            REPOSITORY_COMMITS.RC_REPOSITORY,
+            REPOSITORY_COMMITS.RC_COMMIT_ID,
+            REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED,
+            REPOSITORY_COMMITS.RC_COMMIT_TIME_RECEIVED,
+            REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_SUBJECT
           ));
 
         querySpan.setAttribute(DB_STATEMENT, query.toString());
 
         final var items =
           query.fetch().map(record -> {
-            return new NPAssignment(
-              NPAssignmentName.of(record.get(ASSIGNMENTS.A_NAME)),
-              new NPRepositoryID(record.get(ASSIGNMENTS.A_REPOSITORY)),
-              new NPPlanIdentifier(
-                NPPlanName.of(record.get(PLANS.P_NAME)),
-                record.<Long>get(PLANS.P_VERSION).longValue()
+            return new NPCommitSummary(
+              new NPCommitID(
+                new NPRepositoryID(
+                  record.get(REPOSITORY_COMMITS.RC_REPOSITORY)),
+                new NPCommitUnqualifiedID(
+                  record.get(REPOSITORY_COMMITS.RC_COMMIT_ID))
               ),
-              mapSchedule(record)
+              record.get(REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED),
+              record.get(REPOSITORY_COMMITS.RC_COMMIT_TIME_RECEIVED),
+              record.get(REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_SUBJECT)
             );
           });
 

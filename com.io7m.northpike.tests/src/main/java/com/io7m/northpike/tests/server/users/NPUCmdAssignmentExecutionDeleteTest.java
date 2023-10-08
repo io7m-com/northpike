@@ -21,6 +21,7 @@ import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
@@ -46,6 +47,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType.DeletionScope.DELETE_EVERYTHING;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorSecurityPolicyDenied;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
@@ -225,7 +227,8 @@ public final class NPUCmdAssignmentExecutionDeleteTest
     assertEquals(r.correlationID(), command.messageID());
 
     for (final var id : command.executions()) {
-      Mockito.verify(execDelete).execute(Mockito.eq(id));
+      Mockito.verify(execDelete)
+        .execute(Mockito.eq(new Parameters(id, DELETE_EVERYTHING)));
     }
 
     Mockito.verify(this.transaction, new Times(1))

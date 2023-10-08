@@ -18,7 +18,7 @@
 package com.io7m.northpike.database.postgres.internal;
 
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
@@ -37,10 +37,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.WORK_ITEM_LOG
  */
 
 public final class NPDBQAssignmentExecutionDelete
-  extends NPDBQAbstract<NPAssignmentExecutionID, NPDatabaseUnit>
-  implements NPDatabaseQueriesAssignmentsType.ExecutionDeleteType
+  extends NPDBQAbstract<ExecutionDeleteType.Parameters, NPDatabaseUnit>
+  implements ExecutionDeleteType
 {
-  private static final Service<NPAssignmentExecutionID, NPDatabaseUnit, ExecutionDeleteType> SERVICE =
+  private static final Service<Parameters, NPDatabaseUnit, ExecutionDeleteType> SERVICE =
     new Service<>(
       ExecutionDeleteType.class,
       NPDBQAssignmentExecutionDelete::new);
@@ -69,10 +69,15 @@ public final class NPDBQAssignmentExecutionDelete
   @Override
   protected NPDatabaseUnit onExecute(
     final DSLContext context,
-    final NPAssignmentExecutionID execution)
+    final Parameters parameters)
   {
     final var batch = new ArrayList<Query>();
-    deletionStatements(context, execution, batch);
+    deletionStatements(
+      context,
+      parameters.execution(),
+      parameters.scope(),
+      batch
+    );
     context.batch(batch).execute();
     return NPDatabaseUnit.UNIT;
   }
@@ -80,6 +85,7 @@ public final class NPDBQAssignmentExecutionDelete
   static void deletionStatements(
     final DSLContext context,
     final NPAssignmentExecutionID execution,
+    final DeletionScope scope,
     final ArrayList<Query> batch)
   {
     final var executionWorkItems =
@@ -115,13 +121,25 @@ public final class NPDBQAssignmentExecutionDelete
         .where(ASSIGNMENT_EXECUTION_LOGS.AEL_ID.eq(execution.value()))
     );
 
-    /*
-     * Delete the assignment execution.
-     */
+    switch (scope) {
+      case DELETE_LOGS -> {
 
-    batch.add(
-      context.deleteFrom(ASSIGNMENT_EXECUTIONS)
-        .where(ASSIGNMENT_EXECUTIONS.AE_ID.eq(execution.value()))
-    );
+        /*
+         * Leave the assignment execution intact.
+         */
+      }
+
+      case DELETE_EVERYTHING -> {
+
+        /*
+         * Delete the assignment execution.
+         */
+
+        batch.add(
+          context.deleteFrom(ASSIGNMENT_EXECUTIONS)
+            .where(ASSIGNMENT_EXECUTIONS.AE_ID.eq(execution.value()))
+        );
+      }
+    }
   }
 }

@@ -18,6 +18,7 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType.Parameters;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
@@ -25,6 +26,8 @@ import com.io7m.northpike.model.security.NPSecObject;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentExecutionDelete;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.server.internal.security.NPSecurity;
+
+import static com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType.DeletionScope.DELETE_EVERYTHING;
 
 /**
  * @see NPUCommandAssignmentExecutionDelete
@@ -65,7 +68,7 @@ public final class NPUCmdAssignmentExecutionDelete
           transaction.queries(ExecutionDeleteType.class);
 
         for (final var id : command.executions()) {
-          execDelete.execute(id);
+          execDelete.execute(new Parameters(id, DELETE_EVERYTHING));
         }
 
         transaction.commit();

@@ -15,29 +15,16 @@
  */
 
 
-package com.io7m.northpike.model.assignments;
+package com.io7m.northpike.server.internal.schedule;
 
-import java.time.OffsetDateTime;
-import java.util.Objects;
+import com.io7m.repetoir.core.RPServiceType;
 
 /**
- * Execute hourly with an offset based on the hash of the assignment ID.
- *
- * @param commitAgeCutoff No commits before this date will be built
+ * The scheduling service.
  */
 
-public record NPAssignmentScheduleHourlyHashed(
-  OffsetDateTime commitAgeCutoff)
-  implements NPAssignmentScheduleType
+public interface NPSchedulingServiceType
+  extends RPServiceType, AutoCloseable
 {
-  /**
-   * Execute hourly with an offset based on the hash of the assignment ID.
-   *
-   * @param commitAgeCutoff No commits before this date will be built
-   */
 
-  public NPAssignmentScheduleHourlyHashed
-  {
-    Objects.requireNonNull(commitAgeCutoff, "ageCutoff");
-  }
 }

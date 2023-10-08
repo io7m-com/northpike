@@ -158,6 +158,7 @@ module com.io7m.northpike.server
   exports com.io7m.northpike.server.internal.events to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.metrics to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.repositories to com.io7m.northpike.tests;
+  exports com.io7m.northpike.server.internal.schedule to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.security to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.telemetry to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.tls to com.io7m.northpike.tests;

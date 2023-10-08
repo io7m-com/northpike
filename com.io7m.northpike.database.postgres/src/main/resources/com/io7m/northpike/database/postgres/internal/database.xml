@@ -839,12 +839,12 @@ CREATE TYPE assignment_schedule_t AS ENUM(
       </ParameterReferences>
       <Text><![CDATA[
 CREATE TABLE assignments (
-  a_id               BIGINT                   NOT NULL GENERATED ALWAYS AS IDENTITY,
-  a_name             TEXT                     NOT NULL,
-  a_repository       UUID                     NOT NULL,
-  a_plan             BIGINT                   NOT NULL,
-  a_schedule         assignment_schedule_t    NOT NULL,
-  a_schedule_cutoff  TIMESTAMP WITH TIME ZONE,
+  a_id                          BIGINT                   NOT NULL GENERATED ALWAYS AS IDENTITY,
+  a_name                        TEXT                     NOT NULL,
+  a_repository                  UUID                     NOT NULL,
+  a_plan                        BIGINT                   NOT NULL,
+  a_schedule                    assignment_schedule_t    NOT NULL,
+  a_schedule_commit_age_cutoff  TIMESTAMP WITH TIME ZONE,
 
   -- [jooq ignore start]
   a_name_search TSVECTOR NOT NULL
@@ -858,10 +858,10 @@ CREATE TABLE assignments (
   CONSTRAINT assignments_schedule_values_present CHECK (
     CASE
       WHEN a_schedule = 'ASSIGNMENT_SCHEDULE_NONE' THEN (
-        (a_schedule_cutoff IS NULL)
+        (a_schedule_commit_age_cutoff IS NULL)
       )
       WHEN a_schedule = 'ASSIGNMENT_SCHEDULE_HOURLY_HASHED' THEN (
-        (a_schedule_cutoff IS NOT NULL)
+        (a_schedule_commit_age_cutoff IS NOT NULL)
       )
       ELSE
         'f'::boolean

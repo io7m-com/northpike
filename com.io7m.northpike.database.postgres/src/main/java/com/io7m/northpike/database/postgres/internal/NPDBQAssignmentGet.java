@@ -37,7 +37,7 @@ import static com.io7m.northpike.database.postgres.internal.Tables.PLANS;
 import static com.io7m.northpike.model.assignments.NPAssignmentScheduleNone.SCHEDULE_NONE;
 
 /**
- * Retrieve an archive.
+ * Retrieve an assignment.
  */
 
 public final class NPDBQAssignmentGet
@@ -69,7 +69,7 @@ public final class NPDBQAssignmentGet
         ASSIGNMENTS.A_NAME,
         ASSIGNMENTS.A_REPOSITORY,
         ASSIGNMENTS.A_SCHEDULE,
-        ASSIGNMENTS.A_SCHEDULE_CUTOFF,
+        ASSIGNMENTS.A_SCHEDULE_COMMIT_AGE_CUTOFF,
         PLANS.P_NAME,
         PLANS.P_VERSION
       ).from(ASSIGNMENTS)
@@ -100,7 +100,9 @@ public final class NPDBQAssignmentGet
     return switch (r.get(ASSIGNMENTS.A_SCHEDULE)) {
       case ASSIGNMENT_SCHEDULE_NONE -> SCHEDULE_NONE;
       case ASSIGNMENT_SCHEDULE_HOURLY_HASHED ->
-        new NPAssignmentScheduleHourlyHashed(r.get(ASSIGNMENTS.A_SCHEDULE_CUTOFF));
+        new NPAssignmentScheduleHourlyHashed(
+          r.get(ASSIGNMENTS.A_SCHEDULE_COMMIT_AGE_CUTOFF)
+        );
     };
   }
 

@@ -22,6 +22,7 @@ import com.io7m.northpike.keys.NPSignatureKeyLookupType;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.repetoir.core.RPServiceType;
 
 import java.util.concurrent.CompletableFuture;
@@ -50,6 +51,17 @@ public interface NPRepositoryServiceType
   CompletableFuture<Void> check();
 
   /**
+   * Check/update the given repository.
+   *
+   * @param id The repository ID
+   *
+   * @return A future representing the operation in progress
+   */
+
+  CompletableFuture<Void> checkOne(
+    NPRepositoryID id);
+
+  /**
    * Create an archive for the given commit.
    *
    * @param commit The commit
@@ -57,7 +69,8 @@ public interface NPRepositoryServiceType
    * @return A future representing the operation in progress
    */
 
-  CompletableFuture<NPArchive> createArchiveFor(NPCommitID commit);
+  CompletableFuture<NPArchive> createArchiveFor(
+    NPCommitID commit);
 
   /**
    * Verify the signature for the given commit.

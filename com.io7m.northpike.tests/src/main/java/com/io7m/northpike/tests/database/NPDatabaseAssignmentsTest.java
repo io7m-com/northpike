@@ -25,6 +25,7 @@ import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogAddType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogListType;
@@ -99,6 +100,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType.DeletionScope.DELETE_EVERYTHING;
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static java.util.UUID.randomUUID;
@@ -1649,7 +1651,7 @@ public final class NPDatabaseAssignmentsTest
       ));
     }
 
-    execDelete.execute(execution.id());
+    execDelete.execute(new Parameters(execution.id(), DELETE_EVERYTHING));
     assertEquals(Optional.empty(), execGet.execute(execution.id()));
   }
 }

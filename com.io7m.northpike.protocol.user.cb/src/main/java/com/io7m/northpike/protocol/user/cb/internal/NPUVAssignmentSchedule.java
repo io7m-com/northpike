@@ -47,7 +47,7 @@ public enum NPUVAssignmentSchedule
 
     if (message instanceof final NPAssignmentScheduleHourlyHashed hashed) {
       return new NPU1AssignmentSchedule.HourlyHashed(
-        new CBOffsetDateTime(hashed.ageCutoff())
+        new CBOffsetDateTime(hashed.commitAgeCutoff())
       );
     }
 

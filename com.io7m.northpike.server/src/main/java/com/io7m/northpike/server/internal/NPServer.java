@@ -50,6 +50,8 @@ import com.io7m.northpike.server.internal.metrics.NPMetricsService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryService;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
+import com.io7m.northpike.server.internal.schedule.NPSchedulingService;
+import com.io7m.northpike.server.internal.schedule.NPSchedulingServiceType;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
 import com.io7m.northpike.server.internal.telemetry.NPTelemetryNoOp;
@@ -296,6 +298,18 @@ public final class NPServer implements NPServerType
     final var assignmentService =
       NPAssignmentService.create(services);
     services.register(NPAssignmentServiceType.class, assignmentService);
+
+    final var schedulingService =
+      NPSchedulingService.create(
+        clock,
+        this.telemetry,
+        config,
+        events,
+        this.database,
+        repository,
+        assignmentService
+      );
+    services.register(NPSchedulingServiceType.class, schedulingService);
 
     final var users = NPUserService.create(services);
     services.register(NPUserServiceType.class, users);

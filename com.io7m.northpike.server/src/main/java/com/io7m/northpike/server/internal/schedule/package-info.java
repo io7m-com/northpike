@@ -14,30 +14,11 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
-package com.io7m.northpike.model.assignments;
-
-import java.time.OffsetDateTime;
-import java.util.Objects;
-
 /**
- * Execute hourly with an offset based on the hash of the assignment ID.
- *
- * @param commitAgeCutoff No commits before this date will be built
+ * Continuous integration (Server)
  */
 
-public record NPAssignmentScheduleHourlyHashed(
-  OffsetDateTime commitAgeCutoff)
-  implements NPAssignmentScheduleType
-{
-  /**
-   * Execute hourly with an offset based on the hash of the assignment ID.
-   *
-   * @param commitAgeCutoff No commits before this date will be built
-   */
+@Version("1.0.0")
+package com.io7m.northpike.server.internal.schedule;
 
-  public NPAssignmentScheduleHourlyHashed
-  {
-    Objects.requireNonNull(commitAgeCutoff, "ageCutoff");
-  }
-}
+import org.osgi.annotation.versioning.Version;
