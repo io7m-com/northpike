@@ -17,14 +17,20 @@
 
 package com.io7m.northpike.tests.shell;
 
+import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleHourlyHashed;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentGet;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentPut;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandAssignmentSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUResponseAssignmentGet;
+import com.io7m.northpike.protocol.user.NPUResponseAssignmentSearch;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.shell.NPShellConfiguration;
 import com.io7m.northpike.shell.NPShellType;
@@ -41,6 +47,8 @@ import org.mockito.internal.verification.AtLeast;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -213,5 +221,89 @@ public final class NPShellAssignmentsTest
       .execute(isA(NPUCommandAssignmentPut.class));
     Mockito.verify(this.userClient, new AtLeast(2))
       .execute(isA(NPUCommandAssignmentGet.class));
+  }
+
+  @Test
+  public void testAssignmentSearch()
+    throws Exception
+  {
+    final var assignment =
+      new NPAssignment(
+        NPAssignmentName.of("label2"),
+        new NPRepositoryID(UUID.randomUUID()),
+        NPPlanIdentifier.of("x", 23),
+        new NPAssignmentScheduleHourlyHashed(OffsetDateTime.now())
+      );
+
+    final var page =
+      new NPPage<>(List.of(assignment, assignment, assignment), 1, 1, 0L);
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAssignmentSearchBegin.class))
+    ).thenReturn(new NPUResponseAssignmentSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAssignmentSearchNext.class))
+    ).thenReturn(new NPUResponseAssignmentSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAssignmentSearchPrevious.class))
+    ).thenReturn(new NPUResponseAssignmentSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.println("assignment-search-begin");
+    w.println("assignment-search-next");
+    w.println("assignment-search-previous");
+
+    w.println("assignment-search-begin --name-equal-to name1");
+    w.println("assignment-search-begin --name-not-equal-to name1");
+    w.println("assignment-search-begin --name-similar-to name1");
+    w.println("assignment-search-begin --name-not-similar-to name1");
+    w.println("assignment-search-begin --plan-equal-to plan1:23");
+    w.println("assignment-search-begin --plan-not-equal-to plan1:23");
+    w.println("assignment-search-begin --repository-equal-to 59cd183e-d95c-4afd-9169-8101f4b1e5f2");
+    w.println("assignment-search-begin --repository-not-equal-to 59cd183e-d95c-4afd-9169-8101f4b1e5f2");
+
+    w.println("set --formatter RAW");
+
+    w.println("assignment-search-begin");
+    w.println("assignment-search-next");
+    w.println("assignment-search-previous");
+
+    w.println("assignment-search-begin --name-equal-to name1");
+    w.println("assignment-search-begin --name-not-equal-to name1");
+    w.println("assignment-search-begin --name-similar-to name1");
+    w.println("assignment-search-begin --name-not-similar-to name1");
+    w.println("assignment-search-begin --plan-equal-to plan1:23");
+    w.println("assignment-search-begin --plan-not-equal-to plan1:23");
+    w.println("assignment-search-begin --repository-equal-to 59cd183e-d95c-4afd-9169-8101f4b1e5f2");
+    w.println("assignment-search-begin --repository-not-equal-to 59cd183e-d95c-4afd-9169-8101f4b1e5f2");
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(18))
+      .execute(isA(NPUCommandAssignmentSearchBegin.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAssignmentSearchNext.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAssignmentSearchPrevious.class));
   }
 }

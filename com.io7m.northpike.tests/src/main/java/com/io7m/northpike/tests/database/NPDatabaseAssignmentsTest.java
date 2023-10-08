@@ -593,8 +593,8 @@ public final class NPDatabaseAssignmentsTest
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
-        Optional.empty(),
-        Optional.empty(),
+        new NPComparisonExactType.Anything<>(),
+        new NPComparisonExactType.Anything<>(),
         new NPComparisonFuzzyType.Anything<>(),
         1000L
       ));
@@ -624,11 +624,10 @@ public final class NPDatabaseAssignmentsTest
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
-        Optional.empty(),
-        Optional.of(new NPPlanIdentifier(
-          NPPlanName.of("orchid"),
-          1L
-        )),
+        new NPComparisonExactType.Anything<>(),
+        new NPComparisonExactType.IsEqualTo<>(
+          new NPPlanIdentifier(NPPlanName.of("orchid"), 1L)
+        ),
         new NPComparisonFuzzyType.Anything<>(),
         1000L
       ));
@@ -658,8 +657,8 @@ public final class NPDatabaseAssignmentsTest
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
-        Optional.of(this.repositoryId),
-        Optional.empty(),
+        new NPComparisonExactType.IsEqualTo<>(this.repositoryId),
+        new NPComparisonExactType.Anything<>(),
         new NPComparisonFuzzyType.Anything<>(),
         1000L
       ));
@@ -689,8 +688,8 @@ public final class NPDatabaseAssignmentsTest
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
-        Optional.of(this.repositoryId),
-        Optional.empty(),
+        new NPComparisonExactType.IsEqualTo<>(this.repositoryId),
+        new NPComparisonExactType.Anything<>(),
         new NPComparisonFuzzyType.IsSimilarTo<>("carrot"),
         1000L
       ));
@@ -720,8 +719,8 @@ public final class NPDatabaseAssignmentsTest
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
-        Optional.of(this.repositoryId),
-        Optional.empty(),
+        new NPComparisonExactType.IsEqualTo<>(this.repositoryId),
+        new NPComparisonExactType.Anything<>(),
         new NPComparisonFuzzyType.IsEqualTo<>("a.lavender.carrot"),
         1000L
       ));
@@ -751,8 +750,8 @@ public final class NPDatabaseAssignmentsTest
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
-        Optional.of(this.repositoryId),
-        Optional.empty(),
+        new NPComparisonExactType.IsEqualTo<>(this.repositoryId),
+        new NPComparisonExactType.Anything<>(),
         new NPComparisonFuzzyType.IsNotEqualTo<>("a.lavender.carrot"),
         1000L
       ));
@@ -782,8 +781,8 @@ public final class NPDatabaseAssignmentsTest
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
-        Optional.of(this.repositoryId),
-        Optional.empty(),
+        new NPComparisonExactType.IsEqualTo<>(this.repositoryId),
+        new NPComparisonExactType.Anything<>(),
         new NPComparisonFuzzyType.IsNotSimilarTo<>("carrot"),
         1000L
       ));
@@ -813,8 +812,10 @@ public final class NPDatabaseAssignmentsTest
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
-        Optional.of(this.repositoryId),
-        Optional.of(new NPPlanIdentifier(NPPlanName.of("rose"), 1L)),
+        new NPComparisonExactType.IsEqualTo<>(this.repositoryId),
+        new NPComparisonExactType.IsEqualTo<>(
+          new NPPlanIdentifier(NPPlanName.of("rose"), 1L)
+        ),
         new NPComparisonFuzzyType.Anything<>(),
         1000L
       ));

@@ -20,24 +20,24 @@ package com.io7m.northpike.model.assignments;
 import com.io7m.northpike.model.NPPageSizes;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSearchParametersType;
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * The parameters required to list assignments.
  *
- * @param repositoryId Limit results to assignments using the given repository
- * @param plan         Limit results to assignments using the given plan
+ * @param repositoryId Filter assignments using the given repository
+ * @param plan         Filter assignments using the given plan
  * @param pageSize     The page size
  * @param nameQuery    The query used to search assignment names
  */
 
 public record NPAssignmentSearchParameters(
-  Optional<NPRepositoryID> repositoryId,
-  Optional<NPPlanIdentifier> plan,
+  NPComparisonExactType<NPRepositoryID> repositoryId,
+  NPComparisonExactType<NPPlanIdentifier> plan,
   NPComparisonFuzzyType<String> nameQuery,
   long pageSize)
   implements NPSearchParametersType
@@ -45,8 +45,8 @@ public record NPAssignmentSearchParameters(
   /**
    * The parameters required to list assignments.
    *
-   * @param repositoryId Limit results to assignments using the given repository
-   * @param plan         Limit results to assignments using the given plan
+   * @param repositoryId Filter assignments using the given repository
+   * @param plan         Filter assignments using the given plan
    * @param pageSize     The page size
    * @param nameQuery    The query used to search assignment names
    */

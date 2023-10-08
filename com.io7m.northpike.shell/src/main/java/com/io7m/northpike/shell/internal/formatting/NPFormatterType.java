@@ -278,4 +278,16 @@ public interface NPFormatterType
   void formatAssignment(
     NPAssignment assignment)
     throws Exception;
+
+  /**
+   * Format assignments.
+   *
+   * @param assignments The assignments
+   *
+   * @throws Exception On errors
+   */
+
+  void formatAssignments(
+    NPPage<NPAssignment> assignments)
+    throws Exception;
 }

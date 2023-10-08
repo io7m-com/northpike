@@ -32,6 +32,7 @@ import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
 import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
@@ -130,8 +131,8 @@ public final class NPUCmdAssignmentSearchBeginTest
       new NPUCommandAssignmentSearchBegin(
         UUID.randomUUID(),
         new NPAssignmentSearchParameters(
-          Optional.empty(),
-          Optional.empty(),
+          new NPComparisonExactType.Anything<>(),
+          new NPComparisonExactType.Anything<>(),
           new NPComparisonFuzzyType.Anything<>(),
           1000L
         )
@@ -165,8 +166,8 @@ public final class NPUCmdAssignmentSearchBeginTest
       new NPUCommandAssignmentSearchBegin(
         UUID.randomUUID(),
         new NPAssignmentSearchParameters(
-          Optional.empty(),
-          Optional.empty(),
+          new NPComparisonExactType.Anything<>(),
+          new NPComparisonExactType.Anything<>(),
           new NPComparisonFuzzyType.Anything<>(),
           1000L
         )
@@ -210,8 +211,8 @@ public final class NPUCmdAssignmentSearchBeginTest
       new NPUCommandAssignmentSearchBegin(
         UUID.randomUUID(),
         new NPAssignmentSearchParameters(
-          Optional.empty(),
-          Optional.empty(),
+          new NPComparisonExactType.Anything<>(),
+          new NPComparisonExactType.Anything<>(),
           new NPComparisonFuzzyType.Anything<>(),
           1000L
         )

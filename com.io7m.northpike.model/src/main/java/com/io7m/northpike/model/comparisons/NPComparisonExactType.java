@@ -18,6 +18,7 @@
 package com.io7m.northpike.model.comparisons;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * The type of expressions that can only match values exactly.
@@ -29,6 +30,17 @@ public sealed interface NPComparisonExactType<T>
   extends NPComparisonType
 {
   /**
+   * Produce a new comparison over values transformed with {@code f}.
+   *
+   * @param f   The transform
+   * @param <U> The type of results
+   *
+   * @return A new comparison
+   */
+
+  <U> NPComparisonExactType<U> map(Function<T, U> f);
+
+  /**
    * Match any value.
    *
    * @param <T> The type of values
@@ -36,7 +48,12 @@ public sealed interface NPComparisonExactType<T>
 
   record Anything<T>() implements NPComparisonExactType<T>
   {
-
+    @Override
+    public <U> Anything<U> map(
+      final Function<T, U> f)
+    {
+      return new Anything<>();
+    }
   }
 
   /**
@@ -57,6 +74,13 @@ public sealed interface NPComparisonExactType<T>
     {
       Objects.requireNonNull(value, "value");
     }
+
+    @Override
+    public <U> IsEqualTo<U> map(
+      final Function<T, U> f)
+    {
+      return new IsEqualTo<>(f.apply(this.value));
+    }
   }
 
   /**
@@ -76,6 +100,13 @@ public sealed interface NPComparisonExactType<T>
     public IsNotEqualTo
     {
       Objects.requireNonNull(value, "value");
+    }
+
+    @Override
+    public <U> IsNotEqualTo<U> map(
+      final Function<T, U> f)
+    {
+      return new IsNotEqualTo<>(f.apply(this.value));
     }
   }
 }

@@ -33,9 +33,11 @@ import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanName;
 import io.opentelemetry.api.trace.Span;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
@@ -102,26 +104,13 @@ public final class NPDBQAssignmentSearch
       new JQField(ASSIGNMENTS.A_NAME, JQOrder.ASCENDING);
 
     final var reposCondition =
-      parameters.repositoryId()
-        .map(NPRepositoryID::value)
-        .map(ASSIGNMENTS.A_REPOSITORY::eq)
-        .orElse(DSL.trueCondition());
+      NPDBComparisons.createExactMatchQuery(
+        parameters.repositoryId().map(NPRepositoryID::value),
+        ASSIGNMENTS.A_REPOSITORY
+      );
 
-    final var planCondition =
-      parameters.plan()
-        .map(id -> {
-          return DSL.and(
-            ASSIGNMENTS.A_PLAN.eq(
-              context.select(PLANS.P_ID)
-                .from(PLANS)
-                .where(
-                  PLANS.P_NAME.eq(id.name().name().value())
-                    .and(PLANS.P_VERSION.eq(Long.valueOf(id.version())))
-                )
-            )
-          );
-        })
-        .orElse(DSL.trueCondition());
+    final Condition planCondition =
+      createPlanCondition(context, parameters.plan());
 
     final var nameCondition =
       NPDBComparisons.createFuzzyMatchQuery(
@@ -148,6 +137,41 @@ public final class NPDBQAssignmentSearch
         context, pageParameters);
 
     return new NPDBQAssignmentSearch.NPAssignmentSearch(pages);
+  }
+
+  private static Condition createPlanCondition(
+    final DSLContext context,
+    final NPComparisonExactType<NPPlanIdentifier> plan)
+  {
+    if (plan instanceof NPComparisonExactType.Anything<NPPlanIdentifier>) {
+      return DSL.trueCondition();
+    }
+
+    if (plan instanceof final NPComparisonExactType.IsEqualTo<NPPlanIdentifier> isEqualTo) {
+      final var id = isEqualTo.value();
+      return ASSIGNMENTS.A_PLAN.eq(
+        context.select(PLANS.P_ID)
+          .from(PLANS)
+          .where(
+            PLANS.P_NAME.eq(id.name().name().value())
+              .and(PLANS.P_VERSION.eq(Long.valueOf(id.version())))
+          )
+      );
+    }
+
+    if (plan instanceof final NPComparisonExactType.IsNotEqualTo<NPPlanIdentifier> isNotEqualTo) {
+      final var id = isNotEqualTo.value();
+      return ASSIGNMENTS.A_PLAN.ne(
+        context.select(PLANS.P_ID)
+          .from(PLANS)
+          .where(
+            PLANS.P_NAME.eq(id.name().name().value())
+              .and(PLANS.P_VERSION.eq(Long.valueOf(id.version())))
+          )
+      );
+    }
+
+    throw new IllegalStateException("Unrecognized match: %s".formatted(plan));
   }
 
   static final class NPAssignmentSearch

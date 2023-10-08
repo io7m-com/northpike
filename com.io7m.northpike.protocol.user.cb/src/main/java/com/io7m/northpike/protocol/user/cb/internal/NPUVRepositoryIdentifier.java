@@ -15,32 +15,36 @@
  */
 
 
-package com.io7m.northpike.tests.arbitraries;
+package com.io7m.northpike.protocol.user.cb.internal;
 
+import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.northpike.model.NPRepositoryID;
-import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
-import com.io7m.northpike.model.plans.NPPlanIdentifier;
-import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Combinators;
+import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 
-public final class NPArbAssignmentSearchParameters
-  extends NPArbAbstract<NPAssignmentSearchParameters>
+/**
+ * A validator.
+ */
+
+public enum NPUVRepositoryIdentifier
+  implements NPProtocolMessageValidatorType<NPRepositoryID, CBUUID>
 {
-  public NPArbAssignmentSearchParameters()
+  /**
+   * A validator.
+   */
+
+  REPOSITORY_IDENTIFIER;
+
+  @Override
+  public CBUUID convertToWire(
+    final NPRepositoryID message)
   {
-    super(
-      NPAssignmentSearchParameters.class,
-      () -> {
-        return Combinators.combine(
-          NPArbComparisons.exact(
-            Arbitraries.defaultFor(NPRepositoryID.class)),
-          NPArbComparisons.exact(
-            Arbitraries.defaultFor(NPPlanIdentifier.class)),
-          NPArbComparisons.fuzzy(
-            Arbitraries.strings().alpha()),
-          Arbitraries.longs()
-        ).as(NPAssignmentSearchParameters::new);
-      }
-    );
+    return new CBUUID(message.value());
+  }
+
+  @Override
+  public NPRepositoryID convertFromWire(
+    final CBUUID message)
+  {
+    return new NPRepositoryID(message.value());
   }
 }

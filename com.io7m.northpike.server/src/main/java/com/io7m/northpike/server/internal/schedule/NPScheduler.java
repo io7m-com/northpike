@@ -30,6 +30,7 @@ import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleHourlyHashed;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
 import com.io7m.northpike.model.assignments.NPAssignmentSearchParameters;
+import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.server.internal.assignments.NPAssignmentServiceType;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
@@ -42,7 +43,6 @@ import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -298,8 +298,8 @@ public final class NPScheduler implements NPSchedulerType
           transaction.queries(SearchType.class)
             .execute(
               new NPAssignmentSearchParameters(
-                Optional.empty(),
-                Optional.empty(),
+                new NPComparisonExactType.Anything<>(),
+                new NPComparisonExactType.Anything<>(),
                 new NPComparisonFuzzyType.Anything<>(),
                 1000L
               )

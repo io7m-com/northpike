@@ -421,6 +421,30 @@ public final class NPFormatterRaw implements NPFormatterType
     out.flush();
   }
 
+  @Override
+  public void formatAssignments(
+    final NPPage<NPAssignment> page)
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    out.println("# Name | Plan | Repository | Schedule");
+
+    for (final var item : page.items()) {
+      out.printf(
+        "%s | %s | %s | %s%n",
+        item.name(),
+        "%s %s".formatted(
+          item.plan().name(),
+          Long.toUnsignedString(item.plan().version())
+        ),
+        item.repositoryId(),
+        formatSchedule(item.schedule())
+      );
+    }
+    out.flush();
+  }
+
   static String formatSchedule(
     final NPAssignmentScheduleType schedule)
   {

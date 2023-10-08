@@ -277,9 +277,9 @@
 [documentation NPU1AssignmentSearchParameters "The assignment search parameters."]
 [record NPU1AssignmentSearchParameters
   [documentation repositoryId "Only include assignments with this repository ID."]
-  [field repositoryId [cb:Option cb:UUID]]
+  [field repositoryId [NPU1ComparisonExact cb:UUID]]
   [documentation plan "Only include assignments with this plan."]
-  [field plan [cb:Option NPU1PlanIdentifier]]
+  [field plan [NPU1ComparisonExact NPU1PlanIdentifier]]
   [documentation nameQuery "Only include assignments with names matching this expression."]
   [field nameQuery [NPU1ComparisonFuzzy cb:String]]
   [documentation pageSize "The page size."]

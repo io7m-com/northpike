@@ -634,6 +634,36 @@ public final class NPFormatterPretty implements NPFormatterType
     this.renderTable(builder.build());
   }
 
+  @Override
+  public void formatAssignments(
+    final NPPage<NPAssignment> page)
+    throws Exception
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(4))
+        .declareColumn("Name", atLeastContentOrHeader())
+        .declareColumn("Plan", atLeastContentOrHeader())
+        .declareColumn("Repository", atLeastContentOrHeader())
+        .declareColumn("Schedule", atLeastContentOrHeader());
+
+    for (final var item : page.items()) {
+      builder.addRow()
+        .addCell(item.name().toString())
+        .addCell("%s %s".formatted(
+          item.plan().name(),
+          Long.toUnsignedString(item.plan().version())
+        ))
+        .addCell(item.repositoryId().toString())
+        .addCell(formatSchedule(item.schedule()));
+    }
+
+    this.renderTable(builder.build());
+  }
+
   private static void formatPage(
     final NPPage<?> page,
     final PrintWriter out)
