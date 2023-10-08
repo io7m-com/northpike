@@ -31,6 +31,7 @@ import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPWorkItem;
+import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanSummary;
 
@@ -266,4 +267,15 @@ public interface NPFormatterType
     Set<NPWorkItem> workItems)
     throws Exception;
 
+  /**
+   * Format assignment.
+   *
+   * @param assignment The assignment
+   *
+   * @throws Exception On errors
+   */
+
+  void formatAssignment(
+    NPAssignment assignment)
+    throws Exception;
 }

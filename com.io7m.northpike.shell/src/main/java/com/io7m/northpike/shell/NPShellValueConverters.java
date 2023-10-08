@@ -30,14 +30,18 @@ import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolExecutionIdentifierSet;
 import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
+import com.io7m.northpike.model.assignments.NPAssignmentName;
+import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanName;
 import com.io7m.northpike.model.security.NPRoleSet;
 import com.io7m.northpike.shell.internal.NPAgentIDConverter;
 import com.io7m.northpike.shell.internal.NPAgentLabelNameConverter;
 import com.io7m.northpike.shell.internal.NPAgentLabelSetConverter;
+import com.io7m.northpike.shell.internal.NPAssignmentNameConverter;
 import com.io7m.northpike.shell.internal.NPFingerprintConverter;
 import com.io7m.northpike.shell.internal.NPFormatNameConverter;
 import com.io7m.northpike.shell.internal.NPKeyConverter;
+import com.io7m.northpike.shell.internal.NPPlanIdentifierConverter;
 import com.io7m.northpike.shell.internal.NPPlanNameConverter;
 import com.io7m.northpike.shell.internal.NPRepositoryCredentialsConverter;
 import com.io7m.northpike.shell.internal.NPRepositoryIDConverter;
@@ -58,6 +62,9 @@ public final class NPShellValueConverters
 {
   private static final QValueConverterDirectoryType CONVERTERS =
     QValueConverterDirectory.core()
+      .with(
+        NPAssignmentName.class,
+        new NPAssignmentNameConverter())
       .with(
         NPRepositoryID.class,
         new NPRepositoryIDConverter())
@@ -82,6 +89,9 @@ public final class NPShellValueConverters
       .with(
         NPToolExecutionIdentifier.class,
         new NPToolExecutionIdentifierConverter())
+      .with(
+        NPPlanIdentifier.class,
+        new NPPlanIdentifierConverter())
       .with(
         NPToolExecutionIdentifierSet.class,
         new NPToolExecutionIdentifierSetConverter())

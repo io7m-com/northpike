@@ -33,6 +33,7 @@ import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPWorkItem;
+import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanSummary;
 import com.io7m.tabla.core.TTableRendererType;
@@ -48,6 +49,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.io7m.northpike.shell.internal.formatting.NPFormatterRaw.formatSchedule;
 import static com.io7m.tabla.core.TColumnWidthConstraint.any;
 import static com.io7m.tabla.core.TColumnWidthConstraint.atLeastContentOrHeader;
 import static com.io7m.tabla.core.TConstraintHardness.SOFT_CONSTRAINT;
@@ -596,6 +598,38 @@ public final class NPFormatterPretty implements NPFormatterType
         .addCell(item.selectedAgent().map(NPAgentID::toString).orElse(null))
         .addCell(item.status().toString());
     }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatAssignment(
+    final NPAssignment assignment)
+    throws Exception
+  {
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(2))
+        .declareColumn("Attribute", atLeastContentOrHeader())
+        .declareColumn("Value", atLeastContentOrHeader());
+
+    builder.addRow()
+      .addCell("Name")
+      .addCell(assignment.name().toString());
+    builder.addRow()
+      .addCell("Plan")
+      .addCell(
+        "%s %s".formatted(
+          assignment.plan().name(),
+          Long.toUnsignedString(assignment.plan().version())
+        )
+      );
+    builder.addRow()
+      .addCell("Repository")
+      .addCell(assignment.repositoryId().toString());
+    builder.addRow()
+      .addCell("Schedule")
+      .addCell(formatSchedule(assignment.schedule()));
 
     this.renderTable(builder.build());
   }

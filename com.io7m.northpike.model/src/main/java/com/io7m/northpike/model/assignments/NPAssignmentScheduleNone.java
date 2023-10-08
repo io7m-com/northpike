@@ -28,5 +28,11 @@ public enum NPAssignmentScheduleNone
    * No assignment schedule; all executions must be requested explicitly.
    */
 
-  SCHEDULE_NONE,
+  SCHEDULE_NONE;
+
+  @Override
+  public NPAssignmentScheduleKind kind()
+  {
+    return NPAssignmentScheduleKind.NONE;
+  }
 }

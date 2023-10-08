@@ -40,4 +40,10 @@ public record NPAssignmentScheduleHourlyHashed(
   {
     Objects.requireNonNull(commitAgeCutoff, "ageCutoff");
   }
+
+  @Override
+  public NPAssignmentScheduleKind kind()
+  {
+    return NPAssignmentScheduleKind.HOURLY_HASHED;
+  }
 }

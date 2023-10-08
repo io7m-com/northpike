@@ -32,6 +32,10 @@ import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPWorkItem;
+import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleHourlyHashed;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
+import com.io7m.northpike.model.assignments.NPAssignmentScheduleType;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanSummary;
 import org.jline.terminal.Terminal;
@@ -394,6 +398,44 @@ public final class NPFormatterRaw implements NPFormatterType
       );
     }
     out.flush();
+  }
+
+  @Override
+  public void formatAssignment(
+    final NPAssignment assignment)
+  {
+    final var out = this.terminal.writer();
+    out.print("Name: ");
+    out.println(assignment.name());
+
+    out.print("Plan: ");
+    out.println("%s %s".formatted(
+      assignment.plan().name(),
+      Long.toUnsignedString(assignment.plan().version())
+    ));
+
+    out.print("Repository: ");
+    out.println(assignment.repositoryId());
+
+    out.println("Schedule: " + formatSchedule(assignment.schedule()));
+    out.flush();
+  }
+
+  static String formatSchedule(
+    final NPAssignmentScheduleType schedule)
+  {
+    if (schedule instanceof NPAssignmentScheduleNone) {
+      return "None";
+    }
+
+    if (schedule instanceof final NPAssignmentScheduleHourlyHashed hashed) {
+      return "HourlyHashed (Commit age cutoff: %s)"
+        .formatted(hashed.commitAgeCutoff());
+    }
+
+    throw new IllegalStateException(
+      "Unrecognized schedule: %s".formatted(schedule)
+    );
   }
 
   private static void formatPage(

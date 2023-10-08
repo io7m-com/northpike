@@ -18,16 +18,20 @@
 package com.io7m.northpike.model.assignments;
 
 /**
- * The type of assignment schedules.
+ * The kind of schedules.
  */
 
-public sealed interface NPAssignmentScheduleType
-  permits NPAssignmentScheduleHourlyHashed,
-  NPAssignmentScheduleNone
+public enum NPAssignmentScheduleKind
 {
   /**
-   * @return The schedule kind
+   * @see NPAssignmentScheduleNone
    */
 
-  NPAssignmentScheduleKind kind();
+  NONE,
+
+  /**
+   * @see NPAssignmentScheduleHourlyHashed
+   */
+
+  HOURLY_HASHED
 }
