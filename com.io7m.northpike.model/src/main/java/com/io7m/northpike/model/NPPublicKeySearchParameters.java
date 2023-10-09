@@ -17,24 +17,32 @@
 
 package com.io7m.northpike.model;
 
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
+
+import java.util.Objects;
+
 /**
  * The parameters required to search for public keys.
  *
+ * @param userId The user ID match expression
  * @param pageSize The page size
  */
 
 public record NPPublicKeySearchParameters(
+  NPComparisonFuzzyType<String> userId,
   long pageSize)
   implements NPSearchParametersType
 {
   /**
    * The parameters required to search for public keys.
    *
+   * @param userId The user ID match expression
    * @param pageSize The page size
    */
 
   public NPPublicKeySearchParameters
   {
+    Objects.requireNonNull(userId, "userId");
     pageSize = NPPageSizes.clampPageSize(pageSize);
   }
 }

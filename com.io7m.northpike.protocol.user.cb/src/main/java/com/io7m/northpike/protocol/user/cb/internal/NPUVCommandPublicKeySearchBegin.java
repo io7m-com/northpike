@@ -18,6 +18,7 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchBegin;
 import com.io7m.northpike.protocol.user.cb.NPU1CommandPublicKeySearchBegin;
@@ -29,7 +30,8 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVPublicKeySearchPa
  */
 
 public enum NPUVCommandPublicKeySearchBegin
-  implements NPProtocolMessageValidatorType<NPUCommandPublicKeySearchBegin, NPU1CommandPublicKeySearchBegin>
+  implements NPProtocolMessageValidatorType<
+  NPUCommandPublicKeySearchBegin, NPU1CommandPublicKeySearchBegin>
 {
   /**
    * A validator.
@@ -40,6 +42,7 @@ public enum NPUVCommandPublicKeySearchBegin
   @Override
   public NPU1CommandPublicKeySearchBegin convertToWire(
     final NPUCommandPublicKeySearchBegin message)
+    throws NPProtocolException
   {
     return new NPU1CommandPublicKeySearchBegin(
       new CBUUID(message.messageID()),
@@ -50,6 +53,7 @@ public enum NPUVCommandPublicKeySearchBegin
   @Override
   public NPUCommandPublicKeySearchBegin convertFromWire(
     final NPU1CommandPublicKeySearchBegin message)
+    throws NPProtocolException
   {
     return new NPUCommandPublicKeySearchBegin(
       message.fieldMessageId().value(),

@@ -30,8 +30,9 @@ import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPPublicKeySearchParameters;
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.security.NPSecRole;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchBegin;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -125,7 +126,8 @@ public final class NPUCmdPublicKeySearchBeginTest
     final var command =
       new NPUCommandPublicKeySearchBegin(
         UUID.randomUUID(),
-        new NPPublicKeySearchParameters(1000L)
+        new NPPublicKeySearchParameters(
+          new NPComparisonFuzzyType.Anything<>(), 1000L)
       );
 
     final var ex =
@@ -155,7 +157,8 @@ public final class NPUCmdPublicKeySearchBeginTest
     final var command =
       new NPUCommandPublicKeySearchBegin(
         UUID.randomUUID(),
-        new NPPublicKeySearchParameters(1000L)
+        new NPPublicKeySearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),1000L)
       );
 
     final var userId =
@@ -195,7 +198,8 @@ public final class NPUCmdPublicKeySearchBeginTest
     final var command =
       new NPUCommandPublicKeySearchBegin(
         UUID.randomUUID(),
-        new NPPublicKeySearchParameters(1000L)
+        new NPPublicKeySearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),1000L)
       );
 
     final var userId =

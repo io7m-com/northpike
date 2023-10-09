@@ -404,6 +404,8 @@
 
 [documentation NPU1PublicKeySearchParameters "The public key search parameters."]
 [record NPU1PublicKeySearchParameters
+  [documentation userIds "The user ID match expression."]
+  [field userIds [NPU1ComparisonFuzzy cb:String]]
   [documentation pageSize "The page size."]
   [field pageSize cb:IntegerUnsigned32]
 ]

@@ -30,7 +30,8 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVAgentLabelSearchP
  */
 
 public enum NPUVCommandAgentLabelSearchBegin
-  implements NPProtocolMessageValidatorType<NPUCommandAgentLabelSearchBegin, NPU1CommandAgentLabelSearchBegin>
+  implements NPProtocolMessageValidatorType<
+  NPUCommandAgentLabelSearchBegin, NPU1CommandAgentLabelSearchBegin>
 {
   /**
    * A validator.

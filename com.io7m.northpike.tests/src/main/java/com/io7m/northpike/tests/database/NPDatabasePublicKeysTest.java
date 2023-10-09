@@ -21,6 +21,7 @@ import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
+import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyAssignType;
@@ -34,6 +35,7 @@ import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPRepositorySigningPolicy;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
 import com.io7m.northpike.tests.containers.NPTestContainers;
@@ -46,13 +48,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
@@ -68,6 +73,18 @@ public final class NPDatabasePublicKeysTest
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(NPDatabasePublicKeysTest.class);
+  private static final String KEY_TEXT = """
+    -----BEGIN PGP PUBLIC KEY BLOCK-----
+      
+    mDMEZQ2b3BYJKwYBBAHaRw8BAQdAlyurVHs8w5+VvhGU6++xmsQCfc+35lYZro0O
+    ugEroKu0J0V4YW1wbGUgKEV4YW1wbGUpIDxleGFtcGxlQGV4YW1wbGUuY29tPoiW
+    BBMWCAA+FiEEL6HX/r/nWP/p+Rtf926L7eldjOEFAmUNm9wCGwMFCTPoWgAFCwkI
+    BwMFFQoJCAsFFgIDAQACHgECF4AACgkQ926L7eldjOEclAEA2DG7KtzQ7A6tDQP3
+    pbXiNwK8fuMXR8ALJ01z9dDsPLgA/2wlWC/TAFuG7AdAvWfEU4U6snFDayz8YPot
+    zA1rFJcI
+    =bfKj
+    -----END PGP PUBLIC KEY BLOCK-----
+              """;
 
   private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
   private NPDatabaseConnectionType connection;
@@ -127,18 +144,7 @@ public final class NPDatabasePublicKeysTest
         new NPFingerprint("2fa1d7febfe758ffe9f91b5ff76e8bede95d8ce1"),
         OffsetDateTime.now().withNano(0),
         Optional.empty(),
-        """
-          -----BEGIN PGP PUBLIC KEY BLOCK-----
-
-          mDMEZQ2b3BYJKwYBBAHaRw8BAQdAlyurVHs8w5+VvhGU6++xmsQCfc+35lYZro0O
-          ugEroKu0J0V4YW1wbGUgKEV4YW1wbGUpIDxleGFtcGxlQGV4YW1wbGUuY29tPoiW
-          BBMWCAA+FiEEL6HX/r/nWP/p+Rtf926L7eldjOEFAmUNm9wCGwMFCTPoWgAFCwkI
-          BwMFFQoJCAsFFgIDAQACHgECF4AACgkQ926L7eldjOEclAEA2DG7KtzQ7A6tDQP3
-          pbXiNwK8fuMXR8ALJ01z9dDsPLgA/2wlWC/TAFuG7AdAvWfEU4U6snFDayz8YPot
-          zA1rFJcI
-          =bfKj
-          -----END PGP PUBLIC KEY BLOCK-----
-                    """
+        KEY_TEXT
       );
 
     put.execute(description);
@@ -198,18 +204,7 @@ public final class NPDatabasePublicKeysTest
         new NPFingerprint("2fa1d7febfe758ffe9f91b5ff76e8bede95d8ce1"),
         OffsetDateTime.now().withNano(0),
         Optional.empty(),
-        """
-          -----BEGIN PGP PUBLIC KEY BLOCK-----
-
-          mDMEZQ2b3BYJKwYBBAHaRw8BAQdAlyurVHs8w5+VvhGU6++xmsQCfc+35lYZro0O
-          ugEroKu0J0V4YW1wbGUgKEV4YW1wbGUpIDxleGFtcGxlQGV4YW1wbGUuY29tPoiW
-          BBMWCAA+FiEEL6HX/r/nWP/p+Rtf926L7eldjOEFAmUNm9wCGwMFCTPoWgAFCwkI
-          BwMFFQoJCAsFFgIDAQACHgECF4AACgkQ926L7eldjOEclAEA2DG7KtzQ7A6tDQP3
-          pbXiNwK8fuMXR8ALJ01z9dDsPLgA/2wlWC/TAFuG7AdAvWfEU4U6snFDayz8YPot
-          zA1rFJcI
-          =bfKj
-          -----END PGP PUBLIC KEY BLOCK-----
-                    """
+        KEY_TEXT
       );
 
     final var repositoryDescription =
@@ -261,7 +256,7 @@ public final class NPDatabasePublicKeysTest
     final var put =
       this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
 
-    for (int index = 0; index < 1000; ++index) {
+    for (var index = 0; index < 1000; ++index) {
       final var data =
         Integer.toUnsignedString(index).getBytes(StandardCharsets.UTF_8);
       final var hash =
@@ -278,18 +273,7 @@ public final class NPDatabasePublicKeysTest
           fingerpint,
           OffsetDateTime.now().withNano(0),
           Optional.empty(),
-          """
-            -----BEGIN PGP PUBLIC KEY BLOCK-----
-  
-            mDMEZQ2b3BYJKwYBBAHaRw8BAQdAlyurVHs8w5+VvhGU6++xmsQCfc+35lYZro0O
-            ugEroKu0J0V4YW1wbGUgKEV4YW1wbGUpIDxleGFtcGxlQGV4YW1wbGUuY29tPoiW
-            BBMWCAA+FiEEL6HX/r/nWP/p+Rtf926L7eldjOEFAmUNm9wCGwMFCTPoWgAFCwkI
-            BwMFFQoJCAsFFgIDAQACHgECF4AACgkQ926L7eldjOEclAEA2DG7KtzQ7A6tDQP3
-            pbXiNwK8fuMXR8ALJ01z9dDsPLgA/2wlWC/TAFuG7AdAvWfEU4U6snFDayz8YPot
-            zA1rFJcI
-            =bfKj
-            -----END PGP PUBLIC KEY BLOCK-----
-                      """
+          KEY_TEXT
         );
 
       put.execute(description);
@@ -298,10 +282,15 @@ public final class NPDatabasePublicKeysTest
     this.transaction.commit();
 
     final var paged =
-      list.execute(new NPPublicKeySearchParameters(100L));
+      list.execute(
+        new NPPublicKeySearchParameters(
+          new NPComparisonFuzzyType.Anything<>(),
+          100L
+        )
+      );
 
     final var ids = new HashSet<String>();
-    for (int pageIndex = 0; pageIndex < 10; ++pageIndex) {
+    for (var pageIndex = 0; pageIndex < 10; ++pageIndex) {
       final var page =
         paged.pageCurrent(this.transaction);
       for (final var item : page.items()) {
@@ -310,8 +299,256 @@ public final class NPDatabasePublicKeysTest
       paged.pageNext(this.transaction);
     }
 
-    for (int index = 0; index < 1000; ++index) {
+    for (var index = 0; index < 1000; ++index) {
       assertTrue(ids.contains(Integer.toUnsignedString(index)));
+    }
+  }
+
+  /**
+   * Listing keys works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPublicKeyList1()
+    throws Exception
+  {
+    final var list =
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+
+    final var words =
+      save1000SampleKeys(put);
+
+    this.transaction.commit();
+
+    final var searchWord =
+      words.getProperty("500");
+
+    final var paged =
+      list.execute(
+        new NPPublicKeySearchParameters(
+          new NPComparisonFuzzyType.IsEqualTo<>(searchWord),
+          100L
+        )
+      );
+
+    final var page =
+      paged.pageCurrent(this.transaction);
+
+    final var item = page.items().get(0);
+    assertEquals(Set.of(searchWord), item.userIDs());
+
+    assertEquals(1, page.pageIndex());
+    assertEquals(1, page.pageCount());
+    assertEquals(1, page.items().size());
+  }
+
+  /**
+   * Listing keys works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPublicKeyList2()
+    throws Exception
+  {
+    final var list =
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+
+    final var words =
+      save1000SampleKeys(put);
+
+    this.transaction.commit();
+
+    final var searchWord =
+      words.getProperty("500");
+
+    final var paged =
+      list.execute(
+        new NPPublicKeySearchParameters(
+          new NPComparisonFuzzyType.IsNotEqualTo<>(searchWord),
+          1000L
+        )
+      );
+
+    final var page =
+      paged.pageCurrent(this.transaction);
+
+    assertFalse(
+      page.items()
+        .stream()
+        .anyMatch(key -> key.userIDs().contains(searchWord))
+    );
+
+    for (var index = 0; index < 1000; ++index) {
+      if (index + 1 == 500) {
+        continue;
+      }
+
+      final var expectedWord =
+        words.getProperty(Integer.toUnsignedString(index + 1));
+
+      assertTrue(
+        page.items()
+          .stream()
+          .anyMatch(key -> key.userIDs().contains(expectedWord))
+      );
+    }
+
+    assertEquals(1, page.pageIndex());
+    assertEquals(1, page.pageCount());
+    assertEquals(999, page.items().size());
+  }
+
+  /**
+   * Listing keys works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPublicKeyList3()
+    throws Exception
+  {
+    final var list =
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+
+    final var words =
+      save1000SampleKeys(put);
+
+    this.transaction.commit();
+
+    final var searchWord =
+      words.getProperty("500");
+
+    final var paged =
+      list.execute(
+        new NPPublicKeySearchParameters(
+          new NPComparisonFuzzyType.IsSimilarTo<>(searchWord),
+          1000L
+        )
+      );
+
+    final var page =
+      paged.pageCurrent(this.transaction);
+
+    final var item = page.items().get(0);
+    assertEquals(Set.of(searchWord), item.userIDs());
+
+    assertEquals(1, page.pageIndex());
+    assertEquals(1, page.pageCount());
+    assertEquals(1, page.items().size());
+  }
+
+  /**
+   * Listing keys works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPublicKeyList4()
+    throws Exception
+  {
+    final var list =
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.SearchType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+
+    final var words =
+      save1000SampleKeys(put);
+
+    this.transaction.commit();
+
+    final var searchWord =
+      words.getProperty("500");
+
+    final var paged =
+      list.execute(
+        new NPPublicKeySearchParameters(
+          new NPComparisonFuzzyType.IsNotSimilarTo<>(searchWord),
+          1000L
+        )
+      );
+
+    final var page =
+      paged.pageCurrent(this.transaction);
+
+    assertFalse(
+      page.items()
+        .stream()
+        .anyMatch(key -> key.userIDs().contains(searchWord))
+    );
+
+    for (var index = 0; index < 1000; ++index) {
+      if (index + 1 == 500) {
+        continue;
+      }
+
+      final var expectedWord =
+        words.getProperty(Integer.toUnsignedString(index + 1));
+
+      assertTrue(
+        page.items()
+          .stream()
+          .anyMatch(key -> key.userIDs().contains(expectedWord))
+      );
+    }
+
+    assertEquals(1, page.pageIndex());
+    assertEquals(1, page.pageCount());
+    assertEquals(999, page.items().size());
+  }
+
+  private static Properties save1000SampleKeys(
+    final NPDatabaseQueriesPublicKeysType.PutType put)
+    throws IOException, NoSuchAlgorithmException, NPDatabaseException
+  {
+    final var words = openWords();
+    for (var index = 0; index < 1000; ++index) {
+      final var data =
+        Integer.toUnsignedString(index).getBytes(StandardCharsets.UTF_8);
+      final var hash =
+        MessageDigest.getInstance("SHA1");
+      final var word =
+        words.getProperty(Integer.toUnsignedString(index + 1));
+
+      final var fingerpint =
+        new NPFingerprint(
+          HexFormat.of().formatHex(hash.digest(data))
+        );
+
+      final var description =
+        new NPPublicKey(
+          Set.of(word),
+          fingerpint,
+          OffsetDateTime.now().withNano(0),
+          Optional.empty(),
+          KEY_TEXT
+        );
+
+      put.execute(description);
+    }
+    return words;
+  }
+
+  private static Properties openWords()
+    throws IOException
+  {
+    final var properties = new Properties();
+    try (var stream = NPDatabasePublicKeysTest.class.getResourceAsStream(
+      "/com/io7m/northpike/tests/words.properties"
+    )) {
+      properties.load(stream);
+      return properties;
     }
   }
 }

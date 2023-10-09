@@ -88,6 +88,59 @@ public final class NPDBComparisons
   }
 
   /**
+   * Create a fuzzy match expression.
+   *
+   * @param query       The query
+   * @param fieldExact  The "exact" field
+   * @param fieldSearch The search field
+   * @param <T>         The type of compared values
+   *
+   * @return A fuzzy match condition
+   */
+
+  public static <T> Condition createFuzzyMatchArrayQuery(
+    final NPComparisonFuzzyType<T> query,
+    final TableField<org.jooq.Record, T[]> fieldExact,
+    final String fieldSearch)
+  {
+    if (query instanceof NPComparisonFuzzyType.Anything<T>) {
+      return DSL.trueCondition();
+    }
+
+    if (query instanceof final NPComparisonFuzzyType.IsEqualTo<T> isEqualTo) {
+      return DSL.condition(
+        "%s && CAST (ARRAY[?] AS TEXT[])".formatted(fieldExact.getName()),
+        isEqualTo.value()
+      );
+    }
+
+    if (query instanceof final NPComparisonFuzzyType.IsNotEqualTo<T> isNotEqualTo) {
+      return DSL.condition(
+        "NOT (%s && CAST (ARRAY[?] AS TEXT[]))".formatted(fieldExact.getName()),
+        isNotEqualTo.value()
+      );
+    }
+
+    if (query instanceof final NPComparisonFuzzyType.IsSimilarTo<T> isSimilarTo) {
+      return DSL.condition(
+        "%s @@ websearch_to_tsquery(?)".formatted(fieldSearch),
+        isSimilarTo.value()
+      );
+    }
+
+    if (query instanceof final NPComparisonFuzzyType.IsNotSimilarTo<T> isNotSimilarTo) {
+      return DSL.condition(
+        "NOT (%s @@ websearch_to_tsquery(?))".formatted(fieldSearch),
+        isNotSimilarTo.value()
+      );
+    }
+
+    throw new IllegalStateException(
+      "Unrecognized name query: %s".formatted(query)
+    );
+  }
+
+  /**
    * Create an exact match expression.
    *
    * @param query      The query

@@ -17,11 +17,14 @@
 
 package com.io7m.northpike.protocol.user.cb.internal;
 
+import com.io7m.cedarbridge.runtime.api.CBString;
 import com.io7m.northpike.model.NPPublicKeySearchParameters;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1PublicKeySearchParameters;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVStrings.STRINGS;
 
 /**
  * A validator.
@@ -36,11 +39,16 @@ public enum NPUVPublicKeySearchParameters
 
   PUBLIC_KEY_SEARCH_PARAMETERS;
 
+  private static final NPUVComparisonsFuzzy<String, CBString> USER_ID_VALIDATOR =
+    new NPUVComparisonsFuzzy<>(STRINGS);
+
   @Override
   public NPU1PublicKeySearchParameters convertToWire(
     final NPPublicKeySearchParameters message)
+    throws NPProtocolException
   {
     return new NPU1PublicKeySearchParameters(
+      USER_ID_VALIDATOR.convertToWire(message.userId()),
       unsigned32(message.pageSize())
     );
   }
@@ -48,8 +56,10 @@ public enum NPUVPublicKeySearchParameters
   @Override
   public NPPublicKeySearchParameters convertFromWire(
     final NPU1PublicKeySearchParameters message)
+    throws NPProtocolException
   {
     return new NPPublicKeySearchParameters(
+      USER_ID_VALIDATOR.convertFromWire(message.fieldUserIds()),
       message.fieldPageSize().value()
     );
   }

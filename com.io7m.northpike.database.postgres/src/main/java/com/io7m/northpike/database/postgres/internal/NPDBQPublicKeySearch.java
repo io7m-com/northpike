@@ -33,6 +33,7 @@ import com.io7m.northpike.model.NPPublicKeySearchParameters;
 import io.opentelemetry.api.trace.Span;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
 
 import java.util.List;
 import java.util.Optional;
@@ -71,9 +72,20 @@ public final class NPDBQPublicKeySearch
     final NPPublicKeySearchParameters parameters)
     throws NPDatabaseException
   {
+    final var userIdCondition =
+      NPDBComparisons.createFuzzyMatchArrayQuery(
+        parameters.userId(),
+        PUBLIC_KEYS.PK_USER_IDS,
+        "PUBLIC_KEYS.PK_USER_SEARCH"
+      );
+
+    final var allConditions =
+      DSL.and(userIdCondition);
+
     final var pageParameters =
       JQKeysetRandomAccessPaginationParameters.forTable(PUBLIC_KEYS)
         .addSortField(new JQField(PUBLIC_KEYS.PK_FINGERPRINT, JQOrder.ASCENDING))
+        .addWhereCondition(allConditions)
         .setDistinct(JQSelectDistinct.SELECT_DISTINCT)
         .setPageSize(parameters.pageSize())
         .setStatementListener(statement -> {

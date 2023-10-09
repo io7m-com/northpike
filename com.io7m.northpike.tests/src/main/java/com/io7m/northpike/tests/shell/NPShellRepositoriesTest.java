@@ -361,6 +361,10 @@ public final class NPShellRepositoriesTest
     w.println();
 
     w.println("public-key-search-begin");
+    w.println("public-key-search-begin --user-equal-to user");
+    w.println("public-key-search-begin --user-not-equal-to user");
+    w.println("public-key-search-begin --user-similar-to user");
+    w.println("public-key-search-begin --user-not-similar-to user");
     w.println("public-key-search-next");
     w.println("public-key-search-previous");
 
@@ -372,6 +376,10 @@ public final class NPShellRepositoriesTest
     w.println();
 
     w.println("public-key-search-begin");
+    w.println("public-key-search-begin --user-equal-to user");
+    w.println("public-key-search-begin --user-not-equal-to user");
+    w.println("public-key-search-begin --user-similar-to user");
+    w.println("public-key-search-begin --user-not-similar-to user");
     w.println("public-key-search-next");
     w.println("public-key-search-previous");
 
@@ -387,7 +395,7 @@ public final class NPShellRepositoriesTest
       .execute(isA(NPUCommandPublicKeyPut.class));
     Mockito.verify(this.userClient, new AtLeast(2))
       .execute(isA(NPUCommandPublicKeyGet.class));
-    Mockito.verify(this.userClient, new AtLeast(2))
+    Mockito.verify(this.userClient, new AtLeast(10))
       .execute(isA(NPUCommandPublicKeySearchBegin.class));
     Mockito.verify(this.userClient, new AtLeast(2))
       .execute(isA(NPUCommandPublicKeySearchNext.class));

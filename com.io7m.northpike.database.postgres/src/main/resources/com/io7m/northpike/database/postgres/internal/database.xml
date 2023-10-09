@@ -99,6 +99,18 @@ CREATE FUNCTION tokenize_dotted_name(x text) RETURNS text
 -- [jooq ignore stop]
 ]]></Statement>
 
+    <Statement><![CDATA[
+-- [jooq ignore start]
+
+CREATE OR REPLACE FUNCTION text_array_to_text(TEXT[])
+  RETURNS TEXT AS
+$$
+  SELECT array_to_string($1, ' ');
+$$ LANGUAGE SQL IMMUTABLE;
+
+-- [jooq ignore stop]
+]]></Statement>
+
     <Comment>
       The users table stores the current set of users. The name field is neither
       authoritative, nor expected to be unique, because the external identity
@@ -1133,6 +1145,11 @@ CREATE TABLE public_keys (
   pk_encoded       TEXT                      NOT NULL,
 
   -- [jooq ignore start]
+  pk_user_search TSVECTOR NOT NULL
+    GENERATED ALWAYS AS (
+      to_tsvector(%1$S, text_array_to_text (pk_user_ids))
+    ) STORED,
+
   CONSTRAINT public_keys_fingerprint_unique
     UNIQUE (pk_fingerprint),
   -- [jooq ignore stop]

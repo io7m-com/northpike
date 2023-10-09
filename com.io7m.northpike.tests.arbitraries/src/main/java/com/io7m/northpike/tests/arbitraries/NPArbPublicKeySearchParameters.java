@@ -30,10 +30,10 @@ public final class NPArbPublicKeySearchParameters
       NPPublicKeySearchParameters.class,
       () -> {
         return Combinators.combine(
-          Arbitraries.nothing(),
+          NPArbComparisons.fuzzy(Arbitraries.strings().alpha()),
           Arbitraries.longs()
-        ).as((unused, pageSize) -> {
-          return new NPPublicKeySearchParameters(pageSize.longValue());
+        ).as((userIds, pageSize) -> {
+          return new NPPublicKeySearchParameters(userIds, pageSize.longValue());
         });
       }
     );
