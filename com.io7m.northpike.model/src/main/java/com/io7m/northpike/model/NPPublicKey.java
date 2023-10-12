@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * A public key.
+ * A public key used to verify the signatures on commits.
  *
  * @param userIDs     The key's user IDs
  * @param fingerprint The key's unique fingerprint
