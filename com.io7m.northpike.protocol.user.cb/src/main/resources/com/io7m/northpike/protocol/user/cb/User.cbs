@@ -21,6 +21,15 @@
 [import com.io7m.cedarbridge cb]
 [import com.io7m.cedarbridge.time ct]
 
+[documentation NPU1PublicKey "A public key."]
+[variant NPU1PublicKey
+  [documentation Ed448 "An Ed448 key."]
+  [case Ed448
+    [documentation value "The key data."]
+    [field value cb:ByteArray]
+  ]
+]
+
 [variant NPU1ComparisonExact
   [parameter T]
   [case Anything]
@@ -256,8 +265,8 @@
   [field id cb:UUID]
   [documentation name "The agent name."]
   [field name cb:String]
-  [documentation accessKey "The agent access key."]
-  [field accessKey cb:String]
+  [documentation publicKey "The agent public key."]
+  [field publicKey NPU1PublicKey]
   [documentation environmentVariables "The agent environment."]
   [field environmentVariables [cb:Map cb:String cb:String]]
   [documentation systemProperties "The agent system properties."]

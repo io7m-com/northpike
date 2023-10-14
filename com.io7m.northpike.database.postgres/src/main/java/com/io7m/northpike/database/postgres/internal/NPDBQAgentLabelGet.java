@@ -19,8 +19,8 @@ package com.io7m.northpike.database.postgres.internal;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
-import com.io7m.northpike.model.NPAgentLabel;
-import com.io7m.northpike.model.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentLabel;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
 import org.jooq.DSLContext;
 
 import java.util.Optional;

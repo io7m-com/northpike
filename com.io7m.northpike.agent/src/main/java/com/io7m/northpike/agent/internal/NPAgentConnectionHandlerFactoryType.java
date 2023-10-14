@@ -18,6 +18,7 @@ package com.io7m.northpike.agent.internal;
 
 import com.io7m.genevan.core.GenProtocolClientHandlerType;
 import com.io7m.northpike.agent.api.NPAgentConfiguration;
+import com.io7m.northpike.strings.NPStrings;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,6 +34,7 @@ public interface NPAgentConnectionHandlerFactoryType
   /**
    * Create a new handler.
    *
+   * @param strings       String resources for error messages
    * @param configuration The configuration
    * @param socket        The socket
    * @param inputStream   The input stream
@@ -42,6 +44,7 @@ public interface NPAgentConnectionHandlerFactoryType
    */
 
   NPAgentConnectionHandlerType createHandler(
+    NPStrings strings,
     NPAgentConfiguration configuration,
     Socket socket,
     InputStream inputStream,

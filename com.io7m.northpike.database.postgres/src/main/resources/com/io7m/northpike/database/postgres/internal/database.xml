@@ -426,32 +426,27 @@ CREATE TABLE repository_commit_links (
     <Comment>
       The agents table stores the definitions of agents. Agents are uniquely
       identified by their UUID values, and are also uniquely identified by their
-      secret access keys.
+      public keys.
     </Comment>
 
     <Statement><![CDATA[
 CREATE TABLE agents (
-  a_id           UUID    NOT NULL,
-  a_name         TEXT    NOT NULL,
-  a_access_key   TEXT,
-  a_deleted      BOOLEAN NOT NULL,
-
-  CONSTRAINT agents_primary_key
-    PRIMARY KEY (a_id),
+  a_id               UUID    NOT NULL,
+  a_name             TEXT    NOT NULL,
+  a_public_key_algo  TEXT    NOT NULL,
+  a_public_key_data  TEXT    NOT NULL,
+  a_deleted          BOOLEAN NOT NULL,
 
   -- [jooq ignore start]
-  CONSTRAINT agents_access_key_unique
-    UNIQUE (a_access_key),
+  a_environment      HSTORE  NOT NULL,
+  a_properties       HSTORE  NOT NULL,
+
+  CONSTRAINT agents_public_key_unique
+    UNIQUE (a_public_key_data),
   -- [jooq ignore stop]
 
-  CONSTRAINT agents_access_key_nullity
-    CHECK (
-         (a_deleted       AND (a_access_key IS NULL))
-      OR ((NOT a_deleted) AND (a_access_key IS NOT NULL))
-    ),
-
-  CONSTRAINT agents_access_key_valid
-    CHECK (a_access_key ~ '^[a-f0-9]{64}$')
+  CONSTRAINT agents_primary_key
+    PRIMARY KEY (a_id)
 )
 ]]></Statement>
 
@@ -460,63 +455,6 @@ CREATE TABLE agents (
     </Statement>
     <Statement>
       GRANT SELECT ON agents TO northpike_read_only
-    </Statement>
-
-    <Comment>
-      The agents_environments table stores the most recent set of environment
-      variables that have been reported by an agent.
-    </Comment>
-
-    <Statement><![CDATA[
-CREATE TABLE agents_environments (
-  ae_id           UUID   NOT NULL,
-  ae_name         TEXT   NOT NULL,
-  ae_value        TEXT   NOT NULL,
-
-  -- [jooq ignore start]
-  CONSTRAINT agents_environments_primary_key
-    PRIMARY KEY (ae_id, ae_name),
-  -- [jooq ignore stop]
-
-  CONSTRAINT agents_environments_agent_exists
-    FOREIGN KEY (ae_id) REFERENCES agents (a_id)
-)
-]]></Statement>
-
-    <Statement>
-      GRANT SELECT, INSERT, UPDATE, DELETE ON agents_environments TO northpike
-    </Statement>
-    <Statement>
-      GRANT SELECT ON agents_environments TO northpike_read_only
-    </Statement>
-
-    <Comment>
-      The agents_properties table stores the most recent set of system
-      properties that have been reported by an agent.
-    </Comment>
-
-    <Statement><![CDATA[
-CREATE TABLE agents_properties (
-  ap_id           UUID   NOT NULL,
-  ap_name         TEXT   NOT NULL,
-  ap_value        TEXT   NOT NULL,
-
-  -- [jooq ignore start]
-  CONSTRAINT agents_properties_primary_key
-    PRIMARY KEY (ap_id, ap_name),
-  -- [jooq ignore stop]
-
-  CONSTRAINT agents_properties_agent_exists
-    FOREIGN KEY (ap_id)
-      REFERENCES agents (a_id)
-)
-]]></Statement>
-
-    <Statement>
-      GRANT SELECT, INSERT, UPDATE, DELETE ON agents_properties TO northpike
-    </Statement>
-    <Statement>
-      GRANT SELECT ON agents_properties TO northpike_read_only
     </Statement>
 
     <Comment>
@@ -623,6 +561,32 @@ CREATE VIEW agent_label_search AS
     </Statement>
     <Statement>
       GRANT SELECT ON agent_label_search TO northpike_read_only
+    </Statement>
+
+    <Comment>
+      The agent_login_challenges table stores the login challenges that have
+      been issued to connecting agents.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE agent_login_challenges (
+  alc_id         UUID                     NOT NULL,
+  alc_created    TIMESTAMP WITH TIME ZONE NOT NULL,
+  alc_source     TEXT                     NOT NULL,
+  alc_key_algo   TEXT                     NOT NULL,
+  alc_key_data   TEXT                     NOT NULL,
+  alc_challenge  BYTEA                    NOT NULL,
+
+  CONSTRAINT agent_login_challenges_primary_key
+    PRIMARY KEY (alc_id)
+)
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE, DELETE ON agent_login_challenges TO northpike
+    </Statement>
+    <Statement>
+      GRANT SELECT ON agent_login_challenges TO northpike_read_only
     </Statement>
 
     <Comment>

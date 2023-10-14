@@ -22,8 +22,8 @@
 
   <modules>
     <module>com.io7m.northpike.agent.api</module>
-    <module>com.io7m.northpike.agent.configuration</module>
-    <module>com.io7m.northpike.agent.main</module>
+    <module>com.io7m.northpike.agent.database.api</module>
+    <module>com.io7m.northpike.agent.database.sqlite</module>
     <module>com.io7m.northpike.agent</module>
     <module>com.io7m.northpike.clock</module>
     <module>com.io7m.northpike.connections</module>
@@ -735,6 +735,13 @@
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-http</artifactId>
         <version>${jetty.version}</version>
+      </dependency>
+
+      <!-- Agent database. -->
+      <dependency>
+        <groupId>org.xerial</groupId>
+        <artifactId>sqlite-jdbc</artifactId>
+        <version>3.43.0.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

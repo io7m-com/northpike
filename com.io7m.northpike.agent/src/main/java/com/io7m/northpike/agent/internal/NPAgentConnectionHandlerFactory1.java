@@ -20,6 +20,7 @@ import com.io7m.genevan.core.GenProtocolIdentifier;
 import com.io7m.genevan.core.GenProtocolVersion;
 import com.io7m.northpike.agent.api.NPAgentConfiguration;
 import com.io7m.northpike.protocol.agent.cb.NPA1Messages;
+import com.io7m.northpike.strings.NPStrings;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -55,12 +56,14 @@ public final class NPAgentConnectionHandlerFactory1
 
   @Override
   public NPAgentConnectionHandlerType createHandler(
+    final NPStrings strings,
     final NPAgentConfiguration configuration,
     final Socket socket,
     final InputStream inputStream,
     final OutputStream outputStream)
   {
     return new NPAgentConnectionHandler1(
+      strings,
       configuration,
       socket,
       inputStream,

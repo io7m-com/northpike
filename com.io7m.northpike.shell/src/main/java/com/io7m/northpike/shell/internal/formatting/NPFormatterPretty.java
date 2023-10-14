@@ -18,10 +18,6 @@
 package com.io7m.northpike.shell.internal.formatting;
 
 import com.io7m.medrina.api.MRoleName;
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabel;
-import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
@@ -33,6 +29,10 @@ import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPWorkItem;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentLabel;
+import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanSummary;
@@ -369,8 +369,11 @@ public final class NPFormatterPretty implements NPFormatterType
         .addCell("Name")
         .addCell(agent.name());
       builder.addRow()
-        .addCell("Access Key")
-        .addCell(agent.accessKey().format());
+        .addCell("Public Key")
+        .addCell("%s:%s".formatted(
+          agent.publicKey().algorithm(),
+          agent.publicKey().asText()
+        ));
 
       this.renderTable(builder.build());
     }

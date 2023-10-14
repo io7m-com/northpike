@@ -16,9 +16,9 @@
 
 package com.io7m.northpike.shell.internal;
 
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
 import com.io7m.northpike.protocol.user.NPUCommandAgentGet;
 import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
 import com.io7m.quarrel.core.QCommandContextType;
@@ -60,13 +60,13 @@ public final class NPShellCmdAgentPut extends NPShellCmdAbstract
       String.class
     );
 
-  private static final QParameterNamed1<NPKey> AGENT_ACCESS_KEY =
+  private static final QParameterNamed1<NPAgentKeyPublicType> AGENT_PUBLIC_KEY =
     new QParameterNamed1<>(
-      "--access-key",
+      "--public-key",
       List.of(),
-      new QConstant("The agent access key."),
+      new QConstant("The agent public key."),
       Optional.empty(),
-      NPKey.class
+      NPAgentKeyPublicType.class
     );
 
   /**
@@ -94,7 +94,7 @@ public final class NPShellCmdAgentPut extends NPShellCmdAbstract
     return List.of(
       AGENT_ID,
       AGENT_NAME,
-      AGENT_ACCESS_KEY
+      AGENT_PUBLIC_KEY
     );
   }
 
@@ -120,7 +120,7 @@ public final class NPShellCmdAgentPut extends NPShellCmdAbstract
           return new NPAgentDescription(
             existing.id(),
             context.parameterValue(AGENT_NAME),
-            context.parameterValue(AGENT_ACCESS_KEY),
+            context.parameterValue(AGENT_PUBLIC_KEY),
             existing.environmentVariables(),
             existing.systemProperties(),
             existing.labels()
@@ -129,7 +129,7 @@ public final class NPShellCmdAgentPut extends NPShellCmdAbstract
         .orElse(new NPAgentDescription(
           context.parameterValue(AGENT_ID),
           context.parameterValue(AGENT_NAME),
-          context.parameterValue(AGENT_ACCESS_KEY),
+          context.parameterValue(AGENT_PUBLIC_KEY),
           Map.of(),
           Map.of(),
           Map.of()

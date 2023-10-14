@@ -21,26 +21,58 @@ import com.io7m.northpike.agent.api.NPAgentConfiguration;
 import com.io7m.northpike.agent.api.NPAgentFactoryType;
 import com.io7m.northpike.agent.api.NPAgentType;
 import com.io7m.northpike.agent.internal.NPAgent;
+import com.io7m.northpike.strings.NPStrings;
+
+import java.util.Locale;
+import java.util.Objects;
 
 /**
- * The basic agents.
+ * A factory of agents.
  */
 
 public final class NPAgents implements NPAgentFactoryType
 {
+  private final NPStrings strings;
+
   /**
-   * The basic agents.
+   * A factory of agents.
    */
 
   public NPAgents()
   {
+    this(Locale.getDefault());
+  }
 
+  /**
+   * A factory of agents.
+   *
+   * @param locale The locale for string resources
+   */
+
+  public NPAgents(
+    final Locale locale)
+  {
+    this(NPStrings.create(locale));
+  }
+
+  /**
+   * A factory of agents.
+   *
+   * @param inStrings The string resources
+   */
+
+  public NPAgents(
+    final NPStrings inStrings)
+  {
+    this.strings =
+      Objects.requireNonNull(inStrings, "inStrings");
   }
 
   @Override
   public NPAgentType createAgent(
     final NPAgentConfiguration configuration)
+    throws InterruptedException
   {
-    return NPAgent.open(configuration);
+    return NPAgent.open(this.strings, configuration);
   }
 }

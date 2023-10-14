@@ -20,7 +20,7 @@ import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.DeleteType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
-import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentID;
 import org.jooq.DSLContext;
 
 import static com.io7m.northpike.database.postgres.internal.tables.Agents.AGENTS;
@@ -67,7 +67,6 @@ public final class NPDBQAgentDelete
     final var updated =
       context.update(AGENTS)
         .set(AGENTS.A_DELETED, Boolean.TRUE)
-        .set(AGENTS.A_ACCESS_KEY, (String) null)
         .where(AGENTS.A_ID.eq(id.value()))
         .execute();
 

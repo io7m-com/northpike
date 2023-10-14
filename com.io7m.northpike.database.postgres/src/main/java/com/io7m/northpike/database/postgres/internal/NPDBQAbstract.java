@@ -19,6 +19,7 @@ package com.io7m.northpike.database.postgres.internal;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueryType;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
 import io.opentelemetry.api.trace.Span;
@@ -110,6 +111,16 @@ abstract class NPDBQAbstract<P, R>
         e,
         this.attributes
       );
+    } catch (final NPDatabaseException e) {
+      throw e;
+    } catch (final NPException e) {
+      throw new NPDatabaseException(
+        e.getMessage(),
+        e,
+        e.errorCode(),
+        e.attributes(),
+        e.remediatingAction()
+      );
     } finally {
       querySpan.end();
     }
@@ -118,7 +129,7 @@ abstract class NPDBQAbstract<P, R>
   protected abstract R onExecute(
     DSLContext context,
     P parameters)
-    throws NPDatabaseException;
+    throws NPException;
 
   protected final Map<String, String> attributes()
   {

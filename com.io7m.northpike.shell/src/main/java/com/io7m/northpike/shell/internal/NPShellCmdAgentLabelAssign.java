@@ -16,10 +16,10 @@
 
 package com.io7m.northpike.shell.internal;
 
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabel;
-import com.io7m.northpike.model.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentLabel;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
 import com.io7m.northpike.protocol.user.NPUCommandAgentGet;
 import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
 import com.io7m.northpike.strings.NPStringConstants;
@@ -128,7 +128,7 @@ public final class NPShellCmdAgentLabelAssign extends NPShellCmdAbstract
       new NPAgentDescription(
         existingAgent.id(),
         existingAgent.name(),
-        existingAgent.accessKey(),
+        existingAgent.publicKey(),
         Map.of(),
         Map.of(),
         existingLabels

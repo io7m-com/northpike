@@ -19,8 +19,8 @@ package com.io7m.northpike.protocol.agent.cb.internal;
 import com.io7m.cedarbridge.runtime.convenience.CBLists;
 import com.io7m.cedarbridge.runtime.convenience.CBMaps;
 import com.io7m.cedarbridge.runtime.convenience.CBSets;
-import com.io7m.northpike.model.NPAgentResourceName;
-import com.io7m.northpike.model.NPAgentWorkItem;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.protocol.agent.cb.NPA1AgentWorkItem;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 

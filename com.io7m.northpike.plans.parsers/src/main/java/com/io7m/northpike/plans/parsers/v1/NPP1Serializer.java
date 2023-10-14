@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.plans.parsers.v1;
 
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
 import com.io7m.northpike.model.NPFailureFail;
 import com.io7m.northpike.model.NPFailureIgnore;
 import com.io7m.northpike.model.NPFailurePolicyType;

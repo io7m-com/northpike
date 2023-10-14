@@ -28,7 +28,7 @@ import static com.io7m.northpike.model.NPWorkItemStatus.WORK_ITEM_SUCCEEDED;
  */
 
 public final class NPACmdWorkItemSucceeded
-  implements NPAgentCommandExecutorType<NPAResponseOK, NPACommandCWorkItemSucceeded>
+  extends NPACmdAbstract<NPAResponseOK, NPACommandCWorkItemSucceeded>
 {
   /**
    * @see NPACommandCWorkItemSucceeded
@@ -36,7 +36,7 @@ public final class NPACmdWorkItemSucceeded
 
   public NPACmdWorkItemSucceeded()
   {
-
+    super(NPACommandCWorkItemSucceeded.class);
   }
 
   @Override

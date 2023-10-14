@@ -16,6 +16,7 @@
 
 import com.io7m.northpike.plans.compiler.NPPlanCompilerFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
+import com.io7m.northpike.server.internal.agents.NPAgentCommandExecutorType;
 import com.io7m.northpike.server.internal.telemetry.NPTelemetryServices;
 import com.io7m.northpike.server.internal.users.NPUserCommandExecutorType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
@@ -71,6 +72,7 @@ module com.io7m.northpike.server
   requires org.eclipse.jetty.server;
   requires org.slf4j;
 
+  uses NPAgentCommandExecutorType;
   uses NPPlanCompilerFactoryType;
   uses NPPlanParserFactoryType;
   uses NPTXParserFactoryType;
@@ -79,6 +81,17 @@ module com.io7m.northpike.server
 
   provides NPTelemetryServiceFactoryType
     with NPTelemetryServices;
+
+  provides NPAgentCommandExecutorType with
+    com.io7m.northpike.server.internal.agents.NPACmdDisconnect,
+    com.io7m.northpike.server.internal.agents.NPACmdEnvironmentInfo,
+    com.io7m.northpike.server.internal.agents.NPACmdLogin,
+    com.io7m.northpike.server.internal.agents.NPACmdLoginComplete,
+    com.io7m.northpike.server.internal.agents.NPACmdWorkItemFailed,
+    com.io7m.northpike.server.internal.agents.NPACmdWorkItemOutput,
+    com.io7m.northpike.server.internal.agents.NPACmdWorkItemStarted,
+    com.io7m.northpike.server.internal.agents.NPACmdWorkItemSucceeded
+  ;
 
   provides NPUserCommandExecutorType with
     com.io7m.northpike.server.internal.users.NPUCmdAgentGet,

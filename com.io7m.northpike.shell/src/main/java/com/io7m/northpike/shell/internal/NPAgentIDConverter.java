@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.shell.internal;
 
-import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.quarrel.core.QValueConverterType;
 
 import java.util.UUID;

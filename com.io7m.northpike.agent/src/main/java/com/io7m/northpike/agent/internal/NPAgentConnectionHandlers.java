@@ -75,6 +75,7 @@ public final class NPAgentConnectionHandlers
   /**
    * Open a new connection handler.
    *
+   * @param strings       The string resources
    * @param configuration The configuration
    *
    * @return A new connection handler
@@ -83,18 +84,22 @@ public final class NPAgentConnectionHandlers
    */
 
   public static NPAgentConnectionHandlerType openConnectionHandler(
+    final NPStrings strings,
     final NPAgentConfiguration configuration)
     throws NPAgentException
   {
+    final var server =
+      configuration.server();
+
     final var socketAddress =
       new InetSocketAddress(
-        configuration.remoteAddress(),
-        configuration.remotePort()
+        server.hostname(),
+        server.port()
       );
 
     try {
       final var socket =
-        configuration.useTLS()
+        server.useTLS()
           ? SOCKETS_TLS.createSocket()
           : SOCKETS.createSocket();
 
@@ -102,13 +107,13 @@ public final class NPAgentConnectionHandlers
         socket.setTcpNoDelay(true);
         socket.setPerformancePreferences(1, 2, 0);
         socket.connect(socketAddress, 10);
-        return negotiateVersion(configuration, socket);
+        return negotiateVersion(strings, configuration, socket);
       } catch (final IOException | NPProtocolException e) {
         socket.close();
         throw e;
       }
     } catch (final IOException e) {
-      throw NPAgentExceptions.errorIO(configuration.strings(), e);
+      throw NPAgentExceptions.errorIO(strings, e);
     } catch (final NPProtocolException e) {
       throw NPAgentExceptions.errorProtocol(e);
     }
@@ -125,6 +130,7 @@ public final class NPAgentConnectionHandlers
   }
 
   private static NPAgentConnectionHandlerType negotiateVersion(
+    final NPStrings strings,
     final NPAgentConfiguration configuration,
     final Socket socket)
     throws IOException, NPAgentException, NPProtocolException
@@ -136,6 +142,7 @@ public final class NPAgentConnectionHandlers
 
     final var available =
       readNPIMessageOfType(
+        strings,
         configuration,
         inputStream,
         NPIProtocolsAvailable.class
@@ -157,6 +164,7 @@ public final class NPAgentConnectionHandlers
 
     final var confirmed =
       readNPIMessageOfType(
+        strings,
         configuration,
         inputStream,
         NPIProtocol.class
@@ -164,7 +172,7 @@ public final class NPAgentConnectionHandlers
 
     if (!chosen.equals(confirmed)) {
       throw errorServerFailedConfirmation(
-        configuration.strings(),
+        strings,
         chosen,
         confirmed
       );
@@ -172,6 +180,7 @@ public final class NPAgentConnectionHandlers
 
     return solved.clientHandler()
       .createHandler(
+        strings,
         configuration,
         socket,
         inputStream,
@@ -227,17 +236,19 @@ public final class NPAgentConnectionHandlers
   }
 
   private static <M extends NPIMessageType> M readNPIMessageOfType(
+    final NPStrings strings,
     final NPAgentConfiguration configuration,
     final InputStream inputStream,
     final Class<M> clazz)
     throws IOException, NPAgentException, NPProtocolException
   {
-    final var strings =
-      configuration.strings();
+    final var server =
+      configuration.server();
+
     final var message =
       NPI_MESSAGES.readLengthPrefixed(
         strings,
-        configuration.messageSizeLimit(),
+        server.messageSizeLimit(),
         inputStream
       );
 

@@ -19,9 +19,9 @@ package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.jaffirm.core.Preconditions;
 import com.io7m.jmulticlose.core.CloseableType;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentWorkItem;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.repetoir.core.RPServiceType;

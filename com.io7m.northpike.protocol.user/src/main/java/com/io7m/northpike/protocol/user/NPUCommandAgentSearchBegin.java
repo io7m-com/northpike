@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.model.NPAgentSearchParameters;
+import com.io7m.northpike.model.agents.NPAgentSearchParameters;
 
 import java.util.Objects;
 import java.util.UUID;

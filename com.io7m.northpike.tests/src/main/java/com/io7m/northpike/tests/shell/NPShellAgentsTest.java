@@ -18,16 +18,16 @@
 package com.io7m.northpike.tests.shell;
 
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabel;
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentSummary;
-import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
+import com.io7m.northpike.model.agents.NPAgentLabel;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.protocol.user.NPUCommandAgentGet;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelDelete;
@@ -178,8 +178,7 @@ public final class NPShellAgentsTest
       new NPAgentDescription(
         new NPAgentID(UUID.randomUUID()),
         "AgentExample",
-        NPKey.parse(
-          "8ea1b01d8fe352552e97cb727eee4f5a948a0919dc3f1d0c2f194c2aed52e4e1"),
+        new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
         Map.ofEntries(
           Map.entry(
             "PATH",
@@ -223,14 +222,18 @@ public final class NPShellAgentsTest
       Optional.of(agent)
     ));
 
+    final var key =
+      new NPAgentKeyPairFactoryEd448()
+        .generateKeyPair()
+        .publicKey();
+
     final var w = this.terminal.sendInputToTerminalWriter();
     w.println("set --terminate-on-errors true");
 
     w.print("agent-put ");
     w.print(" --id e10f1d49-3e4c-40e3-81dd-b771a38ec243 ");
     w.print(" --name AgentExample ");
-    w.print(
-      " --access-key 8ea1b01d8fe352552e97cb727eee4f5a948a0919dc3f1d0c2f194c2aed52e4e1");
+    w.printf(" --public-key %s:%s ", key.algorithm(), key.asText());
     w.println();
 
     w.print("agent-get ");
@@ -575,7 +578,7 @@ public final class NPShellAgentsTest
       new NPAgentDescription(
         new NPAgentID(UUID.randomUUID()),
         "Agent0",
-        NPKey.generate(),
+        new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
         Map.of(),
         Map.of(),
         Map.of()
@@ -617,7 +620,7 @@ public final class NPShellAgentsTest
       new NPAgentDescription(
         new NPAgentID(UUID.randomUUID()),
         "Agent0",
-        NPKey.generate(),
+        new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
         Map.of(),
         Map.of(),
         Map.of()

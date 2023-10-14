@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.model.NPAgentLabelSearchParameters;
+import com.io7m.northpike.model.agents.NPAgentLabelSearchParameters;
 
 import java.util.Objects;
 import java.util.UUID;

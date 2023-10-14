@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.tests.plans;
 
-import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;

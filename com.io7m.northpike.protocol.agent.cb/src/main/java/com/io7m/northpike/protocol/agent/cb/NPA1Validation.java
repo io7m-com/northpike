@@ -20,6 +20,7 @@ package com.io7m.northpike.protocol.agent.cb;
 import com.io7m.northpike.protocol.agent.NPACommandCDisconnect;
 import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
 import com.io7m.northpike.protocol.agent.NPACommandCLogin;
+import com.io7m.northpike.protocol.agent.NPACommandCLoginComplete;
 import com.io7m.northpike.protocol.agent.NPACommandCWorkItemFailed;
 import com.io7m.northpike.protocol.agent.NPACommandCWorkItemOutput;
 import com.io7m.northpike.protocol.agent.NPACommandCWorkItemStarted;
@@ -32,6 +33,7 @@ import com.io7m.northpike.protocol.agent.NPAEventType;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.NPAResponseError;
 import com.io7m.northpike.protocol.agent.NPAResponseLatencyCheck;
+import com.io7m.northpike.protocol.agent.NPAResponseLoginChallenge;
 import com.io7m.northpike.protocol.agent.NPAResponseOK;
 import com.io7m.northpike.protocol.agent.NPAResponseType;
 import com.io7m.northpike.protocol.agent.NPAResponseWorkOffered;
@@ -42,6 +44,7 @@ import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandCDisconnect.COMMAND_DISCONNECT;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandCEnvironmentInfo.COMMAND_ENVIRONMENT_INFO;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandCLogin.COMMAND_LOGIN;
+import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandCLoginComplete.COMMAND_LOGIN_COMPLETE;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandCWorkItemFailed.COMMAND_WORK_ITEM_FAILED;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandCWorkItemOutput.COMMAND_WORK_ITEM_OUTPUT;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandCWorkItemStarted.COMMAND_WORK_ITEM_STARTED;
@@ -50,6 +53,7 @@ import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandSLatencyC
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandSWorkOffered.COMMAND_WORK_OFFERED;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCommandSWorkSent.COMMAND_WORK_SENT;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVResponseError.RESPONSE_ERROR;
+import static com.io7m.northpike.protocol.agent.cb.internal.NPAVResponseLoginChallenge.RESPONSE_LOGIN_CHALLENGE;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVResponseOK.RESPONSE_OK;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVResponseSLatencyCheck.RESPONSE_LATENCY_CHECK;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVResponseSWorkOffered.RESPONSE_WORK_OFFERED;
@@ -102,6 +106,9 @@ public final class NPA1Validation
     if (response instanceof final NPAResponseOK r) {
       return RESPONSE_OK.convertToWire(r);
     }
+    if (response instanceof final NPAResponseLoginChallenge r) {
+      return RESPONSE_LOGIN_CHALLENGE.convertToWire(r);
+    }
     if (response instanceof final NPAResponseError r) {
       return RESPONSE_ERROR.convertToWire(r);
     }
@@ -123,6 +130,9 @@ public final class NPA1Validation
   {
     if (command instanceof final NPACommandCLogin c) {
       return COMMAND_LOGIN.convertToWire(c);
+    }
+    if (command instanceof final NPACommandCLoginComplete c) {
+      return COMMAND_LOGIN_COMPLETE.convertToWire(c);
     }
     if (command instanceof final NPACommandCEnvironmentInfo c) {
       return COMMAND_ENVIRONMENT_INFO.convertToWire(c);
@@ -158,9 +168,13 @@ public final class NPA1Validation
   @Override
   public NPAMessageType convertFromWire(
     final ProtocolNPAv1Type message)
+    throws NPProtocolException
   {
     if (message instanceof final NPA1CommandCLogin c) {
       return COMMAND_LOGIN.convertFromWire(c);
+    }
+    if (message instanceof final NPA1CommandCLoginComplete c) {
+      return COMMAND_LOGIN_COMPLETE.convertFromWire(c);
     }
     if (message instanceof final NPA1CommandCEnvironmentInfo c) {
       return COMMAND_ENVIRONMENT_INFO.convertFromWire(c);
@@ -190,6 +204,9 @@ public final class NPA1Validation
       return COMMAND_WORK_SENT.convertFromWire(c);
     }
 
+    if (message instanceof final NPA1ResponseLoginChallenge r) {
+      return RESPONSE_LOGIN_CHALLENGE.convertFromWire(r);
+    }
     if (message instanceof final NPA1ResponseError r) {
       return RESPONSE_ERROR.convertFromWire(r);
     }

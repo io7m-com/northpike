@@ -23,18 +23,19 @@ import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabel;
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentWorkItem;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyID;
+import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
+import com.io7m.northpike.model.agents.NPAgentLabel;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.protocol.agent.NPACommandSLatencyCheck;
 import com.io7m.northpike.protocol.agent.NPACommandSWorkOffered;
@@ -95,12 +96,14 @@ public final class NPAgentTask
   private final NPTelemetryServiceType telemetry;
   private final ConcurrentLinkedQueue<InternalCommandType> enqueuedCommands;
   private final HashMap<String, String> attributes;
+  private final RPServiceDirectoryType services;
   private NPAgentID agentId;
   private NPAMessageType messageCurrent;
   private volatile NPWorkItem workItemNow;
 
   private NPAgentTask(
     final NPAgentServerConnectionType inConnection,
+    final RPServiceDirectoryType inServices,
     final NPStrings inStrings,
     final NPClockServiceType inClock,
     final NPDatabaseType inDatabase,
@@ -109,6 +112,8 @@ public final class NPAgentTask
   {
     this.connection =
       Objects.requireNonNull(inConnection, "connection");
+    this.services =
+      Objects.requireNonNull(inServices, "services");
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
     this.clock =
@@ -163,6 +168,7 @@ public final class NPAgentTask
     try {
       return new NPAgentTask(
         NPAgentServerConnection.open(strings, sizeLimit, socket),
+        services,
         strings,
         clock,
         database,
@@ -364,7 +370,7 @@ public final class NPAgentTask
         this.attributes.put(this.strings.format(AGENT_ID), agent.toString());
       });
 
-    this.connection.send(new NPACmd().execute(this, message));
+    this.connection.send(NPACmd.create().execute(this, message));
   }
 
   @Override
@@ -372,6 +378,12 @@ public final class NPAgentTask
   {
     return "[NPAgentTask 0x%s]"
       .formatted(Integer.toUnsignedString(this.hashCode(), 16));
+  }
+
+  @Override
+  public RPServiceDirectoryType services()
+  {
+    return this.services;
   }
 
   @Override
@@ -397,6 +409,19 @@ public final class NPAgentTask
         this.agentId
       )
     );
+  }
+
+  @Override
+  public void onAuthenticationFailed(
+    final Optional<NPAgentKeyID> keyID,
+    final NPStringConstantType message)
+  {
+    this.events.emit(new NPAgentAuthenticationFailed(
+      this.connection.remoteAddress().getAddress(),
+      this.connection.remoteAddress().getPort(),
+      keyID,
+      this.strings.format(message)
+    ));
   }
 
   @Override
@@ -475,7 +500,7 @@ public final class NPAgentTask
 
   @Override
   public Optional<NPAgentDescription> agentFindForKey(
-    final NPKey key)
+    final NPAgentKeyPublicType key)
     throws NPDatabaseException
   {
     try (var dbConn = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
@@ -523,6 +548,12 @@ public final class NPAgentTask
     }
 
     this.events.emit(new NPAgentWorkItemAccepted(this.agentId, identifier));
+  }
+
+  @Override
+  public String sourceAddress()
+  {
+    return this.connection.remoteAddress().toString();
   }
 
   @Override

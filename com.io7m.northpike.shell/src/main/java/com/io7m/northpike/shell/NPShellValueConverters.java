@@ -18,18 +18,18 @@
 package com.io7m.northpike.shell;
 
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentLabelSet;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPFormatName;
-import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPRepositoryCredentialsType;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolExecutionIdentifierSet;
 import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentLabelSet;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanName;
@@ -37,10 +37,10 @@ import com.io7m.northpike.model.security.NPRoleSet;
 import com.io7m.northpike.shell.internal.NPAgentIDConverter;
 import com.io7m.northpike.shell.internal.NPAgentLabelNameConverter;
 import com.io7m.northpike.shell.internal.NPAgentLabelSetConverter;
+import com.io7m.northpike.shell.internal.NPAgentPublicKeyConverter;
 import com.io7m.northpike.shell.internal.NPAssignmentNameConverter;
 import com.io7m.northpike.shell.internal.NPFingerprintConverter;
 import com.io7m.northpike.shell.internal.NPFormatNameConverter;
-import com.io7m.northpike.shell.internal.NPKeyConverter;
 import com.io7m.northpike.shell.internal.NPPlanIdentifierConverter;
 import com.io7m.northpike.shell.internal.NPPlanNameConverter;
 import com.io7m.northpike.shell.internal.NPRepositoryCredentialsConverter;
@@ -72,8 +72,8 @@ public final class NPShellValueConverters
         NPAgentID.class,
         new NPAgentIDConverter())
       .with(
-        NPKey.class,
-        new NPKeyConverter())
+        NPAgentKeyPublicType.class,
+        new NPAgentPublicKeyConverter())
       .with(
         RDottedName.class,
         new RDottedNameConverter())

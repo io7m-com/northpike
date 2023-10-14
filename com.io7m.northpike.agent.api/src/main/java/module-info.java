@@ -23,11 +23,10 @@ module com.io7m.northpike.agent.api
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
-  requires com.io7m.northpike.strings;
   requires com.io7m.northpike.model;
 
   requires com.io7m.jmulticlose.core;
-  requires com.io7m.jattribute.core;
+  requires com.io7m.repetoir.core;
 
   exports com.io7m.northpike.agent.api;
 }

@@ -21,11 +21,17 @@ import com.io7m.northpike.agent.api.NPAgentConfiguration;
 import com.io7m.northpike.agent.api.NPAgentException;
 import com.io7m.northpike.connections.NPMessageConnectionAbstract;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
+import com.io7m.northpike.model.agents.NPAgentLoginChallenge;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeCompletion;
 import com.io7m.northpike.protocol.agent.NPACommandCLogin;
+import com.io7m.northpike.protocol.agent.NPACommandCLoginComplete;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.NPAResponseError;
+import com.io7m.northpike.protocol.agent.NPAResponseLoginChallenge;
 import com.io7m.northpike.protocol.agent.NPAResponseOK;
 import com.io7m.northpike.protocol.agent.NPAResponseType;
+import com.io7m.northpike.strings.NPStrings;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -51,49 +57,115 @@ public final class NPAgentConnection
    * Open a connection to the server and attempt to authenticate. If the
    * connection or authentication fails, all resources are released.
    *
+   * @param strings       The strings
    * @param configuration The agent configuration
    *
    * @return An open, authenticated connection
    *
+   * @throws IOException          On I/O errors
    * @throws NPException          On errors
    * @throws InterruptedException On interruption
    */
 
   public static NPAgentConnectionType open(
+    final NPStrings strings,
     final NPAgentConfiguration configuration)
     throws NPException, InterruptedException, IOException
   {
+    final var publicKey =
+      configuration.agent()
+        .keyPair()
+        .publicKey();
+
+    final var privateKey =
+      configuration.agent()
+        .keyPair()
+        .privateKey();
+
     final var connection =
       new NPAgentConnection(
-        NPAgentConnectionHandlers.openConnectionHandler(configuration)
+        NPAgentConnectionHandlers.openConnectionHandler(strings, configuration)
       );
 
     try {
-      final var response =
-        connection.ask(NPACommandCLogin.of(configuration.accessKey()));
+      final var challenge =
+        startLoginChallenge(strings, publicKey, connection);
+      final var signature =
+        privateKey.signData(challenge.challenge().data());
 
-      if (response instanceof final NPAResponseOK ok) {
-        return connection;
-      }
-
-      if (response instanceof final NPAResponseError error) {
-        throw new NPAgentException(
-          error.message(),
-          error.errorCode(),
-          error.attributes(),
-          Optional.empty()
-        );
-      }
-
-      throw errorUnexpectedMessage(
-        configuration.strings(),
-        NPAResponseOK.class,
-        response
+      return finishLoginChallenge(
+        strings,
+        challenge.challenge(),
+        signature,
+        connection
       );
     } catch (final Exception e) {
       connection.close();
       throw e;
     }
+  }
+
+  private static NPAgentConnectionType finishLoginChallenge(
+    final NPStrings strings,
+    final NPAgentLoginChallenge challenge,
+    final byte[] signature,
+    final NPAgentConnection connection)
+    throws NPException, IOException, InterruptedException
+  {
+    final var response =
+      connection.ask(
+        NPACommandCLoginComplete.of(
+          new NPAgentLoginChallengeCompletion(challenge.id(), signature)
+        )
+      );
+
+    if (response instanceof final NPAResponseError error) {
+      throw new NPAgentException(
+        error.message(),
+        error.errorCode(),
+        error.attributes(),
+        Optional.empty()
+      );
+    }
+
+    if (response instanceof NPAResponseOK) {
+      return connection;
+    }
+
+    throw errorUnexpectedMessage(
+      strings,
+      NPAResponseOK.class,
+      response
+    );
+  }
+
+  private static NPAResponseLoginChallenge startLoginChallenge(
+    final NPStrings strings,
+    final NPAgentKeyPublicType key,
+    final NPAgentConnection connection)
+    throws NPException, InterruptedException, IOException
+  {
+    final var response =
+      connection.ask(NPACommandCLogin.of(key));
+
+    if (response instanceof final NPAResponseError error) {
+      throw new NPAgentException(
+        error.message(),
+        error.errorCode(),
+        error.attributes(),
+        Optional.empty()
+      );
+    }
+
+    if (response instanceof final NPAResponseLoginChallenge challenge) {
+      return challenge;
+    }
+
+    throw errorUnexpectedMessage(
+      strings,
+      NPAResponseLoginChallenge.class,
+      response
+    );
   }
 
   @Override

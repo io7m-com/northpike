@@ -17,10 +17,10 @@
 
 package com.io7m.northpike.server.internal.agents;
 
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
 
 import java.util.Optional;
 
@@ -55,7 +55,7 @@ public interface NPAgentAccessType
    */
 
   Optional<NPAgentDescription> agentFindForKey(
-    NPKey key)
+    NPAgentKeyPublicType key)
     throws NPException;
 
   /**

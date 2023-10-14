@@ -16,7 +16,7 @@
 
 package com.io7m.northpike.shell.internal;
 
-import com.io7m.northpike.model.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelDelete;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.quarrel.core.QCommandContextType;

@@ -20,7 +20,11 @@ package com.io7m.northpike.tests.agent;
 import com.io7m.northpike.agent.api.NPAgentConfiguration;
 import com.io7m.northpike.agent.api.NPAgentException;
 import com.io7m.northpike.model.NPErrorCode;
-import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
+import com.io7m.northpike.model.agents.NPAgentLocalDescription;
+import com.io7m.northpike.model.agents.NPAgentLocalName;
+import com.io7m.northpike.model.agents.NPAgentServerDescription;
+import com.io7m.northpike.model.agents.NPAgentServerID;
 import com.io7m.northpike.protocol.agent.NPACommandCDisconnect;
 import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
 import com.io7m.northpike.protocol.agent.NPAResponseOK;
@@ -59,10 +63,6 @@ public final class NPAgentConnectionHandlerTest
   private static final Logger LOG =
     LoggerFactory.getLogger(NPAgentConnectionHandlerTest.class);
 
-  private static final NPKey KEY =
-    NPKey.parse(
-      "52864e79eb41c62842e31cad2382584b18621c2a699d80844e92292882795b8e");
-
   private static final NPIMessages NPI_MESSAGES =
     new NPIMessages();
 
@@ -99,12 +99,17 @@ public final class NPAgentConnectionHandlerTest
 
     this.configuration =
       new NPAgentConfiguration(
-        this.strings,
-        this.socket.getInetAddress(),
-        this.socket.getLocalPort(),
-        false,
-        KEY,
-        1_000_000
+        new NPAgentLocalDescription(
+          NPAgentLocalName.of("x"),
+          new NPAgentKeyPairFactoryEd448().generateKeyPair()
+        ),
+        new NPAgentServerDescription(
+          new NPAgentServerID(UUID.randomUUID()),
+          this.socket.getInetAddress().getHostName(),
+          this.socket.getLocalPort(),
+          false,
+          1_000_000
+        )
       );
   }
 
@@ -171,7 +176,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.configuration);
+        openConnectionHandler(this.strings, this.configuration);
       });
 
     assertEquals("go-away", ex.errorCode().id());
@@ -230,7 +235,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.configuration);
+        openConnectionHandler(this.strings, this.configuration);
       });
 
     assertEquals("error-io", ex.errorCode().id());
@@ -278,7 +283,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.configuration);
+        openConnectionHandler(this.strings, this.configuration);
       });
 
     assertEquals("error-no-supported-protocols", ex.errorCode().id());
@@ -326,7 +331,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.configuration);
+        openConnectionHandler(this.strings, this.configuration);
       });
 
     assertEquals("error-protocol", ex.errorCode().id());
@@ -358,7 +363,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.configuration);
+        openConnectionHandler(this.strings, this.configuration);
       });
 
     assertEquals("error-io", ex.errorCode().id());
@@ -400,7 +405,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.configuration);
+        openConnectionHandler(this.strings, this.configuration);
       });
 
     assertEquals("error-protocol", ex.errorCode().id());
@@ -438,7 +443,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.configuration);
+        openConnectionHandler(this.strings, this.configuration);
       });
 
     assertEquals("error-io", ex.errorCode().id());
@@ -480,7 +485,7 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.configuration);
+        openConnectionHandler(this.strings, this.configuration);
       });
 
     assertEquals("error-io", ex.errorCode().id());
@@ -562,7 +567,7 @@ public final class NPAgentConnectionHandlerTest
 
     this.serverAcceptLatch.countDown();
 
-    try (var connection = openConnectionHandler(this.configuration)) {
+    try (var connection = openConnectionHandler(this.strings, this.configuration)) {
       connection.send(NPACommandCEnvironmentInfo.of());
       connection.send(NPACommandCDisconnect.of());
     }

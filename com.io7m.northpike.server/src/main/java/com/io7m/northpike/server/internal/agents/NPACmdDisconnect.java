@@ -26,7 +26,7 @@ import com.io7m.northpike.protocol.agent.NPAResponseOK;
  */
 
 public final class NPACmdDisconnect
-  implements NPAgentCommandExecutorType<NPAResponseOK, NPACommandCDisconnect>
+  extends NPACmdAbstract<NPAResponseOK, NPACommandCDisconnect>
 {
   /**
    * @see NPACommandCDisconnect
@@ -34,7 +34,7 @@ public final class NPACmdDisconnect
 
   public NPACmdDisconnect()
   {
-
+    super(NPACommandCDisconnect.class);
   }
 
   @Override

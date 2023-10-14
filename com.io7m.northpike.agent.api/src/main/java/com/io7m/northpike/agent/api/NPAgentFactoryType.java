@@ -26,14 +26,14 @@ public interface NPAgentFactoryType
   /**
    * Create a new agent.
    *
-   * @param configuration The configuration
+   * @param configuration The initial configuration
    *
-   * @return A new agent
+   * @return An agent
    *
    * @throws NPAgentException On errors
    */
 
   NPAgentType createAgent(
     NPAgentConfiguration configuration)
-    throws NPAgentException;
+    throws NPAgentException, InterruptedException;
 }

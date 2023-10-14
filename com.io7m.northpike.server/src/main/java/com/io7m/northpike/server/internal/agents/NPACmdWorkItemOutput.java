@@ -26,7 +26,7 @@ import com.io7m.northpike.protocol.agent.NPAResponseOK;
  */
 
 public final class NPACmdWorkItemOutput
-  implements NPAgentCommandExecutorType<NPAResponseOK, NPACommandCWorkItemOutput>
+  extends NPACmdAbstract<NPAResponseOK, NPACommandCWorkItemOutput>
 {
   /**
    * @see NPACommandCWorkItemOutput
@@ -34,7 +34,7 @@ public final class NPACmdWorkItemOutput
 
   public NPACmdWorkItemOutput()
   {
-
+    super(NPACommandCWorkItemOutput.class);
   }
 
   @Override

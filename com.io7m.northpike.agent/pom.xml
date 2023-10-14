@@ -21,17 +21,12 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.connections</artifactId>
+      <artifactId>com.io7m.northpike.agent.api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.model</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.agent.api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -61,14 +56,15 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.connections</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.strings</artifactId>
       <version>${project.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>com.io7m.jattribute</groupId>
-      <artifactId>com.io7m.jattribute.core</artifactId>
-    </dependency>
     <dependency>
       <groupId>com.io7m.genevan</groupId>
       <artifactId>com.io7m.genevan.core</artifactId>

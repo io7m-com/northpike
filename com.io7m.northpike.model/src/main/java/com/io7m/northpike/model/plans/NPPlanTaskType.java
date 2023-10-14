@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.model.plans;
 
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
 import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;

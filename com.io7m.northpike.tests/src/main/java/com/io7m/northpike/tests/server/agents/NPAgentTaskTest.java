@@ -33,15 +33,11 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentWorkItem;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
-import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
@@ -53,6 +49,13 @@ import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPairEd448Type;
+import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
+import com.io7m.northpike.model.agents.NPAgentKeyPublicEd448Type;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeCompletion;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentExecution;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
@@ -66,6 +69,7 @@ import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.parsers.NPPlanSerializers;
 import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
 import com.io7m.northpike.protocol.agent.NPACommandCLogin;
+import com.io7m.northpike.protocol.agent.NPACommandCLoginComplete;
 import com.io7m.northpike.protocol.agent.NPACommandCWorkItemFailed;
 import com.io7m.northpike.protocol.agent.NPACommandCWorkItemOutput;
 import com.io7m.northpike.protocol.agent.NPACommandCWorkItemStarted;
@@ -74,6 +78,7 @@ import com.io7m.northpike.protocol.agent.NPACommandSWorkOffered;
 import com.io7m.northpike.protocol.agent.NPACommandSWorkSent;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.NPAResponseError;
+import com.io7m.northpike.protocol.agent.NPAResponseLoginChallenge;
 import com.io7m.northpike.protocol.agent.NPAResponseOK;
 import com.io7m.northpike.protocol.agent.NPAResponseWorkOffered;
 import com.io7m.northpike.protocol.agent.NPAResponseWorkSent;
@@ -149,6 +154,13 @@ public final class NPAgentTaskTest
     new NPIProtocol(NPA1Messages.protocolId(), 1L);
 
   private static final int LIMIT = 1_000_000;
+
+  private static NPAgentKeyPublicEd448Type KEY_0;
+  private static NPAgentKeyPublicEd448Type KEY_1;
+  private static NPAgentKeyPublicEd448Type KEY_U;
+  private static NPAgentKeyPairEd448Type KEY_PAIR_0;
+  private static NPAgentKeyPairEd448Type KEY_PAIR_1;
+  private static NPAgentKeyPairEd448Type KEY_PAIR_U;
   private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
 
   private ExecutorService executor;
@@ -185,6 +197,14 @@ public final class NPAgentTaskTest
     throws Exception
   {
     DATABASE_FIXTURE = NPTestContainerInstances.database(containers);
+
+    final var ed448 = new NPAgentKeyPairFactoryEd448();
+    KEY_PAIR_0 = ed448.generateKeyPair();
+    KEY_PAIR_1 = ed448.generateKeyPair();
+    KEY_PAIR_U = ed448.generateKeyPair();
+    KEY_0 = KEY_PAIR_0.publicKey();
+    KEY_1 = KEY_PAIR_1.publicKey();
+    KEY_U = KEY_PAIR_U.publicKey();
   }
 
   @BeforeEach
@@ -252,7 +272,7 @@ public final class NPAgentTaskTest
       new NPAgentDescription(
         new NPAgentID(UUID.fromString("00000000-0000-0000-0000-000000000000")),
         "Agent 0",
-        NPKey.generate(),
+        KEY_0,
         Map.of(),
         Map.of(),
         Map.of()
@@ -262,13 +282,13 @@ public final class NPAgentTaskTest
       new NPAgentDescription(
         new NPAgentID(UUID.fromString("11111111-1111-1111-1111-000000000000")),
         "Agent 1",
-        NPKey.generate(),
+        KEY_1,
         Map.of(),
         Map.of(),
         Map.of()
       );
 
-    assertNotEquals(this.agent0.accessKey(), this.agent1.accessKey());
+    assertNotEquals(this.agent0.publicKey(), this.agent1.publicKey());
 
     this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class)
       .execute(this.agent0);
@@ -452,8 +472,7 @@ public final class NPAgentTaskTest
     this.receiveNPI(NPIProtocolsAvailable.class);
     this.receiveNPI(NPIProtocol.class);
 
-    final var cmd0 =
-      new NPACommandCLogin(randomUUID(), NPKey.generate());
+    final var cmd0 = new NPACommandCLogin(randomUUID(), KEY_U);
     this.send(cmd0);
     final var error = this.receive(NPAResponseError.class);
     assertEquals(errorAuthentication(), error.errorCode());
@@ -922,14 +941,27 @@ public final class NPAgentTaskTest
     this.receiveNPI(NPIProtocolsAvailable.class);
     this.receiveNPI(NPIProtocol.class);
 
-    final var cmd0 =
-      new NPACommandCLogin(randomUUID(), this.agent0.accessKey());
+    final var cmd0 = new NPACommandCLogin(randomUUID(), KEY_0);
     this.send(cmd0);
-    this.receive(NPAResponseOK.class);
+
+    final var r0 =
+      this.receive(NPAResponseLoginChallenge.class);
+
+    final var signature =
+      KEY_PAIR_0.signData(r0.challenge().data());
 
     final var cmd1 =
-      new NPACommandCEnvironmentInfo(randomUUID(), Map.of(), Map.of());
+      new NPACommandCLoginComplete(
+        randomUUID(),
+        new NPAgentLoginChallengeCompletion(r0.challenge().id(), signature)
+      );
+
     this.send(cmd1);
+    this.receive(NPAResponseOK.class);
+
+    final var cmd2 =
+      new NPACommandCEnvironmentInfo(randomUUID(), Map.of(), Map.of());
+    this.send(cmd2);
     this.receive(NPAResponseOK.class);
   }
 

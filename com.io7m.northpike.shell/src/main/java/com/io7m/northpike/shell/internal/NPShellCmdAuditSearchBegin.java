@@ -17,7 +17,7 @@
 package com.io7m.northpike.shell.internal;
 
 import com.io7m.idstore.model.IdTimeRange;
-import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.NPAuditSearchParameters;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPAuditUserOrAgentType.Agent;

@@ -23,7 +23,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItem
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemLogAddType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPWorkItem;

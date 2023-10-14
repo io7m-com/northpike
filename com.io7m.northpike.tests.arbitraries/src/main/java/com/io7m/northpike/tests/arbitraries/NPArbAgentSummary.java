@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentSummary;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentSummary;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 

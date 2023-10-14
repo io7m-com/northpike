@@ -33,6 +33,7 @@ open module com.io7m.northpike.tests.arbitraries
   uses ArbitraryProvider;
 
   provides ArbitraryProvider with
+    com.io7m.northpike.tests.arbitraries.NPArbPublicKey,
     com.io7m.northpike.tests.arbitraries.NPArbAssignmentSchedule,
     com.io7m.northpike.tests.arbitraries.NPArbAgentDescription,
     com.io7m.northpike.tests.arbitraries.NPArbAgentID,
@@ -67,7 +68,6 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbFormatName,
     com.io7m.northpike.tests.arbitraries.NPArbIdName,
     com.io7m.northpike.tests.arbitraries.NPArbInetSocketAddress,
-    com.io7m.northpike.tests.arbitraries.NPArbKey,
     com.io7m.northpike.tests.arbitraries.NPArbLexicalPosition,
     com.io7m.northpike.tests.arbitraries.NPArbMRoleName,
     com.io7m.northpike.tests.arbitraries.NPArbNameMatch,

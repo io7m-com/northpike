@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-
-<Configuration xmlns="urn:com.io7m.northpike.agent.configuration:1"
-               RemoteServer="example.com"
-               RemotePort="20048"
-               UseTLS="true"
-               SharedKey="34139c57436e8451905273641fe64a2502fe4dbc5d8f9e0598105fc55384e6ef"
-               MessageSizeLimit="25600000"/>

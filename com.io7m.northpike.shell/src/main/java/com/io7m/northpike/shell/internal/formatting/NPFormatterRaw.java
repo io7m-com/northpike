@@ -17,10 +17,6 @@
 
 package com.io7m.northpike.shell.internal.formatting;
 
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabel;
-import com.io7m.northpike.model.NPAgentSummary;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
@@ -32,6 +28,10 @@ import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPWorkItem;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentLabel;
+import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleHourlyHashed;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
@@ -235,7 +235,9 @@ public final class NPFormatterRaw implements NPFormatterType
     out.print("Name: ");
     out.println(agent.name());
     out.print("Access Key: ");
-    out.println(agent.accessKey().format());
+    out.print(agent.publicKey().algorithm());
+    out.print(":");
+    out.println(agent.publicKey().asText());
 
     if (agent.labels().size() > 0) {
       for (final var name : agent.labels().values()) {

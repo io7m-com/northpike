@@ -16,7 +16,7 @@
 
 package com.io7m.northpike.shell.internal;
 
-import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.protocol.user.NPUCommandAgentGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentGet;
 import com.io7m.quarrel.core.QCommandContextType;

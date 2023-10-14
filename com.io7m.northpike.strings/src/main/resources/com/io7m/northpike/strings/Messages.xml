@@ -15,6 +15,12 @@
   <entry key="downloading">Downloading {0}</entry>
   <entry key="entry">Entry</entry>
 
+  <entry key="agent_authentication_error_no_such_challenge">No challenge record exists for the given ID.</entry>
+  <entry key="agent_authentication_error_no_such_agent">Agent does not exist.</entry>
+  <entry key="agent_authentication_error_signature_invalid">Challenge signature is invalid.</entry>
+
+  <entry key="error_wrong_algorithm">Unexpected key algorithm type.</entry>
+
   <entry key="error_tool_execution_referenced_by_plan">
     The given tool execution cannot be deleted because it is still referenced by one or more plans.
   </entry>

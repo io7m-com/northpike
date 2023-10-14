@@ -25,7 +25,7 @@ import com.io7m.northpike.database.api.NPAuditPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAuditType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
-import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPAuditSearchParameters;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;

@@ -17,11 +17,11 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabel;
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
+import com.io7m.northpike.model.agents.NPAgentLabel;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
@@ -40,7 +40,7 @@ public final class NPArbAgentDescription
         return Combinators.combine(
           Arbitraries.defaultFor(NPAgentID.class),
           Arbitraries.strings().alpha(),
-          Arbitraries.defaultFor(NPKey.class),
+          Arbitraries.defaultFor(NPAgentKeyPublicType.class),
           Arbitraries.maps(
             Arbitraries.strings().alpha(),
             Arbitraries.strings().alpha()

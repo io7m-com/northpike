@@ -454,6 +454,19 @@ public final class NPStandardErrorCodes
     return ERROR_SIGNATURE_VERIFICATION_FAILED;
   }
 
+  private static final NPErrorCode ERROR_SIGNATURE_CREATION_FAILED =
+    new NPErrorCode("error-signature-creation-failed");
+
+  /**
+   * Signature creation failed.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorSignatureCreationFailed()
+  {
+    return ERROR_SIGNATURE_CREATION_FAILED;
+  }
+
   private static final NPErrorCode ERROR_PLAN_STILL_REFERENCED =
     new NPErrorCode("error-plan-still-referenced");
 
@@ -478,6 +491,19 @@ public final class NPStandardErrorCodes
   public static NPErrorCode errorToolExecutionStillReferenced()
   {
     return ERROR_TOOL_EXECUTION_STILL_REFERENCED;
+  }
+
+  private static final NPErrorCode ERROR_WRONG_ALGORITHM =
+    new NPErrorCode("error-wrong-algorithm");
+
+  /**
+   * The wrong algorithm ID was encountered.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorWrongAlgorithm()
+  {
+    return ERROR_WRONG_ALGORITHM;
   }
 }
 

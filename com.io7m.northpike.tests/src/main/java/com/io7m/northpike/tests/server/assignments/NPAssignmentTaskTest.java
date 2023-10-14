@@ -27,19 +27,21 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyAssignType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
 import com.io7m.northpike.keys.NPPublicKeys;
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentWorkItem;
 import com.io7m.northpike.model.NPArchiveLinks;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPFormatName;
-import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPairEd448Type;
+import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
+import com.io7m.northpike.model.agents.NPAgentKeyPublicEd448Type;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionRequest;
@@ -144,6 +146,8 @@ public final class NPAssignmentTaskTest
       Set.of()
     );
 
+  private static NPAgentKeyPublicEd448Type KEY;
+  private static NPAgentKeyPairEd448Type KEY_PAIR;
   private static NPAssignmentFixture ASSIGNMENT_FIXTURE;
   private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
   private ScheduledExecutorService executor;
@@ -159,6 +163,9 @@ public final class NPAssignmentTaskTest
       NPTestContainerInstances.database(containers);
     ASSIGNMENT_FIXTURE =
       NPAssignmentFixture.create(DATABASE_FIXTURE, reposDirectory);
+
+    KEY_PAIR = new NPAgentKeyPairFactoryEd448().generateKeyPair();
+    KEY = KEY_PAIR.publicKey();
   }
 
   private static NPPlanType createPlanOneTask()
@@ -479,7 +486,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPAgentDescription(
         agent,
         "Agent",
-        NPKey.generate(),
+        KEY,
         Map.of(),
         Map.of(),
         Map.of()
@@ -625,7 +632,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPAgentDescription(
         agent,
         "Agent",
-        NPKey.generate(),
+        KEY,
         Map.of(),
         Map.of(),
         Map.of()
@@ -773,7 +780,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPAgentDescription(
         agent,
         "Agent",
-        NPKey.generate(),
+        KEY,
         Map.of(),
         Map.of(),
         Map.of()
@@ -858,7 +865,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPAgentDescription(
         agent,
         "Agent",
-        NPKey.generate(),
+        KEY,
         Map.of(),
         Map.of(),
         Map.of()
@@ -943,7 +950,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPAgentDescription(
         agent,
         "Agent",
-        NPKey.generate(),
+        KEY,
         Map.of(),
         Map.of(),
         Map.of()
@@ -1035,7 +1042,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPAgentDescription(
         agent,
         "Agent",
-        NPKey.generate(),
+        KEY,
         Map.of(),
         Map.of(),
         Map.of()
@@ -1126,7 +1133,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPAgentDescription(
         agent,
         "Agent",
-        NPKey.generate(),
+        KEY,
         Map.of(),
         Map.of(),
         Map.of()
@@ -1270,7 +1277,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPAgentDescription(
         agent,
         "Agent",
-        NPKey.generate(),
+        KEY,
         Map.of(),
         Map.of(),
         Map.of()
@@ -1324,7 +1331,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPAgentDescription(
         agent,
         "Agent",
-        NPKey.generate(),
+        KEY,
         Map.of(),
         Map.of(),
         Map.of()
@@ -1387,7 +1394,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPAgentDescription(
         agent,
         "Agent",
-        NPKey.generate(),
+        KEY,
         Map.of(),
         Map.of(),
         Map.of()
@@ -1433,7 +1440,7 @@ public final class NPAssignmentTaskTest
       .execute(new NPAgentDescription(
         agent,
         "Agent",
-        NPKey.generate(),
+        KEY,
         Map.of(),
         Map.of(),
         Map.of()

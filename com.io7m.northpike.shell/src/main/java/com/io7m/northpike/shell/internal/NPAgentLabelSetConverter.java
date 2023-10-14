@@ -18,8 +18,8 @@
 package com.io7m.northpike.shell.internal;
 
 
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentLabelSet;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentLabelSet;
 import com.io7m.quarrel.core.QValueConverterType;
 
 import java.util.Arrays;

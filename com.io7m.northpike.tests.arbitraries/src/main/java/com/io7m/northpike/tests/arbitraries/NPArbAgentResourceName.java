@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.arbitraries;
 
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
 import net.jqwik.api.Arbitraries;
 
 public final class NPArbAgentResourceName extends NPArbAbstract<NPAgentResourceName>

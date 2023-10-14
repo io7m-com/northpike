@@ -41,15 +41,12 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.Commits
 import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
@@ -57,6 +54,9 @@ import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentExecution;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
@@ -531,7 +531,7 @@ public final class NPDatabaseAssignmentsTest
       new NPAgentDescription(
         new NPAgentID(randomUUID()),
         "Agent",
-        NPKey.generate(),
+        new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
         Map.of(),
         Map.of(),
         Map.of()
@@ -1601,7 +1601,7 @@ public final class NPDatabaseAssignmentsTest
       new NPAgentDescription(
         new NPAgentID(randomUUID()),
         "Agent",
-        NPKey.generate(),
+        new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
         Map.of(),
         Map.of(),
         Map.of()

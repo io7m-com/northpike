@@ -26,12 +26,22 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.agent</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.agent.api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.agent</artifactId>
+      <artifactId>com.io7m.northpike.agent.database.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.agent.database.sqlite</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -87,11 +97,6 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.protocol.intro.cb</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.agent.main</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -155,6 +160,10 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.io7m.jattribute</groupId>
+      <artifactId>com.io7m.jattribute.core</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.io7m.idstore</groupId>
       <artifactId>com.io7m.idstore.admin_client</artifactId>

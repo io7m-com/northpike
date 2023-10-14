@@ -18,8 +18,8 @@
 package com.io7m.northpike.tests.arbitraries;
 
 
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentSearchParameters;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentSearchParameters;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 

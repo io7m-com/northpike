@@ -21,10 +21,29 @@
 [import com.io7m.cedarbridge cb]
 [import com.io7m.cedarbridge.time ct]
 
-[documentation NPA1Key "A shared secret key."]
-[record NPA1Key
-  [documentation value "The key data."]
+[documentation NPA1PublicKey "A public key."]
+[variant NPA1PublicKey
+  [documentation Ed448 "An Ed448 key."]
+  [case Ed448
+    [documentation value "The key data."]
+    [field value cb:ByteArray]
+  ]
+]
+
+[documentation NPA1LoginChallenge "A login challenge."]
+[record NPA1LoginChallenge
+  [documentation id "The challenge ID."]
+  [field id cb:UUID]
+  [documentation value "The challenge data."]
   [field value cb:ByteArray]
+]
+
+[documentation NPA1LoginChallengeCompletion "A login challenge completion."]
+[record NPA1LoginChallengeCompletion
+  [documentation id "The challenge ID."]
+  [field id cb:UUID]
+  [documentation signature "The signature data."]
+  [field signature cb:ByteArray]
 ]
 
 [documentation NPA1WorkItemIdentifier "A work item identifier."]
@@ -94,8 +113,16 @@
 [record NPA1CommandCLogin
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
-  [documentation key "The key."]
-  [field key NPA1Key]
+  [documentation key "The public key."]
+  [field key NPA1PublicKey]
+]
+
+[documentation NPA1CommandCLoginComplete "A request to complete logging in."]
+[record NPA1CommandCLoginComplete
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation completion "The challenge completion."]
+  [field completion NPA1LoginChallengeCompletion]
 ]
 
 [documentation NPA1CommandCEnvironmentInfo "A command to supply environment information."]
@@ -180,6 +207,16 @@
 ; Responses
 ;
 
+[documentation NPA1ResponseLoginChallenge "A login challenge response."]
+[record NPA1ResponseLoginChallenge
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation challenge "The challenge."]
+  [field challenge NPA1LoginChallenge]
+]
+
 [documentation NPA1ResponseOK "A generic confirmation response."]
 [record NPA1ResponseOK
   [documentation messageId "The message ID"]
@@ -245,6 +282,7 @@
       NPA1CommandCDisconnect
       NPA1CommandCEnvironmentInfo
       NPA1CommandCLogin
+      NPA1CommandCLoginComplete
       NPA1CommandCWorkItemFailed
       NPA1CommandCWorkItemOutput
       NPA1CommandCWorkItemStarted
@@ -254,6 +292,7 @@
       NPA1CommandSWorkSent
       NPA1ResponseError
       NPA1ResponseLatencyCheck
+      NPA1ResponseLoginChallenge
       NPA1ResponseOK
       NPA1ResponseWorkOffered
       NPA1ResponseWorkSent

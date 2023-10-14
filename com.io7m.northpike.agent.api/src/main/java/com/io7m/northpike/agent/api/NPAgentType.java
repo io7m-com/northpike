@@ -14,42 +14,28 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
 package com.io7m.northpike.agent.api;
 
-import com.io7m.jattribute.core.AttributeReadableType;
 import com.io7m.jmulticlose.core.CloseableType;
 
 /**
- * An agent.
+ * A single agent.
  */
 
 public interface NPAgentType extends CloseableType
 {
   /**
-   * Start the agent. The method returns when the agent is fully started up.
+   * Set the new configuration for the agent.
    *
-   * @throws NPAgentException     On errors
-   * @throws InterruptedException On interruption
-   */
-
-  void start()
-    throws NPAgentException, InterruptedException;
-
-  /**
-   * Stop the agent.
+   * @param agentConfiguration The new configuration
    *
-   * @throws NPAgentException     On errors
-   * @throws InterruptedException On interruption
+   * @throws NPAgentException On errors
    */
 
-  void stop()
-    throws NPAgentException, InterruptedException;
-
-  /**
-   * @return The current status
-   */
-
-  AttributeReadableType<NPAgentStatus> status();
+  void setConfiguration(
+    NPAgentConfiguration agentConfiguration)
+    throws NPAgentException;
 
   @Override
   void close()

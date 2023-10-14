@@ -22,7 +22,7 @@ import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.blackthorne.core.Blackthorne;
-import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
 import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPFailureRetry;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;

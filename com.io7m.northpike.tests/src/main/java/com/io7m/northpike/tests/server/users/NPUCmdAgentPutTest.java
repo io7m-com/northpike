@@ -22,13 +22,13 @@ import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
@@ -124,7 +124,7 @@ public final class NPUCmdAgentPutTest
         new NPAgentDescription(
           new NPAgentID(UUID.randomUUID()),
           "Agent 0",
-          NPKey.generate(),
+          new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
           Map.of(),
           Map.of(),
           Map.of()
@@ -158,7 +158,7 @@ public final class NPUCmdAgentPutTest
         new NPAgentDescription(
           new NPAgentID(UUID.randomUUID()),
           "Agent 0",
-          NPKey.generate(),
+          new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
           Map.of(),
           Map.of(),
           Map.of()
@@ -202,7 +202,7 @@ public final class NPUCmdAgentPutTest
         new NPAgentDescription(
           new NPAgentID(UUID.randomUUID()),
           "Agent 0",
-          NPKey.generate(),
+          new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
           Map.of(),
           Map.of(),
           Map.of()

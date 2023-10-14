@@ -20,6 +20,7 @@ import com.io7m.northpike.agent.api.NPAgentConfiguration;
 import com.io7m.northpike.connections.NPMessageConnectionHandlerAbstract;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.cb.NPA1Messages;
+import com.io7m.northpike.strings.NPStrings;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,6 +38,7 @@ public final class NPAgentConnectionHandler1
     new NPA1Messages();
 
   NPAgentConnectionHandler1(
+    final NPStrings strings,
     final NPAgentConfiguration configuration,
     final Socket inSocket,
     final InputStream inInputStream,
@@ -44,8 +46,8 @@ public final class NPAgentConnectionHandler1
   {
     super(
       MESSAGES,
-      configuration.strings(),
-      configuration.messageSizeLimit(),
+      strings,
+      configuration.server().messageSizeLimit(),
       inSocket,
       inInputStream,
       inOutputStream

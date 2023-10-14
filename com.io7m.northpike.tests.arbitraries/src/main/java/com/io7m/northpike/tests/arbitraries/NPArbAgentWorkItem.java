@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPAgentResourceName;
-import com.io7m.northpike.model.NPAgentWorkItem;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPToolExecutionEvaluated;
 import com.io7m.northpike.model.NPToolReference;

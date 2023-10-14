@@ -18,16 +18,15 @@
 package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.protocol.agent.NPACommandCDisconnect;
-import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
-import com.io7m.northpike.protocol.agent.NPACommandCLogin;
-import com.io7m.northpike.protocol.agent.NPACommandCWorkItemFailed;
-import com.io7m.northpike.protocol.agent.NPACommandCWorkItemOutput;
-import com.io7m.northpike.protocol.agent.NPACommandCWorkItemStarted;
-import com.io7m.northpike.protocol.agent.NPACommandCWorkItemSucceeded;
+import com.io7m.northpike.protocol.agent.NPACommandC2SType;
 import com.io7m.northpike.protocol.agent.NPACommandType;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.NPAResponseType;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.ServiceLoader;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorProtocol;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_PROTOCOL;
@@ -36,15 +35,40 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_PROTOCOL;
  * @see NPAMessageType
  */
 
+@SuppressWarnings({"rawtypes"})
 public final class NPACmd
 {
+  private final Map<Class, NPAgentCommandExecutorType> executors;
+
+  private NPACmd(
+    final HashMap<Class, NPAgentCommandExecutorType> inExecutors)
+  {
+    this.executors = Map.copyOf(
+      Objects.requireNonNull(inExecutors, "executors")
+    );
+  }
+
   /**
-   * @see NPAMessageType
+   * Create a new command executor, loading executors from {@link ServiceLoader}.
+   *
+   * @return A new command executor
    */
 
-  public NPACmd()
+  public static NPACmd create()
   {
+    final var iterator =
+      ServiceLoader.load(NPAgentCommandExecutorType.class)
+        .iterator();
 
+    final var executors =
+      new HashMap<Class, NPAgentCommandExecutorType>(64);
+
+    while (iterator.hasNext()) {
+      final var executor = iterator.next();
+      executors.put(executor.commandClass(), executor);
+    }
+
+    return new NPACmd(executors);
   }
 
   /**
@@ -58,35 +82,33 @@ public final class NPACmd
    * @throws NPException On errors
    */
 
+  @SuppressWarnings({"unchecked"})
   public NPAResponseType execute(
     final NPAgentCommandContextType context,
     final NPAMessageType message)
     throws NPException
   {
-    if (message instanceof final NPACommandType<?> command) {
-      if (command instanceof final NPACommandCEnvironmentInfo c) {
-        return new NPACmdEnvironmentInfo().execute(context, c);
-      }
-      if (command instanceof final NPACommandCLogin c) {
-        return new NPACmdLogin().execute(context, c);
-      }
-      if (command instanceof final NPACommandCDisconnect c) {
-        return new NPACmdDisconnect().execute(context, c);
-      }
-      if (command instanceof final NPACommandCWorkItemStarted c) {
-        return new NPACmdWorkItemStarted().execute(context, c);
-      }
-      if (command instanceof final NPACommandCWorkItemOutput c) {
-        return new NPACmdWorkItemOutput().execute(context, c);
-      }
-      if (command instanceof final NPACommandCWorkItemSucceeded c) {
-        return new NPACmdWorkItemSucceeded().execute(context, c);
-      }
-      if (command instanceof final NPACommandCWorkItemFailed c) {
-        return new NPACmdWorkItemFailed().execute(context, c);
+    if (message instanceof final NPACommandC2SType<?> command) {
+      final var executor = this.resolve(command);
+      if (executor != null) {
+        return executor.execute(context, command);
       }
     }
 
     throw context.fail(ERROR_PROTOCOL, errorProtocol());
+  }
+
+  /**
+   * Resolve an executor for the given command.
+   *
+   * @param command The command
+   *
+   * @return An executor
+   */
+
+  public NPAgentCommandExecutorType resolve(
+    final NPACommandType<?> command)
+  {
+    return this.executors.get(command.getClass());
   }
 }

@@ -19,15 +19,16 @@ package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.cedarbridge.runtime.convenience.CBMaps;
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AgentDescription;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.string;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVAgentLabel.AGENT_LABEL;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVAgentPublicKey.PUBLIC_KEY;
 
 /**
  * A validator.
@@ -50,7 +51,7 @@ public enum NPUVAgentDescription
     return new NPU1AgentDescription(
       new CBUUID(message.id().value()),
       string(message.name()),
-      string(message.accessKey().format()),
+      PUBLIC_KEY.convertToWire(message.publicKey()),
       CBMaps.ofMapString(message.environmentVariables()),
       CBMaps.ofMapString(message.systemProperties()),
       CBMaps.ofMap(
@@ -64,11 +65,12 @@ public enum NPUVAgentDescription
   @Override
   public NPAgentDescription convertFromWire(
     final NPU1AgentDescription message)
+    throws NPProtocolException
   {
     return new NPAgentDescription(
       new NPAgentID(message.fieldId().value()),
       message.fieldName().value(),
-      NPKey.parse(message.fieldAccessKey().value()),
+      PUBLIC_KEY.convertFromWire(message.fieldPublicKey()),
       CBMaps.toMapString(message.fieldEnvironmentVariables()),
       CBMaps.toMapString(message.fieldSystemProperties()),
       CBMaps.toMap(

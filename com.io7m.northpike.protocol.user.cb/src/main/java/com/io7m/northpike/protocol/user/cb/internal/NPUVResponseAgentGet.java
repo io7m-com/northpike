@@ -19,9 +19,13 @@ package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBOptionType;
 import com.io7m.cedarbridge.runtime.api.CBUUID;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.NPUResponseAgentGet;
 import com.io7m.northpike.protocol.user.cb.NPU1ResponseAgentGet;
+
+import java.util.Optional;
 
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVAgentDescription.AGENT_DESCRIPTION;
 
@@ -55,13 +59,22 @@ public enum NPUVResponseAgentGet
   @Override
   public NPUResponseAgentGet convertFromWire(
     final NPU1ResponseAgentGet message)
+    throws NPProtocolException
   {
+    final var opt =
+      message.fieldDescription().asOptional();
+
+    final Optional<NPAgentDescription> agentOpt;
+    if (opt.isPresent()) {
+      agentOpt = Optional.of(AGENT_DESCRIPTION.convertFromWire(opt.get()));
+    } else {
+      agentOpt = Optional.empty();
+    }
+
     return new NPUResponseAgentGet(
       message.fieldMessageId().value(),
       message.fieldCorrelationId().value(),
-      message.fieldDescription()
-        .asOptional()
-        .map(AGENT_DESCRIPTION::convertFromWire)
+      agentOpt
     );
   }
 }

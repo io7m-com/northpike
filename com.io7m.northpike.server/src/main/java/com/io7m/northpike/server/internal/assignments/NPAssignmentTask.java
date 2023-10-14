@@ -30,9 +30,9 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicK
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentWorkItem;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPArchiveWithLinks;
 import com.io7m.northpike.model.NPCommit;

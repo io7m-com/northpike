@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.database.api;
 
-import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.agents.NPAgentLabel;
 
 /**
  * A paged query that returns agent label descriptions.

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>com.io7m.northpike</artifactId>
+    <groupId>com.io7m.northpike</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>com.io7m.northpike.agent.database.sqlite</artifactId>
+
+  <packaging>jar</packaging>
+  <name>com.io7m.northpike.agent.database.sqlite</name>
+  <description>Continuous integration (Agent SQLite database)</description>
+  <url>https://www.io7m.com/software/northpike</url>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.agent.database.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.model</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.strings</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.io7m.anethum</groupId>
+      <artifactId>com.io7m.anethum.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.trasco</groupId>
+      <artifactId>com.io7m.trasco.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.trasco</groupId>
+      <artifactId>com.io7m.trasco.vanilla</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jmulticlose</groupId>
+      <artifactId>com.io7m.jmulticlose.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.xerial</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-semconv</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-context</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.annotation.bundle</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.annotation.versioning</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+
+        <dependencies>
+          <dependency>
+            <groupId>com.io7m.trasco</groupId>
+            <artifactId>com.io7m.trasco.api</artifactId>
+            <version>${com.io7m.trasco.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.io7m.trasco</groupId>
+            <artifactId>com.io7m.trasco.vanilla</artifactId>
+            <version>${com.io7m.trasco.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.io7m.trasco</groupId>
+            <artifactId>com.io7m.trasco.xml.schemas</artifactId>
+            <version>${com.io7m.trasco.version}</version>
+          </dependency>
+        </dependencies>
+
+        <executions>
+          <execution>
+            <id>generate-sql</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>com.io7m.trasco.vanilla.TrSchemaRevisionSetSQLMain</mainClass>
+              <includePluginDependencies>true</includePluginDependencies>
+              <includeProjectDependencies>false</includeProjectDependencies>
+              <arguments>
+                <argument>${project.basedir}/src/main/resources/com/io7m/northpike/database/sqlite/internal/database.xml</argument>
+                <argument>${project.build.directory}/database.sql</argument>
+                <argument>ROLES</argument>
+                <argument>GRANTS</argument>
+                <argument>FUNCTIONS</argument>
+                <argument>TRIGGERS</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jooq</groupId>
+        <artifactId>jooq-codegen-maven</artifactId>
+        <version>${jooq.version}</version>
+        <configuration>
+          <configurationFile>src/main/jooq/configuration.xml</configurationFile>
+        </configuration>
+        <executions>
+          <execution>
+            <id>jooq-codegen</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta-extensions</artifactId>
+            <version>${jooq.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-postgres-extensions</artifactId>
+            <version>${jooq.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-jooq-sources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/generated-sources/jooq</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

@@ -22,7 +22,7 @@ import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.blackthorne.core.Blackthorne;
-import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
 
 import java.util.Map;
 import java.util.TreeSet;
