@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.io7m.primogenitor</groupId>
     <artifactId>com.io7m.primogenitor.full</artifactId>
-    <version>8.0.0-beta0001</version>
+    <version>8.0.0</version>
   </parent>
 
   <groupId>com.io7m.northpike</groupId>
@@ -70,7 +70,7 @@
     <com.io7m.cedarbridge.version>1.2.0</com.io7m.cedarbridge.version>
     <com.io7m.ervilla.version>0.0.5</com.io7m.ervilla.version>
     <com.io7m.hibiscus.version>0.0.8</com.io7m.hibiscus.version>
-    <com.io7m.idstore.version>1.0.0-beta0014</com.io7m.idstore.version>
+    <com.io7m.idstore.version>1.0.0-beta0018</com.io7m.idstore.version>
     <com.io7m.jade.version>1.0.2</com.io7m.jade.version>
     <com.io7m.jbssio.version>2.0.0</com.io7m.jbssio.version>
     <com.io7m.jdownload.version>0.0.1</com.io7m.jdownload.version>
@@ -93,7 +93,6 @@
     <com.io7m.zelador.version>0.0.1</com.io7m.zelador.version>
 
     <io7m.api.previousVersion>0.0.1-SNAPSHOT</io7m.api.previousVersion>
-    <io7m.maven-enforcer-plugin.version>3.4.1</io7m.maven-enforcer-plugin.version>
     <jackson.version>2.14.2</jackson.version>
     <javafx.version>20.0.1</javafx.version>
     <jaxb.version>4.0.0</jaxb.version>
@@ -439,7 +438,7 @@
       <dependency>
         <groupId>com.io7m.primogenitor</groupId>
         <artifactId>com.io7m.primogenitor.support</artifactId>
-        <version>8.0.0-beta0001</version>
+        <version>8.0.0</version>
       </dependency>
       <dependency>
         <groupId>org.osgi</groupId>

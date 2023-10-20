@@ -100,6 +100,7 @@ import com.io7m.northpike.protocol.user.NPUResponseAssignmentSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAuditSearch;
 import com.io7m.northpike.protocol.user.NPUResponseError;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
+import com.io7m.northpike.protocol.user.NPUResponsePagedType;
 import com.io7m.northpike.protocol.user.NPUResponsePlanGet;
 import com.io7m.northpike.protocol.user.NPUResponsePlanSearch;
 import com.io7m.northpike.protocol.user.NPUResponsePlanValidate;
@@ -236,16 +237,11 @@ public final class NPU1Validation
     final NPUMessageType message)
     throws NPProtocolException
   {
-    if (message instanceof final NPUCommandType<?> command) {
-      return toWireCommand(command);
-    }
-    if (message instanceof final NPUResponseType response) {
-      return toWireResponse(response);
-    }
-    if (message instanceof final NPUEventType event) {
-      return toWireEvent(event);
-    }
-    throw new IllegalStateException();
+    return switch (message) {
+      case final NPUCommandType<?> command -> toWireCommand(command);
+      case final NPUResponseType response -> toWireResponse(response);
+      case final NPUEventType event -> toWireEvent(event);
+    };
   }
 
   private static ProtocolNPUv1Type toWireEvent(
@@ -257,309 +253,208 @@ public final class NPU1Validation
   private static ProtocolNPUv1Type toWireResponse(
     final NPUResponseType response)
   {
-    if (response instanceof final NPUResponseOK r) {
-      return RESPONSE_OK.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseError r) {
-      return RESPONSE_ERROR.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseRepositoryGet r) {
-      return RESPONSE_REPOSITORY_GET.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseRepositorySearch r) {
-      return RESPONSE_REPOSITORY_SEARCH.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseUserRolesGet r) {
-      return RESPONSE_USER_ROLES_GET.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseAgentLabelGet r) {
-      return RESPONSE_AGENT_LABEL_GET.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseAgentLabelSearch r) {
-      return RESPONSE_AGENT_LABEL_SEARCH.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseToolExecutionDescriptionValidate r) {
-      return RESPONSE_TOOL_EXECUTION_DESCRIPTION_VALIDATE.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseToolExecutionDescriptionGet r) {
-      return RESPONSE_TOOL_EXECUTION_DESCRIPTION_GET.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseToolExecutionDescriptionSearch r) {
-      return RESPONSE_TOOL_EXECUTION_DESCRIPTION_SEARCH.convertToWire(r);
-    }
-    if (response instanceof final NPUResponsePlanValidate r) {
-      return RESPONSE_PLAN_VALIDATE.convertToWire(r);
-    }
-    if (response instanceof final NPUResponsePlanGet r) {
-      return RESPONSE_PLAN_GET.convertToWire(r);
-    }
-    if (response instanceof final NPUResponsePlanSearch r) {
-      return RESPONSE_PLAN_SEARCH.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseAgentGet r) {
-      return RESPONSE_AGENT_GET.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseAgentWorkItems r) {
-      return RESPONSE_AGENT_WORK_ITEMS.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseAgentsConnected r) {
-      return RESPONSE_AGENTS_CONNECTED.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseUsersConnected r) {
-      return RESPONSE_USERS_CONNECTED.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseAgentSearch r) {
-      return RESPONSE_AGENT_SEARCH.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseAssignmentGet r) {
-      return RESPONSE_ASSIGNMENT_GET.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseAssignmentSearch r) {
-      return RESPONSE_ASSIGNMENT_SEARCH.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseAssignmentExecutionSearch r) {
-      return RESPONSE_ASSIGNMENT_EXECUTION_SEARCH.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseAssignmentExecutionWorkItems r) {
-      return RESPONSE_ASSIGNMENT_EXECUTION_WORK_ITEMS.convertToWire(r);
-    }
-    if (response instanceof final NPUResponsePublicKeyGet r) {
-      return RESPONSE_PUBLIC_KEY_GET.convertToWire(r);
-    }
-    if (response instanceof final NPUResponsePublicKeySearch r) {
-      return RESPONSE_PUBLIC_KEY_SEARCH.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseRepositoryPublicKeysAssigned r) {
-      return RESPONSE_REPOSITORY_PUBLIC_KEYS_ASSIGNED.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseAuditSearch r) {
-      return RESPONSE_AUDIT_SEARCH.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseSCMProvidersSupported r) {
-      return RESPONSE_SCM_PROVIDERS_SUPPORTED.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseSelf r) {
-      return RESPONSE_SELF.convertToWire(r);
-    }
-    if (response instanceof final NPUResponseUserSearch r) {
-      return RESPONSE_USER_SEARCH.convertToWire(r);
-    }
-
-    throw new IllegalStateException("Unrecognized response: " + response);
+    return switch (response) {
+      case final NPUResponseAgentGet r ->
+        RESPONSE_AGENT_GET.convertToWire(r);
+      case final NPUResponseAgentLabelGet r ->
+        RESPONSE_AGENT_LABEL_GET.convertToWire(r);
+      case final NPUResponseAgentWorkItems r ->
+        RESPONSE_AGENT_WORK_ITEMS.convertToWire(r);
+      case final NPUResponseAgentsConnected r ->
+        RESPONSE_AGENTS_CONNECTED.convertToWire(r);
+      case final NPUResponseAssignmentExecutionWorkItems r ->
+        RESPONSE_ASSIGNMENT_EXECUTION_WORK_ITEMS.convertToWire(r);
+      case final NPUResponseAssignmentGet r ->
+        RESPONSE_ASSIGNMENT_GET.convertToWire(r);
+      case final NPUResponseError r ->
+        RESPONSE_ERROR.convertToWire(r);
+      case final NPUResponseOK r ->
+        RESPONSE_OK.convertToWire(r);
+      case final NPUResponsePlanGet r ->
+        RESPONSE_PLAN_GET.convertToWire(r);
+      case final NPUResponsePlanValidate r ->
+        RESPONSE_PLAN_VALIDATE.convertToWire(r);
+      case final NPUResponsePublicKeyGet r ->
+        RESPONSE_PUBLIC_KEY_GET.convertToWire(r);
+      case final NPUResponseRepositoryGet r ->
+        RESPONSE_REPOSITORY_GET.convertToWire(r);
+      case final NPUResponseRepositoryPublicKeysAssigned r ->
+        RESPONSE_REPOSITORY_PUBLIC_KEYS_ASSIGNED.convertToWire(r);
+      case final NPUResponseSCMProvidersSupported r ->
+        RESPONSE_SCM_PROVIDERS_SUPPORTED.convertToWire(r);
+      case final NPUResponseSelf r ->
+        RESPONSE_SELF.convertToWire(r);
+      case final NPUResponseToolExecutionDescriptionGet r ->
+        RESPONSE_TOOL_EXECUTION_DESCRIPTION_GET.convertToWire(r);
+      case final NPUResponseToolExecutionDescriptionValidate r ->
+        RESPONSE_TOOL_EXECUTION_DESCRIPTION_VALIDATE.convertToWire(r);
+      case final NPUResponseUserRolesGet r ->
+        RESPONSE_USER_ROLES_GET.convertToWire(r);
+      case final NPUResponseUsersConnected r ->
+        RESPONSE_USERS_CONNECTED.convertToWire(r);
+      case final NPUResponsePagedType<?> s -> {
+        yield switch (s) {
+          case final NPUResponseAgentLabelSearch r ->
+            RESPONSE_AGENT_LABEL_SEARCH.convertToWire(r);
+          case final NPUResponseAgentSearch r ->
+            RESPONSE_AGENT_SEARCH.convertToWire(r);
+          case final NPUResponseAssignmentExecutionSearch r ->
+            RESPONSE_ASSIGNMENT_EXECUTION_SEARCH.convertToWire(r);
+          case final NPUResponseAssignmentSearch r ->
+            RESPONSE_ASSIGNMENT_SEARCH.convertToWire(r);
+          case final NPUResponseAuditSearch r ->
+            RESPONSE_AUDIT_SEARCH.convertToWire(r);
+          case final NPUResponsePlanSearch r ->
+            RESPONSE_PLAN_SEARCH.convertToWire(r);
+          case final NPUResponsePublicKeySearch r ->
+            RESPONSE_PUBLIC_KEY_SEARCH.convertToWire(r);
+          case final NPUResponseRepositorySearch r ->
+            RESPONSE_REPOSITORY_SEARCH.convertToWire(r);
+          case final NPUResponseToolExecutionDescriptionSearch r ->
+            RESPONSE_TOOL_EXECUTION_DESCRIPTION_SEARCH.convertToWire(r);
+          case final NPUResponseUserSearch r ->
+            RESPONSE_USER_SEARCH.convertToWire(r);
+        };
+      }
+    };
   }
 
   private static ProtocolNPUv1Type toWireCommand(
     final NPUCommandType<?> command)
     throws NPProtocolException
   {
-    if (command instanceof final NPUCommandLogin c) {
-      return COMMAND_LOGIN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandDisconnect c) {
-      return COMMAND_DISCONNECT.convertToWire(c);
-    }
-
-    if (command instanceof final NPUCommandRepositoryPut c) {
-      return COMMAND_REPOSITORY_PUT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandRepositoryGet c) {
-      return COMMAND_REPOSITORY_GET.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandRepositorySearchBegin c) {
-      return COMMAND_REPOSITORY_SEARCH_BEGIN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandRepositorySearchNext c) {
-      return COMMAND_REPOSITORY_SEARCH_NEXT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandRepositorySearchPrevious c) {
-      return COMMAND_REPOSITORY_SEARCH_PREVIOUS.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandRepositoryPublicKeyAssign c) {
-      return COMMAND_REPOSITORY_PUBLIC_KEY_ASSIGN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandRepositoryPublicKeyUnassign c) {
-      return COMMAND_REPOSITORY_PUBLIC_KEY_UNASSIGN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandRepositoryPublicKeysAssigned c) {
-      return COMMAND_REPOSITORY_PUBLIC_KEYS_ASSIGNED.convertToWire(c);
-    }
-
-    if (command instanceof final NPUCommandPublicKeyPut c) {
-      return COMMAND_PUBLIC_KEY_PUT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandPublicKeyGet c) {
-      return COMMAND_PUBLIC_KEY_GET.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandPublicKeySearchBegin c) {
-      return COMMAND_PUBLIC_KEY_SEARCH_BEGIN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandPublicKeySearchNext c) {
-      return COMMAND_PUBLIC_KEY_SEARCH_NEXT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandPublicKeySearchPrevious c) {
-      return COMMAND_PUBLIC_KEY_SEARCH_PREVIOUS.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandPublicKeyDelete c) {
-      return COMMAND_PUBLIC_KEY_DELETE.convertToWire(c);
-    }
-
-    if (command instanceof final NPUCommandUsersConnected c) {
-      return COMMAND_USERS_CONNECTED.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandUserRolesAssign c) {
-      return COMMAND_USER_ROLES_ASSIGN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandUserRolesRevoke c) {
-      return COMMAND_USER_ROLES_REVOKE.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandUserRolesGet c) {
-      return COMMAND_USER_ROLES_GET.convertToWire(c);
-    }
-
-    if (command instanceof final NPUCommandAgentLabelPut c) {
-      return COMMAND_AGENT_LABEL_PUT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAgentLabelGet c) {
-      return COMMAND_AGENT_LABEL_GET.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAgentLabelSearchBegin c) {
-      return COMMAND_AGENT_LABEL_SEARCH_BEGIN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAgentLabelSearchNext c) {
-      return COMMAND_AGENT_LABEL_SEARCH_NEXT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAgentLabelSearchPrevious c) {
-      return COMMAND_AGENT_LABEL_SEARCH_PREVIOUS.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAgentLabelDelete c) {
-      return COMMAND_AGENT_LABEL_DELETE.convertToWire(c);
-    }
-
-    if (command instanceof final NPUCommandToolExecutionDescriptionPut c) {
-      return COMMAND_TOOL_EXECUTION_DESCRIPTION_PUT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandToolExecutionDescriptionValidate c) {
-      return COMMAND_TOOL_EXECUTION_DESCRIPTION_VALIDATE.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandToolExecutionDescriptionGet c) {
-      return COMMAND_TOOL_EXECUTION_DESCRIPTION_GET.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandToolExecutionDescriptionSearchBegin c) {
-      return COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_BEGIN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandToolExecutionDescriptionSearchNext c) {
-      return COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_NEXT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandToolExecutionDescriptionSearchPrevious c) {
-      return COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_PREVIOUS.convertToWire(c);
-    }
-
-    if (command instanceof final NPUCommandPlanPut c) {
-      return COMMAND_PLAN_PUT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandPlanValidate c) {
-      return COMMAND_PLAN_VALIDATE.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandPlanGet c) {
-      return COMMAND_PLAN_GET.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandPlanSearchBegin c) {
-      return COMMAND_PLAN_SEARCH_BEGIN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandPlanSearchNext c) {
-      return COMMAND_PLAN_SEARCH_NEXT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandPlanSearchPrevious c) {
-      return COMMAND_PLAN_SEARCH_PREVIOUS.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandPlanDelete c) {
-      return COMMAND_PLAN_DELETE.convertToWire(c);
-    }
-
-    if (command instanceof final NPUCommandAgentPut c) {
-      return COMMAND_AGENT_PUT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAgentGet c) {
-      return COMMAND_AGENT_GET.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAgentsConnected c) {
-      return COMMAND_AGENTS_CONNECTED.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAgentWorkItems c) {
-      return COMMAND_AGENT_WORK_ITEMS.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAgentSearchBegin c) {
-      return COMMAND_AGENT_SEARCH_BEGIN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAgentSearchNext c) {
-      return COMMAND_AGENT_SEARCH_NEXT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAgentSearchPrevious c) {
-      return COMMAND_AGENT_SEARCH_PREVIOUS.convertToWire(c);
-    }
-
-    if (command instanceof final NPUCommandAssignmentPut c) {
-      return COMMAND_ASSIGNMENT_PUT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAssignmentGet c) {
-      return COMMAND_ASSIGNMENT_GET.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAssignmentSearchBegin c) {
-      return COMMAND_ASSIGNMENT_SEARCH_BEGIN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAssignmentSearchNext c) {
-      return COMMAND_ASSIGNMENT_SEARCH_NEXT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAssignmentSearchPrevious c) {
-      return COMMAND_ASSIGNMENT_SEARCH_PREVIOUS.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAssignmentExecute c) {
-      return COMMAND_ASSIGNMENT_EXECUTE.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAssignmentExecutionDelete c) {
-      return COMMAND_ASSIGNMENT_EXECUTION_DELETE.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAssignmentExecutionSearchBegin c) {
-      return COMMAND_ASSIGNMENT_EXECUTION_SEARCH_BEGIN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAssignmentExecutionSearchNext c) {
-      return COMMAND_ASSIGNMENT_EXECUTION_SEARCH_NEXT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAssignmentExecutionSearchPrevious c) {
-      return COMMAND_ASSIGNMENT_EXECUTION_SEARCH_PREVIOUS.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAssignmentExecutionWorkItems c) {
-      return COMMAND_ASSIGNMENT_EXECUTION_WORK_ITEMS.convertToWire(c);
-    }
-
-    if (command instanceof final NPUCommandAuditSearchBegin c) {
-      return COMMAND_AUDIT_SEARCH_BEGIN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAuditSearchNext c) {
-      return COMMAND_AUDIT_SEARCH_NEXT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandAuditSearchPrevious c) {
-      return COMMAND_AUDIT_SEARCH_PREVIOUS.convertToWire(c);
-    }
-
-    if (command instanceof final NPUCommandUserSearchBegin c) {
-      return COMMAND_USER_SEARCH_BEGIN.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandUserSearchNext c) {
-      return COMMAND_USER_SEARCH_NEXT.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandUserSearchPrevious c) {
-      return COMMAND_USER_SEARCH_PREVIOUS.convertToWire(c);
-    }
-
-    if (command instanceof final NPUCommandSCMProvidersSupported c) {
-      return COMMAND_SCM_PROVIDERS_SUPPORTED.convertToWire(c);
-    }
-    if (command instanceof final NPUCommandSelf c) {
-      return COMMAND_SELF.convertToWire(c);
-    }
-
-    throw new IllegalStateException("Unrecognized command: " + command);
+    return switch (command) {
+      case final NPUCommandLogin c ->
+        COMMAND_LOGIN.convertToWire(c);
+      case final NPUCommandDisconnect c ->
+        COMMAND_DISCONNECT.convertToWire(c);
+      case final NPUCommandRepositoryPut c ->
+        COMMAND_REPOSITORY_PUT.convertToWire(c);
+      case final NPUCommandRepositoryGet c ->
+        COMMAND_REPOSITORY_GET.convertToWire(c);
+      case final NPUCommandRepositorySearchBegin c ->
+        COMMAND_REPOSITORY_SEARCH_BEGIN.convertToWire(c);
+      case final NPUCommandRepositorySearchNext c ->
+        COMMAND_REPOSITORY_SEARCH_NEXT.convertToWire(c);
+      case final NPUCommandRepositorySearchPrevious c ->
+        COMMAND_REPOSITORY_SEARCH_PREVIOUS.convertToWire(c);
+      case final NPUCommandRepositoryPublicKeyAssign c ->
+        COMMAND_REPOSITORY_PUBLIC_KEY_ASSIGN.convertToWire(c);
+      case final NPUCommandRepositoryPublicKeyUnassign c ->
+        COMMAND_REPOSITORY_PUBLIC_KEY_UNASSIGN.convertToWire(c);
+      case final NPUCommandRepositoryPublicKeysAssigned c ->
+        COMMAND_REPOSITORY_PUBLIC_KEYS_ASSIGNED.convertToWire(c);
+      case final NPUCommandPublicKeyPut c ->
+        COMMAND_PUBLIC_KEY_PUT.convertToWire(c);
+      case final NPUCommandPublicKeyGet c ->
+        COMMAND_PUBLIC_KEY_GET.convertToWire(c);
+      case final NPUCommandPublicKeySearchBegin c ->
+        COMMAND_PUBLIC_KEY_SEARCH_BEGIN.convertToWire(c);
+      case final NPUCommandPublicKeySearchNext c ->
+        COMMAND_PUBLIC_KEY_SEARCH_NEXT.convertToWire(c);
+      case final NPUCommandPublicKeySearchPrevious c ->
+        COMMAND_PUBLIC_KEY_SEARCH_PREVIOUS.convertToWire(c);
+      case final NPUCommandPublicKeyDelete c ->
+        COMMAND_PUBLIC_KEY_DELETE.convertToWire(c);
+      case final NPUCommandUsersConnected c ->
+        COMMAND_USERS_CONNECTED.convertToWire(c);
+      case final NPUCommandUserRolesAssign c ->
+        COMMAND_USER_ROLES_ASSIGN.convertToWire(c);
+      case final NPUCommandUserRolesRevoke c ->
+        COMMAND_USER_ROLES_REVOKE.convertToWire(c);
+      case final NPUCommandUserRolesGet c ->
+        COMMAND_USER_ROLES_GET.convertToWire(c);
+      case final NPUCommandAgentLabelPut c ->
+        COMMAND_AGENT_LABEL_PUT.convertToWire(c);
+      case final NPUCommandAgentLabelGet c ->
+        COMMAND_AGENT_LABEL_GET.convertToWire(c);
+      case final NPUCommandAgentLabelSearchBegin c ->
+        COMMAND_AGENT_LABEL_SEARCH_BEGIN.convertToWire(c);
+      case final NPUCommandAgentLabelSearchNext c ->
+        COMMAND_AGENT_LABEL_SEARCH_NEXT.convertToWire(c);
+      case final NPUCommandAgentLabelSearchPrevious c ->
+        COMMAND_AGENT_LABEL_SEARCH_PREVIOUS.convertToWire(c);
+      case final NPUCommandAgentLabelDelete c ->
+        COMMAND_AGENT_LABEL_DELETE.convertToWire(c);
+      case final NPUCommandToolExecutionDescriptionPut c ->
+        COMMAND_TOOL_EXECUTION_DESCRIPTION_PUT.convertToWire(c);
+      case final NPUCommandToolExecutionDescriptionValidate c ->
+        COMMAND_TOOL_EXECUTION_DESCRIPTION_VALIDATE.convertToWire(c);
+      case final NPUCommandToolExecutionDescriptionGet c ->
+        COMMAND_TOOL_EXECUTION_DESCRIPTION_GET.convertToWire(c);
+      case final NPUCommandToolExecutionDescriptionSearchBegin c ->
+        COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_BEGIN.convertToWire(c);
+      case final NPUCommandToolExecutionDescriptionSearchNext c ->
+        COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_NEXT.convertToWire(c);
+      case final NPUCommandToolExecutionDescriptionSearchPrevious c ->
+        COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_PREVIOUS.convertToWire(c);
+      case final NPUCommandPlanPut c ->
+        COMMAND_PLAN_PUT.convertToWire(c);
+      case final NPUCommandPlanValidate c ->
+        COMMAND_PLAN_VALIDATE.convertToWire(c);
+      case final NPUCommandPlanGet c ->
+        COMMAND_PLAN_GET.convertToWire(c);
+      case final NPUCommandPlanSearchBegin c ->
+        COMMAND_PLAN_SEARCH_BEGIN.convertToWire(c);
+      case final NPUCommandPlanSearchNext c ->
+        COMMAND_PLAN_SEARCH_NEXT.convertToWire(c);
+      case final NPUCommandPlanSearchPrevious c ->
+        COMMAND_PLAN_SEARCH_PREVIOUS.convertToWire(c);
+      case final NPUCommandPlanDelete c ->
+        COMMAND_PLAN_DELETE.convertToWire(c);
+      case final NPUCommandAgentPut c ->
+        COMMAND_AGENT_PUT.convertToWire(c);
+      case final NPUCommandAgentGet c ->
+        COMMAND_AGENT_GET.convertToWire(c);
+      case final NPUCommandAgentsConnected c ->
+        COMMAND_AGENTS_CONNECTED.convertToWire(c);
+      case final NPUCommandAgentWorkItems c ->
+        COMMAND_AGENT_WORK_ITEMS.convertToWire(c);
+      case final NPUCommandAgentSearchBegin c ->
+        COMMAND_AGENT_SEARCH_BEGIN.convertToWire(c);
+      case final NPUCommandAgentSearchNext c ->
+        COMMAND_AGENT_SEARCH_NEXT.convertToWire(c);
+      case final NPUCommandAgentSearchPrevious c ->
+        COMMAND_AGENT_SEARCH_PREVIOUS.convertToWire(c);
+      case final NPUCommandAssignmentPut c ->
+        COMMAND_ASSIGNMENT_PUT.convertToWire(c);
+      case final NPUCommandAssignmentGet c ->
+        COMMAND_ASSIGNMENT_GET.convertToWire(c);
+      case final NPUCommandAssignmentSearchBegin c ->
+        COMMAND_ASSIGNMENT_SEARCH_BEGIN.convertToWire(c);
+      case final NPUCommandAssignmentSearchNext c ->
+        COMMAND_ASSIGNMENT_SEARCH_NEXT.convertToWire(c);
+      case final NPUCommandAssignmentSearchPrevious c ->
+        COMMAND_ASSIGNMENT_SEARCH_PREVIOUS.convertToWire(c);
+      case final NPUCommandAssignmentExecute c ->
+        COMMAND_ASSIGNMENT_EXECUTE.convertToWire(c);
+      case final NPUCommandAssignmentExecutionDelete c ->
+        COMMAND_ASSIGNMENT_EXECUTION_DELETE.convertToWire(c);
+      case final NPUCommandAssignmentExecutionSearchBegin c ->
+        COMMAND_ASSIGNMENT_EXECUTION_SEARCH_BEGIN.convertToWire(c);
+      case final NPUCommandAssignmentExecutionSearchNext c ->
+        COMMAND_ASSIGNMENT_EXECUTION_SEARCH_NEXT.convertToWire(c);
+      case final NPUCommandAssignmentExecutionSearchPrevious c ->
+        COMMAND_ASSIGNMENT_EXECUTION_SEARCH_PREVIOUS.convertToWire(c);
+      case final NPUCommandAssignmentExecutionWorkItems c ->
+        COMMAND_ASSIGNMENT_EXECUTION_WORK_ITEMS.convertToWire(c);
+      case final NPUCommandAuditSearchBegin c ->
+        COMMAND_AUDIT_SEARCH_BEGIN.convertToWire(c);
+      case final NPUCommandAuditSearchNext c ->
+        COMMAND_AUDIT_SEARCH_NEXT.convertToWire(c);
+      case final NPUCommandAuditSearchPrevious c ->
+        COMMAND_AUDIT_SEARCH_PREVIOUS.convertToWire(c);
+      case final NPUCommandUserSearchBegin c ->
+        COMMAND_USER_SEARCH_BEGIN.convertToWire(c);
+      case final NPUCommandUserSearchNext c ->
+        COMMAND_USER_SEARCH_NEXT.convertToWire(c);
+      case final NPUCommandUserSearchPrevious c ->
+        COMMAND_USER_SEARCH_PREVIOUS.convertToWire(c);
+      case final NPUCommandSCMProvidersSupported c ->
+        COMMAND_SCM_PROVIDERS_SUPPORTED.convertToWire(c);
+      case final NPUCommandSelf c ->
+        COMMAND_SELF.convertToWire(c);
+    };
   }
 
   @Override
@@ -567,313 +462,195 @@ public final class NPU1Validation
     final ProtocolNPUv1Type message)
     throws NPProtocolException
   {
-    if (message instanceof final NPU1CommandLogin c) {
-      return COMMAND_LOGIN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandDisconnect c) {
-      return COMMAND_DISCONNECT.convertFromWire(c);
-    }
-
-    if (message instanceof final NPU1CommandUsersConnected c) {
-      return COMMAND_USERS_CONNECTED.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandUserRolesAssign c) {
-      return COMMAND_USER_ROLES_ASSIGN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandUserRolesRevoke c) {
-      return COMMAND_USER_ROLES_REVOKE.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandUserRolesGet c) {
-      return COMMAND_USER_ROLES_GET.convertFromWire(c);
-    }
-
-    if (message instanceof final NPU1CommandRepositoryPut c) {
-      return COMMAND_REPOSITORY_PUT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandRepositoryGet c) {
-      return COMMAND_REPOSITORY_GET.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandRepositorySearchBegin c) {
-      return COMMAND_REPOSITORY_SEARCH_BEGIN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandRepositorySearchNext c) {
-      return COMMAND_REPOSITORY_SEARCH_NEXT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandRepositorySearchPrevious c) {
-      return COMMAND_REPOSITORY_SEARCH_PREVIOUS.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandRepositoryPublicKeyAssign c) {
-      return COMMAND_REPOSITORY_PUBLIC_KEY_ASSIGN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandRepositoryPublicKeyUnassign c) {
-      return COMMAND_REPOSITORY_PUBLIC_KEY_UNASSIGN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandRepositoryPublicKeysAssigned c) {
-      return COMMAND_REPOSITORY_PUBLIC_KEYS_ASSIGNED.convertFromWire(c);
-    }
-
-    if (message instanceof final NPU1CommandPublicKeyPut c) {
-      return COMMAND_PUBLIC_KEY_PUT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandPublicKeyGet c) {
-      return COMMAND_PUBLIC_KEY_GET.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandPublicKeySearchBegin c) {
-      return COMMAND_PUBLIC_KEY_SEARCH_BEGIN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandPublicKeySearchNext c) {
-      return COMMAND_PUBLIC_KEY_SEARCH_NEXT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandPublicKeySearchPrevious c) {
-      return COMMAND_PUBLIC_KEY_SEARCH_PREVIOUS.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandPublicKeyDelete c) {
-      return COMMAND_PUBLIC_KEY_DELETE.convertFromWire(c);
-    }
-
-    if (message instanceof final NPU1CommandAgentLabelPut c) {
-      return COMMAND_AGENT_LABEL_PUT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAgentLabelGet c) {
-      return COMMAND_AGENT_LABEL_GET.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAgentLabelSearchBegin c) {
-      return COMMAND_AGENT_LABEL_SEARCH_BEGIN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAgentLabelSearchNext c) {
-      return COMMAND_AGENT_LABEL_SEARCH_NEXT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAgentLabelSearchPrevious c) {
-      return COMMAND_AGENT_LABEL_SEARCH_PREVIOUS.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAgentLabelDelete c) {
-      return COMMAND_AGENT_LABEL_DELETE.convertFromWire(c);
-    }
-
-    if (message instanceof final NPU1CommandToolExecutionDescriptionPut c) {
-      return COMMAND_TOOL_EXECUTION_DESCRIPTION_PUT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandToolExecutionDescriptionValidate c) {
-      return COMMAND_TOOL_EXECUTION_DESCRIPTION_VALIDATE.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandToolExecutionDescriptionGet c) {
-      return COMMAND_TOOL_EXECUTION_DESCRIPTION_GET.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandToolExecutionDescriptionSearchBegin c) {
-      return COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_BEGIN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandToolExecutionDescriptionSearchNext c) {
-      return COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_NEXT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandToolExecutionDescriptionSearchPrevious c) {
-      return COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_PREVIOUS.convertFromWire(c);
-    }
-
-    if (message instanceof final NPU1CommandPlanPut c) {
-      return COMMAND_PLAN_PUT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandPlanValidate c) {
-      return COMMAND_PLAN_VALIDATE.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandPlanGet c) {
-      return COMMAND_PLAN_GET.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandPlanSearchBegin c) {
-      return COMMAND_PLAN_SEARCH_BEGIN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandPlanSearchNext c) {
-      return COMMAND_PLAN_SEARCH_NEXT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandPlanSearchPrevious c) {
-      return COMMAND_PLAN_SEARCH_PREVIOUS.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandPlanDelete c) {
-      return COMMAND_PLAN_DELETE.convertFromWire(c);
-    }
-
-    if (message instanceof final NPU1CommandAgentPut c) {
-      return COMMAND_AGENT_PUT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAgentGet c) {
-      return COMMAND_AGENT_GET.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAgentsConnected c) {
-      return COMMAND_AGENTS_CONNECTED.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAgentWorkItems c) {
-      return COMMAND_AGENT_WORK_ITEMS.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAgentSearchBegin c) {
-      return COMMAND_AGENT_SEARCH_BEGIN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAgentSearchNext c) {
-      return COMMAND_AGENT_SEARCH_NEXT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAgentSearchPrevious c) {
-      return COMMAND_AGENT_SEARCH_PREVIOUS.convertFromWire(c);
-    }
-
-    if (message instanceof final NPU1CommandAuditSearchBegin c) {
-      return COMMAND_AUDIT_SEARCH_BEGIN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAuditSearchNext c) {
-      return COMMAND_AUDIT_SEARCH_NEXT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAuditSearchPrevious c) {
-      return COMMAND_AUDIT_SEARCH_PREVIOUS.convertFromWire(c);
-    }
-
-    if (message instanceof final NPU1CommandUserSearchBegin c) {
-      return COMMAND_USER_SEARCH_BEGIN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandUserSearchNext c) {
-      return COMMAND_USER_SEARCH_NEXT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandUserSearchPrevious c) {
-      return COMMAND_USER_SEARCH_PREVIOUS.convertFromWire(c);
-    }
-
-    if (message instanceof final NPU1CommandAssignmentPut c) {
-      return COMMAND_ASSIGNMENT_PUT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAssignmentGet c) {
-      return COMMAND_ASSIGNMENT_GET.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAssignmentSearchBegin c) {
-      return COMMAND_ASSIGNMENT_SEARCH_BEGIN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAssignmentSearchNext c) {
-      return COMMAND_ASSIGNMENT_SEARCH_NEXT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAssignmentSearchPrevious c) {
-      return COMMAND_ASSIGNMENT_SEARCH_PREVIOUS.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAssignmentExecute c) {
-      return COMMAND_ASSIGNMENT_EXECUTE.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAssignmentExecutionDelete c) {
-      return COMMAND_ASSIGNMENT_EXECUTION_DELETE.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAssignmentExecutionSearchBegin c) {
-      return COMMAND_ASSIGNMENT_EXECUTION_SEARCH_BEGIN.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAssignmentExecutionSearchNext c) {
-      return COMMAND_ASSIGNMENT_EXECUTION_SEARCH_NEXT.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAssignmentExecutionSearchPrevious c) {
-      return COMMAND_ASSIGNMENT_EXECUTION_SEARCH_PREVIOUS.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandAssignmentExecutionWorkItems c) {
-      return COMMAND_ASSIGNMENT_EXECUTION_WORK_ITEMS.convertFromWire(c);
-    }
-
-    if (message instanceof final NPU1CommandSCMProvidersSupported c) {
-      return COMMAND_SCM_PROVIDERS_SUPPORTED.convertFromWire(c);
-    }
-    if (message instanceof final NPU1CommandSelf c) {
-      return COMMAND_SELF.convertFromWire(c);
-    }
-
-    if (message instanceof final NPU1ResponseError r) {
-      return RESPONSE_ERROR.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponseOK r) {
-      return RESPONSE_OK.convertFromWire(r);
-    }
-
-    if (message instanceof final NPU1ResponseUserRolesGet r) {
-      return RESPONSE_USER_ROLES_GET.convertFromWire(r);
-    }
-
-    if (message instanceof final NPU1ResponseRepositoryGet r) {
-      return RESPONSE_REPOSITORY_GET.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponseRepositorySearch r) {
-      return RESPONSE_REPOSITORY_SEARCH.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponseRepositoryPublicKeysAssigned r) {
-      return RESPONSE_REPOSITORY_PUBLIC_KEYS_ASSIGNED.convertFromWire(r);
-    }
-
-    if (message instanceof final NPU1ResponseAgentLabelGet r) {
-      return RESPONSE_AGENT_LABEL_GET.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponseAgentLabelSearch r) {
-      return RESPONSE_AGENT_LABEL_SEARCH.convertFromWire(r);
-    }
-
-    if (message instanceof final NPU1ResponseToolExecutionDescriptionValidate r) {
-      return RESPONSE_TOOL_EXECUTION_DESCRIPTION_VALIDATE.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponseToolExecutionDescriptionGet r) {
-      return RESPONSE_TOOL_EXECUTION_DESCRIPTION_GET.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponseToolExecutionDescriptionSearch r) {
-      return RESPONSE_TOOL_EXECUTION_DESCRIPTION_SEARCH.convertFromWire(r);
-    }
-
-    if (message instanceof final NPU1ResponsePlanValidate r) {
-      return RESPONSE_PLAN_VALIDATE.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponsePlanGet r) {
-      return RESPONSE_PLAN_GET.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponsePlanSearch r) {
-      return RESPONSE_PLAN_SEARCH.convertFromWire(r);
-    }
-
-    if (message instanceof final NPU1ResponseAgentGet r) {
-      return RESPONSE_AGENT_GET.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponseAgentsConnected r) {
-      return RESPONSE_AGENTS_CONNECTED.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponseAgentSearch r) {
-      return RESPONSE_AGENT_SEARCH.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponseAgentWorkItems r) {
-      return RESPONSE_AGENT_WORK_ITEMS.convertFromWire(r);
-    }
-
-    if (message instanceof final NPU1ResponseAuditSearch r) {
-      return RESPONSE_AUDIT_SEARCH.convertFromWire(r);
-    }
-
-    if (message instanceof final NPU1ResponseUserSearch r) {
-      return RESPONSE_USER_SEARCH.convertFromWire(r);
-    }
-
-    if (message instanceof final NPU1ResponseAssignmentGet r) {
-      return RESPONSE_ASSIGNMENT_GET.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponseAssignmentSearch r) {
-      return RESPONSE_ASSIGNMENT_SEARCH.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponseAssignmentExecutionSearch r) {
-      return RESPONSE_ASSIGNMENT_EXECUTION_SEARCH.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponseAssignmentExecutionWorkItems r) {
-      return RESPONSE_ASSIGNMENT_EXECUTION_WORK_ITEMS.convertFromWire(r);
-    }
-
-    if (message instanceof final NPU1ResponsePublicKeyGet r) {
-      return RESPONSE_PUBLIC_KEY_GET.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponsePublicKeySearch r) {
-      return RESPONSE_PUBLIC_KEY_SEARCH.convertFromWire(r);
-    }
-
-    if (message instanceof final NPU1ResponseUsersConnected r) {
-      return RESPONSE_USERS_CONNECTED.convertFromWire(r);
-    }
-
-    if (message instanceof final NPU1ResponseSCMProvidersSupported r) {
-      return RESPONSE_SCM_PROVIDERS_SUPPORTED.convertFromWire(r);
-    }
-    if (message instanceof final NPU1ResponseSelf r) {
-      return RESPONSE_SELF.convertFromWire(r);
-    }
-
-    throw new IllegalStateException("Unrecognized message: " + message);
+    return switch (message) {
+      case final NPU1CommandLogin c ->
+        COMMAND_LOGIN.convertFromWire(c);
+      case final NPU1CommandDisconnect c ->
+        COMMAND_DISCONNECT.convertFromWire(c);
+      case final NPU1CommandUsersConnected c ->
+        COMMAND_USERS_CONNECTED.convertFromWire(c);
+      case final NPU1CommandUserRolesAssign c ->
+        COMMAND_USER_ROLES_ASSIGN.convertFromWire(c);
+      case final NPU1CommandUserRolesRevoke c ->
+        COMMAND_USER_ROLES_REVOKE.convertFromWire(c);
+      case final NPU1CommandUserRolesGet c ->
+        COMMAND_USER_ROLES_GET.convertFromWire(c);
+      case final NPU1CommandRepositoryPut c ->
+        COMMAND_REPOSITORY_PUT.convertFromWire(c);
+      case final NPU1CommandRepositoryGet c ->
+        COMMAND_REPOSITORY_GET.convertFromWire(c);
+      case final NPU1CommandRepositorySearchBegin c ->
+        COMMAND_REPOSITORY_SEARCH_BEGIN.convertFromWire(c);
+      case final NPU1CommandRepositorySearchNext c ->
+        COMMAND_REPOSITORY_SEARCH_NEXT.convertFromWire(c);
+      case final NPU1CommandRepositorySearchPrevious c ->
+        COMMAND_REPOSITORY_SEARCH_PREVIOUS.convertFromWire(c);
+      case final NPU1CommandRepositoryPublicKeyAssign c ->
+        COMMAND_REPOSITORY_PUBLIC_KEY_ASSIGN.convertFromWire(c);
+      case final NPU1CommandRepositoryPublicKeyUnassign c ->
+        COMMAND_REPOSITORY_PUBLIC_KEY_UNASSIGN.convertFromWire(c);
+      case final NPU1CommandRepositoryPublicKeysAssigned c ->
+        COMMAND_REPOSITORY_PUBLIC_KEYS_ASSIGNED.convertFromWire(c);
+      case final NPU1CommandPublicKeyPut c ->
+        COMMAND_PUBLIC_KEY_PUT.convertFromWire(c);
+      case final NPU1CommandPublicKeyGet c ->
+        COMMAND_PUBLIC_KEY_GET.convertFromWire(c);
+      case final NPU1CommandPublicKeySearchBegin c ->
+        COMMAND_PUBLIC_KEY_SEARCH_BEGIN.convertFromWire(c);
+      case final NPU1CommandPublicKeySearchNext c ->
+        COMMAND_PUBLIC_KEY_SEARCH_NEXT.convertFromWire(c);
+      case final NPU1CommandPublicKeySearchPrevious c ->
+        COMMAND_PUBLIC_KEY_SEARCH_PREVIOUS.convertFromWire(c);
+      case final NPU1CommandPublicKeyDelete c ->
+        COMMAND_PUBLIC_KEY_DELETE.convertFromWire(c);
+      case final NPU1CommandAgentLabelPut c ->
+        COMMAND_AGENT_LABEL_PUT.convertFromWire(c);
+      case final NPU1CommandAgentLabelGet c ->
+        COMMAND_AGENT_LABEL_GET.convertFromWire(c);
+      case final NPU1CommandAgentLabelSearchBegin c ->
+        COMMAND_AGENT_LABEL_SEARCH_BEGIN.convertFromWire(c);
+      case final NPU1CommandAgentLabelSearchNext c ->
+        COMMAND_AGENT_LABEL_SEARCH_NEXT.convertFromWire(c);
+      case final NPU1CommandAgentLabelSearchPrevious c ->
+        COMMAND_AGENT_LABEL_SEARCH_PREVIOUS.convertFromWire(c);
+      case final NPU1CommandAgentLabelDelete c ->
+        COMMAND_AGENT_LABEL_DELETE.convertFromWire(c);
+      case final NPU1CommandToolExecutionDescriptionPut c ->
+        COMMAND_TOOL_EXECUTION_DESCRIPTION_PUT.convertFromWire(c);
+      case final NPU1CommandToolExecutionDescriptionValidate c ->
+        COMMAND_TOOL_EXECUTION_DESCRIPTION_VALIDATE.convertFromWire(c);
+      case final NPU1CommandToolExecutionDescriptionGet c ->
+        COMMAND_TOOL_EXECUTION_DESCRIPTION_GET.convertFromWire(c);
+      case final NPU1CommandToolExecutionDescriptionSearchBegin c ->
+        COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_BEGIN.convertFromWire(c);
+      case final NPU1CommandToolExecutionDescriptionSearchNext c ->
+        COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_NEXT.convertFromWire(c);
+      case final NPU1CommandToolExecutionDescriptionSearchPrevious c ->
+        COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_PREVIOUS.convertFromWire(c);
+      case final NPU1CommandPlanPut c ->
+        COMMAND_PLAN_PUT.convertFromWire(c);
+      case final NPU1CommandPlanValidate c ->
+        COMMAND_PLAN_VALIDATE.convertFromWire(c);
+      case final NPU1CommandPlanGet c ->
+        COMMAND_PLAN_GET.convertFromWire(c);
+      case final NPU1CommandPlanSearchBegin c ->
+        COMMAND_PLAN_SEARCH_BEGIN.convertFromWire(c);
+      case final NPU1CommandPlanSearchNext c ->
+        COMMAND_PLAN_SEARCH_NEXT.convertFromWire(c);
+      case final NPU1CommandPlanSearchPrevious c ->
+        COMMAND_PLAN_SEARCH_PREVIOUS.convertFromWire(c);
+      case final NPU1CommandPlanDelete c ->
+        COMMAND_PLAN_DELETE.convertFromWire(c);
+      case final NPU1CommandAgentPut c ->
+        COMMAND_AGENT_PUT.convertFromWire(c);
+      case final NPU1CommandAgentGet c ->
+        COMMAND_AGENT_GET.convertFromWire(c);
+      case final NPU1CommandAgentsConnected c ->
+        COMMAND_AGENTS_CONNECTED.convertFromWire(c);
+      case final NPU1CommandAgentWorkItems c ->
+        COMMAND_AGENT_WORK_ITEMS.convertFromWire(c);
+      case final NPU1CommandAgentSearchBegin c ->
+        COMMAND_AGENT_SEARCH_BEGIN.convertFromWire(c);
+      case final NPU1CommandAgentSearchNext c ->
+        COMMAND_AGENT_SEARCH_NEXT.convertFromWire(c);
+      case final NPU1CommandAgentSearchPrevious c ->
+        COMMAND_AGENT_SEARCH_PREVIOUS.convertFromWire(c);
+      case final NPU1CommandAuditSearchBegin c ->
+        COMMAND_AUDIT_SEARCH_BEGIN.convertFromWire(c);
+      case final NPU1CommandAuditSearchNext c ->
+        COMMAND_AUDIT_SEARCH_NEXT.convertFromWire(c);
+      case final NPU1CommandAuditSearchPrevious c ->
+        COMMAND_AUDIT_SEARCH_PREVIOUS.convertFromWire(c);
+      case final NPU1CommandUserSearchBegin c ->
+        COMMAND_USER_SEARCH_BEGIN.convertFromWire(c);
+      case final NPU1CommandUserSearchNext c ->
+        COMMAND_USER_SEARCH_NEXT.convertFromWire(c);
+      case final NPU1CommandUserSearchPrevious c ->
+        COMMAND_USER_SEARCH_PREVIOUS.convertFromWire(c);
+      case final NPU1CommandAssignmentPut c ->
+        COMMAND_ASSIGNMENT_PUT.convertFromWire(c);
+      case final NPU1CommandAssignmentGet c ->
+        COMMAND_ASSIGNMENT_GET.convertFromWire(c);
+      case final NPU1CommandAssignmentSearchBegin c ->
+        COMMAND_ASSIGNMENT_SEARCH_BEGIN.convertFromWire(c);
+      case final NPU1CommandAssignmentSearchNext c ->
+        COMMAND_ASSIGNMENT_SEARCH_NEXT.convertFromWire(c);
+      case final NPU1CommandAssignmentSearchPrevious c ->
+        COMMAND_ASSIGNMENT_SEARCH_PREVIOUS.convertFromWire(c);
+      case final NPU1CommandAssignmentExecute c ->
+        COMMAND_ASSIGNMENT_EXECUTE.convertFromWire(c);
+      case final NPU1CommandAssignmentExecutionDelete c ->
+        COMMAND_ASSIGNMENT_EXECUTION_DELETE.convertFromWire(c);
+      case final NPU1CommandAssignmentExecutionSearchBegin c ->
+        COMMAND_ASSIGNMENT_EXECUTION_SEARCH_BEGIN.convertFromWire(c);
+      case final NPU1CommandAssignmentExecutionSearchNext c ->
+        COMMAND_ASSIGNMENT_EXECUTION_SEARCH_NEXT.convertFromWire(c);
+      case final NPU1CommandAssignmentExecutionSearchPrevious c ->
+        COMMAND_ASSIGNMENT_EXECUTION_SEARCH_PREVIOUS.convertFromWire(c);
+      case final NPU1CommandAssignmentExecutionWorkItems c ->
+        COMMAND_ASSIGNMENT_EXECUTION_WORK_ITEMS.convertFromWire(c);
+      case final NPU1CommandSCMProvidersSupported c ->
+        COMMAND_SCM_PROVIDERS_SUPPORTED.convertFromWire(c);
+      case final NPU1CommandSelf c ->
+        COMMAND_SELF.convertFromWire(c);
+      case final NPU1ResponseError r ->
+        RESPONSE_ERROR.convertFromWire(r);
+      case final NPU1ResponseOK r ->
+        RESPONSE_OK.convertFromWire(r);
+      case final NPU1ResponseUserRolesGet r ->
+        RESPONSE_USER_ROLES_GET.convertFromWire(r);
+      case final NPU1ResponseRepositoryGet r ->
+        RESPONSE_REPOSITORY_GET.convertFromWire(r);
+      case final NPU1ResponseRepositorySearch r ->
+        RESPONSE_REPOSITORY_SEARCH.convertFromWire(r);
+      case final NPU1ResponseRepositoryPublicKeysAssigned r ->
+        RESPONSE_REPOSITORY_PUBLIC_KEYS_ASSIGNED.convertFromWire(r);
+      case final NPU1ResponseAgentLabelGet r ->
+        RESPONSE_AGENT_LABEL_GET.convertFromWire(r);
+      case final NPU1ResponseAgentLabelSearch r ->
+        RESPONSE_AGENT_LABEL_SEARCH.convertFromWire(r);
+      case final NPU1ResponseToolExecutionDescriptionValidate r ->
+        RESPONSE_TOOL_EXECUTION_DESCRIPTION_VALIDATE.convertFromWire(r);
+      case final NPU1ResponseToolExecutionDescriptionGet r ->
+        RESPONSE_TOOL_EXECUTION_DESCRIPTION_GET.convertFromWire(r);
+      case final NPU1ResponseToolExecutionDescriptionSearch r ->
+        RESPONSE_TOOL_EXECUTION_DESCRIPTION_SEARCH.convertFromWire(r);
+      case final NPU1ResponsePlanValidate r ->
+        RESPONSE_PLAN_VALIDATE.convertFromWire(r);
+      case final NPU1ResponsePlanGet r ->
+        RESPONSE_PLAN_GET.convertFromWire(r);
+      case final NPU1ResponsePlanSearch r ->
+        RESPONSE_PLAN_SEARCH.convertFromWire(r);
+      case final NPU1ResponseAgentGet r ->
+        RESPONSE_AGENT_GET.convertFromWire(r);
+      case final NPU1ResponseAgentsConnected r ->
+        RESPONSE_AGENTS_CONNECTED.convertFromWire(r);
+      case final NPU1ResponseAgentSearch r ->
+        RESPONSE_AGENT_SEARCH.convertFromWire(r);
+      case final NPU1ResponseAgentWorkItems r ->
+        RESPONSE_AGENT_WORK_ITEMS.convertFromWire(r);
+      case final NPU1ResponseAuditSearch r ->
+        RESPONSE_AUDIT_SEARCH.convertFromWire(r);
+      case final NPU1ResponseUserSearch r ->
+        RESPONSE_USER_SEARCH.convertFromWire(r);
+      case final NPU1ResponseAssignmentGet r ->
+        RESPONSE_ASSIGNMENT_GET.convertFromWire(r);
+      case final NPU1ResponseAssignmentSearch r ->
+        RESPONSE_ASSIGNMENT_SEARCH.convertFromWire(r);
+      case final NPU1ResponseAssignmentExecutionSearch r ->
+        RESPONSE_ASSIGNMENT_EXECUTION_SEARCH.convertFromWire(r);
+      case final NPU1ResponseAssignmentExecutionWorkItems r ->
+        RESPONSE_ASSIGNMENT_EXECUTION_WORK_ITEMS.convertFromWire(r);
+      case final NPU1ResponsePublicKeyGet r ->
+        RESPONSE_PUBLIC_KEY_GET.convertFromWire(r);
+      case final NPU1ResponsePublicKeySearch r ->
+        RESPONSE_PUBLIC_KEY_SEARCH.convertFromWire(r);
+      case final NPU1ResponseUsersConnected r ->
+        RESPONSE_USERS_CONNECTED.convertFromWire(r);
+      case final NPU1ResponseSCMProvidersSupported r ->
+        RESPONSE_SCM_PROVIDERS_SUPPORTED.convertFromWire(r);
+      case final NPU1ResponseSelf r ->
+        RESPONSE_SELF.convertFromWire(r);
+    };
   }
 }

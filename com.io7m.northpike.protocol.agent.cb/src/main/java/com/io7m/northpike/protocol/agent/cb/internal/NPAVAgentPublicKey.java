@@ -51,11 +51,11 @@ public enum NPAVAgentPublicKey
       return new NPA1PublicKey.Ed448(
         new CBByteArray(ByteBuffer.wrap(message.asBytes()))
       );
+    } else {
+      throw new IllegalStateException(
+        "Unrecognized public key type: %s".formatted(message)
+      );
     }
-
-    throw new IllegalStateException(
-      "Unrecognized public key type: %s".formatted(message)
-    );
   }
 
   @Override
