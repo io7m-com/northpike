@@ -66,16 +66,13 @@ public final class NPToolExecutions
            NPToolResources.createResourceCollection(strings)) {
 
       final var executor =
-        Executors.newSingleThreadExecutor(runnable -> {
-          final var thread = new Thread(runnable);
-          thread.setName(
-            "com.io7m.northpike.tools.common.process[%d]"
-              .formatted(Long.valueOf(thread.getId()))
-          );
-          return thread;
-        });
-
-      resources.add(executor::shutdown);
+        resources.add(
+          Executors.newThreadPerTaskExecutor(
+            Thread.ofVirtual()
+              .name("com.io7m.northpike.toolexec-", 0L)
+              .factory()
+          )
+        );
 
       try {
         final var builder =
