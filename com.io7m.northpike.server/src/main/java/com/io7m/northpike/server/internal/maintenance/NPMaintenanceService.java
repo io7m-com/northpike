@@ -38,11 +38,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
 
@@ -56,16 +57,19 @@ public final class NPMaintenanceService
   private static final Logger LOG =
     LoggerFactory.getLogger(NPMaintenanceService.class);
 
-  private final ScheduledExecutorService executor;
+  private final ExecutorService executor;
   private final NPClockServiceType clock;
   private final NPTelemetryServiceType telemetry;
   private final NPDatabaseType database;
   private final NPTLSContextServiceType tlsContexts;
   private final NPArchiveServiceType archives;
   private final NPConfigurationServiceType configuration;
+  private final AtomicBoolean closed;
+  private final CompletableFuture<Void> waitTLS;
+  private final CompletableFuture<Void> waitMaintenance;
 
   private NPMaintenanceService(
-    final ScheduledExecutorService inExecutor,
+    final ExecutorService inExecutor,
     final NPClockServiceType inClock,
     final NPTelemetryServiceType inTelemetry,
     final NPDatabaseType inDatabase,
@@ -87,6 +91,12 @@ public final class NPMaintenanceService
       Objects.requireNonNull(inArchives, "archives");
     this.configuration =
       Objects.requireNonNull(inConfiguration, "configuration");
+    this.closed =
+      new AtomicBoolean(false);
+    this.waitTLS =
+      new CompletableFuture<Void>();
+    this.waitMaintenance =
+      new CompletableFuture<Void>();
   }
 
   /**
@@ -118,15 +128,11 @@ public final class NPMaintenanceService
     Objects.requireNonNull(tlsContexts, "tlsContexts");
 
     final var executor =
-      Executors.newSingleThreadScheduledExecutor(r -> {
-        final var thread = new Thread(r);
-        thread.setDaemon(true);
-        thread.setName(
-          "com.io7m.northpike.server.internal.maintenance.NPMaintenanceService[%d]"
-            .formatted(thread.getId())
-        );
-        return thread;
-      });
+      Executors.newThreadPerTaskExecutor(
+        Thread.ofVirtual()
+          .name("com.io7m.northpike.maintenance-", 0L)
+          .factory()
+      );
 
     final var maintenanceService =
       new NPMaintenanceService(
@@ -139,55 +145,75 @@ public final class NPMaintenanceService
         configuration
       );
 
-    final var timeNow =
-      clock.now();
-    final var timeNextMidnight =
-      timeNow.withHour(0)
-        .withMinute(0)
-        .withSecond(0)
-        .plusDays(1L);
-
-    final var initialDelay =
-      Duration.between(timeNow, timeNextMidnight).toSeconds();
-
-    final var period =
-      Duration.of(1L, ChronoUnit.DAYS)
-        .toSeconds();
-
-    /*
-     * Start TLS context reloading if needed.
-     */
-
-    configuration.configuration()
-      .maintenanceConfiguration()
-      .tlsReloadInterval()
-      .ifPresent(duration -> {
-        executor.scheduleAtFixedRate(
-          maintenanceService::runTLSReload,
-          duration.toSeconds(),
-          duration.toSeconds(),
-          TimeUnit.SECONDS
-        );
-      });
-
-    /*
-     * Run maintenance as soon as the service starts.
-     */
-
-    executor.submit(maintenanceService::runMaintenance);
-
-    /*
-     * Schedule maintenance to run at each midnight.
-     */
-
-    executor.scheduleAtFixedRate(
-      maintenanceService::runMaintenance,
-      initialDelay,
-      period,
-      TimeUnit.SECONDS
-    );
-
+    executor.execute(maintenanceService::runTLSReloadTask);
+    executor.execute(maintenanceService::runMaintenanceTask);
     return maintenanceService;
+  }
+
+  /**
+   * A task that executes maintenance once when the service starts, and then
+   * again at every subsequent midnight.
+   */
+
+  private void runMaintenanceTask()
+  {
+    while (!this.closed.get()) {
+      try {
+        this.runMaintenance();
+      } catch (final Exception e) {
+        // Not important.
+      }
+
+      final var timeNow =
+        this.clock.now();
+      final var timeNextMidnight =
+        timeNow.withHour(0)
+          .withMinute(0)
+          .withSecond(0)
+          .plusDays(1L);
+
+      final var untilNext =
+        Duration.between(timeNow, timeNextMidnight);
+
+      try {
+        this.waitMaintenance.get(untilNext.toSeconds(), TimeUnit.SECONDS);
+      } catch (final Exception e) {
+        break;
+      }
+    }
+  }
+
+  /**
+   * A task that reloads TLS contexts at the specified reload interval.
+   */
+
+  private void runTLSReloadTask()
+  {
+    final var reloadIntervalOpt =
+      this.configuration.configuration()
+        .maintenanceConfiguration()
+        .tlsReloadInterval();
+
+    if (reloadIntervalOpt.isEmpty()) {
+      return;
+    }
+
+    final var reloadInterval =
+      reloadIntervalOpt.get();
+
+    while (!this.closed.get()) {
+      try {
+        this.runTLSReload();
+      } catch (final Exception e) {
+        // Not important.
+      }
+
+      try {
+        this.waitTLS.get(reloadInterval.toSeconds(), TimeUnit.SECONDS);
+      } catch (final Exception e) {
+        break;
+      }
+    }
   }
 
   private void runTLSReload()
@@ -332,7 +358,11 @@ public final class NPMaintenanceService
   public void close()
     throws Exception
   {
-    this.executor.shutdown();
+    if (this.closed.compareAndSet(false, true)) {
+      this.waitTLS.complete(null);
+      this.waitMaintenance.complete(null);
+      this.executor.close();
+    }
   }
 
   @Override

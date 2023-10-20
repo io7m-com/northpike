@@ -123,28 +123,22 @@ public final class NPUserService implements NPUserServiceType
       NPServerResources.createResources();
 
     final var mainExecutor =
-      Executors.newSingleThreadExecutor(runnable -> {
-        final var thread = new Thread(runnable);
-        thread.setName(
-          "com.io7m.server.user.service[%d]"
-            .formatted(Long.valueOf(thread.getId()))
-        );
-        return thread;
-      });
+      resources.add(
+        Executors.newThreadPerTaskExecutor(
+          Thread.ofVirtual()
+            .name("com.io7m.northpike.user-main-", 0L)
+            .factory()
+        )
+      );
 
-    resources.add(mainExecutor::shutdown);
-
-    final var agentExecutor =
-      Executors.newCachedThreadPool(runnable -> {
-        final var thread = new Thread(runnable);
-        thread.setName(
-          "com.io7m.server.user[%d]"
-            .formatted(Long.valueOf(thread.getId()))
-        );
-        return thread;
-      });
-
-    resources.add(agentExecutor::shutdown);
+    final var userExecutor =
+      resources.add(
+        Executors.newThreadPerTaskExecutor(
+          Thread.ofVirtual()
+            .name("com.io7m.northpike.user-", 0L)
+            .factory()
+        )
+      );
 
     return new NPUserService(
       services,
@@ -154,7 +148,7 @@ public final class NPUserService implements NPUserServiceType
       metrics,
       sockets,
       mainExecutor,
-      agentExecutor
+      userExecutor
     );
   }
 
@@ -241,7 +235,8 @@ public final class NPUserService implements NPUserServiceType
   private void createAndRunUserTask(
     final Socket clientSocket)
   {
-    try (var task = NPUserTask.create(this.services, clientSocket)) {
+    try (var task =
+           this.resources.add(NPUserTask.create(this.services, clientSocket))) {
       this.onUserTaskCreated(task);
       task.run();
     } catch (final Exception e) {
@@ -297,6 +292,17 @@ public final class NPUserService implements NPUserServiceType
     throws Exception
   {
     if (this.closed.compareAndSet(false, true)) {
+
+      /*
+       * Interrupt anything that might be waiting on the socket by closing it.
+       */
+
+      try {
+        this.socket.close();
+      } catch (final Exception e) {
+        // Not a problem
+      }
+
       this.resources.close();
       this.future.complete(null);
     }

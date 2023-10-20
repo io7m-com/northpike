@@ -124,16 +124,13 @@ public final class NPAssignmentService implements NPAssignmentServiceType
       NPServerResources.createResources();
 
     final var mainExecutor =
-      Executors.newCachedThreadPool(runnable -> {
-        final var thread = new Thread(runnable);
-        thread.setName(
-          "com.io7m.server.assignment.service[%d]"
-            .formatted(Long.valueOf(thread.getId()))
-        );
-        return thread;
-      });
-
-    resources.add(mainExecutor::shutdown);
+      resources.add(
+        Executors.newThreadPerTaskExecutor(
+          Thread.ofVirtual()
+            .name("com.io7m.northpike.assignment-", 0L)
+            .factory()
+        )
+      );
 
     final var service =
       new NPAssignmentService(

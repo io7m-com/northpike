@@ -29,10 +29,13 @@ import io.opentelemetry.api.trace.SpanKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A service that schedules assignment executions.
@@ -44,12 +47,14 @@ public final class NPSchedulingService
   private static final Logger LOG =
     LoggerFactory.getLogger(NPSchedulingService.class);
 
-  private final ScheduledExecutorService executor;
+  private final ExecutorService executor;
   private final NPTelemetryServiceType telemetry;
   private final NPSchedulerType scheduler;
+  private final AtomicBoolean closed;
+  private final CompletableFuture<Void> waitSchedule;
 
   private NPSchedulingService(
-    final ScheduledExecutorService inExecutor,
+    final ExecutorService inExecutor,
     final NPClockServiceType inClock,
     final NPTelemetryServiceType inTelemetry,
     final NPDatabaseType inDatabase,
@@ -70,6 +75,11 @@ public final class NPSchedulingService
         inRepositories,
         inAssignments
       );
+
+    this.closed =
+      new AtomicBoolean(false);
+    this.waitSchedule =
+      new CompletableFuture<>();
   }
 
   /**
@@ -104,15 +114,11 @@ public final class NPSchedulingService
     Objects.requireNonNull(assignments, "assignments");
 
     final var executor =
-      Executors.newSingleThreadScheduledExecutor(r -> {
-        final var thread = new Thread(r);
-        thread.setDaemon(true);
-        thread.setName(
-          "com.io7m.northpike.server.internal.schedule.NPSchedulingService[%d]"
-            .formatted(thread.getId())
-        );
-        return thread;
-      });
+      Executors.newThreadPerTaskExecutor(
+        Thread.ofVirtual()
+          .name("com.io7m.northpike.repository-", 0L)
+          .factory()
+      );
 
     final var schedulingService =
       new NPSchedulingService(
@@ -125,14 +131,28 @@ public final class NPSchedulingService
         assignments
       );
 
-    executor.scheduleAtFixedRate(
-      schedulingService::runSchedule,
-      0L,
-      15L,
-      TimeUnit.SECONDS
-    );
-
+    executor.execute(schedulingService::runScheduleTask);
     return schedulingService;
+  }
+
+  private void runScheduleTask()
+  {
+    final var scheduleInterval =
+      Duration.ofSeconds(15L);
+
+    while (!this.closed.get()) {
+      try {
+        this.runSchedule();
+      } catch (final Exception e) {
+        // Not important.
+      }
+
+      try {
+        this.waitSchedule.get(scheduleInterval.toSeconds(), TimeUnit.SECONDS);
+      } catch (final Exception e) {
+        // Not a problem.
+      }
+    }
   }
 
   private void runSchedule()
@@ -165,7 +185,10 @@ public final class NPSchedulingService
   public void close()
     throws Exception
   {
-    this.executor.shutdown();
+    if (this.closed.compareAndSet(false, true)) {
+      this.waitSchedule.complete(null);
+      this.executor.close();
+    }
   }
 
   @Override

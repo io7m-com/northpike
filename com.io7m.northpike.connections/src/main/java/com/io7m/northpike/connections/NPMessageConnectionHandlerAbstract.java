@@ -16,6 +16,8 @@
 
 package com.io7m.northpike.connections;
 
+import com.io7m.jmulticlose.core.CloseableCollection;
+import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageType;
 import com.io7m.northpike.protocol.api.NPProtocolMessagesType;
@@ -43,6 +45,7 @@ public abstract class NPMessageConnectionHandlerAbstract<M extends NPProtocolMes
   private final int messageSizeLimit;
   private final Socket socket;
   private final InputStream input;
+  private final CloseableCollectionType<IOException> resources;
 
   protected NPMessageConnectionHandlerAbstract(
     final NPProtocolMessagesType<M> inMessages,
@@ -58,12 +61,19 @@ public abstract class NPMessageConnectionHandlerAbstract<M extends NPProtocolMes
       Objects.requireNonNull(inStrings, "strings");
     this.messageSizeLimit =
       inMessageSizeLimit;
+    this.resources =
+      CloseableCollection.create(() -> new IOException("Failed to close resources."));
+
     this.socket =
-      Objects.requireNonNull(inSocket, "inCloseable");
+      this.resources.add(
+        Objects.requireNonNull(inSocket, "inCloseable"));
     this.input =
-      Objects.requireNonNull(inInputStream, "inOutput");
+      this.resources.add(
+        Objects.requireNonNull(inInputStream, "inOutput"));
     this.output =
-      Objects.requireNonNull(inOutputStream, "inInput");
+      this.resources.add(
+        Objects.requireNonNull(inOutputStream, "inInput"));
+
   }
 
   protected final NPStrings strings()
@@ -83,7 +93,7 @@ public abstract class NPMessageConnectionHandlerAbstract<M extends NPProtocolMes
   public final void close()
     throws IOException
   {
-    this.socket.close();
+    this.resources.close();
   }
 
   @Override

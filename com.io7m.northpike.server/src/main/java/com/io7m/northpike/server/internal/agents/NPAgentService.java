@@ -18,10 +18,10 @@
 package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.jmulticlose.core.CloseableCollectionType;
+import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentLabelName;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
-import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
@@ -45,8 +45,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -68,7 +66,7 @@ public final class NPAgentService implements NPAgentServiceType
   private final ExecutorService agentExecutor;
   private final AtomicBoolean closed;
   private final ExecutorService mainExecutor;
-  private final ScheduledExecutorService agentTicker;
+  private final ExecutorService agentTicker;
   private final CompletableFuture<Void> future;
   private final ConcurrentHashMap.KeySetView<NPAgentTask, Boolean> agentTasks;
   private ServerSocket socket;
@@ -82,7 +80,7 @@ public final class NPAgentService implements NPAgentServiceType
     final NPAgentServerSocketServiceType inSockets,
     final ExecutorService inMainExecutor,
     final ExecutorService inAgentExecutor,
-    final ScheduledExecutorService inAgentTicker)
+    final ExecutorService inAgentTicker)
   {
     this.services =
       Objects.requireNonNull(inServices, "services");
@@ -136,41 +134,29 @@ public final class NPAgentService implements NPAgentServiceType
       NPServerResources.createResources();
 
     final var mainExecutor =
-      Executors.newSingleThreadExecutor(runnable -> {
-        final var thread = new Thread(runnable);
-        thread.setName(
-          "com.io7m.server.agent.service[%d]"
-            .formatted(Long.valueOf(thread.getId()))
-        );
-        return thread;
-      });
-
-    resources.add(mainExecutor::shutdown);
-
+      resources.add(
+        Executors.newThreadPerTaskExecutor(
+          Thread.ofVirtual()
+            .name("com.io7m.northpike.agent.main-", 0L)
+            .factory()
+        )
+      );
     final var agentExecutor =
-      Executors.newCachedThreadPool(runnable -> {
-        final var thread = new Thread(runnable);
-        thread.setName(
-          "com.io7m.server.agent[%d]"
-            .formatted(Long.valueOf(thread.getId()))
-        );
-        return thread;
-      });
-
-    resources.add(agentExecutor::shutdown);
-
+      resources.add(
+        Executors.newThreadPerTaskExecutor(
+          Thread.ofVirtual()
+            .name("com.io7m.northpike.agent.exec-", 0L)
+            .factory()
+        )
+      );
     final var agentTicker =
-      Executors.newSingleThreadScheduledExecutor(runnable -> {
-        final var thread = new Thread(runnable);
-        thread.setName(
-          "com.io7m.northpike.agent.periodic[%d]"
-            .formatted(Long.valueOf(thread.getId()))
-        );
-        thread.setDaemon(true);
-        return thread;
-      });
-
-    resources.add(agentTicker::shutdown);
+      resources.add(
+        Executors.newThreadPerTaskExecutor(
+          Thread.ofVirtual()
+            .name("com.io7m.northpike.agent.ticker-", 0L)
+            .factory()
+        )
+      );
 
     return new NPAgentService(
       services,
@@ -303,12 +289,17 @@ public final class NPAgentService implements NPAgentServiceType
      */
 
     this.metrics.setAgentsConnected(0);
-    this.agentTicker.scheduleAtFixedRate(
-      this::onAgentTasksMeasureLatency,
-      1L,
-      1L,
-      TimeUnit.SECONDS
-    );
+
+    this.agentTicker.execute(() -> {
+      while (!this.closed.get()) {
+        this.onAgentTasksMeasureLatency();
+        try {
+          Thread.sleep(1_000L);
+        } catch (final InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+      }
+    });
 
     while (!this.closed.get()) {
 
