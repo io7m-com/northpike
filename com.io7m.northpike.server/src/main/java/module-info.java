@@ -69,7 +69,7 @@ module com.io7m.northpike.server
   requires io.opentelemetry.sdk.trace;
   requires io.opentelemetry.sdk;
   requires io.opentelemetry.semconv;
-  requires org.eclipse.jetty.server;
+  requires io.helidon.webserver;
   requires org.slf4j;
 
   uses NPAgentCommandExecutorType;

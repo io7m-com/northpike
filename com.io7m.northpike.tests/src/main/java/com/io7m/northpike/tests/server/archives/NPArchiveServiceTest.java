@@ -109,6 +109,7 @@ public final class NPArchiveServiceTest
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private NPTLSContextServiceType tls;
+  private String hostName;
 
   @BeforeEach
   public void setup(
@@ -117,6 +118,10 @@ public final class NPArchiveServiceTest
     final @TempDir Path archiveDirectory)
     throws Exception
   {
+    this.hostName =
+      InetAddress.getLocalHost()
+        .getHostName();
+
     this.services =
       new RPServiceDirectory();
     this.clock =
@@ -261,7 +266,8 @@ public final class NPArchiveServiceTest
       HttpClient.newHttpClient();
     final var request =
       HttpRequest.newBuilder(URI.create(
-          "http://localhost:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"))
+          "http://%s:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"
+            .formatted(this.hostName)))
         .build();
     final var response =
       client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -311,7 +317,8 @@ public final class NPArchiveServiceTest
       HttpClient.newHttpClient();
     final var request =
       HttpRequest.newBuilder(URI.create(
-          "http://localhost:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"))
+          "http://%s:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"
+            .formatted(this.hostName)))
         .build();
     final var response =
       client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -374,7 +381,8 @@ public final class NPArchiveServiceTest
       HttpClient.newHttpClient();
     final var request =
       HttpRequest.newBuilder(URI.create(
-          "http://localhost:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"))
+          "http://%s:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"
+            .formatted(this.hostName)))
         .build();
     final var response =
       client.send(request, HttpResponse.BodyHandlers.ofByteArray());

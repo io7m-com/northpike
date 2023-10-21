@@ -92,6 +92,7 @@
     <com.io7m.xstructural.version>1.8.0</com.io7m.xstructural.version>
     <com.io7m.zelador.version>0.0.1</com.io7m.zelador.version>
 
+    <helidon.version>4.0.0-RC1</helidon.version>
     <io7m.api.previousVersion>0.0.1-SNAPSHOT</io7m.api.previousVersion>
     <jackson.version>2.14.2</jackson.version>
     <javafx.version>20.0.1</javafx.version>
@@ -714,26 +715,13 @@
         <version>${com.io7m.tabla.version}</version>
       </dependency>
 
-      <!-- Archive service -->
+      <!-- Web server. -->
       <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-server</artifactId>
-        <version>${jetty.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-util</artifactId>
-        <version>${jetty.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-io</artifactId>
-        <version>${jetty.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-http</artifactId>
-        <version>${jetty.version}</version>
+        <groupId>io.helidon</groupId>
+        <artifactId>helidon-bom</artifactId>
+        <type>pom</type>
+        <version>${helidon.version}</version>
+        <scope>import</scope>
       </dependency>
 
       <!-- Agent database. -->

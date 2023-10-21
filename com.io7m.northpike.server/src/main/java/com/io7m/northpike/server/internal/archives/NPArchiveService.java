@@ -27,36 +27,27 @@ import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerResources;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
-import com.io7m.northpike.tls.NPTLSContext;
-import com.io7m.northpike.tls.NPTLSDisabled;
 import com.io7m.northpike.tls.NPTLSEnabled;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
-import org.eclipse.jetty.http.HttpVersion;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.util.Callback;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
+import io.helidon.common.tls.TlsConfig;
+import io.helidon.webserver.WebServer;
+import io.helidon.webserver.WebServerConfig;
+import io.helidon.webserver.http.HttpRouting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.net.StandardSocketOptions.SO_REUSEADDR;
+import static java.net.StandardSocketOptions.SO_REUSEPORT;
 
 /**
  * The archive service. A static web server that serves archive files
@@ -75,8 +66,7 @@ public final class NPArchiveService implements NPArchiveServiceType
   private CompletableFuture<Void> future;
   private NPServerConfiguration configuration;
   private final CloseableCollectionType<NPServerException> resources;
-  private NPTLSContext tlsContext;
-  private Server server;
+  private WebServer webServer;
 
   private NPArchiveService(
     final NPServerConfiguration inConfiguration,
@@ -123,16 +113,13 @@ public final class NPArchiveService implements NPArchiveServiceType
       NPServerResources.createResources();
 
     final var mainExecutor =
-      Executors.newSingleThreadExecutor(runnable -> {
-        final var thread = new Thread(runnable);
-        thread.setName(
-          "com.io7m.server.archive.service[%d]"
-            .formatted(Long.valueOf(thread.getId()))
-        );
-        return thread;
-      });
-
-    resources.add(mainExecutor::shutdown);
+      resources.add(
+        Executors.newThreadPerTaskExecutor(
+          Thread.ofVirtual()
+            .name("com.io7m.northpike.archive-", 0L)
+            .factory()
+        )
+      );
 
     return new NPArchiveService(
       configurations.configuration(),
@@ -211,30 +198,64 @@ public final class NPArchiveService implements NPArchiveServiceType
   private void startServer()
     throws Exception
   {
-    this.server = new Server();
-    this.resources.add(this.server::stop);
+    final var httpConfig =
+      this.configuration.archiveConfiguration();
+    final var address =
+      new InetSocketAddress(
+        httpConfig.localAddress(),
+        httpConfig.localPort()
+      );
 
-    final var connector = this.createConnector();
-    this.server.addConnector(connector);
-    this.server.setErrorHandler(new NPErrorHandler());
-    this.server.setHandler(
-      new NPArchiveHandler(this.database, this.configuration.directories())
-    );
+    final var handler =
+      new NPArchiveHandler(this.database, this.configuration.directories());
 
-    this.server.start();
+    final var routing = HttpRouting.builder();
+    routing.get("/", handler);
+    routing.get("/*", handler);
 
-    /*
-     * Wait for the server to indicate that it has started. If the server
-     * indicates failure, raise an exception. The startup will be retried
-     * shortly.
-     */
+    final var webServerBuilder =
+      WebServerConfig.builder();
 
-    while (!this.server.isStarted() && !this.closed.get()) {
-      if (this.server.isFailed()) {
-        throw new IOException("Server failed to start!");
-      }
-      pauseBriefly();
+    if (httpConfig.tls() instanceof final NPTLSEnabled enabled) {
+      final var tlsContext =
+        this.tlsService.create(
+          "Archive",
+          enabled.keyStore(),
+          enabled.trustStore()
+        );
+
+      webServerBuilder.tls(
+        TlsConfig.builder()
+          .enabled(true)
+          .sslContext(tlsContext.context())
+          .build()
+      );
     }
+
+    this.webServer =
+      webServerBuilder.port(httpConfig.localPort())
+        .address(httpConfig.localAddress())
+        .routing(routing.get())
+        .listenerSocketOptions(Map.ofEntries(
+          Map.entry(SO_REUSEADDR, Boolean.TRUE),
+          Map.entry(SO_REUSEPORT, Boolean.TRUE)
+        ))
+        .build();
+
+    this.resources.add(this.webServer::stop);
+    this.webServer.start();
+
+    for (int index = 0; index < 10; ++index) {
+      if (!this.webServer.isRunning()) {
+        pauseBriefly();
+      }
+    }
+
+    if (!this.webServer.isRunning()) {
+      throw new IllegalStateException("Server could not be started.");
+    }
+
+    LOG.info("[{}] Archive server started", address);
   }
 
   private static void pauseBriefly()
@@ -243,101 +264,6 @@ public final class NPArchiveService implements NPArchiveServiceType
       Thread.sleep(1_000L);
     } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
-    }
-  }
-
-  private Connector createConnector()
-    throws NPServerException
-  {
-    final var archiveConfiguration =
-      this.configuration.archiveConfiguration();
-    final var tls =
-      archiveConfiguration.tls();
-
-    final var localAddress =
-      new InetSocketAddress(
-        archiveConfiguration.localAddress(),
-        archiveConfiguration.localPort()
-      );
-
-    if (tls instanceof final NPTLSEnabled config) {
-      final var sslContextFactory =
-        new SslContextFactory.Server();
-
-      final var httpsConfig = new HttpConfiguration();
-      httpsConfig.setLocalAddress(localAddress);
-      httpsConfig.addCustomizer(new SecureRequestCustomizer());
-      httpsConfig.setSendServerVersion(false);
-      httpsConfig.setSendXPoweredBy(false);
-
-      this.tlsContext =
-        this.tlsService.create(
-          "ArchiveService",
-          config.keyStore(),
-          config.trustStore()
-        );
-
-      sslContextFactory.setSslContext(this.tlsContext.context());
-
-      final var sslConnectionFactory =
-        new SslConnectionFactory(
-          sslContextFactory,
-          HttpVersion.HTTP_1_1.asString()
-        );
-
-      final var connector =
-        new ServerConnector(
-          this.server,
-          sslConnectionFactory,
-          new HttpConnectionFactory(httpsConfig)
-        );
-
-      connector.setReuseAddress(true);
-      connector.setReusePort(true);
-      connector.setPort(archiveConfiguration.localPort());
-      return connector;
-    }
-
-    if (tls instanceof NPTLSDisabled) {
-      final var httpConfig = new HttpConfiguration();
-      httpConfig.setLocalAddress(localAddress);
-      httpConfig.setSendServerVersion(false);
-      httpConfig.setSendXPoweredBy(false);
-
-      final var connectionFactory =
-        new HttpConnectionFactory(httpConfig);
-      final var connector =
-        new ServerConnector(this.server, connectionFactory);
-
-      connector.setReuseAddress(true);
-      connector.setReusePort(true);
-      connector.setPort(archiveConfiguration.localPort());
-      return connector;
-    }
-
-    throw new IllegalStateException();
-  }
-
-  private static final class NPErrorHandler extends Handler.Abstract
-  {
-    private NPErrorHandler()
-    {
-
-    }
-
-    @Override
-    public boolean handle(
-      final Request request,
-      final Response response,
-      final Callback callback)
-    {
-      response.setStatus(400);
-      response.write(
-        true,
-        ByteBuffer.wrap("ERROR".getBytes(StandardCharsets.UTF_8)),
-        callback
-      );
-      return true;
     }
   }
 
@@ -373,6 +299,6 @@ public final class NPArchiveService implements NPArchiveServiceType
 
   private boolean isStopped()
   {
-    return this.server.isStopped();
+    return !this.webServer.isRunning();
   }
 }
