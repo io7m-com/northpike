@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+  SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+  IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:c="urn:com.io7m.northpike.agent.configuration:1"
+            xmlns:t="urn:com.io7m.northpike.tls:1"
+            targetNamespace="urn:com.io7m.northpike.agent.configuration:1">
+
+  <xsd:import namespace="urn:com.io7m.northpike.tls:1"/>
+
+  <xsd:annotation>
+    <xsd:documentation>
+      The schema for agent configuration files.
+    </xsd:documentation>
+  </xsd:annotation>
+
+  <xsd:simpleType name="NameType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="UUIDType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:element name="Server">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration for a server.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence minOccurs="1"
+                    maxOccurs="1">
+        <xsd:group ref="t:TLSGroup"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="ID"
+                     type="c:UUIDType"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The ID of the server within the configuration, for organizational purposes.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="HostName"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The hostname or IP address of the server.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Port"
+                     type="xsd:unsignedInt"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The port to which to connect on the server.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="MessageSizeLimit"
+                     type="xsd:unsignedInt"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The limit on message sizes to/from this server.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Servers">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration for the servers.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="c:Server"
+                     minOccurs="0"
+                     maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:key name="ServerIDsUnique">
+      <xsd:selector xpath="c:Server"/>
+      <xsd:field xpath="@ID"/>
+    </xsd:key>
+  </xsd:element>
+
+  <xsd:element name="OCIImage">
+    <xsd:annotation>
+      <xsd:documentation>
+        A reference to an OCI image.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Registry"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The container registry (such as "quay.io").
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="Name"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The image name (such as "io7mcom/idstore").
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="Tag"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The image tag (such as "1.0.0-beta0013").
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="Hash"
+                     type="xsd:string"
+                     use="optional">
+        <xsd:annotation>
+          <xsd:documentation>
+            The image hash (such as "sha256:ab38fabce3").
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="WorkExecutor">
+    <xsd:annotation>
+      <xsd:documentation>
+        The configuration for a work executor.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="c:OCIImage"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="Type"
+                     use="required"
+                     type="c:NameType">
+        <xsd:annotation>
+          <xsd:documentation>
+            The type of the executor.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="TemporaryDirectory"
+                     use="required"
+                     type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>
+            The directory used for volatile temporary files.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="WorkDirectory"
+                     use="required"
+                     type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>
+            The base directory used to store workspaces and other data used during the execution of work.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="WorkExecDistributionDirectory"
+                     use="optional"
+                     type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>
+            The directory that contains the work executor distribution. This is typically used for containerized work
+            execution.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Agent">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration for a single agent.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="c:WorkExecutor"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="Name"
+                     type="c:NameType"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The unique agent name.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Server"
+                     type="c:UUIDType"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The server to which the agent will connect.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Agents">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration for a set of agents.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence minOccurs="0"
+                    maxOccurs="unbounded">
+        <xsd:element ref="c:Agent"/>
+      </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:key name="AgentNamesUnique">
+      <xsd:selector xpath="c:Agent"/>
+      <xsd:field xpath="@Name"/>
+    </xsd:key>
+  </xsd:element>
+
+  <xsd:element name="Configuration">
+    <xsd:annotation>
+      <xsd:documentation>
+        The top-level configuration element.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="c:Servers"/>
+        <xsd:element ref="c:Agents"/>
+      </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:keyref name="AgentRefersToServer"
+                refer="c:ServerIDsUnique">
+      <xsd:selector xpath="c:Agents/c:Agent"/>
+      <xsd:field xpath="@Server"/>
+    </xsd:keyref>
+  </xsd:element>
+
+</xsd:schema>

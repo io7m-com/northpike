@@ -17,10 +17,12 @@
 
 package com.io7m.northpike.tests.agent;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.api.NPAgentConfiguration;
 import com.io7m.northpike.agent.api.NPAgentException;
 import com.io7m.northpike.agent.internal.NPAgentConnection;
 import com.io7m.northpike.agent.internal.NPAgentConnectionType;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.agents.NPAgentKeyPairEd448Type;
@@ -56,6 +58,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Locale;
@@ -338,6 +341,11 @@ public final class NPAgentConnectionTest
     throws NPException, InterruptedException, IOException
   {
     return NPAgentConnection.open(this.strings, new NPAgentConfiguration(
+      NPAWorkExecutorConfiguration.builder()
+        .setWorkDirectory(Paths.get(""))
+        .setTemporaryDirectory(Paths.get(""))
+        .setExecutorType(new RDottedName("workexec.local"))
+        .build(),
       new NPAgentLocalDescription(
         NPAgentLocalName.of("x"),
         this.keyPair

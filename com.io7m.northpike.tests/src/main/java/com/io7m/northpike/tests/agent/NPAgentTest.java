@@ -17,8 +17,10 @@
 
 package com.io7m.northpike.tests.agent;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.api.NPAgentConfiguration;
 import com.io7m.northpike.agent.internal.NPAgent;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.model.agents.NPAgentKeyPairEd448Type;
 import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.northpike.model.agents.NPAgentKeyPublicEd448Type;
@@ -41,6 +43,7 @@ import com.io7m.percentpass.extension.MinimumPassing;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +53,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -79,7 +83,9 @@ public final class NPAgentTest
   private NPAgentConfiguration configuration;
 
   @BeforeEach
-  public void setup()
+  public void setup(
+    final @TempDir Path dirTemp,
+    final @TempDir Path dirWork)
     throws Exception
   {
     this.keyPair =
@@ -107,6 +113,11 @@ public final class NPAgentTest
 
     this.configuration =
       new NPAgentConfiguration(
+        NPAWorkExecutorConfiguration.builder()
+          .setWorkDirectory(dirWork)
+          .setTemporaryDirectory(dirTemp)
+          .setExecutorType(new RDottedName("workexec.local"))
+          .build(),
         new NPAgentLocalDescription(
           NPAgentLocalName.of("a"),
           this.keyPair

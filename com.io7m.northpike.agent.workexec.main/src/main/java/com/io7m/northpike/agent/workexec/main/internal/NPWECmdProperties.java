@@ -46,7 +46,7 @@ public final class NPWECmdProperties implements QCommandType
   {
     this.metadata = new QCommandMetadata(
       "properties",
-      new QStringType.QConstant("Print the system properties"),
+      new QStringType.QConstant("Print the system properties."),
       Optional.empty()
     );
   }

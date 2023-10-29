@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.agent.workexec.podman;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorFactoryType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorPropertyType;
@@ -51,6 +52,9 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_NO_WORKEXEC_REM
 public final class NPWorkExecutorsPodman
   implements NPAWorkExecutorFactoryType
 {
+  private static final RDottedName NAME =
+    new RDottedName("workexec.podman");
+
   private final PodmanExecutableFactoryType executables;
   private final NPStrings strings;
 
@@ -104,6 +108,12 @@ public final class NPWorkExecutorsPodman
       Objects.requireNonNull(inExecutables, "supervisors");
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
+  }
+
+  @Override
+  public RDottedName name()
+  {
+    return NAME;
   }
 
   @Override

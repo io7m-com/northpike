@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.agent.workexec.local;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorFactoryType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorPropertyType;
@@ -36,6 +37,9 @@ import static com.io7m.northpike.agent.workexec.api.NPAWorkExecutorPropertyStand
 public final class NPWorkExecutorsLocal
   implements NPAWorkExecutorFactoryType
 {
+  private static final RDottedName NAME =
+    new RDottedName("workexec.local");
+
   /**
    * A work executor that executes work on the host system directly.
    */
@@ -43,6 +47,12 @@ public final class NPWorkExecutorsLocal
   public NPWorkExecutorsLocal()
   {
 
+  }
+
+  @Override
+  public RDottedName name()
+  {
+    return NAME;
   }
 
   @Override

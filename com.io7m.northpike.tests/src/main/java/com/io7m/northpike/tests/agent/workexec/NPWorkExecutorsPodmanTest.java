@@ -270,9 +270,10 @@ public final class NPWorkExecutorsPodmanTest
     final Path tmpDirectory)
   {
     return NPAWorkExecutorConfiguration.builder()
-      .setWorkspaceDirectory(workDirectory)
+      .setWorkDirectory(workDirectory)
       .setTemporaryDirectory(tmpDirectory)
       .setWorkExecDistributionDirectory(WORKEXEC_DISTRIBUTION)
+      .setExecutorType(new RDottedName("workexec.podman"))
       .setContainerImage(new NPAWorkExecutorContainerImage(
         "docker.io",
         "eclipse-temurin",

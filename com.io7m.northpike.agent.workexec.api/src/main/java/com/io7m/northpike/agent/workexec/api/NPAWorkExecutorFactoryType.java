@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.agent.workexec.api;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPException;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 
@@ -31,6 +32,12 @@ import java.util.Set;
 
 public interface NPAWorkExecutorFactoryType
 {
+  /**
+   * @return The name of the work executor
+   */
+
+  RDottedName name();
+
   /**
    * A read-only view of the properties exposed by the work executor.
    *

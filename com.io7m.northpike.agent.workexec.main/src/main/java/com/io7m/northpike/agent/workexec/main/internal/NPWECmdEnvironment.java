@@ -46,7 +46,7 @@ public final class NPWECmdEnvironment implements QCommandType
   {
     this.metadata = new QCommandMetadata(
       "environment",
-      new QStringType.QConstant("Print the environment"),
+      new QStringType.QConstant("Print the environment."),
       Optional.empty()
     );
   }

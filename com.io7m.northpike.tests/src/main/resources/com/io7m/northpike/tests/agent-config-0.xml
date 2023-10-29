@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<c:Configuration xmlns:c="urn:com.io7m.northpike.agent.configuration:1"
+                 xmlns:t="urn:com.io7m.northpike.tls:1">
+  <c:Servers>
+    <c:Server ID="c507fff6-1206-4d1e-a73b-dfc560ed1ebf"
+              HostName="localhost"
+              Port="20048"
+              MessageSizeLimit="10000000">
+      <t:TLSEnabled>
+        <t:KeyStore Type="CANONMILL"
+                    Provider="CANONMILL"
+                    Password="changeit"
+                    File="keystore.xml"/>
+        <t:TrustStore Type="CANONMILL"
+                      Provider="CANONMILL"
+                      Password="changeit"
+                      File="truststore.xml"/>
+      </t:TLSEnabled>
+    </c:Server>
+  </c:Servers>
+  <c:Agents>
+    <c:Agent Name="com.io7m.agent0"
+             Server="c507fff6-1206-4d1e-a73b-dfc560ed1ebf">
+      <c:WorkExecutor Type="workexec.local"
+                      TemporaryDirectory="/tmp/northpike-tmp"
+                      WorkDirectory="/tmp/northpike-work"/>
+    </c:Agent>
+    <c:Agent Name="com.io7m.agent1"
+             Server="c507fff6-1206-4d1e-a73b-dfc560ed1ebf">
+      <c:WorkExecutor Type="workexec.podman"
+                      TemporaryDirectory="/tmp/northpike-tmp"
+                      WorkDirectory="/tmp/northpike-work"/>
+    </c:Agent>
+  </c:Agents>
+</c:Configuration>

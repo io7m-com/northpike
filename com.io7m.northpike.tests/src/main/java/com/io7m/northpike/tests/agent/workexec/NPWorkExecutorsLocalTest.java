@@ -100,8 +100,9 @@ public final class NPWorkExecutorsLocalTest
     try (var executor = this.executors.createExecutor(
       this.services,
       NPAWorkExecutorConfiguration.builder()
-        .setWorkspaceDirectory(workDirectory)
+        .setWorkDirectory(workDirectory)
         .setTemporaryDirectory(tmpDirectory)
+        .setExecutorType(new RDottedName("workexec.local"))
         .build()
     )) {
       final var env = executor.environment();
@@ -159,8 +160,9 @@ public final class NPWorkExecutorsLocalTest
     try (var executor = this.executors.createExecutor(
       this.services,
       NPAWorkExecutorConfiguration.builder()
-        .setWorkspaceDirectory(workDirectory)
+        .setWorkDirectory(workDirectory)
         .setTemporaryDirectory(tmpDirectory)
+        .setExecutorType(new RDottedName("workexec.local"))
         .build()
     )) {
       try (var execution = executor.createExecution(workItem)) {

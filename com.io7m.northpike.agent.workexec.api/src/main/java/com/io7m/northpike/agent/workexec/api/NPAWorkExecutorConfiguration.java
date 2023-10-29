@@ -17,6 +17,8 @@
 
 package com.io7m.northpike.agent.workexec.api;
 
+import com.io7m.lanark.core.RDottedName;
+
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,37 +29,41 @@ import java.util.Optional;
 
 public final class NPAWorkExecutorConfiguration
 {
+  private final RDottedName type;
   private final Optional<NPAWorkExecutorContainerImage> containerImage;
   private final Path workDirectory;
   private final Optional<Path> workExecDistributionDirectory;
   private final Path temporaryDirectory;
 
   private NPAWorkExecutorConfiguration(
+    final RDottedName inType,
     final Optional<NPAWorkExecutorContainerImage> inContainerImage,
     final Path inWorkspaceDirectory,
     final Path inTmpDirectory,
     final Optional<Path> inWorkExecDistributionDirectory)
   {
+    this.type =
+      Objects.requireNonNull(inType, "type");
     this.containerImage =
-      Objects.requireNonNull(
-        inContainerImage,
-        "containerImage"
-      );
+      Objects.requireNonNull(inContainerImage, "containerImage");
     this.workDirectory =
-      Objects.requireNonNull(
-        inWorkspaceDirectory,
-        "workDirectory"
-      );
+      Objects.requireNonNull(inWorkspaceDirectory, "workDirectory");
     this.temporaryDirectory =
-      Objects.requireNonNull(
-        inTmpDirectory,
-        "temporaryDirectory"
-      );
+      Objects.requireNonNull(inTmpDirectory, "temporaryDirectory");
     this.workExecDistributionDirectory =
       Objects.requireNonNull(
         inWorkExecDistributionDirectory,
         "workExecDistributionDirectory"
       );
+  }
+
+  /**
+   * @return The executor type
+   */
+
+  public RDottedName type()
+  {
+    return this.type;
   }
 
   /**
@@ -113,6 +119,7 @@ public final class NPAWorkExecutorConfiguration
 
   public static final class Builder
   {
+    private RDottedName type;
     private Optional<Path> workExecDistributionDirectory;
     private Optional<NPAWorkExecutorContainerImage> containerImage;
     private Path workDirectory;
@@ -124,6 +131,21 @@ public final class NPAWorkExecutorConfiguration
         Optional.empty();
       this.workExecDistributionDirectory =
         Optional.empty();
+    }
+
+    /**
+     * Set the executor type used for builds.
+     *
+     * @param t The executor type
+     *
+     * @return this
+     */
+
+    public Builder setExecutorType(
+      final RDottedName t)
+    {
+      this.type = Objects.requireNonNull(t, "t");
+      return this;
     }
 
     /**
@@ -148,6 +170,7 @@ public final class NPAWorkExecutorConfiguration
     public NPAWorkExecutorConfiguration build()
     {
       return new NPAWorkExecutorConfiguration(
+        this.type,
         this.containerImage,
         this.workDirectory,
         this.temporaryDirectory,
@@ -163,7 +186,7 @@ public final class NPAWorkExecutorConfiguration
      * @return this
      */
 
-    public Builder setWorkspaceDirectory(
+    public Builder setWorkDirectory(
       final Path directory)
     {
       this.workDirectory =

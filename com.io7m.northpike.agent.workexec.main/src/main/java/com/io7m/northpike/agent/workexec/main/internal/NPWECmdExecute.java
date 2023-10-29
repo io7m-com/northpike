@@ -183,14 +183,16 @@ public final class NPWECmdExecute implements QCommandType,
     services.register(NPStrings.class, strings);
     loadToolFactories(services);
 
+    final var executors =
+      new NPWorkExecutorsLocal();
+
     final var configuration =
       NPAWorkExecutorConfiguration.builder()
-        .setWorkspaceDirectory(workDirectory)
+        .setExecutorType(executors.name())
+        .setWorkDirectory(workDirectory)
         .setTemporaryDirectory(tmpDirectory)
         .build();
 
-    final var executors =
-      new NPWorkExecutorsLocal();
     final var executor =
       executors.createExecutor(services, configuration);
 

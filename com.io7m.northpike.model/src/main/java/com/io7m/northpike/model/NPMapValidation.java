@@ -45,6 +45,9 @@ public final class NPMapValidation
     final Map<A, B> m,
     final Function<B, A> key)
   {
+    Objects.requireNonNull(m, "m");
+    Objects.requireNonNull(key, "key");
+
     for (final var e : m.entrySet()) {
       final var xk = key.apply(e.getValue());
       if (!Objects.equals(e.getKey(), xk)) {

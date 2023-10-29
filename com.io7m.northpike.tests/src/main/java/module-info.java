@@ -28,10 +28,13 @@ open module com.io7m.northpike.tests
   uses ArbitraryProvider;
 
   requires com.io7m.northpike.agent.api;
+  requires com.io7m.northpike.agent.configuration;
   requires com.io7m.northpike.agent.database.api;
   requires com.io7m.northpike.agent.database.sqlite;
+  requires com.io7m.northpike.agent.main;
   requires com.io7m.northpike.agent.workexec.api;
   requires com.io7m.northpike.agent.workexec.local;
+  requires com.io7m.northpike.agent.workexec.main;
   requires com.io7m.northpike.agent.workexec.podman;
   requires com.io7m.northpike.agent;
   requires com.io7m.northpike.clock;
@@ -70,6 +73,10 @@ open module com.io7m.northpike.tests
   requires com.io7m.anethum.slf4j;
   requires com.io7m.blackthorne.core;
   requires com.io7m.blackthorne.jxe;
+  requires com.io7m.cedarbridge.runtime.api;
+  requires com.io7m.cedarbridge.runtime.bssio;
+  requires com.io7m.cedarbridge.runtime.convenience;
+  requires com.io7m.cedarbridge.runtime.time;
   requires com.io7m.ervilla.api;
   requires com.io7m.ervilla.native_exec;
   requires com.io7m.ervilla.postgres;
