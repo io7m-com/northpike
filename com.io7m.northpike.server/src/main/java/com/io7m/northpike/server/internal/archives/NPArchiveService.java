@@ -235,7 +235,7 @@ public final class NPArchiveService implements NPArchiveServiceType
     this.webServer =
       webServerBuilder.port(httpConfig.localPort())
         .address(httpConfig.localAddress())
-        .routing(routing.get())
+        .routing(routing)
         .listenerSocketOptions(Map.ofEntries(
           Map.entry(SO_REUSEADDR, Boolean.TRUE),
           Map.entry(SO_REUSEPORT, Boolean.TRUE)
