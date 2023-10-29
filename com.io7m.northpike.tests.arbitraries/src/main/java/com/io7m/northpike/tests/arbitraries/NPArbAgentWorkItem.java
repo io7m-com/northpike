@@ -17,12 +17,14 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.agents.NPAgentResourceName;
-import com.io7m.northpike.model.agents.NPAgentWorkItem;
+import com.io7m.northpike.model.NPArchiveLinks;
+import com.io7m.northpike.model.NPCleanPolicyType;
 import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPToolExecutionEvaluated;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 
@@ -43,10 +45,12 @@ public final class NPArbAgentWorkItem extends NPArbAbstract<NPAgentWorkItem>
             .set()
             .ofMaxSize(8),
           Arbitraries.defaultFor(NPToolExecutionEvaluated.class),
+          Arbitraries.defaultFor(NPArchiveLinks.class),
           Arbitraries.defaultFor(NPAgentResourceName.class)
             .set()
             .ofMaxSize(8),
-          Arbitraries.defaultFor(NPFailurePolicyType.class)
+          Arbitraries.defaultFor(NPFailurePolicyType.class),
+          Arbitraries.defaultFor(NPCleanPolicyType.class)
         ).as(NPAgentWorkItem::new)
     );
   }

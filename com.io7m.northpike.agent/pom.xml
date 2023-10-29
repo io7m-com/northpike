@@ -66,6 +66,10 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.jattribute</groupId>
+      <artifactId>com.io7m.jattribute.core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.genevan</groupId>
       <artifactId>com.io7m.genevan.core</artifactId>
     </dependency>

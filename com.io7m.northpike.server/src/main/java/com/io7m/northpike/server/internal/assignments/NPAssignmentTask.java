@@ -30,10 +30,8 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicK
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.model.agents.NPAgentDescription;
-import com.io7m.northpike.model.agents.NPAgentID;
-import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.NPArchive;
+import com.io7m.northpike.model.NPArchiveLinks;
 import com.io7m.northpike.model.NPArchiveWithLinks;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitID;
@@ -45,6 +43,9 @@ import com.io7m.northpike.model.NPToolExecutionEvaluated;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentExecution;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
@@ -72,6 +73,7 @@ import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.TaskExecuti
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.TaskRequiresMatchingAgent;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationEventType.TaskRequiresSpecificAgent;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationStatusType.StatusFailed;
+import com.io7m.northpike.plans.evaluation.NPPlanEvaluationStatusType.StatusInProgress;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationStatusType.StatusSucceeded;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationType;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationUpdateType;
@@ -165,6 +167,7 @@ public final class NPAssignmentTask
   private final Set<NPPlanParserFactoryType> planParsers;
   private final Set<NPTXParserFactoryType> toolExecParsers;
   private final NPAssignmentExecutionID executionId;
+  private NPArchiveLinks archiveLinks;
 
   private NPAssignmentTask(
     final NPDatabaseType inDatabase,
@@ -452,7 +455,7 @@ public final class NPAssignmentTask
            this.database.openConnection(NORTHPIKE)) {
       try (var transaction =
              connection.openTransaction()) {
-        NPAssignmentLogging.recordExceptionText(
+        NPAssignmentLogging.recordException(
           transaction,
           this.executionId,
           e
@@ -500,14 +503,14 @@ public final class NPAssignmentTask
             toolGet
           );
 
-        final var archiveLinks =
+        this.archiveLinks =
           this.archives.linksForArchive(this.archive);
 
         this.planPreparation =
           NPPlanPreparation.forCommit(
             compiler,
             this.commit,
-            new NPArchiveWithLinks(this.archive, archiveLinks),
+            new NPArchiveWithLinks(this.archive, this.archiveLinks),
             this.plan
           );
 
@@ -659,15 +662,19 @@ public final class NPAssignmentTask
         this.onPlanEvent(event);
       }
 
-      if (planStatus instanceof StatusFailed) {
-        this.assignmentFailed();
-        return;
+      switch (planStatus) {
+        case final StatusFailed f -> {
+          this.assignmentFailed();
+          return;
+        }
+        case final StatusSucceeded s -> {
+          this.assignmentSucceeded();
+          return;
+        }
+        case final StatusInProgress p -> {
+          pauseQuietly();
+        }
       }
-      if (planStatus instanceof StatusSucceeded) {
-        this.assignmentSucceeded();
-        return;
-      }
-      pauseQuietly();
     }
   }
 
@@ -677,39 +684,31 @@ public final class NPAssignmentTask
   {
     LOG.debug("Plan event: {}", event);
 
-    if (event instanceof ElementBecameReady) {
-      return;
+    switch (event) {
+      case final ElementBecameReady e -> {
+        return;
+      }
+      case final ElementFailed e -> {
+        return;
+      }
+      case final ElementSucceeded e -> {
+        return;
+      }
+      case final TaskRequiresSpecificAgent specific -> {
+        this.onPlanEventTaskRequiresSpecificAgent(specific);
+        return;
+      }
+      case final TaskRequiresMatchingAgent matching -> {
+        this.onPlanEventTaskRequiresMatchingAgent(matching.task());
+        return;
+      }
+      case final TaskAgentSelectionTimedOut e -> {
+        return;
+      }
+      case final TaskExecutionTimedOut e -> {
+        return;
+      }
     }
-
-    if (event instanceof ElementFailed) {
-      return;
-    }
-
-    if (event instanceof ElementSucceeded) {
-      return;
-    }
-
-    if (event instanceof final TaskRequiresSpecificAgent specific) {
-      this.onPlanEventTaskRequiresSpecificAgent(specific);
-      return;
-    }
-
-    if (event instanceof final TaskRequiresMatchingAgent matching) {
-      this.onPlanEventTaskRequiresMatchingAgent(matching.task());
-      return;
-    }
-
-    if (event instanceof TaskAgentSelectionTimedOut) {
-      return;
-    }
-
-    if (event instanceof TaskExecutionTimedOut) {
-      return;
-    }
-
-    throw new IllegalStateException(
-      "Unrecognized plan event: %s".formatted(event)
-    );
   }
 
   private void onPlanEventTaskRequiresSpecificAgent(
@@ -923,8 +922,10 @@ public final class NPAssignmentTask
         evaluated.environment(),
         evaluated.arguments()
       ),
+      this.archiveLinks,
       task.lockAgentResources(),
-      task.failurePolicy()
+      task.failurePolicy(),
+      task.cleanPolicy()
     );
   }
 

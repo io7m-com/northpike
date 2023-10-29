@@ -33,6 +33,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
+import com.io7m.northpike.model.NPArchiveLinks;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
@@ -42,6 +43,7 @@ import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPStoredException;
 import com.io7m.northpike.model.NPToolExecutionEvaluated;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
@@ -116,6 +118,7 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.URI;
@@ -130,6 +133,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.model.NPCleanImmediately.CLEAN_IMMEDIATELY;
 import static com.io7m.northpike.model.NPFailureFail.FAIL;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorApiMisuse;
@@ -390,8 +394,13 @@ public final class NPAgentTaskTest
           Map.of(),
           List.of()
         ),
+        new NPArchiveLinks(
+          URI.create("http://www.example.com/file.tar.gz"),
+          URI.create("http://www.example.com/file.tar.gz.sha256")
+        ),
         Set.of(),
-        FAIL
+        FAIL,
+        CLEAN_IMMEDIATELY
       );
 
     this.workItem0 =
@@ -784,8 +793,11 @@ public final class NPAgentTaskTest
 
     this.send(new NPACommandCWorkItemOutput(
       randomUUID(),
+      OffsetDateTime.now(),
       work.workItem().identifier(),
-      "OK!"
+      Map.of("a", "x", "b", "y"),
+      "OK!",
+      Optional.of(NPStoredException.ofException(new IOException()))
     ));
 
     this.receive(NPAResponseOK.class);
@@ -844,8 +856,11 @@ public final class NPAgentTaskTest
 
     this.send(new NPACommandCWorkItemOutput(
       randomUUID(),
+      OffsetDateTime.now(),
       work.workItem().identifier(),
-      "OK!"
+      Map.of("a", "x", "b", "y"),
+      "OK!",
+      Optional.of(NPStoredException.ofException(new IOException()))
     ));
 
     this.receive(NPAResponseOK.class);

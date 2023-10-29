@@ -14,6 +14,9 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.northpike.tools.api.NPToolFactoryType;
+import com.io7m.northpike.tools.maven.NPTMFactory3;
+
 /**
  * Continuous integration (Maven tool)
  */
@@ -39,6 +42,9 @@ module com.io7m.northpike.tools.maven
   requires org.apache.commons.compress;
   requires org.apache.commons.lang3;
   requires org.slf4j;
+
+  provides NPToolFactoryType
+    with NPTMFactory3;
 
   exports com.io7m.northpike.tools.maven;
 }

@@ -21,6 +21,25 @@
 [import com.io7m.cedarbridge cb]
 [import com.io7m.cedarbridge.time ct]
 
+[record NPA1StackTraceElement
+  [field classLoader cb:String]
+  [field moduleName cb:String]
+  [field moduleVersion cb:String]
+  [field declaringClass cb:String]
+  [field methodName cb:String]
+  [field fileName cb:String]
+  [field lineNumber cb:IntegerUnsigned32]
+]
+
+[record NPA1Exception
+  [field className cb:String]
+  [field message cb:String]
+  [field attributes [cb:Map cb:String cb:String]]
+  [field cause [cb:Option NPA1Exception]]
+  [field suppressed [cb:List NPA1Exception]]
+  [field stackTrace [cb:List NPA1StackTraceElement]]
+]
+
 [documentation NPA1PublicKey "A public key."]
 [variant NPA1PublicKey
   [documentation Ed448 "An Ed448 key."]
@@ -89,6 +108,20 @@
   [case Retry [field retryCount cb:IntegerUnsigned32]]
 ]
 
+[documentation NPA1CleanPolicy "A workspace clean policy."]
+[variant NPA1CleanPolicy
+  [case CleanLater]
+  [case CleanImmediately]
+]
+
+[documentation NPA1ArchiveLinks "A link to an archive as input to a work item."]
+[record NPA1ArchiveLinks
+  [documentation fileURI "The file URI"]
+  [field fileURI cb:URI]
+  [documentation checksumURI "The checksum URI"]
+  [field checksumURI cb:URI]
+]
+
 [documentation NPA1AgentWorkItem "A work item."]
 [record NPA1AgentWorkItem
   [documentation identifier "The work item identifier"]
@@ -99,10 +132,14 @@
   [field toolsRequired [cb:List NPA1ToolReference]]
   [documentation toolExecution "The tool execution"]
   [field toolExecution NPA1ToolExecutionEvaluated]
+  [documentation archiveLinks "The links to the archive used as input."]
+  [field archiveLinks NPA1ArchiveLinks]
   [documentation lockResources "The set of resources that must be locked"]
   [field lockResources [cb:List cb:String]]
   [documentation failurePolicy "The failure policy"]
   [field failurePolicy NPA1FailurePolicy]
+  [documentation cleanPolicy "The cleaning policy"]
+  [field cleanPolicy NPA1CleanPolicy]
 ]
 
 ;
@@ -169,10 +206,16 @@
 [record NPA1CommandCWorkItemOutput
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
+  [documentation timestamp "The timestamp"]
+  [field timestamp ct:OffsetDateTime]
   [documentation workItem "The work item identifier"]
   [field workItem NPA1WorkItemIdentifier]
+  [documentation attributes "The attributes"]
+  [field attributes [cb:Map cb:String cb:String]]
   [documentation output "The line of output"]
   [field output cb:String]
+  [documentation exception "The associated exception, if any."]
+  [field exception [cb:Option NPA1Exception]]
 ]
 
 [documentation NPA1CommandSLatencyCheck "A command to request latency information."]

@@ -19,12 +19,21 @@ package com.io7m.northpike.agent.api;
 
 import com.io7m.jmulticlose.core.CloseableType;
 
+import java.util.concurrent.TimeoutException;
+
 /**
  * A single agent.
  */
 
 public interface NPAgentType extends CloseableType
 {
+  /**
+   * Start the agent.
+   */
+
+  void start()
+    throws InterruptedException, TimeoutException;
+
   /**
    * Set the new configuration for the agent.
    *

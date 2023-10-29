@@ -31,6 +31,26 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.agent.workexec.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.agent.workexec.local</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.agent.workexec.podman</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.agent.workexec.main</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.agent.api</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -161,6 +181,10 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.jbssio</groupId>
+      <artifactId>com.io7m.jbssio.vanilla</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.jattribute</groupId>
       <artifactId>com.io7m.jattribute.core</artifactId>
     </dependency>
@@ -275,6 +299,33 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <!-- Unpack workexec distribution for use in tests. -->
+          <execution>
+            <id>unpack</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>com.io7m.northpike.agent.workexec.main</artifactId>
+                  <version>${project.version}</version>
+                  <classifier>distribution</classifier>
+                  <type>zip</type>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}/workexec</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Generate version strings used in tests. -->
       <plugin>
         <groupId>com.io7m.stmp</groupId>
@@ -297,6 +348,9 @@
                   <properties>
                     <IDSTORE_VERSION>${containers.idstore.version}</IDSTORE_VERSION>
                     <POSTGRESQL_VERSION>${containers.postgresql.version}</POSTGRESQL_VERSION>
+                    <WORKEXEC_DISTRIBUTION>
+                      ${project.build.directory}/workexec/northpike-workexec
+                    </WORKEXEC_DISTRIBUTION>
                   </properties>
                 </template>
               </templates>

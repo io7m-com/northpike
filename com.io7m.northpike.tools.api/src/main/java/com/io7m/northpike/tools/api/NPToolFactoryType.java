@@ -16,8 +16,9 @@
 
 package com.io7m.northpike.tools.api;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPToolName;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
+import com.io7m.repetoir.core.RPServiceType;
 import com.io7m.verona.core.Version;
 import com.io7m.verona.core.VersionRange;
 
@@ -28,18 +29,19 @@ import java.nio.file.Path;
  */
 
 public interface NPToolFactoryType
+  extends RPServiceType
 {
   /**
-   * @return The package name
+   * @return The tool name
    */
 
-  RDottedName packageName();
+  NPToolName toolName();
 
   /**
-   * @return The package version
+   * @return The tool version
    */
 
-  VersionRange packageVersions();
+  VersionRange toolVersions();
 
   /**
    * @param services  The service directory
@@ -54,4 +56,19 @@ public interface NPToolFactoryType
     Version version,
     Path directory
   );
+
+  /**
+   * @param requiredName The tool name
+   * @param version      The version
+   *
+   * @return {@code true} if this factory supports the given tool
+   */
+
+  default boolean supports(
+    final NPToolName requiredName,
+    final Version version)
+  {
+    return requiredName.equals(this.toolName())
+           && this.toolVersions().contains(version);
+  }
 }

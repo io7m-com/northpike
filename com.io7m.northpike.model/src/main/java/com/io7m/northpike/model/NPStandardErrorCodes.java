@@ -505,5 +505,31 @@ public final class NPStandardErrorCodes
   {
     return ERROR_WRONG_ALGORITHM;
   }
+
+  private static final NPErrorCode ERROR_CONFIGURATION =
+    new NPErrorCode("error-configuration");
+
+  /**
+   * A configuration error was encountered.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorConfiguration()
+  {
+    return ERROR_CONFIGURATION;
+  }
+
+  private static final NPErrorCode ERROR_EXTERNAL_PROGRAM_FAILED =
+    new NPErrorCode("error-external-program");
+
+  /**
+   * An external program failed.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorExternalProgramFailed()
+  {
+    return ERROR_EXTERNAL_PROGRAM_FAILED;
+  }
 }
 

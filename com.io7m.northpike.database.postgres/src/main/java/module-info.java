@@ -33,7 +33,12 @@ module com.io7m.northpike.database.postgres
   requires com.io7m.northpike.strings;
 
   requires com.io7m.anethum.api;
+  requires com.io7m.cedarbridge.runtime.api;
+  requires com.io7m.cedarbridge.runtime.bssio;
+  requires com.io7m.cedarbridge.runtime.convenience;
   requires com.io7m.jaffirm.core;
+  requires com.io7m.jbssio.api;
+  requires com.io7m.jbssio.vanilla;
   requires com.io7m.jmulticlose.core;
   requires com.io7m.jqpage.core;
   requires com.io7m.trasco.api;

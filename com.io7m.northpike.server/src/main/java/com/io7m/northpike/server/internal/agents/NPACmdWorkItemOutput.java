@@ -18,6 +18,7 @@
 package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPWorkItemLogRecord;
 import com.io7m.northpike.protocol.agent.NPACommandCWorkItemOutput;
 import com.io7m.northpike.protocol.agent.NPAResponseOK;
 
@@ -50,8 +51,13 @@ public final class NPACmdWorkItemOutput
         connection,
         context::fail,
         agentId,
-        command.identifier(),
-        command.line()
+        new NPWorkItemLogRecord(
+          command.identifier(),
+          command.timestamp(),
+          command.attributes(),
+          command.message(),
+          command.exception()
+        )
       );
     }
 

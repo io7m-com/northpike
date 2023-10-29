@@ -227,28 +227,22 @@ public final class NPToolExceptions
     final NPStrings strings,
     final JDownloadErrorType error)
   {
-    if (error instanceof final JDownloadErrorIO io) {
-      return errorIO(strings, io.exception());
-    }
-
-    if (error instanceof final JDownloadErrorChecksumMismatch mismatch) {
-      return errorChecksumMismatch(
-        strings,
-        mismatch.outputFile(),
-        mismatch.algorithm(),
-        mismatch.hashExpected(),
-        mismatch.hashReceived()
-      );
-    }
-
-    if (error instanceof final JDownloadErrorHTTP http) {
-      return errorHttp(
-        strings,
-        http.uri().toString(),
-        http.status()
-      );
-    }
-
-    throw new IllegalStateException();
+    return switch (error) {
+      case final JDownloadErrorIO io -> {
+        yield errorIO(strings, io.exception());
+      }
+      case final JDownloadErrorChecksumMismatch mismatch -> {
+        yield errorChecksumMismatch(
+          strings,
+          mismatch.outputFile(),
+          mismatch.algorithm(),
+          mismatch.hashExpected(),
+          mismatch.hashReceived()
+        );
+      }
+      case final JDownloadErrorHTTP http -> {
+        yield errorHttp(strings, http.uri().toString(), http.status());
+      }
+    };
   }
 }

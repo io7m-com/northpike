@@ -22,9 +22,10 @@ import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.blackthorne.core.Blackthorne;
-import com.io7m.northpike.model.agents.NPAgentResourceName;
+import com.io7m.northpike.model.NPCleanPolicyType;
 import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPFailureRetry;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.plans.NPPlanElementDescriptionType;
 import com.io7m.northpike.model.plans.NPPlanElementName;
@@ -38,6 +39,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.io7m.northpike.model.NPCleanImmediately.CLEAN_IMMEDIATELY;
+import static com.io7m.northpike.model.NPCleanLater.CLEAN_LATER;
 import static com.io7m.northpike.model.NPFailureFail.FAIL;
 import static com.io7m.northpike.model.NPFailureIgnore.IGNORE_FAILURE;
 import static com.io7m.northpike.plans.parsers.v1.NPP1.element;
@@ -79,8 +82,8 @@ public final class NPP1Task
   private Set<NPPlanElementName> dependsOn =
     new TreeSet<>();
 
-  private NPFailurePolicyType failurePolicy =
-    FAIL;
+  private NPFailurePolicyType failurePolicy = FAIL;
+  private NPCleanPolicyType cleanPolicy = CLEAN_IMMEDIATELY;
 
   /**
    * A task parser.
@@ -149,6 +152,20 @@ public final class NPP1Task
             Integer.parseUnsignedInt(a.getValue("RetryCount"))
           )
         )
+      ),
+      Map.entry(
+        element("CleanPolicyImmediately"),
+        Blackthorne.forScalarAttribute(
+          element("CleanPolicyImmediately"),
+          (c, a) -> CLEAN_IMMEDIATELY
+        )
+      ),
+      Map.entry(
+        element("CleanPolicyLater"),
+        Blackthorne.forScalarAttribute(
+          element("CleanPolicyLater"),
+          (c, a) -> CLEAN_LATER
+        )
       )
     );
   }
@@ -187,7 +204,8 @@ public final class NPP1Task
       this.lockAgentResources,
       this.toolExecution,
       this.dependsOn,
-      this.failurePolicy
+      this.failurePolicy,
+      this.cleanPolicy
     );
   }
 
@@ -196,37 +214,34 @@ public final class NPP1Task
     final BTElementParsingContextType context,
     final Object result)
   {
-    if (result instanceof final NPP1AgentRequireWithLabelsMatchingExpression e) {
-      this.requireWithLabels = e;
-      return;
+    switch (result) {
+      case final NPP1AgentRequireWithLabelsMatchingExpression e -> {
+        this.requireWithLabels = e;
+      }
+      case final NPP1AgentPreferWithLabelsMatchingExpression e -> {
+        this.preferWithLabels = e;
+      }
+      case final NPP1AgentRequireSameAsUsedFor e -> {
+        this.sameAsUsedFor = Optional.of(e);
+      }
+      case final NPPlanToolExecution e -> {
+        this.toolExecution = e;
+      }
+      case final NPP1AgentLockResourcesExpression e -> {
+        this.lockAgentResources.addAll(e.resources());
+      }
+      case final NPP1DependsOn e -> {
+        this.dependsOn.add(e.task());
+      }
+      case final NPFailurePolicyType e -> {
+        this.failurePolicy = e;
+      }
+      case final NPCleanPolicyType e -> {
+        this.cleanPolicy = e;
+      }
+      case null, default -> throw new IllegalStateException(
+        "Unrecognized result: %s".formatted(result)
+      );
     }
-    if (result instanceof final NPP1AgentPreferWithLabelsMatchingExpression e) {
-      this.preferWithLabels = e;
-      return;
-    }
-    if (result instanceof final NPP1AgentRequireSameAsUsedFor e) {
-      this.sameAsUsedFor = Optional.of(e);
-      return;
-    }
-    if (result instanceof final NPPlanToolExecution e) {
-      this.toolExecution = e;
-      return;
-    }
-    if (result instanceof final NPP1AgentLockResourcesExpression e) {
-      this.lockAgentResources.addAll(e.resources());
-      return;
-    }
-    if (result instanceof final NPP1DependsOn e) {
-      this.dependsOn.add(e.task());
-      return;
-    }
-    if (result instanceof final NPFailurePolicyType e) {
-      this.failurePolicy = e;
-      return;
-    }
-
-    throw new IllegalStateException(
-      "Unrecognized result: %s".formatted(result)
-    );
   }
 }

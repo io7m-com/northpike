@@ -34,6 +34,8 @@ import com.io7m.northpike.protocol.intro.NPIProtocol;
 import com.io7m.northpike.protocol.intro.NPIProtocolsAvailable;
 import com.io7m.northpike.protocol.intro.cb.NPIMessages;
 import com.io7m.northpike.strings.NPStrings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
@@ -60,6 +62,8 @@ import static com.io7m.northpike.strings.NPStringConstants.RECEIVED;
 
 public final class NPAgentConnectionHandlers
 {
+  private static final Logger LOG =
+    LoggerFactory.getLogger(NPAgentConnectionHandlers.class);
   private static final SocketFactory SOCKETS =
     SocketFactory.getDefault();
   private static final SocketFactory SOCKETS_TLS =
@@ -96,6 +100,12 @@ public final class NPAgentConnectionHandlers
         server.hostname(),
         server.port()
       );
+
+    LOG.info(
+      "Connect {} (TLS {})",
+      socketAddress,
+      Boolean.valueOf(server.useTLS())
+    );
 
     try {
       final var socket =

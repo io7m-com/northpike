@@ -216,7 +216,7 @@
             </goals>
             <phase>package</phase>
             <configuration>
-              <finalName>idstore</finalName>
+              <finalName>northpike-server</finalName>
               <descriptors>
                 <descriptor>src/main/assembly/distribution.xml</descriptor>
               </descriptors>

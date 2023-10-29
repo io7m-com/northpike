@@ -1,6 +1,7 @@
 NPTestProperties(
   POSTGRESQL_VERSION,
-  IDSTORE_VERSION) ::= <<
+  IDSTORE_VERSION,
+  WORKEXEC_DISTRIBUTION) ::= <<
 
 /*
  * Copyright © 2023 Mark Raynsford \<code@io7m.com\> https://www.io7m.com
@@ -20,10 +21,16 @@ NPTestProperties(
 
 package com.io7m.northpike.tests;
 
+import java.nio.file.Path;
+
 public final class NPTestProperties
 {
-  public static final String POSTGRESQL_VERSION = "<POSTGRESQL_VERSION>";
-  public static final String IDSTORE_VERSION = "<IDSTORE_VERSION>";
+  public static final String POSTGRESQL_VERSION =
+    "<POSTGRESQL_VERSION>";
+  public static final String IDSTORE_VERSION =
+    "<IDSTORE_VERSION>";
+  public static final Path WORKEXEC_DISTRIBUTION =
+    Path.of("<WORKEXEC_DISTRIBUTION>");
 
   private NPTestProperties()
   {

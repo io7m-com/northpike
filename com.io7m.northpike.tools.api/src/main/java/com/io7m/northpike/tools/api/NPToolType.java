@@ -52,6 +52,7 @@ public interface NPToolType extends AutoCloseable
    * Execute the given command.
    *
    * @param executionDirectory The initial execution directory
+   * @param environment        The environment variables
    * @param arguments          The arguments
    *
    * @return The result of executing the command
@@ -62,6 +63,7 @@ public interface NPToolType extends AutoCloseable
 
   NPToolProgramResult execute(
     Path executionDirectory,
+    Map<String, String> environment,
     List<String> arguments)
     throws NPToolException, InterruptedException;
 

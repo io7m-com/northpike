@@ -17,38 +17,53 @@
 
 package com.io7m.northpike.protocol.agent;
 
+import com.io7m.northpike.model.NPStoredException;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 
+import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
  * A work item produced a line of output.
  *
  * @param messageID  The ID of this message
+ * @param timestamp  The time the output was produced
  * @param identifier The identifier
- * @param line       The line of output
+ * @param attributes The message attributes
+ * @param message    The line of output
+ * @param exception  The exception, if any
  */
 
 public record NPACommandCWorkItemOutput(
   UUID messageID,
+  OffsetDateTime timestamp,
   NPWorkItemIdentifier identifier,
-  String line)
+  Map<String, String> attributes,
+  String message,
+  Optional<NPStoredException> exception)
   implements NPACommandC2SType<NPAResponseOK>
 {
   /**
    * A work item produced a line of output.
    *
    * @param messageID  The ID of this message
+   * @param timestamp  The time the output was produced
    * @param identifier The identifier
-   * @param line       The line of output
+   * @param attributes The message attributes
+   * @param message    The line of output
+   * @param exception  The exception, if any
    */
 
   public NPACommandCWorkItemOutput
   {
     Objects.requireNonNull(messageID, "messageID");
     Objects.requireNonNull(identifier, "identifier");
-    Objects.requireNonNull(line, "line");
+    Objects.requireNonNull(attributes, "attributes");
+    Objects.requireNonNull(message, "message");
+    Objects.requireNonNull(exception, "exception");
   }
 
   @Override

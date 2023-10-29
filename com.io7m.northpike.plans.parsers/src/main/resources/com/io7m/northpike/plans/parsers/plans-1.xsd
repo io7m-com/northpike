@@ -247,6 +247,56 @@
     </xsd:choice>
   </xsd:group>
 
+
+
+
+
+  <xsd:complexType name="CleanPolicyType"
+                   abstract="true">
+    <xsd:annotation>
+      <xsd:documentation>
+        The base type of cleanup policies.
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:complexType>
+
+  <xsd:complexType name="CleanPolicyImmediatelyType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A cleanup policy that indicates that the workspace should be cleaned immediately upon task completion.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="np:CleanPolicyType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="CleanPolicyLaterType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A cleanup policy that indicates that the workspace should be cleaned later; either by a subsequent task
+        or automatically as part of scheduled maintenance.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="np:CleanPolicyType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="CleanPolicyImmediately"
+               type="np:CleanPolicyImmediatelyType"/>
+  <xsd:element name="CleanPolicyLater"
+               type="np:CleanPolicyLaterType"/>
+
+  <xsd:group name="CleanPolicyGroup">
+    <xsd:choice>
+      <xsd:element ref="np:CleanPolicyImmediately"/>
+      <xsd:element ref="np:CleanPolicyLater"/>
+    </xsd:choice>
+  </xsd:group>
+
   <xsd:element name="Timeouts">
     <xsd:complexType>
       <xsd:attribute name="AgentSelection"
@@ -586,6 +636,14 @@
               </xsd:documentation>
             </xsd:annotation>
           </xsd:element>
+
+          <xsd:group ref="np:CleanPolicyGroup">
+            <xsd:annotation>
+              <xsd:documentation>
+                The cleanup policy for the task.
+              </xsd:documentation>
+            </xsd:annotation>
+          </xsd:group>
 
           <xsd:sequence minOccurs="0"
                         maxOccurs="unbounded">

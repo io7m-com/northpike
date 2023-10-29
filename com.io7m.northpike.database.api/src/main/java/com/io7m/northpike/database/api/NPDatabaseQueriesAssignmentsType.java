@@ -19,9 +19,11 @@ package com.io7m.northpike.database.api;
 
 import com.io7m.northpike.model.NPPageSizes;
 import com.io7m.northpike.model.NPSearchParametersType;
+import com.io7m.northpike.model.NPStoredException;
 import com.io7m.northpike.model.NPTimeRange;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.NPWorkItemLogRecord;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionSearchParameters;
@@ -87,7 +89,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
      *
      * @param assignment The assignment name
      * @param timeRange  Only return commits created within this time range
-     * @param pageSize The page size
+     * @param pageSize   The page size
      */
 
     record Parameters(
@@ -208,13 +210,15 @@ public sealed interface NPDatabaseQueriesAssignmentsType
      * @param type       The message type (such as "EXCEPTION")
      * @param message    The message
      * @param attributes The message attributes
+     * @param exception  The associated exception, if any
      */
 
     record Parameters(
       NPAssignmentExecutionID execution,
       String type,
       String message,
-      Map<String, String> attributes)
+      Map<String, String> attributes,
+      Optional<NPStoredException> exception)
     {
       /**
        * The log parameters.
@@ -226,6 +230,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
         Objects.requireNonNull(type, "type");
         Objects.requireNonNull(message, "line");
         Objects.requireNonNull(attributes, "attributes");
+        Objects.requireNonNull(exception, "exception");
       }
     }
   }
@@ -313,29 +318,9 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    */
 
   non-sealed interface WorkItemLogAddType
-    extends NPDatabaseQueryType<WorkItemLogAddType.Parameters, NPDatabaseUnit>,
+    extends NPDatabaseQueryType<NPWorkItemLogRecord, NPDatabaseUnit>,
     NPDatabaseQueriesAssignmentsType
   {
-    /**
-     * The log parameters.
-     *
-     * @param identifier The work item identifier
-     * @param line       The line of output
-     */
 
-    record Parameters(
-      NPWorkItemIdentifier identifier,
-      String line)
-    {
-      /**
-       * The log parameters.
-       */
-
-      public Parameters
-      {
-        Objects.requireNonNull(identifier, "identifier");
-        Objects.requireNonNull(line, "line");
-      }
-    }
   }
 }

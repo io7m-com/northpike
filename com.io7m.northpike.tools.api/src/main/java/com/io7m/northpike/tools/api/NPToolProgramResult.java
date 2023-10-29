@@ -19,32 +19,27 @@ package com.io7m.northpike.tools.api;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
 
 /**
  * The result of executing an external program.
  *
  * @param execution The exact command execution
  * @param exitCode  The exit code
- * @param output    The output the command produced
  */
 
 public record NPToolProgramResult(
   List<String> execution,
-  int exitCode,
-  Queue<String> output)
+  int exitCode)
 {
   /**
    * The result of executing an external program.
    *
    * @param execution The exact command execution
    * @param exitCode  The exit code
-   * @param output    The output the command produced
    */
 
   public NPToolProgramResult
   {
     Objects.requireNonNull(execution, "execution");
-    Objects.requireNonNull(output, "output");
   }
 }

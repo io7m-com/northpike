@@ -30,6 +30,9 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.agent.api;
   requires com.io7m.northpike.agent.database.api;
   requires com.io7m.northpike.agent.database.sqlite;
+  requires com.io7m.northpike.agent.workexec.api;
+  requires com.io7m.northpike.agent.workexec.local;
+  requires com.io7m.northpike.agent.workexec.podman;
   requires com.io7m.northpike.agent;
   requires com.io7m.northpike.clock;
   requires com.io7m.northpike.database.api;
@@ -75,6 +78,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.idstore.admin_client;
   requires com.io7m.idstore.user_client.api;
   requires com.io7m.jattribute.core;
+  requires com.io7m.jbssio.vanilla;
   requires com.io7m.jmulticlose.core;
   requires com.io7m.junreachable.core;
   requires com.io7m.medrina.api;

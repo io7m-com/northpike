@@ -85,7 +85,7 @@ public final class NPA1Messages
   }
 
   /**
-   * The protocol messages for Inventory v1 Cedarbridge.
+   * The protocol messages for Agent v1 Cedarbridge.
    */
 
   public NPA1Messages()

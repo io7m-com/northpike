@@ -62,6 +62,12 @@
   <entry key="error_work_item_not_created">This work item is not in the CREATED state.</entry>
   <entry key="error_work_item_not_executed">You cannot report status for work item that you did not execute.</entry>
   <entry key="error_work_item_not_yours">This work item has a different selected agent.</entry>
+  <entry key="error_no_container_image">No container image was configured.</entry>
+  <entry key="error_no_container_image_remediate">Specify a container image in the configuration.</entry>
+  <entry key="error_no_workexec">No workexec distribution directory was configured.</entry>
+  <entry key="error_no_workexec_remediate">Specify a workexec distribution directory in the configuration.</entry>
+  <entry key="error_external_program_failed">Running the external program failed.</entry>
+  <entry key="error_tool_not_supported">No support is available for the specified tool and/or tool version.</entry>
   <entry key="expected">Expected</entry>
   <entry key="file">File</entry>
   <entry key="format">Format</entry>
@@ -80,6 +86,7 @@
   <entry key="plan_version">Plan Version</entry>
   <entry key="public_key">Public Key</entry>
   <entry key="pull">Pull</entry>
+  <entry key="program">Program</entry>
   <entry key="received">Received</entry>
   <entry key="repository">Repository</entry>
   <entry key="scm_provider">SCM Provider</entry>
@@ -87,6 +94,8 @@
   <entry key="suggest_compilation_failed">Use the validation API to check data before submitting it.</entry>
   <entry key="target">Target</entry>
   <entry key="task">Task</entry>
+  <entry key="tool_name">Tool</entry>
+  <entry key="tool_version">Tool Version</entry>
   <entry key="tool_execution">Tool Execution</entry>
   <entry key="tool_execution_format">Tool Execution Format</entry>
   <entry key="tool_execution_version">Tool Execution Version</entry>
@@ -95,6 +104,10 @@
   <entry key="user">User</entry>
   <entry key="user_id">User ID</entry>
   <entry key="verify">Verify</entry>
+  <entry key="version">Version</entry>
+  <entry key="container_image">Container Image</entry>
+  <entry key="container_tag">Container Tag</entry>
+  <entry key="container_registry">Container Registry</entry>
 
   <entry key="type_check_undefined_variable">Undefined variable.</entry>
   <entry key="type_check_expression">An expression did not have the expected type.</entry>

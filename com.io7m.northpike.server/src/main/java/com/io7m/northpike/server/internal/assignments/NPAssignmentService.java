@@ -213,7 +213,7 @@ public final class NPAssignmentService implements NPAssignmentServiceType
            this.database.openConnection(NORTHPIKE)) {
       try (var transaction =
              connection.openTransaction()) {
-        NPAssignmentLogging.recordExceptionText(transaction, executionId, e);
+        NPAssignmentLogging.recordException(transaction, executionId, e);
         transaction.commit();
       }
     } catch (final NPDatabaseException ex) {

@@ -1,7 +1,10 @@
 API_MISUSE|api-misuse|An API was used incorrectly.
 AUTHENTICATION|authentication|Authentication failed.
+COMPILATION_FAILED|compilation-failed|Compilation failed.
+CONFIGURATION|configuration|A configuration error was encountered.
 CYCLIC|cyclic|A cycle was introduced into a structure that is not supposed to be cyclic.
 DUPLICATE|duplicate|An object already exists.
+EXTERNAL_PROGRAM_FAILED|external-program|An external program failed.
 HTTP_METHOD|http-method|The wrong HTTP method was used.
 IO|io|An internal I/O error.
 NONEXISTENT|nonexistent|A requested object was not found.
@@ -9,15 +12,19 @@ NOT_LOGGED_IN|not-logged-in|A user is trying to perform an operation without hav
 NO_SUPPORTED_PROTOCOLS|no-supported-protocols|The client and server have no supported protocols in common.
 OPERATION_NOT_PERMITTED|operation-not-permitted|A generic "operation not permitted" error.
 PARSE|parse|A parse error was encountered.
+PLAN_STILL_REFERENCED|plan-still-referenced|The given plan cannot be deleted because it is still referenced by one or more assignments.
 PROTOCOL|protocol|A client sent a broken message of some kind.
 REMOVE_TOO_MANY_ITEMS|remove-too-many-items|An attempt was made to remove more items than actually exist.
 RESOURCE_CLOSE_FAILED|resource-close-failed|One or more resources failed to close.
 SECURITY_POLICY_DENIED|security-policy-denied|An operation was denied by the security policy.
+SIGNATURE_CREATION_FAILED|signature-creation-failed|Signature creation failed.
+SIGNATURE_VERIFICATION_FAILED|signature-verification-failed|Signature verification failed.
 SQL_FOREIGN_KEY|sql-foreign-key|A violation of an SQL foreign key integrity constraint.
 SQL_REVISION|sql-revision|An internal SQL database error relating to database revisioning.
 SQL_UNIQUE|sql-unique|A violation of an SQL uniqueness constraint.
 SQL_UNSUPPORTED_QUERY_CLASS|sql-unsupported-query-class|An attempt was made to use a query class that is unsupported.
 SQL|sql|An internal SQL database error.
+TOOL_EXECUTION_STILL_REFERENCED|tool-execution-still-referenced|The tool execution cannot be deleted because it is still referenced by one or more plans.
 TRASCO|trasco|An error raised by the Trasco database versioning library.
 TYPE_CHECK_FAILED|type-check-failed|Type checking failed.
 TYPE_CHECK_FIELD_INVALID|type-field-invalid|A field value did not match the provided pattern.
@@ -29,9 +36,4 @@ TYPE_SCALAR_REFERENCED|type-scalar-referenced|The scalar type is referenced by o
 UNSAFE_ARCHIVE_ENTRY|unsafe-archive-entry|An unsafe archive entry was encountered.
 UNSUPPORTED|unsupported|An operation was unsupported.
 USER_NONEXISTENT|user-nonexistent|An attempt was made to reference a user that does not exist.
-COMPILATION_FAILED|compilation-failed|Compilation failed.
-SIGNATURE_VERIFICATION_FAILED|signature-verification-failed|Signature verification failed.
-SIGNATURE_CREATION_FAILED|signature-creation-failed|Signature creation failed.
-PLAN_STILL_REFERENCED|plan-still-referenced|The given plan cannot be deleted because it is still referenced by one or more assignments.
-TOOL_EXECUTION_STILL_REFERENCED|tool-execution-still-referenced|The tool execution cannot be deleted because it is still referenced by one or more plans.
 WRONG_ALGORITHM|wrong-algorithm|The wrong algorithm ID was encountered.

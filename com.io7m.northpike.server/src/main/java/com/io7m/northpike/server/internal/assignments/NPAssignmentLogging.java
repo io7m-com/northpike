@@ -21,14 +21,14 @@ import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogAddType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogAddType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
+import com.io7m.northpike.model.NPStoredException;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.seltzer.api.SStructuredErrorType;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.Map;
+import java.util.Optional;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNullElse;
 
 /**
  * Functions to log text to the database during assignment execution.
@@ -51,34 +51,29 @@ public final class NPAssignmentLogging
    * @throws NPDatabaseException On errors
    */
 
-  public static void recordExceptionText(
+  public static void recordException(
     final NPDatabaseTransactionType transaction,
     final NPAssignmentExecutionID executionId,
     final Throwable e)
     throws NPDatabaseException
   {
-    final var bytes = new ByteArrayOutputStream();
-    try (var writer = new PrintStream(bytes, true, UTF_8)) {
-      e.printStackTrace(writer);
-      writer.flush();
-
-      final Map<String, String> attributes;
-      if (e instanceof final SStructuredErrorType<?> s) {
-        attributes = s.attributes();
-      } else {
-        attributes = Map.of();
-      }
-
-      transaction.queries(ExecutionLogAddType.class)
-        .execute(
-          new Parameters(
-            executionId,
-            "EXCEPTION",
-            bytes.toString(UTF_8),
-            attributes
-          )
-        );
+    final Map<String, String> attributes;
+    if (e instanceof final SStructuredErrorType<?> s) {
+      attributes = s.attributes();
+    } else {
+      attributes = Map.of();
     }
+
+    transaction.queries(ExecutionLogAddType.class)
+      .execute(
+        new Parameters(
+          executionId,
+          "EXCEPTION",
+          requireNonNullElse(e.getMessage(), e.getClass().getCanonicalName()),
+          attributes,
+          Optional.of(NPStoredException.ofException(e))
+        )
+      );
   }
 
   /**
@@ -98,7 +93,13 @@ public final class NPAssignmentLogging
     throws NPDatabaseException
   {
     transaction.queries(ExecutionLogAddType.class)
-      .execute(new Parameters(executionId, "INFO", text, Map.of()));
+      .execute(new Parameters(
+        executionId,
+        "INFO",
+        text,
+        Map.of(),
+        Optional.empty())
+      );
   }
 
   /**
@@ -118,6 +119,12 @@ public final class NPAssignmentLogging
     throws NPDatabaseException
   {
     transaction.queries(ExecutionLogAddType.class)
-      .execute(new Parameters(executionId, "ERROR", text, Map.of()));
+      .execute(new Parameters(
+        executionId,
+        "ERROR",
+        text,
+        Map.of(),
+        Optional.empty())
+      );
   }
 }

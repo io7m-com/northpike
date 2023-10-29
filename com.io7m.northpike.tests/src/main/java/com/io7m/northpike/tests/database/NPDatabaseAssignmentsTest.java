@@ -51,8 +51,10 @@ import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPStoredException;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.NPWorkItemLogRecord;
 import com.io7m.northpike.model.NPWorkItemStatus;
 import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.agents.NPAgentID;
@@ -91,6 +93,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.io.IOException;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -867,7 +870,8 @@ public final class NPDatabaseAssignmentsTest
           Map.entry("Key1", "Value1"),
           Map.entry("Key2", "Value2"),
           Map.entry("Key3", "Value3")
-        )
+        ),
+        Optional.of(NPStoredException.ofException(new IOException()))
       ));
 
     final var paged =
@@ -1634,9 +1638,12 @@ public final class NPDatabaseAssignmentsTest
       workPut.execute(workItem);
 
       for (int index = 0; index < 10; ++index) {
-        workLogAdd.execute(new WorkItemLogAddType.Parameters(
+        workLogAdd.execute(new NPWorkItemLogRecord(
           workItem.identifier(),
-          "Line %d".formatted(Integer.valueOf(index))
+          OffsetDateTime.now(),
+          Map.of("a", "x", "b", "y"),
+          "Line %d".formatted(Integer.valueOf(index)),
+          Optional.of(NPStoredException.ofException(new IOException()))
         ));
       }
     }
@@ -1650,7 +1657,8 @@ public final class NPDatabaseAssignmentsTest
           Map.entry("A", "X"),
           Map.entry("B", "Y"),
           Map.entry("C", "Z")
-        )
+        ),
+        Optional.of(NPStoredException.ofException(new IOException()))
       ));
     }
 

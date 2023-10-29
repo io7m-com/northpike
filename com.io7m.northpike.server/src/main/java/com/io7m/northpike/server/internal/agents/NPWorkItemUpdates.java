@@ -21,12 +21,13 @@ import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemLogAddType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemPutType;
-import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.NPWorkItemLogRecord;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.strings.NPStringConstantType;
 
 import java.util.Optional;
@@ -107,8 +108,7 @@ public final class NPWorkItemUpdates
    * @param connection The database connection.
    * @param onFail     A function called on failure
    * @param agentId    The agent ID
-   * @param identifier The identifier
-   * @param line       The output line
+   * @param logRecord  The log record
    *
    * @throws NPException On errors
    */
@@ -117,8 +117,7 @@ public final class NPWorkItemUpdates
     final NPDatabaseConnectionType connection,
     final BiFunction<NPStringConstantType, NPErrorCode, NPException> onFail,
     final NPAgentID agentId,
-    final NPWorkItemIdentifier identifier,
-    final String line)
+    final NPWorkItemLogRecord logRecord)
     throws NPException
   {
     try (var transaction = connection.openTransaction()) {
@@ -132,7 +131,7 @@ public final class NPWorkItemUpdates
        */
 
       final var existing =
-        get.execute(identifier)
+        get.execute(logRecord.workItem())
           .orElseThrow(() -> {
             return onFail.apply(ERROR_NONEXISTENT, errorNonexistent());
           });
@@ -147,7 +146,7 @@ public final class NPWorkItemUpdates
         }
       }
 
-      add.execute(new WorkItemLogAddType.Parameters(identifier, line));
+      add.execute(logRecord);
       transaction.commit();
     }
   }

@@ -18,12 +18,14 @@
 package com.io7m.northpike.tests.arbitraries.protocol.agent;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPStoredException;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.protocol.agent.NPACommandCWorkItemOutput;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public final class NPArbACommandCWorkItemOutput
@@ -36,9 +38,18 @@ public final class NPArbACommandCWorkItemOutput
       () -> {
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
+          Arbitraries.defaultFor(OffsetDateTime.class),
           Arbitraries.defaultFor(NPWorkItemIdentifier.class),
+          Arbitraries.maps(
+            Arbitraries.defaultFor(RDottedName.class)
+              .map(RDottedName::value),
+            Arbitraries.defaultFor(RDottedName.class)
+              .map(RDottedName::value)
+          ),
           Arbitraries.defaultFor(RDottedName.class)
-            .map(RDottedName::value)
+            .map(RDottedName::value),
+          Arbitraries.defaultFor(NPStoredException.class)
+            .optional()
         ).as(NPACommandCWorkItemOutput::new);
       }
     );

@@ -978,6 +978,19 @@ CREATE TABLE assignment_execution_logs (
   ael_attributes   HSTORE                   NOT NULL,
   -- [jooq ignore stop]
 
+  ael_exception_format  TEXT,
+  ael_exception_version INTEGER,
+  ael_exception_data    BYTEA,
+
+  CONSTRAINT assignment_executions_logs_exception CHECK (
+    CASE
+      WHEN ael_exception_data IS NOT NULL THEN
+        (ael_exception_version IS NOT NULL) AND (ael_exception_format IS NOT NULL)
+      ELSE
+        't'::boolean
+    END
+  ),
+
   CONSTRAINT assignment_executions_logs_exists
     FOREIGN KEY (ael_id)
       REFERENCES assignment_executions (ae_id)
@@ -1068,10 +1081,27 @@ CREATE TABLE work_items (
 
     <Statement><![CDATA[
 CREATE TABLE work_item_logs (
-  wil_id         BIGINT                    NOT NULL GENERATED ALWAYS AS IDENTITY,
-  wil_item       BIGINT                    NOT NULL,
-  wil_time       TIMESTAMP WITH TIME ZONE  NOT NULL,
-  wil_line       TEXT                      NOT NULL,
+  wil_id          BIGINT                    NOT NULL GENERATED ALWAYS AS IDENTITY,
+  wil_item        BIGINT                    NOT NULL,
+  wil_time        TIMESTAMP WITH TIME ZONE  NOT NULL,
+  wil_text        TEXT                      NOT NULL,
+
+  -- [jooq ignore start]
+  wil_attributes  HSTORE                    NOT NULL,
+  -- [jooq ignore stop]
+
+  wil_exception_format  TEXT,
+  wil_exception_version INTEGER,
+  wil_exception_data    BYTEA,
+
+  CONSTRAINT work_item_logs_exception CHECK (
+    CASE
+      WHEN wil_exception_data IS NOT NULL THEN
+        (wil_exception_version IS NOT NULL) AND (wil_exception_format IS NOT NULL)
+      ELSE
+        't'::boolean
+    END
+  ),
 
   CONSTRAINT work_item_logs_primary_key
     PRIMARY KEY (wil_id),

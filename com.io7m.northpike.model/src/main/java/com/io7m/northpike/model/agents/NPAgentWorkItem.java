@@ -17,6 +17,8 @@
 
 package com.io7m.northpike.model.agents;
 
+import com.io7m.northpike.model.NPArchiveLinks;
+import com.io7m.northpike.model.NPCleanPolicyType;
 import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPToolExecutionEvaluated;
 import com.io7m.northpike.model.NPToolReference;
@@ -33,8 +35,10 @@ import java.util.Set;
  * @param metadata      The descriptive metadata
  * @param toolsRequired The required tools
  * @param toolExecution The tool execution
+ * @param archiveLinks  The archive links
  * @param lockResources The resources on the agent that must be locked
  * @param failurePolicy The failure policy
+ * @param cleanPolicy   The workspace cleanup policy
  */
 
 public record NPAgentWorkItem(
@@ -42,8 +46,10 @@ public record NPAgentWorkItem(
   Map<String, String> metadata,
   Set<NPToolReference> toolsRequired,
   NPToolExecutionEvaluated toolExecution,
+  NPArchiveLinks archiveLinks,
   Set<NPAgentResourceName> lockResources,
-  NPFailurePolicyType failurePolicy)
+  NPFailurePolicyType failurePolicy,
+  NPCleanPolicyType cleanPolicy)
 {
   /**
    * A single, complete item of work for an agent to execute.
@@ -52,8 +58,10 @@ public record NPAgentWorkItem(
    * @param metadata      The descriptive metadata
    * @param toolsRequired The required tools
    * @param toolExecution The tool execution
+   * @param archiveLinks  The archive links
    * @param lockResources The resources on the agent that must be locked
    * @param failurePolicy The failure policy
+   * @param cleanPolicy   The workspace cleanup policy
    */
 
   public NPAgentWorkItem
@@ -62,7 +70,9 @@ public record NPAgentWorkItem(
     Objects.requireNonNull(toolsRequired, "toolsRequired");
     Objects.requireNonNull(toolExecution, "toolExecution");
     Objects.requireNonNull(lockResources, "lockResources");
+    Objects.requireNonNull(archiveLinks, "archiveLinks");
     Objects.requireNonNull(failurePolicy, "failurePolicy");
+    Objects.requireNonNull(cleanPolicy, "cleanPolicy");
 
     metadata = Map.copyOf(metadata);
     toolsRequired = Set.copyOf(toolsRequired);
