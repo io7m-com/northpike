@@ -16,7 +16,7 @@
 
 package com.io7m.northpike.server.api;
 
-import com.io7m.northpike.tls.NPTLSConfigurationType;
+import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 
 import java.net.InetAddress;
 import java.util.Objects;

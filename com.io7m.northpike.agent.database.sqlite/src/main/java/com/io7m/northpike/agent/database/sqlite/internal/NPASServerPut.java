@@ -17,14 +17,27 @@
 
 package com.io7m.northpike.agent.database.sqlite.internal;
 
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseException;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesServersType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseUnit;
 import com.io7m.northpike.agent.database.sqlite.internal.NPASQueryProviderType.Service;
+import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
+import com.io7m.northpike.model.tls.NPTLSConfigurationType;
+import com.io7m.northpike.model.tls.NPTLSDisabled;
+import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import org.jooq.DSLContext;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 import static com.io7m.northpike.agent.database.api.NPAgentDatabaseUnit.UNIT;
 import static com.io7m.northpike.agent.database.sqlite.internal.Tables.SERVERS;
+import static java.util.Objects.requireNonNullElse;
 
 /**
  * Update a server.
@@ -62,33 +75,111 @@ public final class NPASServerPut
   protected NPAgentDatabaseUnit onExecute(
     final DSLContext context,
     final NPAgentServerDescription server)
+    throws NPAgentDatabaseException
   {
-    final var query =
-      context.insertInto(SERVERS)
-        .set(SERVERS.S_ID,
-             server.id().toString())
-        .set(SERVERS.S_REMOTE_ADDRESS,
-             server.hostname())
-        .set(SERVERS.S_PORT,
-             Integer.valueOf(server.port()))
-        .set(SERVERS.S_TLS,
-             Integer.valueOf(server.useTLS() ? 1 : 0))
-        .set(SERVERS.S_MESSAGE_SIZE_LIMIT,
-             Integer.valueOf(server.messageSizeLimit()))
-        .onDuplicateKeyUpdate()
-        .set(SERVERS.S_ID,
-             server.id().toString())
-        .set(SERVERS.S_REMOTE_ADDRESS,
-             server.hostname())
-        .set(SERVERS.S_PORT,
-             Integer.valueOf(server.port()))
-        .set(SERVERS.S_TLS,
-             Integer.valueOf(server.useTLS() ? 1 : 0))
-        .set(SERVERS.S_MESSAGE_SIZE_LIMIT,
-             Integer.valueOf(server.messageSizeLimit()));
+    try {
+      final var query =
+        context.insertInto(SERVERS)
+          .set(
+            SERVERS.S_ID,
+            server.id().toString())
+          .set(
+            SERVERS.S_REMOTE_ADDRESS,
+            server.hostname())
+          .set(
+            SERVERS.S_PORT,
+            Integer.valueOf(server.port()))
+          .set(
+            SERVERS.S_TLS,
+            Integer.valueOf(tlsEnabled(server.tls())))
+          .set(
+            SERVERS.S_TLS_KEYSTORE,
+            tlsKeystore(server.tls()))
+          .set(
+            SERVERS.S_TLS_TRUSTSTORE,
+            tlsTruststore(server.tls()))
+          .set(
+            SERVERS.S_MESSAGE_SIZE_LIMIT,
+            Integer.valueOf(server.messageSizeLimit()))
+          .onDuplicateKeyUpdate()
+          .set(
+            SERVERS.S_ID,
+            server.id().toString())
+          .set(
+            SERVERS.S_REMOTE_ADDRESS,
+            server.hostname())
+          .set(
+            SERVERS.S_PORT,
+            Integer.valueOf(server.port()))
+          .set(
+            SERVERS.S_TLS,
+            Integer.valueOf(tlsEnabled(server.tls())))
+          .set(
+            SERVERS.S_TLS_KEYSTORE,
+            tlsKeystore(server.tls()))
+          .set(
+            SERVERS.S_TLS_TRUSTSTORE,
+            tlsTruststore(server.tls()))
+          .set(
+            SERVERS.S_MESSAGE_SIZE_LIMIT,
+            Integer.valueOf(server.messageSizeLimit()));
 
-    recordQuery(query);
-    query.execute();
-    return UNIT;
+      recordQuery(query);
+      query.execute();
+      return UNIT;
+    } catch (final IOException e) {
+      throw new NPAgentDatabaseException(
+        requireNonNullElse(e.getMessage(), e.getClass().getCanonicalName()),
+        e,
+        NPStandardErrorCodes.errorIo(),
+        Map.of(),
+        Optional.empty()
+      );
+    }
+  }
+
+  private static String tlsTruststore(
+    final NPTLSConfigurationType tls)
+    throws IOException
+  {
+    return switch (tls) {
+      case final NPTLSDisabled d -> null;
+      case final NPTLSEnabled e -> store(e.trustStore());
+    };
+  }
+
+  private static String tlsKeystore(
+    final NPTLSConfigurationType tls)
+    throws IOException
+  {
+    return switch (tls) {
+      case final NPTLSDisabled d -> null;
+      case final NPTLSEnabled e -> store(e.keyStore());
+    };
+  }
+
+  private static String store(
+    final NPTLSStoreConfiguration configuration)
+    throws IOException
+  {
+    try (var writer = new StringWriter()) {
+      final var props = new Properties();
+      props.setProperty("storeType", configuration.storeType());
+      props.setProperty("storeProvider", configuration.storeProvider());
+      props.setProperty("storePassword", configuration.storePassword());
+      props.setProperty("storePath", configuration.storePath().toString());
+      props.store(writer, "");
+      writer.flush();
+      return writer.toString();
+    }
+  }
+
+  private static int tlsEnabled(
+    final NPTLSConfigurationType tls)
+  {
+    return switch (tls) {
+      case final NPTLSDisabled d -> 0;
+      case final NPTLSEnabled e -> 1;
+    };
   }
 }

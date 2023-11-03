@@ -28,8 +28,10 @@ import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.Ag
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentServerUnassignType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesServersType.ServerDeleteType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesServersType.ServerGetType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesServersType.ServerListType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesServersType.ServerListType.Parameters;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesServersType.ServerPutType;
-import com.io7m.northpike.agent.database.api.NPAgentDatabaseTelemetry;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseSetup;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseTransactionType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseUpgrade;
@@ -39,8 +41,11 @@ import com.io7m.northpike.model.agents.NPAgentLocalDescription;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
+import com.io7m.northpike.model.tls.NPTLSDisabled;
+import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import com.io7m.northpike.strings.NPStrings;
-import io.opentelemetry.api.OpenTelemetry;
+import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +54,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -78,18 +86,16 @@ public final class NPAgentDatabaseTest
     this.databases = new NPASDatabases();
     this.database =
       this.databases.open(
-        new NPAgentDatabaseConfiguration(
-          this.databaseFile,
-          NPAgentDatabaseCreate.CREATE_DATABASE,
-          NPAgentDatabaseUpgrade.UPGRADE_DATABASE,
-          "english",
+        new NPAgentDatabaseSetup(
+          new NPAgentDatabaseConfiguration(
+            "SQLITE",
+            this.databaseFile,
+            NPAgentDatabaseCreate.CREATE_DATABASE,
+            NPAgentDatabaseUpgrade.UPGRADE_DATABASE
+          ),
+          NPTelemetryNoOp.noop(),
           Clock.systemUTC(),
           NPStrings.create(Locale.getDefault())
-        ),
-        new NPAgentDatabaseTelemetry(
-          true,
-          OpenTelemetry.noop().getMeter("x"),
-          OpenTelemetry.noop().getTracer("x")
         ),
         s -> LOG.debug("{}", s)
       );
@@ -159,7 +165,7 @@ public final class NPAgentDatabaseTest
         new NPAgentServerID(UUID.randomUUID()),
         "example.com",
         4000,
-        true,
+        NPTLSDisabled.TLS_DISABLED,
         1_000_000
       );
 
@@ -168,7 +174,7 @@ public final class NPAgentDatabaseTest
         new NPAgentServerID(UUID.randomUUID()),
         "example.com",
         5000,
-        true,
+        NPTLSDisabled.TLS_DISABLED,
         1_000_000
       );
 
@@ -213,7 +219,7 @@ public final class NPAgentDatabaseTest
         new NPAgentServerID(UUID.randomUUID()),
         "example.com",
         4000,
-        true,
+        NPTLSDisabled.TLS_DISABLED,
         1_000_000
       );
 
@@ -222,7 +228,7 @@ public final class NPAgentDatabaseTest
         new NPAgentServerID(UUID.randomUUID()),
         "example.com",
         5000,
-        true,
+        NPTLSDisabled.TLS_DISABLED,
         1_000_000
       );
 
@@ -244,5 +250,72 @@ public final class NPAgentDatabaseTest
     assertEquals(sx.id(), agentServerGet.execute(ax.name()).orElseThrow());
     serverDelete.execute(sx.id());
     assertEquals(Optional.empty(), agentServerGet.execute(ax.name()));
+  }
+
+  @Test
+  public void testServerList()
+    throws Exception
+  {
+    final var serverPut =
+      this.transaction.queries(ServerPutType.class);
+    final var serverList =
+      this.transaction.queries(ServerListType.class);
+
+    final var servers = new ArrayList<NPAgentServerDescription>();
+    for (int index = 1; index <= 1000; ++index) {
+      servers.add(
+        new NPAgentServerDescription(
+          new NPAgentServerID(UUID.randomUUID()),
+          "h%d.example.com".formatted(Integer.valueOf(index)),
+          index,
+          new NPTLSEnabled(
+            new NPTLSStoreConfiguration(
+              "CANONMILL",
+              "CANONMILL",
+              "change",
+              Paths.get("/tmp")
+            ),
+            new NPTLSStoreConfiguration(
+              "CANONMILL",
+              "CANONMILL",
+              "change",
+              Paths.get("/tmp")
+            )
+          ),
+          1_000_000
+        )
+      );
+    }
+
+    servers.sort(Comparator.comparing(o -> o.id().value()));
+
+    for (final var s : servers) {
+      serverPut.execute(s);
+    }
+
+    final var start =
+      serverList.execute(new Parameters(Optional.empty(), 10L));
+
+    final var summaries = new ArrayList<>(start);
+    var last = start.getLast();
+    while (true) {
+      final var next =
+        serverList.execute(new Parameters(Optional.of(last.id()), 10L));
+
+      if (next.isEmpty()) {
+        break;
+      }
+      summaries.addAll(next);
+      last = next.getLast();
+    }
+
+    summaries.sort(Comparator.comparing(o -> o.id().value()));
+
+    assertEquals(
+      summaries,
+      servers.stream()
+        .map(NPAgentServerDescription::summary)
+        .toList()
+    );
   }
 }

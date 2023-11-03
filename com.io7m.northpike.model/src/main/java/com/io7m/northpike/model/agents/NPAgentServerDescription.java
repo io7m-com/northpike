@@ -17,6 +17,8 @@
 
 package com.io7m.northpike.model.agents;
 
+import com.io7m.northpike.model.tls.NPTLSConfigurationType;
+
 import java.util.Objects;
 
 /**
@@ -24,7 +26,7 @@ import java.util.Objects;
  *
  * @param id               The server ID, for organizational purposes
  * @param hostname         The server hostname
- * @param useTLS           {@code true} if TLS is enabled
+ * @param tls              The TLS configuration
  * @param port             The server port
  * @param messageSizeLimit The message size limit
  */
@@ -33,7 +35,7 @@ public record NPAgentServerDescription(
   NPAgentServerID id,
   String hostname,
   int port,
-  boolean useTLS,
+  NPTLSConfigurationType tls,
   int messageSizeLimit)
 {
   /**
@@ -41,7 +43,7 @@ public record NPAgentServerDescription(
    *
    * @param id               The server ID, for organizational purposes
    * @param hostname         The server hostname
-   * @param useTLS           {@code true} if TLS is enabled
+   * @param tls              The TLS configuration
    * @param port             The server port
    * @param messageSizeLimit The message size limit
    */
@@ -50,5 +52,18 @@ public record NPAgentServerDescription(
   {
     Objects.requireNonNull(hostname, "hostname");
     Objects.requireNonNull(id, "server");
+    Objects.requireNonNull(tls, "tls");
+  }
+
+  /**
+   * @return A summary of this description
+   */
+
+  public NPAgentServerSummary summary()
+  {
+    return new NPAgentServerSummary(
+      this.id,
+      this.hostname
+    );
   }
 }

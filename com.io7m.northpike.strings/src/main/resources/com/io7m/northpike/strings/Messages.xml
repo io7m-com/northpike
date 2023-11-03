@@ -65,6 +65,8 @@
   <entry key="error_no_container_image">No container image was configured.</entry>
   <entry key="error_no_container_image_remediate">Specify a container image in the configuration.</entry>
   <entry key="error_no_workexec">No workexec distribution directory was configured.</entry>
+  <entry key="error_no_workexec_available">No suitable work executor is available.</entry>
+  <entry key="error_no_workexec_available_remediate">Select a supported work executor.</entry>
   <entry key="error_no_workexec_remediate">Specify a workexec distribution directory in the configuration.</entry>
   <entry key="error_external_program_failed">Running the external program failed.</entry>
   <entry key="error_tool_not_supported">No support is available for the specified tool and/or tool version.</entry>
@@ -108,6 +110,7 @@
   <entry key="container_image">Container Image</entry>
   <entry key="container_tag">Container Tag</entry>
   <entry key="container_registry">Container Registry</entry>
+  <entry key="work_executor">Work Executor</entry>
 
   <entry key="type_check_undefined_variable">Undefined variable.</entry>
   <entry key="type_check_expression">An expression did not have the expected type.</entry>

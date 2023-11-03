@@ -29,6 +29,8 @@ open module com.io7m.northpike.tests
 
   requires com.io7m.northpike.agent.api;
   requires com.io7m.northpike.agent.configuration;
+  requires com.io7m.northpike.agent.console_client.api;
+  requires com.io7m.northpike.agent.console_client;
   requires com.io7m.northpike.agent.database.api;
   requires com.io7m.northpike.agent.database.sqlite;
   requires com.io7m.northpike.agent.main;
@@ -47,6 +49,8 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.plans;
   requires com.io7m.northpike.protocol.agent.cb;
   requires com.io7m.northpike.protocol.agent;
+  requires com.io7m.northpike.protocol.agent_console.cb;
+  requires com.io7m.northpike.protocol.agent_console;
   requires com.io7m.northpike.protocol.api;
   requires com.io7m.northpike.protocol.intro.cb;
   requires com.io7m.northpike.protocol.intro;
@@ -110,6 +114,7 @@ open module com.io7m.northpike.tests
   requires org.apache.commons.text;
   requires org.bouncycastle.pg;
   requires org.jgrapht.core;
+  requires org.jline;
   requires org.mockito;
   requires org.postgresql.jdbc;
   requires org.slf4j;
@@ -118,7 +123,6 @@ open module com.io7m.northpike.tests
   requires transitive org.junit.jupiter.engine;
   requires transitive org.junit.platform.commons;
   requires transitive org.junit.platform.engine;
-  requires org.jline;
 
   exports com.io7m.northpike.tests.database;
   exports com.io7m.northpike.tests.containers;

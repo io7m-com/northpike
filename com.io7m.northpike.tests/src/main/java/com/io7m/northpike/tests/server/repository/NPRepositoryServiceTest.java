@@ -56,9 +56,9 @@ import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceStarte
 import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryUpdateFailed;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryUpdated;
-import com.io7m.northpike.server.internal.telemetry.NPTelemetryNoOp;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
+import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tests.NPEventInterceptingService;
 import com.io7m.northpike.tests.containers.NPTestContainerInstances;
@@ -87,8 +87,8 @@ import java.util.concurrent.TimeUnit;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
+import static com.io7m.northpike.model.tls.NPTLSDisabled.TLS_DISABLED;
 import static com.io7m.northpike.tests.scm_repository.NPSCMRepositoriesJGitTest.unpack;
-import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;

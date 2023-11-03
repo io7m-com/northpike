@@ -17,15 +17,19 @@
 
 package com.io7m.northpike.server.internal.agents;
 
+import com.io7m.northpike.model.tls.NPTLSDisabled;
+import com.io7m.northpike.model.tls.NPTLSEnabled;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
-import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
-import com.io7m.northpike.tls.NPTLSDisabled;
-import com.io7m.northpike.tls.NPTLSEnabled;
+import com.io7m.northpike.server.internal.NPServerExceptions;
+import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.tls.NPTLSContext;
+import com.io7m.northpike.tls.NPTLSContextServiceType;
 
 import javax.net.ServerSocketFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.security.GeneralSecurityException;
 import java.util.Objects;
 
 /**
@@ -47,6 +51,7 @@ public final class NPAgentServerSocketService
   /**
    * The socket service for agents.
    *
+   * @param strings       The string resources
    * @param tlsService    The TLS service
    * @param configuration The configuration
    *
@@ -56,33 +61,35 @@ public final class NPAgentServerSocketService
    */
 
   public static NPAgentServerSocketServiceType create(
+    final NPStrings strings,
     final NPTLSContextServiceType tlsService,
     final NPServerAgentConfiguration configuration)
     throws NPServerException
   {
     Objects.requireNonNull(configuration, "configuration");
 
-    final var tls = configuration.tls();
-    if (tls instanceof NPTLSDisabled) {
-      return new NPAgentServerSocketService(
-        ServerSocketFactory.getDefault()
-      );
-    }
-
-    if (tls instanceof final NPTLSEnabled enabled) {
-      final var tlsContext =
-        tlsService.create(
-          "AgentService",
-          enabled.keyStore(),
-          enabled.trustStore()
+    return switch (configuration.tls()) {
+      case final NPTLSDisabled disabled -> {
+        yield new NPAgentServerSocketService(ServerSocketFactory.getDefault());
+      }
+      case final NPTLSEnabled enabled -> {
+        final NPTLSContext tlsContext;
+        try {
+          tlsContext = tlsService.create(
+            "AgentService",
+            enabled.keyStore(),
+            enabled.trustStore()
+          );
+        } catch (final GeneralSecurityException e) {
+          throw NPServerExceptions.errorSecurity(e);
+        } catch (final IOException e) {
+          throw NPServerExceptions.errorIO(strings, e);
+        }
+        yield new NPAgentServerSocketService(
+          tlsContext.context().getServerSocketFactory()
         );
-
-      return new NPAgentServerSocketService(
-        tlsContext.context().getServerSocketFactory()
-      );
-    }
-
-    throw new IllegalStateException();
+      }
+    };
   }
 
   @Override

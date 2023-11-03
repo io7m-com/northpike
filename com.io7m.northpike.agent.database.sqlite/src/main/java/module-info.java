@@ -28,6 +28,7 @@ module com.io7m.northpike.agent.database.sqlite
   requires com.io7m.northpike.agent.database.api;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.strings;
+  requires com.io7m.northpike.telemetry.api;
 
   requires com.io7m.jmulticlose.core;
   requires com.io7m.trasco.api;
@@ -38,18 +39,23 @@ module com.io7m.northpike.agent.database.sqlite
   requires org.jooq;
   requires org.slf4j;
   requires org.xerial.sqlitejdbc;
+  requires com.io7m.northpike.agent.workexec.api;
 
   uses NPASQueryProviderType;
 
   provides NPASQueryProviderType with
     com.io7m.northpike.agent.database.sqlite.internal.NPASAgentDelete,
     com.io7m.northpike.agent.database.sqlite.internal.NPASAgentGet,
+    com.io7m.northpike.agent.database.sqlite.internal.NPASAgentList,
     com.io7m.northpike.agent.database.sqlite.internal.NPASAgentPut,
     com.io7m.northpike.agent.database.sqlite.internal.NPASAgentServerAssign,
     com.io7m.northpike.agent.database.sqlite.internal.NPASAgentServerGet,
     com.io7m.northpike.agent.database.sqlite.internal.NPASAgentServerUnassign,
+    com.io7m.northpike.agent.database.sqlite.internal.NPASAgentWorkExecGet,
+    com.io7m.northpike.agent.database.sqlite.internal.NPASAgentWorkExecPut,
     com.io7m.northpike.agent.database.sqlite.internal.NPASServerDelete,
     com.io7m.northpike.agent.database.sqlite.internal.NPASServerGet,
+    com.io7m.northpike.agent.database.sqlite.internal.NPASServerList,
     com.io7m.northpike.agent.database.sqlite.internal.NPASServerPut
     ;
 

@@ -17,10 +17,18 @@
 
 package com.io7m.northpike.agent;
 
+import com.io7m.northpike.agent.api.NPAgentException;
 import com.io7m.northpike.agent.api.NPAgentHostConfiguration;
 import com.io7m.northpike.agent.api.NPAgentHostFactoryType;
 import com.io7m.northpike.agent.api.NPAgentHostType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseFactoryType;
 import com.io7m.northpike.agent.internal.NPAgentHost;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorFactoryType;
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.ServiceLoader;
 
 /**
  * A factory of agent hosts.
@@ -28,19 +36,70 @@ import com.io7m.northpike.agent.internal.NPAgentHost;
 
 public final class NPAgentHosts implements NPAgentHostFactoryType
 {
+  private final List<NPAgentDatabaseFactoryType> databases;
+  private final List<NPTelemetryServiceFactoryType> telemetry;
+  private final List<NPAWorkExecutorFactoryType> workExecutors;
+
   /**
    * A factory of agent hosts.
    */
 
   public NPAgentHosts()
   {
+    this(
+      ServiceLoader.load(NPAgentDatabaseFactoryType.class)
+        .stream()
+        .map(ServiceLoader.Provider::get)
+        .toList(),
+      ServiceLoader.load(NPTelemetryServiceFactoryType.class)
+        .stream()
+        .map(ServiceLoader.Provider::get)
+        .toList(),
+      ServiceLoader.load(NPAWorkExecutorFactoryType.class)
+        .stream()
+        .map(ServiceLoader.Provider::get)
+        .toList()
+    );
+  }
 
+  /**
+   * A factory of agent hosts.
+   *
+   * @param inDatabases     A set of database factories
+   * @param inTelemetry     A set of telemetry factories
+   * @param inWorkExecutors A set of work executor factories
+   */
+
+  public NPAgentHosts(
+    final List<NPAgentDatabaseFactoryType> inDatabases,
+    final List<NPTelemetryServiceFactoryType> inTelemetry,
+    final List<NPAWorkExecutorFactoryType> inWorkExecutors)
+  {
+    this.databases =
+      Objects.requireNonNull(inDatabases, "databases");
+    this.telemetry =
+      Objects.requireNonNull(inTelemetry, "telemetry");
+    this.workExecutors =
+      Objects.requireNonNull(inWorkExecutors, "workExecutors");
   }
 
   @Override
   public NPAgentHostType createHost(
     final NPAgentHostConfiguration configuration)
+    throws NPAgentException
   {
-    return new NPAgentHost(configuration);
+    return NPAgentHost.open(
+      this.databases,
+      this.telemetry,
+      this.workExecutors,
+      configuration
+    );
+  }
+
+  @Override
+  public String toString()
+  {
+    return "[NPAgentHosts 0x%s]"
+      .formatted(Integer.toUnsignedString(this.hashCode(), 16));
   }
 }

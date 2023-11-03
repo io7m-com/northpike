@@ -18,14 +18,12 @@ package com.io7m.northpike.agent.database.sqlite;
 
 import com.io7m.anethum.api.ParsingException;
 import com.io7m.jmulticlose.core.CloseableCollection;
-import com.io7m.northpike.agent.database.api.NPAgentDatabaseConfiguration;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseException;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseFactoryType;
-import com.io7m.northpike.agent.database.api.NPAgentDatabaseTelemetry;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseSetup;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseType;
 import com.io7m.northpike.agent.database.sqlite.internal.NPASDatabase;
 import com.io7m.northpike.model.NPStandardErrorCodes;
-import com.io7m.trasco.api.TrArgumentString;
 import com.io7m.trasco.api.TrArguments;
 import com.io7m.trasco.api.TrEventExecutingSQL;
 import com.io7m.trasco.api.TrEventType;
@@ -154,22 +152,19 @@ public final class NPASDatabases implements NPAgentDatabaseFactoryType
 
   @Override
   public NPAgentDatabaseType open(
-    final NPAgentDatabaseConfiguration configuration,
-    final NPAgentDatabaseTelemetry telemetry,
+    final NPAgentDatabaseSetup setup,
     final Consumer<String> startupMessages)
     throws NPAgentDatabaseException
   {
-    Objects.requireNonNull(configuration, "configuration");
-    Objects.requireNonNull(telemetry, "telemetry");
+    Objects.requireNonNull(setup, "setup");
     Objects.requireNonNull(startupMessages, "startupMessages");
 
-    createOrUpgrade(telemetry, configuration, startupMessages);
-    return connect(telemetry, configuration);
+    createOrUpgrade(setup, startupMessages);
+    return connect(setup);
   }
 
   private static NPAgentDatabaseType connect(
-    final NPAgentDatabaseTelemetry telemetry,
-    final NPAgentDatabaseConfiguration configuration)
+    final NPAgentDatabaseSetup setup)
   {
     final var resources = CloseableCollection.create(() -> {
       return new NPAgentDatabaseException(
@@ -182,7 +177,7 @@ public final class NPASDatabases implements NPAgentDatabaseFactoryType
 
     final var url = new StringBuilder(128);
     url.append("jdbc:sqlite:");
-    url.append(configuration.databaseFile());
+    url.append(setup.configuration().databaseFile());
 
     final var config = new SQLiteConfig();
     config.setApplicationId(0x50494b45);
@@ -192,17 +187,16 @@ public final class NPASDatabases implements NPAgentDatabaseFactoryType
     dataSource.setUrl(url.toString());
 
     return new NPASDatabase(
-      telemetry,
-      configuration.strings(),
-      configuration.clock(),
+      setup.telemetry(),
+      setup.strings(),
+      setup.clock(),
       dataSource,
       resources
     );
   }
 
   private static void createOrUpgrade(
-    final NPAgentDatabaseTelemetry telemetry,
-    final NPAgentDatabaseConfiguration configuration,
+    final NPAgentDatabaseSetup setup,
     final Consumer<String> startupMessages)
     throws NPAgentDatabaseException
   {
@@ -216,25 +210,19 @@ public final class NPASDatabases implements NPAgentDatabaseFactoryType
     });
 
     final var span =
-      telemetry.tracer()
+      setup.telemetry()
+        .tracer()
         .spanBuilder("DatabaseSetup")
         .startSpan();
 
-    final var argSearchLanguage =
-      new TrArgumentString("search.language", configuration.language());
-
     final var arguments =
-      new TrArguments(
-        Map.ofEntries(
-          Map.entry(argSearchLanguage.name(), argSearchLanguage)
-        )
-      );
+      new TrArguments(Map.of());
 
     try (var ignored0 = span.makeCurrent()) {
       try (var ignored1 = resources) {
         final var url = new StringBuilder(128);
         url.append("jdbc:sqlite:");
-        url.append(configuration.databaseFile());
+        url.append(setup.configuration().databaseFile());
 
         final var config = new SQLiteConfig();
         config.setApplicationId(0x50494b45);
@@ -259,7 +247,7 @@ public final class NPASDatabases implements NPAgentDatabaseFactoryType
               NPASDatabases::schemaVersionSet,
               event -> publishTrEvent(startupMessages, event),
               revisions,
-              switch (configuration.upgrade()) {
+              switch (setup.configuration().upgrade()) {
                 case UPGRADE_DATABASE -> PERFORM_UPGRADES;
                 case DO_NOT_UPGRADE_DATABASE -> FAIL_INSTEAD_OF_UPGRADING;
               },
@@ -336,23 +324,24 @@ public final class NPASDatabases implements NPAgentDatabaseFactoryType
     final Consumer<String> startupMessages,
     final TrEventType event)
   {
-    if (event instanceof final TrEventExecutingSQL sql) {
-      publishEvent(
-        startupMessages,
-        String.format("Executing SQL: %s", sql.statement())
-      );
-      return;
-    }
-
-    if (event instanceof final TrEventUpgrading upgrading) {
-      publishEvent(
-        startupMessages,
-        String.format(
-          "Upgrading database from version %s -> %s",
-          upgrading.fromVersion(),
-          upgrading.toVersion())
-      );
-      return;
+    switch (event) {
+      case final TrEventExecutingSQL sql -> {
+        publishEvent(
+          startupMessages,
+          String.format("Executing SQL: %s", sql.statement())
+        );
+        return;
+      }
+      case final TrEventUpgrading upgrading -> {
+        publishEvent(
+          startupMessages,
+          String.format(
+            "Upgrading database from version %s -> %s",
+            upgrading.fromVersion(),
+            upgrading.toVersion())
+        );
+        return;
+      }
     }
   }
 }

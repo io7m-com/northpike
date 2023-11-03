@@ -18,13 +18,14 @@
 package com.io7m.northpike.agent.configuration;
 
 import com.io7m.anethum.api.ParserType;
+import com.io7m.northpike.agent.api.NPAgentHostConfiguration;
 
 /**
  * The type of parsers for agent configuration files.
  */
 
 public interface NPACParserType
-  extends ParserType<NPACFile>
+  extends ParserType<NPAgentHostConfiguration>
 {
 
 }

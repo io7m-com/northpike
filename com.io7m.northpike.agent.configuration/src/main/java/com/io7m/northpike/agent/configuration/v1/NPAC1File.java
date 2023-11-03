@@ -21,19 +21,27 @@ import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
 import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
-import com.io7m.northpike.agent.configuration.NPACFile;
+import com.io7m.northpike.agent.api.NPAgentConsoleConfiguration;
+import com.io7m.northpike.agent.api.NPAgentHostConfiguration;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseConfiguration;
+import com.io7m.northpike.telemetry.api.NPTelemetryConfiguration;
 
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
+
+import static com.io7m.northpike.agent.configuration.v1.NPACv1.element;
+import static java.util.Map.entry;
 
 /**
  * Element parser.
  */
 
-public final class NPAC1File implements BTElementHandlerType<Object, NPACFile>
+public final class NPAC1File
+  implements BTElementHandlerType<Object, NPAgentHostConfiguration>
 {
-  private NPAC1AgentList agents;
-  private NPAC1ServerList servers;
+  private NPAgentDatabaseConfiguration database;
+  private Optional<NPTelemetryConfiguration> openTelemetry;
+  private NPAgentConsoleConfiguration console;
 
   /**
    * Element parser.
@@ -44,7 +52,7 @@ public final class NPAC1File implements BTElementHandlerType<Object, NPACFile>
   public NPAC1File(
     final BTElementParsingContextType context)
   {
-
+    this.openTelemetry = Optional.empty();
   }
 
   @Override
@@ -53,14 +61,9 @@ public final class NPAC1File implements BTElementHandlerType<Object, NPACFile>
     final BTElementParsingContextType context)
   {
     return Map.ofEntries(
-      Map.entry(
-        NPACv1.element("Agents"),
-        NPAC1Agents::new
-      ),
-      Map.entry(
-        NPACv1.element("Servers"),
-        NPAC1Servers::new
-      )
+      entry(element("Console"), NPAC1Console::new),
+      entry(element("Database"), NPAC1Database::new),
+      entry(element("OpenTelemetry"), NPAC1OpenTelemetry::new)
     );
   }
 
@@ -70,11 +73,14 @@ public final class NPAC1File implements BTElementHandlerType<Object, NPACFile>
     final Object result)
   {
     switch (result) {
-      case final NPAC1AgentList a -> {
-        this.agents = a;
+      case final NPAgentDatabaseConfiguration d -> {
+        this.database = d;
       }
-      case final NPAC1ServerList s -> {
-        this.servers = s;
+      case final NPTelemetryConfiguration o -> {
+        this.openTelemetry = Optional.of(o);
+      }
+      case final NPAgentConsoleConfiguration c -> {
+        this.console = c;
       }
       default -> {
         throw new IllegalStateException(
@@ -85,18 +91,13 @@ public final class NPAC1File implements BTElementHandlerType<Object, NPACFile>
   }
 
   @Override
-  public NPACFile onElementFinished(
+  public NPAgentHostConfiguration onElementFinished(
     final BTElementParsingContextType context)
   {
-    return new NPACFile(
-      this.servers.servers()
-        .stream()
-        .map(x -> Map.entry(x.id(), x))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
-      this.agents.agents()
-        .stream()
-        .map(x -> Map.entry(x.name(), x))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+    return new NPAgentHostConfiguration(
+      this.database,
+      this.console,
+      this.openTelemetry
     );
   }
 }

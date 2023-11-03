@@ -113,6 +113,37 @@ public final class NPAWorkExecutorConfiguration
     return this.workExecDistributionDirectory;
   }
 
+  @Override
+  public boolean equals(final Object o)
+  {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || !this.getClass().equals(o.getClass())) {
+      return false;
+    }
+    final NPAWorkExecutorConfiguration that = (NPAWorkExecutorConfiguration) o;
+    return Objects.equals(this.type, that.type)
+           && Objects.equals(this.containerImage, that.containerImage)
+           && Objects.equals(this.workDirectory, that.workDirectory)
+           && Objects.equals(
+      this.workExecDistributionDirectory,
+      that.workExecDistributionDirectory)
+           && Objects.equals(this.temporaryDirectory, that.temporaryDirectory);
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return Objects.hash(
+      this.type,
+      this.containerImage,
+      this.workDirectory,
+      this.workExecDistributionDirectory,
+      this.temporaryDirectory
+    );
+  }
+
   /**
    * A mutable builder for configurations.
    */

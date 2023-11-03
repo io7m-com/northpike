@@ -100,7 +100,7 @@ import static com.io7m.northpike.model.security.NPSecRole.REPOSITORIES_WRITER;
 import static com.io7m.northpike.model.security.NPSecRole.TOOLS_READER;
 import static com.io7m.northpike.model.security.NPSecRole.TOOLS_WRITER;
 import static com.io7m.northpike.model.security.NPSecRole.USERS_READER;
-import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
+import static com.io7m.northpike.model.tls.NPTLSDisabled.TLS_DISABLED;
 import static java.net.StandardSocketOptions.SO_REUSEADDR;
 import static java.net.StandardSocketOptions.SO_REUSEPORT;
 import static java.util.UUID.randomUUID;

@@ -17,9 +17,13 @@
 
 package com.io7m.northpike.agent.database.api;
 
+import com.io7m.northpike.model.NPPageSizes;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
+import com.io7m.northpike.model.agents.NPAgentServerSummary;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -49,6 +53,37 @@ public sealed interface NPAgentDatabaseQueriesServersType
     NPAgentDatabaseQueriesServersType
   {
 
+  }
+
+  /**
+   * Retrieve a list of the servers.
+   */
+
+  non-sealed interface ServerListType
+    extends NPAgentDatabaseQueryType<ServerListType.Parameters, List<NPAgentServerSummary>>,
+    NPAgentDatabaseQueriesServersType
+  {
+    /**
+     * The parameters.
+     *
+     * @param offset The starting server ID
+     * @param limit  The limit on the number of results
+     */
+
+    record Parameters(
+      Optional<NPAgentServerID> offset,
+      long limit)
+    {
+      /**
+       * The search parameters.
+       */
+
+      public Parameters
+      {
+        Objects.requireNonNull(offset, "offset");
+        limit = NPPageSizes.clampPageSize(limit);
+      }
+    }
   }
 
   /**

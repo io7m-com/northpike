@@ -20,8 +20,8 @@ package com.io7m.northpike.tls.v1;
 import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.blackthorne.core.Blackthorne;
-import com.io7m.northpike.tls.NPTLSConfigurationType;
-import com.io7m.northpike.tls.NPTLSDisabled;
+import com.io7m.northpike.model.tls.NPTLSConfigurationType;
+import com.io7m.northpike.model.tls.NPTLSDisabled;
 import com.io7m.northpike.tls.NPTLSSchemas;
 
 import java.util.Map;

@@ -18,9 +18,9 @@ package com.io7m.northpike.user_client.api;
 
 import com.io7m.idstore.model.IdName;
 import com.io7m.jmulticlose.core.CloseableType;
+import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.protocol.user.NPUCommandType;
 import com.io7m.northpike.protocol.user.NPUResponseType;
-import com.io7m.northpike.tls.NPTLSConfigurationType;
 import com.io7m.repetoir.core.RPServiceType;
 
 import java.net.InetSocketAddress;

@@ -39,5 +39,6 @@ module com.io7m.northpike.model
   exports com.io7m.northpike.model.comparisons;
   exports com.io7m.northpike.model.plans;
   exports com.io7m.northpike.model.security;
+  exports com.io7m.northpike.model.tls;
   exports com.io7m.northpike.model;
 }

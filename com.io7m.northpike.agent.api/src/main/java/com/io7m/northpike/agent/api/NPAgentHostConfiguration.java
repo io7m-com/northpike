@@ -17,11 +17,37 @@
 
 package com.io7m.northpike.agent.api;
 
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseConfiguration;
+import com.io7m.northpike.telemetry.api.NPTelemetryConfiguration;
+
+import java.util.Objects;
+import java.util.Optional;
+
 /**
  * An agent host configuration.
+ *
+ * @param database      The database configuration
+ * @param console       The console configuration
+ * @param openTelemetry The telemetry configuration
  */
 
-public record NPAgentHostConfiguration()
+public record NPAgentHostConfiguration(
+  NPAgentDatabaseConfiguration database,
+  NPAgentConsoleConfiguration console,
+  Optional<NPTelemetryConfiguration> openTelemetry)
 {
+  /**
+   * An agent host configuration.
+   *
+   * @param database      The database configuration
+   * @param console       The console configuration
+   * @param openTelemetry The telemetry configuration
+   */
 
+  public NPAgentHostConfiguration
+  {
+    Objects.requireNonNull(database, "database");
+    Objects.requireNonNull(console, "console");
+    Objects.requireNonNull(openTelemetry, "openTelemetry");
+  }
 }

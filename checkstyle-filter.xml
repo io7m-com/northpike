@@ -73,4 +73,7 @@
   <suppress files="NPShells.java"
             checks="ClassDataAbstractionCoupling"/>
 
+  <suppress files="NPACValidation.java"
+            checks="CyclomaticComplexity"/>
+
 </suppressions>

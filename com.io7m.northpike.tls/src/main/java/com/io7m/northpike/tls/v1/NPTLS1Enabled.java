@@ -22,8 +22,8 @@ import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
 import com.io7m.blackthorne.core.Blackthorne;
-import com.io7m.northpike.tls.NPTLSEnabled;
-import com.io7m.northpike.tls.NPTLSStoreConfiguration;
+import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 
 import java.util.Map;
 

@@ -19,7 +19,7 @@ package com.io7m.northpike.tls.v1;
 
 import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
-import com.io7m.northpike.tls.NPTLSStoreConfiguration;
+import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import org.xml.sax.Attributes;
 
 import java.nio.file.Path;

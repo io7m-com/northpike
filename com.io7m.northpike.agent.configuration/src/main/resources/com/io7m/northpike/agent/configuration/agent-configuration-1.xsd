@@ -18,10 +18,7 @@
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns:c="urn:com.io7m.northpike.agent.configuration:1"
-            xmlns:t="urn:com.io7m.northpike.tls:1"
             targetNamespace="urn:com.io7m.northpike.agent.configuration:1">
-
-  <xsd:import namespace="urn:com.io7m.northpike.tls:1"/>
 
   <xsd:annotation>
     <xsd:documentation>
@@ -41,238 +38,256 @@
     </xsd:restriction>
   </xsd:simpleType>
 
-  <xsd:element name="Server">
+  <xsd:simpleType name="DatabaseKind">
     <xsd:annotation>
       <xsd:documentation>
-        Configuration for a server.
+        The kind of the target database. Currently, only SQLite is
+        supported.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="SQLITE">
+        <xsd:annotation>
+          <xsd:documentation>
+            The database is SQLite.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:element name="Database">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for the database.
       </xsd:documentation>
     </xsd:annotation>
 
     <xsd:complexType>
-      <xsd:sequence minOccurs="1"
-                    maxOccurs="1">
-        <xsd:group ref="t:TLSGroup"/>
-      </xsd:sequence>
+      <xsd:attribute name="Kind"
+                     type="c:DatabaseKind"
+                     use="required"/>
 
-      <xsd:attribute name="ID"
-                     type="c:UUIDType"
+      <xsd:attribute name="File"
+                     type="xsd:anyURI"
                      use="required">
         <xsd:annotation>
           <xsd:documentation>
-            The ID of the server within the configuration, for organizational purposes.
+            The database file.
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
 
-      <xsd:attribute name="HostName"
-                     type="xsd:string"
+      <xsd:attribute name="Create"
+                     type="xsd:boolean"
                      use="required">
         <xsd:annotation>
           <xsd:documentation>
-            The hostname or IP address of the server.
+            If set to true, the database and tables will be created if they do
+            not already exist.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Upgrade"
+                     type="xsd:boolean"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            If set to true, the database and tables will be upgraded to the
+            latest supported schema version.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:simpleType name="OpenTelemetryProtocol">
+    <xsd:annotation>
+      <xsd:documentation>
+        The protocol used to deliver OpenTelemetry data.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="GRPC">
+        <xsd:annotation>
+          <xsd:documentation>
+            The data will be sent using gRPC.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="HTTP">
+        <xsd:annotation>
+          <xsd:documentation>
+            The data will be sent using HTTP(s).
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:element name="Logs">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for OpenTelemetry logs.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Endpoint"
+                     use="required"
+                     type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>
+            The endpoint to which OTLP log data will be sent.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Protocol"
+                     use="required"
+                     type="c:OpenTelemetryProtocol">
+        <xsd:annotation>
+          <xsd:documentation>
+            The protocol used to send log data.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Metrics">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for OpenTelemetry metrics.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Endpoint"
+                     use="required"
+                     type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>
+            The endpoint to which OTLP metrics data will be sent.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Protocol"
+                     use="required"
+                     type="c:OpenTelemetryProtocol">
+        <xsd:annotation>
+          <xsd:documentation>
+            The protocol used to send metrics data.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Traces">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for OpenTelemetry traces.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Endpoint"
+                     use="required"
+                     type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>
+            The endpoint to which OTLP trace data will be sent.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Protocol"
+                     use="required"
+                     type="c:OpenTelemetryProtocol">
+        <xsd:annotation>
+          <xsd:documentation>
+            The protocol used to send trace data.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="OpenTelemetry">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for OpenTelemetry.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="c:Logs"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+        <xsd:element ref="c:Metrics"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+        <xsd:element ref="c:Traces"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="LogicalServiceName"
+                     use="required"
+                     type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            The logical name of the service as it will appear in OpenTelemetry.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Console">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for the console.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Address"
+                     use="required"
+                     type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            The address to which to bind the console.
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
 
       <xsd:attribute name="Port"
-                     type="xsd:unsignedInt"
-                     use="required">
-        <xsd:annotation>
-          <xsd:documentation>
-            The port to which to connect on the server.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-
-      <xsd:attribute name="MessageSizeLimit"
-                     type="xsd:unsignedInt"
-                     use="required">
-        <xsd:annotation>
-          <xsd:documentation>
-            The limit on message sizes to/from this server.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-    </xsd:complexType>
-  </xsd:element>
-
-  <xsd:element name="Servers">
-    <xsd:annotation>
-      <xsd:documentation>
-        Configuration for the servers.
-      </xsd:documentation>
-    </xsd:annotation>
-
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="c:Server"
-                     minOccurs="0"
-                     maxOccurs="unbounded"/>
-      </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:key name="ServerIDsUnique">
-      <xsd:selector xpath="c:Server"/>
-      <xsd:field xpath="@ID"/>
-    </xsd:key>
-  </xsd:element>
-
-  <xsd:element name="OCIImage">
-    <xsd:annotation>
-      <xsd:documentation>
-        A reference to an OCI image.
-      </xsd:documentation>
-    </xsd:annotation>
-
-    <xsd:complexType>
-      <xsd:attribute name="Registry"
-                     type="xsd:string"
-                     use="required">
-        <xsd:annotation>
-          <xsd:documentation>
-            The container registry (such as "quay.io").
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-      <xsd:attribute name="Name"
-                     type="xsd:string"
-                     use="required">
-        <xsd:annotation>
-          <xsd:documentation>
-            The image name (such as "io7mcom/idstore").
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-      <xsd:attribute name="Tag"
-                     type="xsd:string"
-                     use="required">
-        <xsd:annotation>
-          <xsd:documentation>
-            The image tag (such as "1.0.0-beta0013").
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-      <xsd:attribute name="Hash"
-                     type="xsd:string"
-                     use="optional">
-        <xsd:annotation>
-          <xsd:documentation>
-            The image hash (such as "sha256:ab38fabce3").
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-    </xsd:complexType>
-  </xsd:element>
-
-  <xsd:element name="WorkExecutor">
-    <xsd:annotation>
-      <xsd:documentation>
-        The configuration for a work executor.
-      </xsd:documentation>
-    </xsd:annotation>
-
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="c:OCIImage"
-                     minOccurs="0"
-                     maxOccurs="1"/>
-      </xsd:sequence>
-
-      <xsd:attribute name="Type"
                      use="required"
-                     type="c:NameType">
+                     type="xsd:unsignedInt">
         <xsd:annotation>
           <xsd:documentation>
-            The type of the executor.
+            The TCP port to which to bind the console.
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
 
-      <xsd:attribute name="TemporaryDirectory"
+      <xsd:attribute name="AccessKey"
                      use="required"
-                     type="xsd:anyURI">
+                     type="xsd:string">
         <xsd:annotation>
           <xsd:documentation>
-            The directory used for volatile temporary files.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-
-      <xsd:attribute name="WorkDirectory"
-                     use="required"
-                     type="xsd:anyURI">
-        <xsd:annotation>
-          <xsd:documentation>
-            The base directory used to store workspaces and other data used during the execution of work.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-
-      <xsd:attribute name="WorkExecDistributionDirectory"
-                     use="optional"
-                     type="xsd:anyURI">
-        <xsd:annotation>
-          <xsd:documentation>
-            The directory that contains the work executor distribution. This is typically used for containerized work
-            execution.
+            The access key used to access the console.
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
     </xsd:complexType>
-  </xsd:element>
-
-  <xsd:element name="Agent">
-    <xsd:annotation>
-      <xsd:documentation>
-        Configuration for a single agent.
-      </xsd:documentation>
-    </xsd:annotation>
-
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="c:WorkExecutor"/>
-      </xsd:sequence>
-
-      <xsd:attribute name="Name"
-                     type="c:NameType"
-                     use="required">
-        <xsd:annotation>
-          <xsd:documentation>
-            The unique agent name.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-
-      <xsd:attribute name="Server"
-                     type="c:UUIDType"
-                     use="required">
-        <xsd:annotation>
-          <xsd:documentation>
-            The server to which the agent will connect.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-    </xsd:complexType>
-  </xsd:element>
-
-  <xsd:element name="Agents">
-    <xsd:annotation>
-      <xsd:documentation>
-        Configuration for a set of agents.
-      </xsd:documentation>
-    </xsd:annotation>
-
-    <xsd:complexType>
-      <xsd:sequence minOccurs="0"
-                    maxOccurs="unbounded">
-        <xsd:element ref="c:Agent"/>
-      </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:key name="AgentNamesUnique">
-      <xsd:selector xpath="c:Agent"/>
-      <xsd:field xpath="@Name"/>
-    </xsd:key>
   </xsd:element>
 
   <xsd:element name="Configuration">
@@ -284,16 +299,13 @@
 
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="c:Servers"/>
-        <xsd:element ref="c:Agents"/>
+        <xsd:element ref="c:Console"/>
+        <xsd:element ref="c:Database"/>
+        <xsd:element ref="c:OpenTelemetry"
+                     minOccurs="0"
+                     maxOccurs="1"/>
       </xsd:sequence>
     </xsd:complexType>
-
-    <xsd:keyref name="AgentRefersToServer"
-                refer="c:ServerIDsUnique">
-      <xsd:selector xpath="c:Agents/c:Agent"/>
-      <xsd:field xpath="@Server"/>
-    </xsd:keyref>
   </xsd:element>
 
 </xsd:schema>

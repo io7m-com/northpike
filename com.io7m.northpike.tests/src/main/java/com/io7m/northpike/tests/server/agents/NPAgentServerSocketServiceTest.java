@@ -17,16 +17,16 @@
 
 package com.io7m.northpike.tests.server.agents;
 
+import com.io7m.northpike.model.tls.NPTLSDisabled;
+import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.server.internal.agents.NPAgentServerSocketService;
-import com.io7m.northpike.server.internal.telemetry.NPTelemetryNoOp;
-import com.io7m.northpike.server.internal.tls.NPTLSContextService;
-import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
-import com.io7m.northpike.tls.NPTLSDisabled;
-import com.io7m.northpike.tls.NPTLSEnabled;
-import com.io7m.northpike.tls.NPTLSStoreConfiguration;
+import com.io7m.northpike.tls.NPTLSContextService;
+import com.io7m.northpike.tls.NPTLSContextServiceType;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -45,6 +45,7 @@ public final class NPAgentServerSocketServiceTest
   {
     final var sockets =
       NPAgentServerSocketService.create(
+        NPStrings.create(Locale.ROOT),
         Mockito.mock(NPTLSContextServiceType.class),
         new NPServerAgentConfiguration(
           InetAddress.getLocalHost(),
@@ -86,10 +87,11 @@ public final class NPAgentServerSocketServiceTest
     );
 
     final var tls =
-      NPTLSContextService.create(services);
+      NPTLSContextService.create(NPTelemetryNoOp.noop());
 
     final var sockets =
       NPAgentServerSocketService.create(
+        NPStrings.create(Locale.ROOT),
         tls,
         new NPServerAgentConfiguration(
           InetAddress.getLocalHost(),

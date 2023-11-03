@@ -19,10 +19,10 @@ package com.io7m.northpike.user_client.internal;
 
 import com.io7m.idstore.model.IdName;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandType;
 import com.io7m.northpike.protocol.user.NPUResponseType;
-import com.io7m.northpike.tls.NPTLSConfigurationType;
 import com.io7m.northpike.user_client.api.NPUserClientConfiguration;
 import com.io7m.northpike.user_client.api.NPUserClientException;
 import com.io7m.northpike.user_client.api.NPUserClientType;

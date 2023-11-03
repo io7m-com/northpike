@@ -18,13 +18,14 @@
 package com.io7m.northpike.agent.configuration;
 
 import com.io7m.anethum.api.ParserFactoryType;
+import com.io7m.northpike.agent.api.NPAgentHostConfiguration;
 
 /**
  * The type of parser factories for agent configuration files.
  */
 
 public interface NPACParserFactoryType
-  extends ParserFactoryType<NPACPreserveLexical, NPACFile, NPACParserType>
+  extends ParserFactoryType<NPACPreserveLexical, NPAgentHostConfiguration, NPACParserType>
 {
 
 }

@@ -33,8 +33,7 @@ public interface NPAgentDatabaseFactoryType
   /**
    * Open a database.
    *
-   * @param configuration   The database configuration
-   * @param telemetry       The telemetry
+   * @param setup           The database setup
    * @param startupMessages A function that will receive startup messages
    *
    * @return A database
@@ -43,8 +42,7 @@ public interface NPAgentDatabaseFactoryType
    */
 
   NPAgentDatabaseType open(
-    NPAgentDatabaseConfiguration configuration,
-    NPAgentDatabaseTelemetry telemetry,
+    NPAgentDatabaseSetup setup,
     Consumer<String> startupMessages)
     throws NPAgentDatabaseException;
 }

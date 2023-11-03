@@ -54,17 +54,17 @@ import com.io7m.northpike.server.internal.schedule.NPSchedulingService;
 import com.io7m.northpike.server.internal.schedule.NPSchedulingServiceType;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
-import com.io7m.northpike.server.internal.telemetry.NPTelemetryNoOp;
-import com.io7m.northpike.server.internal.tls.NPTLSContextService;
-import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
 import com.io7m.northpike.server.internal.users.NPUserServerSocketService;
 import com.io7m.northpike.server.internal.users.NPUserServerSocketServiceType;
 import com.io7m.northpike.server.internal.users.NPUserService;
 import com.io7m.northpike.server.internal.users.NPUserServiceType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
+import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
+import com.io7m.northpike.tls.NPTLSContextService;
+import com.io7m.northpike.tls.NPTLSContextServiceType;
 import com.io7m.northpike.toolexec.NPTXCompilerFactoryType;
 import com.io7m.northpike.toolexec.NPTXCompilers;
 import com.io7m.northpike.toolexec.NPTXParserFactoryType;
@@ -251,7 +251,7 @@ public final class NPServer implements NPServerType
       NPConfigurationService.create(this.configuration);
     services.register(NPConfigurationServiceType.class, config);
 
-    final var tls = NPTLSContextService.create(services);
+    final var tls = NPTLSContextService.create(this.telemetry);
     services.register(NPTLSContextServiceType.class, tls);
 
     loadParsers(services);
@@ -276,7 +276,10 @@ public final class NPServer implements NPServerType
 
     final var agentSockets =
       NPAgentServerSocketService.create(
-        tls, this.configuration.agentConfiguration());
+        strings,
+        tls,
+        this.configuration.agentConfiguration()
+      );
     services.register(NPAgentServerSocketServiceType.class, agentSockets);
 
     final var agents = NPAgentService.create(services);
@@ -284,7 +287,10 @@ public final class NPServer implements NPServerType
 
     final var userSockets =
       NPUserServerSocketService.create(
-        tls, this.configuration.userConfiguration());
+        strings,
+        tls,
+        this.configuration.userConfiguration()
+      );
     services.register(NPUserServerSocketServiceType.class, userSockets);
 
     final var idstoreClients =

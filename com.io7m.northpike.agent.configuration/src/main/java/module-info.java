@@ -23,8 +23,11 @@ module com.io7m.northpike.agent.configuration
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
+  requires com.io7m.northpike.agent.api;
+  requires com.io7m.northpike.agent.database.api;
   requires com.io7m.northpike.agent.workexec.api;
   requires com.io7m.northpike.model;
+  requires com.io7m.northpike.telemetry.api;
   requires com.io7m.northpike.tls;
 
   requires com.io7m.anethum.api;

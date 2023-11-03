@@ -24,6 +24,7 @@ import com.io7m.genevan.core.GenProtocolSolved;
 import com.io7m.genevan.core.GenProtocolSolver;
 import com.io7m.genevan.core.GenProtocolVersion;
 import com.io7m.northpike.model.NPStandardErrorCodes;
+import com.io7m.northpike.model.tls.NPTLSEnabled;
 import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.intro.NPIError;
 import com.io7m.northpike.protocol.intro.NPIMessageType;
@@ -33,7 +34,6 @@ import com.io7m.northpike.protocol.intro.cb.NPIMessages;
 import com.io7m.northpike.protocol.user.cb.NPU1Messages;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tls.NPTLSContext;
-import com.io7m.northpike.tls.NPTLSEnabled;
 import com.io7m.northpike.user_client.api.NPUserClientConfiguration;
 import com.io7m.northpike.user_client.api.NPUserClientException;
 

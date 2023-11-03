@@ -19,7 +19,7 @@ package com.io7m.northpike.tests.agent.configuration;
 
 import com.io7m.anethum.api.ParsingException;
 import com.io7m.anethum.slf4j.ParseStatusLogging;
-import com.io7m.northpike.agent.configuration.NPACFile;
+import com.io7m.northpike.agent.api.NPAgentHostConfiguration;
 import com.io7m.northpike.agent.configuration.NPACFiles;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -63,7 +63,7 @@ public final class NPACFilesTest
     final var configuration = expectSuccess(file);
   }
 
-  private static NPACFile expectSuccess(
+  private static NPAgentHostConfiguration expectSuccess(
     final Path file)
     throws Exception
   {

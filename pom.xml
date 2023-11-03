@@ -25,6 +25,8 @@
     <module>com.io7m.northpike.agent.configuration</module>
     <module>com.io7m.northpike.agent.database.api</module>
     <module>com.io7m.northpike.agent.database.sqlite</module>
+    <module>com.io7m.northpike.agent.console_client</module>
+    <module>com.io7m.northpike.agent.console_client.api</module>
     <module>com.io7m.northpike.agent.main</module>
     <module>com.io7m.northpike.agent.workexec.api</module>
     <module>com.io7m.northpike.agent.workexec.local</module>
@@ -42,6 +44,8 @@
     <module>com.io7m.northpike.plans</module>
     <module>com.io7m.northpike.protocol.agent.cb</module>
     <module>com.io7m.northpike.protocol.agent</module>
+    <module>com.io7m.northpike.protocol.agent_console.cb</module>
+    <module>com.io7m.northpike.protocol.agent_console</module>
     <module>com.io7m.northpike.protocol.api</module>
     <module>com.io7m.northpike.protocol.intro.cb</module>
     <module>com.io7m.northpike.protocol.intro</module>
@@ -58,6 +62,7 @@
     <module>com.io7m.northpike.shell</module>
     <module>com.io7m.northpike.strings</module>
     <module>com.io7m.northpike.telemetry.api</module>
+    <module>com.io7m.northpike.telemetry.otp</module>
     <module>com.io7m.northpike.tests.arbitraries</module>
     <module>com.io7m.northpike.tests</module>
     <module>com.io7m.northpike.tls</module>

@@ -17,10 +17,13 @@
 
 package com.io7m.northpike.agent.database.api;
 
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
+import com.io7m.northpike.model.NPPageSizes;
 import com.io7m.northpike.model.agents.NPAgentLocalDescription;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentServerID;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -59,6 +62,48 @@ public sealed interface NPAgentDatabaseQueriesAgentsType
 
   non-sealed interface AgentGetType
     extends NPAgentDatabaseQueryType<NPAgentLocalName, Optional<NPAgentLocalDescription>>,
+    NPAgentDatabaseQueriesAgentsType
+  {
+
+  }
+
+  /**
+   * Set the work executor for the given agent.
+   */
+
+  non-sealed interface AgentWorkExecPutType
+    extends NPAgentDatabaseQueryType<AgentWorkExecPutType.Parameters, NPAgentDatabaseUnit>,
+    NPAgentDatabaseQueriesAgentsType
+  {
+    /**
+     * The parameters.
+     *
+     * @param agent        The agent name
+     * @param workExecutor The work executor
+     */
+
+    record Parameters(
+      NPAgentLocalName agent,
+      Optional<NPAWorkExecutorConfiguration> workExecutor)
+    {
+      /**
+       * The search parameters.
+       */
+
+      public Parameters
+      {
+        Objects.requireNonNull(agent, "agent");
+        Objects.requireNonNull(workExecutor, "workExecutor");
+      }
+    }
+  }
+
+  /**
+   * Retrieve the work executor for the given agent, if any.
+   */
+
+  non-sealed interface AgentWorkExecGetType
+    extends NPAgentDatabaseQueryType<NPAgentLocalName, Optional<NPAWorkExecutorConfiguration>>,
     NPAgentDatabaseQueriesAgentsType
   {
 
@@ -115,5 +160,36 @@ public sealed interface NPAgentDatabaseQueriesAgentsType
     NPAgentDatabaseQueriesAgentsType
   {
 
+  }
+
+  /**
+   * List agents.
+   */
+
+  non-sealed interface AgentListType
+    extends NPAgentDatabaseQueryType<AgentListType.Parameters, List<NPAgentLocalName>>,
+    NPAgentDatabaseQueriesAgentsType
+  {
+    /**
+     * The parameters.
+     *
+     * @param offset The starting agent name
+     * @param limit  The limit on the number of results
+     */
+
+    record Parameters(
+      Optional<NPAgentLocalName> offset,
+      long limit)
+    {
+      /**
+       * The search parameters.
+       */
+
+      public Parameters
+      {
+        Objects.requireNonNull(offset, "offset");
+        limit = NPPageSizes.clampPageSize(limit);
+      }
+    }
   }
 }

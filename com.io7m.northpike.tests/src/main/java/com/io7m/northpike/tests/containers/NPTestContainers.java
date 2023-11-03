@@ -64,7 +64,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
+import static com.io7m.northpike.model.tls.NPTLSDisabled.TLS_DISABLED;
 import static java.util.Optional.empty;
 
 public final class NPTestContainers

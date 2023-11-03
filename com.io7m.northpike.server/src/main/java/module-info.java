@@ -17,7 +17,6 @@
 import com.io7m.northpike.plans.compiler.NPPlanCompilerFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
 import com.io7m.northpike.server.internal.agents.NPAgentCommandExecutorType;
-import com.io7m.northpike.server.internal.telemetry.NPTelemetryServices;
 import com.io7m.northpike.server.internal.users.NPUserCommandExecutorType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
 import com.io7m.northpike.toolexec.NPTXParserFactoryType;
@@ -28,9 +27,6 @@ import com.io7m.northpike.toolexec.NPTXParserFactoryType;
 
 module com.io7m.northpike.server
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
-
   requires com.io7m.northpike.clock;
   requires com.io7m.northpike.connections;
   requires com.io7m.northpike.database.api;
@@ -62,13 +58,6 @@ module com.io7m.northpike.server
   requires com.io7m.repetoir.core;
   requires io.opentelemetry.api;
   requires io.opentelemetry.context;
-  requires io.opentelemetry.exporter.otlp;
-  requires io.opentelemetry.sdk.common;
-  requires io.opentelemetry.sdk.logs;
-  requires io.opentelemetry.sdk.metrics;
-  requires io.opentelemetry.sdk.trace;
-  requires io.opentelemetry.sdk;
-  requires io.opentelemetry.semconv;
   requires io.helidon.webserver;
   requires org.slf4j;
 
@@ -78,9 +67,6 @@ module com.io7m.northpike.server
   uses NPTXParserFactoryType;
   uses NPTelemetryServiceFactoryType;
   uses NPUserCommandExecutorType;
-
-  provides NPTelemetryServiceFactoryType
-    with NPTelemetryServices;
 
   provides NPAgentCommandExecutorType with
     com.io7m.northpike.server.internal.agents.NPACmdDisconnect,
@@ -173,7 +159,5 @@ module com.io7m.northpike.server
   exports com.io7m.northpike.server.internal.repositories to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.schedule to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.security to com.io7m.northpike.tests;
-  exports com.io7m.northpike.server.internal.telemetry to com.io7m.northpike.tests;
-  exports com.io7m.northpike.server.internal.tls to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.users to com.io7m.northpike.tests;
 }

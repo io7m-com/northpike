@@ -27,7 +27,6 @@ module com.io7m.northpike.server.api
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
-  requires com.io7m.northpike.tls;
 
   exports com.io7m.northpike.server.api;
 }

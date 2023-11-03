@@ -77,4 +77,10 @@ public final class NPWorkExecutorsLocal
 
     return new NPWorkLocalExecutor(services, configuration);
   }
+
+  @Override
+  public String description()
+  {
+    return "Local work executor.";
+  }
 }

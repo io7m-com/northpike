@@ -22,11 +22,10 @@ import com.io7m.northpike.agent.api.NPAgentConfiguration;
 import com.io7m.northpike.agent.api.NPAgentException;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.model.NPErrorCode;
-import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
-import com.io7m.northpike.model.agents.NPAgentLocalDescription;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
+import com.io7m.northpike.model.tls.NPTLSDisabled;
 import com.io7m.northpike.protocol.agent.NPACommandCDisconnect;
 import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
 import com.io7m.northpike.protocol.agent.NPAResponseOK;
@@ -36,6 +35,9 @@ import com.io7m.northpike.protocol.intro.NPIProtocol;
 import com.io7m.northpike.protocol.intro.NPIProtocolsAvailable;
 import com.io7m.northpike.protocol.intro.cb.NPIMessages;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
+import com.io7m.northpike.tls.NPTLSContextService;
+import com.io7m.northpike.tls.NPTLSContextServiceType;
 import com.io7m.percentpass.extension.MinimumPassing;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +59,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.io7m.northpike.agent.internal.NPAgentConnectionHandlers.openConnectionHandler;
+import static com.io7m.northpike.agent.internal.connection.NPAgentConnectionHandlers.openConnectionHandler;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -79,6 +81,7 @@ public final class NPAgentConnectionHandlerTest
   private CountDownLatch serverCloseLatch;
   private CountDownLatch serverAcceptLatch;
   private NPAgentConfiguration configuration;
+  private NPTLSContextServiceType tls;
 
   @BeforeEach
   public void setup(
@@ -92,6 +95,8 @@ public final class NPAgentConnectionHandlerTest
       new CountDownLatch(1);
     this.serverCloseLatch =
       new CountDownLatch(1);
+    this.tls =
+      NPTLSContextService.create(NPTelemetryNoOp.noop());
 
     this.strings =
       NPStrings.create(Locale.ROOT);
@@ -105,20 +110,17 @@ public final class NPAgentConnectionHandlerTest
 
     this.configuration =
       new NPAgentConfiguration(
+        NPAgentLocalName.of("x"),
         NPAWorkExecutorConfiguration.builder()
           .setWorkDirectory(dirWork)
           .setTemporaryDirectory(dirTemp)
           .setExecutorType(new RDottedName("workexec.local"))
           .build(),
-        new NPAgentLocalDescription(
-          NPAgentLocalName.of("x"),
-          new NPAgentKeyPairFactoryEd448().generateKeyPair()
-        ),
         new NPAgentServerDescription(
           new NPAgentServerID(UUID.randomUUID()),
           this.socket.getInetAddress().getHostName(),
           this.socket.getLocalPort(),
-          false,
+          NPTLSDisabled.TLS_DISABLED,
           1_000_000
         )
       );
@@ -187,7 +189,10 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.strings, this.configuration);
+        openConnectionHandler(
+          this.strings,
+          this.tls,
+          this.configuration.server());
       });
 
     assertEquals("go-away", ex.errorCode().id());
@@ -246,11 +251,16 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.strings, this.configuration);
+        openConnectionHandler(
+          this.strings,
+          this.tls,
+          this.configuration.server());
       });
 
     assertEquals("error-io", ex.errorCode().id());
-    assertEquals("Server refused protocol version confirmation.", ex.getMessage());
+    assertEquals(
+      "Server refused protocol version confirmation.",
+      ex.getMessage());
   }
 
   /**
@@ -294,7 +304,10 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.strings, this.configuration);
+        openConnectionHandler(
+          this.strings,
+          this.tls,
+          this.configuration.server());
       });
 
     assertEquals("error-no-supported-protocols", ex.errorCode().id());
@@ -342,7 +355,10 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.strings, this.configuration);
+        openConnectionHandler(
+          this.strings,
+          this.tls,
+          this.configuration.server());
       });
 
     assertEquals("error-protocol", ex.errorCode().id());
@@ -374,7 +390,10 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.strings, this.configuration);
+        openConnectionHandler(
+          this.strings,
+          this.tls,
+          this.configuration.server());
       });
 
     assertEquals("error-io", ex.errorCode().id());
@@ -416,7 +435,10 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.strings, this.configuration);
+        openConnectionHandler(
+          this.strings,
+          this.tls,
+          this.configuration.server());
       });
 
     assertEquals("error-protocol", ex.errorCode().id());
@@ -454,7 +476,10 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.strings, this.configuration);
+        openConnectionHandler(
+          this.strings,
+          this.tls,
+          this.configuration.server());
       });
 
     assertEquals("error-io", ex.errorCode().id());
@@ -496,7 +521,10 @@ public final class NPAgentConnectionHandlerTest
 
     final var ex =
       assertThrows(NPAgentException.class, () -> {
-        openConnectionHandler(this.strings, this.configuration);
+        openConnectionHandler(
+          this.strings,
+          this.tls,
+          this.configuration.server());
       });
 
     assertEquals("error-io", ex.errorCode().id());
@@ -578,7 +606,10 @@ public final class NPAgentConnectionHandlerTest
 
     this.serverAcceptLatch.countDown();
 
-    try (var connection = openConnectionHandler(this.strings, this.configuration)) {
+    try (var connection = openConnectionHandler(
+      this.strings,
+      this.tls,
+      this.configuration.server())) {
       connection.send(NPACommandCEnvironmentInfo.of());
       connection.send(NPACommandCDisconnect.of());
     }

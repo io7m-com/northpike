@@ -26,13 +26,24 @@ open module com.io7m.northpike.tests.arbitraries
 
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.protocol.agent;
+  requires com.io7m.northpike.protocol.agent_console;
   requires com.io7m.northpike.protocol.intro;
   requires com.io7m.northpike.protocol.user;
   requires com.io7m.northpike.toolexec;
+  requires com.io7m.northpike.agent.workexec.api;
 
   uses ArbitraryProvider;
 
   provides ArbitraryProvider with
+    com.io7m.northpike.tests.arbitraries.NPArbTLSStoreConfiguration,
+    com.io7m.northpike.tests.arbitraries.NPArbTLSConfiguration,
+    com.io7m.northpike.tests.arbitraries.NPArbAgentServerSummary,
+    com.io7m.northpike.tests.arbitraries.NPArbAgentGetResult,
+    com.io7m.northpike.tests.arbitraries.NPArbWorkExecutorConfiguration,
+    com.io7m.northpike.tests.arbitraries.NPArbAgentServerDescription,
+    com.io7m.northpike.tests.arbitraries.NPArbAgentServerID,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandDisconnect,
+    com.io7m.northpike.tests.arbitraries.NPArbAgentLocalName,
     com.io7m.northpike.tests.arbitraries.NPArbAgentDescription,
     com.io7m.northpike.tests.arbitraries.NPArbAgentID,
     com.io7m.northpike.tests.arbitraries.NPArbAgentLabel,
@@ -135,6 +146,25 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.agent.NPArbAResponseError,
     com.io7m.northpike.tests.arbitraries.protocol.agent.NPArbAResponseOK,
     com.io7m.northpike.tests.arbitraries.protocol.agent.NPArbAResponseSLatencyCheck,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandAgentCreate,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandAgentDelete,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandAgentGet,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandAgentList,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandLogin,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandServerDelete,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandServerGet,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandServerList,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandServerPut,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandWorkExecGet,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandWorkExecPut,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACMessage,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseAgent,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseAgentList,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseError,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseOK,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseServer,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseServerList,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseWorkExec,
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIError,
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIMessage,
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIProtocol,

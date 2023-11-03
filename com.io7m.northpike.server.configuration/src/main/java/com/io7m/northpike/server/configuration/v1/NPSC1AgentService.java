@@ -21,9 +21,9 @@ import com.io7m.blackthorne.core.BTElementHandlerConstructorType;
 import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
 import com.io7m.blackthorne.core.BTQualifiedName;
+import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.tls.NPTLS;
-import com.io7m.northpike.tls.NPTLSConfigurationType;
 import org.xml.sax.Attributes;
 
 import java.net.InetAddress;

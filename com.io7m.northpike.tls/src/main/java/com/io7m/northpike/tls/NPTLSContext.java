@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.tls;
 
+import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

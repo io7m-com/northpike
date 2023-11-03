@@ -39,11 +39,6 @@
       <artifactId>com.io7m.northpike.telemetry.api</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.tls</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <dependency>
       <groupId>com.io7m.idstore</groupId>

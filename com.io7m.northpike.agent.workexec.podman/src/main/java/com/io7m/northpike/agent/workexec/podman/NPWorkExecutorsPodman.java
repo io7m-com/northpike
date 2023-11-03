@@ -198,4 +198,10 @@ public final class NPWorkExecutorsPodman
       Optional.of(this.strings.format(ERROR_NO_CONTAINER_IMAGE_REMEDIATE))
     );
   }
+
+  @Override
+  public String description()
+  {
+    return "Podman containerized work executor.";
+  }
 }

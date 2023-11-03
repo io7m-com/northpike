@@ -48,6 +48,7 @@ module com.io7m.northpike.agent.workexec.main
   uses com.io7m.northpike.tools.api.NPToolFactoryType;
 
   exports com.io7m.northpike.agent.workexec.main;
+
   exports com.io7m.northpike.agent.workexec.main.internal
     to com.io7m.northpike.tests;
 }

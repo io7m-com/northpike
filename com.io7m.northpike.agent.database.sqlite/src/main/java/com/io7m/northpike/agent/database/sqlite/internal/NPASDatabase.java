@@ -21,10 +21,10 @@ import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseConnectionType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseException;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueryType;
-import com.io7m.northpike.agent.database.api.NPAgentDatabaseTelemetry;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseType;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
@@ -69,7 +69,7 @@ public final class NPASDatabase implements NPAgentDatabaseType
   private final LongCounter transactionCommits;
   private final LongCounter transactionRollbacks;
   private final ConcurrentLinkedQueue<Long> connectionTimes;
-  private final NPAgentDatabaseTelemetry telemetry;
+  private final NPTelemetryServiceType telemetry;
   private final NPStrings strings;
 
   /**
@@ -83,7 +83,7 @@ public final class NPASDatabase implements NPAgentDatabaseType
    */
 
   public NPASDatabase(
-    final NPAgentDatabaseTelemetry inTelemetry,
+    final NPTelemetryServiceType inTelemetry,
     final NPStrings inStrings,
     final Clock inClock,
     final SQLiteDataSource inDataSource,

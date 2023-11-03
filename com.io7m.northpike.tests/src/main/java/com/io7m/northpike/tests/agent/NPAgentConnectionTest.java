@@ -17,22 +17,18 @@
 
 package com.io7m.northpike.tests.agent;
 
-import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.agent.api.NPAgentConfiguration;
 import com.io7m.northpike.agent.api.NPAgentException;
-import com.io7m.northpike.agent.internal.NPAgentConnection;
-import com.io7m.northpike.agent.internal.NPAgentConnectionType;
-import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
+import com.io7m.northpike.agent.internal.connection.NPAgentConnection;
+import com.io7m.northpike.agent.internal.connection.NPAgentConnectionType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.agents.NPAgentKeyPairEd448Type;
 import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.northpike.model.agents.NPAgentKeyPublicEd448Type;
-import com.io7m.northpike.model.agents.NPAgentLocalDescription;
-import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentLoginChallenge;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
+import com.io7m.northpike.model.tls.NPTLSDisabled;
 import com.io7m.northpike.protocol.agent.NPACommandCLogin;
 import com.io7m.northpike.protocol.agent.NPACommandCLoginComplete;
 import com.io7m.northpike.protocol.agent.NPAResponseError;
@@ -44,6 +40,9 @@ import com.io7m.northpike.protocol.intro.NPIProtocol;
 import com.io7m.northpike.protocol.intro.NPIProtocolsAvailable;
 import com.io7m.northpike.protocol.intro.cb.NPIMessages;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
+import com.io7m.northpike.tls.NPTLSContextService;
+import com.io7m.northpike.tls.NPTLSContextServiceType;
 import com.io7m.percentpass.extension.MinimumPassing;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +57,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Locale;
@@ -91,6 +89,7 @@ public final class NPAgentConnectionTest
   private ServerSocket socket;
   private NPAgentKeyPairEd448Type keyPair;
   private NPAgentKeyPublicEd448Type key;
+  private NPTLSContextServiceType tls;
 
   @BeforeEach
   public void setup()
@@ -101,6 +100,8 @@ public final class NPAgentConnectionTest
         .generateKeyPair();
     this.key =
       this.keyPair.publicKey();
+    this.tls =
+      NPTLSContextService.create(NPTelemetryNoOp.noop());
 
     this.executor =
       Executors.newSingleThreadExecutor();
@@ -340,23 +341,17 @@ public final class NPAgentConnectionTest
   private NPAgentConnectionType openConnection()
     throws NPException, InterruptedException, IOException
   {
-    return NPAgentConnection.open(this.strings, new NPAgentConfiguration(
-      NPAWorkExecutorConfiguration.builder()
-        .setWorkDirectory(Paths.get(""))
-        .setTemporaryDirectory(Paths.get(""))
-        .setExecutorType(new RDottedName("workexec.local"))
-        .build(),
-      new NPAgentLocalDescription(
-        NPAgentLocalName.of("x"),
-        this.keyPair
-      ),
+    return NPAgentConnection.open(
+      this.strings,
+      this.tls,
+      this.keyPair,
       new NPAgentServerDescription(
         new NPAgentServerID(UUID.randomUUID()),
         "localhost",
         this.socket.getLocalPort(),
-        false,
+        NPTLSDisabled.TLS_DISABLED,
         1_000_000
       )
-    ));
+    );
   }
 }

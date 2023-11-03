@@ -17,49 +17,39 @@
 package com.io7m.northpike.agent.database.api;
 
 
-import com.io7m.northpike.strings.NPStrings;
-
 import java.nio.file.Path;
-import java.time.Clock;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
  * The agent database configuration.
  *
- * @param upgrade           The upgrade specification
- * @param create            The creation specification
- * @param databaseFile      The database file
- * @param clock             A clock for time retrievals
- * @param strings           The string resources
- * @param language          The language used for databases (such as 'english')
+ * @param kind         The database kind
+ * @param upgrade      The upgrade specification
+ * @param create       The creation specification
+ * @param databaseFile The database file
  */
 
 public record NPAgentDatabaseConfiguration(
+  String kind,
   Path databaseFile,
   NPAgentDatabaseCreate create,
-  NPAgentDatabaseUpgrade upgrade,
-  String language,
-  Clock clock,
-  NPStrings strings)
+  NPAgentDatabaseUpgrade upgrade)
 {
   /**
    * The agent database configuration.
    *
-   * @param upgrade           The upgrade specification
-   * @param create            The creation specification
-   * @param databaseFile      The database file
-   * @param clock             A clock for time retrievals
-   * @param strings           The string resources
-   * @param language          The language used for databases (such as 'english')
+   * @param kind         The database kind
+   * @param upgrade      The upgrade specification
+   * @param create       The creation specification
+   * @param databaseFile The database file
    */
 
   public NPAgentDatabaseConfiguration
   {
+    kind = kind.toUpperCase(Locale.ROOT);
     Objects.requireNonNull(databaseFile, "databaseFile");
     Objects.requireNonNull(create, "create");
     Objects.requireNonNull(upgrade, "upgrade");
-    Objects.requireNonNull(clock, "clock");
-    Objects.requireNonNull(strings, "strings");
-    Objects.requireNonNull(language, "language");
   }
 }

@@ -18,7 +18,7 @@
 package com.io7m.northpike.agent.api;
 
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
-import com.io7m.northpike.model.agents.NPAgentLocalDescription;
+import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 
 import java.util.Objects;
@@ -27,27 +27,27 @@ import java.util.Objects;
  * The configuration for an agent.
  *
  * @param workExecutor The work executor configuration
- * @param agent        The local description of the agent
+ * @param name         The local agent name
  * @param server       The description of the server
  */
 
 public record NPAgentConfiguration(
+  NPAgentLocalName name,
   NPAWorkExecutorConfiguration workExecutor,
-  NPAgentLocalDescription agent,
   NPAgentServerDescription server)
 {
   /**
    * The configuration for an agent.
    *
    * @param workExecutor The work executor configuration
-   * @param agent        The local description of the agent
+   * @param name         The local agent name
    * @param server       The description of the server
    */
 
   public NPAgentConfiguration
   {
     Objects.requireNonNull(workExecutor, "workExecutor");
-    Objects.requireNonNull(agent, "agent");
+    Objects.requireNonNull(name, "name");
     Objects.requireNonNull(server, "server");
   }
 }

@@ -24,7 +24,7 @@ import com.io7m.blackthorne.core.BTException;
 import com.io7m.blackthorne.core.BTParseError;
 import com.io7m.blackthorne.core.BTPreserveLexical;
 import com.io7m.blackthorne.jxe.BlackthorneJXE;
-import com.io7m.northpike.agent.configuration.NPACFile;
+import com.io7m.northpike.agent.api.NPAgentHostConfiguration;
 import com.io7m.northpike.agent.configuration.NPACParserType;
 import com.io7m.northpike.agent.configuration.NPACPreserveLexical;
 import com.io7m.northpike.agent.configuration.NPACSchemas;
@@ -84,7 +84,7 @@ public final class NPAC1FileParser implements NPACParserType
   }
 
   @Override
-  public NPACFile execute()
+  public NPAgentHostConfiguration execute()
     throws ParsingException
   {
     try {

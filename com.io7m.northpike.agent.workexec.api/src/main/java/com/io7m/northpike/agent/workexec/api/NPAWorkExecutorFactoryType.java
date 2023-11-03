@@ -20,6 +20,7 @@ package com.io7m.northpike.agent.workexec.api;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPException;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
+import com.io7m.repetoir.core.RPServiceType;
 
 import java.util.Set;
 
@@ -31,6 +32,7 @@ import java.util.Set;
  */
 
 public interface NPAWorkExecutorFactoryType
+  extends RPServiceType
 {
   /**
    * @return The name of the work executor
