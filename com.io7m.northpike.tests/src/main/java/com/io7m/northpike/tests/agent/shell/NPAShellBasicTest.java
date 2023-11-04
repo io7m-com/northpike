@@ -190,7 +190,7 @@ public final class NPAShellBasicTest
     throws Exception
   {
     final var w = this.terminal.sendInputToTerminalWriter();
-    w.println("help nonexistent");
+    w.print("help nonexistent\n");
     w.flush();
     w.close();
 
