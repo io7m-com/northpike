@@ -21,6 +21,7 @@
   <properties>
     <checkstyle.skip>true</checkstyle.skip>
     <mdep.analyze.skip>true</mdep.analyze.skip>
+    <workexec.distribution>${project.build.directory}/workexec/northpike-workexec</workexec.distribution>
   </properties>
 
   <dependencies>
@@ -362,34 +363,18 @@
         </executions>
       </plugin>
 
-      <!-- Generate version strings used in tests. -->
       <plugin>
-        <groupId>com.io7m.stmp</groupId>
-        <artifactId>string-template-maven-plugin</artifactId>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>generate-version</id>
-            <phase>generate-sources</phase>
+            <id>generate-properties</id>
+            <phase>generate-resources</phase>
             <goals>
-              <goal>render</goal>
+              <goal>write-project-properties</goal>
             </goals>
             <configuration>
-              <templates>
-                <template>
-                  <directory>src/main/string-template</directory>
-                  <name>NPTestProperties</name>
-                  <target>
-                    ${project.build.directory}/generated-sources/string-template/com/io7m/northpike/tests/NPTestProperties.java
-                  </target>
-                  <properties>
-                    <IDSTORE_VERSION>${containers.idstore.version}</IDSTORE_VERSION>
-                    <POSTGRESQL_VERSION>${containers.postgresql.version}</POSTGRESQL_VERSION>
-                    <WORKEXEC_DISTRIBUTION>
-                      ${project.build.directory}/workexec/northpike-workexec
-                    </WORKEXEC_DISTRIBUTION>
-                  </properties>
-                </template>
-              </templates>
+              <outputFile>${project.build.directory}/classes/northpike-test.properties</outputFile>
             </configuration>
           </execution>
         </executions>

@@ -1,10 +1,5 @@
-NPTestProperties(
-  POSTGRESQL_VERSION,
-  IDSTORE_VERSION,
-  WORKEXEC_DISTRIBUTION) ::= <<
-
 /*
- * Copyright © 2023 Mark Raynsford \<code@io7m.com\> https://www.io7m.com
+ * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -19,23 +14,42 @@ NPTestProperties(
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
 package com.io7m.northpike.tests;
 
+import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Properties;
 
 public final class NPTestProperties
 {
-  public static final String POSTGRESQL_VERSION =
-    "<POSTGRESQL_VERSION>";
-  public static final String IDSTORE_VERSION =
-    "<IDSTORE_VERSION>";
-  public static final Path WORKEXEC_DISTRIBUTION =
-    Path.of("<WORKEXEC_DISTRIBUTION>");
+  public static final Path WORKEXEC_DISTRIBUTION;
+  public static final String POSTGRESQL_VERSION;
+  public static final String IDSTORE_VERSION;
+
+  static  {
+    final var properties = new Properties();
+
+    try {
+      try (var stream = NPTestProperties.class.getResourceAsStream(
+        "/northpike-test.properties")) {
+        properties.load(stream);
+      }
+    } catch (final IOException e) {
+      throw new IllegalStateException(e);
+    }
+
+    WORKEXEC_DISTRIBUTION =
+      Paths.get(properties.getProperty("workexec.distribution"));
+    POSTGRESQL_VERSION =
+      properties.getProperty("containers.postgresql.version");
+    IDSTORE_VERSION =
+      properties.getProperty("containers.idstore.version");
+  }
 
   private NPTestProperties()
   {
 
   }
 }
-
->>
