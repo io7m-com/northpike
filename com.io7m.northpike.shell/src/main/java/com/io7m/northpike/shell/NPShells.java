@@ -18,6 +18,9 @@ package com.io7m.northpike.shell;
 
 
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.shell.commons.NPShellCmdType;
+import com.io7m.northpike.shell.commons.NPShellOptions;
+import com.io7m.northpike.shell.commons.NPShellTerminalHolder;
 import com.io7m.northpike.shell.internal.NPShell;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentGet;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelAssign;
@@ -75,13 +78,10 @@ import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearc
 import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionValidate;
-import com.io7m.northpike.shell.internal.NPShellCmdType;
 import com.io7m.northpike.shell.internal.NPShellCmdUserSearchBegin;
 import com.io7m.northpike.shell.internal.NPShellCmdUserSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdUserSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdVersion;
-import com.io7m.northpike.shell.internal.NPShellOptions;
-import com.io7m.northpike.shell.internal.NPShellTerminalHolder;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.user_client.api.NPUserClientConfiguration;
 import com.io7m.northpike.user_client.api.NPUserClientType;

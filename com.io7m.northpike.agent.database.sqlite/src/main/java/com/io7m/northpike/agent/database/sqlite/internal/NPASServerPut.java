@@ -37,6 +37,7 @@ import java.util.Properties;
 
 import static com.io7m.northpike.agent.database.api.NPAgentDatabaseUnit.UNIT;
 import static com.io7m.northpike.agent.database.sqlite.internal.Tables.SERVERS;
+import static com.io7m.northpike.strings.NPStringConstants.SERVER;
 import static java.util.Objects.requireNonNullElse;
 
 /**
@@ -77,6 +78,8 @@ public final class NPASServerPut
     final NPAgentServerDescription server)
     throws NPAgentDatabaseException
   {
+    this.setAttribute(SERVER, server.id().toString());
+
     try {
       final var query =
         context.insertInto(SERVERS)

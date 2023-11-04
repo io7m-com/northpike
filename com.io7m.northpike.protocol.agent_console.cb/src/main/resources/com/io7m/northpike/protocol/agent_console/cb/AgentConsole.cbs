@@ -188,6 +188,16 @@
   [field limit cb:IntegerUnsigned32]
 ]
 
+[documentation NPAC1CommandAgentServerAssign "A request to assign/unassign a server."]
+[record NPAC1CommandAgentServerAssign
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation agentName "The agent name"]
+  [field agentName cb:String]
+  [documentation server "The server ID"]
+  [field server [cb:Option cb:UUID]]
+]
+
 ;
 ; Responses
 ;
@@ -212,6 +222,8 @@
   [field message cb:String]
   [documentation attributes "The error attributes."]
   [field attributes [cb:Map cb:String cb:String]]
+  [documentation remediatingAction "A possible remediating action."]
+  [field remediatingAction [cb:Option cb:String]]
 ]
 
 [documentation NPAC1ResponseServer "A server response."]
@@ -272,6 +284,7 @@
       NPAC1CommandAgentDelete
       NPAC1CommandAgentGet
       NPAC1CommandAgentList
+      NPAC1CommandAgentServerAssign
       NPAC1CommandDisconnect
       NPAC1CommandLogin
       NPAC1CommandServerDelete

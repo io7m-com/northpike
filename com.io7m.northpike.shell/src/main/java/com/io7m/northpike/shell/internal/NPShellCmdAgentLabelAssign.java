@@ -46,7 +46,7 @@ import static com.io7m.quarrel.core.QCommandStatus.SUCCESS;
  * "agent-label-assign"
  */
 
-public final class NPShellCmdAgentLabelAssign extends NPShellCmdAbstract
+public final class NPShellCmdAgentLabelAssign extends NPShellCmdAbstractU
 {
   private static final QParameterNamed1<NPAgentID> AGENT_ID =
     new QParameterNamed1<>(

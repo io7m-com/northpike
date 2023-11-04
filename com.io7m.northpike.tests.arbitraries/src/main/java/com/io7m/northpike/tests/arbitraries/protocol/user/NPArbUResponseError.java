@@ -38,7 +38,9 @@ public final class NPArbUResponseError extends NPArbAbstract<NPUResponseError>
           Arbitraries.defaultFor(NPErrorCode.class),
           Arbitraries.strings(),
           Arbitraries.maps(Arbitraries.strings(), Arbitraries.strings())
-            .ofMaxSize(3)
+            .ofMaxSize(3),
+          Arbitraries.strings()
+            .optional()
         ).as(NPUResponseError::new);
       }
     );

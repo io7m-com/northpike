@@ -23,6 +23,7 @@ import com.io7m.northpike.agent.console_client.api.NPAConsoleClientType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.protocol.agent_console.NPACCommandDisconnect;
 import com.io7m.northpike.protocol.agent_console.NPACCommandType;
+import com.io7m.northpike.protocol.agent_console.NPACResponseError;
 import com.io7m.northpike.protocol.agent_console.NPACResponseType;
 
 import java.io.IOException;
@@ -100,7 +101,18 @@ public final class NPAConsoleClient implements NPAConsoleClientType
     throws NPAConsoleClientException, InterruptedException
   {
     try {
-      return (R) this.connection.ask(command);
+      final var r = this.connection.ask(command);
+      return switch (r) {
+        case final NPACResponseError error -> {
+          throw new NPException(
+            error.message(),
+            error.errorCode(),
+            error.attributes(),
+            error.remediatingAction()
+          );
+        }
+        default -> (R) r;
+      };
     } catch (final NPException e) {
       throw NPAConsoleExceptions.wrap(e);
     } catch (final IOException e) {

@@ -38,7 +38,8 @@ public final class NPArbACResponseError extends NPArbAbstract<NPACResponseError>
           Arbitraries.defaultFor(NPErrorCode.class),
           Arbitraries.strings(),
           Arbitraries.maps(Arbitraries.strings(), Arbitraries.strings())
-            .ofMaxSize(3)
+            .ofMaxSize(3),
+          Arbitraries.strings().optional()
         ).as(NPACResponseError::new);
       }
     );

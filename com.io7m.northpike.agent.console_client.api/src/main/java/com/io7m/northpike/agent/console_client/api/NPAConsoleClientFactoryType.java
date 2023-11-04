@@ -35,7 +35,7 @@ public interface NPAConsoleClientFactoryType extends RPServiceType
    * @throws NPAConsoleClientException On errors
    */
 
-  NPAConsoleClientType createUserClient(
+  NPAConsoleClientType createConsoleClient(
     NPAConsoleClientConfiguration configuration)
     throws NPAConsoleClientException;
 }

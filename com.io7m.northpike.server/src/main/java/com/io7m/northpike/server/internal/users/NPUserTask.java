@@ -399,7 +399,8 @@ public final class NPUserTask
           this.messageCurrent.messageID(),
           errorCode,
           this.strings.format(message),
-          this.attributes
+          this.attributes,
+          exception.remediatingAction()
         )
       );
     } catch (final Exception e) {

@@ -59,6 +59,7 @@ module com.io7m.northpike.agent
     com.io7m.northpike.agent.internal.console.NPACCmdAgentDelete,
     com.io7m.northpike.agent.internal.console.NPACCmdAgentGet,
     com.io7m.northpike.agent.internal.console.NPACCmdAgentList,
+    com.io7m.northpike.agent.internal.console.NPACCmdAgentServerAssign,
     com.io7m.northpike.agent.internal.console.NPACCmdLogin,
     com.io7m.northpike.agent.internal.console.NPACCmdServerDelete,
     com.io7m.northpike.agent.internal.console.NPACCmdServerGet,

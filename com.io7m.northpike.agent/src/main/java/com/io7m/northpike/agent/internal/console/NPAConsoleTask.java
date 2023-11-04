@@ -28,6 +28,7 @@ import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.protocol.agent_console.NPACMessageType;
 import com.io7m.northpike.protocol.agent_console.NPACResponseError;
+import com.io7m.northpike.protocol.agent_console.NPACResponseType;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStringConstants;
 import com.io7m.northpike.strings.NPStrings;
@@ -243,7 +244,8 @@ public final class NPAConsoleTask implements Runnable,
           this.messageCurrent.messageID(),
           errorCode,
           this.strings.format(message),
-          this.attributes
+          this.attributes,
+          exception.remediatingAction()
         )
       );
     } catch (final Exception e) {
@@ -281,7 +283,22 @@ public final class NPAConsoleTask implements Runnable,
     throws NPException, InterruptedException, IOException
   {
     this.attributes.clear();
-    this.connection.send(this.commandExecutor.execute(this, message));
+
+    NPACResponseType result;
+    try {
+      result = this.commandExecutor.execute(this, message);
+    } catch (final NPException e) {
+      result = new NPACResponseError(
+        randomUUID(),
+        message.messageID(),
+        e.errorCode(),
+        e.getMessage(),
+        e.attributes(),
+        e.remediatingAction()
+      );
+    }
+
+    this.connection.send(result);
   }
 
   @Override

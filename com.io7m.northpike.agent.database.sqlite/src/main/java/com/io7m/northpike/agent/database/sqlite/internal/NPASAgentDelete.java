@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import static com.io7m.northpike.agent.database.api.NPAgentDatabaseUnit.UNIT;
 import static com.io7m.northpike.agent.database.sqlite.internal.Tables.AGENT_SERVERS;
 import static com.io7m.northpike.agent.database.sqlite.internal.tables.Agents.AGENTS;
+import static com.io7m.northpike.strings.NPStringConstants.AGENT;
 
 /**
  * Delete an agent.
@@ -67,6 +68,8 @@ public final class NPASAgentDelete
     final DSLContext context,
     final NPAgentLocalName agent)
   {
+    this.setAttribute(AGENT, agent.toString());
+
     final var batch = new ArrayList<Query>();
 
     batch.add(

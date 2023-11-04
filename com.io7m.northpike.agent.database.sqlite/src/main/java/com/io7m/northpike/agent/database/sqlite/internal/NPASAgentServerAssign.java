@@ -25,6 +25,8 @@ import org.jooq.DSLContext;
 import static com.io7m.northpike.agent.database.api.NPAgentDatabaseUnit.UNIT;
 import static com.io7m.northpike.agent.database.sqlite.internal.Tables.AGENT_SERVERS;
 import static com.io7m.northpike.agent.database.sqlite.internal.tables.Agents.AGENTS;
+import static com.io7m.northpike.strings.NPStringConstants.AGENT;
+import static com.io7m.northpike.strings.NPStringConstants.SERVER;
 
 /**
  * Assign a server to an agent.
@@ -63,6 +65,9 @@ public final class NPASAgentServerAssign
     final DSLContext context,
     final AgentServerAssignType.Parameters parameters)
   {
+    this.setAttribute(AGENT, parameters.agent().toString());
+    this.setAttribute(SERVER, parameters.server().toString());
+
     final var agent =
       context.select(AGENTS.A_ID)
         .from(AGENTS)

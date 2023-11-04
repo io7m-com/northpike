@@ -31,6 +31,8 @@ import com.io7m.northpike.agent.database.sqlite.NPASDatabases;
 import com.io7m.northpike.agent.internal.console.NPAConsoleService;
 import com.io7m.northpike.agent.internal.console.NPAConsoleServiceType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
+import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
@@ -39,6 +41,7 @@ import com.io7m.northpike.protocol.agent_console.NPACCommandAgentCreate;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentDelete;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentList;
+import com.io7m.northpike.protocol.agent_console.NPACCommandAgentServerAssign;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerDelete;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerList;
@@ -69,6 +72,7 @@ import java.util.Optional;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public final class NPAConsoleServiceTest
 {
@@ -148,7 +152,7 @@ public final class NPAConsoleServiceTest
     this.clients =
       new NPAConsoleClients();
     this.client =
-      this.clients.createUserClient(
+      this.clients.createConsoleClient(
         new NPAConsoleClientConfiguration(this.strings)
       );
     this.services.register(NPAConsoleClientType.class, this.client);
@@ -284,5 +288,28 @@ public final class NPAConsoleServiceTest
 
       assertEquals(Optional.empty(), r.results());
     }
+  }
+
+  @Test
+  public void testAgentServerAssignNonexistent()
+    throws Exception
+  {
+    this.client.login(this.address, "access");
+
+    final var name = NPAgentLocalName.of("a");
+    this.client.execute(
+      new NPACCommandAgentCreate(randomUUID(), name)
+    );
+
+    final var ex =
+      assertThrows(NPException.class, () -> {
+        this.client.execute(new NPACCommandAgentServerAssign(
+          randomUUID(),
+          name,
+          Optional.of(new NPAgentServerID(randomUUID()))
+        ));
+      });
+
+    assertEquals(NPStandardErrorCodes.errorSqlForeignKey(), ex.errorCode());
   }
 }

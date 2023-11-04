@@ -26,6 +26,7 @@ import org.jooq.DSLContext;
 import static com.io7m.northpike.agent.database.api.NPAgentDatabaseUnit.UNIT;
 import static com.io7m.northpike.agent.database.sqlite.internal.Tables.AGENT_SERVERS;
 import static com.io7m.northpike.agent.database.sqlite.internal.tables.Agents.AGENTS;
+import static com.io7m.northpike.strings.NPStringConstants.AGENT;
 
 /**
  * Unassign a server from an agent.
@@ -64,6 +65,8 @@ public final class NPASAgentServerUnassign
     final DSLContext context,
     final NPAgentLocalName name)
   {
+    this.setAttribute(AGENT, name.toString());
+
     final var agent =
       context.select(AGENTS.A_ID)
         .from(AGENTS)

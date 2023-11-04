@@ -49,6 +49,11 @@
       <artifactId>com.io7m.northpike.toolexec</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.shell.commons</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.io7m.anethum</groupId>
@@ -59,20 +64,12 @@
       <artifactId>com.io7m.medrina.api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.io7m.lanark</groupId>
       <artifactId>com.io7m.lanark.core</artifactId>
     </dependency>
     <dependency>
       <groupId>com.io7m.idstore</groupId>
       <artifactId>com.io7m.idstore.model</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.tabla</groupId>
-      <artifactId>com.io7m.tabla.core</artifactId>
     </dependency>
     <dependency>
       <groupId>com.io7m.repetoir</groupId>

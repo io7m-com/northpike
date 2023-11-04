@@ -21,6 +21,7 @@ import com.io7m.northpike.protocol.agent_console.NPACCommandAgentCreate;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentDelete;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentList;
+import com.io7m.northpike.protocol.agent_console.NPACCommandAgentServerAssign;
 import com.io7m.northpike.protocol.agent_console.NPACCommandDisconnect;
 import com.io7m.northpike.protocol.agent_console.NPACCommandLogin;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerDelete;
@@ -52,6 +53,7 @@ public final class NPArbACMessage extends NPArbAbstract<NPACMessageType>
       () -> {
         return Arbitraries.oneOf(
           Stream.of(
+              NPACCommandAgentServerAssign.class,
               NPACCommandAgentCreate.class,
               NPACCommandAgentDelete.class,
               NPACCommandAgentGet.class,

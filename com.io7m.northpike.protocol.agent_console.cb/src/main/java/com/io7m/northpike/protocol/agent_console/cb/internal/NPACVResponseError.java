@@ -17,6 +17,9 @@
 
 package com.io7m.northpike.protocol.agent_console.cb.internal;
 
+import com.io7m.cedarbridge.runtime.api.CBCore;
+import com.io7m.cedarbridge.runtime.api.CBOptionType;
+import com.io7m.cedarbridge.runtime.api.CBString;
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.cedarbridge.runtime.convenience.CBMaps;
 import com.io7m.northpike.model.NPErrorCode;
@@ -48,7 +51,8 @@ public enum NPACVResponseError
       new CBUUID(message.correlationID()),
       string(message.errorCode().id()),
       string(message.message()),
-      CBMaps.ofMapString(message.attributes())
+      CBMaps.ofMapString(message.attributes()),
+      CBOptionType.fromOptional(message.remediatingAction().map(CBCore::string))
     );
   }
 
@@ -61,7 +65,10 @@ public enum NPACVResponseError
       message.fieldCorrelationId().value(),
       new NPErrorCode(message.fieldErrorCode().value()),
       message.fieldMessage().value(),
-      CBMaps.toMapString(message.fieldAttributes())
+      CBMaps.toMapString(message.fieldAttributes()),
+      message.fieldRemediatingAction()
+        .asOptional()
+        .map(CBString::value)
     );
   }
 }

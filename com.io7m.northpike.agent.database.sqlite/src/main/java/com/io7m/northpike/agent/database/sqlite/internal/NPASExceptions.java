@@ -20,9 +20,13 @@ package com.io7m.northpike.agent.database.sqlite.internal;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import org.jooq.exception.DataAccessException;
+import org.jooq.exception.IntegrityConstraintViolationException;
 
 import java.util.Optional;
 import java.util.TreeMap;
+
+import static com.io7m.northpike.strings.NPStringConstants.ERROR_DATABASE_FOREIGN_INTEGRITY;
+import static com.io7m.northpike.strings.NPStringConstants.ERROR_DATABASE_FOREIGN_INTEGRITY_REMEDIATE;
 
 /**
  * Functions to handle database exceptions.
@@ -54,13 +58,20 @@ public final class NPASExceptions
       e.getMessage();
 
     final var result =
-      new NPAgentDatabaseException(
-        m,
-        e,
-        NPStandardErrorCodes.errorSql(),
-        attributes,
-        Optional.empty()
-      );
+      switch (e) {
+        case final IntegrityConstraintViolationException ie -> {
+          yield handleDatabaseIntegrityException(transaction, ie, attributes);
+        }
+        default -> {
+          yield new NPAgentDatabaseException(
+            m,
+            e,
+            NPStandardErrorCodes.errorSql(),
+            attributes,
+            Optional.empty()
+          );
+        }
+      };
 
     try {
       transaction.rollback();
@@ -68,5 +79,21 @@ public final class NPASExceptions
       result.addSuppressed(ex);
     }
     return result;
+  }
+
+  private static NPAgentDatabaseException handleDatabaseIntegrityException(
+    final NPASTransaction transaction,
+    final IntegrityConstraintViolationException ie,
+    final TreeMap<String, String> attributes)
+  {
+    return new NPAgentDatabaseException(
+      transaction.localize(ERROR_DATABASE_FOREIGN_INTEGRITY),
+      ie,
+      NPStandardErrorCodes.errorSqlForeignKey(),
+      attributes,
+      Optional.of(
+        transaction.localize(ERROR_DATABASE_FOREIGN_INTEGRITY_REMEDIATE)
+      )
+    );
   }
 }

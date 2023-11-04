@@ -25,6 +25,7 @@ import org.jooq.DSLContext;
 
 import static com.io7m.northpike.agent.database.api.NPAgentDatabaseUnit.UNIT;
 import static com.io7m.northpike.agent.database.sqlite.internal.tables.Agents.AGENTS;
+import static com.io7m.northpike.strings.NPStringConstants.AGENT;
 
 /**
  * Update an agent.
@@ -63,6 +64,8 @@ public final class NPASAgentPut
     final DSLContext context,
     final NPAgentLocalDescription agent)
   {
+    this.setAttribute(AGENT, agent.name().toString());
+
     final var keyPair = agent.keyPair();
 
     final var query =

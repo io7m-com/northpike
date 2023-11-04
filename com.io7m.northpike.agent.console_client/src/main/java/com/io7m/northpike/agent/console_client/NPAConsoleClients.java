@@ -38,7 +38,7 @@ public final class NPAConsoleClients implements NPAConsoleClientFactoryType
   }
 
   @Override
-  public NPAConsoleClientType createUserClient(
+  public NPAConsoleClientType createConsoleClient(
     final NPAConsoleClientConfiguration configuration)
   {
     return new NPAConsoleClient(configuration);

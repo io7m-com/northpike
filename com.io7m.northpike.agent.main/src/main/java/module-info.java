@@ -27,8 +27,10 @@ module com.io7m.northpike.agent.main
 
   requires com.io7m.northpike.agent.api;
   requires com.io7m.northpike.agent.configuration;
+  requires com.io7m.northpike.agent.console_client;
   requires com.io7m.northpike.agent.database.api;
   requires com.io7m.northpike.agent.database.sqlite;
+  requires com.io7m.northpike.agent.shell;
   requires com.io7m.northpike.agent;
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;

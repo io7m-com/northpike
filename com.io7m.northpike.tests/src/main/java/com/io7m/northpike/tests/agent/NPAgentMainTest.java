@@ -32,7 +32,8 @@ public final class NPAgentMainTest
   {
     return Stream.of(
         "help",
-        "run")
+        "run",
+        "shell")
       .map(name -> {
         return DynamicTest.dynamicTest("testHelp_" + name, () -> {
           final var r =

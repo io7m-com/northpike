@@ -39,7 +39,7 @@ import static com.io7m.quarrel.core.QCommandStatus.SUCCESS;
 public abstract class NPShellCmdAbstractCR<
   C extends NPUCommandType<R>,
   R extends NPUResponseType>
-  extends NPShellCmdAbstract
+  extends NPShellCmdAbstractU
 {
   private final Class<R> responseClass;
 

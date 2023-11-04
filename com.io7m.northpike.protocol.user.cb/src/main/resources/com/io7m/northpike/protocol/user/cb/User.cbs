@@ -1070,6 +1070,8 @@
   [field message cb:String]
   [documentation attributes "The error attributes."]
   [field attributes [cb:Map cb:String cb:String]]
+  [documentation remediatingAction "A possible remediating action."]
+  [field remediatingAction [cb:Option cb:String]]
 ]
 
 [documentation NPU1ResponseRepositoryGet "A repository retrieval."]

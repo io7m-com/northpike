@@ -21,16 +21,18 @@ import com.io7m.northpike.model.NPErrorCode;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
  * An error occurred.
  *
- * @param messageID     The message ID
- * @param correlationID The command that prompted this response
- * @param errorCode     The error code
- * @param message       The error message
- * @param attributes    The error attributes
+ * @param messageID         The message ID
+ * @param correlationID     The command that prompted this response
+ * @param errorCode         The error code
+ * @param message           The error message
+ * @param attributes        The error attributes
+ * @param remediatingAction A possible remediating action
  */
 
 public record NPUResponseError(
@@ -38,17 +40,19 @@ public record NPUResponseError(
   UUID correlationID,
   NPErrorCode errorCode,
   String message,
-  Map<String, String> attributes)
+  Map<String, String> attributes,
+  Optional<String> remediatingAction)
   implements NPUResponseType
 {
   /**
    * An error occurred.
    *
-   * @param messageID     The message ID
-   * @param correlationID The command that prompted this response
-   * @param errorCode     The error code
-   * @param message       The error message
-   * @param attributes    The error attributes
+   * @param messageID         The message ID
+   * @param correlationID     The command that prompted this response
+   * @param errorCode         The error code
+   * @param message           The error message
+   * @param attributes        The error attributes
+   * @param remediatingAction A possible remediating action
    */
 
   public NPUResponseError
@@ -58,5 +62,6 @@ public record NPUResponseError(
     Objects.requireNonNull(errorCode, "errorCode");
     Objects.requireNonNull(message, "message");
     Objects.requireNonNull(attributes, "attributes");
+    Objects.requireNonNull(remediatingAction, "remediatingAction");
   }
 }

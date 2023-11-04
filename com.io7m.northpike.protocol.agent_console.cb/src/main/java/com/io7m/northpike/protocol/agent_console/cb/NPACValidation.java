@@ -21,6 +21,7 @@ import com.io7m.northpike.protocol.agent_console.NPACCommandAgentCreate;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentDelete;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentList;
+import com.io7m.northpike.protocol.agent_console.NPACCommandAgentServerAssign;
 import com.io7m.northpike.protocol.agent_console.NPACCommandDisconnect;
 import com.io7m.northpike.protocol.agent_console.NPACCommandLogin;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerDelete;
@@ -47,6 +48,7 @@ import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommand
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandAgentDelete.COMMAND_AGENT_DELETE;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandAgentGet.COMMAND_AGENT_GET;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandAgentList.COMMAND_AGENT_LIST;
+import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandAgentServerAssign.COMMAND_AGENT_SERVER_ASSIGN;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandDisconnect.COMMAND_DISCONNECT;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandLogin.COMMAND_LOGIN;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandServerDelete.COMMAND_SERVER_DELETE;
@@ -125,6 +127,9 @@ public final class NPACValidation
           }
           case final NPACCommandAgentList c -> {
             yield COMMAND_AGENT_LIST.convertToWire(c);
+          }
+          case final NPACCommandAgentServerAssign c -> {
+            yield COMMAND_AGENT_SERVER_ASSIGN.convertToWire(c);
           }
         };
       }
@@ -223,6 +228,9 @@ public final class NPACValidation
           }
           case final NPAC1ResponseAgentList m -> {
             yield RESPONSE_AGENT_LIST.convertFromWire(m);
+          }
+          case final NPAC1CommandAgentServerAssign m -> {
+            yield COMMAND_AGENT_SERVER_ASSIGN.convertFromWire(m);
           }
         };
       }

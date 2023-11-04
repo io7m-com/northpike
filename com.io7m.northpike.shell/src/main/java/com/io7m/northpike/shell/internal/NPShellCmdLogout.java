@@ -32,7 +32,7 @@ import static com.io7m.quarrel.core.QCommandStatus.SUCCESS;
  * "logout"
  */
 
-public final class NPShellCmdLogout extends NPShellCmdAbstract
+public final class NPShellCmdLogout extends NPShellCmdAbstractU
 {
   /**
    * Construct a command.

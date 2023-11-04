@@ -40,7 +40,7 @@ import static com.io7m.quarrel.core.QCommandStatus.SUCCESS;
  * "agent-put"
  */
 
-public final class NPShellCmdAgentPut extends NPShellCmdAbstract
+public final class NPShellCmdAgentPut extends NPShellCmdAbstractU
 {
   private static final QParameterNamed1<NPAgentID> AGENT_ID =
     new QParameterNamed1<>(

@@ -37,6 +37,7 @@
   <entry key="error_duplicate">Object already exists.</entry>
   <entry key="error_duplicate_deleted">A previously deleted object exists with this ID.</entry>
   <entry key="error_format_unsupported">Unsupported format.</entry>
+  <entry key="error_missing_required_parameter">Missing a required parameter.</entry>
   <entry key="error_hash_mismatch">Hash value mismatch.</entry>
   <entry key="error_http">HTTP server error.</entry>
   <entry key="error_io">I/O error.</entry>
@@ -70,6 +71,13 @@
   <entry key="error_no_workexec_remediate">Specify a workexec distribution directory in the configuration.</entry>
   <entry key="error_external_program_failed">Running the external program failed.</entry>
   <entry key="error_tool_not_supported">No support is available for the specified tool and/or tool version.</entry>
+  <entry key="error_database_foreign_integrity">
+    Attempting to make the given change would violate a database integrity constraint.
+  </entry>
+  <entry key="error_database_foreign_integrity_remediate">
+    Check that objects being deleted are not still referenced by other objects. Check that any object references being
+    added refer to objects that actually exist.
+  </entry>
   <entry key="expected">Expected</entry>
   <entry key="file">File</entry>
   <entry key="format">Format</entry>
@@ -111,6 +119,9 @@
   <entry key="container_tag">Container Tag</entry>
   <entry key="container_registry">Container Registry</entry>
   <entry key="work_executor">Work Executor</entry>
+  <entry key="parameter">Parameter</entry>
+  <entry key="type">Type</entry>
+  <entry key="server">Server</entry>
 
   <entry key="type_check_undefined_variable">Undefined variable.</entry>
   <entry key="type_check_expression">An expression did not have the expected type.</entry>

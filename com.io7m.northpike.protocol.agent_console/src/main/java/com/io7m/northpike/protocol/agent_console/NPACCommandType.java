@@ -28,6 +28,7 @@ public sealed interface NPACCommandType<R extends NPACResponseType>
   NPACCommandAgentDelete,
   NPACCommandAgentGet,
   NPACCommandAgentList,
+  NPACCommandAgentServerAssign,
   NPACCommandDisconnect,
   NPACCommandLogin,
   NPACCommandServerDelete,
