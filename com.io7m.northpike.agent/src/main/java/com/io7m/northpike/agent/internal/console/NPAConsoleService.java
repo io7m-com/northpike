@@ -107,8 +107,18 @@ public final class NPAConsoleService implements NPAConsoleServiceType
       this.socket =
         this.resources.add(new ServerSocket());
 
-      this.socket.setOption(SO_REUSEPORT, Boolean.TRUE);
-      this.socket.setOption(SO_REUSEADDR, Boolean.TRUE);
+      try {
+        this.socket.setOption(SO_REUSEPORT, Boolean.TRUE);
+      } catch (final UnsupportedOperationException e) {
+        // Nothing we can do about this.
+      }
+
+      try {
+        this.socket.setOption(SO_REUSEADDR, Boolean.TRUE);
+      } catch (final UnsupportedOperationException e) {
+        // Nothing we can do about this.
+      }
+
       this.socket.bind(
         new InetSocketAddress(
           this.configuration.address(),

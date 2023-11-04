@@ -161,8 +161,19 @@ public final class NPUserClientTest
         .createServerSocket();
 
     this.socket.setReuseAddress(true);
-    this.socket.setOption(SO_REUSEADDR, Boolean.TRUE);
-    this.socket.setOption(SO_REUSEPORT, Boolean.TRUE);
+
+    try {
+      this.socket.setOption(SO_REUSEPORT, Boolean.TRUE);
+    } catch (final UnsupportedOperationException e) {
+      // Nothing we can do about this.
+    }
+
+    try {
+      this.socket.setOption(SO_REUSEADDR, Boolean.TRUE);
+    } catch (final UnsupportedOperationException e) {
+      // Nothing we can do about this.
+    }
+
     this.socket.bind(new InetSocketAddress("localhost", 0x4e50));
 
     this.configuration =
