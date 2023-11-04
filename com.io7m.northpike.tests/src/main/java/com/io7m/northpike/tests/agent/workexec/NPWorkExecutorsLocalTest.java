@@ -145,7 +145,7 @@ public final class NPWorkExecutorsLocalTest
         Set.of(mavenReference),
         new NPToolExecutionEvaluated(
           mavenReference,
-          Map.of(),
+          System.getenv(),
           List.of("clean")
         ),
         new NPArchiveLinks(
