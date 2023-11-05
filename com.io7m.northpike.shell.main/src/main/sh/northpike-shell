@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ -z "${NORTHPIKE_SHELL_HOME}" ]
+then
+  echo "NORTHPIKE_SHELL_HOME is unset" 1>&2
+  exit 1
+fi
+
+exec /usr/bin/env java \
+-p "${NORTHPIKE_SHELL_HOME}/lib" \
+-m com.io7m.northpike.shell.main/com.io7m.northpike.shell.main.NPShellMain \
+"$@"

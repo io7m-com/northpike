@@ -187,6 +187,21 @@
       <plugin>
         <groupId>io.github.zlika</groupId>
         <artifactId>reproducible-build-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>reproducible-zip</id>
+            <phase>package</phase>
+            <goals>
+              <goal>strip-jar</goal>
+            </goals>
+            <configuration>
+              <overwrite>true</overwrite>
+              <includes>
+                <include>.*\.zip</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

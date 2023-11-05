@@ -74,6 +74,16 @@
       <artifactId>com.io7m.northpike.database.postgres</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.telemetry.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.telemetry.otp</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.io7m.idstore</groupId>
@@ -216,10 +226,29 @@
             </goals>
             <phase>package</phase>
             <configuration>
-              <finalName>northpike-server</finalName>
               <descriptors>
                 <descriptor>src/main/assembly/distribution.xml</descriptor>
               </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>io.github.zlika</groupId>
+        <artifactId>reproducible-build-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>reproducible-zip</id>
+            <phase>package</phase>
+            <goals>
+              <goal>strip-jar</goal>
+            </goals>
+            <configuration>
+              <overwrite>true</overwrite>
+              <includes>
+                <include>.*\.zip</include>
+              </includes>
             </configuration>
           </execution>
         </executions>
