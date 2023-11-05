@@ -17,7 +17,11 @@
 
 package com.io7m.northpike.agent.internal.worker;
 
+import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult;
+import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
 
 /**
  * A worker task for a single agent.
@@ -30,4 +34,61 @@ public interface NPAgentWorkerType extends AutoCloseable
    */
 
   NPAgentLocalName agentName();
+
+  /**
+   * @param workItem The work item
+   *
+   * @return {@code true} if the agent can currently accept the given work
+   */
+
+  boolean workCanBeAccepted(
+    NPWorkItemIdentifier workItem);
+
+  /**
+   * Accept the given work item.
+   *
+   * @param workItem The work item
+   *
+   * @return {@code true} if the agent was able to accept the work
+   */
+
+  boolean workAccept(
+    NPAgentWorkItem workItem);
+
+  /**
+   * The given work item started executing.
+   *
+   * @param workItem The work item
+   */
+
+  void workStarted(
+    NPAgentWorkItem workItem);
+
+  /**
+   * The given work item finished executing.
+   *
+   * @param workItem The work item
+   * @param result   The result
+   */
+
+  void workCompleted(
+    NPAgentWorkItem workItem,
+    NPAWorkExecutionResult result);
+
+  /**
+   * The status of a work item changed.
+   *
+   * @param workItem The work item
+   * @param item     The event
+   */
+
+  void workUpdated(
+    NPAgentWorkItem workItem,
+    NPAWorkEvent item);
+
+  /**
+   * @return The current agent status
+   */
+
+  String status();
 }

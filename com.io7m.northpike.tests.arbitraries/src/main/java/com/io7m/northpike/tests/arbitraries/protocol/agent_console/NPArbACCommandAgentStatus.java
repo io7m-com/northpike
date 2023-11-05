@@ -15,23 +15,24 @@
  */
 
 
-package com.io7m.northpike.agent.internal.supervisor;
+package com.io7m.northpike.tests.arbitraries.protocol.agent_console;
 
-import com.io7m.northpike.model.agents.NPAgentLocalName;
-import com.io7m.repetoir.core.RPServiceType;
+import com.io7m.northpike.protocol.agent_console.NPACCommandAgentStatusGet;
+import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import net.jqwik.api.Arbitraries;
 
-import java.util.Map;
+import java.util.UUID;
 
-/**
- * An agent supervisor.
- */
-
-public interface NPAgentSupervisorType
-  extends RPServiceType, AutoCloseable
+public final class NPArbACCommandAgentStatus extends NPArbAbstract<NPACCommandAgentStatusGet>
 {
-  /**
-   * @return The current set of agent status values
-   */
-
-  Map<NPAgentLocalName, String> agentStatuses();
+  public NPArbACCommandAgentStatus()
+  {
+    super(
+      NPACCommandAgentStatusGet.class,
+      () -> {
+        return Arbitraries.create(UUID::randomUUID)
+          .map(NPACCommandAgentStatusGet::new);
+      }
+    );
+  }
 }

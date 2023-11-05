@@ -45,6 +45,9 @@ import com.io7m.repetoir.core.RPServiceDirectoryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -258,5 +261,20 @@ public final class NPAgentSupervisor
   {
     return "[NPAgentSupervisor 0x%s]"
       .formatted(Integer.toUnsignedString(this.hashCode(), 16));
+  }
+
+  @Override
+  public Map<NPAgentLocalName, String> agentStatuses()
+  {
+    final var results =
+      new HashMap<NPAgentLocalName, String>(this.workers.size());
+    final var workersNow =
+      List.copyOf(this.workers.values());
+
+    for (final var worker : workersNow) {
+      results.put(worker.agentName(), worker.status());
+    }
+
+    return Map.copyOf(results);
   }
 }

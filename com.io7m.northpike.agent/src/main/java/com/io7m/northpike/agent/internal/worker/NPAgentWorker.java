@@ -34,11 +34,16 @@ import com.io7m.northpike.agent.internal.events.NPAgentWorkerExecutorStarted;
 import com.io7m.northpike.agent.internal.events.NPAgentWorkerExecutorStopped;
 import com.io7m.northpike.agent.internal.events.NPAgentWorkerStarted;
 import com.io7m.northpike.agent.internal.events.NPAgentWorkerStopped;
+import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorFactoryType;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
+import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPEventType;
@@ -54,8 +59,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorUnsupported;
+import static com.io7m.northpike.strings.NPStringConstants.AGENT_STATUS_EXECUTING_WORK;
+import static com.io7m.northpike.strings.NPStringConstants.AGENT_STATUS_NOT_CONFIGURED_SERVER;
+import static com.io7m.northpike.strings.NPStringConstants.AGENT_STATUS_NOT_CONFIGURED_WORKEXEC;
+import static com.io7m.northpike.strings.NPStringConstants.AGENT_STATUS_READY;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_NO_WORKEXEC_AVAILABLE;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_NO_WORKEXEC_AVAILABLE_REMEDIATE;
 import static com.io7m.northpike.strings.NPStringConstants.WORK_EXECUTOR;
@@ -79,6 +89,7 @@ public final class NPAgentWorker
   private final List<? extends NPAWorkExecutorFactoryType> workExecs;
   private final NPAgentLocalName agentName;
   private final AtomicBoolean closed;
+  private final AtomicReference<String> status;
   private volatile Thread threadMain;
   private volatile NPAgentWorkerTaskMessaging connectionTask;
   private volatile Thread connectionTaskThread;
@@ -113,6 +124,34 @@ public final class NPAgentWorker
       new AtomicBoolean(false);
     this.serverLatest =
       Optional.empty();
+
+    this.status = new AtomicReference<>();
+    this.setStatusIdle();
+  }
+
+  private void setStatusIdle()
+  {
+    final var execTask =
+      this.workExecTask;
+    final var connTask =
+      this.connectionTask;
+
+    if (execTask != null) {
+      if (connTask != null) {
+        this.setStatus(AGENT_STATUS_READY);
+      } else {
+        this.setStatus(AGENT_STATUS_NOT_CONFIGURED_SERVER);
+      }
+    } else {
+      this.setStatus(AGENT_STATUS_NOT_CONFIGURED_WORKEXEC);
+    }
+  }
+
+  private void setStatus(
+    final NPStringConstantType constant,
+    final Object... args)
+  {
+    this.status.set(this.strings.format(constant, args));
   }
 
   /**
@@ -164,6 +203,79 @@ public final class NPAgentWorker
   public NPAgentLocalName agentName()
   {
     return this.agentName;
+  }
+
+  @Override
+  public boolean workCanBeAccepted(
+    final NPWorkItemIdentifier workItem)
+  {
+    Objects.requireNonNull(workItem, "workItem");
+
+    final var workTask = this.workExecTask;
+    if (workTask != null) {
+      return workTask.workCanBeAccepted(workItem);
+    }
+    return false;
+  }
+
+  @Override
+  public boolean workAccept(
+    final NPAgentWorkItem workItem)
+  {
+    Objects.requireNonNull(workItem, "workItem");
+
+    final var workTask = this.workExecTask;
+    if (workTask != null) {
+      return workTask.workAccept(workItem);
+    }
+    return false;
+  }
+
+  @Override
+  public void workStarted(
+    final NPAgentWorkItem workItem)
+  {
+    Objects.requireNonNull(workItem, "workItem");
+
+    this.setStatus(AGENT_STATUS_EXECUTING_WORK, workItem.identifier());
+  }
+
+  @Override
+  public void workCompleted(
+    final NPAgentWorkItem workItem,
+    final NPAWorkExecutionResult result)
+  {
+    Objects.requireNonNull(workItem, "workItem");
+    Objects.requireNonNull(result, "result");
+
+    this.setStatusIdle();
+
+    final var t = this.connectionTask;
+    if (t != null) {
+      t.workCompleted(workItem.identifier(), result);
+    }
+  }
+
+  @Override
+  public void workUpdated(
+    final NPAgentWorkItem workItem,
+    final NPAWorkEvent item)
+  {
+    Objects.requireNonNull(workItem, "workItem");
+    Objects.requireNonNull(item, "item");
+
+    this.setStatus(AGENT_STATUS_EXECUTING_WORK);
+
+    final var t = this.connectionTask;
+    if (t != null) {
+      t.workUpdated(workItem.identifier(), item);
+    }
+  }
+
+  @Override
+  public String status()
+  {
+    return this.status.get();
   }
 
   @Override
@@ -243,6 +355,7 @@ public final class NPAgentWorker
             this.serverLatest = server;
             this.connectionTask =
               NPAgentWorkerTaskMessaging.open(
+                this,
                 this.strings,
                 this.tlsContexts,
                 agent.get().keyPair(),
@@ -254,6 +367,7 @@ public final class NPAgentWorker
                 .start(this.connectionTask);
 
             this.events.emit(new NPAgentWorkerConnectionStarted(this.agentName));
+            this.sendEnvironment();
             return;
           } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -327,12 +441,13 @@ public final class NPAgentWorker
                 .createExecutor(this.services, workConfig);
 
             this.workExecTask =
-              NPAgentWorkerTaskExecutor.open(this.strings, workExecutor);
+              NPAgentWorkerTaskExecutor.open(this, workExecutor);
             this.workExecTaskThread =
               Thread.ofVirtual()
                 .start(this.workExecTask);
 
             this.events.emit(new NPAgentWorkerExecutorStarted(this.agentName));
+            this.sendEnvironment();
             return;
           } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -341,6 +456,22 @@ public final class NPAgentWorker
       } catch (final Exception e) {
         LOG.error("Work controller startup error: ", e);
         pauseBriefly();
+      }
+    }
+  }
+
+  private void sendEnvironment()
+  {
+    final var workExec =
+      this.workExecTask;
+    final var connTask =
+      this.connectionTask;
+
+    if (workExec != null && connTask != null) {
+      try {
+        connTask.setEnvironment(workExec.environment());
+      } catch (final Exception e) {
+        LOG.debug("Environment: ", e);
       }
     }
   }

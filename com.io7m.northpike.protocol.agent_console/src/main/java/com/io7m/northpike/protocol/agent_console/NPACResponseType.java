@@ -26,6 +26,7 @@ public sealed interface NPACResponseType
   extends NPACMessageType
   permits NPACResponseAgent,
   NPACResponseAgentList,
+  NPACResponseAgentStatus,
   NPACResponseError,
   NPACResponseOK,
   NPACResponseServer,

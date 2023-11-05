@@ -184,4 +184,13 @@
     An agent with labels not equal to the set {0}.
   </entry>
 
+  <!--        -->
+  <!-- Agents -->
+  <!--        -->
+
+  <entry key="agent_status_not_configured_server">No server configured.</entry>
+  <entry key="agent_status_not_configured_workexec">No work executor configured.</entry>
+  <entry key="agent_status_ready">Ready.</entry>
+  <entry key="agent_status_executing_work">Executing work item {0}.</entry>
+
 </properties>

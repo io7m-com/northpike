@@ -28,8 +28,11 @@ import com.io7m.northpike.agent.database.api.NPAgentDatabaseSetup;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseType;
 import com.io7m.northpike.agent.internal.console.NPAConsoleService;
 import com.io7m.northpike.agent.internal.console.NPAConsoleServiceType;
+import com.io7m.northpike.agent.internal.supervisor.NPAgentSupervisor;
+import com.io7m.northpike.agent.internal.supervisor.NPAgentSupervisorType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorFactoryType;
 import com.io7m.northpike.model.NPErrorCode;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
@@ -197,6 +200,7 @@ public final class NPAgentHost implements NPAgentHostType
   }
 
   private RPServiceDirectoryType createServiceDirectory()
+    throws NPException
   {
     final var services = new RPServiceDirectory();
     services.register(NPStrings.class, this.strings);
@@ -215,6 +219,10 @@ public final class NPAgentHost implements NPAgentHostType
     final var users =
       NPAConsoleService.create(services, this.configuration.console());
     services.register(NPAConsoleServiceType.class, users);
+
+    final var supervisor =
+      NPAgentSupervisor.create(services);
+    services.register(NPAgentSupervisorType.class, supervisor);
     return services;
   }
 

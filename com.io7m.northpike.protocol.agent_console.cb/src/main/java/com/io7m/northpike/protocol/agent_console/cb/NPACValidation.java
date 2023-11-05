@@ -22,6 +22,7 @@ import com.io7m.northpike.protocol.agent_console.NPACCommandAgentDelete;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentList;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentServerAssign;
+import com.io7m.northpike.protocol.agent_console.NPACCommandAgentStatusGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandDisconnect;
 import com.io7m.northpike.protocol.agent_console.NPACCommandLogin;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerDelete;
@@ -35,6 +36,7 @@ import com.io7m.northpike.protocol.agent_console.NPACEventType;
 import com.io7m.northpike.protocol.agent_console.NPACMessageType;
 import com.io7m.northpike.protocol.agent_console.NPACResponseAgent;
 import com.io7m.northpike.protocol.agent_console.NPACResponseAgentList;
+import com.io7m.northpike.protocol.agent_console.NPACResponseAgentStatus;
 import com.io7m.northpike.protocol.agent_console.NPACResponseError;
 import com.io7m.northpike.protocol.agent_console.NPACResponseOK;
 import com.io7m.northpike.protocol.agent_console.NPACResponseServer;
@@ -49,6 +51,7 @@ import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommand
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandAgentGet.COMMAND_AGENT_GET;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandAgentList.COMMAND_AGENT_LIST;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandAgentServerAssign.COMMAND_AGENT_SERVER_ASSIGN;
+import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandAgentStatus.COMMAND_AGENT_STATUS;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandDisconnect.COMMAND_DISCONNECT;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandLogin.COMMAND_LOGIN;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandServerDelete.COMMAND_SERVER_DELETE;
@@ -59,6 +62,7 @@ import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommand
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandWorkExecPut.COMMAND_WORK_EXEC_PUT;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseAgent.RESPONSE_AGENT;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseAgentList.RESPONSE_AGENT_LIST;
+import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseAgentStatus.RESPONSE_AGENT_STATUS;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseError.RESPONSE_ERROR;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseOK.RESPONSE_OK;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseServer.RESPONSE_SERVER;
@@ -131,6 +135,9 @@ public final class NPACValidation
           case final NPACCommandAgentServerAssign c -> {
             yield COMMAND_AGENT_SERVER_ASSIGN.convertToWire(c);
           }
+          case final NPACCommandAgentStatusGet c -> {
+            yield COMMAND_AGENT_STATUS.convertToWire(c);
+          }
         };
       }
       case final NPACEventType m -> {
@@ -158,6 +165,9 @@ public final class NPACValidation
           }
           case final NPACResponseAgentList r -> {
             yield RESPONSE_AGENT_LIST.convertToWire(r);
+          }
+          case final NPACResponseAgentStatus r -> {
+            yield RESPONSE_AGENT_STATUS.convertToWire(r);
           }
         };
       }
@@ -231,6 +241,12 @@ public final class NPACValidation
           }
           case final NPAC1CommandAgentServerAssign m -> {
             yield COMMAND_AGENT_SERVER_ASSIGN.convertFromWire(m);
+          }
+          case final NPAC1CommandAgentStatus m -> {
+            yield COMMAND_AGENT_STATUS.convertFromWire(m);
+          }
+          case final NPAC1ResponseAgentStatus m -> {
+            yield RESPONSE_AGENT_STATUS.convertFromWire(m);
           }
         };
       }

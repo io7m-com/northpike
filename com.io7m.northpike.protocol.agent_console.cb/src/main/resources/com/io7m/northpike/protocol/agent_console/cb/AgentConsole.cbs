@@ -198,6 +198,12 @@
   [field server [cb:Option cb:UUID]]
 ]
 
+[documentation NPAC1CommandAgentStatus "A request to get agent status values."]
+[record NPAC1CommandAgentStatus
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
 ;
 ; Responses
 ;
@@ -276,6 +282,16 @@
   [field results [cb:List cb:String]]
 ]
 
+[documentation NPAC1ResponseAgentStatus "An agent status response."]
+[record NPAC1ResponseAgentStatus
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation status "The status values."]
+  [field status [cb:Map cb:String cb:String]]
+]
+
 [documentation NPAC "The Agent Console protocol."]
 [protocol NPAC
   [version 1
@@ -285,6 +301,7 @@
       NPAC1CommandAgentGet
       NPAC1CommandAgentList
       NPAC1CommandAgentServerAssign
+      NPAC1CommandAgentStatus
       NPAC1CommandDisconnect
       NPAC1CommandLogin
       NPAC1CommandServerDelete
@@ -295,6 +312,7 @@
       NPAC1CommandWorkExecPut
       NPAC1ResponseAgent
       NPAC1ResponseAgentList
+      NPAC1ResponseAgentStatus
       NPAC1ResponseError
       NPAC1ResponseOK
       NPAC1ResponseServer

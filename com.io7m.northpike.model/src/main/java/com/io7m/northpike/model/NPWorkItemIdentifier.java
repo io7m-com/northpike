@@ -45,4 +45,10 @@ public record NPWorkItemIdentifier(
     Objects.requireNonNull(assignmentExecutionId, "assignmentExecutionId");
     Objects.requireNonNull(planElementName, "planElementName");
   }
+
+  @Override
+  public String toString()
+  {
+    return "%s:%s".formatted(this.assignmentExecutionId, this.planElementName);
+  }
 }

@@ -49,10 +49,10 @@ module com.io7m.northpike.agent
   requires io.opentelemetry.api;
   requires org.slf4j;
 
-  uses NPAgentDatabaseFactoryType;
-  uses NPTelemetryServiceFactoryType;
   uses NPACCommandExecutorType;
   uses NPAWorkExecutorFactoryType;
+  uses NPAgentDatabaseFactoryType;
+  uses NPTelemetryServiceFactoryType;
 
   provides NPACCommandExecutorType with
     com.io7m.northpike.agent.internal.console.NPACCmdAgentCreate,
@@ -60,6 +60,7 @@ module com.io7m.northpike.agent
     com.io7m.northpike.agent.internal.console.NPACCmdAgentGet,
     com.io7m.northpike.agent.internal.console.NPACCmdAgentList,
     com.io7m.northpike.agent.internal.console.NPACCmdAgentServerAssign,
+    com.io7m.northpike.agent.internal.console.NPACCmdAgentStatus,
     com.io7m.northpike.agent.internal.console.NPACCmdLogin,
     com.io7m.northpike.agent.internal.console.NPACCmdServerDelete,
     com.io7m.northpike.agent.internal.console.NPACCmdServerGet,

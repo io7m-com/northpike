@@ -17,17 +17,23 @@
 
 package com.io7m.northpike.agent.internal.worker;
 
-import com.io7m.jmulticlose.core.CloseableCollection;
 import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.agent.api.NPAgentException;
+import com.io7m.northpike.agent.internal.NPAgentResources;
 import com.io7m.northpike.agent.internal.NPAgentTaskType;
 import com.io7m.northpike.agent.internal.connection.NPAgentConnection;
 import com.io7m.northpike.agent.internal.connection.NPAgentConnectionType;
-import com.io7m.northpike.model.NPErrorCode;
+import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.agents.NPAgentKeyPairType;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.protocol.agent.NPACommandC2SType;
+import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
+import com.io7m.northpike.protocol.agent.NPACommandCWorkItemFailed;
+import com.io7m.northpike.protocol.agent.NPACommandCWorkItemOutput;
+import com.io7m.northpike.protocol.agent.NPACommandCWorkItemSucceeded;
 import com.io7m.northpike.protocol.agent.NPACommandS2CType;
 import com.io7m.northpike.protocol.agent.NPACommandSLatencyCheck;
 import com.io7m.northpike.protocol.agent.NPACommandSWorkOffered;
@@ -46,11 +52,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.util.UUID.randomUUID;
 
 /**
  * The task that handles messaging for the agent.
@@ -62,20 +67,25 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
     LoggerFactory.getLogger(NPAgentWorkerTaskMessaging.class);
 
   private final AtomicBoolean closed;
+  private final NPAgentWorkerType worker;
   private final NPTLSContextServiceType tlsContexts;
   private final NPAgentKeyPairType keyPair;
   private final NPStrings strings;
   private final CloseableCollectionType<NPAgentException> resources;
   private final NPAgentServerDescription configuration;
   private NPAgentConnectionType connection;
+  private volatile NPACommandCEnvironmentInfo environment;
 
   private NPAgentWorkerTaskMessaging(
+    final NPAgentWorkerType inWorker,
     final NPTLSContextServiceType inTlsContexts,
     final NPAgentKeyPairType inKeyPair,
     final NPStrings inStrings,
     final CloseableCollectionType<NPAgentException> inResources,
     final NPAgentServerDescription inConfiguration)
   {
+    this.worker =
+      Objects.requireNonNull(inWorker, "worker");
     this.tlsContexts =
       Objects.requireNonNull(inTlsContexts, "tlsContexts");
     this.keyPair =
@@ -93,6 +103,7 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
   /**
    * The task that handles messaging for the agent.
    *
+   * @param worker        The worker that owns this task
    * @param strings       The strings
    * @param keyPair       The key pair
    * @param tlsContexts   The TLS context service
@@ -104,26 +115,24 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
    */
 
   public static NPAgentWorkerTaskMessaging open(
+    final NPAgentWorkerType worker,
     final NPStrings strings,
     final NPTLSContextServiceType tlsContexts,
     final NPAgentKeyPairType keyPair,
     final NPAgentServerDescription configuration)
     throws InterruptedException
   {
+    Objects.requireNonNull(worker, "worker");
     Objects.requireNonNull(strings, "strings");
     Objects.requireNonNull(keyPair, "keyPair");
     Objects.requireNonNull(tlsContexts, "tlsContexts");
     Objects.requireNonNull(configuration, "configuration");
 
     final var resources =
-      CloseableCollection.create(() -> new NPAgentException(
-        "One or more resources could not be closed.",
-        new NPErrorCode("resources"),
-        Map.of(),
-        Optional.empty()
-      ));
+      NPAgentResources.createResources();
 
     return new NPAgentWorkerTaskMessaging(
+      worker,
       tlsContexts,
       keyPair,
       strings,
@@ -190,14 +199,17 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
     final NPACommandSWorkSent sent)
     throws IOException, InterruptedException, NPException
   {
-    LOG.debug("Sent work item {}.", sent.workItem());
+    LOG.debug("Received sent work item {}.", sent.workItem());
+
+    final var accepted =
+      this.worker.workAccept(sent.workItem());
 
     this.connection.send(
       new NPAResponseWorkSent(
-        UUID.randomUUID(),
+        randomUUID(),
         sent.messageID(),
         sent.workItem().identifier(),
-        false
+        accepted
       )
     );
   }
@@ -208,12 +220,15 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
   {
     LOG.debug("Offered work item {}.", offered.workItem());
 
+    final var canAccept =
+      this.worker.workCanBeAccepted(offered.workItem());
+
     this.connection.send(
       new NPAResponseWorkOffered(
-        UUID.randomUUID(),
+        randomUUID(),
         offered.messageID(),
         offered.workItem(),
-        false
+        canAccept
       )
     );
   }
@@ -223,9 +238,10 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
     throws InterruptedException, NPException, IOException
   {
     LOG.debug("Responding to latency check.");
+
     this.connection.send(
       new NPAResponseLatencyCheck(
-        UUID.randomUUID(),
+        randomUUID(),
         c.messageID(),
         c.timeCurrent(),
         OffsetDateTime.now()
@@ -260,6 +276,11 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
             this.keyPair,
             this.configuration
           );
+
+        final var env = this.environment;
+        if (env != null) {
+          this.connection.ask(env);
+        }
 
         while (!this.isClosed()) {
           this.runHandleMessages();
@@ -316,5 +337,74 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
   public String name()
   {
     return "com.io7m.northpike.agent.messaging";
+  }
+
+  /**
+   * Set the current environment information.
+   *
+   * @param newEnvironment The environment
+   */
+
+  public void setEnvironment(
+    final NPACommandCEnvironmentInfo newEnvironment)
+  {
+    this.environment =
+      Objects.requireNonNull(newEnvironment, "environment");
+  }
+
+  /**
+   * The status of a work was updated.
+   *
+   * @param identifier The work item identifier
+   * @param item       The work status
+   */
+
+  public void workUpdated(
+    final NPWorkItemIdentifier identifier,
+    final NPAWorkEvent item)
+  {
+    Objects.requireNonNull(identifier, "identifier");
+    Objects.requireNonNull(item, "item");
+
+    try {
+      this.connection.send(
+        new NPACommandCWorkItemOutput(
+          randomUUID(),
+          item.time(),
+          identifier,
+          item.attributes(),
+          item.message(),
+          item.exception()
+        )
+      );
+    } catch (final Exception e) {
+      LOG.debug("Failed to send work update: ", e);
+    }
+  }
+
+  /**
+   * A work was completed.
+   *
+   * @param id     The work item identifier
+   * @param result The work result
+   */
+
+  public void workCompleted(
+    final NPWorkItemIdentifier id,
+    final NPAWorkExecutionResult result)
+  {
+    Objects.requireNonNull(id, "id");
+    Objects.requireNonNull(result, "result");
+
+    try {
+      this.connection.send(
+        switch (result) {
+          case SUCCESS -> new NPACommandCWorkItemSucceeded(randomUUID(), id);
+          case FAILURE -> new NPACommandCWorkItemFailed(randomUUID(), id);
+        }
+      );
+    } catch (final Exception e) {
+      LOG.debug("Failed to send work update: ", e);
+    }
   }
 }

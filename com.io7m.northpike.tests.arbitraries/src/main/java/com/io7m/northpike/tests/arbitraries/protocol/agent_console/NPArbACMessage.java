@@ -22,6 +22,7 @@ import com.io7m.northpike.protocol.agent_console.NPACCommandAgentDelete;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentList;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentServerAssign;
+import com.io7m.northpike.protocol.agent_console.NPACCommandAgentStatusGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandDisconnect;
 import com.io7m.northpike.protocol.agent_console.NPACCommandLogin;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerDelete;
@@ -33,6 +34,7 @@ import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecPut;
 import com.io7m.northpike.protocol.agent_console.NPACMessageType;
 import com.io7m.northpike.protocol.agent_console.NPACResponseAgent;
 import com.io7m.northpike.protocol.agent_console.NPACResponseAgentList;
+import com.io7m.northpike.protocol.agent_console.NPACResponseAgentStatus;
 import com.io7m.northpike.protocol.agent_console.NPACResponseError;
 import com.io7m.northpike.protocol.agent_console.NPACResponseOK;
 import com.io7m.northpike.protocol.agent_console.NPACResponseServer;
@@ -53,11 +55,12 @@ public final class NPArbACMessage extends NPArbAbstract<NPACMessageType>
       () -> {
         return Arbitraries.oneOf(
           Stream.of(
-              NPACCommandAgentServerAssign.class,
               NPACCommandAgentCreate.class,
               NPACCommandAgentDelete.class,
               NPACCommandAgentGet.class,
               NPACCommandAgentList.class,
+              NPACCommandAgentServerAssign.class,
+              NPACCommandAgentStatusGet.class,
               NPACCommandDisconnect.class,
               NPACCommandLogin.class,
               NPACCommandServerDelete.class,
@@ -68,6 +71,7 @@ public final class NPArbACMessage extends NPArbAbstract<NPACMessageType>
               NPACCommandWorkExecPut.class,
               NPACResponseAgent.class,
               NPACResponseAgentList.class,
+              NPACResponseAgentStatus.class,
               NPACResponseError.class,
               NPACResponseOK.class,
               NPACResponseServer.class,

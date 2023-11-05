@@ -15,23 +15,35 @@
  */
 
 
-package com.io7m.northpike.agent.internal.supervisor;
+package com.io7m.northpike.protocol.agent_console;
 
-import com.io7m.northpike.model.agents.NPAgentLocalName;
-import com.io7m.repetoir.core.RPServiceType;
-
-import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- * An agent supervisor.
+ * Retrieve the humanly-readable status of all agents.
+ *
+ * @param messageID The ID of this message
  */
 
-public interface NPAgentSupervisorType
-  extends RPServiceType, AutoCloseable
+public record NPACCommandAgentStatusGet(
+  UUID messageID)
+  implements NPACCommandType<NPACResponseAgentStatus>
 {
   /**
-   * @return The current set of agent status values
+   * Retrieve the humanly-readable status of all agents.
+   *
+   * @param messageID The ID of this message
    */
 
-  Map<NPAgentLocalName, String> agentStatuses();
+  public NPACCommandAgentStatusGet
+  {
+    Objects.requireNonNull(messageID, "messageID");
+  }
+
+  @Override
+  public Class<NPACResponseAgentStatus> responseClass()
+  {
+    return NPACResponseAgentStatus.class;
+  }
 }
