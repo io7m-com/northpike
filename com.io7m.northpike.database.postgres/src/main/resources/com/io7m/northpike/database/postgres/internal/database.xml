@@ -9,8 +9,8 @@
 
   <Schema versionCurrent="0">
     <Comment>
-      The northpike role is a least-privilege role that can perform only those
-      operations required to run the system and no others.
+      The northpike role is a least-privilege role that can perform only those operations required to run the system and
+      no others.
     </Comment>
 
     <Statement><![CDATA[
@@ -21,8 +21,7 @@ CREATE ROLE northpike WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN
 ]]></Statement>
 
     <Comment>
-      The northpike_none role is a no-privilege role that cannot perform any
-      actions.
+      The northpike_none role is a no-privilege role that cannot perform any actions.
     </Comment>
 
     <Statement><![CDATA[
@@ -33,8 +32,7 @@ CREATE ROLE northpike_none WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NO
 ]]></Statement>
 
     <Comment>
-      The northpike_read_only role is a read-only role that cannot write to
-      anything.
+      The northpike_read_only role is a read-only role that cannot write to anything.
     </Comment>
 
     <Statement><![CDATA[
@@ -48,10 +46,9 @@ GRANT northpike_read_only TO northpike
 ]]></Statement>
 
     <Comment>
-      The schema version table stores the current version of the database
-      schema. Implementations are expected to query this table on connecting to
-      the database in order to ensure that the calling code is compatible with
-      the tables in the database.
+      The schema version table stores the current version of the database schema. Implementations are expected to query
+      this table on connecting to the database in order to ensure that the calling code is compatible with the tables in
+      the database.
     </Comment>
 
     <Statement><![CDATA[
@@ -80,11 +77,9 @@ CREATE EXTENSION hstore;
 ]]></Statement>
 
     <Comment>
-      The database makes extensive use of Lanark dotted names. It's necessary to
-      tokenize those names in order to use them with full text searching.
-      Essentially, anything that isn't a letter or a number is converted to a
-      space. This translated string can then be given to the various full-text
-      search functions for indexing.
+      The database makes extensive use of Lanark dotted names. It's necessary to tokenize those names in order to use
+      them with full text searching. Essentially, anything that isn't a letter or a number is converted to a space. This
+      translated string can then be given to the various full-text search functions for indexing.
     </Comment>
 
     <Statement><![CDATA[
@@ -112,9 +107,8 @@ $$ LANGUAGE SQL IMMUTABLE;
 ]]></Statement>
 
     <Comment>
-      The users table stores the current set of users. The name field is neither
-      authoritative, nor expected to be unique, because the external identity
-      server is the authoritative source for names.
+      The users table stores the current set of users. The name field is neither authoritative, nor expected to be
+      unique, because the external identity server is the authoritative source for names.
     </Comment>
 
     <StatementParameterized parameterInterpolation="STRING_FORMATTING">
@@ -145,8 +139,7 @@ CREATE TABLE users (
     </Statement>
 
     <Comment>
-      The scm_providers table stores definitions for the available SCM
-      providers.
+      The scm_providers table stores definitions for the available SCM providers.
     </Comment>
 
     <Statement><![CDATA[
@@ -175,8 +168,7 @@ CREATE TABLE scm_providers (
     </Statement>
 
     <Comment>
-      The repository_credentials_type_t type represents the possible
-      credentials.
+      The repository_credentials_type_t type represents the possible credentials.
     </Comment>
 
     <Statement><![CDATA[
@@ -187,8 +179,7 @@ CREATE TYPE repository_credentials_type_t AS ENUM(
 ]]></Statement>
 
     <Comment>
-      The repository_signing_policy_t type represents the signing policy for
-      commits in a repository.
+      The repository_signing_policy_t type represents the signing policy for commits in a repository.
     </Comment>
 
     <Statement><![CDATA[
@@ -200,9 +191,8 @@ CREATE TYPE repository_signing_policy_t AS ENUM(
 ]]></Statement>
 
     <Comment>
-      The repositories table stores the set of repositories used for builds. The
-      server will regularly consult the repositories defined here to find new
-      commits to build.
+      The repositories table stores the set of repositories used for builds. The server will regularly consult the
+      repositories defined here to find new commits to build.
     </Comment>
 
     <Statement><![CDATA[
@@ -249,8 +239,7 @@ CREATE TABLE repositories (
     </Statement>
 
     <Comment>
-      The repository_commit_authors table uniquely (within a single repository)
-      identifies authors of commits.
+      The repository_commit_authors table uniquely (within a single repository) identifies authors of commits.
     </Comment>
 
     <Statement><![CDATA[
@@ -279,8 +268,7 @@ CREATE UNIQUE INDEX repository_commit_authors_unique
 ]]></Statement>
 
     <Comment>
-      The repository_commits table stores information about each commit in a
-      repository.
+      The repository_commits table stores information about each commit in a repository.
     </Comment>
 
     <Statement><![CDATA[
@@ -321,8 +309,7 @@ CREATE TABLE repository_commits (
     </Statement>
 
     <Comment>
-      The repository_commit_tags table stores information about each tag in a
-      repository.
+      The repository_commit_tags table stores information about each tag in a repository.
     </Comment>
 
     <Statement><![CDATA[
@@ -346,16 +333,14 @@ CREATE TABLE repository_commit_tags (
 ]]></Statement>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_commit_tags TO
-      northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_commit_tags TO northpike
     </Statement>
     <Statement>
       GRANT SELECT ON repository_commit_tags TO northpike_read_only
     </Statement>
 
     <Comment>
-      The repository_commit_branches table stores information about each branch
-      in a repository.
+      The repository_commit_branches table stores information about each branch in a repository.
     </Comment>
 
     <Statement><![CDATA[
@@ -379,19 +364,16 @@ CREATE TABLE repository_commit_branches (
 ]]></Statement>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_commit_branches TO
-      northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_commit_branches TO northpike
     </Statement>
     <Statement>
       GRANT SELECT ON repository_commit_branches TO northpike_read_only
     </Statement>
 
     <Comment>
-      The repository_commit_links table stores the links between commits. It
-      essentially forms a directed acyclic graph, with each commit pointing to
-      the "next" commit that is derived from it. A commit may have multiple
-      "next" commits, and nothing here actually enforces the property of being
-      acyclic.
+      The repository_commit_links table stores the links between commits. It essentially forms a directed acyclic graph,
+      with each commit pointing to the "next" commit that is derived from it. A commit may have multiple "next" commits,
+      and nothing here actually enforces the property of being acyclic.
     </Comment>
 
     <Statement><![CDATA[
@@ -416,17 +398,15 @@ CREATE TABLE repository_commit_links (
 ]]></Statement>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_commit_links TO
-      northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON repository_commit_links TO northpike
     </Statement>
     <Statement>
       GRANT SELECT ON repository_commit_links TO northpike_read_only
     </Statement>
 
     <Comment>
-      The agents table stores the definitions of agents. Agents are uniquely
-      identified by their UUID values, and are also uniquely identified by their
-      public keys.
+      The agents table stores the definitions of agents. Agents are uniquely identified by their UUID values, and are
+      also uniquely identified by their public keys.
     </Comment>
 
     <Statement><![CDATA[
@@ -458,8 +438,7 @@ CREATE TABLE agents (
     </Statement>
 
     <Comment>
-      The agent_label_definitions table stores the set of labels that can be
-      assigned to agents.
+      The agent_label_definitions table stores the set of labels that can be assigned to agents.
     </Comment>
 
     <StatementParameterized parameterInterpolation="STRING_FORMATTING">
@@ -496,8 +475,7 @@ CREATE TABLE agent_label_definitions (
     </StatementParameterized>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE, DELETE ON agent_label_definitions TO
-      northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON agent_label_definitions TO northpike
     </Statement>
     <Statement>
       GRANT SELECT ON agent_label_definitions TO northpike_read_only
@@ -533,8 +511,7 @@ CREATE TABLE agent_labels (
     </Statement>
 
     <Comment>
-      The agent_label_search view provides a convenient view for performing
-      label-based agent searches.
+      The agent_label_search view provides a convenient view for performing label-based agent searches.
     </Comment>
 
     <Statement><![CDATA[
@@ -564,8 +541,10 @@ CREATE VIEW agent_label_search AS
     </Statement>
 
     <Comment>
-      The agent_login_challenges table stores the login challenges that have
-      been issued to connecting agents.
+      The agent_login_challenges table stores the login challenges that have been issued to connecting agents. The
+      alc_source column is the remote address of the agent that prompted the challenge. A login challenge is essentially
+      a request for the connecting client to sign a random binary blob. The alc_key_algo and alc_key_data columns store
+      the public key that must provide the signature, and the alc_challenge column is the data to be signed.
     </Comment>
 
     <Statement><![CDATA[
@@ -590,8 +569,8 @@ CREATE TABLE agent_login_challenges (
     </Statement>
 
     <Comment>
-      The tool_execution_descriptions table stores the tool execution
-      descriptions that can be used in plans to execute code on agents.
+      The tool_execution_descriptions table stores the tool execution descriptions that can be used in plans to execute
+      code on agents.
     </Comment>
 
     <StatementParameterized parameterInterpolation="STRING_FORMATTING">
@@ -636,16 +615,14 @@ CREATE TABLE tool_execution_descriptions (
     </StatementParameterized>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE, DELETE ON tool_execution_descriptions TO
-      northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON tool_execution_descriptions TO northpike
     </Statement>
     <Statement>
       GRANT SELECT ON tool_execution_descriptions TO northpike_read_only
     </Statement>
 
     <Comment>
-      The plans table stores the plan descriptions that can be executed by
-      assignments.
+      The plans table stores the plan descriptions that can be executed by assignments.
     </Comment>
 
     <StatementParameterized parameterInterpolation="STRING_FORMATTING">
@@ -700,8 +677,7 @@ CREATE TABLE plans (
     </Statement>
 
     <Comment>
-      The plan_tool_executions table records the tool executions upon which a
-      given plan depends.
+      The plan_tool_executions table records the tool executions upon which a given plan depends.
     </Comment>
 
     <Statement><![CDATA[
@@ -730,9 +706,8 @@ CREATE TABLE plan_tool_executions (
     </Statement>
 
     <Comment>
-      The plan_tool_executions_search view provides a convenient view of the
-      plan_tool_executions table used to perform operations over the set of tool
-      executions referenced by a plan.
+      The plan_tool_executions_search view provides a convenient view of the plan_tool_executions table used to perform
+      operations over the set of tool executions referenced by a plan.
     </Comment>
 
     <Statement><![CDATA[
@@ -754,9 +729,8 @@ CREATE VIEW plan_tool_executions_search AS
     </Statement>
 
     <Comment>
-      The archives table stores information about the archives that are
-      generated executing assignments. The actual archive data is stored on
-      disk, but information about the archives is stored here.
+      The archives table stores information about the archives that are generated executing assignments. The actual
+      archive data is stored on disk, but information about the archives is stored here.
     </Comment>
 
     <Statement><![CDATA[
@@ -803,9 +777,8 @@ CREATE TYPE assignment_schedule_t AS ENUM(
 ]]></Statement>
 
     <Comment>
-      The assignments table stores assignment definitions. An assignment is
-      essentially a promise to compile commits from a given repository using a
-      specific plan.
+      The assignments table stores assignment definitions. An assignment is essentially a promise to compile commits
+      from a given repository using a specific plan.
     </Comment>
 
     <StatementParameterized parameterInterpolation="STRING_FORMATTING">
@@ -998,8 +971,7 @@ CREATE TABLE assignment_execution_logs (
 ]]></Statement>
 
     <Statement>
-      GRANT SELECT, INSERT, UPDATE, DELETE ON assignment_execution_logs TO
-      northpike
+      GRANT SELECT, INSERT, UPDATE, DELETE ON assignment_execution_logs TO northpike
     </Statement>
     <Statement>
       GRANT SELECT ON assignment_execution_logs TO northpike_read_only
@@ -1075,8 +1047,8 @@ CREATE TABLE work_items (
     </Statement>
 
     <Comment>
-      The logs produced for a single work item. These are the lines of output
-      produced on an agent when executing a command.
+      The logs produced for a single work item. These are the lines of output produced on an agent when executing a
+      command.
     </Comment>
 
     <Statement><![CDATA[
@@ -1120,8 +1092,7 @@ CREATE TABLE work_item_logs (
     </Statement>
 
     <Comment>
-      The public keys that are used to verify the signatures on commits that
-      appears in repositories.
+      The public keys that are used to verify the signatures on commits that appears in repositories.
     </Comment>
 
     <StatementParameterized parameterInterpolation="STRING_FORMATTING">

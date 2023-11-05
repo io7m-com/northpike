@@ -23,6 +23,7 @@ import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.DeleteExpiredArchivesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.DeleteExpiredAssignmentExecutionsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.DeleteExpiredAuditType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.DeleteExpiredLoginChallengesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.UpdateUserRolesType;
 import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
@@ -262,6 +263,12 @@ public final class NPMaintenanceService
             span.recordException(e);
           }
 
+          try {
+            this.deleteExpiredLoginChallenges(transaction);
+          } catch (final Exception e) {
+            span.recordException(e);
+          }
+
           LOG.info("Maintenance task completed.");
         }
       }
@@ -271,6 +278,27 @@ public final class NPMaintenanceService
     } finally {
       span.end();
     }
+  }
+
+  private void deleteExpiredLoginChallenges(
+    final NPDatabaseTransactionType transaction)
+    throws NPDatabaseException
+  {
+    final var maximumAge =
+      this.configuration.configuration()
+        .maintenanceConfiguration()
+        .agentLoginChallengesMaximumAge();
+
+    final var cutoffTime =
+      this.clock.now()
+        .minusSeconds(maximumAge.toSeconds());
+
+    final var deleted =
+      transaction.queries(DeleteExpiredLoginChallengesType.class)
+        .execute(cutoffTime);
+
+    transaction.commit();
+    LOG.debug("Deleted {} old agent login challenge records.", deleted);
   }
 
   private void deleteExpiredAssignmentExecutions(

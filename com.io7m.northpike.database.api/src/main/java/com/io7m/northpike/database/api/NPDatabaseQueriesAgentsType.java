@@ -23,6 +23,7 @@ import com.io7m.northpike.model.agents.NPAgentLabel;
 import com.io7m.northpike.model.agents.NPAgentLabelName;
 import com.io7m.northpike.model.agents.NPAgentLabelSearchParameters;
 import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeSearchParameters;
 import com.io7m.northpike.model.agents.NPAgentSearchParameters;
 
 import java.util.Optional;
@@ -163,6 +164,17 @@ public sealed interface NPDatabaseQueriesAgentsType
 
   non-sealed interface LoginChallengeDeleteType
     extends NPDatabaseQueryType<UUID, NPDatabaseUnit>,
+    NPDatabaseQueriesAgentsType
+  {
+
+  }
+
+  /**
+   * Search for login challenges.
+   */
+
+  non-sealed interface LoginChallengeSearchType
+    extends NPDatabaseQueryType<NPAgentLoginChallengeSearchParameters, NPAgentLoginChallengePagedType>,
     NPDatabaseQueriesAgentsType
   {
 

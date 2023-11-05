@@ -23,9 +23,12 @@ import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengePutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeSearchType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPStandardErrorCodes;
+import com.io7m.northpike.model.NPTimeRange;
 import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
@@ -35,6 +38,7 @@ import com.io7m.northpike.model.agents.NPAgentLabelName;
 import com.io7m.northpike.model.agents.NPAgentLabelSearchParameters;
 import com.io7m.northpike.model.agents.NPAgentLoginChallenge;
 import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeSearchParameters;
 import com.io7m.northpike.model.agents.NPAgentSearchParameters;
 import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
@@ -58,6 +62,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -944,7 +949,7 @@ public final class NPDatabaseAgentsTest
     final var get =
       this.transaction.queries(NPDatabaseQueriesAgentsType.LoginChallengeGetType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LoginChallengePutType.class);
+      this.transaction.queries(LoginChallengePutType.class);
     final var delete =
       this.transaction.queries(NPDatabaseQueriesAgentsType.LoginChallengeDeleteType.class);
 
@@ -965,5 +970,67 @@ public final class NPDatabaseAgentsTest
     assertEquals(record0, get.execute(record0.id()).orElseThrow());
     delete.execute(record0.id());
     assertEquals(Optional.empty(), get.execute(record0.id()));
+  }
+
+  /**
+   * Searching login challenges works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentLoginChallengeSearch()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(LoginChallengePutType.class);
+    final var search =
+      this.transaction.queries(LoginChallengeSearchType.class);
+
+    final var record0 =
+      new NPAgentLoginChallengeRecord(
+        OffsetDateTime.now().withNano(0),
+        "localhost",
+        new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
+        new NPAgentLoginChallenge(
+          UUID.randomUUID(),
+          "ABCDEFGH".getBytes(StandardCharsets.UTF_8)
+        )
+      );
+
+    final var record1 =
+      new NPAgentLoginChallengeRecord(
+        OffsetDateTime.now().withNano(0),
+        "localhost",
+        new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
+        new NPAgentLoginChallenge(
+          UUID.randomUUID(),
+          "ABCDEFGH".getBytes(StandardCharsets.UTF_8)
+        )
+      );
+
+    final var record2 =
+      new NPAgentLoginChallengeRecord(
+        OffsetDateTime.now().withNano(0),
+        "localhost",
+        new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
+        new NPAgentLoginChallenge(
+          UUID.randomUUID(),
+          "ABCDEFGH".getBytes(StandardCharsets.UTF_8)
+        )
+      );
+
+    put.execute(record0);
+    put.execute(record1);
+    put.execute(record2);
+
+    final var pages =
+    search.execute(new NPAgentLoginChallengeSearchParameters(
+      new NPTimeRange(record0.timeCreated(), record2.timeCreated()),
+      1000L
+    ));
+
+    final var p = pages.pageCurrent(this.transaction);
+    assertEquals(p.items(), List.of(record0, record1, record2));
   }
 }
