@@ -77,7 +77,7 @@ module com.io7m.northpike.server
     com.io7m.northpike.server.internal.agents.NPACmdWorkItemOutput,
     com.io7m.northpike.server.internal.agents.NPACmdWorkItemStarted,
     com.io7m.northpike.server.internal.agents.NPACmdWorkItemSucceeded
-  ;
+    ;
 
   provides NPUserCommandExecutorType with
     com.io7m.northpike.server.internal.users.NPUCmdAgentGet,
@@ -87,6 +87,11 @@ module com.io7m.northpike.server
     com.io7m.northpike.server.internal.users.NPUCmdAgentLabelSearchBegin,
     com.io7m.northpike.server.internal.users.NPUCmdAgentLabelSearchNext,
     com.io7m.northpike.server.internal.users.NPUCmdAgentLabelSearchPrevious,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLoginChallengeAgentCreate,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLoginChallengeDelete,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLoginChallengeSearchBegin,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLoginChallengeSearchNext,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLoginChallengeSearchPrevious,
     com.io7m.northpike.server.internal.users.NPUCmdAgentPut,
     com.io7m.northpike.server.internal.users.NPUCmdAgentSearchBegin,
     com.io7m.northpike.server.internal.users.NPUCmdAgentSearchNext,

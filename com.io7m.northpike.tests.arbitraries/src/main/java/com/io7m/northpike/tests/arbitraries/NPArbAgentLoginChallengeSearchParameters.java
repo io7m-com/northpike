@@ -15,33 +15,26 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPTimeRange;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeSearchParameters;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-/**
- * The type of responses that contain paged results.
- *
- * @param <T> The type of results
- */
-
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentLoginChallengeSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch,
-  NPUResponseUserSearch
+public final class NPArbAgentLoginChallengeSearchParameters
+  extends NPArbAbstract<NPAgentLoginChallengeSearchParameters>
 {
-  /**
-   * @return The current results
-   */
-
-  NPPage<T> results();
+  public NPArbAgentLoginChallengeSearchParameters()
+  {
+    super(
+      NPAgentLoginChallengeSearchParameters.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.defaultFor(NPTimeRange.class),
+          Arbitraries.longs()
+        ).as(NPAgentLoginChallengeSearchParameters::new);
+      }
+    );
+  }
 }

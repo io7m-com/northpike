@@ -37,7 +37,7 @@ public record NPUCommandAgentLabelSearchBegin(
   NPAgentLabelSearchParameters>
 {
   /**
-   * Start searching repositories.
+   * Start searching labels.
    *
    * @param messageID  The message ID
    * @param parameters The search parameters

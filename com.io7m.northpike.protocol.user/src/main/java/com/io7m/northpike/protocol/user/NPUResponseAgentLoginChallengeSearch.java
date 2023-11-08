@@ -18,30 +18,37 @@
 package com.io7m.northpike.protocol.user;
 
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
+
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- * The type of responses that contain paged results.
+ * An agent login challenge search.
  *
- * @param <T> The type of results
+ * @param messageID     The message ID
+ * @param correlationID The command that prompted this response
+ * @param results       The results
  */
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentLoginChallengeSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch,
-  NPUResponseUserSearch
+public record NPUResponseAgentLoginChallengeSearch(
+  UUID messageID,
+  UUID correlationID,
+  NPPage<NPAgentLoginChallengeRecord> results)
+  implements NPUResponsePagedType<NPAgentLoginChallengeRecord>
 {
   /**
-   * @return The current results
+   * An agent login challenge search.
+   *
+   * @param messageID     The message ID
+   * @param correlationID The command that prompted this response
+   * @param results       The results
    */
 
-  NPPage<T> results();
+  public NPUResponseAgentLoginChallengeSearch
+  {
+    Objects.requireNonNull(messageID, "messageID");
+    Objects.requireNonNull(correlationID, "correlationID");
+    Objects.requireNonNull(results, "results");
+  }
 }

@@ -26,6 +26,11 @@ import com.io7m.northpike.protocol.user.NPUCommandAgentLabelPut;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLoginChallengeAgentCreate;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLoginChallengeDelete;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLoginChallengeSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLoginChallengeSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLoginChallengeSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchNext;
@@ -90,6 +95,7 @@ import com.io7m.northpike.protocol.user.NPUMessageType;
 import com.io7m.northpike.protocol.user.NPUResponseAgentGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelSearch;
+import com.io7m.northpike.protocol.user.NPUResponseAgentLoginChallengeSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAgentSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAgentWorkItems;
 import com.io7m.northpike.protocol.user.NPUResponseAgentsConnected;
@@ -126,6 +132,11 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLabel
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLabelSearchBegin.COMMAND_AGENT_LABEL_SEARCH_BEGIN;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLabelSearchNext.COMMAND_AGENT_LABEL_SEARCH_NEXT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLabelSearchPrevious.COMMAND_AGENT_LABEL_SEARCH_PREVIOUS;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLoginChallengeAgentCreate.COMMAND_AGENT_LOGIN_CHALLENGE_AGENT_CREATE;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLoginChallengeDelete.COMMAND_AGENT_LOGIN_CHALLENGE_DELETE;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLoginChallengeSearchBegin.COMMAND_AGENT_LOGIN_CHALLENGE_SEARCH_BEGIN;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLoginChallengeSearchNext.COMMAND_AGENT_LOGIN_CHALLENGE_SEARCH_NEXT;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLoginChallengeSearchPrevious.COMMAND_AGENT_LOGIN_CHALLENGE_SEARCH_PREVIOUS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentPut.COMMAND_AGENT_PUT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentSearchBegin.COMMAND_AGENT_SEARCH_BEGIN;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentSearchNext.COMMAND_AGENT_SEARCH_NEXT;
@@ -187,6 +198,7 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandUsersConne
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentGet.RESPONSE_AGENT_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentLabelGet.RESPONSE_AGENT_LABEL_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentLabelSearch.RESPONSE_AGENT_LABEL_SEARCH;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentLoginChallengeSearch.RESPONSE_AGENT_LOGIN_CHALLENGE_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentSearch.RESPONSE_AGENT_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentWorkItems.RESPONSE_AGENT_WORK_ITEMS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAgentsConnected.RESPONSE_AGENTS_CONNECTED;
@@ -252,6 +264,7 @@ public final class NPU1Validation
 
   private static ProtocolNPUv1Type toWireResponse(
     final NPUResponseType response)
+    throws NPProtocolException
   {
     return switch (response) {
       case final NPUResponseAgentGet r ->
@@ -314,6 +327,8 @@ public final class NPU1Validation
             RESPONSE_TOOL_EXECUTION_DESCRIPTION_SEARCH.convertToWire(r);
           case final NPUResponseUserSearch r ->
             RESPONSE_USER_SEARCH.convertToWire(r);
+          case final NPUResponseAgentLoginChallengeSearch r ->
+            RESPONSE_AGENT_LOGIN_CHALLENGE_SEARCH.convertToWire(r);
         };
       }
     };
@@ -454,6 +469,16 @@ public final class NPU1Validation
         COMMAND_SCM_PROVIDERS_SUPPORTED.convertToWire(c);
       case final NPUCommandSelf c ->
         COMMAND_SELF.convertToWire(c);
+      case final NPUCommandAgentLoginChallengeSearchBegin c ->
+        COMMAND_AGENT_LOGIN_CHALLENGE_SEARCH_BEGIN.convertToWire(c);
+      case final NPUCommandAgentLoginChallengeSearchNext c ->
+        COMMAND_AGENT_LOGIN_CHALLENGE_SEARCH_NEXT.convertToWire(c);
+      case final NPUCommandAgentLoginChallengeSearchPrevious c ->
+        COMMAND_AGENT_LOGIN_CHALLENGE_SEARCH_PREVIOUS.convertToWire(c);
+      case final NPUCommandAgentLoginChallengeDelete c ->
+        COMMAND_AGENT_LOGIN_CHALLENGE_DELETE.convertToWire(c);
+      case final NPUCommandAgentLoginChallengeAgentCreate c ->
+        COMMAND_AGENT_LOGIN_CHALLENGE_AGENT_CREATE.convertToWire(c);
     };
   }
 
@@ -651,6 +676,18 @@ public final class NPU1Validation
         RESPONSE_SCM_PROVIDERS_SUPPORTED.convertFromWire(r);
       case final NPU1ResponseSelf r ->
         RESPONSE_SELF.convertFromWire(r);
+      case final NPU1CommandAgentLoginChallengeSearchBegin c ->
+        COMMAND_AGENT_LOGIN_CHALLENGE_SEARCH_BEGIN.convertFromWire(c);
+      case final NPU1CommandAgentLoginChallengeSearchNext c ->
+        COMMAND_AGENT_LOGIN_CHALLENGE_SEARCH_NEXT.convertFromWire(c);
+      case final NPU1CommandAgentLoginChallengeSearchPrevious c ->
+        COMMAND_AGENT_LOGIN_CHALLENGE_SEARCH_PREVIOUS.convertFromWire(c);
+      case final NPU1ResponseAgentLoginChallengeSearch r ->
+        RESPONSE_AGENT_LOGIN_CHALLENGE_SEARCH.convertFromWire(r);
+      case final NPU1CommandAgentLoginChallengeDelete c ->
+        COMMAND_AGENT_LOGIN_CHALLENGE_DELETE.convertFromWire(c);
+      case final NPU1CommandAgentLoginChallengeAgentCreate c ->
+        COMMAND_AGENT_LOGIN_CHALLENGE_AGENT_CREATE.convertFromWire(c);
     };
   }
 }

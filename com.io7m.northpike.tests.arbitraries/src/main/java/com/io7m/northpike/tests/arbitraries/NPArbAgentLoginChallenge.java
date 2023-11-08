@@ -15,33 +15,29 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.agents.NPAgentLoginChallenge;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-/**
- * The type of responses that contain paged results.
- *
- * @param <T> The type of results
- */
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentLoginChallengeSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch,
-  NPUResponseUserSearch
+public final class NPArbAgentLoginChallenge
+  extends NPArbAbstract<NPAgentLoginChallenge>
 {
-  /**
-   * @return The current results
-   */
-
-  NPPage<T> results();
+  public NPArbAgentLoginChallenge()
+  {
+    super(
+      NPAgentLoginChallenge.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.create(UUID::randomUUID),
+          Arbitraries.strings()
+            .map(x -> x.getBytes(StandardCharsets.UTF_8))
+        ).as(NPAgentLoginChallenge::new);
+      }
+    );
+  }
 }

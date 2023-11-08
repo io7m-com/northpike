@@ -122,6 +122,7 @@
   <entry key="parameter">Parameter</entry>
   <entry key="type">Type</entry>
   <entry key="server">Server</entry>
+  <entry key="login_challenge">Login Challenge</entry>
 
   <entry key="type_check_undefined_variable">Undefined variable.</entry>
   <entry key="type_check_expression">An expression did not have the expected type.</entry>

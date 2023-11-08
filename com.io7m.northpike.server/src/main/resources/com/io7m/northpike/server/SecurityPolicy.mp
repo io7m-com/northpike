@@ -103,6 +103,31 @@
 ]
 
 #------------------------------------------------------------------------
+# Agent Login Challenges
+#
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom agent_login_challenge.reader]]
+  [MatchObject  [WithType agent_login_challenges]]
+  [MatchAction  [WithName read]]
+]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom agent_login_challenge.writer]]
+  [MatchObject  [WithType agent_login_challenges]]
+  [MatchAction  [WithName write]]
+]
+
+[Rule
+  [Conclusion   AllowImmediately]
+  [MatchSubject [WithAnyRolesFrom agent_login_challenge.writer]]
+  [MatchObject  [WithType agent_login_challenges]]
+  [MatchAction  [WithName delete]]
+]
+
+#------------------------------------------------------------------------
 # Tools
 #
 

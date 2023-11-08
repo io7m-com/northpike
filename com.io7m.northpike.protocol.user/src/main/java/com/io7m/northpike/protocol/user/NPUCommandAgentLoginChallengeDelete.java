@@ -17,31 +17,38 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.model.NPPage;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 /**
- * The type of responses that contain paged results.
+ * Delete login challenges.
  *
- * @param <T> The type of results
+ * @param messageID       The message ID
+ * @param loginChallenges The login challenges
  */
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentLoginChallengeSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch,
-  NPUResponseUserSearch
+public record NPUCommandAgentLoginChallengeDelete(
+  UUID messageID,
+  Set<UUID> loginChallenges)
+  implements NPUCommandType<NPUResponseOK>
 {
   /**
-   * @return The current results
+   * Delete login challenges.
+   *
+   * @param messageID       The message ID
+   * @param loginChallenges The login challenges
    */
 
-  NPPage<T> results();
+  public NPUCommandAgentLoginChallengeDelete
+  {
+    Objects.requireNonNull(messageID, "messageId");
+    Objects.requireNonNull(loginChallenges, "loginChallenges");
+  }
+
+  @Override
+  public Class<NPUResponseOK> responseClass()
+  {
+    return NPUResponseOK.class;
+  }
 }

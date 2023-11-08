@@ -17,31 +17,41 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeSearchParameters;
+
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- * The type of responses that contain paged results.
+ * Start searching login challenges.
  *
- * @param <T> The type of results
+ * @param messageID  The message ID
+ * @param parameters The search parameters
  */
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
+public record NPUCommandAgentLoginChallengeSearchBegin(
+  UUID messageID,
+  NPAgentLoginChallengeSearchParameters parameters)
+  implements NPUCommandSearchBeginType<
   NPUResponseAgentLoginChallengeSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch,
-  NPUResponseUserSearch
+  NPAgentLoginChallengeSearchParameters>
 {
   /**
-   * @return The current results
+   * Start searching login challenges.
+   *
+   * @param messageID  The message ID
+   * @param parameters The search parameters
    */
 
-  NPPage<T> results();
+  public NPUCommandAgentLoginChallengeSearchBegin
+  {
+    Objects.requireNonNull(messageID, "messageId");
+    Objects.requireNonNull(parameters, "parameters");
+  }
+
+  @Override
+  public Class<NPUResponseAgentLoginChallengeSearch> responseClass()
+  {
+    return NPUResponseAgentLoginChallengeSearch.class;
+  }
 }
