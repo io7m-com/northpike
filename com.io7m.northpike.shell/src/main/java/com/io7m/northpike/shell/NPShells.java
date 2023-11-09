@@ -31,6 +31,8 @@ import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelSearchBegin;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelUnassign;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLoginChallengeAgentCreate;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLoginChallengeDelete;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentLoginChallengeSearchBegin;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentLoginChallengeSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentLoginChallengeSearchPrevious;
@@ -168,6 +170,8 @@ public final class NPShells implements NPShellFactoryType
         new NPShellCmdAgentLabelSearchNext(services),
         new NPShellCmdAgentLabelSearchPrevious(services),
         new NPShellCmdAgentLabelUnassign(services),
+        new NPShellCmdAgentLoginChallengeAgentCreate(services),
+        new NPShellCmdAgentLoginChallengeDelete(services),
         new NPShellCmdAgentLoginChallengeSearchBegin(services),
         new NPShellCmdAgentLoginChallengeSearchNext(services),
         new NPShellCmdAgentLoginChallengeSearchPrevious(services),

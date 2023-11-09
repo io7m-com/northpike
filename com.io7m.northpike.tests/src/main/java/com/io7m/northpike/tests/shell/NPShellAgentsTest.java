@@ -38,6 +38,8 @@ import com.io7m.northpike.protocol.user.NPUCommandAgentLabelPut;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLoginChallengeAgentCreate;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLoginChallengeDelete;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLoginChallengeSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLoginChallengeSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLoginChallengeSearchPrevious;
@@ -857,5 +859,60 @@ public final class NPShellAgentsTest
       .execute(isA(NPUCommandAgentLoginChallengeSearchNext.class));
     Mockito.verify(this.userClient, new AtLeast(2))
       .execute(isA(NPUCommandAgentLoginChallengeSearchPrevious.class));
+  }
+
+  @Test
+  public void testAgentLoginChallengeDelete()
+    throws Exception
+  {
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentLoginChallengeDelete.class))
+    ).thenReturn(new NPUResponseOK(
+      UUID.randomUUID(),
+      UUID.randomUUID()
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+    w.println("agent-login-challenge-delete --id 0be9d775-fe28-425e-b207-2feaed18483d");
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandAgentLoginChallengeDelete.class));
+  }
+
+  @Test
+  public void testAgentLoginChallengeAgentCreate()
+    throws Exception
+  {
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentLoginChallengeAgentCreate.class))
+    ).thenReturn(new NPUResponseOK(
+      UUID.randomUUID(),
+      UUID.randomUUID()
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.print("agent-login-challenge-agent-create ");
+    w.print(" --challenge-id 77aae414-9c76-44a5-a53e-2a62c726c322 ");
+    w.print(" --agent-id bbb05afd-07e8-4dad-a86e-79ed0dbf5487 ");
+    w.print(" --agent-name x.y.z ");
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandAgentLoginChallengeAgentCreate.class));
   }
 }
