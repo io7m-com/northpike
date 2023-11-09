@@ -18,7 +18,7 @@
 package com.io7m.northpike.user_client.internal;
 
 import com.io7m.idstore.model.IdName;
-import com.io7m.northpike.tls.NPTLSConfigurationType;
+import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.user_client.api.NPUserClientConfiguration;
 
 import java.net.InetSocketAddress;

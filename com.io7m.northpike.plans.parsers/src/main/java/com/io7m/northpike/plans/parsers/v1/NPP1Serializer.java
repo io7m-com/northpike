@@ -17,14 +17,17 @@
 
 package com.io7m.northpike.plans.parsers.v1;
 
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.NPCleanImmediately;
+import com.io7m.northpike.model.NPCleanLater;
+import com.io7m.northpike.model.NPCleanPolicyType;
 import com.io7m.northpike.model.NPFailureFail;
 import com.io7m.northpike.model.NPFailureIgnore;
 import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPFailureRetry;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType.Anything;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsEqualTo;
@@ -168,13 +171,13 @@ public final class NPP1Serializer
     final NPPlanElementType element)
     throws XMLStreamException
   {
-    if (element instanceof final NPPlanBarrierType barrier) {
-      this.serializePlanBarrier(barrier);
-      return;
-    }
-    if (element instanceof final NPPlanTaskType task) {
-      this.serializePlanTask(task);
-      return;
+    switch (element) {
+      case final NPPlanBarrierType barrier -> {
+        this.serializePlanBarrier(barrier);
+      }
+      case final NPPlanTaskType task -> {
+        this.serializePlanTask(task);
+      }
     }
   }
 
@@ -204,36 +207,51 @@ public final class NPP1Serializer
     this.serializePlanTaskAgentRequire(task);
     this.serializePlanTaskAgentPrefer(task);
     this.serializePlanTaskAgentLockResources(task.lockAgentResources());
+    this.serializeCleanPolicy(task.cleanPolicy());
     this.serializeDependsOn(task.dependsOn());
     this.serializeFailurePolicy(task.failurePolicy());
     this.serializeToolExecution(task.toolExecution());
     this.output.writeEndElement();
   }
 
+  private void serializeCleanPolicy(
+    final NPCleanPolicyType cleanPolicy)
+    throws XMLStreamException
+  {
+    switch (cleanPolicy) {
+      case final NPCleanImmediately c -> {
+        this.output.writeEmptyElement("CleanPolicyImmediately");
+        return;
+      }
+      case final NPCleanLater c -> {
+        this.output.writeEmptyElement("CleanPolicyLater");
+        return;
+      }
+    }
+  }
+
   private void serializeFailurePolicy(
     final NPFailurePolicyType failurePolicy)
     throws XMLStreamException
   {
-    if (failurePolicy instanceof NPFailureFail) {
-      this.output.writeEmptyElement("FailurePolicyFail");
-      return;
+    switch (failurePolicy) {
+      case final NPFailureFail f -> {
+        this.output.writeEmptyElement("FailurePolicyFail");
+        return;
+      }
+      case final NPFailureIgnore f -> {
+        this.output.writeEmptyElement("FailurePolicyIgnore");
+        return;
+      }
+      case final NPFailureRetry retry -> {
+        this.output.writeStartElement("FailurePolicyRetry");
+        this.output.writeAttribute(
+          "RetryCount",
+          Integer.toUnsignedString(retry.retryCount()));
+        this.output.writeEndElement();
+        return;
+      }
     }
-
-    if (failurePolicy instanceof NPFailureIgnore) {
-      this.output.writeEmptyElement("FailurePolicyIgnore");
-      return;
-    }
-
-    if (failurePolicy instanceof final NPFailureRetry retry) {
-      this.output.writeStartElement("FailurePolicyRetry");
-      this.output.writeAttribute("RetryCount", Integer.toUnsignedString(retry.retryCount()));
-      this.output.writeEndElement();
-      return;
-    }
-
-    throw new IllegalStateException(
-      "Unrecognized failure policy: %s".formatted(failurePolicy)
-    );
   }
 
   private void serializeToolExecution(
@@ -307,57 +325,46 @@ public final class NPP1Serializer
     final NPComparisonSetType<NPAgentLabelName> comparison)
     throws XMLStreamException
   {
-    if (comparison instanceof Anything<NPAgentLabelName>) {
-      this.output.writeEmptyElement("SetIsAnything");
-      return;
-    }
-
-    if (comparison instanceof final IsOverlapping<NPAgentLabelName> e) {
-      this.output.writeStartElement("SetIsOverlapping");
-      for (final var ee : e.value()) {
-        this.serializeSetElement(ee);
+    switch (comparison) {
+      case final Anything<NPAgentLabelName> e -> {
+        this.output.writeEmptyElement("SetIsAnything");
       }
-      this.output.writeEndElement();
-      return;
-    }
-
-    if (comparison instanceof final IsSupersetOf<NPAgentLabelName> e) {
-      this.output.writeStartElement("SetIsSupersetOf");
-      for (final var ee : e.value()) {
-        this.serializeSetElement(ee);
+      case final IsOverlapping<NPAgentLabelName> e -> {
+        this.output.writeStartElement("SetIsOverlapping");
+        for (final var ee : e.value()) {
+          this.serializeSetElement(ee);
+        }
+        this.output.writeEndElement();
       }
-      this.output.writeEndElement();
-      return;
-    }
-
-    if (comparison instanceof final IsSubsetOf<NPAgentLabelName> e) {
-      this.output.writeStartElement("SetIsSubsetOf");
-      for (final var ee : e.value()) {
-        this.serializeSetElement(ee);
+      case final IsSupersetOf<NPAgentLabelName> e -> {
+        this.output.writeStartElement("SetIsSupersetOf");
+        for (final var ee : e.value()) {
+          this.serializeSetElement(ee);
+        }
+        this.output.writeEndElement();
       }
-      this.output.writeEndElement();
-      return;
-    }
-
-    if (comparison instanceof final IsEqualTo<NPAgentLabelName> e) {
-      this.output.writeStartElement("SetIsEqualTo");
-      for (final var ee : e.value()) {
-        this.serializeSetElement(ee);
+      case final IsSubsetOf<NPAgentLabelName> e -> {
+        this.output.writeStartElement("SetIsSubsetOf");
+        for (final var ee : e.value()) {
+          this.serializeSetElement(ee);
+        }
+        this.output.writeEndElement();
       }
-      this.output.writeEndElement();
-      return;
-    }
-
-    if (comparison instanceof final IsNotEqualTo<NPAgentLabelName> e) {
-      this.output.writeStartElement("SetIsNotEqualTo");
-      for (final var ee : e.value()) {
-        this.serializeSetElement(ee);
+      case final IsEqualTo<NPAgentLabelName> e -> {
+        this.output.writeStartElement("SetIsEqualTo");
+        for (final var ee : e.value()) {
+          this.serializeSetElement(ee);
+        }
+        this.output.writeEndElement();
       }
-      this.output.writeEndElement();
-      return;
+      case final IsNotEqualTo<NPAgentLabelName> e -> {
+        this.output.writeStartElement("SetIsNotEqualTo");
+        for (final var ee : e.value()) {
+          this.serializeSetElement(ee);
+        }
+        this.output.writeEndElement();
+      }
     }
-
-    throw new IllegalStateException("Unrecognized comparison: " + comparison);
   }
 
   private void serializeSetElement(

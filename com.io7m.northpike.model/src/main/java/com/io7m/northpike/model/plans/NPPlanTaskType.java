@@ -17,11 +17,12 @@
 
 package com.io7m.northpike.model.plans;
 
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.NPCleanPolicyType;
 import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 
 import java.time.Duration;
@@ -109,4 +110,10 @@ public non-sealed interface NPPlanTaskType
    */
 
   NPFailurePolicyType failurePolicy();
+
+  /**
+   * @return The task cleanup policy
+   */
+
+  NPCleanPolicyType cleanPolicy();
 }

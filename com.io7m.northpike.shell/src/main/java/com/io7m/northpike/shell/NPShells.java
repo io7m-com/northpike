@@ -18,6 +18,9 @@ package com.io7m.northpike.shell;
 
 
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.shell.commons.NPShellCmdType;
+import com.io7m.northpike.shell.commons.NPShellOptions;
+import com.io7m.northpike.shell.commons.NPShellTerminalHolder;
 import com.io7m.northpike.shell.internal.NPShell;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentGet;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelAssign;
@@ -28,6 +31,11 @@ import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelSearchBegin;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelUnassign;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLoginChallengeAgentCreate;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLoginChallengeDelete;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLoginChallengeSearchBegin;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLoginChallengeSearchNext;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentLoginChallengeSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentPut;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentSearchBegin;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentSearchNext;
@@ -75,13 +83,10 @@ import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearc
 import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionValidate;
-import com.io7m.northpike.shell.internal.NPShellCmdType;
 import com.io7m.northpike.shell.internal.NPShellCmdUserSearchBegin;
 import com.io7m.northpike.shell.internal.NPShellCmdUserSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdUserSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdVersion;
-import com.io7m.northpike.shell.internal.NPShellOptions;
-import com.io7m.northpike.shell.internal.NPShellTerminalHolder;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.user_client.api.NPUserClientConfiguration;
 import com.io7m.northpike.user_client.api.NPUserClientType;
@@ -165,6 +170,11 @@ public final class NPShells implements NPShellFactoryType
         new NPShellCmdAgentLabelSearchNext(services),
         new NPShellCmdAgentLabelSearchPrevious(services),
         new NPShellCmdAgentLabelUnassign(services),
+        new NPShellCmdAgentLoginChallengeAgentCreate(services),
+        new NPShellCmdAgentLoginChallengeDelete(services),
+        new NPShellCmdAgentLoginChallengeSearchBegin(services),
+        new NPShellCmdAgentLoginChallengeSearchNext(services),
+        new NPShellCmdAgentLoginChallengeSearchPrevious(services),
         new NPShellCmdAgentPut(services),
         new NPShellCmdAgentSearchBegin(services),
         new NPShellCmdAgentSearchNext(services),

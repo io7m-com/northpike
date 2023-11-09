@@ -17,18 +17,26 @@
 
 package com.io7m.northpike.tests.server.agents;
 
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.clock.NPClock;
+import com.io7m.northpike.clock.NPClockServiceType;
+import com.io7m.northpike.database.api.NPDatabaseConnectionType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengePutType;
+import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.northpike.protocol.agent.NPACommandCLogin;
 import com.io7m.northpike.server.internal.agents.NPACmdLogin;
 import com.io7m.northpike.server.internal.agents.NPAgentCommandContextType;
 import com.io7m.northpike.strings.NPStringConstantType;
+import com.io7m.northpike.tests.plans.NPFakeClock;
+import com.io7m.repetoir.core.RPServiceDirectory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.verification.Times;
 
 import java.util.Map;
 import java.util.Optional;
@@ -46,12 +54,44 @@ import static org.mockito.ArgumentMatchers.any;
 public final class NPACmdLoginTest
 {
   private NPAgentCommandContextType context;
+  private RPServiceDirectory services;
+  private NPFakeClock clock;
+  private NPClock clockService;
+  private NPDatabaseConnectionType connection;
+  private NPDatabaseTransactionType transaction;
+  private LoginChallengePutType challengePut;
 
   @BeforeEach
   public void setup()
+    throws Exception
   {
     this.context =
       Mockito.mock(NPAgentCommandContextType.class);
+    this.services =
+      new RPServiceDirectory();
+    this.clock =
+      new NPFakeClock();
+    this.clockService =
+      new NPClock(this.clock);
+    this.connection =
+      Mockito.mock(NPDatabaseConnectionType.class);
+    this.transaction =
+      Mockito.mock(NPDatabaseTransactionType.class);
+    this.challengePut =
+      Mockito.mock(LoginChallengePutType.class);
+
+    this.services.register(NPClockServiceType.class, this.clockService);
+
+    Mockito.when(this.connection.openTransaction())
+      .thenReturn(this.transaction);
+    Mockito.when(this.context.services())
+      .thenReturn(this.services);
+    Mockito.when(this.context.sourceAddress())
+      .thenReturn("www.example.com");
+    Mockito.when(this.context.databaseConnection())
+      .thenReturn(this.connection);
+    Mockito.when(this.transaction.queries(LoginChallengePutType.class))
+      .thenReturn(this.challengePut);
 
     Mockito.doAnswer(invocationOnMock -> {
       final var message =
@@ -81,7 +121,10 @@ public final class NPACmdLoginTest
     final var handler = new NPACmdLogin();
 
     final var command =
-      new NPACommandCLogin(UUID.randomUUID(), NPKey.generate());
+      new NPACommandCLogin(
+        UUID.randomUUID(),
+        new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey()
+      );
 
     final var ex =
       assertThrows(NPException.class, () -> {
@@ -90,6 +133,10 @@ public final class NPACmdLoginTest
 
     assertEquals("ERROR_AUTHENTICATION", ex.message());
     assertEquals(errorAuthentication(), ex.errorCode());
+
+    Mockito.verify(this.challengePut, new Times(1))
+      .execute(any());
+    Mockito.verifyNoMoreInteractions(this.challengePut);
   }
 
   /**
@@ -104,15 +151,17 @@ public final class NPACmdLoginTest
   {
     final var handler = new NPACmdLogin();
 
+    final var key =
+      new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey();
     final var command =
-      new NPACommandCLogin(UUID.randomUUID(), NPKey.generate());
+      new NPACommandCLogin(UUID.randomUUID(), key);
 
     Mockito.when(this.context.agentFindForKey(command.key()))
       .thenReturn(Optional.of(
         new NPAgentDescription(
           NPAgentID.of("ab27f114-6b29-5ab2-a528-b41ef98abe76"),
           "Agent",
-          command.key(),
+          key,
           Map.of(),
           Map.of(),
           Map.of()
@@ -121,5 +170,9 @@ public final class NPACmdLoginTest
 
     final var r = handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
+
+    Mockito.verify(this.challengePut, new Times(1))
+      .execute(any());
+    Mockito.verifyNoMoreInteractions(this.challengePut);
   }
 }

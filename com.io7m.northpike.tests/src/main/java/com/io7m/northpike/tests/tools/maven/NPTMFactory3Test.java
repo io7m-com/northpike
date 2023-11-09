@@ -113,12 +113,12 @@ public final class NPTMFactory3Test implements Flow.Subscriber<NPToolEventType>
     throws Exception
   {
     this.server.addResponse()
-      .forPath("/maven/maven-3/3.9.4/binaries/apache-maven-3.9.4-bin.tar.gz")
+      .forPath("/maven2/org/apache/maven/apache-maven/3.9.4/apache-maven-3.9.4-bin.tar.gz")
       .withData(resource("hostile.tar.gz"));
 
     this.server.addResponse()
       .forPath(
-        "/maven/maven-3/3.9.4/binaries/apache-maven-3.9.4-bin.tar.gz.sha512")
+        "/maven2/org/apache/maven/apache-maven/3.9.4/apache-maven-3.9.4-bin.tar.gz.sha512")
       .withData(resource("hostile.tar.gz.sha512"));
 
     final var tools = new NPTMFactory3();
@@ -203,10 +203,9 @@ public final class NPTMFactory3Test implements Flow.Subscriber<NPToolEventType>
       final var root =
         directory.getRoot();
       final var result =
-        tool.execute(root, List.of("--version"));
+        tool.execute(root, System.getenv(), List.of("--version"));
 
       assertEquals(0, result.exitCode());
-      assertTrue(String.join("\n", result.output()).contains("3.9.4"));
     }
   }
 

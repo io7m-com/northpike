@@ -1,0 +1,323 @@
+;
+; Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+;
+; Permission to use, copy, modify, and/or distribute this software for any
+; purpose with or without fee is hereby granted, provided that the above
+; copyright notice and this permission notice appear in all copies.
+;
+; THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+; WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+; MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+; SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+; WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+; ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+; IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+;
+
+[language cedarbridge 1 0]
+
+[package com.io7m.northpike.protocol.agent_console.cb]
+
+[import com.io7m.cedarbridge cb]
+[import com.io7m.cedarbridge.time ct]
+
+[documentation NPAC1TLSStore "A TLS store."]
+[record NPAC1TLSStore
+  [field storeType     cb:String]
+  [field storeProvider cb:String]
+  [field storePassword cb:String]
+  [field storePath     cb:String]
+]
+
+[documentation NPAC1TLSConfiguration "A TLS configuration."]
+[variant NPAC1TLSConfiguration
+  [case NPAC1TLSEnabled
+    [field keyStore   NPAC1TLSStore]
+    [field trustStore NPAC1TLSStore]
+  ]
+  [case NPAC1TLSDisabled]
+]
+
+[documentation NPAC1AgentServerDescription "A server description."]
+[record NPAC1AgentServerDescription
+  [field id               cb:UUID]
+  [field hostName         cb:String]
+  [field port             cb:IntegerUnsigned32]
+  [field tls              NPAC1TLSConfiguration]
+  [field messageSizeLimit cb:IntegerUnsigned32]
+]
+
+[documentation NPAC1AgentServerSummary "A server summary."]
+[record NPAC1AgentServerSummary
+  [field id       cb:UUID]
+  [field hostName cb:String]
+]
+
+[documentation NPAC1WorkExecutorContainerImage "A work executor container image reference."]
+[record NPAC1WorkExecutorContainerImage
+  [field registry cb:String]
+  [field name     cb:String]
+  [field tag      cb:String]
+  [field hash     [cb:Option cb:String]]
+]
+
+[documentation NPAC1WorkExecutorConfiguration "A work executor description."]
+[record NPAC1WorkExecutorConfiguration
+  [field type                          cb:String]
+  [field workDirectory                 cb:String]
+  [field temporaryDirectory            cb:String]
+  [field workExecDistributionDirectory [cb:Option cb:String]]
+  [field containerImage                [cb:Option NPAC1WorkExecutorContainerImage]]
+]
+
+[documentation NPAC1AgentPublicKey "An agent public key."]
+[record NPAC1AgentPublicKey
+  [field algorithm cb:String]
+  [field publicKey cb:String]
+]
+
+[documentation NPAC1AgentDescription "An agent description."]
+[record NPAC1AgentDescription
+  [field name      cb:String]
+  [field publicKey NPAC1AgentPublicKey]
+  [field server    [cb:Option cb:UUID]]
+  [field workExec  [cb:Option NPAC1WorkExecutorConfiguration]]
+]
+
+;
+; Commands
+;
+
+[documentation NPAC1CommandLogin "A request to log in."]
+[record NPAC1CommandLogin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation accessKey "The access key"]
+  [field accessKey cb:String]
+]
+
+[documentation NPAC1CommandDisconnect "A request to disconnect."]
+[record NPAC1CommandDisconnect
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPAC1CommandServerGet "A request to get a server."]
+[record NPAC1CommandServerGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation serverId "The server ID"]
+  [field serverId cb:UUID]
+]
+
+[documentation NPAC1CommandServerDelete "A request to delete a server."]
+[record NPAC1CommandServerDelete
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation serverId "The server ID"]
+  [field serverId cb:UUID]
+]
+
+[documentation NPAC1CommandServerList "A request to list servers."]
+[record NPAC1CommandServerList
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation offset "The starting offset"]
+  [field offset [cb:Option cb:UUID]]
+  [documentation limit "The limit on the number of results returned"]
+  [field limit cb:IntegerUnsigned32]
+]
+
+[documentation NPAC1CommandServerPut "A request to update a server."]
+[record NPAC1CommandServerPut
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation server "The server"]
+  [field server NPAC1AgentServerDescription]
+]
+
+[documentation NPAC1CommandWorkExecGet "A request to get a work executor."]
+[record NPAC1CommandWorkExecGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation agent "The agent name."]
+  [field agent cb:String]
+]
+
+[documentation NPAC1CommandWorkExecPut "A request to update a work executor."]
+[record NPAC1CommandWorkExecPut
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation agent "The agent name."]
+  [field agent cb:String]
+  [documentation workExecutor "The work executor."]
+  [field workExecutor [cb:Option NPAC1WorkExecutorConfiguration]]
+]
+
+[documentation NPAC1CommandAgentCreate "A request to create an agent."]
+[record NPAC1CommandAgentCreate
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation agentName "The agent name"]
+  [field agentName cb:String]
+]
+
+[documentation NPAC1CommandAgentDelete "A request to delete an agent."]
+[record NPAC1CommandAgentDelete
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation agentName "The agent name"]
+  [field agentName cb:String]
+]
+
+[documentation NPAC1CommandAgentGet "A request to get an agent."]
+[record NPAC1CommandAgentGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation agentName "The agent name"]
+  [field agentName cb:String]
+]
+
+[documentation NPAC1CommandAgentList "A request to list agents."]
+[record NPAC1CommandAgentList
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation offset "The starting offset"]
+  [field offset [cb:Option cb:String]]
+  [documentation limit "The limit on the number of results returned"]
+  [field limit cb:IntegerUnsigned32]
+]
+
+[documentation NPAC1CommandAgentServerAssign "A request to assign/unassign a server."]
+[record NPAC1CommandAgentServerAssign
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation agentName "The agent name"]
+  [field agentName cb:String]
+  [documentation server "The server ID"]
+  [field server [cb:Option cb:UUID]]
+]
+
+[documentation NPAC1CommandAgentStatus "A request to get agent status values."]
+[record NPAC1CommandAgentStatus
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+;
+; Responses
+;
+
+[documentation NPAC1ResponseOK "A generic confirmation response."]
+[record NPAC1ResponseOK
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+]
+
+[documentation NPAC1ResponseError "An error response."]
+[record NPAC1ResponseError
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation errorCode "The error code."]
+  [field errorCode cb:String]
+  [documentation message "The error message."]
+  [field message cb:String]
+  [documentation attributes "The error attributes."]
+  [field attributes [cb:Map cb:String cb:String]]
+  [documentation remediatingAction "A possible remediating action."]
+  [field remediatingAction [cb:Option cb:String]]
+]
+
+[documentation NPAC1ResponseServer "A server response."]
+[record NPAC1ResponseServer
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation server "The result."]
+  [field server [cb:Option NPAC1AgentServerDescription]]
+]
+
+[documentation NPAC1ResponseServerList "A server response."]
+[record NPAC1ResponseServerList
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The result."]
+  [field results [cb:List NPAC1AgentServerSummary]]
+]
+
+[documentation NPAC1ResponseWorkExec "A work exec response."]
+[record NPAC1ResponseWorkExec
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation workExec "The result."]
+  [field workExec [cb:Option NPAC1WorkExecutorConfiguration]]
+]
+
+[documentation NPAC1ResponseAgent "An agent response."]
+[record NPAC1ResponseAgent
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation agent "The result."]
+  [field agent [cb:Option NPAC1AgentDescription]]
+]
+
+[documentation NPAC1ResponseAgentList "An agent response."]
+[record NPAC1ResponseAgentList
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The result."]
+  [field results [cb:List cb:String]]
+]
+
+[documentation NPAC1ResponseAgentStatus "An agent status response."]
+[record NPAC1ResponseAgentStatus
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation status "The status values."]
+  [field status [cb:Map cb:String cb:String]]
+]
+
+[documentation NPAC "The Agent Console protocol."]
+[protocol NPAC
+  [version 1
+    [types-added
+      NPAC1CommandAgentCreate
+      NPAC1CommandAgentDelete
+      NPAC1CommandAgentGet
+      NPAC1CommandAgentList
+      NPAC1CommandAgentServerAssign
+      NPAC1CommandAgentStatus
+      NPAC1CommandDisconnect
+      NPAC1CommandLogin
+      NPAC1CommandServerDelete
+      NPAC1CommandServerGet
+      NPAC1CommandServerList
+      NPAC1CommandServerPut
+      NPAC1CommandWorkExecGet
+      NPAC1CommandWorkExecPut
+      NPAC1ResponseAgent
+      NPAC1ResponseAgentList
+      NPAC1ResponseAgentStatus
+      NPAC1ResponseError
+      NPAC1ResponseOK
+      NPAC1ResponseServer
+      NPAC1ResponseServerList
+      NPAC1ResponseWorkExec
+    ]
+  ]
+]

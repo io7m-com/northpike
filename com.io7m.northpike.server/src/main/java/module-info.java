@@ -16,7 +16,7 @@
 
 import com.io7m.northpike.plans.compiler.NPPlanCompilerFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
-import com.io7m.northpike.server.internal.telemetry.NPTelemetryServices;
+import com.io7m.northpike.server.internal.agents.NPAgentCommandExecutorType;
 import com.io7m.northpike.server.internal.users.NPUserCommandExecutorType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
 import com.io7m.northpike.toolexec.NPTXParserFactoryType;
@@ -27,9 +27,6 @@ import com.io7m.northpike.toolexec.NPTXParserFactoryType;
 
 module com.io7m.northpike.server
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
-
   requires com.io7m.northpike.clock;
   requires com.io7m.northpike.connections;
   requires com.io7m.northpike.database.api;
@@ -61,24 +58,26 @@ module com.io7m.northpike.server
   requires com.io7m.repetoir.core;
   requires io.opentelemetry.api;
   requires io.opentelemetry.context;
-  requires io.opentelemetry.exporter.otlp;
-  requires io.opentelemetry.sdk.common;
-  requires io.opentelemetry.sdk.logs;
-  requires io.opentelemetry.sdk.metrics;
-  requires io.opentelemetry.sdk.trace;
-  requires io.opentelemetry.sdk;
-  requires io.opentelemetry.semconv;
-  requires org.eclipse.jetty.server;
+  requires io.helidon.webserver;
   requires org.slf4j;
 
+  uses NPAgentCommandExecutorType;
   uses NPPlanCompilerFactoryType;
   uses NPPlanParserFactoryType;
   uses NPTXParserFactoryType;
   uses NPTelemetryServiceFactoryType;
   uses NPUserCommandExecutorType;
 
-  provides NPTelemetryServiceFactoryType
-    with NPTelemetryServices;
+  provides NPAgentCommandExecutorType with
+    com.io7m.northpike.server.internal.agents.NPACmdDisconnect,
+    com.io7m.northpike.server.internal.agents.NPACmdEnvironmentInfo,
+    com.io7m.northpike.server.internal.agents.NPACmdLogin,
+    com.io7m.northpike.server.internal.agents.NPACmdLoginComplete,
+    com.io7m.northpike.server.internal.agents.NPACmdWorkItemFailed,
+    com.io7m.northpike.server.internal.agents.NPACmdWorkItemOutput,
+    com.io7m.northpike.server.internal.agents.NPACmdWorkItemStarted,
+    com.io7m.northpike.server.internal.agents.NPACmdWorkItemSucceeded
+    ;
 
   provides NPUserCommandExecutorType with
     com.io7m.northpike.server.internal.users.NPUCmdAgentGet,
@@ -88,6 +87,11 @@ module com.io7m.northpike.server
     com.io7m.northpike.server.internal.users.NPUCmdAgentLabelSearchBegin,
     com.io7m.northpike.server.internal.users.NPUCmdAgentLabelSearchNext,
     com.io7m.northpike.server.internal.users.NPUCmdAgentLabelSearchPrevious,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLoginChallengeAgentCreate,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLoginChallengeDelete,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLoginChallengeSearchBegin,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLoginChallengeSearchNext,
+    com.io7m.northpike.server.internal.users.NPUCmdAgentLoginChallengeSearchPrevious,
     com.io7m.northpike.server.internal.users.NPUCmdAgentPut,
     com.io7m.northpike.server.internal.users.NPUCmdAgentSearchBegin,
     com.io7m.northpike.server.internal.users.NPUCmdAgentSearchNext,
@@ -160,7 +164,5 @@ module com.io7m.northpike.server
   exports com.io7m.northpike.server.internal.repositories to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.schedule to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.security to com.io7m.northpike.tests;
-  exports com.io7m.northpike.server.internal.telemetry to com.io7m.northpike.tests;
-  exports com.io7m.northpike.server.internal.tls to com.io7m.northpike.tests;
   exports com.io7m.northpike.server.internal.users to com.io7m.northpike.tests;
 }

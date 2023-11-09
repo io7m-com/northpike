@@ -29,7 +29,15 @@ open module com.io7m.northpike.tests
 
   requires com.io7m.northpike.agent.api;
   requires com.io7m.northpike.agent.configuration;
+  requires com.io7m.northpike.agent.console_client.api;
+  requires com.io7m.northpike.agent.console_client;
+  requires com.io7m.northpike.agent.database.api;
+  requires com.io7m.northpike.agent.database.sqlite;
   requires com.io7m.northpike.agent.main;
+  requires com.io7m.northpike.agent.workexec.api;
+  requires com.io7m.northpike.agent.workexec.local;
+  requires com.io7m.northpike.agent.workexec.main;
+  requires com.io7m.northpike.agent.workexec.podman;
   requires com.io7m.northpike.agent;
   requires com.io7m.northpike.clock;
   requires com.io7m.northpike.database.api;
@@ -41,6 +49,8 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.plans;
   requires com.io7m.northpike.protocol.agent.cb;
   requires com.io7m.northpike.protocol.agent;
+  requires com.io7m.northpike.protocol.agent_console.cb;
+  requires com.io7m.northpike.protocol.agent_console;
   requires com.io7m.northpike.protocol.api;
   requires com.io7m.northpike.protocol.intro.cb;
   requires com.io7m.northpike.protocol.intro;
@@ -51,6 +61,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.server.api;
   requires com.io7m.northpike.server.configuration;
   requires com.io7m.northpike.server;
+  requires com.io7m.northpike.shell.commons;
   requires com.io7m.northpike.shell;
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
@@ -67,6 +78,10 @@ open module com.io7m.northpike.tests
   requires com.io7m.anethum.slf4j;
   requires com.io7m.blackthorne.core;
   requires com.io7m.blackthorne.jxe;
+  requires com.io7m.cedarbridge.runtime.api;
+  requires com.io7m.cedarbridge.runtime.bssio;
+  requires com.io7m.cedarbridge.runtime.convenience;
+  requires com.io7m.cedarbridge.runtime.time;
   requires com.io7m.ervilla.api;
   requires com.io7m.ervilla.native_exec;
   requires com.io7m.ervilla.postgres;
@@ -75,6 +90,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.idstore.admin_client;
   requires com.io7m.idstore.user_client.api;
   requires com.io7m.jattribute.core;
+  requires com.io7m.jbssio.vanilla;
   requires com.io7m.jmulticlose.core;
   requires com.io7m.junreachable.core;
   requires com.io7m.medrina.api;
@@ -99,6 +115,7 @@ open module com.io7m.northpike.tests
   requires org.apache.commons.text;
   requires org.bouncycastle.pg;
   requires org.jgrapht.core;
+  requires org.jline;
   requires org.mockito;
   requires org.postgresql.jdbc;
   requires org.slf4j;
@@ -107,7 +124,7 @@ open module com.io7m.northpike.tests
   requires transitive org.junit.jupiter.engine;
   requires transitive org.junit.platform.commons;
   requires transitive org.junit.platform.engine;
-  requires org.jline;
+  requires com.io7m.northpike.agent.shell;
 
   exports com.io7m.northpike.tests.database;
   exports com.io7m.northpike.tests.containers;

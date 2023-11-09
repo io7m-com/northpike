@@ -23,29 +23,25 @@ import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
-import org.eclipse.jetty.http.HttpFields;
-import org.eclipse.jetty.io.Content;
-import org.eclipse.jetty.io.content.PathContentSource;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.util.Callback;
+import io.helidon.webserver.http.Handler;
+import io.helidon.webserver.http.ServerRequest;
+import io.helidon.webserver.http.ServerResponse;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
+import static io.helidon.http.HeaderNames.CONTENT_TYPE;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * A handler that serves archives by ID.
+ * A static file handler.
  */
 
-public final class NPArchiveHandler extends Handler.Abstract
+public final class NPArchiveHandler implements Handler
 {
   private static final Pattern LEADING_SLASHES =
     Pattern.compile("^/+");
@@ -71,67 +67,51 @@ public final class NPArchiveHandler extends Handler.Abstract
   }
 
   @Override
-  public boolean handle(
-    final Request request,
-    final Response response,
-    final Callback callback)
+  public void handle(
+    final ServerRequest request,
+    final ServerResponse response)
+    throws Exception
   {
-    final var headers = response.getHeaders();
-
-    try {
-      final var archiveOpt = this.findArchive(request);
-      if (archiveOpt.isEmpty()) {
-        response.setStatus(404);
-        headers.put("Content-Type", "text/plain");
-        response.write(true, messageBytes("Not found."), callback);
-        return true;
-      }
-
-      final var archive = archiveOpt.get();
-      this.copyFileOut(response, callback, headers, archive);
-      return true;
-    } catch (final Exception e) {
-      response.setStatus(500);
-      headers.put("Content-Type", "text/plain");
-      response.write(true, messageBytes(e.getMessage()), callback);
-      return true;
-    } finally {
-      callback.succeeded();
+    final var archiveOpt = this.findArchive(request);
+    if (archiveOpt.isEmpty()) {
+      response.status(404);
+      response.header(CONTENT_TYPE, "text/plain");
+      response.send("Not found.\r\n".getBytes(UTF_8));
+      return;
     }
+
+    this.copyFileOut(response, archiveOpt.get());
   }
 
   private void copyFileOut(
-    final Response response,
-    final Callback callback,
-    final HttpFields.Mutable headers,
+    final ServerResponse response,
     final NPArchive archive)
     throws IOException
   {
-    headers.put("Content-Type", "application/octet-stream");
+    response.header(CONTENT_TYPE, "application/octet-stream");
 
     final var file =
       this.directories.archiveDirectory()
         .resolve(archive.token().value() + ".tgz");
 
     final var size = Files.size(file);
-    headers.put("Content-Length", Long.toUnsignedString(size));
-    Content.copy(new PathContentSource(file), response, callback);
-  }
+    response.contentLength(size);
 
-  private static ByteBuffer messageBytes(
-    final String message)
-  {
-    return ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8));
+    try (var input = Files.newInputStream(file)) {
+      final var output = response.outputStream();
+      input.transferTo(output);
+      output.flush();
+    }
   }
 
   private Optional<NPArchive> findArchive(
-    final Request request)
+    final ServerRequest request)
     throws NPDatabaseException
   {
-    final var uri =
-      request.getHttpURI();
     final var path =
-      uri.getPath();
+      request.path()
+        .absolute()
+        .path();
     final var withoutLeading =
       LEADING_SLASHES.matcher(path).replaceFirst("");
     final var token =

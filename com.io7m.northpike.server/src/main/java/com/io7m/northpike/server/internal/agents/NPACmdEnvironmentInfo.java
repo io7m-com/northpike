@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.server.internal.agents;
 
-import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
 import com.io7m.northpike.protocol.agent.NPAResponseOK;
 
@@ -30,7 +30,7 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
  */
 
 public final class NPACmdEnvironmentInfo
-  implements NPAgentCommandExecutorType<NPAResponseOK, NPACommandCEnvironmentInfo>
+  extends NPACmdAbstract<NPAResponseOK, NPACommandCEnvironmentInfo>
 {
   /**
    * @see NPACommandCEnvironmentInfo
@@ -38,7 +38,7 @@ public final class NPACmdEnvironmentInfo
 
   public NPACmdEnvironmentInfo()
   {
-
+    super(NPACommandCEnvironmentInfo.class);
   }
 
   @Override
@@ -63,7 +63,7 @@ public final class NPACmdEnvironmentInfo
       new NPAgentDescription(
         agentExisting.id(),
         agentExisting.name(),
-        agentExisting.accessKey(),
+        agentExisting.publicKey(),
         command.environmentVariables(),
         command.systemProperties(),
         agentExisting.labels()

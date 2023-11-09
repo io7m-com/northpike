@@ -18,6 +18,7 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
 import com.io7m.northpike.protocol.user.cb.NPU1CommandAgentPut;
@@ -50,6 +51,7 @@ public enum NPUVCommandAgentPut
   @Override
   public NPUCommandAgentPut convertFromWire(
     final NPU1CommandAgentPut message)
+    throws NPProtocolException
   {
     return new NPUCommandAgentPut(
       message.fieldMessageId().value(),

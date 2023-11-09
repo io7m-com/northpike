@@ -19,11 +19,11 @@ package com.io7m.northpike.database.postgres.internal;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.GetByKeyType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabel;
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
+import com.io7m.northpike.model.agents.NPAgentLabel;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
 import org.jooq.DSLContext;
 
 import java.util.HashMap;
@@ -31,21 +31,21 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.io7m.northpike.database.postgres.internal.Tables.AGENTS_PROPERTIES;
+import static com.io7m.northpike.database.postgres.internal.NPDBQAgentGet.A_ENVIRONMENT;
+import static com.io7m.northpike.database.postgres.internal.NPDBQAgentGet.A_PROPERTIES;
 import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABELS;
 import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABEL_DEFINITIONS;
 import static com.io7m.northpike.database.postgres.internal.tables.Agents.AGENTS;
-import static com.io7m.northpike.database.postgres.internal.tables.AgentsEnvironments.AGENTS_ENVIRONMENTS;
 
 /**
  * Retrieve an agent.
  */
 
 public final class NPDBQAgentGetByKey
-  extends NPDBQAbstract<NPKey, Optional<NPAgentDescription>>
+  extends NPDBQAbstract<NPAgentKeyPublicType, Optional<NPAgentDescription>>
   implements GetByKeyType
 {
-  private static final Service<NPKey, Optional<NPAgentDescription>, GetByKeyType> SERVICE =
+  private static final Service<NPAgentKeyPublicType, Optional<NPAgentDescription>, GetByKeyType> SERVICE =
     new Service<>(GetByKeyType.class, NPDBQAgentGetByKey::new);
 
   /**
@@ -72,31 +72,26 @@ public final class NPDBQAgentGetByKey
   @Override
   protected Optional<NPAgentDescription> onExecute(
     final DSLContext context,
-    final NPKey key)
+    final NPAgentKeyPublicType key)
     throws NPDatabaseException
   {
     final var query =
       context.select(
           AGENTS.A_ID,
           AGENTS.A_NAME,
-          AGENTS.A_ACCESS_KEY,
-          AGENTS_ENVIRONMENTS.AE_NAME,
-          AGENTS_ENVIRONMENTS.AE_VALUE,
-          AGENTS_PROPERTIES.AP_NAME,
-          AGENTS_PROPERTIES.AP_VALUE,
+          A_ENVIRONMENT,
+          A_PROPERTIES,
+          AGENTS.A_PUBLIC_KEY_DATA,
+          AGENTS.A_PUBLIC_KEY_ALGO,
           AGENT_LABEL_DEFINITIONS.ALD_NAME,
           AGENT_LABEL_DEFINITIONS.ALD_DESCRIPTION
         ).from(AGENTS)
-        .leftOuterJoin(AGENTS_ENVIRONMENTS)
-        .on(AGENTS.A_ID.eq(AGENTS_ENVIRONMENTS.AE_ID))
-        .leftOuterJoin(AGENTS_PROPERTIES)
-        .on(AGENTS.A_ID.eq(AGENTS_PROPERTIES.AP_ID))
         .leftOuterJoin(AGENT_LABELS)
         .on(AGENTS.A_ID.eq(AGENT_LABELS.AL_AGENT))
         .leftOuterJoin(AGENT_LABEL_DEFINITIONS)
         .on(AGENT_LABEL_DEFINITIONS.ALD_ID.eq(AGENT_LABELS.AL_LABEL))
         .where(
-          AGENTS.A_ACCESS_KEY.eq(key.format())
+          AGENTS.A_PUBLIC_KEY_DATA.eq(key.asText())
             .and(AGENTS.A_DELETED.eq(Boolean.FALSE))
         );
 
@@ -124,25 +119,15 @@ public final class NPDBQAgentGetByKey
         first = false;
       }
 
-      final var eName =
-        record.get(AGENTS_ENVIRONMENTS.AE_NAME);
-      final var eVal =
-        record.get(AGENTS_ENVIRONMENTS.AE_VALUE);
-      final var pName =
-        record.get(AGENTS_PROPERTIES.AP_NAME);
-      final var pVal =
-        record.get(AGENTS_PROPERTIES.AP_VALUE);
+      environment.putAll(
+        record.get(A_ENVIRONMENT).data());
+      properties.putAll(
+        record.get(A_PROPERTIES).data());
       final var lName =
         record.get(AGENT_LABEL_DEFINITIONS.ALD_NAME);
       final var lDesc =
         record.get(AGENT_LABEL_DEFINITIONS.ALD_DESCRIPTION);
 
-      if (eName != null) {
-        environment.put(eName, eVal);
-      }
-      if (pName != null) {
-        properties.put(pName, pVal);
-      }
       if (lName != null) {
         final var label = new NPAgentLabel(NPAgentLabelName.of(lName), lDesc);
         labels.put(label.name(), label);

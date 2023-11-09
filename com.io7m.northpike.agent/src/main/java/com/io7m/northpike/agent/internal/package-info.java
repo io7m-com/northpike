@@ -18,6 +18,7 @@
  * Continuous integration (Agent)
  */
 
+
 @Version("1.0.0")
 package com.io7m.northpike.agent.internal;
 

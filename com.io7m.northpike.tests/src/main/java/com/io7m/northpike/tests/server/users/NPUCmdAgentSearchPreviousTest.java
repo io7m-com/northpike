@@ -22,15 +22,15 @@ import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPAgentPagedType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.security.NPSecRole;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.northpike.model.plans.NPPlanException;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchPrevious;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
@@ -241,13 +241,16 @@ public final class NPUCmdAgentSearchPreviousTest
     Mockito.when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
 
+    final var ed448 =
+      new NPAgentKeyPairFactoryEd448();
+
     final var pageMain =
       new NPPage<>(
         List.of(
           new NPAgentDescription(
             new NPAgentID(UUID.randomUUID()),
             "Agent 0",
-            NPKey.generate(),
+            ed448.generateKeyPair().publicKey(),
             Map.of(),
             Map.of(),
             Map.of()
@@ -255,7 +258,7 @@ public final class NPUCmdAgentSearchPreviousTest
           new NPAgentDescription(
             new NPAgentID(UUID.randomUUID()),
             "Agent 1",
-            NPKey.generate(),
+            ed448.generateKeyPair().publicKey(),
             Map.of(),
             Map.of(),
             Map.of()
@@ -263,7 +266,7 @@ public final class NPUCmdAgentSearchPreviousTest
           new NPAgentDescription(
             new NPAgentID(UUID.randomUUID()),
             "Agent 2",
-            NPKey.generate(),
+            ed448.generateKeyPair().publicKey(),
             Map.of(),
             Map.of(),
             Map.of()

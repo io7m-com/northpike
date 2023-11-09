@@ -343,6 +343,36 @@ public enum NPSecRole
   },
 
   /**
+   * A role for reading agent login challenges.
+   */
+
+  AGENT_LOGIN_CHALLENGE_READER {
+    private static final MRoleName NAME =
+      MRoleName.of("agent_login_challenge.reader");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
+  },
+
+  /**
+   * A role for writing agent login challenges.
+   */
+
+  AGENT_LOGIN_CHALLENGE_WRITER {
+    private static final MRoleName NAME =
+      MRoleName.of("agent_login_challenge.writer");
+
+    @Override
+    public MRoleName role()
+    {
+      return NAME;
+    }
+  },
+
+  /**
    * A role for reading the audit log.
    */
 

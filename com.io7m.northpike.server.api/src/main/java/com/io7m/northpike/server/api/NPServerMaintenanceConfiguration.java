@@ -27,13 +27,15 @@ import java.util.Optional;
  * @param archivesMaximumAge             The maximum age of archives
  * @param auditMaximumAge                The maximum age of audit records
  * @param assignmentExecutionsMaximumAge The maximum age of assignment execution logs
+ * @param agentLoginChallengesMaximumAge The maximum age of agent login challenges
  */
 
 public record NPServerMaintenanceConfiguration(
   Optional<Duration> tlsReloadInterval,
   Duration archivesMaximumAge,
   Duration auditMaximumAge,
-  Duration assignmentExecutionsMaximumAge)
+  Duration assignmentExecutionsMaximumAge,
+  Duration agentLoginChallengesMaximumAge)
 {
   /**
    * Configuration information for the server's maintenance service.
@@ -42,6 +44,7 @@ public record NPServerMaintenanceConfiguration(
    * @param archivesMaximumAge             The maximum age of archives
    * @param auditMaximumAge                The maximum age of audit records
    * @param assignmentExecutionsMaximumAge The maximum age of assignment execution logs
+   * @param agentLoginChallengesMaximumAge The maximum age of agent login challenges
    */
 
   public NPServerMaintenanceConfiguration
@@ -54,5 +57,7 @@ public record NPServerMaintenanceConfiguration(
       auditMaximumAge, "auditMaximumAge");
     Objects.requireNonNull(
       assignmentExecutionsMaximumAge, "assignmentExecutionsMaximumAge");
+    Objects.requireNonNull(
+      agentLoginChallengesMaximumAge, "agentLoginChallengesMaximumAge");
   }
 }

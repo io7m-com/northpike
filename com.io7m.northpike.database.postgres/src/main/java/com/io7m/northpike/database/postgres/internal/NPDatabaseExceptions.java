@@ -225,7 +225,7 @@ public final class NPDatabaseExceptions
         .orElse("");
 
     return switch (constraint.toUpperCase(Locale.ROOT)) {
-      case "AGENTS_ACCESS_KEY_UNIQUE" -> {
+      case "AGENTS_PUBLIC_KEY_UNIQUE" -> {
         yield new NPDatabaseException(
           m,
           e,

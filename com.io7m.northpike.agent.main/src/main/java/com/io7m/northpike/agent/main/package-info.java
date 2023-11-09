@@ -15,7 +15,7 @@
  */
 
 /**
- * Continuous integration (Agent [Main])
+ * Continuous integration (Agent main application)
  */
 
 @Export

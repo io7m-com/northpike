@@ -17,9 +17,13 @@
 
 package com.io7m.northpike.server.internal.agents;
 
+import com.io7m.northpike.clock.NPClockServiceType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengePutType;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.agents.NPAgentLoginChallenge;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
 import com.io7m.northpike.protocol.agent.NPACommandCLogin;
-import com.io7m.northpike.protocol.agent.NPAResponseOK;
+import com.io7m.northpike.protocol.agent.NPAResponseLoginChallenge;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
@@ -29,7 +33,7 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
  */
 
 public final class NPACmdLogin
-  implements NPAgentCommandExecutorType<NPAResponseOK, NPACommandCLogin>
+  extends NPACmdAbstract<NPAResponseLoginChallenge, NPACommandCLogin>
 {
   /**
    * @see NPACommandCLogin
@@ -37,24 +41,51 @@ public final class NPACmdLogin
 
   public NPACmdLogin()
   {
-
+    super(NPACommandCLogin.class);
   }
 
   @Override
-  public NPAResponseOK execute(
+  public NPAResponseLoginChallenge execute(
     final NPAgentCommandContextType context,
     final NPACommandCLogin command)
     throws NPException
   {
+    final var services =
+      context.services();
+    final var clock =
+      services.requireService(NPClockServiceType.class);
+
     final var agentOpt =
       context.agentFindForKey(command.key());
+
+    /*
+     * Create a login challenge. Note that the challenge is created even if
+     * the agent does not exist; the administrator can use the information in
+     * the challenge record to create a new agent description in the database.
+     */
+
+    final var challenge =
+      new NPAgentLoginChallengeRecord(
+        clock.now(),
+        context.sourceAddress(),
+        command.key(),
+        NPAgentLoginChallenge.generate()
+      );
+
+    try (var connection = context.databaseConnection()) {
+      try (var transaction = connection.openTransaction()) {
+        transaction.queries(LoginChallengePutType.class).execute(challenge);
+        transaction.commit();
+      }
+    }
 
     if (agentOpt.isEmpty()) {
       throw context.fail(ERROR_AUTHENTICATION, errorAuthentication());
     }
 
-    final var agent = agentOpt.get();
-    context.onAuthenticationComplete(agent);
-    return NPAResponseOK.createCorrelated(command);
+    return NPAResponseLoginChallenge.createCorrelated(
+      command,
+      challenge.challenge()
+    );
   }
 }

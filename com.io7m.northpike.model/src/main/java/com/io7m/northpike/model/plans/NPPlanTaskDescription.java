@@ -17,9 +17,10 @@
 
 package com.io7m.northpike.model.plans;
 
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.NPCleanPolicyType;
 import com.io7m.northpike.model.NPFailurePolicyType;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 
 import java.time.Duration;
@@ -40,7 +41,8 @@ import java.util.Set;
  * @param lockAgentResources    The resources locked on the agent
  * @param toolExecution         The tool execution
  * @param dependsOn             The tasks/barriers upon which this task depends
- *                              @param failurePolicy The failure policy
+ * @param failurePolicy         The failure policy
+ * @param cleanPolicy           The cleanup policy
  */
 
 public record NPPlanTaskDescription(
@@ -54,7 +56,8 @@ public record NPPlanTaskDescription(
   Set<NPAgentResourceName> lockAgentResources,
   NPPlanToolExecution toolExecution,
   Set<NPPlanElementName> dependsOn,
-  NPFailurePolicyType failurePolicy)
+  NPFailurePolicyType failurePolicy,
+  NPCleanPolicyType cleanPolicy)
   implements NPPlanElementDescriptionType
 {
   /**
@@ -70,7 +73,8 @@ public record NPPlanTaskDescription(
    * @param lockAgentResources    The resources locked on the agent
    * @param toolExecution         The tool execution
    * @param dependsOn             The tasks/barriers upon which this task depends
-   * @param failurePolicy The failure policy
+   * @param failurePolicy         The failure policy
+   * @param cleanPolicy           The cleanup policy
    */
 
   public NPPlanTaskDescription
@@ -86,6 +90,7 @@ public record NPPlanTaskDescription(
     Objects.requireNonNull(toolExecution, "toolExecution");
     Objects.requireNonNull(dependsOn, "dependsOn");
     Objects.requireNonNull(failurePolicy, "failurePolicy");
+    Objects.requireNonNull(cleanPolicy, "cleanPolicy");
   }
 
   /**
@@ -119,6 +124,7 @@ public record NPPlanTaskDescription(
     }
     taskBuilder.setToolExecution(this.toolExecution);
     taskBuilder.setFailurePolicy(this.failurePolicy);
+    taskBuilder.setCleanPolicy(this.cleanPolicy);
 
     for (final var depends : this.dependsOn) {
       taskBuilder.addDependsOn(depends);

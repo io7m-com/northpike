@@ -19,10 +19,11 @@ package com.io7m.northpike.user_client.internal;
 
 import com.io7m.idstore.model.IdName;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandType;
+import com.io7m.northpike.protocol.user.NPUResponseError;
 import com.io7m.northpike.protocol.user.NPUResponseType;
-import com.io7m.northpike.tls.NPTLSConfigurationType;
 import com.io7m.northpike.user_client.api.NPUserClientConfiguration;
 import com.io7m.northpike.user_client.api.NPUserClientException;
 import com.io7m.northpike.user_client.api.NPUserClientType;
@@ -106,7 +107,18 @@ public final class NPUserClient implements NPUserClientType
     throws NPUserClientException, InterruptedException
   {
     try {
-      return (R) this.connection.ask(command);
+      final var r = this.connection.ask(command);
+      return switch (r) {
+        case final NPUResponseError error -> {
+          throw new NPException(
+            error.message(),
+            error.errorCode(),
+            error.attributes(),
+            error.remediatingAction()
+          );
+        }
+        default -> (R) r;
+      };
     } catch (final NPException e) {
       throw NPUserExceptions.wrap(e);
     } catch (final IOException e) {

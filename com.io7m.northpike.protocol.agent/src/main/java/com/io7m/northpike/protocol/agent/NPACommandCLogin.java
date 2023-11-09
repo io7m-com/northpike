@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.protocol.agent;
 
-import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -26,19 +26,19 @@ import java.util.UUID;
  * Log in.
  *
  * @param messageID The ID of this message
- * @param key       The agent key
+ * @param key       The agent public key
  */
 
 public record NPACommandCLogin(
   UUID messageID,
-  NPKey key)
-  implements NPACommandC2SType<NPAResponseOK>
+  NPAgentKeyPublicType key)
+  implements NPACommandC2SType<NPAResponseLoginChallenge>
 {
   /**
    * Log in.
    *
    * @param messageID The ID of this message
-   * @param key       The agent key
+   * @param key       The agent public key
    */
 
   public NPACommandCLogin
@@ -50,20 +50,20 @@ public record NPACommandCLogin(
   /**
    * Create a new message with a generated message ID.
    *
-   * @param key The key
+   * @param key The agent public key
    *
    * @return The message
    */
 
   public static NPACommandCLogin of(
-    final NPKey key)
+    final NPAgentKeyPublicType key)
   {
     return new NPACommandCLogin(UUID.randomUUID(), key);
   }
 
   @Override
-  public Class<NPAResponseOK> responseClass()
+  public Class<NPAResponseLoginChallenge> responseClass()
   {
-    return NPAResponseOK.class;
+    return NPAResponseLoginChallenge.class;
   }
 }

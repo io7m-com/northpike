@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.model.NPAgentLabel;
+import com.io7m.northpike.model.agents.NPAgentLabel;
 import com.io7m.northpike.model.NPPage;
 
 import java.util.Objects;

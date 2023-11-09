@@ -26,6 +26,7 @@ public sealed interface NPAResponseType
   extends NPAMessageType
   permits NPAResponseError,
   NPAResponseLatencyCheck,
+  NPAResponseLoginChallenge,
   NPAResponseOK,
   NPAResponseWorkOffered,
   NPAResponseWorkSent

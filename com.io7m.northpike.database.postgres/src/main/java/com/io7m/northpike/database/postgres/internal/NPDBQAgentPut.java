@@ -20,19 +20,20 @@ package com.io7m.northpike.database.postgres.internal;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
-import com.io7m.northpike.model.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentDescription;
 import org.jooq.DSLContext;
 import org.jooq.Query;
+import org.jooq.postgres.extensions.types.Hstore;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
+import static com.io7m.northpike.database.postgres.internal.NPDBQAgentGet.A_ENVIRONMENT;
+import static com.io7m.northpike.database.postgres.internal.NPDBQAgentGet.A_PROPERTIES;
 import static com.io7m.northpike.database.postgres.internal.Tables.AGENTS;
-import static com.io7m.northpike.database.postgres.internal.Tables.AGENTS_PROPERTIES;
 import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LABEL_DEFINITIONS;
 import static com.io7m.northpike.database.postgres.internal.tables.AgentLabels.AGENT_LABELS;
-import static com.io7m.northpike.database.postgres.internal.tables.AgentsEnvironments.AGENTS_ENVIRONMENTS;
 import static com.io7m.northpike.strings.NPStringConstants.AGENT;
 import static com.io7m.northpike.strings.NPStringConstants.AGENT_ID;
 import static java.lang.Boolean.FALSE;
@@ -80,14 +81,6 @@ public final class NPDBQAgentPut
 
     final var batches = new ArrayList<Query>();
     batches.add(
-      context.deleteFrom(AGENTS_ENVIRONMENTS)
-        .where(AGENTS_ENVIRONMENTS.AE_ID.eq(agentId))
-    );
-    batches.add(
-      context.deleteFrom(AGENTS_PROPERTIES)
-        .where(AGENTS_PROPERTIES.AP_ID.eq(agentId))
-    );
-    batches.add(
       context.deleteFrom(AGENT_LABELS)
         .where(AGENT_LABELS.AL_AGENT.eq(agentId))
     );
@@ -95,31 +88,21 @@ public final class NPDBQAgentPut
     batches.add(
       context.insertInto(AGENTS)
         .set(AGENTS.A_ID, agentId)
-        .set(AGENTS.A_ACCESS_KEY, agent.accessKey().format())
         .set(AGENTS.A_NAME, agent.name())
         .set(AGENTS.A_DELETED, FALSE)
+        .set(AGENTS.A_PUBLIC_KEY_DATA, agent.publicKey().asText())
+        .set(AGENTS.A_PUBLIC_KEY_ALGO, agent.publicKey().algorithm())
+        .set(A_ENVIRONMENT, Hstore.valueOf(agent.environmentVariables()))
+        .set(A_PROPERTIES, Hstore.valueOf(agent.systemProperties()))
         .onConflict(AGENTS.A_ID)
         .doUpdate()
-        .set(AGENTS.A_ACCESS_KEY, agent.accessKey().format())
         .set(AGENTS.A_NAME, agent.name())
+        .set(AGENTS.A_PUBLIC_KEY_DATA, agent.publicKey().asText())
+        .set(AGENTS.A_PUBLIC_KEY_ALGO, agent.publicKey().algorithm())
+        .set(A_ENVIRONMENT, Hstore.valueOf(agent.environmentVariables()))
+        .set(A_PROPERTIES, Hstore.valueOf(agent.systemProperties()))
     );
 
-    for (final var entry : agent.environmentVariables().entrySet()) {
-      batches.add(
-        context.insertInto(AGENTS_ENVIRONMENTS)
-          .set(AGENTS_ENVIRONMENTS.AE_ID, agentId)
-          .set(AGENTS_ENVIRONMENTS.AE_NAME, entry.getKey())
-          .set(AGENTS_ENVIRONMENTS.AE_VALUE, entry.getValue())
-      );
-    }
-    for (final var entry : agent.systemProperties().entrySet()) {
-      batches.add(
-        context.insertInto(AGENTS_PROPERTIES)
-          .set(AGENTS_PROPERTIES.AP_ID, agentId)
-          .set(AGENTS_PROPERTIES.AP_NAME, entry.getKey())
-          .set(AGENTS_PROPERTIES.AP_VALUE, entry.getValue())
-      );
-    }
     for (final var entry : agent.labels().values()) {
       final var labelId =
         context.select(AGENT_LABEL_DEFINITIONS.ALD_ID)

@@ -19,11 +19,13 @@ package com.io7m.northpike.protocol.agent.cb.internal;
 import com.io7m.cedarbridge.runtime.convenience.CBLists;
 import com.io7m.cedarbridge.runtime.convenience.CBMaps;
 import com.io7m.cedarbridge.runtime.convenience.CBSets;
-import com.io7m.northpike.model.NPAgentResourceName;
-import com.io7m.northpike.model.NPAgentWorkItem;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.protocol.agent.cb.NPA1AgentWorkItem;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 
+import static com.io7m.northpike.protocol.agent.cb.internal.NPAVArchiveLinks.ARCHIVE_LINKS;
+import static com.io7m.northpike.protocol.agent.cb.internal.NPAVCleanPolicy.CLEAN_POLICY;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVFailurePolicy.FAILURE_POLICY;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVToolExecutionEvaluated.TOOL_EXECUTION_EVALUATED;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVToolReference.TOOL_REFERENCE;
@@ -54,12 +56,14 @@ public enum NPAVAgentWorkItem
         TOOL_REFERENCE::convertToWire
       ),
       TOOL_EXECUTION_EVALUATED.convertToWire(message.toolExecution()),
+      ARCHIVE_LINKS.convertToWire(message.archiveLinks()),
       CBLists.ofCollectionString(
         message.lockResources()
           .stream()
           .map(NPAgentResourceName::toString)
           .toList()),
-      FAILURE_POLICY.convertToWire(message.failurePolicy())
+      FAILURE_POLICY.convertToWire(message.failurePolicy()),
+      CLEAN_POLICY.convertToWire(message.cleanPolicy())
     );
   }
 
@@ -75,11 +79,13 @@ public enum NPAVAgentWorkItem
         TOOL_REFERENCE::convertFromWire
       ),
       TOOL_EXECUTION_EVALUATED.convertFromWire(message.fieldToolExecution()),
+      ARCHIVE_LINKS.convertFromWire(message.fieldArchiveLinks()),
       CBSets.toSet(
         message.fieldLockResources(),
         s -> NPAgentResourceName.of(s.value())
       ),
-      FAILURE_POLICY.convertFromWire(message.fieldFailurePolicy())
+      FAILURE_POLICY.convertFromWire(message.fieldFailurePolicy()),
+      CLEAN_POLICY.convertFromWire(message.fieldCleanPolicy())
     );
   }
 }

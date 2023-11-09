@@ -20,13 +20,13 @@ import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tools.api.NPToolException;
 import com.io7m.northpike.tools.api.NPToolProgramResult;
 import org.slf4j.Logger;
-import org.slf4j.MDC;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Functions to execute external processes.
@@ -46,8 +46,10 @@ public final class NPToolExecutions
    *
    * @param logger             The logger
    * @param strings            The string resources
+   * @param environment        The environment
    * @param executionDirectory The starting directory for the new process
    * @param execution          The command and arguments
+   * @param receiver           The process output receiver
    *
    * @return The result of execution
    *
@@ -59,59 +61,128 @@ public final class NPToolExecutions
     final Logger logger,
     final NPStrings strings,
     final Path executionDirectory,
-    final List<String> execution)
+    final Map<String, String> environment,
+    final List<String> execution,
+    final NPToolProcessOutputReceiverType receiver)
     throws InterruptedException, NPToolException
   {
-    try (var resources =
-           NPToolResources.createResourceCollection(strings)) {
+    Objects.requireNonNull(logger, "logger");
+    Objects.requireNonNull(strings, "strings");
+    Objects.requireNonNull(executionDirectory, "executionDirectory");
+    Objects.requireNonNull(environment, "environment");
+    Objects.requireNonNull(execution, "execution");
+    Objects.requireNonNull(receiver, "receiver");
 
-      final var executor =
-        Executors.newSingleThreadExecutor(runnable -> {
-          final var thread = new Thread(runnable);
-          thread.setName(
-            "com.io7m.northpike.tools.common.process[%d]"
-              .formatted(Long.valueOf(thread.getId()))
-          );
-          return thread;
-        });
+    try {
+      final var builder = new ProcessBuilder();
+      builder.environment().clear();
+      builder.environment().putAll(environment);
+      builder.command(execution);
+      builder.directory(executionDirectory.toFile());
+      builder.redirectError(ProcessBuilder.Redirect.PIPE);
+      builder.redirectErrorStream(true);
+      builder.redirectOutput(ProcessBuilder.Redirect.PIPE);
 
-      resources.add(executor::shutdown);
+      final var processName =
+        execution.get(0);
+      final var process =
+        builder.start();
+      final var processId =
+        Long.toUnsignedString(process.pid());
 
+      final var outThread =
+        Thread.ofVirtual()
+          .start(() -> {
+            processStandardOutput(
+              logger,
+              receiver,
+              processName,
+              processId,
+              process.inputReader()
+            );
+          });
+
+      final var errThread =
+        Thread.ofVirtual()
+          .start(() -> {
+            processStandardError(
+              logger,
+              receiver,
+              processName,
+              processId,
+              process.errorReader()
+            );
+          });
+
+      final var exitCode = process.waitFor();
+      outThread.join();
+      errThread.join();
+
+      process.destroyForcibly();
+      return new NPToolProgramResult(execution, exitCode);
+    } catch (final IOException e) {
+      throw NPToolExceptions.errorIO(strings, e);
+    }
+  }
+
+  private static void processStandardError(
+    final Logger logger,
+    final NPToolProcessOutputReceiverType receiver,
+    final String processName,
+    final String processId,
+    final BufferedReader reader)
+  {
+    try (reader) {
+      while (true) {
+        final var line = reader.readLine();
+        if (line == null) {
+          break;
+        }
+        logger.debug("STDERR {}", line);
+        try {
+          receiver.onReceive(processName, processId, line);
+        } catch (final Throwable e) {
+          // Ignored
+        }
+      }
+    } catch (final IOException e) {
       try {
-        final var builder =
-          new ProcessBuilder()
-            .command(execution);
+        final var text =
+          "%s: %s".formatted(e.getClass(), e.getMessage());
+        receiver.onReceive(processName, processId, text);
+      } catch (final Throwable ex) {
+        // Ignored
+      }
+    }
+  }
 
-        builder.directory(executionDirectory.toFile());
-        builder.redirectError(ProcessBuilder.Redirect.PIPE);
-        builder.redirectErrorStream(true);
-        builder.redirectOutput(ProcessBuilder.Redirect.PIPE);
-
-        final var output = new LinkedBlockingQueue<String>();
-        final var process = builder.start();
-        executor.execute(() -> {
-          MDC.put("ProcessID", String.valueOf(process.pid()));
-          MDC.put("Program", execution.get(0));
-
-          try (var reader = process.inputReader()) {
-            while (true) {
-              final var line = reader.readLine();
-              if (line == null) {
-                break;
-              }
-              logger.debug("{}", line);
-              output.add(line);
-            }
-          } catch (final IOException e) {
-            output.add("%s: %s".formatted(e.getClass(), e.getMessage()));
-          }
-        });
-
-        final var exitCode = process.waitFor();
-        process.destroyForcibly();
-        return new NPToolProgramResult(execution, exitCode, output);
-      } catch (final IOException e) {
-        throw NPToolExceptions.errorIO(strings, e);
+  private static void processStandardOutput(
+    final Logger logger,
+    final NPToolProcessOutputReceiverType receiver,
+    final String processName,
+    final String processId,
+    final BufferedReader reader)
+  {
+    try (reader) {
+      while (true) {
+        final var line = reader.readLine();
+        if (line == null) {
+          break;
+        }
+        logger.debug("STDOUT {}", line);
+        try {
+          receiver.onReceive(processName, processId, line);
+        } catch (final Throwable e) {
+          // Ignored
+        }
+      }
+    } catch (final IOException e) {
+      try {
+        final var text =
+          "%s: %s".formatted(e.getClass(), e.getMessage());
+        receiver.onReceive(processName, processId, text);
+      } catch (final Throwable ex) {
+        // Ignored
       }
     }
   }

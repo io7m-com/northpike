@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.tests.shell;
 
-import com.io7m.northpike.shell.NPShellValueConverters;
+import com.io7m.northpike.shell.commons.NPShellValueConverters;
 import com.io7m.quarrel.core.QValueConverterType;
 import net.jqwik.api.Arbitraries;
 import org.junit.jupiter.api.DynamicTest;

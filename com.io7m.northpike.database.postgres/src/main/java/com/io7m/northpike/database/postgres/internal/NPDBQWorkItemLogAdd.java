@@ -21,11 +21,15 @@ package com.io7m.northpike.database.postgres.internal;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemLogAddType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
+import com.io7m.northpike.model.NPWorkItemLogRecord;
 import org.jooq.DSLContext;
-
-import java.time.OffsetDateTime;
+import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
+import org.jooq.postgres.extensions.bindings.HstoreBinding;
+import org.jooq.postgres.extensions.types.Hstore;
 
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
+import static com.io7m.northpike.database.postgres.internal.NPDBStoredExceptions.serializeExceptionOptional;
 import static com.io7m.northpike.database.postgres.internal.Tables.WORK_ITEMS;
 import static com.io7m.northpike.database.postgres.internal.Tables.WORK_ITEM_LOGS;
 
@@ -34,10 +38,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.WORK_ITEM_LOG
  */
 
 public final class NPDBQWorkItemLogAdd
-  extends NPDBQAbstract<WorkItemLogAddType.Parameters, NPDatabaseUnit>
+  extends NPDBQAbstract<NPWorkItemLogRecord, NPDatabaseUnit>
   implements WorkItemLogAddType
 {
-  private static final Service<Parameters, NPDatabaseUnit, WorkItemLogAddType> SERVICE =
+  private static final Service<NPWorkItemLogRecord, NPDatabaseUnit, WorkItemLogAddType> SERVICE =
     new Service<>(WorkItemLogAddType.class, NPDBQWorkItemLogAdd::new);
 
   /**
@@ -64,18 +68,15 @@ public final class NPDBQWorkItemLogAdd
   @Override
   protected NPDatabaseUnit onExecute(
     final DSLContext context,
-    final Parameters parameters)
+    final NPWorkItemLogRecord logRecord)
   {
     final var identifier =
-      parameters.identifier();
+      logRecord.workItem();
 
-    final var time =
-      OffsetDateTime.now(
-        this.transaction()
-          .connection()
-          .database()
-          .clock()
-      );
+    final var attributesType =
+      SQLDataType.OTHER.asConvertedDataType(new HstoreBinding());
+    final var attributesField =
+      DSL.field("WIL_ATTRIBUTES", attributesType);
 
     final var item =
       context.select(WORK_ITEMS.WI_ID)
@@ -87,8 +88,13 @@ public final class NPDBQWorkItemLogAdd
 
     context.insertInto(WORK_ITEM_LOGS)
       .set(WORK_ITEM_LOGS.WIL_ITEM, item)
-      .set(WORK_ITEM_LOGS.WIL_TIME, time)
-      .set(WORK_ITEM_LOGS.WIL_LINE, parameters.line())
+      .set(WORK_ITEM_LOGS.WIL_TIME, logRecord.timestamp())
+      .set(WORK_ITEM_LOGS.WIL_TEXT, logRecord.message())
+      .set(attributesField, Hstore.hstore(logRecord.attributes()))
+      .set(WORK_ITEM_LOGS.WIL_EXCEPTION_DATA,
+           serializeExceptionOptional(logRecord.exception()))
+      .set(WORK_ITEM_LOGS.WIL_EXCEPTION_FORMAT, "CEDARBRIDGE")
+      .set(WORK_ITEM_LOGS.WIL_EXCEPTION_VERSION, Integer.valueOf(1))
       .execute();
 
     return UNIT;

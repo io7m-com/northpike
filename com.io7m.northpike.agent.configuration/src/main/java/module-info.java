@@ -15,7 +15,7 @@
  */
 
 /**
- * Continuous integration (Agent Configuration)
+ * Continuous integration (Agent configuration)
  */
 
 module com.io7m.northpike.agent.configuration
@@ -24,14 +24,16 @@ module com.io7m.northpike.agent.configuration
   requires static org.osgi.annotation.versioning;
 
   requires com.io7m.northpike.agent.api;
+  requires com.io7m.northpike.agent.database.api;
+  requires com.io7m.northpike.agent.workexec.api;
   requires com.io7m.northpike.model;
-  requires com.io7m.northpike.strings;
+  requires com.io7m.northpike.telemetry.api;
+  requires com.io7m.northpike.tls;
 
   requires com.io7m.anethum.api;
   requires com.io7m.blackthorne.core;
   requires com.io7m.blackthorne.jxe;
   requires com.io7m.jxe.core;
-  requires java.xml;
 
   exports com.io7m.northpike.agent.configuration;
 }

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Schemas xmlns="urn:com.io7m.trasco.database.statements:1:0">
+
+  <Schema versionCurrent="0">
+    <Comment>
+      The schema version table stores the current version of the database
+      schema. Implementations are expected to query this table on connecting to
+      the database in order to ensure that the calling code is compatible with
+      the tables in the database.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE schema_version (
+  version_lock            INTEGER NOT NULL DEFAULT 1,
+  version_application_id  TEXT    NOT NULL,
+  version_number          INTEGER NOT NULL,
+
+  CONSTRAINT check_lock_primary
+    PRIMARY KEY (version_lock),
+
+  CONSTRAINT check_lock_locked
+    CHECK (version_lock = 1)
+)
+-- [jooq ignore start]
+STRICT
+-- [jooq ignore stop]
+]]></Statement>
+  </Schema>
+
+  <Schema versionCurrent="1">
+    <Statement><![CDATA[
+CREATE TABLE servers (
+  s_id                  TEXT    NOT NULL,
+  s_remote_address      TEXT    NOT NULL,
+  s_port                INTEGER NOT NULL,
+  s_tls                 INTEGER NOT NULL,
+  s_tls_keystore        TEXT,
+  s_tls_truststore      TEXT,
+
+  s_message_size_limit  INTEGER NOT NULL,
+
+  -- [jooq ignore start]
+  CONSTRAINT servers_primary_key
+    PRIMARY KEY (s_id),
+  -- [jooq ignore stop]
+
+  CONSTRAINT servers_tls_correct CHECK (
+    CASE s_tls
+      WHEN 0 THEN
+        ((s_tls_keystore IS NULL) AND (s_tls_truststore IS NULL))
+      WHEN 1 THEN
+        ((s_tls_keystore IS NOT NULL) AND (s_tls_truststore IS NOT NULL))
+      ELSE
+        0
+    END
+  )
+)
+-- [jooq ignore start]
+STRICT
+-- [jooq ignore stop]
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE agents (
+  a_id          INTEGER PRIMARY KEY NOT NULL,
+  a_name        TEXT                NOT NULL,
+  a_key_algo    TEXT                NOT NULL,
+  a_key_public  TEXT                NOT NULL,
+  a_key_private TEXT                NOT NULL,
+  a_workexec    TEXT
+)
+-- [jooq ignore start]
+STRICT
+-- [jooq ignore stop]
+]]></Statement>
+
+    <Statement><![CDATA[
+-- [jooq ignore start]
+CREATE UNIQUE INDEX agents_name_unique ON agents (a_name)
+-- [jooq ignore stop]
+]]></Statement>
+
+    <Statement><![CDATA[
+-- [jooq ignore start]
+CREATE UNIQUE INDEX agents_key_unique ON agents (a_key_algo, a_key_public, a_key_private)
+-- [jooq ignore stop]
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE agent_servers (
+  as_agent   INTEGER NOT NULL,
+  as_server  TEXT    NOT NULL
+
+  -- [jooq ignore start]
+  ,
+  CONSTRAINT agent_servers_server_exists
+    FOREIGN KEY (as_server)
+      REFERENCES servers (s_id),
+
+  CONSTRAINT agent_servers_agent_exists
+    FOREIGN KEY (as_agent)
+      REFERENCES agents (a_id)
+  -- [jooq ignore stop]
+)
+-- [jooq ignore start]
+STRICT
+-- [jooq ignore stop]
+]]></Statement>
+
+    <Statement><![CDATA[
+-- [jooq ignore start]
+CREATE UNIQUE INDEX agent_servers_unique ON agent_servers (as_agent)
+-- [jooq ignore stop]
+]]></Statement>
+  </Schema>
+</Schemas>

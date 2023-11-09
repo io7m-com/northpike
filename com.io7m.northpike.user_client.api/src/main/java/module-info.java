@@ -26,7 +26,6 @@ module com.io7m.northpike.user_client.api
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.protocol.user;
   requires com.io7m.northpike.strings;
-  requires com.io7m.northpike.tls;
 
   requires com.io7m.jmulticlose.core;
   requires com.io7m.repetoir.core;

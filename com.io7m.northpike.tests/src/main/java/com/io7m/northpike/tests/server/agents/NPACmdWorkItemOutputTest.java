@@ -23,11 +23,13 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItem
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemLogAddType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPStoredException;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.NPWorkItemLogRecord;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.protocol.agent.NPACommandCWorkItemOutput;
@@ -38,6 +40,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -122,11 +126,14 @@ public final class NPACmdWorkItemOutputTest
     final var command =
       new NPACommandCWorkItemOutput(
         UUID.randomUUID(),
+        OffsetDateTime.now(),
         new NPWorkItemIdentifier(
           new NPAssignmentExecutionID(UUID.randomUUID()),
           new RDottedName("some.task")
         ),
-        "A line."
+        Map.of("a", "x", "b", "y"),
+        "A line.",
+        Optional.of(NPStoredException.ofException(new IOException()))
       );
 
     final var ex =
@@ -169,11 +176,14 @@ public final class NPACmdWorkItemOutputTest
     final var command =
       new NPACommandCWorkItemOutput(
         UUID.randomUUID(),
+        OffsetDateTime.now(),
         new NPWorkItemIdentifier(
           new NPAssignmentExecutionID(UUID.randomUUID()),
           new RDottedName("some.task")
         ),
-        "A line."
+        Map.of("a", "x", "b", "y"),
+        "A line.",
+        Optional.of(NPStoredException.ofException(new IOException()))
       );
 
     final var ex =
@@ -227,11 +237,14 @@ public final class NPACmdWorkItemOutputTest
     final var command =
       new NPACommandCWorkItemOutput(
         UUID.randomUUID(),
+        OffsetDateTime.now(),
         new NPWorkItemIdentifier(
           new NPAssignmentExecutionID(UUID.randomUUID()),
           new RDottedName("some.task")
         ),
-        "A line."
+        Map.of("a", "x", "b", "y"),
+        "A line.",
+        Optional.of(NPStoredException.ofException(new IOException()))
       );
 
     final var ex =
@@ -264,11 +277,18 @@ public final class NPACmdWorkItemOutputTest
         new RDottedName("some.task")
       );
 
+    final var time =
+      OffsetDateTime.now();
+    final var exception =
+      Optional.of(NPStoredException.ofException(new IOException()));
     final var command =
       new NPACommandCWorkItemOutput(
         UUID.randomUUID(),
+        time,
         identifier,
-        "A line."
+        Map.of("a", "x", "b", "y"),
+        "A line.",
+        exception
       );
 
     when(this.context.onAuthenticationRequire())
@@ -300,9 +320,12 @@ public final class NPACmdWorkItemOutputTest
 
     verify(add)
       .execute(
-        new WorkItemLogAddType.Parameters(
+        new NPWorkItemLogRecord(
           identifier,
-          "A line."
+          time,
+          Map.of("a", "x", "b", "y"),
+          "A line.",
+          exception
         )
       );
   }

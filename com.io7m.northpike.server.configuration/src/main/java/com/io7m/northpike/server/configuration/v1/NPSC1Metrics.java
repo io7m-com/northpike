@@ -19,20 +19,24 @@ package com.io7m.northpike.server.configuration.v1;
 
 import com.io7m.blackthorne.core.BTElementHandlerType;
 import com.io7m.blackthorne.core.BTElementParsingContextType;
-import com.io7m.northpike.telemetry.api.NPTelemetryConfiguration;
+import com.io7m.northpike.telemetry.api.NPTelemetryConfiguration.NPMetrics;
+import com.io7m.northpike.telemetry.api.NPTelemetryConfiguration.NPOTLPProtocol;
 import org.xml.sax.Attributes;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * A parser for {@link NPTelemetryConfiguration.NPMetrics}
+ * A parser for {@link NPMetrics}
  */
 
 public final class NPSC1Metrics
-  implements BTElementHandlerType<Object, NPTelemetryConfiguration.NPMetrics>
+  implements BTElementHandlerType<Object, NPMetrics>
 {
+  private NPMetrics result;
+
   /**
-   * A parser for {@link NPTelemetryConfiguration.NPMetrics}
+   * A parser for {@link NPMetrics}
    *
    * @param context The parse context
    */
@@ -49,13 +53,16 @@ public final class NPSC1Metrics
     final Attributes attributes)
     throws URISyntaxException
   {
-
+    this.result = new NPMetrics(
+      URI.create(attributes.getValue("Endpoint")),
+      NPOTLPProtocol.valueOf(attributes.getValue("Protocol"))
+    );
   }
 
   @Override
-  public NPTelemetryConfiguration.NPMetrics onElementFinished(
+  public NPMetrics onElementFinished(
     final BTElementParsingContextType context)
   {
-    return null;
+    return this.result;
   }
 }

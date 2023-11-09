@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.tools.maven;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tools.api.NPToolFactoryType;
 import com.io7m.northpike.tools.api.NPToolType;
@@ -34,12 +34,12 @@ import java.nio.file.Path;
 
 public final class NPTMFactory3 implements NPToolFactoryType
 {
-  private static final RDottedName PACKAGE_NAME =
-    new RDottedName("org.apache.maven");
+  private static final NPToolName PACKAGE_NAME =
+    NPToolName.of("org.apache.maven");
 
   private static final VersionRange PACKAGE_VERSIONS =
     new VersionRange(
-      Version.of(3, 8, 7),
+      Version.of(3, 9, 1),
       true,
       Version.of(4, 0, 0),
       false
@@ -55,13 +55,20 @@ public final class NPTMFactory3 implements NPToolFactoryType
   }
 
   @Override
-  public RDottedName packageName()
+  public String toString()
+  {
+    return "[NPTMFactory3 %s %s]"
+      .formatted(this.toolName(), this.toolVersions());
+  }
+
+  @Override
+  public NPToolName toolName()
   {
     return PACKAGE_NAME;
   }
 
   @Override
-  public VersionRange packageVersions()
+  public VersionRange toolVersions()
   {
     return PACKAGE_VERSIONS;
   }
@@ -77,5 +84,11 @@ public final class NPTMFactory3 implements NPToolFactoryType
       version,
       directory
     );
+  }
+
+  @Override
+  public String description()
+  {
+    return "Tool service for %s.".formatted(PACKAGE_NAME);
   }
 }

@@ -14,6 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
 package com.io7m.northpike.tests.agent;
 
 import com.io7m.northpike.agent.main.NPAgentMain;
@@ -30,14 +31,18 @@ public final class NPAgentMainTest
   public Stream<DynamicTest> testHelp()
   {
     return Stream.of(
-      new String[]{"help"},
-      new String[]{"help", "help"},
-      new String[]{"help", "run"}
-    ).map(arguments -> {
-      return DynamicTest.dynamicTest(
-        String.join(" ", arguments), () -> {
-          assertEquals(0, NPAgentMain.mainExitless(arguments));
+        "help",
+        "run",
+        "shell")
+      .map(name -> {
+        return DynamicTest.dynamicTest("testHelp_" + name, () -> {
+          final var r =
+            NPAgentMain.mainExitless(new String[]{
+              "help",
+              name
+            });
+          assertEquals(0, r);
         });
-    });
+      });
   }
 }

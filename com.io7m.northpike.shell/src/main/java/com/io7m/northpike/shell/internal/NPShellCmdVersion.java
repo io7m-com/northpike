@@ -17,6 +17,7 @@
 package com.io7m.northpike.shell.internal;
 
 import com.io7m.northpike.model.NPVersion;
+import com.io7m.northpike.shell.commons.NPShellCmdAbstract;
 import com.io7m.quarrel.core.QCommandContextType;
 import com.io7m.quarrel.core.QCommandMetadata;
 import com.io7m.quarrel.core.QCommandStatus;

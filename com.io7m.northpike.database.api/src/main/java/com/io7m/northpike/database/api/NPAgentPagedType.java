@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.database.api;
 
-import com.io7m.northpike.model.NPAgentSummary;
+import com.io7m.northpike.model.agents.NPAgentSummary;
 
 /**
  * A paged query that returns agent summaries.

@@ -20,9 +20,10 @@ package com.io7m.northpike.protocol.agent.cb.internal;
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.northpike.protocol.agent.NPACommandCLogin;
 import com.io7m.northpike.protocol.agent.cb.NPA1CommandCLogin;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 
-import static com.io7m.northpike.protocol.agent.cb.internal.NPAVKey.KEY;
+import static com.io7m.northpike.protocol.agent.cb.internal.NPAVAgentPublicKey.PUBLIC_KEY;
 
 /**
  * A validator.
@@ -43,17 +44,18 @@ public enum NPAVCommandCLogin
   {
     return new NPA1CommandCLogin(
       new CBUUID(message.messageID()),
-      KEY.convertToWire(message.key())
+      PUBLIC_KEY.convertToWire(message.key())
     );
   }
 
   @Override
   public NPACommandCLogin convertFromWire(
     final NPA1CommandCLogin message)
+    throws NPProtocolException
   {
     return new NPACommandCLogin(
       message.fieldMessageId().value(),
-      KEY.convertFromWire(message.fieldKey())
+      PUBLIC_KEY.convertFromWire(message.fieldKey())
     );
   }
 }

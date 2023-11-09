@@ -71,4 +71,15 @@ public sealed interface NPDatabaseQueriesMaintenanceType
   {
 
   }
+
+  /**
+   * Delete expired login challenges.
+   */
+
+  non-sealed interface DeleteExpiredLoginChallengesType
+    extends NPDatabaseQueryType<OffsetDateTime, Long>,
+    NPDatabaseQueriesMaintenanceType
+  {
+
+  }
 }

@@ -22,7 +22,7 @@ package com.io7m.northpike.tools.api;
  */
 
 public sealed interface NPToolEventType
-  permits NPToolEventTaskType
+  permits NPToolEventTaskType, NPToolProcessOutput
 {
 
 }

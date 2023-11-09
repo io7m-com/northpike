@@ -17,10 +17,9 @@
 
 package com.io7m.northpike.tests.server.agents;
 
-import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.protocol.agent.NPACommandCDisconnect;
 import com.io7m.northpike.server.internal.agents.NPACmdDisconnect;
@@ -116,8 +115,6 @@ public final class NPACmdDisconnectTest
     final var command =
       new NPACommandCDisconnect(UUID.randomUUID());
 
-    final var key =
-      NPKey.generate();
     final var agentId =
       NPAgentID.of("ab27f114-6b29-5ab2-a528-b41ef98abe76");
 

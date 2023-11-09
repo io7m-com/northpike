@@ -28,6 +28,7 @@ import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tools.api.NPToolEventType;
 import com.io7m.northpike.tools.api.NPToolException;
+import com.io7m.northpike.tools.api.NPToolProcessOutput;
 import com.io7m.northpike.tools.api.NPToolProgramResult;
 import com.io7m.northpike.tools.api.NPToolTaskCompletedFailure;
 import com.io7m.northpike.tools.api.NPToolTaskCompletedSuccessfully;
@@ -72,12 +73,15 @@ public final class NPTM3 implements NPToolType
     LoggerFactory.getLogger(NPTM3.class);
 
   private static final Map<RDottedName, List<String>> DEFAULT_EXECUTIONS;
+
   private static final String DEFAULT_HOST =
-    "dlcdn.apache.org";
+    "repo1.maven.org";
+
   private static final String BINARIES_URL =
-    "%s://%s/maven/maven-3/%s/binaries/apache-maven-%s-bin.tar.gz";
+    "%s://%s/maven2/org/apache/maven/apache-maven/%s/apache-maven-%s-bin.tar.gz";
   private static final String BINARIES_CHECKSUM_URL =
-    "%s://%s/maven/maven-3/%s/binaries/apache-maven-%s-bin.tar.gz.sha512";
+    "%s://%s/maven2/org/apache/maven/apache-maven/%s/apache-maven-%s-bin.tar.gz.sha512";
+
   private static final String DIRECTORY_NAME =
     "apache-maven-%s";
   private static final String ARCHIVE_FILE_NAME =
@@ -231,7 +235,7 @@ public final class NPTM3 implements NPToolType
     LOG.debug("Download {}", fileTarget);
     LOG.debug("Checksum {}", checksumTarget);
 
-    this.createTask(NPStringConstantApplied.applied(DOWNLOADING, BINARIES_URL));
+    this.createTask(NPStringConstantApplied.applied(DOWNLOADING, fileTarget));
 
     final JDownloadRequestType request;
     try {
@@ -321,10 +325,12 @@ public final class NPTM3 implements NPToolType
   @Override
   public NPToolProgramResult execute(
     final Path executionDirectory,
+    final Map<String, String> environment,
     final List<String> arguments)
     throws NPToolException, InterruptedException
   {
     Objects.requireNonNull(executionDirectory, "executionDirectory");
+    Objects.requireNonNull(environment, "environment");
     Objects.requireNonNull(arguments, "arguments");
 
     final var execution = new ArrayList<String>();
@@ -335,7 +341,13 @@ public final class NPTM3 implements NPToolType
       LOG,
       this.strings,
       executionDirectory,
-      execution
+      environment,
+      execution,
+      (processName, processId, text) -> {
+        this.events.submit(
+          new NPToolProcessOutput(processName, processId, text)
+        );
+      }
     );
   }
 

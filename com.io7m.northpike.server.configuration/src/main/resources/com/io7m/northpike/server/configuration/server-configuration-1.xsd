@@ -543,6 +543,17 @@
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
+
+      <xsd:attribute name="AgentLoginRecordsMaximumAge"
+                     type="xsd:duration"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The maximum age allowed for agent login records. Log records
+            older than the current time minus this duration will be deleted.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
     </xsd:complexType>
   </xsd:element>
 

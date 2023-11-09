@@ -17,6 +17,8 @@
 
 package com.io7m.northpike.model;
 
+import com.io7m.northpike.model.agents.NPAgentID;
+
 import java.util.Objects;
 import java.util.UUID;
 

@@ -18,9 +18,9 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
-import com.io7m.northpike.model.NPAgentDescription;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
 import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
@@ -81,7 +81,7 @@ public final class NPUCmdAgentPut
           savedAgent = new NPAgentDescription(
             givenAgent.id(),
             givenAgent.name(),
-            givenAgent.accessKey(),
+            givenAgent.publicKey(),
             existingAgent.environmentVariables(),
             existingAgent.systemProperties(),
             givenAgent.labels()
@@ -90,7 +90,7 @@ public final class NPUCmdAgentPut
           savedAgent = new NPAgentDescription(
             givenAgent.id(),
             givenAgent.name(),
-            givenAgent.accessKey(),
+            givenAgent.publicKey(),
             Map.of(),
             Map.of(),
             givenAgent.labels()

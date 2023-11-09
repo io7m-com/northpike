@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.shell.internal;
 
+import com.io7m.northpike.shell.commons.NPShellCmdAbstract;
 import com.io7m.quarrel.core.QCommandContextType;
 import com.io7m.quarrel.core.QCommandHelpFormatting;
 import com.io7m.quarrel.core.QCommandMetadata;

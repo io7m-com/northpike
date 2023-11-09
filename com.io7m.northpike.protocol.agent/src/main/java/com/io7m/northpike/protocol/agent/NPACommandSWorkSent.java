@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.protocol.agent;
 
-import com.io7m.northpike.model.NPAgentWorkItem;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
 
 import java.util.Objects;
 import java.util.UUID;

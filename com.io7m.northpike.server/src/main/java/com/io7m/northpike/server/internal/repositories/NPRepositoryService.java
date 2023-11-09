@@ -163,16 +163,13 @@ public final class NPRepositoryService
       NPServerResources.createResources();
 
     final var mainExecutor =
-      Executors.newSingleThreadExecutor(runnable -> {
-        final var thread = new Thread(runnable);
-        thread.setName(
-          "com.io7m.server.repository.service[%d]"
-            .formatted(Long.valueOf(thread.getId()))
-        );
-        return thread;
-      });
-
-    resources.add(mainExecutor::shutdown);
+      resources.add(
+        Executors.newThreadPerTaskExecutor(
+          Thread.ofVirtual()
+            .name("com.io7m.northpike.repository-", 0L)
+            .factory()
+        )
+      );
 
     return new NPRepositoryService(
       services,

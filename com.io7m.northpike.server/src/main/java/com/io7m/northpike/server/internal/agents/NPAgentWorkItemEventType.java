@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.server.internal.agents;
 
-import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.agents.NPAgentID;
 
 /**
  * The subset of agent events that are work item events.

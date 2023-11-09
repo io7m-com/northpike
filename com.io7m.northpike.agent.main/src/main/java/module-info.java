@@ -14,8 +14,10 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
+
 /**
- * Continuous integration (Agent [Main])
+ * Continuous integration (Agent main application)
  */
 
 module com.io7m.northpike.agent.main
@@ -25,14 +27,20 @@ module com.io7m.northpike.agent.main
 
   requires com.io7m.northpike.agent.api;
   requires com.io7m.northpike.agent.configuration;
+  requires com.io7m.northpike.agent.console_client;
+  requires com.io7m.northpike.agent.database.api;
+  requires com.io7m.northpike.agent.database.sqlite;
+  requires com.io7m.northpike.agent.shell;
   requires com.io7m.northpike.agent;
   requires com.io7m.northpike.strings;
+  requires com.io7m.northpike.telemetry.api;
 
-  requires com.io7m.canonmill.core;
-  requires com.io7m.anethum.slf4j;
   requires com.io7m.anethum.api;
+  requires com.io7m.anethum.slf4j;
   requires com.io7m.quarrel.core;
-  requires com.io7m.quarrel.ext.logback;
+  requires org.slf4j;
+
+  uses NPTelemetryServiceFactoryType;
 
   exports com.io7m.northpike.agent.main;
 }

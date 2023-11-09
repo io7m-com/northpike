@@ -29,14 +29,14 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Optional;
 
-import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
+import static com.io7m.northpike.model.tls.NPTLSDisabled.TLS_DISABLED;
 import static com.io7m.quarrel.core.QCommandStatus.SUCCESS;
 
 /**
  * "login"
  */
 
-public final class NPShellCmdLogin extends NPShellCmdAbstract
+public final class NPShellCmdLogin extends NPShellCmdAbstractU
 {
   private static final QParameterNamed1<String> SERVER =
     new QParameterNamed1<>(

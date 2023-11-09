@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
@@ -81,6 +82,7 @@ public final class NPUserTask
   private final NPTelemetryServiceType telemetry;
   private final HashMap<String, String> attributes;
   private final HashMap<Class<?>, Object> properties;
+  private final AtomicBoolean closed;
   private UUID userId;
   private NPUMessageType messageCurrent;
 
@@ -120,6 +122,8 @@ public final class NPUserTask
       new HashMap<>();
     this.properties =
       new HashMap<>();
+    this.closed =
+      new AtomicBoolean(false);
   }
 
   /**
@@ -189,15 +193,18 @@ public final class NPUserTask
   public void close()
     throws IOException
   {
-    if (!this.isClosed()) {
-      this.events.emit(
-        new NPUserDisconnected(
-          this.connection.remoteAddress().getAddress(),
-          this.connection.remoteAddress().getPort(),
-          Optional.ofNullable(this.userId)
-        )
-      );
-      this.connection.close();
+    if (this.closed.compareAndSet(false, true)) {
+      try {
+        this.events.emit(
+          new NPUserDisconnected(
+            this.connection.remoteAddress().getAddress(),
+            this.connection.remoteAddress().getPort(),
+            Optional.ofNullable(this.userId)
+          )
+        );
+      } finally {
+        this.connection.close();
+      }
     }
   }
 
@@ -392,7 +399,8 @@ public final class NPUserTask
           this.messageCurrent.messageID(),
           errorCode,
           this.strings.format(message),
-          this.attributes
+          this.attributes,
+          exception.remediatingAction()
         )
       );
     } catch (final Exception e) {

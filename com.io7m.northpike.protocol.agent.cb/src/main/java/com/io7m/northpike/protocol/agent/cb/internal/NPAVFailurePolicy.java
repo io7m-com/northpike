@@ -45,37 +45,23 @@ public enum NPAVFailurePolicy
   public NPA1FailurePolicy convertToWire(
     final NPFailurePolicyType message)
   {
-    if (message instanceof NPFailureFail) {
-      return new NPA1FailurePolicy.Fail();
-    }
-    if (message instanceof NPFailureIgnore) {
-      return new NPA1FailurePolicy.Ignore();
-    }
-    if (message instanceof final NPFailureRetry retry) {
-      return new NPA1FailurePolicy.Retry(unsigned32(retry.retryCount()));
-    }
-    throw new IllegalStateException(
-      "Unrecognized message: %s".formatted(message)
-    );
+    return switch (message) {
+      case final NPFailureFail f -> new NPA1FailurePolicy.Fail();
+      case final NPFailureIgnore i -> new NPA1FailurePolicy.Ignore();
+      case final NPFailureRetry retry ->
+        new NPA1FailurePolicy.Retry(unsigned32(retry.retryCount()));
+    };
   }
 
   @Override
   public NPFailurePolicyType convertFromWire(
     final NPA1FailurePolicy message)
   {
-    if (message instanceof NPA1FailurePolicy.Fail) {
-      return FAIL;
-    }
-    if (message instanceof NPA1FailurePolicy.Ignore) {
-      return IGNORE_FAILURE;
-    }
-    if (message instanceof final NPA1FailurePolicy.Retry retry) {
-      return new NPFailureRetry(
-        (int) retry.fieldRetryCount().value()
-      );
-    }
-    throw new IllegalStateException(
-      "Unrecognized message: %s".formatted(message)
-    );
+    return switch (message) {
+      case final NPA1FailurePolicy.Fail fail -> FAIL;
+      case final NPA1FailurePolicy.Ignore ignore -> IGNORE_FAILURE;
+      case final NPA1FailurePolicy.Retry retry ->
+        new NPFailureRetry((int) retry.fieldRetryCount().value());
+    };
   }
 }

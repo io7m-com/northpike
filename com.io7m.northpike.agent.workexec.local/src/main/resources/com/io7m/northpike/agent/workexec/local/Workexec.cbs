@@ -1,0 +1,66 @@
+;
+; Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+;
+; Permission to use, copy, modify, and/or distribute this software for any
+; purpose with or without fee is hereby granted, provided that the above
+; copyright notice and this permission notice appear in all copies.
+;
+; THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+; WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+; MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+; SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+; WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+; ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+; IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+;
+
+[language cedarbridge 1 0]
+
+[package com.io7m.northpike.agent.workexec.local.cb]
+
+[import com.io7m.cedarbridge cb]
+[import com.io7m.cedarbridge.time ct]
+
+[record NWEHeader
+  [field magic cb:IntegerUnsigned32]
+  [field version cb:IntegerUnsigned32]
+]
+
+[record NWEStackTraceElement
+  [field classLoader    cb:String]
+  [field moduleName     cb:String]
+  [field moduleVersion  cb:String]
+  [field declaringClass cb:String]
+  [field methodName     cb:String]
+  [field fileName       cb:String]
+  [field lineNumber     cb:IntegerUnsigned32]
+]
+
+[record NWEException
+  [field className  cb:String]
+  [field message    cb:String]
+  [field attributes [cb:Map cb:String cb:String]]
+  [field cause      [cb:Option NWEException]]
+  [field suppressed [cb:List NWEException]]
+  [field stackTrace [cb:List NWEStackTraceElement]]
+]
+
+[record NWEOutput
+  [documentation timestamp "The timestamp"]
+  [field timestamp ct:OffsetDateTime]
+  [documentation attributes "The attributes"]
+  [field attributes [cb:Map cb:String cb:String]]
+  [documentation output "The line of output"]
+  [field output cb:String]
+  [documentation exception "The associated exception, if any"]
+  [field exception [cb:Option NWEException]]
+]
+
+[documentation NWE "The workexec protocol."]
+[protocol NWE
+  [version 1
+    [types-added
+      NWEOutput
+    ]
+  ]
+]

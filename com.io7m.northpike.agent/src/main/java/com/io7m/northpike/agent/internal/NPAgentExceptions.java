@@ -18,11 +18,13 @@
 package com.io7m.northpike.agent.internal;
 
 import com.io7m.northpike.agent.api.NPAgentException;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.strings.NPStrings;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,14 +37,23 @@ import static com.io7m.northpike.strings.NPStringConstants.RECEIVED;
  * Functions to handle agent exceptions.
  */
 
-final class NPAgentExceptions
+public final class NPAgentExceptions
 {
   private NPAgentExceptions()
   {
 
   }
 
-  static NPAgentException errorIO(
+  /**
+   * Wrap an exception.
+   *
+   * @param strings String resources
+   * @param e       The exception
+   *
+   * @return An exception
+   */
+
+  public static NPAgentException errorIO(
     final NPStrings strings,
     final IOException e)
   {
@@ -55,7 +66,15 @@ final class NPAgentExceptions
     );
   }
 
-  static NPAgentException errorProtocol(
+  /**
+   * Wrap an exception.
+   *
+   * @param e The exception
+   *
+   * @return An exception
+   */
+
+  public static NPAgentException errorProtocol(
     final NPProtocolException e)
   {
     return new NPAgentException(
@@ -67,7 +86,17 @@ final class NPAgentExceptions
     );
   }
 
-  static NPAgentException errorUnexpectedMessage(
+  /**
+   * Wrap an exception.
+   *
+   * @param strings  String resources
+   * @param expected The expected value
+   * @param received The received value
+   *
+   * @return An exception
+   */
+
+  public static NPAgentException errorUnexpectedMessage(
     final NPStrings strings,
     final Class<?> expected,
     final Object received)
@@ -85,6 +114,26 @@ final class NPAgentExceptions
           received.getClass().getSimpleName()
         )
       ),
+      Optional.empty()
+    );
+  }
+
+  /**
+   * Wrap an exception.
+   *
+   * @param e The exception
+   *
+   * @return An exception
+   */
+
+  public static NPException errorSecurity(
+    final GeneralSecurityException e)
+  {
+    return new NPAgentException(
+      e.getMessage(),
+      e,
+      NPStandardErrorCodes.errorIo(),
+      Map.of(),
       Optional.empty()
     );
   }

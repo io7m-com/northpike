@@ -23,8 +23,14 @@ module com.io7m.northpike.tls
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
+  requires com.io7m.northpike.model;
+  requires com.io7m.northpike.strings;
+  requires com.io7m.northpike.telemetry.api;
+
   requires com.io7m.blackthorne.core;
   requires com.io7m.jxe.core;
+  requires com.io7m.repetoir.core;
+  requires io.opentelemetry.context;
   requires org.slf4j;
 
   exports com.io7m.northpike.tls;

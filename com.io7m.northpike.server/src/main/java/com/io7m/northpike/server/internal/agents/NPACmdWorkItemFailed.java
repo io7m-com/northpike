@@ -28,7 +28,7 @@ import static com.io7m.northpike.model.NPWorkItemStatus.WORK_ITEM_FAILED;
  */
 
 public final class NPACmdWorkItemFailed
-  implements NPAgentCommandExecutorType<NPAResponseOK, NPACommandCWorkItemFailed>
+  extends NPACmdAbstract<NPAResponseOK, NPACommandCWorkItemFailed>
 {
   /**
    * @see NPACommandCWorkItemFailed
@@ -36,7 +36,7 @@ public final class NPACmdWorkItemFailed
 
   public NPACmdWorkItemFailed()
   {
-
+    super(NPACommandCWorkItemFailed.class);
   }
 
   @Override

@@ -21,10 +21,48 @@
 [import com.io7m.cedarbridge cb]
 [import com.io7m.cedarbridge.time ct]
 
-[documentation NPA1Key "A shared secret key."]
-[record NPA1Key
-  [documentation value "The key data."]
+[record NPA1StackTraceElement
+  [field classLoader cb:String]
+  [field moduleName cb:String]
+  [field moduleVersion cb:String]
+  [field declaringClass cb:String]
+  [field methodName cb:String]
+  [field fileName cb:String]
+  [field lineNumber cb:IntegerUnsigned32]
+]
+
+[record NPA1Exception
+  [field className cb:String]
+  [field message cb:String]
+  [field attributes [cb:Map cb:String cb:String]]
+  [field cause [cb:Option NPA1Exception]]
+  [field suppressed [cb:List NPA1Exception]]
+  [field stackTrace [cb:List NPA1StackTraceElement]]
+]
+
+[documentation NPA1PublicKey "A public key."]
+[variant NPA1PublicKey
+  [documentation Ed448 "An Ed448 key."]
+  [case Ed448
+    [documentation value "The key data."]
+    [field value cb:ByteArray]
+  ]
+]
+
+[documentation NPA1LoginChallenge "A login challenge."]
+[record NPA1LoginChallenge
+  [documentation id "The challenge ID."]
+  [field id cb:UUID]
+  [documentation value "The challenge data."]
   [field value cb:ByteArray]
+]
+
+[documentation NPA1LoginChallengeCompletion "A login challenge completion."]
+[record NPA1LoginChallengeCompletion
+  [documentation id "The challenge ID."]
+  [field id cb:UUID]
+  [documentation signature "The signature data."]
+  [field signature cb:ByteArray]
 ]
 
 [documentation NPA1WorkItemIdentifier "A work item identifier."]
@@ -70,6 +108,20 @@
   [case Retry [field retryCount cb:IntegerUnsigned32]]
 ]
 
+[documentation NPA1CleanPolicy "A workspace clean policy."]
+[variant NPA1CleanPolicy
+  [case CleanLater]
+  [case CleanImmediately]
+]
+
+[documentation NPA1ArchiveLinks "A link to an archive as input to a work item."]
+[record NPA1ArchiveLinks
+  [documentation fileURI "The file URI"]
+  [field fileURI cb:URI]
+  [documentation checksumURI "The checksum URI"]
+  [field checksumURI cb:URI]
+]
+
 [documentation NPA1AgentWorkItem "A work item."]
 [record NPA1AgentWorkItem
   [documentation identifier "The work item identifier"]
@@ -80,10 +132,14 @@
   [field toolsRequired [cb:List NPA1ToolReference]]
   [documentation toolExecution "The tool execution"]
   [field toolExecution NPA1ToolExecutionEvaluated]
+  [documentation archiveLinks "The links to the archive used as input."]
+  [field archiveLinks NPA1ArchiveLinks]
   [documentation lockResources "The set of resources that must be locked"]
   [field lockResources [cb:List cb:String]]
   [documentation failurePolicy "The failure policy"]
   [field failurePolicy NPA1FailurePolicy]
+  [documentation cleanPolicy "The cleaning policy"]
+  [field cleanPolicy NPA1CleanPolicy]
 ]
 
 ;
@@ -94,8 +150,16 @@
 [record NPA1CommandCLogin
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
-  [documentation key "The key."]
-  [field key NPA1Key]
+  [documentation key "The public key."]
+  [field key NPA1PublicKey]
+]
+
+[documentation NPA1CommandCLoginComplete "A request to complete logging in."]
+[record NPA1CommandCLoginComplete
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation completion "The challenge completion."]
+  [field completion NPA1LoginChallengeCompletion]
 ]
 
 [documentation NPA1CommandCEnvironmentInfo "A command to supply environment information."]
@@ -142,10 +206,16 @@
 [record NPA1CommandCWorkItemOutput
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
+  [documentation timestamp "The timestamp"]
+  [field timestamp ct:OffsetDateTime]
   [documentation workItem "The work item identifier"]
   [field workItem NPA1WorkItemIdentifier]
+  [documentation attributes "The attributes"]
+  [field attributes [cb:Map cb:String cb:String]]
   [documentation output "The line of output"]
   [field output cb:String]
+  [documentation exception "The associated exception, if any."]
+  [field exception [cb:Option NPA1Exception]]
 ]
 
 [documentation NPA1CommandSLatencyCheck "A command to request latency information."]
@@ -179,6 +249,16 @@
 ;
 ; Responses
 ;
+
+[documentation NPA1ResponseLoginChallenge "A login challenge response."]
+[record NPA1ResponseLoginChallenge
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation challenge "The challenge."]
+  [field challenge NPA1LoginChallenge]
+]
 
 [documentation NPA1ResponseOK "A generic confirmation response."]
 [record NPA1ResponseOK
@@ -245,6 +325,7 @@
       NPA1CommandCDisconnect
       NPA1CommandCEnvironmentInfo
       NPA1CommandCLogin
+      NPA1CommandCLoginComplete
       NPA1CommandCWorkItemFailed
       NPA1CommandCWorkItemOutput
       NPA1CommandCWorkItemStarted
@@ -254,6 +335,7 @@
       NPA1CommandSWorkSent
       NPA1ResponseError
       NPA1ResponseLatencyCheck
+      NPA1ResponseLoginChallenge
       NPA1ResponseOK
       NPA1ResponseWorkOffered
       NPA1ResponseWorkSent

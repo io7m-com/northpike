@@ -104,7 +104,9 @@ public final class NPEventService implements NPEventServiceType
         })
       .emit();
 
-    this.events.submit(event);
+    if (!this.events.isClosed()) {
+      this.events.submit(event);
+    }
   }
 
   @Override

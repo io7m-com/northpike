@@ -74,6 +74,21 @@ public enum NPSecObject
   },
 
   /**
+   * The agent login challenges.
+   */
+
+  AGENT_LOGIN_CHALLENGES {
+    private static final MObject AGENT_LOGIN_CHALLENGES_OBJECT =
+      new MObject(MTypeName.of("agent_login_challenges"), Map.of());
+
+    @Override
+    public MObject object()
+    {
+      return AGENT_LOGIN_CHALLENGES_OBJECT;
+    }
+  },
+
+  /**
    * The plans.
    */
 

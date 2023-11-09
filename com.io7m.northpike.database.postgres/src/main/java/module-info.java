@@ -33,7 +33,12 @@ module com.io7m.northpike.database.postgres
   requires com.io7m.northpike.strings;
 
   requires com.io7m.anethum.api;
+  requires com.io7m.cedarbridge.runtime.api;
+  requires com.io7m.cedarbridge.runtime.bssio;
+  requires com.io7m.cedarbridge.runtime.convenience;
   requires com.io7m.jaffirm.core;
+  requires com.io7m.jbssio.api;
+  requires com.io7m.jbssio.vanilla;
   requires com.io7m.jmulticlose.core;
   requires com.io7m.jqpage.core;
   requires com.io7m.trasco.api;
@@ -62,6 +67,10 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelGet,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelPut,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelSearch,
+    com.io7m.northpike.database.postgres.internal.NPDBQAgentLoginChallengeDelete,
+    com.io7m.northpike.database.postgres.internal.NPDBQAgentLoginChallengeGet,
+    com.io7m.northpike.database.postgres.internal.NPDBQAgentLoginChallengePut,
+    com.io7m.northpike.database.postgres.internal.NPDBQAgentLoginChallengeSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentPut,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQArchiveGet,
@@ -83,6 +92,7 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQMaintenanceDeleteExpiredArchives,
     com.io7m.northpike.database.postgres.internal.NPDBQMaintenanceDeleteExpiredAssignmentExecutions,
     com.io7m.northpike.database.postgres.internal.NPDBQMaintenanceDeleteExpiredAudit,
+    com.io7m.northpike.database.postgres.internal.NPDBQMaintenanceDeleteExpiredLoginChallenges,
     com.io7m.northpike.database.postgres.internal.NPDBQMaintenanceUpdateUserRoles,
     com.io7m.northpike.database.postgres.internal.NPDBQPlanDelete,
     com.io7m.northpike.database.postgres.internal.NPDBQPlanGet,

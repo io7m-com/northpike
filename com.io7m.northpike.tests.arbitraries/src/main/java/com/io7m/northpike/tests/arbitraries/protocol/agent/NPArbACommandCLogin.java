@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.agent;
 
-import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
 import com.io7m.northpike.protocol.agent.NPACommandCLogin;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
@@ -34,7 +34,7 @@ public final class NPArbACommandCLogin extends NPArbAbstract<NPACommandCLogin>
       () -> {
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
-          Arbitraries.defaultFor(NPKey.class)
+          Arbitraries.defaultFor(NPAgentKeyPublicType.class)
         ).as(NPACommandCLogin::new);
       }
     );

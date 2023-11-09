@@ -18,13 +18,17 @@
 package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyID;
 import com.io7m.northpike.strings.NPStringConstantType;
+import com.io7m.repetoir.core.RPServiceDirectoryType;
+
+import java.util.Optional;
 
 /**
  * The context used for command execution.
@@ -33,6 +37,12 @@ import com.io7m.northpike.strings.NPStringConstantType;
 public interface NPAgentCommandContextType
   extends NPAgentAccessType
 {
+  /**
+   * @return The service directory
+   */
+
+  RPServiceDirectoryType services();
+
   /**
    * Signal that the current command execution requires authentication, and
    * raise an exception if not currently authenticated.
@@ -52,6 +62,17 @@ public interface NPAgentCommandContextType
    */
 
   void onAuthenticationComplete(NPAgentDescription agent);
+
+  /**
+   * Indicate that authentication failed.
+   *
+   * @param keyID   The key ID, if any
+   * @param message The message
+   */
+
+  void onAuthenticationFailed(
+    Optional<NPAgentKeyID> keyID,
+    NPStringConstantType message);
 
   /**
    * Fail with an error.
@@ -104,4 +125,10 @@ public interface NPAgentCommandContextType
   void onWorkItemAccepted(
     NPWorkItemIdentifier identifier)
     throws NPException;
+
+  /**
+   * @return The address of the remote peer
+   */
+
+  String sourceAddress();
 }

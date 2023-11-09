@@ -38,7 +38,7 @@ import java.time.Duration;
 import java.util.Locale;
 import java.util.Optional;
 
-import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
+import static com.io7m.northpike.model.tls.NPTLSDisabled.TLS_DISABLED;
 
 /**
  * Fake server configurations for tests.
@@ -103,6 +103,7 @@ public final class NPServerConfigurations
       ),
       new NPServerMaintenanceConfiguration(
         Optional.empty(),
+        Duration.ofDays(1L),
         Duration.ofDays(1L),
         Duration.ofDays(1L),
         Duration.ofDays(1L)

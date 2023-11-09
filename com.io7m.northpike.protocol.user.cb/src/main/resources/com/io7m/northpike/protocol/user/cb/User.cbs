@@ -21,6 +21,15 @@
 [import com.io7m.cedarbridge cb]
 [import com.io7m.cedarbridge.time ct]
 
+[documentation NPU1PublicKey "A public key."]
+[variant NPU1PublicKey
+  [documentation Ed448 "An Ed448 key."]
+  [case Ed448
+    [documentation value "The key data."]
+    [field value cb:ByteArray]
+  ]
+]
+
 [variant NPU1ComparisonExact
   [parameter T]
   [case Anything]
@@ -256,8 +265,8 @@
   [field id cb:UUID]
   [documentation name "The agent name."]
   [field name cb:String]
-  [documentation accessKey "The agent access key."]
-  [field accessKey cb:String]
+  [documentation publicKey "The agent public key."]
+  [field publicKey NPU1PublicKey]
   [documentation environmentVariables "The agent environment."]
   [field environmentVariables [cb:Map cb:String cb:String]]
   [documentation systemProperties "The agent system properties."]
@@ -505,6 +514,28 @@
   [field name [NPU1ComparisonFuzzy cb:String]]
   [documentation roles "The roles match expression."]
   [field roles [NPU1ComparisonSet cb:String]]
+]
+
+[documentation NPU1AgentLoginChallengeSearchParameters "The login challenge search parameters."]
+[record NPU1AgentLoginChallengeSearchParameters
+  [documentation timeRange "Limit to records in the given time range."]
+  [field timeRange NPU1TimeRange]
+  [documentation pageSize "The page size."]
+  [field pageSize cb:IntegerUnsigned32]
+]
+
+[documentation NPU1AgentLoginChallenge "A login challenge."]
+[record NPU1AgentLoginChallenge
+  [field id cb:UUID]
+  [field data cb:ByteArray]
+]
+
+[documentation NPU1AgentLoginChallengeRecord "A login challenge record."]
+[record NPU1AgentLoginChallengeRecord
+  [field timeCreated ct:OffsetDateTime]
+  [field sourceAddress cb:String]
+  [field key NPU1PublicKey]
+  [field challenge NPU1AgentLoginChallenge]
 ]
 
 ;
@@ -865,6 +896,46 @@
   [field messageId cb:UUID]
 ]
 
+[documentation NPU1CommandAgentLoginChallengeSearchBegin "List login challenge records."]
+[record NPU1CommandAgentLoginChallengeSearchBegin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation parameters "The search parameters."]
+  [field parameters NPU1AgentLoginChallengeSearchParameters]
+]
+
+[documentation NPU1CommandAgentLoginChallengeSearchNext "Continue searching login challenge records."]
+[record NPU1CommandAgentLoginChallengeSearchNext
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandAgentLoginChallengeSearchPrevious "Continue searching login challenge records."]
+[record NPU1CommandAgentLoginChallengeSearchPrevious
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandAgentLoginChallengeDelete "Delete agent login challenges."]
+[record NPU1CommandAgentLoginChallengeDelete
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation challenges "The login challenges"]
+  [field challenges [cb:List cb:UUID]]
+]
+
+[documentation NPU1CommandAgentLoginChallengeAgentCreate "Convert a login challenge to a new agent."]
+[record NPU1CommandAgentLoginChallengeAgentCreate
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation challenge "The login challenge"]
+  [field challenge cb:UUID]
+  [documentation agentId "The new agent ID"]
+  [field agentId cb:UUID]
+  [documentation agentName "The new agent name"]
+  [field agentName cb:String]
+]
+
 ;
 ; Assignments
 ;
@@ -1061,6 +1132,8 @@
   [field message cb:String]
   [documentation attributes "The error attributes."]
   [field attributes [cb:Map cb:String cb:String]]
+  [documentation remediatingAction "A possible remediating action."]
+  [field remediatingAction [cb:Option cb:String]]
 ]
 
 [documentation NPU1ResponseRepositoryGet "A repository retrieval."]
@@ -1333,6 +1406,16 @@
   [field results [NPU1Page NPU1User]]
 ]
 
+[documentation NPU1ResponseAgentLoginChallengeSearch "A response to NPU1CommandAgentLoginChallengeSearchBegin."]
+[record NPU1ResponseAgentLoginChallengeSearch
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [NPU1Page NPU1AgentLoginChallengeRecord]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -1344,6 +1427,11 @@
       NPU1CommandAgentLabelSearchBegin
       NPU1CommandAgentLabelSearchNext
       NPU1CommandAgentLabelSearchPrevious
+      NPU1CommandAgentLoginChallengeAgentCreate
+      NPU1CommandAgentLoginChallengeDelete
+      NPU1CommandAgentLoginChallengeSearchBegin
+      NPU1CommandAgentLoginChallengeSearchNext
+      NPU1CommandAgentLoginChallengeSearchPrevious
       NPU1CommandAgentPut
       NPU1CommandAgentSearchBegin
       NPU1CommandAgentSearchNext
@@ -1405,6 +1493,7 @@
       NPU1ResponseAgentGet
       NPU1ResponseAgentLabelGet
       NPU1ResponseAgentLabelSearch
+      NPU1ResponseAgentLoginChallengeSearch
       NPU1ResponseAgentSearch
       NPU1ResponseAgentWorkItems
       NPU1ResponseAgentsConnected

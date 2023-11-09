@@ -48,12 +48,12 @@ import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.server.internal.events.NPEventService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
-import com.io7m.northpike.server.internal.telemetry.NPTelemetryNoOp;
-import com.io7m.northpike.server.internal.tls.NPTLSContextServiceType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
+import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tests.NPEventInterceptingService;
+import com.io7m.northpike.tls.NPTLSContextServiceType;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
@@ -82,7 +82,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
+import static com.io7m.northpike.model.tls.NPTLSDisabled.TLS_DISABLED;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -109,6 +109,7 @@ public final class NPArchiveServiceTest
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private NPTLSContextServiceType tls;
+  private String hostName;
 
   @BeforeEach
   public void setup(
@@ -117,6 +118,10 @@ public final class NPArchiveServiceTest
     final @TempDir Path archiveDirectory)
     throws Exception
   {
+    this.hostName =
+      InetAddress.getLocalHost()
+        .getHostName();
+
     this.services =
       new RPServiceDirectory();
     this.clock =
@@ -218,6 +223,7 @@ public final class NPArchiveServiceTest
             Optional.empty(),
             Duration.ofDays(1L),
             Duration.ofDays(1L),
+            Duration.ofDays(1L),
             Duration.ofDays(1L)
           ),
           Optional.empty()
@@ -261,7 +267,8 @@ public final class NPArchiveServiceTest
       HttpClient.newHttpClient();
     final var request =
       HttpRequest.newBuilder(URI.create(
-          "http://localhost:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"))
+          "http://%s:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"
+            .formatted(this.hostName)))
         .build();
     final var response =
       client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -311,7 +318,8 @@ public final class NPArchiveServiceTest
       HttpClient.newHttpClient();
     final var request =
       HttpRequest.newBuilder(URI.create(
-          "http://localhost:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"))
+          "http://%s:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"
+            .formatted(this.hostName)))
         .build();
     final var response =
       client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -374,7 +382,8 @@ public final class NPArchiveServiceTest
       HttpClient.newHttpClient();
     final var request =
       HttpRequest.newBuilder(URI.create(
-          "http://localhost:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"))
+          "http://%s:40001/454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1"
+            .formatted(this.hostName)))
         .build();
     final var response =
       client.send(request, HttpResponse.BodyHandlers.ofByteArray());

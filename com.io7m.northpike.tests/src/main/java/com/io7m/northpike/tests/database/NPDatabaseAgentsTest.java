@@ -23,17 +23,24 @@ import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengePutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeSearchType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabel;
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentLabelSearchParameters;
-import com.io7m.northpike.model.NPAgentSearchParameters;
-import com.io7m.northpike.model.NPAgentSummary;
-import com.io7m.northpike.model.NPKey;
 import com.io7m.northpike.model.NPStandardErrorCodes;
+import com.io7m.northpike.model.NPTimeRange;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
+import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
+import com.io7m.northpike.model.agents.NPAgentLabel;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentLabelSearchParameters;
+import com.io7m.northpike.model.agents.NPAgentLoginChallenge;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeSearchParameters;
+import com.io7m.northpike.model.agents.NPAgentSearchParameters;
+import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType.Anything;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsEqualTo;
@@ -51,10 +58,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -147,7 +155,8 @@ public final class NPDatabaseAgentsTest
       new NPAgentDescription(
         new NPAgentID(UUID.randomUUID()),
         "Agent 0",
-        NPKey.generate(SecureRandom.getInstanceStrong()),
+        Arbitraries.defaultFor(NPAgentKeyPublicType.class)
+          .sample(),
         Arbitraries.maps(
           Arbitraries.strings().alpha(),
           Arbitraries.strings().alpha()
@@ -198,7 +207,8 @@ public final class NPDatabaseAgentsTest
       new NPAgentDescription(
         new NPAgentID(UUID.randomUUID()),
         "Agent 0",
-        NPKey.generate(SecureRandom.getInstanceStrong()),
+        Arbitraries.defaultFor(NPAgentKeyPublicType.class)
+          .sample(),
         Arbitraries.maps(
           Arbitraries.strings().alpha(),
           Arbitraries.strings().alpha()
@@ -569,7 +579,7 @@ public final class NPDatabaseAgentsTest
   private static Map<NPAgentID, NPAgentDescription> generateLabelledAgents(
     final NPDatabaseQueriesAgentsType.PutType put,
     final HashMap<NPAgentLabelName, NPAgentLabel> labelsByName)
-    throws NoSuchAlgorithmException, NPDatabaseException
+    throws NPDatabaseException
   {
     final var agents = new HashMap<NPAgentID, NPAgentDescription>();
     for (int index = 0; index <= 899; ++index) {
@@ -586,7 +596,8 @@ public final class NPDatabaseAgentsTest
         new NPAgentDescription(
           new NPAgentID(UUID.randomUUID()),
           "Agent %d".formatted(Integer.valueOf(index)),
-          NPKey.generate(SecureRandom.getInstanceStrong()),
+          Arbitraries.defaultFor(NPAgentKeyPublicType.class)
+            .sample(),
           Map.of(),
           Map.of(),
           agentLabels
@@ -613,11 +624,15 @@ public final class NPDatabaseAgentsTest
     final var put =
       this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
 
+    final var key =
+      Arbitraries.defaultFor(NPAgentKeyPublicType.class)
+      .sample();
+
     final var agent =
       new NPAgentDescription(
         new NPAgentID(UUID.randomUUID()),
         "Agent 0",
-        NPKey.generate(SecureRandom.getInstanceStrong()),
+        key,
         Map.of(),
         Map.of(),
         Map.of()
@@ -626,7 +641,7 @@ public final class NPDatabaseAgentsTest
     put.execute(agent);
     this.transaction.commit();
 
-    assertEquals(agent, get.execute(agent.accessKey()).orElseThrow());
+    assertEquals(agent, get.execute(key).orElseThrow());
   }
 
   /**
@@ -648,7 +663,8 @@ public final class NPDatabaseAgentsTest
       new NPAgentDescription(
         new NPAgentID(UUID.randomUUID()),
         "Agent 0",
-        NPKey.generate(SecureRandom.getInstanceStrong()),
+        Arbitraries.defaultFor(NPAgentKeyPublicType.class)
+          .sample(),
         Map.of(),
         Map.of(),
         Map.of()
@@ -681,7 +697,8 @@ public final class NPDatabaseAgentsTest
       new NPAgentDescription(
         new NPAgentID(UUID.randomUUID()),
         "Agent 0",
-        NPKey.generate(SecureRandom.getInstanceStrong()),
+        Arbitraries.defaultFor(NPAgentKeyPublicType.class)
+          .sample(),
         Map.of(),
         Map.of(),
         Map.of()
@@ -711,8 +728,9 @@ public final class NPDatabaseAgentsTest
     final var delete =
       this.transaction.queries(NPDatabaseQueriesAgentsType.DeleteType.class);
 
-    final var key =
-      NPKey.generate(SecureRandom.getInstanceStrong());
+    final NPAgentKeyPublicType key =
+      Arbitraries.defaultFor(NPAgentKeyPublicType.class)
+        .sample();
 
     final var agent0 =
       new NPAgentDescription(
@@ -889,7 +907,8 @@ public final class NPDatabaseAgentsTest
       new NPAgentDescription(
         new NPAgentID(UUID.randomUUID()),
         "Agent 0",
-        NPKey.generate(SecureRandom.getInstanceStrong()),
+        Arbitraries.defaultFor(NPAgentKeyPublicType.class)
+          .sample(),
         Map.of(),
         Map.of(),
         byName
@@ -908,12 +927,110 @@ public final class NPDatabaseAgentsTest
       new NPAgentDescription(
         agent0.id(),
         agent0.name(),
-        agent0.accessKey(),
+        agent0.publicKey(),
         Map.of(),
         Map.of(),
         Map.of()
       );
 
     assertEquals(agent1, get.execute(agent0.id()).orElseThrow());
+  }
+
+  /**
+   * Manipulating login challenges works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentLoginChallenges()
+    throws Exception
+  {
+    final var get =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.LoginChallengeGetType.class);
+    final var put =
+      this.transaction.queries(LoginChallengePutType.class);
+    final var delete =
+      this.transaction.queries(NPDatabaseQueriesAgentsType.LoginChallengeDeleteType.class);
+
+    final var record0 =
+      new NPAgentLoginChallengeRecord(
+        OffsetDateTime.now().withNano(0),
+        "localhost",
+        new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
+        new NPAgentLoginChallenge(
+          UUID.randomUUID(),
+          "ABCDEFGH".getBytes(StandardCharsets.UTF_8)
+        )
+      );
+
+    put.execute(record0);
+    assertEquals(record0, get.execute(record0.id()).orElseThrow());
+    put.execute(record0);
+    assertEquals(record0, get.execute(record0.id()).orElseThrow());
+    delete.execute(record0.id());
+    assertEquals(Optional.empty(), get.execute(record0.id()));
+  }
+
+  /**
+   * Searching login challenges works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentLoginChallengeSearch()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(LoginChallengePutType.class);
+    final var search =
+      this.transaction.queries(LoginChallengeSearchType.class);
+
+    final var record0 =
+      new NPAgentLoginChallengeRecord(
+        OffsetDateTime.now().withNano(0),
+        "localhost",
+        new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
+        new NPAgentLoginChallenge(
+          UUID.randomUUID(),
+          "ABCDEFGH".getBytes(StandardCharsets.UTF_8)
+        )
+      );
+
+    final var record1 =
+      new NPAgentLoginChallengeRecord(
+        OffsetDateTime.now().withNano(0),
+        "localhost",
+        new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
+        new NPAgentLoginChallenge(
+          UUID.randomUUID(),
+          "ABCDEFGH".getBytes(StandardCharsets.UTF_8)
+        )
+      );
+
+    final var record2 =
+      new NPAgentLoginChallengeRecord(
+        OffsetDateTime.now().withNano(0),
+        "localhost",
+        new NPAgentKeyPairFactoryEd448().generateKeyPair().publicKey(),
+        new NPAgentLoginChallenge(
+          UUID.randomUUID(),
+          "ABCDEFGH".getBytes(StandardCharsets.UTF_8)
+        )
+      );
+
+    put.execute(record0);
+    put.execute(record1);
+    put.execute(record2);
+
+    final var pages =
+    search.execute(new NPAgentLoginChallengeSearchParameters(
+      new NPTimeRange(record0.timeCreated(), record2.timeCreated()),
+      1000L
+    ));
+
+    final var p = pages.pageCurrent(this.transaction);
+    assertEquals(p.items(), List.of(record0, record1, record2));
   }
 }

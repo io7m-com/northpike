@@ -26,8 +26,8 @@ module com.io7m.northpike.shell
   requires com.io7m.northpike.keys;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.protocol.user;
+  requires com.io7m.northpike.shell.commons;
   requires com.io7m.northpike.strings;
-  requires com.io7m.northpike.tls;
   requires com.io7m.northpike.toolexec;
   requires com.io7m.northpike.user_client.api;
 
@@ -35,8 +35,6 @@ module com.io7m.northpike.shell
   requires com.io7m.jmulticlose.core;
   requires com.io7m.quarrel.core;
   requires com.io7m.repetoir.core;
-  requires com.io7m.tabla.core;
-  requires org.apache.commons.lang3;
   requires org.jline;
 
   exports com.io7m.northpike.shell;

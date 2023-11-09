@@ -100,7 +100,9 @@ import static com.io7m.northpike.model.security.NPSecRole.REPOSITORIES_WRITER;
 import static com.io7m.northpike.model.security.NPSecRole.TOOLS_READER;
 import static com.io7m.northpike.model.security.NPSecRole.TOOLS_WRITER;
 import static com.io7m.northpike.model.security.NPSecRole.USERS_READER;
-import static com.io7m.northpike.tls.NPTLSDisabled.TLS_DISABLED;
+import static com.io7m.northpike.model.tls.NPTLSDisabled.TLS_DISABLED;
+import static java.net.StandardSocketOptions.SO_REUSEADDR;
+import static java.net.StandardSocketOptions.SO_REUSEPORT;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -159,6 +161,19 @@ public final class NPUserClientTest
         .createServerSocket();
 
     this.socket.setReuseAddress(true);
+
+    try {
+      this.socket.setOption(SO_REUSEPORT, Boolean.TRUE);
+    } catch (final UnsupportedOperationException e) {
+      // Nothing we can do about this.
+    }
+
+    try {
+      this.socket.setOption(SO_REUSEADDR, Boolean.TRUE);
+    } catch (final UnsupportedOperationException e) {
+      // Nothing we can do about this.
+    }
+
     this.socket.bind(new InetSocketAddress("localhost", 0x4e50));
 
     this.configuration =

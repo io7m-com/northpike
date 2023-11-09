@@ -17,12 +17,14 @@
 
 package com.io7m.northpike.plans.internal;
 
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.NPCleanLater;
+import com.io7m.northpike.model.NPCleanPolicyType;
 import com.io7m.northpike.model.NPFailureFail;
 import com.io7m.northpike.model.NPFailurePolicyType;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.plans.NPPlanBarrierBuilderType;
 import com.io7m.northpike.model.plans.NPPlanBarrierType;
@@ -353,6 +355,7 @@ public final class NPPlanBuilder
     private Optional<NPPlanElementName> sameAgentAs;
     private Optional<Duration> agentSelectionTimeout;
     private Optional<Duration> executionTimeout;
+    private NPCleanPolicyType cleanPolicy;
 
     NPPlanTaskBuilder(
       final NPPlanBuilder inBuilder,
@@ -367,6 +370,7 @@ public final class NPPlanBuilder
       this.agentSelectionTimeout = Optional.empty();
       this.executionTimeout = Optional.empty();
       this.failurePolicy = NPFailureFail.FAIL;
+      this.cleanPolicy = NPCleanLater.CLEAN_LATER;
     }
 
     @Override
@@ -401,7 +405,8 @@ public final class NPPlanBuilder
         this.agentSelectionTimeout,
         this.executionTimeout,
         toolReferences,
-        this.failurePolicy
+        this.failurePolicy,
+        this.cleanPolicy
       );
     }
 
@@ -509,6 +514,15 @@ public final class NPPlanBuilder
         Objects.requireNonNull(newFailurePolicy, "failurePolicy");
       return this;
     }
+
+    @Override
+    public NPPlanTaskBuilderType setCleanPolicy(
+      final NPCleanPolicyType newCleanPolicy)
+    {
+      this.cleanPolicy =
+        Objects.requireNonNull(newCleanPolicy, "cleanPolicy");
+      return this;
+    }
   }
 
   private record NPPlanTask(
@@ -523,7 +537,8 @@ public final class NPPlanBuilder
     Optional<Duration> agentSelectionTimeout,
     Optional<Duration> executionTimeout,
     Map<NPToolReferenceName, NPToolReference> toolReferences,
-    NPFailurePolicyType failurePolicy)
+    NPFailurePolicyType failurePolicy,
+    NPCleanPolicyType cleanPolicy)
     implements NPPlanTaskType
   {
     NPPlanTask
@@ -539,6 +554,7 @@ public final class NPPlanBuilder
       Objects.requireNonNull(agentSelectionTimeout, "agentSelectionTimeout");
       Objects.requireNonNull(executionTimeout, "inExecutionTimeout");
       Objects.requireNonNull(failurePolicy, "failurePolicy");
+      Objects.requireNonNull(cleanPolicy, "cleanPolicy");
     }
 
     @Override

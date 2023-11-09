@@ -16,7 +16,7 @@
 
 package com.io7m.northpike.server.internal.agents;
 
-import com.io7m.northpike.model.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
 import java.net.InetAddress;

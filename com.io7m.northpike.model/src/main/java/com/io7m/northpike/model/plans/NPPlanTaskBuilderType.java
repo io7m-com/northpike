@@ -16,9 +16,10 @@
 
 package com.io7m.northpike.model.plans;
 
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentResourceName;
+import com.io7m.northpike.model.NPCleanPolicyType;
 import com.io7m.northpike.model.NPFailurePolicyType;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentResourceName;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 
 import java.time.Duration;
@@ -197,5 +198,19 @@ public interface NPPlanTaskBuilderType
 
   NPPlanTaskBuilderType setFailurePolicy(
     NPFailurePolicyType failurePolicy)
+    throws NPPlanException;
+
+  /**
+   * Set the cleanup policy for the task.
+   *
+   * @param cleanPolicy The cleanup policy
+   *
+   * @return this
+   *
+   * @throws NPPlanException On errors
+   */
+
+  NPPlanTaskBuilderType setCleanPolicy(
+    NPCleanPolicyType cleanPolicy)
     throws NPPlanException;
 }

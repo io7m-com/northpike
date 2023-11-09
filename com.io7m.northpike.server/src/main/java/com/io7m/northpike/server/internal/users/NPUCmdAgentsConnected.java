@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
 import com.io7m.northpike.protocol.user.NPUCommandAgentsConnected;

@@ -31,6 +31,7 @@ module com.io7m.northpike.server.configuration
   requires com.io7m.blackthorne.core;
   requires com.io7m.blackthorne.jxe;
   requires com.io7m.jxe.core;
+  requires com.io7m.northpike.model;
 
   exports com.io7m.northpike.server.configuration;
 }

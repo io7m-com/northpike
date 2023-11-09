@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.agent;
 
-import com.io7m.northpike.model.NPAgentWorkItem;
+import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.protocol.agent.NPACommandSWorkSent;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;

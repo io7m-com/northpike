@@ -16,16 +16,19 @@
 
 package com.io7m.northpike.database.api;
 
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
-import com.io7m.northpike.model.NPAgentLabel;
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentLabelSearchParameters;
-import com.io7m.northpike.model.NPAgentSearchParameters;
-import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
+import com.io7m.northpike.model.agents.NPAgentLabel;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentLabelSearchParameters;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeSearchParameters;
+import com.io7m.northpike.model.agents.NPAgentSearchParameters;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * The database queries involving agents.
@@ -68,11 +71,11 @@ public sealed interface NPDatabaseQueriesAgentsType
   }
 
   /**
-   * Retrieve an agent by shared key.
+   * Retrieve an agent by public key.
    */
 
   non-sealed interface GetByKeyType
-    extends NPDatabaseQueryType<NPKey, Optional<NPAgentDescription>>,
+    extends NPDatabaseQueryType<NPAgentKeyPublicType, Optional<NPAgentDescription>>,
     NPDatabaseQueriesAgentsType
   {
 
@@ -128,6 +131,50 @@ public sealed interface NPDatabaseQueriesAgentsType
 
   non-sealed interface LabelDeleteType
     extends NPDatabaseQueryType<Set<NPAgentLabelName>, NPDatabaseUnit>,
+    NPDatabaseQueriesAgentsType
+  {
+
+  }
+
+  /**
+   * Create/update a login challenge.
+   */
+
+  non-sealed interface LoginChallengePutType
+    extends NPDatabaseQueryType<NPAgentLoginChallengeRecord, NPDatabaseUnit>,
+    NPDatabaseQueriesAgentsType
+  {
+
+  }
+
+  /**
+   * Retrieve a login challenge.
+   */
+
+  non-sealed interface LoginChallengeGetType
+    extends NPDatabaseQueryType<UUID, Optional<NPAgentLoginChallengeRecord>>,
+    NPDatabaseQueriesAgentsType
+  {
+
+  }
+
+  /**
+   * Create/update a login challenge.
+   */
+
+  non-sealed interface LoginChallengeDeleteType
+    extends NPDatabaseQueryType<UUID, NPDatabaseUnit>,
+    NPDatabaseQueriesAgentsType
+  {
+
+  }
+
+  /**
+   * Search for login challenges.
+   */
+
+  non-sealed interface LoginChallengeSearchType
+    extends NPDatabaseQueryType<NPAgentLoginChallengeSearchParameters, NPAgentLoginChallengePagedType>,
     NPDatabaseQueriesAgentsType
   {
 

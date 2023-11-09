@@ -14,48 +14,40 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
 package com.io7m.northpike.agent.api;
 
-import com.io7m.northpike.model.NPKey;
-import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
+import com.io7m.northpike.model.agents.NPAgentLocalName;
+import com.io7m.northpike.model.agents.NPAgentServerDescription;
 
-import java.net.InetAddress;
 import java.util.Objects;
 
 /**
- * The agent configuration.
+ * The configuration for an agent.
  *
- * @param strings          The string resources
- * @param remoteAddress    The remote server address
- * @param remotePort       The remote server port
- * @param accessKey        The access key for the agent
- * @param useTLS           {@code true} if TLS should be used to secure the connection
- * @param messageSizeLimit The size limit for received messages
+ * @param workExecutor The work executor configuration
+ * @param name         The local agent name
+ * @param server       The description of the server
  */
 
 public record NPAgentConfiguration(
-  NPStrings strings,
-  InetAddress remoteAddress,
-  int remotePort,
-  boolean useTLS,
-  NPKey accessKey,
-  int messageSizeLimit)
+  NPAgentLocalName name,
+  NPAWorkExecutorConfiguration workExecutor,
+  NPAgentServerDescription server)
 {
   /**
-   * The agent configuration.
+   * The configuration for an agent.
    *
-   * @param strings          The string resources
-   * @param remoteAddress    The remote server address
-   * @param remotePort       The remote server port
-   * @param accessKey        The access key for the agent
-   * @param useTLS           {@code true} if TLS should be used to secure the connection
-   * @param messageSizeLimit The size limit for received messages
+   * @param workExecutor The work executor configuration
+   * @param name         The local agent name
+   * @param server       The description of the server
    */
 
   public NPAgentConfiguration
   {
-    Objects.requireNonNull(strings, "strings");
-    Objects.requireNonNull(remoteAddress, "remoteAddress");
-    Objects.requireNonNull(accessKey, "accessKey");
+    Objects.requireNonNull(workExecutor, "workExecutor");
+    Objects.requireNonNull(name, "name");
+    Objects.requireNonNull(server, "server");
   }
 }

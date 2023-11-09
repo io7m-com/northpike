@@ -17,78 +17,294 @@
 -->
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:ac="urn:com.io7m.northpike.agent.configuration:1"
+            xmlns:c="urn:com.io7m.northpike.agent.configuration:1"
             targetNamespace="urn:com.io7m.northpike.agent.configuration:1">
 
-  <xsd:simpleType name="SharedKeyType">
+  <xsd:annotation>
+    <xsd:documentation>
+      The schema for agent configuration files.
+    </xsd:documentation>
+  </xsd:annotation>
+
+  <xsd:simpleType name="NameType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="UUIDType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="DatabaseKind">
     <xsd:annotation>
       <xsd:documentation>
-        The type of shared agent keys.
+        The kind of the target database. Currently, only SQLite is
+        supported.
       </xsd:documentation>
     </xsd:annotation>
 
     <xsd:restriction base="xsd:string">
-      <xsd:pattern value="[a-f0-9]{64}"/>
+      <xsd:enumeration value="SQLITE">
+        <xsd:annotation>
+          <xsd:documentation>
+            The database is SQLite.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
     </xsd:restriction>
   </xsd:simpleType>
 
-  <xsd:element name="Configuration">
+  <xsd:element name="Database">
     <xsd:annotation>
       <xsd:documentation>
-        The main configuration element.
+        Configuration information for the database.
       </xsd:documentation>
     </xsd:annotation>
 
     <xsd:complexType>
-      <xsd:attribute name="RemoteServer"
-                     type="xsd:string"
+      <xsd:attribute name="Kind"
+                     type="c:DatabaseKind"
+                     use="required"/>
+
+      <xsd:attribute name="File"
+                     type="xsd:anyURI"
                      use="required">
         <xsd:annotation>
           <xsd:documentation>
-            The address of the remote server.
+            The database file.
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
 
-      <xsd:attribute name="RemotePort"
-                     type="xsd:unsignedShort"
-                     use="required">
-        <xsd:annotation>
-          <xsd:documentation>
-            The port of the remote server.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-
-      <xsd:attribute name="UseTLS"
+      <xsd:attribute name="Create"
                      type="xsd:boolean"
                      use="required">
         <xsd:annotation>
           <xsd:documentation>
-            Set to true if TLS should be used to connect to the server.
+            If set to true, the database and tables will be created if they do
+            not already exist.
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
 
-      <xsd:attribute name="SharedKey"
-                     type="ac:SharedKeyType"
+      <xsd:attribute name="Upgrade"
+                     type="xsd:boolean"
                      use="required">
         <xsd:annotation>
           <xsd:documentation>
-            The shared key used to identify this agent.
+            If set to true, the database and tables will be upgraded to the
+            latest supported schema version.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:simpleType name="OpenTelemetryProtocol">
+    <xsd:annotation>
+      <xsd:documentation>
+        The protocol used to deliver OpenTelemetry data.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="GRPC">
+        <xsd:annotation>
+          <xsd:documentation>
+            The data will be sent using gRPC.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="HTTP">
+        <xsd:annotation>
+          <xsd:documentation>
+            The data will be sent using HTTP(s).
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:element name="Logs">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for OpenTelemetry logs.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Endpoint"
+                     use="required"
+                     type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>
+            The endpoint to which OTLP log data will be sent.
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
 
-      <xsd:attribute name="MessageSizeLimit"
-                     type="xsd:unsignedInt"
-                     use="optional">
+      <xsd:attribute name="Protocol"
+                     use="required"
+                     type="c:OpenTelemetryProtocol">
         <xsd:annotation>
           <xsd:documentation>
-            The optional message size limit.
+            The protocol used to send log data.
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Metrics">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for OpenTelemetry metrics.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Endpoint"
+                     use="required"
+                     type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>
+            The endpoint to which OTLP metrics data will be sent.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Protocol"
+                     use="required"
+                     type="c:OpenTelemetryProtocol">
+        <xsd:annotation>
+          <xsd:documentation>
+            The protocol used to send metrics data.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Traces">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for OpenTelemetry traces.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Endpoint"
+                     use="required"
+                     type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>
+            The endpoint to which OTLP trace data will be sent.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Protocol"
+                     use="required"
+                     type="c:OpenTelemetryProtocol">
+        <xsd:annotation>
+          <xsd:documentation>
+            The protocol used to send trace data.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="OpenTelemetry">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for OpenTelemetry.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="c:Logs"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+        <xsd:element ref="c:Metrics"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+        <xsd:element ref="c:Traces"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="LogicalServiceName"
+                     use="required"
+                     type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            The logical name of the service as it will appear in OpenTelemetry.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Console">
+    <xsd:annotation>
+      <xsd:documentation>
+        Configuration information for the console.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="Address"
+                     use="required"
+                     type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            The address to which to bind the console.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Port"
+                     use="required"
+                     type="xsd:unsignedInt">
+        <xsd:annotation>
+          <xsd:documentation>
+            The TCP port to which to bind the console.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="AccessKey"
+                     use="required"
+                     type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            The access key used to access the console.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Configuration">
+    <xsd:annotation>
+      <xsd:documentation>
+        The top-level configuration element.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="c:Console"/>
+        <xsd:element ref="c:Database"/>
+        <xsd:element ref="c:OpenTelemetry"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+      </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
 

@@ -17,11 +17,11 @@
 
 package com.io7m.northpike.tests.server.agents;
 
-import com.io7m.northpike.model.NPAgentDescription;
-import com.io7m.northpike.model.NPAgentID;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPKey;
+import com.io7m.northpike.model.agents.NPAgentDescription;
+import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.protocol.agent.NPACommandCEnvironmentInfo;
 import com.io7m.northpike.server.internal.agents.NPACmdEnvironmentInfo;
@@ -186,13 +186,15 @@ public final class NPACmdEnvironmentInfoTest
         )
       );
 
-    final var key = NPKey.generate();
+    final var key =
+      new NPAgentKeyPairFactoryEd448().generateKeyPair();
+
     Mockito.when(this.context.agentFindForId(any()))
       .thenReturn(Optional.of(
         new NPAgentDescription(
           NPAgentID.of("ab27f114-6b29-5ab2-a528-b41ef98abe76"),
           "Agent",
-          key,
+          key.publicKey(),
           Map.of(),
           Map.of(),
           Map.of()
@@ -207,7 +209,7 @@ public final class NPACmdEnvironmentInfoTest
         new NPAgentDescription(
           NPAgentID.of("ab27f114-6b29-5ab2-a528-b41ef98abe76"),
           "Agent",
-          key,
+          key.publicKey(),
           Map.ofEntries(
             Map.entry("ek0", "ev0"),
             Map.entry("ek1", "ev1"),

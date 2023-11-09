@@ -23,6 +23,8 @@ module com.io7m.northpike.model
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
+  requires com.io7m.northpike.strings;
+
   requires transitive com.io7m.idstore.model;
   requires transitive com.io7m.lanark.core;
   requires transitive com.io7m.medrina.api;
@@ -32,9 +34,11 @@ module com.io7m.northpike.model
   requires org.jgrapht.core;
   requires com.io7m.jaffirm.core;
 
+  exports com.io7m.northpike.model.agents;
   exports com.io7m.northpike.model.assignments;
   exports com.io7m.northpike.model.comparisons;
   exports com.io7m.northpike.model.plans;
   exports com.io7m.northpike.model.security;
+  exports com.io7m.northpike.model.tls;
   exports com.io7m.northpike.model;
 }

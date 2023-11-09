@@ -15,7 +15,7 @@
 
   <packaging>jar</packaging>
   <name>com.io7m.northpike.agent.configuration</name>
-  <description>Continuous integration (Agent Configuration)</description>
+  <description>Continuous integration (Agent configuration)</description>
   <url>https://www.io7m.com/software/northpike</url>
 
   <dependencies>
@@ -26,12 +26,22 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.model</artifactId>
+      <artifactId>com.io7m.northpike.agent.database.api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.strings</artifactId>
+      <artifactId>com.io7m.northpike.agent.workexec.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.tls</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.telemetry.api</artifactId>
       <version>${project.version}</version>
     </dependency>
 

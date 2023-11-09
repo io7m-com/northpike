@@ -28,7 +28,7 @@ import static com.io7m.northpike.model.NPWorkItemStatus.WORK_ITEM_RUNNING;
  */
 
 public final class NPACmdWorkItemStarted
-  implements NPAgentCommandExecutorType<NPAResponseOK, NPACommandCWorkItemStarted>
+  extends NPACmdAbstract<NPAResponseOK, NPACommandCWorkItemStarted>
 {
   /**
    * @see NPACommandCWorkItemStarted
@@ -36,7 +36,7 @@ public final class NPACmdWorkItemStarted
 
   public NPACmdWorkItemStarted()
   {
-
+    super(NPACommandCWorkItemStarted.class);
   }
 
   @Override

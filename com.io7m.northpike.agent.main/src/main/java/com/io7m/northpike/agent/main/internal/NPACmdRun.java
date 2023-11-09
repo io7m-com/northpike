@@ -18,11 +18,10 @@
 package com.io7m.northpike.agent.main.internal;
 
 import com.io7m.anethum.slf4j.ParseStatusLogging;
-import com.io7m.canonmill.core.CMKeyStoreProvider;
-import com.io7m.northpike.agent.NPAgents;
-import com.io7m.northpike.agent.api.NPAgentConfiguration;
-import com.io7m.northpike.agent.configuration.NPAgentConfigurationFiles;
-import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.agent.NPAgentHosts;
+import com.io7m.northpike.agent.api.NPAgentHostConfiguration;
+import com.io7m.northpike.agent.configuration.NPACFiles;
+import com.io7m.northpike.agent.configuration.NPACPreserveLexical;
 import com.io7m.quarrel.core.QCommandContextType;
 import com.io7m.quarrel.core.QCommandMetadata;
 import com.io7m.quarrel.core.QCommandStatus;
@@ -30,18 +29,12 @@ import com.io7m.quarrel.core.QCommandType;
 import com.io7m.quarrel.core.QParameterNamed1;
 import com.io7m.quarrel.core.QParameterNamedType;
 import com.io7m.quarrel.core.QStringType;
-import com.io7m.quarrel.ext.logback.QLogback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.security.Security;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Stream;
-
-import static com.io7m.quarrel.core.QCommandStatus.SUCCESS;
 
 /**
  * The "run" command.
@@ -52,7 +45,9 @@ public final class NPACmdRun implements QCommandType
   private static final Logger LOG =
     LoggerFactory.getLogger(NPACmdRun.class);
 
-  private static final QParameterNamed1<Path> CONFIGURATION_FILE =
+  private final QCommandMetadata metadata;
+
+  private static final QParameterNamed1<Path> CONFIGURATION =
     new QParameterNamed1<>(
       "--configuration",
       List.of(),
@@ -60,8 +55,6 @@ public final class NPACmdRun implements QCommandType
       Optional.empty(),
       Path.class
     );
-
-  private final QCommandMetadata metadata;
 
   /**
    * Construct a command.
@@ -71,7 +64,7 @@ public final class NPACmdRun implements QCommandType
   {
     this.metadata = new QCommandMetadata(
       "run",
-      new QStringType.QConstant("Start the agent."),
+      new QStringType.QConstant("Run the agent."),
       Optional.empty()
     );
   }
@@ -79,10 +72,7 @@ public final class NPACmdRun implements QCommandType
   @Override
   public List<QParameterNamedType<?>> onListNamedParameters()
   {
-    return Stream.concat(
-      Stream.of(CONFIGURATION_FILE),
-      QLogback.parameters().stream()
-    ).toList();
+    return List.of(CONFIGURATION);
   }
 
   @Override
@@ -90,39 +80,27 @@ public final class NPACmdRun implements QCommandType
     final QCommandContextType context)
     throws Exception
   {
-    QLogback.configure(context);
+    final var configurationFilePath =
+      context.parameterValue(CONFIGURATION);
 
-    Security.addProvider(new CMKeyStoreProvider());
+    final var configurationParsers =
+      new NPACFiles();
 
-    final var configurationFile =
-      context.parameterValue(CONFIGURATION_FILE);
+    final NPAgentHostConfiguration configuration =
+      configurationParsers.parseFileWithContext(
+        NPACPreserveLexical.PRESERVE_LEXICAL_INFORMATION,
+        configurationFilePath,
+        status -> ParseStatusLogging.logWithAll(LOG, status)
+      );
 
-    final var strings =
-      NPStrings.create(Locale.ROOT);
-
-    final NPAgentConfiguration configuration;
-    try (var files =
-           NPAgentConfigurationFiles.open(
-             strings,
-             configurationFile,
-             status -> ParseStatusLogging.logMinimal(LOG, status))) {
-      configuration = files.execute();
-    }
-
-    final var agents = new NPAgents();
-    try (var agent = agents.createAgent(configuration)) {
-      agent.start();
+    final var agentHosts = new NPAgentHosts();
+    try (var agentHost = agentHosts.createHost(configuration)) {
+      agentHost.start();
 
       while (true) {
-        try {
-          Thread.sleep(1_000L);
-        } catch (final InterruptedException e) {
-          break;
-        }
+        Thread.sleep(1_000L);
       }
     }
-
-    return SUCCESS;
   }
 
   @Override

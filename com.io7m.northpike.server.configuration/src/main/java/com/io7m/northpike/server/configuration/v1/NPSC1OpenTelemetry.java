@@ -74,17 +74,24 @@ public final class NPSC1OpenTelemetry
     final BTElementParsingContextType context,
     final Object result)
   {
-    if (result instanceof final NPLogs e) {
-      this.logs = e;
-      return;
-    }
-    if (result instanceof final NPTraces e) {
-      this.traces = e;
-      return;
-    }
-    if (result instanceof final NPMetrics e) {
-      this.metrics = e;
-      return;
+    switch (result) {
+      case final NPLogs e -> {
+        this.logs = e;
+        return;
+      }
+      case final NPTraces e -> {
+        this.traces = e;
+        return;
+      }
+      case final NPMetrics e -> {
+        this.metrics = e;
+        return;
+      }
+      default -> {
+        throw new IllegalStateException(
+          "Unexpected value: %s".formatted(result)
+        );
+      }
     }
   }
 

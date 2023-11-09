@@ -30,6 +30,7 @@ import org.jooq.postgres.extensions.types.Hstore;
 import java.time.OffsetDateTime;
 
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
+import static com.io7m.northpike.database.postgres.internal.NPDBStoredExceptions.serializeExceptionOptional;
 import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENT_EXECUTION_LOGS;
 
 /**
@@ -89,6 +90,10 @@ public final class NPDBQAssignmentExecutionLogAdd
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_MESSAGE, parameters.message())
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_TIME, time)
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_TYPE, parameters.type())
+      .set(ASSIGNMENT_EXECUTION_LOGS.AEL_EXCEPTION_DATA,
+           serializeExceptionOptional(parameters.exception()))
+      .set(ASSIGNMENT_EXECUTION_LOGS.AEL_EXCEPTION_FORMAT, "CEDARBRIDGE")
+      .set(ASSIGNMENT_EXECUTION_LOGS.AEL_EXCEPTION_VERSION, Integer.valueOf(1))
       .set(attributesField, Hstore.valueOf(parameters.attributes()))
       .execute();
 

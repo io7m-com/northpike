@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPAgentLabelName;
-import com.io7m.northpike.model.NPAgentLabelSet;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentLabelSet;
 import net.jqwik.api.Arbitraries;
 
 public final class NPArbAgentLabelSet extends NPArbAbstract<NPAgentLabelSet>
