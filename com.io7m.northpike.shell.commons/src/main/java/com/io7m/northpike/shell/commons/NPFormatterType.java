@@ -33,6 +33,7 @@ import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
 import com.io7m.northpike.model.agents.NPAgentLabel;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
 import com.io7m.northpike.model.agents.NPAgentServerSummary;
@@ -376,5 +377,17 @@ public interface NPFormatterType
 
   void formatTLS(
     NPTLSConfigurationType tls)
+    throws Exception;
+
+  /**
+   * Format login challenge records.
+   *
+   * @param page The login challenge records.
+   *
+   * @throws Exception On errors
+   */
+
+  void formatAgentLoginChallenges(
+    NPPage<NPAgentLoginChallengeRecord> page)
     throws Exception;
 }

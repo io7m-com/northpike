@@ -35,6 +35,7 @@ import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
 import com.io7m.northpike.model.agents.NPAgentLabel;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
 import com.io7m.northpike.model.agents.NPAgentServerSummary;
@@ -885,6 +886,33 @@ public final class NPFormatterPretty implements NPFormatterType
           .addCell("Trust Store Password")
           .addCell(e.trustStore().storePassword());
       }
+    }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatAgentLoginChallenges(
+    final NPPage<NPAgentLoginChallengeRecord> page)
+    throws Exception
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(4))
+        .declareColumn("Time", atLeastContentOrHeader())
+        .declareColumn("ID", atLeastContentOrHeader())
+        .declareColumn("Source", atLeastContentOrHeader())
+        .declareColumn("Key", atLeastContentOrHeader());
+
+    for (final var item : page.items()) {
+      builder.addRow()
+        .addCell(item.timeCreated().toString())
+        .addCell(item.id().toString())
+        .addCell(item.sourceAddress())
+        .addCell(item.key().asText());
     }
 
     this.renderTable(builder.build());

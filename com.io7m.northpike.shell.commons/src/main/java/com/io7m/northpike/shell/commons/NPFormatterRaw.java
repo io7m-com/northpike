@@ -34,6 +34,7 @@ import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
 import com.io7m.northpike.model.agents.NPAgentLabel;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
 import com.io7m.northpike.model.agents.NPAgentServerSummary;
@@ -593,6 +594,26 @@ public final class NPFormatterRaw implements NPFormatterType
       }
     }
 
+    out.flush();
+  }
+
+  @Override
+  public void formatAgentLoginChallenges(
+    final NPPage<NPAgentLoginChallengeRecord> page)
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    out.println("# Time | ID | Source | Key");
+    for (final var item : page.items()) {
+      out.printf(
+        "%s | %s | %s | %s%n",
+        item.timeCreated(),
+        item.id(),
+        item.sourceAddress(),
+        item.key().asText()
+      );
+    }
     out.flush();
   }
 

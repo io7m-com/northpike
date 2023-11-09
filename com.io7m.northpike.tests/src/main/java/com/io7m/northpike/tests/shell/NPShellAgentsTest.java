@@ -27,6 +27,8 @@ import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.northpike.model.agents.NPAgentLabel;
 import com.io7m.northpike.model.agents.NPAgentLabelName;
+import com.io7m.northpike.model.agents.NPAgentLoginChallenge;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
 import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.protocol.user.NPUCommandAgentGet;
@@ -36,6 +38,9 @@ import com.io7m.northpike.protocol.user.NPUCommandAgentLabelPut;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelSearchPrevious;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLoginChallengeSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLoginChallengeSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandAgentLoginChallengeSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandAgentPut;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAgentSearchNext;
@@ -45,6 +50,7 @@ import com.io7m.northpike.protocol.user.NPUCommandAgentsConnected;
 import com.io7m.northpike.protocol.user.NPUResponseAgentGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelGet;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelSearch;
+import com.io7m.northpike.protocol.user.NPUResponseAgentLoginChallengeSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAgentSearch;
 import com.io7m.northpike.protocol.user.NPUResponseAgentWorkItems;
 import com.io7m.northpike.protocol.user.NPUResponseAgentsConnected;
@@ -64,6 +70,7 @@ import org.mockito.internal.verification.AtLeast;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -747,5 +754,108 @@ public final class NPShellAgentsTest
 
     Mockito.verify(this.userClient, new AtLeast(2))
       .execute(isA(NPUCommandAgentWorkItems.class));
+  }
+
+  @Test
+  public void testAgentLoginChallengeSearch()
+    throws Exception
+  {
+    final var keys =
+      new NPAgentKeyPairFactoryEd448();
+
+    final var rec0 =
+      new NPAgentLoginChallengeRecord(
+        OffsetDateTime.now(),
+        "localhost",
+        keys.generateKeyPair().publicKey(),
+        new NPAgentLoginChallenge(
+          UUID.randomUUID(),
+          "A".getBytes(UTF_8)
+        )
+      );
+
+    final var rec1 =
+      new NPAgentLoginChallengeRecord(
+        OffsetDateTime.now(),
+        "localhost",
+        keys.generateKeyPair().publicKey(),
+        new NPAgentLoginChallenge(
+          UUID.randomUUID(),
+          "B".getBytes(UTF_8)
+        )
+      );
+
+    final var rec2 =
+      new NPAgentLoginChallengeRecord(
+        OffsetDateTime.now(),
+        "localhost",
+        keys.generateKeyPair().publicKey(),
+        new NPAgentLoginChallenge(
+          UUID.randomUUID(),
+          "C".getBytes(UTF_8)
+        )
+      );
+
+    final var page =
+      new NPPage<>(
+        List.of(
+          rec0,
+          rec1,
+          rec2
+        ),
+        1,
+        1,
+        0L
+      );
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentLoginChallengeSearchBegin.class))
+    ).thenReturn(new NPUResponseAgentLoginChallengeSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentLoginChallengeSearchNext.class))
+    ).thenReturn(new NPUResponseAgentLoginChallengeSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandAgentLoginChallengeSearchPrevious.class))
+    ).thenReturn(new NPUResponseAgentLoginChallengeSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.println("agent-login-challenge-search-begin");
+    w.println("agent-login-challenge-search-next");
+    w.println("agent-login-challenge-search-previous");
+
+    w.println("set --formatter RAW");
+
+    w.println("agent-login-challenge-search-begin");
+    w.println("agent-login-challenge-search-next");
+    w.println("agent-login-challenge-search-previous");
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAgentLoginChallengeSearchBegin.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAgentLoginChallengeSearchNext.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandAgentLoginChallengeSearchPrevious.class));
   }
 }
