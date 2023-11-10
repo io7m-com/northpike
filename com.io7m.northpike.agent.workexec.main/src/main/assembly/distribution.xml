@@ -28,6 +28,11 @@
       <outputDirectory>/bin</outputDirectory>
       <fileMode>0755</fileMode>
     </file>
+    <file>
+      <source>${project.build.directory}/bom.xml</source>
+      <outputDirectory/>
+      <fileMode>0644</fileMode>
+    </file>
   </files>
 
 </assembly>
