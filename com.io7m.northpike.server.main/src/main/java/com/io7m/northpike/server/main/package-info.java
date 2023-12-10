@@ -20,7 +20,9 @@
 
 @Export
 @Version("1.0.0")
+@Header(name = "Main-Class", value = "com.io7m.northpike.server.main.NPServerMain")
 package com.io7m.northpike.server.main;
 
 import org.osgi.annotation.bundle.Export;
+import org.osgi.annotation.bundle.Header;
 import org.osgi.annotation.versioning.Version;
