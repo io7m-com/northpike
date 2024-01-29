@@ -32,6 +32,7 @@ import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.tests.NPTestProperties;
 import com.io7m.northpike.tools.maven.NPTMFactory3;
 import com.io7m.quixote.core.QWebServerAddresses;
 import com.io7m.quixote.core.QWebServerType;
@@ -273,7 +274,7 @@ public final class NPWorkExecutorsPodmanTest
     return NPAWorkExecutorConfiguration.builder()
       .setWorkDirectory(workDirectory)
       .setTemporaryDirectory(tmpDirectory)
-      .setWorkExecDistributionDirectory(Paths.get(WORKEXEC_DISTRIBUTION))
+      .setWorkExecDistributionDirectory(WORKEXEC_DISTRIBUTION)
       .setExecutorType(new RDottedName("workexec.podman"))
       .setContainerImage(new NPAWorkExecutorContainerImage(
         "docker.io",
