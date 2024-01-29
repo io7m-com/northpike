@@ -245,7 +245,7 @@ public final class NPArchiveService implements NPArchiveServiceType
     this.resources.add(this.webServer::stop);
     this.webServer.start();
 
-    for (int index = 0; index < 10; ++index) {
+    for (int index = 0; index < 30; ++index) {
       if (!this.webServer.isRunning()) {
         pauseBriefly();
       }
@@ -300,5 +300,12 @@ public final class NPArchiveService implements NPArchiveServiceType
   private boolean isStopped()
   {
     return !this.webServer.isRunning();
+  }
+
+  @Override
+  public String toString()
+  {
+    return "[NPArchiveService 0x%s]"
+      .formatted(Integer.toUnsignedString(this.hashCode(), 16));
   }
 }

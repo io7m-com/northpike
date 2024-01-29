@@ -36,14 +36,15 @@ import com.io7m.northpike.model.NPUserSearchParameters;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.security.NPSecRole;
-import com.io7m.northpike.tests.containers.NPTestContainerInstances;
-import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.northpike.tests.containers.NPDatabaseFixture;
+import com.io7m.northpike.tests.containers.NPFixtures;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,13 +57,15 @@ import java.util.stream.Collectors;
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.security.NPSecRole.ADMINISTRATOR;
 import static com.io7m.northpike.model.security.NPSecRole.allRoles;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
 @ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
 public final class NPDatabaseUsersTest
 {
-  private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
+  private static NPDatabaseFixture DATABASE_FIXTURE;
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private NPDatabaseType database;
@@ -72,11 +75,12 @@ public final class NPDatabaseUsersTest
     final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE = NPTestContainerInstances.database(containers);
+    DATABASE_FIXTURE = NPFixtures.database(containers);
   }
 
   @BeforeEach
   public void setup(
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers,
     final CloseableResourcesType closeables)
     throws Exception
   {
@@ -88,6 +92,10 @@ public final class NPDatabaseUsersTest
       closeables.addPerTestResource(this.database.openConnection(NORTHPIKE));
     this.transaction =
       closeables.addPerTestResource(this.connection.openTransaction());
+
+    this.transaction.setOwner(
+      DATABASE_FIXTURE.userSetup(NPFixtures.idstore(containers).userWithLogin())
+    );
   }
 
   /**
@@ -239,7 +247,8 @@ public final class NPDatabaseUsersTest
 
     final var paged = search.execute(params);
     final var page = paged.pageCurrent(this.transaction);
-    assertEquals(Set.copyOf(users), Set.copyOf(page.items()));
+
+    checkSameSets(users, page.items());
   }
 
   /**
@@ -324,7 +333,23 @@ public final class NPDatabaseUsersTest
     final var page =
       paged.pageCurrent(this.transaction);
 
-    assertEquals(Set.copyOf(users), Set.copyOf(page.items()));
+    checkSameSets(users, page.items());
+  }
+
+  private static void checkSameSets(
+    final List<NPUser> expected,
+    final List<NPUser> received)
+  {
+    final var assertions = new ArrayList<Executable>();
+    for (final var user : expected) {
+      assertions.add(() -> {
+        assertTrue(
+          received.contains(user),
+          "Received set contains %s".formatted(user)
+        );
+      });
+    }
+    assertAll(assertions);
   }
 
   /**
@@ -510,12 +535,12 @@ public final class NPDatabaseUsersTest
     final var page =
       paged.pageCurrent(this.transaction);
 
-    assertEquals(
+    final var expected =
       users.stream()
         .filter(u -> !u.subject().roles().equals(roleSet))
-        .collect(Collectors.toUnmodifiableSet()),
-      Set.copyOf(page.items())
-    );
+        .collect(Collectors.toList());
+
+    checkSameSets(expected, page.items());
   }
 
   private static List<NPUser> generateUsers()

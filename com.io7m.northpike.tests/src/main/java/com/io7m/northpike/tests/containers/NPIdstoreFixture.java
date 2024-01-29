@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -20,9 +20,9 @@ package com.io7m.northpike.tests.containers;
 import com.io7m.ervilla.api.EContainerSpec;
 import com.io7m.ervilla.api.EContainerSupervisorType;
 import com.io7m.ervilla.api.EContainerType;
+import com.io7m.ervilla.api.EPortProtocol;
 import com.io7m.ervilla.api.EPortPublish;
 import com.io7m.ervilla.api.EVolumeMount;
-import com.io7m.ervilla.postgres.EPgSpecs;
 import com.io7m.idstore.admin_client.IdAClients;
 import com.io7m.idstore.admin_client.api.IdAClientConfiguration;
 import com.io7m.idstore.admin_client.api.IdAClientCredentials;
@@ -31,290 +31,257 @@ import com.io7m.idstore.model.IdEmail;
 import com.io7m.idstore.model.IdName;
 import com.io7m.idstore.model.IdPasswordAlgorithmPBKDF2HmacSHA256;
 import com.io7m.idstore.model.IdRealName;
+import com.io7m.idstore.model.IdUser;
 import com.io7m.idstore.protocol.admin.IdACommandUserCreate;
 import com.io7m.idstore.protocol.admin.IdAResponseUserCreate;
+import com.io7m.idstore.server.api.IdServerBrandingConfiguration;
+import com.io7m.idstore.server.api.IdServerConfigurationFile;
+import com.io7m.idstore.server.api.IdServerDatabaseConfiguration;
+import com.io7m.idstore.server.api.IdServerDatabaseKind;
+import com.io7m.idstore.server.api.IdServerHTTPConfiguration;
+import com.io7m.idstore.server.api.IdServerHTTPServiceConfiguration;
+import com.io7m.idstore.server.api.IdServerHistoryConfiguration;
+import com.io7m.idstore.server.api.IdServerMailConfiguration;
+import com.io7m.idstore.server.api.IdServerMailTransportSMTP;
+import com.io7m.idstore.server.api.IdServerMaintenanceConfiguration;
+import com.io7m.idstore.server.api.IdServerPasswordExpirationConfiguration;
+import com.io7m.idstore.server.api.IdServerRateLimitConfiguration;
+import com.io7m.idstore.server.api.IdServerSessionConfiguration;
+import com.io7m.idstore.server.service.configuration.IdServerConfigurationSerializers;
+import com.io7m.idstore.tls.IdTLSDisabled;
 import com.io7m.northpike.tests.NPTestProperties;
 import org.junit.jupiter.api.Assertions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
-import static com.io7m.ervilla.api.EPortProtocol.TCP;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.util.Optional.empty;
 
 public final class NPIdstoreFixture
 {
-  private static final String IDSTORE_CONFIGURATION_TEMPLATE = """
-    <?xml version="1.0" encoding="UTF-8" ?>
-    <Configuration xmlns="urn:com.io7m.idstore:configuration:1">
-      <Branding ProductTitle="idstore"/>
-      <Database Name="idstore"
-                Kind="POSTGRESQL"
-                OwnerRoleName="idstore_install"
-                OwnerRolePassword="12345678"
-                WorkerRolePassword="12345678"
-                Address="localhost"
-                Port="5432"
-                Create="true"
-                Upgrade="true"/>
-      <HTTPServices>
-        <HTTPServiceAdminAPI ListenAddress="[::]" ListenPort="51000" ExternalURI="http://[::]:51000/"/>
-        <HTTPServiceUserAPI ListenAddress="[::]" ListenPort="50000" ExternalURI="http://[::]:50000/"/>
-        <HTTPServiceUserView ListenAddress="[::]" ListenPort="50001" ExternalURI="http://[::]:50001/"/>
-      </HTTPServices>
-      <History UserLoginHistoryLimit="10" AdminLoginHistoryLimit="100"/>
-      <Mail SenderAddress="northpike@example.com" VerificationExpiration="PT24H">
-        <SMTP Host="localhost" Port="25"/>
-      </Mail>
-      <RateLimiting EmailVerificationRateLimit="PT1M"
-                    UserLoginRateLimit="PT0S"
-                    AdminLoginRateLimit="PT0S"
-                    PasswordResetRateLimit="PT1M"/>
-      <Sessions UserSessionExpiration="PT60M"
-                AdminSessionExpiration="PT60M"/>
-    </Configuration>
-    """;
-
-  private static final IdName USER_WITH_LOGIN_NAME =
-    new IdName("user-with-login");
-  private static final IdName USER_WITHOUT_LOGIN_NAME =
-    new IdName("user-without-login");
-  private static final String PASSWORD =
-    "12345678";
+  private static final Logger LOG =
+    LoggerFactory.getLogger(NPIdstoreFixture.class);
+  public static final String PASSWORD = "12345678";
 
   private final EContainerType serverContainer;
-  private final EContainerType databaseContainer;
-  private final UUID adminId;
-  private final String adminName;
-  private final String adminPassword;
+  private final IdUser userWithAdmin;
+  private final IdUser userWithLogin;
+  private final IdUser userWithoutLogin;
+  private final NPPostgresFixture postgres;
+  private final String address;
   private final int adminAPIPort;
   private final int userAPIPort;
-  private UUID userWithLogin;
-  private UUID userWithoutLogin;
+  private final int userViewPort;
 
-  public NPIdstoreFixture(
+  private NPIdstoreFixture(
+    final NPPostgresFixture inPostgres,
     final EContainerType inServerContainer,
-    final EContainerType inDatabaseContainer,
-    final UUID inAdminId,
-    final String inAdminName,
-    final String inAdminPassword,
+    final IdUser inUserWithAdmin,
+    final IdUser inUserWithLogin,
+    final IdUser inUserWithoutLogin,
+    final String inAddress,
     final int inAdminAPIPort,
-    final int inUserAPIPort)
+    final int inUserAPIPort,
+    final int inUserViewPort)
   {
+    this.postgres =
+      Objects.requireNonNull(inPostgres, "postgres");
     this.serverContainer =
       Objects.requireNonNull(inServerContainer, "serverContainer");
-    this.databaseContainer =
-      Objects.requireNonNull(inDatabaseContainer, "databaseContainer");
-    this.adminId =
-      Objects.requireNonNull(inAdminId, "adminId");
-    this.adminName =
-      Objects.requireNonNull(inAdminName, "adminName");
-    this.adminPassword =
-      Objects.requireNonNull(inAdminPassword, "adminPassword");
-    this.adminAPIPort =
-      inAdminAPIPort;
-    this.userAPIPort =
-      inUserAPIPort;
+
+    this.userWithAdmin =
+      Objects.requireNonNull(inUserWithAdmin, "inUserWithAdmin");
+    this.userWithLogin =
+      Objects.requireNonNull(inUserWithLogin, "user");
+    this.userWithoutLogin =
+      Objects.requireNonNull(inUserWithoutLogin, "inUserWithoutLogin");
+    this.address =
+      Objects.requireNonNull(inAddress, "primaryIp");
+
+    this.adminAPIPort = inAdminAPIPort;
+    this.userAPIPort = inUserAPIPort;
+    this.userViewPort = inUserViewPort;
   }
 
-  public static NPIdstoreFixture createIdstore(
+  public String password()
+  {
+    return PASSWORD;
+  }
+
+  public static NPIdstoreFixture create(
     final EContainerSupervisorType supervisor,
-    final Path configurationDirectory,
-    final int databasePort,
+    final NPPostgresFixture postgres,
+    final Path baseDirectory,
+    final String primaryIp,
     final int adminAPIPort,
     final int userAPIPort,
     final int userViewPort)
     throws Exception
   {
-    final var pod =
-      supervisor.createPod(List.of(
-        new EPortPublish(empty(), databasePort, 5432, TCP),
-        new EPortPublish(empty(), adminAPIPort, 51000, TCP),
-        new EPortPublish(empty(), userAPIPort, 50000, TCP),
-        new EPortPublish(empty(), userViewPort, 50001, TCP)
-      ));
+    final var adminName =
+      "admin";
 
-    final var databaseContainer =
-      pod.start(
-        EPgSpecs.builderFromDockerIO(
-          NPTestProperties.POSTGRESQL_VERSION,
-          Optional.empty(),
-          databasePort,
-          "idstore",
-          "idstore_install",
-          "12345678"
-        ).build()
+    final var users =
+      Map.ofEntries(
+        Map.entry("someone", UUID.randomUUID()),
+        Map.entry("someone-nologin", UUID.randomUUID()),
+        Map.entry("someone-admin", UUID.randomUUID())
       );
 
-    Files.writeString(
-      configurationDirectory.resolve("server.xml"),
-      IDSTORE_CONFIGURATION_TEMPLATE.trim(),
-      StandardCharsets.UTF_8,
-      CREATE,
-      TRUNCATE_EXISTING
-    );
+    LOG.info("Creating idstore");
+    LOG.info("  Admin API:      {}:{}", primaryIp, adminAPIPort);
+    LOG.info("  User API:       {}:{}", primaryIp, userAPIPort);
+    LOG.info("  User View:      {}:{}", primaryIp, userViewPort);
+    LOG.info("  Admin name:     {}", adminName);
+    LOG.info("  Admin password: {}", PASSWORD);
+
+    for (final var user : users.entrySet()) {
+      LOG.info("  User name:      {}", user.getKey());
+      LOG.info("  User ID:        {}", user.getValue());
+    }
+
+    final var idstoreConfiguration =
+      createServerConfiguration(
+        postgres,
+        primaryIp,
+        adminAPIPort,
+        userAPIPort,
+        userViewPort
+      );
+
+    final var idstoreDirectory =
+      baseDirectory.resolve("idstore");
+
+    Files.createDirectories(idstoreDirectory);
+
+    new IdServerConfigurationSerializers()
+      .serializeFile(
+        idstoreDirectory.resolve("server.xml"),
+        idstoreConfiguration
+      );
+
+    final var r =
+      postgres.container()
+        .executeAndWait(
+          List.of(
+            "createdb",
+            "-w",
+            "-U",
+            postgres.databaseOwner(),
+            "idstore"
+          ),
+          10L,
+          TimeUnit.SECONDS
+        );
+
+    Assertions.assertEquals(0, r);
 
     final var serverContainer =
-      pod.start(
+      supervisor.start(
         EContainerSpec.builder(
             "quay.io",
             "io7mcom/idstore",
             NPTestProperties.IDSTORE_VERSION)
           .addVolumeMount(
-            new EVolumeMount(
-              configurationDirectory, "/idstore/etc")
+            new EVolumeMount(idstoreDirectory, "/idstore/etc")
           )
+          .addPublishPort(new EPortPublish(
+            Optional.of("[::]"),
+            userAPIPort,
+            userAPIPort,
+            EPortProtocol.TCP
+          ))
+          .addPublishPort(new EPortPublish(
+            Optional.of("[::]"),
+            userViewPort,
+            userViewPort,
+            EPortProtocol.TCP
+          ))
+          .addPublishPort(new EPortPublish(
+            Optional.of("[::]"),
+            adminAPIPort,
+            adminAPIPort,
+            EPortProtocol.TCP
+          ))
           .addArgument("server")
           .addArgument("--verbose")
           .addArgument("debug")
           .addArgument("--configuration")
           .addArgument("/idstore/etc/server.xml")
-          .setReadyCheck(new NPIdstoreHealthcheck("localhost", adminAPIPort))
+          .setReadyCheck(new NPIdstoreHealthcheck("[::]", adminAPIPort))
           .build()
       );
 
-    final var fixture =
-      new NPIdstoreFixture(
-        serverContainer,
-        databaseContainer,
-        UUID.randomUUID(),
-        "admin",
-        "12345678",
+    initialAdmin(serverContainer, UUID.randomUUID());
+
+    final var userWithAdmin =
+      createUser(
+        primaryIp,
+        adminName,
+        PASSWORD,
         adminAPIPort,
-        userAPIPort
+        users.get("someone-admin"),
+        "someone-admin"
       );
 
-    fixture.initialAdmin();
-    fixture.userWithLogin =
-      fixture.createUser(USER_WITH_LOGIN_NAME);
-    fixture.userWithoutLogin =
-      fixture.createUser(USER_WITHOUT_LOGIN_NAME);
+    final var userWithLogin =
+      createUser(
+        primaryIp,
+        adminName,
+        PASSWORD,
+        adminAPIPort,
+        users.get("someone"),
+        "someone"
+      );
 
-    return fixture;
-  }
+    final var userWithoutLogin =
+      createUser(
+        primaryIp,
+        adminName,
+        PASSWORD,
+        adminAPIPort,
+        users.get("someone-nologin"),
+        "someone-nologin"
+      );
 
-  public IdName userWithLoginName()
-  {
-    return USER_WITH_LOGIN_NAME;
-  }
-
-  public IdName userWithoutLoginName()
-  {
-    return USER_WITHOUT_LOGIN_NAME;
-  }
-
-  public UUID userWithLogin()
-  {
-    return this.userWithLogin;
-  }
-
-  public UUID userWithoutLogin()
-  {
-    return this.userWithoutLogin;
-  }
-
-  public EContainerType serverContainer()
-  {
-    return this.serverContainer;
-  }
-
-  public EContainerType databaseContainer()
-  {
-    return this.databaseContainer;
-  }
-
-  public UUID adminId()
-  {
-    return this.adminId;
-  }
-
-  public String adminName()
-  {
-    return this.adminName;
-  }
-
-  public String adminPassword()
-  {
-    return this.adminPassword;
-  }
-
-  public int adminAPIPort()
-  {
-    return this.adminAPIPort;
-  }
-
-  public int userAPIPort()
-  {
-    return this.userAPIPort;
-  }
-
-  /**
-   * Reset the container by dropping and recreating the database. This
-   * is significantly faster than destroying and recreating the container.
-   *
-   * @throws IOException          On errors
-   * @throws InterruptedException On interruption
-   */
-
-  public void reset()
-    throws IOException, InterruptedException
-  {
-    this.serverContainer.stop();
-
-    Assertions.assertEquals(
-      0,
-      this.databaseContainer.executeAndWaitIndefinitely(
-        List.of(
-          "dropdb",
-          "-w",
-          "-f",
-          "-U",
-          "idstore_install",
-          "idstore"
-        )
-      )
+    return new NPIdstoreFixture(
+      postgres,
+      serverContainer,
+      userWithAdmin,
+      userWithLogin,
+      userWithoutLogin,
+      primaryIp,
+      adminAPIPort,
+      userAPIPort,
+      userViewPort
     );
-
-    Assertions.assertEquals(
-      0,
-      this.databaseContainer.executeAndWaitIndefinitely(
-        List.of(
-          "createdb",
-          "-w",
-          "-U",
-          "idstore_install",
-          "idstore"
-        )
-      )
-    );
-
-    this.serverContainer.start();
-    this.initialAdmin();
   }
 
-  private void initialAdmin()
-    throws IOException, InterruptedException
+  private static void initialAdmin(
+    final EContainerType serverContainer,
+    final UUID adminId)
+    throws Exception
   {
     for (int index = 0; index < 5; ++index) {
-      final var r = this.serverContainer.executeAndWaitIndefinitely(
+      final var r = serverContainer.executeAndWaitIndefinitely(
         List.of(
           "idstore",
           "initial-admin",
           "--configuration",
           "/idstore/etc/server.xml",
           "--admin-id",
-          this.adminId.toString(),
+          adminId.toString(),
           "--admin-username",
           "admin",
           "--admin-password",
@@ -336,8 +303,81 @@ public final class NPIdstoreFixture
     );
   }
 
-  private UUID createUser(
-    final IdName userName)
+  private static IdServerConfigurationFile createServerConfiguration(
+    final NPPostgresFixture postgres,
+    final String primaryIp,
+    final int adminAPIPort,
+    final int userAPIPort,
+    final int userViewPort)
+  {
+    return new IdServerConfigurationFile(
+      new IdServerBrandingConfiguration("idstore", empty(), empty(), empty()),
+      new IdServerMailConfiguration(
+        new IdServerMailTransportSMTP("localhost", 25),
+        empty(),
+        "sender@example.com",
+        Duration.ofHours(1L)
+      ),
+      new IdServerHTTPConfiguration(
+        new IdServerHTTPServiceConfiguration(
+          "[::]",
+          adminAPIPort,
+          URI.create("http://[::]:" + adminAPIPort + "/"),
+          IdTLSDisabled.TLS_DISABLED
+        ),
+        new IdServerHTTPServiceConfiguration(
+          "[::]",
+          userAPIPort,
+          URI.create("http://[::]:" + userAPIPort + "/"),
+          IdTLSDisabled.TLS_DISABLED
+        ),
+        new IdServerHTTPServiceConfiguration(
+          "[::]",
+          userViewPort,
+          URI.create("http://[::]:" + userViewPort + "/"),
+          IdTLSDisabled.TLS_DISABLED
+        )
+      ),
+      new IdServerDatabaseConfiguration(
+        IdServerDatabaseKind.POSTGRESQL,
+        postgres.databaseOwner(),
+        PASSWORD,
+        PASSWORD,
+        empty(),
+        primaryIp,
+        postgres.port(),
+        "idstore",
+        true,
+        true
+      ),
+      new IdServerHistoryConfiguration(1, 1),
+      new IdServerSessionConfiguration(
+        Duration.ofHours(1000L),
+        Duration.ofHours(1000L)),
+      new IdServerRateLimitConfiguration(
+        Duration.ofSeconds(1L),
+        Duration.ofSeconds(1L),
+        Duration.ofSeconds(1L),
+        Duration.ofSeconds(0L),
+        Duration.ofSeconds(1L),
+        Duration.ofSeconds(0L)
+      ),
+      new IdServerPasswordExpirationConfiguration(
+        empty(),
+        empty()
+      ),
+      new IdServerMaintenanceConfiguration(empty()),
+      empty()
+    );
+  }
+
+  private static IdUser createUser(
+    final String primaryIp,
+    final String adminName,
+    final String adminPassword,
+    final int adminAPIPort,
+    final UUID userId,
+    final String userName)
     throws Exception
   {
     final var clients = new IdAClients();
@@ -345,37 +385,97 @@ public final class NPIdstoreFixture
            clients.openSynchronousClient(
              new IdAClientConfiguration(Locale.ROOT))) {
 
+      final var address =
+        "http://%s:%d/".formatted(primaryIp, Integer.valueOf(adminAPIPort));
+
       client.loginOrElseThrow(
         new IdAClientCredentials(
-          this.adminName,
-          this.adminPassword,
+          adminName,
+          adminPassword,
           URI.create(
-            "http://localhost:%d".formatted(Integer.valueOf(this.adminAPIPort))
+            address
           ),
           Map.of()
         ),
         IdAClientException::ofError
       );
 
-      final IdAResponseUserCreate response =
-        (IdAResponseUserCreate) client.executeOrElseThrow(
-          new IdACommandUserCreate(
-            empty(),
-            userName,
-            new IdRealName(userName.value()),
-            new IdEmail("%s@example.com".formatted(userName)),
-            IdPasswordAlgorithmPBKDF2HmacSHA256.create()
-              .createHashed(PASSWORD)
-          ),
-          IdAClientException::ofError
-        );
-
-      return response.user().id();
+      return ((IdAResponseUserCreate) client.executeOrElseThrow(
+        new IdACommandUserCreate(
+          Optional.of(userId),
+          new IdName(userName),
+          new IdRealName(userName),
+          new IdEmail("%s@example.com".formatted(userName)),
+          IdPasswordAlgorithmPBKDF2HmacSHA256.create()
+            .createHashed(PASSWORD)
+        ),
+        IdAClientException::ofError
+      )).user();
     }
   }
 
-  public String password()
+  public String address()
   {
-    return PASSWORD;
+    return this.address;
+  }
+
+  public int adminAPIPort()
+  {
+    return this.adminAPIPort;
+  }
+
+  public int userAPIPort()
+  {
+    return this.userAPIPort;
+  }
+
+  public int userViewPort()
+  {
+    return this.userViewPort;
+  }
+
+  public IdName userWithLoginName()
+  {
+    return this.userWithLogin.idName();
+  }
+
+  public UUID userWithLoginId()
+  {
+    return this.userWithLogin.id();
+  }
+
+  public IdUser userWithLogin()
+  {
+    return this.userWithLogin;
+  }
+
+  public UUID userWithoutLoginId()
+  {
+    return this.userWithoutLogin.id();
+  }
+
+  public IdUser userWithoutLogin()
+  {
+    return this.userWithoutLogin;
+  }
+
+  public IdName userWithoutLoginName()
+  {
+    return this.userWithoutLogin.idName();
+  }
+
+  public IdName userWithAdminName()
+  {
+    return this.userWithAdmin.idName();
+  }
+
+  public UUID userWithAdminId()
+  {
+    return this.userWithAdmin.id();
+  }
+
+  public IdUser userWithAdmin()
+  {
+    return this.userWithAdmin;
   }
 }

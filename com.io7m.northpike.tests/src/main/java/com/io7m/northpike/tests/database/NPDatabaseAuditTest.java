@@ -34,8 +34,8 @@ import com.io7m.northpike.model.NPAuditUserOrAgentType.User;
 import com.io7m.northpike.model.NPTimeRange;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.comparisons.NPComparisonExactType;
-import com.io7m.northpike.tests.containers.NPTestContainerInstances;
-import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.northpike.tests.containers.NPDatabaseFixture;
+import com.io7m.northpike.tests.containers.NPFixtures;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -58,7 +58,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 @ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
 public final class NPDatabaseAuditTest
 {
-  private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
+  private static NPDatabaseFixture DATABASE_FIXTURE;
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private NPDatabaseType database;
@@ -68,7 +68,7 @@ public final class NPDatabaseAuditTest
     final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE = NPTestContainerInstances.database(containers);
+    DATABASE_FIXTURE = NPFixtures.database(containers);
   }
 
   @BeforeEach

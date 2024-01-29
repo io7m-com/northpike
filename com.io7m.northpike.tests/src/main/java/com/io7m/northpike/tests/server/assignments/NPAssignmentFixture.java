@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.tests.server.assignments;
 
+import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.clock.NPClock;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
@@ -25,9 +26,11 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsGetMostRecentlyReceivedType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPArchive;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
@@ -37,6 +40,7 @@ import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPRepositorySigningPolicy;
 import com.io7m.northpike.model.NPToken;
+import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
@@ -56,7 +60,8 @@ import com.io7m.northpike.telemetry.api.NPEventType;
 import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tests.NPEventInterceptingService;
-import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.northpike.tests.containers.NPDatabaseFixture;
+import com.io7m.northpike.tests.containers.NPIdstoreFixture;
 import com.io7m.northpike.toolexec.NPTXParserFactoryType;
 import com.io7m.northpike.toolexec.NPTXParsers;
 import com.io7m.repetoir.core.RPServiceDirectory;
@@ -72,23 +77,26 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Queue;
-import java.util.UUID;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS;
+import static com.io7m.northpike.model.security.NPSecRole.LOGIN;
 import static com.io7m.northpike.tests.scm_repository.NPSCMRepositoriesJGitTest.unpack;
 import static java.util.UUID.randomUUID;
 import static org.mockito.ArgumentMatchers.any;
 
 public final class NPAssignmentFixture implements AutoCloseable
 {
-  private final NPTestContainers.NPDatabaseFixture dbFixture;
+  private final NPIdstoreFixture idstoreFixture;
+  private final NPDatabaseFixture dbFixture;
   private final NPSCMRepositoryType repositoryUnsigned;
   private final NPSCMRepositoryType repositoryRequireSigned;
   private final NPSCMRepositoryType repositoryRequireSignedSpecific;
+
   private NPCommit commitHeadUnsigned;
   private RPServiceDirectory services;
   private NPDatabaseType database;
@@ -102,11 +110,14 @@ public final class NPAssignmentFixture implements AutoCloseable
   private NPRepositoryServiceType mockRepositoryService;
 
   private NPAssignmentFixture(
-    final NPTestContainers.NPDatabaseFixture inDbFixture,
+    final NPIdstoreFixture inIdstoreFixture,
+    final NPDatabaseFixture inDbFixture,
     final NPSCMRepositoryType inRepositoryUnsigned,
     final NPSCMRepositoryType inRepositoryRequireSigned,
     final NPSCMRepositoryType inRepositoryRequireSignedSpecific)
   {
+    this.idstoreFixture =
+      Objects.requireNonNull(inIdstoreFixture, "idstoreFixture");
     this.dbFixture =
       Objects.requireNonNull(inDbFixture, "fixture");
     this.repositoryUnsigned =
@@ -122,7 +133,8 @@ public final class NPAssignmentFixture implements AutoCloseable
   }
 
   public static NPAssignmentFixture create(
-    final NPTestContainers.NPDatabaseFixture databaseFixture,
+    final NPIdstoreFixture idstoreFixture,
+    final NPDatabaseFixture databaseFixture,
     final Path reposDirectory)
     throws Exception
   {
@@ -205,6 +217,7 @@ public final class NPAssignmentFixture implements AutoCloseable
       );
 
     return new NPAssignmentFixture(
+      idstoreFixture,
       databaseFixture,
       repositoryUnsigned,
       repositoryRequireSigned,
@@ -264,11 +277,15 @@ public final class NPAssignmentFixture implements AutoCloseable
       closeables.addPerTestResource(this.connection.openTransaction());
 
     this.transaction.setOwner(
-      NPTestContainers.NPDatabaseFixture.createUser(
-        this.transaction,
-        UUID.randomUUID()
-      )
+      new NPAuditUserOrAgentType.User(this.idstoreFixture.userWithLoginId())
     );
+    this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class)
+      .execute(new NPUser(
+        this.idstoreFixture.userWithLoginId(),
+        this.idstoreFixture.userWithLoginName(),
+        new MSubject(Set.of(LOGIN.role()))
+      ));
+    this.transaction.commit();
 
     this.services.register(
       NPTelemetryServiceType.class, NPTelemetryNoOp.noop());

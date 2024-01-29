@@ -20,15 +20,19 @@ import com.io7m.ervilla.api.EContainerSupervisorType;
 import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
+import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengePutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.NPTimeRange;
+import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
@@ -46,8 +50,8 @@ import com.io7m.northpike.model.comparisons.NPComparisonSetType.Anything;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsEqualTo;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsSubsetOf;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsSupersetOf;
-import com.io7m.northpike.tests.containers.NPTestContainerInstances;
-import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.northpike.tests.containers.NPDatabaseFixture;
+import com.io7m.northpike.tests.containers.NPFixtures;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
 import net.jqwik.api.Arbitraries;
@@ -84,7 +88,7 @@ public final class NPDatabaseAgentsTest
   private static final Logger LOG =
     LoggerFactory.getLogger(NPDatabaseAgentsTest.class);
 
-  private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
+  private static NPDatabaseFixture DATABASE_FIXTURE;
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private NPDatabaseType database;
@@ -94,11 +98,12 @@ public final class NPDatabaseAgentsTest
     final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE = NPTestContainerInstances.database(containers);
+    DATABASE_FIXTURE = NPFixtures.database(containers);
   }
 
   @BeforeEach
   public void setup(
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers,
     final CloseableResourcesType closeables)
     throws Exception
   {
@@ -112,10 +117,7 @@ public final class NPDatabaseAgentsTest
       closeables.addPerTestResource(this.connection.openTransaction());
 
     this.transaction.setOwner(
-      NPTestContainers.NPDatabaseFixture.createUser(
-        this.transaction,
-        UUID.randomUUID()
-      )
+      DATABASE_FIXTURE.userSetup(NPFixtures.idstore(containers).userWithLogin())
     );
   }
 

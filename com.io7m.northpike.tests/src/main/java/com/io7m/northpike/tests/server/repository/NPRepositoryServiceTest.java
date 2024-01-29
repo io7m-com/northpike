@@ -22,20 +22,24 @@ import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.clock.NPClock;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryFactoryType;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
@@ -61,8 +65,8 @@ import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tests.NPEventInterceptingService;
-import com.io7m.northpike.tests.containers.NPTestContainerInstances;
-import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.northpike.tests.containers.NPDatabaseFixture;
+import com.io7m.northpike.tests.containers.NPFixtures;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
@@ -83,6 +87,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
@@ -110,7 +115,7 @@ public final class NPRepositoryServiceTest
   private NPMetricsServiceType metrics;
   private NPRepositoryServiceType service;
 
-  private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
+  private static NPDatabaseFixture DATABASE_FIXTURE;
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private NPDatabaseType database;
@@ -120,11 +125,12 @@ public final class NPRepositoryServiceTest
     final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE = NPTestContainerInstances.database(containers);
+    DATABASE_FIXTURE = NPFixtures.database(containers);
   }
 
   @BeforeEach
   public void setup(
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers,
     final CloseableResourcesType closeables,
     final @TempDir Path reposDirectory,
     final @TempDir Path archiveDirectory)
@@ -139,12 +145,10 @@ public final class NPRepositoryServiceTest
     this.transaction =
       closeables.addPerTestResource(this.connection.openTransaction());
 
-    this.transaction.setOwner(
-      NPTestContainers.NPDatabaseFixture.createUser(
-        this.transaction,
-        randomUUID()
-      )
-    );
+    final var user = NPFixtures.idstore(containers).userWithLogin();
+    this.transaction.setOwner(new NPAuditUserOrAgentType.User(user.id()));
+    this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class)
+      .execute(new NPUser(user.id(), user.idName(), new MSubject(Set.of())));
 
     this.services =
       new RPServiceDirectory();

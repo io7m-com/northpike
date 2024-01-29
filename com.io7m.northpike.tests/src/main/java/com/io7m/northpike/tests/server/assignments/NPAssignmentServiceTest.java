@@ -57,8 +57,8 @@ import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tests.NPEventInterceptingService;
-import com.io7m.northpike.tests.containers.NPTestContainerInstances;
-import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.northpike.tests.containers.NPDatabaseFixture;
+import com.io7m.northpike.tests.containers.NPFixtures;
 import com.io7m.northpike.toolexec.NPTXParserFactoryType;
 import com.io7m.northpike.toolexec.NPTXParsers;
 import com.io7m.repetoir.core.RPServiceDirectory;
@@ -97,7 +97,7 @@ public final class NPAssignmentServiceTest
 
   private static final NPStrings STRINGS = NPStrings.create(Locale.ROOT);
   private static NPAssignmentFixture ASSIGNMENT_FIXTURE;
-  private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
+  private static NPDatabaseFixture DATABASE_FIXTURE;
   private RPServiceDirectoryWritableType services;
   private NPEventInterceptingService events;
   private NPAgentServiceType agents;
@@ -107,14 +107,13 @@ public final class NPAssignmentServiceTest
 
   @BeforeAll
   public static void setupOnce(
-    final @ErvillaCloseAfterSuite EContainerSupervisorType containers,
-    final @TempDir Path reposDirectory)
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
     DATABASE_FIXTURE =
-      NPTestContainerInstances.database(containers);
+      NPFixtures.database(containers);
     ASSIGNMENT_FIXTURE =
-      NPAssignmentFixture.create(DATABASE_FIXTURE, reposDirectory);
+      NPFixtures.assignment(containers);
   }
 
   @BeforeEach
@@ -190,7 +189,9 @@ public final class NPAssignmentServiceTest
   {
     final var assignment =
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
-        ALLOW_UNSIGNED_COMMITS, createPlanEmptyTask());
+        ALLOW_UNSIGNED_COMMITS,
+        createPlanEmptyTask()
+      );
 
     final var assignmentService =
       NPAssignmentService.create(this.services);

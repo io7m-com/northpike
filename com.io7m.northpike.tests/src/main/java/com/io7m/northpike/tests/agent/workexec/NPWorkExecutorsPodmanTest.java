@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -272,7 +273,7 @@ public final class NPWorkExecutorsPodmanTest
     return NPAWorkExecutorConfiguration.builder()
       .setWorkDirectory(workDirectory)
       .setTemporaryDirectory(tmpDirectory)
-      .setWorkExecDistributionDirectory(WORKEXEC_DISTRIBUTION)
+      .setWorkExecDistributionDirectory(Paths.get(WORKEXEC_DISTRIBUTION))
       .setExecutorType(new RDottedName("workexec.podman"))
       .setContainerImage(new NPAWorkExecutorContainerImage(
         "docker.io",

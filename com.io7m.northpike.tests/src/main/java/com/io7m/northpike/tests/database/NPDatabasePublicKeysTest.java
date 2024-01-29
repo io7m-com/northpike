@@ -20,14 +20,17 @@ import com.io7m.ervilla.api.EContainerSupervisorType;
 import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
+import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyAssignType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyIsAssignedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.NPPublicKeySearchParameters;
@@ -35,10 +38,11 @@ import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPRepositorySigningPolicy;
+import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
-import com.io7m.northpike.tests.containers.NPTestContainerInstances;
-import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.northpike.tests.containers.NPDatabaseFixture;
+import com.io7m.northpike.tests.containers.NPFixtures;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -59,7 +63,6 @@ import java.util.HexFormat;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static java.util.UUID.randomUUID;
@@ -73,6 +76,7 @@ public final class NPDatabasePublicKeysTest
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(NPDatabasePublicKeysTest.class);
+
   private static final String KEY_TEXT = """
     -----BEGIN PGP PUBLIC KEY BLOCK-----
       
@@ -86,7 +90,7 @@ public final class NPDatabasePublicKeysTest
     -----END PGP PUBLIC KEY BLOCK-----
               """;
 
-  private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
+  private static NPDatabaseFixture DATABASE_FIXTURE;
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private NPDatabaseType database;
@@ -96,11 +100,12 @@ public final class NPDatabasePublicKeysTest
     final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE = NPTestContainerInstances.database(containers);
+    DATABASE_FIXTURE = NPFixtures.database(containers);
   }
 
   @BeforeEach
   public void setup(
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers,
     final CloseableResourcesType closeables)
     throws Exception
   {
@@ -114,10 +119,7 @@ public final class NPDatabasePublicKeysTest
       closeables.addPerTestResource(this.connection.openTransaction());
 
     this.transaction.setOwner(
-      NPTestContainers.NPDatabaseFixture.createUser(
-        this.transaction,
-        UUID.randomUUID()
-      )
+      DATABASE_FIXTURE.userSetup(NPFixtures.idstore(containers).userWithLogin())
     );
   }
 

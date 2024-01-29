@@ -22,6 +22,7 @@ import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.clock.NPClock;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
@@ -30,10 +31,12 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
 import com.io7m.northpike.model.NPArchiveLinks;
+import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
@@ -48,6 +51,7 @@ import com.io7m.northpike.model.NPToolExecutionEvaluated;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
@@ -102,8 +106,8 @@ import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tests.NPEventInterceptingService;
 import com.io7m.northpike.tests.NPFakeSocket;
-import com.io7m.northpike.tests.containers.NPTestContainerInstances;
-import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.northpike.tests.containers.NPDatabaseFixture;
+import com.io7m.northpike.tests.containers.NPFixtures;
 import com.io7m.northpike.tests.plans.NPFakeClock;
 import com.io7m.northpike.tests.server.NPServerConfigurations;
 import com.io7m.repetoir.core.RPServiceDirectory;
@@ -159,13 +163,13 @@ public final class NPAgentTaskTest
 
   private static final int LIMIT = 1_000_000;
 
-  private static NPAgentKeyPublicEd448Type KEY_0;
-  private static NPAgentKeyPublicEd448Type KEY_1;
-  private static NPAgentKeyPublicEd448Type KEY_U;
   private static NPAgentKeyPairEd448Type KEY_PAIR_0;
   private static NPAgentKeyPairEd448Type KEY_PAIR_1;
   private static NPAgentKeyPairEd448Type KEY_PAIR_U;
-  private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
+  private static NPAgentKeyPublicEd448Type KEY_0;
+  private static NPAgentKeyPublicEd448Type KEY_1;
+  private static NPAgentKeyPublicEd448Type KEY_U;
+  private static NPDatabaseFixture DATABASE_FIXTURE;
 
   private ExecutorService executor;
   private NPAgentDescription agent0;
@@ -200,7 +204,7 @@ public final class NPAgentTaskTest
     final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE = NPTestContainerInstances.database(containers);
+    DATABASE_FIXTURE = NPFixtures.database(containers);
 
     final var ed448 = new NPAgentKeyPairFactoryEd448();
     KEY_PAIR_0 = ed448.generateKeyPair();
@@ -213,6 +217,7 @@ public final class NPAgentTaskTest
 
   @BeforeEach
   public void setup(
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers,
     final CloseableResourcesType closeables)
     throws Exception
   {
@@ -225,12 +230,8 @@ public final class NPAgentTaskTest
     this.transaction =
       closeables.addPerTestResource(this.connection.openTransaction());
 
-    this.transaction.setOwner(
-      NPTestContainers.NPDatabaseFixture.createUser(
-        this.transaction,
-        UUID.randomUUID()
-      )
-    );
+    final var user = NPFixtures.idstore(containers).userWithLogin();
+    this.transaction.setOwner(new NPAuditUserOrAgentType.User(user.id()));
 
     this.executor =
       Executors.newCachedThreadPool();
@@ -293,6 +294,9 @@ public final class NPAgentTaskTest
       );
 
     assertNotEquals(this.agent0.publicKey(), this.agent1.publicKey());
+
+    this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class)
+      .execute(new NPUser(user.id(), user.idName(), new MSubject(Set.of())));
 
     this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class)
       .execute(this.agent0);

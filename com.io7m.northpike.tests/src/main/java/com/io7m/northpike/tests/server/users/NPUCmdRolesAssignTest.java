@@ -145,58 +145,6 @@ public final class NPUCmdRolesAssignTest
   }
 
   /**
-   * Requires that a user exists.
-   *
-   * @throws Exception On errors
-   */
-
-  @Test
-  public void testFailure2()
-    throws Exception
-  {
-    final var handler = new NPUCmdRolesAssign();
-
-    final var user0 =
-      new NPUser(
-        UUID.fromString("ab27f114-6b29-5ab2-a528-b41ef98abe76"),
-        new IdName("x"),
-        new MSubject(Set.of(
-          MRoleName.of("role0")
-        ))
-      );
-
-    final var user1 =
-      new NPUser(
-        UUID.fromString("ab27f114-6b29-5ab2-a528-b41ef98abe77"),
-        new IdName("y"),
-        new MSubject(Set.of())
-      );
-
-    final var command =
-      new NPUCommandUserRolesAssign(
-        UUID.randomUUID(),
-        user1.userId(),
-        Set.of(
-          MRoleName.of("role0")
-        )
-      );
-
-    Mockito.when(this.context.onAuthenticationRequire())
-      .thenReturn(user0);
-
-    Mockito.when(this.userGet.execute(user1.userId()))
-      .thenReturn(Optional.empty());
-
-    final var ex =
-      assertThrows(NPException.class, () -> {
-        handler.execute(this.context, command);
-      });
-
-    assertEquals("ERROR_NONEXISTENT", ex.message());
-    assertEquals(errorNonexistent(), ex.errorCode());
-  }
-
-  /**
    * Requires roles.
    *
    * @throws Exception On errors

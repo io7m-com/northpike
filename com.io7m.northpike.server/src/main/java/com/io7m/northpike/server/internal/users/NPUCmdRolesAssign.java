@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.server.internal.users;
 
+import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MRoleName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
@@ -29,9 +30,7 @@ import com.io7m.northpike.protocol.user.NPUResponseOK;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorOperationNotPermitted;
-import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_OPERATION_NOT_PERMITTED;
 
 
@@ -69,8 +68,12 @@ public final class NPUCmdRolesAssign
 
         final var targetUser =
           get.execute(command.user())
-            .orElseThrow(() -> {
-              return context.fail(ERROR_NONEXISTENT, errorNonexistent());
+            .orElseGet(() -> {
+              return new NPUser(
+                command.user(),
+                new IdName("X-%s".formatted(command.user())),
+                new MSubject(rolesGiven)
+              );
             });
 
         final var newRoles = new HashSet<>(targetUser.subject().roles());

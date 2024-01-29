@@ -324,4 +324,11 @@ public final class NPAssignmentService implements NPAssignmentServiceType
   {
     return "Assignment execution service.";
   }
+
+  @Override
+  public String toString()
+  {
+    return "[NPAssignmentService 0x%s]"
+      .formatted(Integer.toUnsignedString(this.hashCode(), 16));
+  }
 }

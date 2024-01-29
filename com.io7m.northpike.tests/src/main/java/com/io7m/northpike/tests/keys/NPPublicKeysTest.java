@@ -38,7 +38,7 @@ public final class NPPublicKeysTest
 {
   public static final String KEY_TEXT = """
     -----BEGIN PGP PUBLIC KEY BLOCK-----
-    Version: BCPG v1.76.0
+    Version: BCPG v1.77.00
 
     mDMEY7F/wRYJKwYBBAHaRw8BAQdA5iaeazlPKvs/ThTquJ4lYrjTwI9ALsyTu3/V
     mWUYSfm0Lk1hcmsgUmF5bnNmb3JkICgyMDIzIHBlcnNvbmFsKSA8bWFya0Bpbzdt
@@ -114,12 +114,12 @@ public final class NPPublicKeysTest
       k.timeExpires()
     );
 
-    assertEquals(
+    final var lines =
       KEY_TEXT.lines()
         .map(String::trim)
-        .collect(Collectors.joining("\r\n")),
-      k.encodedForm()
-    );
+        .collect(Collectors.joining("\r\n"));
+
+    assertEquals(lines, k.encodedForm());
   }
 
   private static InputStream resource(

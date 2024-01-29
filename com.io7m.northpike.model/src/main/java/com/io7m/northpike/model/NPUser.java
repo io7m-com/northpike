@@ -19,6 +19,7 @@ package com.io7m.northpike.model;
 import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -34,6 +35,7 @@ public record NPUser(
   UUID userId,
   IdName name,
   MSubject subject)
+  implements Comparable<NPUser>
 {
   /**
    * A snapshot of a user.
@@ -48,5 +50,14 @@ public record NPUser(
     Objects.requireNonNull(userId, "userId");
     Objects.requireNonNull(name, "name");
     Objects.requireNonNull(subject, "subject");
+  }
+
+  @Override
+  public int compareTo(
+    final NPUser other)
+  {
+    return Comparator.comparing(NPUser::userId)
+      .thenComparing(NPUser::name)
+      .compare(this, other);
   }
 }

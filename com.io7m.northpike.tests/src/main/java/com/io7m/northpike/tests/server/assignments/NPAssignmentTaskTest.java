@@ -63,8 +63,8 @@ import com.io7m.northpike.server.internal.agents.NPAgentWorkItemStatusChanged;
 import com.io7m.northpike.server.internal.assignments.NPAssignmentExecutionStatusChanged;
 import com.io7m.northpike.server.internal.assignments.NPAssignmentTask;
 import com.io7m.northpike.strings.NPStrings;
-import com.io7m.northpike.tests.containers.NPTestContainerInstances;
-import com.io7m.northpike.tests.containers.NPTestContainers;
+import com.io7m.northpike.tests.containers.NPDatabaseFixture;
+import com.io7m.northpike.tests.containers.NPFixtures;
 import com.io7m.northpike.tests.keys.NPPublicKeysTest;
 import com.io7m.northpike.toolexec.NPTXFormats;
 import com.io7m.verona.core.Version;
@@ -149,7 +149,7 @@ public final class NPAssignmentTaskTest
   private static NPAgentKeyPublicEd448Type KEY;
   private static NPAgentKeyPairEd448Type KEY_PAIR;
   private static NPAssignmentFixture ASSIGNMENT_FIXTURE;
-  private static NPTestContainers.NPDatabaseFixture DATABASE_FIXTURE;
+  private static NPDatabaseFixture DATABASE_FIXTURE;
   private ScheduledExecutorService executor;
   private AtomicBoolean running;
 
@@ -160,9 +160,13 @@ public final class NPAssignmentTaskTest
     throws Exception
   {
     DATABASE_FIXTURE =
-      NPTestContainerInstances.database(containers);
+      NPFixtures.database(containers);
     ASSIGNMENT_FIXTURE =
-      NPAssignmentFixture.create(DATABASE_FIXTURE, reposDirectory);
+      NPAssignmentFixture.create(
+        NPFixtures.idstore(containers),
+        DATABASE_FIXTURE,
+        reposDirectory
+      );
 
     KEY_PAIR = new NPAgentKeyPairFactoryEd448().generateKeyPair();
     KEY = KEY_PAIR.publicKey();
