@@ -39,6 +39,7 @@
     <module>com.io7m.northpike.connections</module>
     <module>com.io7m.northpike.database.api</module>
     <module>com.io7m.northpike.database.postgres</module>
+    <module>com.io7m.northpike.documentation</module>
     <module>com.io7m.northpike.keys</module>
     <module>com.io7m.northpike.model</module>
     <module>com.io7m.northpike.plans.compiler</module>

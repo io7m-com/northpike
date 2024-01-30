@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Document xmlns="urn:com.io7m.structural:8:0"
+          xmlns:dc="http://purl.org/dc/elements/1.1/"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          tableOfContentsDepth="1">
+
+  <Metadata>
+    <dc:date>2024-01-30T19:17:44+00:00</dc:date>
+    <dc:description>User manual for the northpike server.</dc:description>
+    <dc:identifier>d6cd7fa0-ac99-4ff1-9967-48c6d0626db6</dc:identifier>
+    <dc:language>en</dc:language>
+    <dc:source>https://www.io7m.com/software/northpike/</dc:source>
+    <dc:title>Northpike User Manual ${project.version}</dc:title>
+
+    <MetaProperty name="com.io7m.xstructural.epub.colophon">colophon_extra.xml</MetaProperty>
+    <MetaProperty name="com.io7m.xstructural.epub.cover">cover.jpg</MetaProperty>
+    <MetaProperty name="com.io7m.xstructural.web.branding.header">brand.xml</MetaProperty>
+    <MetaProperty name="com.io7m.xstructural.web.branding.footer">brand.xml</MetaProperty>
+  </Metadata>
+
+  <xi:include href="intro.xml" />
+
+</Document>
