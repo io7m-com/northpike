@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Table xmlns="urn:com.io7m.structural:8:0"
+       type="genericTable">
+  <Columns>
+    <Column>Name</Column>
+    <Column>Description</Column>
+  </Columns>
+  <Row>
+    <Cell>
+      <Term type="expression">server</Term>
+    </Cell>
+    <Cell>The server.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">agents</Term>
+    </Cell>
+    <Cell>The agents.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">agent_labels</Term>
+    </Cell>
+    <Cell>The agent labels.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">agent_login_challenges</Term>
+    </Cell>
+    <Cell>The agent login challenges.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">plans</Term>
+    </Cell>
+    <Cell>The plans.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">repositories</Term>
+    </Cell>
+    <Cell>The repositories.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">assignments</Term>
+    </Cell>
+    <Cell>The assignments.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">assignment_executions</Term>
+    </Cell>
+    <Cell>The assignment executions.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">scm_providers</Term>
+    </Cell>
+    <Cell>The SCM providers.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">tools</Term>
+    </Cell>
+    <Cell>The tools.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">public_keys</Term>
+    </Cell>
+    <Cell>The public keys.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">audit_log</Term>
+    </Cell>
+    <Cell>The audit log.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">users</Term>
+    </Cell>
+    <Cell>The users.</Cell>
+  </Row>
+</Table>

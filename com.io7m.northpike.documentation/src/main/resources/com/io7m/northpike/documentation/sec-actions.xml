@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Table xmlns="urn:com.io7m.structural:8:0"
+       type="genericTable">
+  <Columns>
+    <Column>Name</Column>
+    <Column>Description</Column>
+  </Columns>
+  <Row>
+    <Cell>
+      <Term type="expression">read</Term>
+    </Cell>
+    <Cell>A read operation.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">enumerate</Term>
+    </Cell>
+    <Cell>An enumerate operation.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">write</Term>
+    </Cell>
+    <Cell>A write operation.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">execute</Term>
+    </Cell>
+    <Cell>An execute operation.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">delete</Term>
+    </Cell>
+    <Cell>A delete operation.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">login</Term>
+    </Cell>
+    <Cell>A login operation.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">key_assign</Term>
+    </Cell>
+    <Cell>A key assignment operation.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">key_unassign</Term>
+    </Cell>
+    <Cell>A key unassignment operation.</Cell>
+  </Row>
+</Table>

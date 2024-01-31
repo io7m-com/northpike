@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="66478161-f6d7-4df4-b822-29578209372e"
+         title="Model">
+
+  <Subsection title="Overview">
+    <Paragraph>
+      The <Term type="package">northpike</Term> package provides a server-based application to perform
+      <LinkExternal target="https://en.wikipedia.org/wiki/Continuous_integration">continuous integration</LinkExternal>.
+    </Paragraph>
+    <Paragraph>
+      This section of the documentation describes the theory of operation of the
+      <Term type="package">northpike</Term>
+      package; the basic concepts and elements that make up the system as a whole.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Architecture">
+    <Paragraph>
+      At a very high level, the basic purpose of a <Term type="term">continuous integration</Term> system is to take
+      code from a <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">repository</Link> on a regular schedule, and
+      execute one or more <Link target="fc06253c-8194-4a04-8d65-7bc2de2e7ea9">tools</Link> on the code (typically some
+      kind of <LinkExternal target="https://en.wikipedia.org/wiki/Compiler">compiler</LinkExternal>), storing and
+      reporting the execution results. Additionally, many use-cases of continuous integration systems involve executing
+      tools across many systems concurrently; a good example of this is running
+      <LinkExternal target="https://en.wikipedia.org/wiki/Test_suite">test suites</LinkExternal>
+      across multiple distinct platforms in order to check for platform-specific bugs in the code under test.
+    </Paragraph>
+    <FormalItem title="Architecture">
+      <Image source="arch.png"
+             width="640"
+             height="574">Architecture
+      </Image>
+    </FormalItem>
+    <Paragraph>
+      The <Term type="package">northpike</Term> system consists of a central
+      <Link target="c52a0a86-9c3b-4336-a3a9-6baa5211d2ea">server</Link>
+      running multiple services. The server uses an external relational
+      <Link target="90405901-1075-4a69-b602-b26cc29e6711">database</Link>
+      to store almost all persistent state.
+    </Paragraph>
+    <Paragraph>
+      The system runs defined <Link target="7b6d8296-cba1-448b-96e0-10e89b61bec0">plans</Link> on the code contained
+      within cloned <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">repositories</Link>, on a schedule defined by
+      configured <Link target="abbcfc20-95ca-4f09-b795-74d1fd1538f0">assignments</Link>. The actual plans are executed
+      by one or more
+      <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agents</Link>
+      connected to the server; the server itself never executes plans.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Repositories"
+              id="679205fa-85e3-437c-a84d-0b691b6291dc">
+    <Paragraph>
+      A <Term type="term">repository</Term> is a versioned container of source code. The most popular system for
+      managing repositories at the time of writing is arguably the
+      <LinkExternal target="https://git-scm.com/">Git</LinkExternal>
+      SCM. The
+      <Term type="package">northpike</Term>
+      package currently contains support for cloning and inspecting Git repositories.
+    </Paragraph>
+    <Paragraph>
+      A repository effectively describes <Term type="term">what</Term> will be processed by a
+      <Link target="7b6d8296-cba1-448b-96e0-10e89b61bec0">plan</Link>.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Plans"
+              id="7b6d8296-cba1-448b-96e0-10e89b61bec0">
+    <Paragraph>
+      A <Term type="term">plan</Term> is a tree of instructions to be executed on code pulled from a
+      <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">repository</Link>. Plans typically consist of a series of
+      <Link target="fc06253c-8194-4a04-8d65-7bc2de2e7ea9">tool executions</Link>
+      along with constraints upon which
+      <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agents</Link>
+      those tool executions should execute. Plans are written in a strictly-defined domain-specific language that
+      emphasizes ahead-of-time static checking and analysis, and attempts to provide the maximum possible degree of
+      parallelism automatically.
+    </Paragraph>
+    <Paragraph>
+      A plan effectively describes <Term type="term">how</Term> objects taken from a repository will be processed when
+      the plan is executed by an
+      <Link target="abbcfc20-95ca-4f09-b795-74d1fd1538f0">assignment</Link>.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Assignments"
+              id="abbcfc20-95ca-4f09-b795-74d1fd1538f0">
+    <Subsection title="Overview">
+      <Paragraph>
+        An <Term type="term">assignment</Term> associates a
+        <Link target="7b6d8296-cba1-448b-96e0-10e89b61bec0">plan</Link>
+        and a
+        <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">repository</Link>
+        with a <Term type="term">schedule</Term>. A schedule describes how frequently the repository will be checked for
+        changes. If new changes have been made in the repository since the last time the
+        <Term type="package">northpike</Term>
+        server checked it, the associated plan is executed for each of the changes.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Schedules">
+      <Paragraph>
+        The <Term type="package">northpike</Term> server supports the following schedule types:
+      </Paragraph>
+      <FormalItem title="Types">
+        <ListUnordered>
+          <Item>
+            <Term type="constant">NONE</Term>; a schedule that never triggers an execution.
+          </Item>
+          <Item>
+            <Term type="constant">HOURLY_HASHED</Term>; a schedule that attempts to run hourly, with an offset from the
+            start of the hour derived from the hash of the assignment name. The effectively random offset is a courtesy
+            to external repositories; the hope is that the random offset will have the effect of distributing the load
+            evenly over each hourly period, as opposed to having the
+            <Term type="package">northpike</Term>
+            server create load spikes by checking hundreds of repositories on a given server at exactly the start of
+            every hour.
+          </Item>
+        </ListUnordered>
+      </FormalItem>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Tools"
+              id="fc06253c-8194-4a04-8d65-7bc2de2e7ea9">
+    <Paragraph>
+      A <Term type="term">tool</Term> is...
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Users"
+              id="40ce3c93-0460-41ac-896b-b4aa220c4df7">
+    <Subsection title="Overview">
+      <Paragraph>
+        A <Term type="term">user</Term> is an entity that has a configurable degree of administrative access to the
+        <Term type="package">northpike</Term> server. The authentication of users is delegated to an external
+        <LinkExternal target="https://www.io7m.com/software/idstore">idstore</LinkExternal> server.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Role-Based Access Control">
+      <Paragraph>
+        The <Term type="package">northpike</Term> server uses a fairly fine-grained role-based access control system.
+        The system has a security policy that determines whether a user with a given <Term type="term">role</Term> is
+        allowed to perform a given <Term type="term">action</Term> on a given <Term type="term">object</Term>.
+      </Paragraph>
+      <Paragraph>
+        The system defines the following roles:
+      </Paragraph>
+      <FormalItem title="Roles">
+        <xi:include href="sec-roles.xml"/>
+      </FormalItem>
+      <Paragraph>
+        The system defines the following actions:
+      </Paragraph>
+      <FormalItem title="Actions">
+        <xi:include href="sec-actions.xml"/>
+      </FormalItem>
+      <Paragraph>
+        The system defines the following objects:
+      </Paragraph>
+      <FormalItem title="Objects">
+        <xi:include href="sec-objects.xml"/>
+      </FormalItem>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Server"
+              id="c52a0a86-9c3b-4336-a3a9-6baa5211d2ea">
+    <Subsection title="Overview">
+      <Paragraph>
+        The <Term type="term">server</Term> is the central component in the system.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Scheduler">
+      <Paragraph>
+        The scheduler...
+      </Paragraph>
+    </Subsection>
+    <Subsection title="User Service">
+      <Paragraph>
+        The user service...
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Archives">
+      <Paragraph>
+        The archive service...
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Agent Service">
+      <Paragraph>
+        The agent service...
+      </Paragraph>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Database"
+              id="90405901-1075-4a69-b602-b26cc29e6711">
+    <Paragraph>
+      The <Term type="term">database</Term> used by the <Term type="package">northpike</Term> server is
+      <LinkExternal target="https://www.postgresql.org/">PostgreSQL</LinkExternal>. All configuration information, logs
+      from <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agents</Link>, and other persistent information except
+      <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">repositories</Link>
+      and archives of code taken from those repositories, is stored in the database. The database therefore represents
+      the single source of important information that should be included in backups.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Agent / Agent Host"
+              id="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">
+    <Subsection title="Overview">
+      <Paragraph>
+        An <Term type="term">agent host</Term> is a service that accepts commands from the
+        <Term type="package">northpike</Term>
+        <Link target="c52a0a86-9c3b-4336-a3a9-6baa5211d2ea">server</Link>
+        and executes parts of
+        <Link target="7b6d8296-cba1-448b-96e0-10e89b61bec0">plans</Link>
+        as required. More specifically, an <Term type="term">agent host</Term> manages an internal set of
+        <Term type="term">agents</Term>, each of which has a single
+        <Link target="35f12f1c-5edc-4724-8a50-d330c3defb92">work executor</Link>.
+      </Paragraph>
+      <Paragraph>
+        A typical configuration is a set of physical servers with each server running a single
+        <Term type="term">agent host</Term>
+        service, with all of the <Term type="term">agent host</Term> services connecting to a single central
+        <Term type="package">northpike</Term>
+        server. In most configurations, administrators will choose run a wide variety of operating systems and hardware
+        types in order to ensure that code can be tested across those platforms.
+      </Paragraph>
+      <FormalItem title="Agents">
+        <Image source="agents.png"
+               width="582"
+               height="362">Agents</Image>
+      </FormalItem>
+    </Subsection>
+    <Subsection title="Public Keys">
+      <Paragraph>
+        Each agent is uniquely identified by a <Term type="term">public keypair</Term>. When an agent is created
+        in an <Term type="term">agent host</Term>, a new
+        <LinkExternal target="https://en.wikipedia.org/wiki/EdDSA">Ed25519</LinkExternal> keypair is generated, and
+        the public half of this keypair can then be communicated out-of-band to the administrator of the
+        relevant <Term type="package">northpike</Term> server. This keypair is used to authenticate the agent
+        to the server whenever the agent connects.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Work Executor"
+                id="35f12f1c-5edc-4724-8a50-d330c3defb92">
+      <Paragraph>
+        A <Term type="term">work executor</Term> is a service responsible for executing
+        individual <Term type="term">tasks</Term> that have been distributed to the <Term type="term">agent host</Term>
+        from the <Term type="term">server</Term>. A <Term type="term">work executor</Term> can execute at most one
+        task at any given time, and different types of work executors are supported:
+      </Paragraph>
+      <FormalItem title="Supported Work Executors">
+        <ListUnordered>
+          <Item>
+            <Term type="constant">workexec.local</Term>: A work executor that executes each given task directly within
+            the execution environment of the agent. This type of executor is the most flexible in that it has the
+            same degree of access to the host system as the agent but is also, as a result, not strongly isolated
+            from other work executors that may be running on the same system.
+          </Item>
+          <Item>
+            <Term type="constant">workexec.podman</Term>: A work executor that executes each given task in a
+            <LinkExternal target="https://podman.io/">Podman</LinkExternal> container that is (optionally) destroyed
+            when the task completes. This type of executor gives the strongest isolation, but may not be suitable if
+            the task being executed requires access to system resources that may not be made available to code running
+            in containers on some operating systems.
+          </Item>
+        </ListUnordered>
+      </FormalItem>
+    </Subsection>
+    <Subsection title="Console">
+      <Paragraph>
+        An <Term type="term">agent console</Term> is...
+      </Paragraph>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Agent Shell"
+              id="0b8a3df8-878b-42c2-8f3d-0d6d4e596d79">
+    <Paragraph>
+      The agent shell...
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="User Shell"
+              id="b5739d01-6ae7-47ce-be56-e3d8b80350db">
+    <Paragraph>
+      The user shell...
+    </Paragraph>
+  </Subsection>
+
+</Section>

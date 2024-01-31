@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Table xmlns="urn:com.io7m.structural:8:0"
+       type="genericTable">
+  <Columns>
+    <Column>Name</Column>
+    <Column>Description</Column>
+  </Columns>
+  <Row>
+    <Cell>
+      <Term type="expression">administrator</Term>
+    </Cell>
+    <Cell>The all-powerful admin role. Use with extreme care.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">login</Term>
+    </Cell>
+    <Cell>A role that allows logging in.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">scm_providers.reader</Term>
+    </Cell>
+    <Cell>A role for reading SCM providers.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">scm_providers.writer</Term>
+    </Cell>
+    <Cell>A role for writing SCM providers.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">repositories.reader</Term>
+    </Cell>
+    <Cell>A role for reading repositories.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">repositories.writer</Term>
+    </Cell>
+    <Cell>A role for writing repositories.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">assignments.reader</Term>
+    </Cell>
+    <Cell>A role for reading assignments.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">assignments.executor</Term>
+    </Cell>
+    <Cell>A role for executing assignments.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">assignments.writer</Term>
+    </Cell>
+    <Cell>A role for writing assignments.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">assignment_executions.writer</Term>
+    </Cell>
+    <Cell>A role for writing to assignment executions.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">assignment_executions.reader</Term>
+    </Cell>
+    <Cell>A role for reading assignment executions.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">tools.reader</Term>
+    </Cell>
+    <Cell>A role for reading tools.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">tools.writer</Term>
+    </Cell>
+    <Cell>A role for writing tools.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">public_keys.reader</Term>
+    </Cell>
+    <Cell>A role for reading public keys.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">public_keys.writer</Term>
+    </Cell>
+    <Cell>A role for writing public keys.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">plans.reader</Term>
+    </Cell>
+    <Cell>A role for reading plans.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">plans.writer</Term>
+    </Cell>
+    <Cell>A role for writing plans.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">agents.reader</Term>
+    </Cell>
+    <Cell>A role for reading agents.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">agents.writer</Term>
+    </Cell>
+    <Cell>A role for writing agents.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">agent_labels.reader</Term>
+    </Cell>
+    <Cell>A role for reading agent labels.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">agent_labels.writer</Term>
+    </Cell>
+    <Cell>A role for writing agent labels.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">agent_login_challenge.reader</Term>
+    </Cell>
+    <Cell>A role for reading agent login challenges.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">agent_login_challenge.writer</Term>
+    </Cell>
+    <Cell>A role for writing agent login challenges.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">audit_log.reader</Term>
+    </Cell>
+    <Cell>A role for reading the audit log.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">users.reader</Term>
+    </Cell>
+    <Cell>A role for reading users.</Cell>
+  </Row>
+</Table>

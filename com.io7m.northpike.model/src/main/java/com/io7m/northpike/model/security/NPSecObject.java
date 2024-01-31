@@ -19,6 +19,7 @@ package com.io7m.northpike.model.security;
 
 import com.io7m.medrina.api.MObject;
 import com.io7m.medrina.api.MTypeName;
+import com.io7m.northpike.model.NPDocumentation;
 
 import java.util.Map;
 
@@ -32,6 +33,7 @@ public enum NPSecObject
    * The server.
    */
 
+  @NPDocumentation("The server.")
   SERVER {
     private static final MObject SERVER_OBJECT =
       new MObject(MTypeName.of("server"), Map.of());
@@ -47,6 +49,7 @@ public enum NPSecObject
    * The agents.
    */
 
+  @NPDocumentation("The agents.")
   AGENTS {
     private static final MObject AGENTS_OBJECT =
       new MObject(MTypeName.of("agents"), Map.of());
@@ -62,6 +65,7 @@ public enum NPSecObject
    * The agent labels.
    */
 
+  @NPDocumentation("The agent labels.")
   AGENT_LABELS {
     private static final MObject AGENT_LABELS_OBJECT =
       new MObject(MTypeName.of("agent_labels"), Map.of());
@@ -77,6 +81,7 @@ public enum NPSecObject
    * The agent login challenges.
    */
 
+  @NPDocumentation("The agent login challenges.")
   AGENT_LOGIN_CHALLENGES {
     private static final MObject AGENT_LOGIN_CHALLENGES_OBJECT =
       new MObject(MTypeName.of("agent_login_challenges"), Map.of());
@@ -92,6 +97,7 @@ public enum NPSecObject
    * The plans.
    */
 
+  @NPDocumentation("The plans.")
   PLANS {
     private static final MObject PLANS_OBJECT =
       new MObject(MTypeName.of("plans"), Map.of());
@@ -107,6 +113,7 @@ public enum NPSecObject
    * The repositories.
    */
 
+  @NPDocumentation("The repositories.")
   REPOSITORIES {
     private static final MObject REPOSITORIES_OBJECT =
       new MObject(MTypeName.of("repositories"), Map.of());
@@ -122,6 +129,7 @@ public enum NPSecObject
    * The assignments.
    */
 
+  @NPDocumentation("The assignments.")
   ASSIGNMENTS {
     private static final MObject ASSIGNMENTS_OBJECT =
       new MObject(MTypeName.of("assignments"), Map.of());
@@ -137,6 +145,7 @@ public enum NPSecObject
    * The assignment executions.
    */
 
+  @NPDocumentation("The assignment executions.")
   ASSIGNMENT_EXECUTIONS {
     private static final MObject ASSIGNMENT_EXECUTIONS_OBJECT =
       new MObject(MTypeName.of("assignment_executions"), Map.of());
@@ -152,6 +161,7 @@ public enum NPSecObject
    * The SCM providers.
    */
 
+  @NPDocumentation("The SCM providers.")
   SCM_PROVIDERS {
     private static final MObject SCM_PROVIDERS_OBJECT =
       new MObject(MTypeName.of("scm_providers"), Map.of());
@@ -167,6 +177,7 @@ public enum NPSecObject
    * The tools.
    */
 
+  @NPDocumentation("The tools.")
   TOOLS {
     private static final MObject TOOLS_OBJECT =
       new MObject(MTypeName.of("tools"), Map.of());
@@ -182,6 +193,7 @@ public enum NPSecObject
    * The public keys.
    */
 
+  @NPDocumentation("The public keys.")
   PUBLIC_KEYS {
     private static final MObject PUBLIC_KEYS_OBJECT =
       new MObject(MTypeName.of("public_keys"), Map.of());
@@ -197,6 +209,7 @@ public enum NPSecObject
    * The audit log.
    */
 
+  @NPDocumentation("The audit log.")
   AUDIT_LOG {
     private static final MObject AUDIT_LOG_OBJECT =
       new MObject(MTypeName.of("audit_log"), Map.of());
@@ -212,6 +225,7 @@ public enum NPSecObject
    * The users.
    */
 
+  @NPDocumentation("The users.")
   USERS {
     private static final MObject USERS_OBJECT =
       new MObject(MTypeName.of("users"), Map.of());

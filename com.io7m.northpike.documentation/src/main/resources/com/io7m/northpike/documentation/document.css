@@ -142,7 +142,7 @@
 }
 .genericTable td:nth-child(1)
 {
-  width: 8em;
+  padding-right: 2em;
 }
 .genericTable td:nth-child(2)
 {

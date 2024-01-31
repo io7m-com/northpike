@@ -18,6 +18,7 @@
 package com.io7m.northpike.model.security;
 
 import com.io7m.medrina.api.MActionName;
+import com.io7m.northpike.model.NPDocumentation;
 
 /**
  * The actions.
@@ -29,6 +30,7 @@ public enum NPSecAction
    * A read operation.
    */
 
+  @NPDocumentation("A read operation.")
   READ {
     private static final MActionName READ_OBJECT =
       MActionName.of("read");
@@ -44,6 +46,7 @@ public enum NPSecAction
    * An enumerate operation.
    */
 
+  @NPDocumentation("An enumerate operation.")
   ENUMERATE {
     private static final MActionName ENUMERATE_OBJECT =
       MActionName.of("enumerate");
@@ -59,6 +62,7 @@ public enum NPSecAction
    * A write operation.
    */
 
+  @NPDocumentation("A write operation.")
   WRITE {
     private static final MActionName WRITE_OBJECT =
       MActionName.of("write");
@@ -74,6 +78,7 @@ public enum NPSecAction
    * An execute operation.
    */
 
+  @NPDocumentation("An execute operation.")
   EXECUTE {
     private static final MActionName EXECUTE_OBJECT =
       MActionName.of("execute");
@@ -89,6 +94,7 @@ public enum NPSecAction
    * A delete operation.
    */
 
+  @NPDocumentation("A delete operation.")
   DELETE {
     private static final MActionName DELETE_OBJECT =
       MActionName.of("delete");
@@ -104,6 +110,7 @@ public enum NPSecAction
    * A login operation.
    */
 
+  @NPDocumentation("A login operation.")
   LOGIN {
     private static final MActionName LOGIN_OBJECT =
       MActionName.of("login");
@@ -119,6 +126,7 @@ public enum NPSecAction
    * A key assignment operation.
    */
 
+  @NPDocumentation("A key assignment operation.")
   KEY_ASSIGN {
     private static final MActionName KEY_ASSIGN_OBJECT =
       MActionName.of("key_assign");
@@ -134,6 +142,7 @@ public enum NPSecAction
    * A key unassignment operation.
    */
 
+  @NPDocumentation("A key unassignment operation.")
   KEY_UNASSIGN {
     private static final MActionName KEY_UNASSIGN_OBJECT =
       MActionName.of("key_unassign");
