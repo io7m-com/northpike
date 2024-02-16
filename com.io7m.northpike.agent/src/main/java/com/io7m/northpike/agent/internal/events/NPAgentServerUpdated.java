@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.agent.internal.events;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.agents.NPAgentServerID;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
@@ -29,6 +30,7 @@ import java.util.Objects;
  * @param serverID The server ID
  */
 
+@NPDocumentation("A server definition was updated.")
 public record NPAgentServerUpdated(
   NPAgentServerID serverID)
   implements NPAgentEventType

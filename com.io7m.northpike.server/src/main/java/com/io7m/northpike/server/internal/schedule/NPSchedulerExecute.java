@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.server.internal.schedule;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
@@ -31,6 +32,7 @@ import java.util.Objects;
  * @param commitsSince Build commits created later than this time
  */
 
+@NPDocumentation("An assignment has been asked to execute now.")
 public record NPSchedulerExecute(
   NPAssignmentName assignment,
   OffsetDateTime commitsSince)

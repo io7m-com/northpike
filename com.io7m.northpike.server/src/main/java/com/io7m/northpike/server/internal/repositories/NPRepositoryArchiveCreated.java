@@ -18,6 +18,7 @@
 package com.io7m.northpike.server.internal.repositories;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 import com.io7m.northpike.telemetry.api.NPEventType;
@@ -35,6 +36,7 @@ import java.util.Map;
  * @param file     The created file
  */
 
+@NPDocumentation("An archive was created by the repository service.")
 public record NPRepositoryArchiveCreated(
   NPRepositoryID id,
   URI url,

@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.server.internal.agents;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
@@ -29,6 +30,7 @@ import java.util.Map;
  * @param identifier The work item
  */
 
+@NPDocumentation("A work item was accepted by an agent.")
 public record NPAgentWorkItemAccepted(
   NPAgentID agentID,
   NPWorkItemIdentifier identifier)

@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.server.internal.agents;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
 import com.io7m.northpike.model.agents.NPAgentID;
@@ -31,6 +32,7 @@ import java.util.Map;
  * @param status     The status
  */
 
+@NPDocumentation("The status of a work item changed.")
 public record NPAgentWorkItemStatusChanged(
   NPAgentID agentID,
   NPWorkItemIdentifier identifier,

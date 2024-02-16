@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.server.internal.users;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.server.internal.agents.NPAgentEventType;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
@@ -23,12 +24,13 @@ import java.net.InetAddress;
 import java.util.Map;
 
 /**
- * A user connected.
+ * A user connected successfully.
  *
  * @param address The remote address
  * @param port    The remote port
  */
 
+@NPDocumentation("A user connected successfully.")
 public record NPUserConnected(
   InetAddress address,
   int port)

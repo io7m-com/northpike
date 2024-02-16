@@ -17,12 +17,14 @@
 
 package com.io7m.northpike.server.internal.assignments;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.telemetry.api.NPEventType;
 
 /**
  * The type of assignment service events.
  */
 
+@NPDocumentation("The type of assignment service events.")
 public interface NPAssignmentEventType
   extends NPEventType
 {

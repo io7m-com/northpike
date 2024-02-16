@@ -18,6 +18,7 @@
 package com.io7m.northpike.server.internal.repositories;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
@@ -36,6 +37,7 @@ import java.util.Map;
  * @param exception The exception
  */
 
+@NPDocumentation("A repository could not be updated.")
 public record NPRepositoryUpdateFailed(
   NPRepositoryID id,
   URI url,

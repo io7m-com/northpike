@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.server.internal.users;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
 import java.util.Map;
@@ -24,6 +25,7 @@ import java.util.Map;
  * The user service started.
  */
 
+@NPDocumentation("The user service started.")
 public record NPUserServiceStarted()
   implements NPUserEventType
 {

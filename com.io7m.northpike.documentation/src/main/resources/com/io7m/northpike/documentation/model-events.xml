@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Table xmlns="urn:com.io7m.structural:8:0"
+       type="genericTable">
+  <Columns>
+    <Column>Name</Column>
+    <Column>Description</Column>
+  </Columns>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentDeleted</Term>
+    </Cell>
+    <Cell>An agent was deleted.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentEventType</Term>
+    </Cell>
+    <Cell>The type of agent events.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentServerDeleted</Term>
+    </Cell>
+    <Cell>A server definition was deleted.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentServerUpdated</Term>
+    </Cell>
+    <Cell>A server definition was updated.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentUpdated</Term>
+    </Cell>
+    <Cell>An agent was updated.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentWorkerConnectionStarted</Term>
+    </Cell>
+    <Cell>An agent worker connection was started.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentWorkerConnectionStopped</Term>
+    </Cell>
+    <Cell>An agent worker connection was stopped.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentWorkerExecutorStarted</Term>
+    </Cell>
+    <Cell>An agent worker executor was started.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentWorkerExecutorStopped</Term>
+    </Cell>
+    <Cell>An agent worker executor was stopped.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentWorkerStarted</Term>
+    </Cell>
+    <Cell>An agent worker was started.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentWorkerStopped</Term>
+    </Cell>
+    <Cell>An agent worker was stopped.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentAuthenticated</Term>
+    </Cell>
+    <Cell>An agent authenticated successfully.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentAuthenticationFailed</Term>
+    </Cell>
+    <Cell>An agent failed to authenticate.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentConnected</Term>
+    </Cell>
+    <Cell>An agent connected.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentDisconnected</Term>
+    </Cell>
+    <Cell>An agent disconnected.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentEventType</Term>
+    </Cell>
+    <Cell>The type of agent service events.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentServiceStarted</Term>
+    </Cell>
+    <Cell>The agent service started.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentWorkItemAccepted</Term>
+    </Cell>
+    <Cell>A work item was accepted by an agent.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentWorkItemEventType</Term>
+    </Cell>
+    <Cell>The subset of agent events that are work item events.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAgentWorkItemStatusChanged</Term>
+    </Cell>
+    <Cell>The status of a work item changed.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAssignmentEventType</Term>
+    </Cell>
+    <Cell>The type of assignment service events.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPAssignmentExecutionStatusChanged</Term>
+    </Cell>
+    <Cell>The status of an assignment execution changed.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPRepositoryArchiveCreated</Term>
+    </Cell>
+    <Cell>An archive was created by the repository service.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPRepositoryCloseFailed</Term>
+    </Cell>
+    <Cell>A repository could not be closed.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPRepositoryClosed</Term>
+    </Cell>
+    <Cell>A repository was closed.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPRepositoryConfigureFailed</Term>
+    </Cell>
+    <Cell>A repository could not be configured.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPRepositoryConfigured</Term>
+    </Cell>
+    <Cell>A repository was configured.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPRepositoryServiceStarted</Term>
+    </Cell>
+    <Cell>The repository service started.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPRepositoryUpdateFailed</Term>
+    </Cell>
+    <Cell>A repository could not be updated.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPRepositoryUpdated</Term>
+    </Cell>
+    <Cell>A repository was updated.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPSchedulerEventType</Term>
+    </Cell>
+    <Cell>The type of scheduler events.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPSchedulerExecute</Term>
+    </Cell>
+    <Cell>An assignment has been asked to execute now.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPSchedulerScheduled</Term>
+    </Cell>
+    <Cell>An assignment was scheduled to run at a future time.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPUserAuthenticated</Term>
+    </Cell>
+    <Cell>A user authenticated successfully.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPUserConnected</Term>
+    </Cell>
+    <Cell>A user connected successfully.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPUserDisconnected</Term>
+    </Cell>
+    <Cell>A user disconnected.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPUserEventType</Term>
+    </Cell>
+    <Cell>The type of user service events.</Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">NPUserServiceStarted</Term>
+    </Cell>
+    <Cell>The user service started.</Cell>
+  </Row>
+</Table>

@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.agent.internal.events;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
@@ -29,6 +30,7 @@ import java.util.Objects;
  * @param agentName The agent name
  */
 
+@NPDocumentation("An agent worker executor was stopped.")
 public record NPAgentWorkerExecutorStopped(
   NPAgentLocalName agentName)
   implements NPAgentEventType

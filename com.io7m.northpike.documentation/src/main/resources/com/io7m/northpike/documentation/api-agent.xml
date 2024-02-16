@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         id="c56a4477-6e26-42ab-97d5-cf042e43e223"
+         title="Agent API">
+
+  <Paragraph>
+    The <Term type="term">agent API</Term>...
+  </Paragraph>
+
+</Section>

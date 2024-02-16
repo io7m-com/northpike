@@ -17,12 +17,14 @@
 
 package com.io7m.northpike.server.internal.agents;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.telemetry.api.NPEventType;
 
 /**
  * The type of agent service events.
  */
 
+@NPDocumentation("The type of agent service events.")
 public interface NPAgentEventType
   extends NPEventType
 {

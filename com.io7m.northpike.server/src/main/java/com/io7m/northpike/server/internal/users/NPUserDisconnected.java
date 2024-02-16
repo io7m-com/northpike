@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.server.internal.users;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.server.internal.agents.NPAgentEventType;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
@@ -32,6 +33,7 @@ import java.util.UUID;
  * @param userID  The user ID (if available)
  */
 
+@NPDocumentation("A user disconnected.")
 public record NPUserDisconnected(
   InetAddress address,
   int port,

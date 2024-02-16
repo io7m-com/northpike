@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         id="7d2c6f1e-6847-4520-90b7-0d7d051456ae"
+         title="Monitoring">
+
+  <Subsection title="Overview">
+    <Paragraph>
+      The <Term type="package">northpike</Term> package is extensively instrumented with
+      <LinkExternal target="https://opentelemetry.io">OpenTelemetry</LinkExternal>
+      in order to allow for the server to be continually monitored. The package publishes
+      <Link target="e2e53446-dc42-4fe7-8908-dec99db77680">metrics</Link>,
+      logs, and traces, all of which can be independently enabled or disabled. Most installations will only want to
+      enable metrics or logs in production; traces are more useful when trying to diagnose performance
+      problems, or for doing actual development on the <Term type="package">northpike</Term> package.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Metrics" id="e2e53446-dc42-4fe7-8908-dec99db77680">
+    <Subsection title="Names">
+      <Paragraph>
+        The package publishes the following metrics that can be used for monitoring:
+      </Paragraph>
+      <FormalItem title="Metrics">
+        <Table type="genericTable">
+          <Columns>
+            <Column>Name</Column>
+            <Column>Description</Column>
+          </Columns>
+          <Row>
+            <Cell>
+              <Term type="expression">northpike_up</Term>
+            </Cell>
+            <Cell>
+              A gauge that displays a constant <Term type="constant">1</Term> value while the server is up.
+            </Cell>
+          </Row>
+          <Row>
+            <Cell>
+              <Term type="expression">northpike_sessions</Term>
+            </Cell>
+            <Cell>
+              A gauge that displays the number of currently active user sessions.
+            </Cell>
+          </Row>
+        </Table>
+      </FormalItem>
+      <Paragraph>
+        The package <Term type="term">may</Term> produce other metrics, however these are undocumented and
+        should not be relied upon.
+      </Paragraph>
+    </Subsection>
+  </Subsection>
+
+</Section>

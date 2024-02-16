@@ -218,18 +218,14 @@ public final class NPScheduler implements NPSchedulerType
     final NPAssignment assignment)
   {
     final var schedule = assignment.schedule();
-    if (schedule instanceof NPAssignmentScheduleNone) {
-      return;
+    switch (schedule) {
+      case final NPAssignmentScheduleNone ignored -> {
+        // Nothing
+      }
+      case final NPAssignmentScheduleHourlyHashed hashed -> {
+        this.scheduleAssignmentHourlyHashed(assignment, hashed);
+      }
     }
-
-    if (schedule instanceof final NPAssignmentScheduleHourlyHashed hashed) {
-      this.scheduleAssignmentHourlyHashed(assignment, hashed);
-      return;
-    }
-
-    throw new IllegalStateException(
-      "Unrecognized schedule: %s".formatted(schedule)
-    );
   }
 
   private void scheduleAssignmentHourlyHashed(

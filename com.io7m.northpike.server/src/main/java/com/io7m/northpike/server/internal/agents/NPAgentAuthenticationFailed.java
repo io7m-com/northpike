@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.server.internal.agents;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.agents.NPAgentKeyID;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
@@ -32,6 +33,7 @@ import java.util.Optional;
  * @param keyID   The key ID of the agent, if any
  */
 
+@NPDocumentation("An agent failed to authenticate.")
 public record NPAgentAuthenticationFailed(
   InetAddress address,
   int port,

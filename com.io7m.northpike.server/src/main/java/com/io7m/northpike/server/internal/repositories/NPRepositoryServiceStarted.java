@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.server.internal.repositories;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 import com.io7m.northpike.telemetry.api.NPEventType;
 
@@ -25,6 +26,7 @@ import java.util.Map;
  * The repository service started.
  */
 
+@NPDocumentation("The repository service started.")
 public record NPRepositoryServiceStarted()
   implements NPEventType
 {

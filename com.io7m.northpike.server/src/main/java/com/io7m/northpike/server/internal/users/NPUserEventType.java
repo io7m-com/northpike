@@ -17,12 +17,14 @@
 
 package com.io7m.northpike.server.internal.users;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.telemetry.api.NPEventType;
 
 /**
  * The type of user service events.
  */
 
+@NPDocumentation("The type of user service events.")
 public interface NPUserEventType
   extends NPEventType
 {

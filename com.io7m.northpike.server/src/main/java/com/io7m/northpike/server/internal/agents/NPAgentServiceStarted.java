@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.server.internal.agents;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
 import java.util.Map;
@@ -24,6 +25,7 @@ import java.util.Map;
  * The agent service started.
  */
 
+@NPDocumentation("The agent service started.")
 public record NPAgentServiceStarted()
   implements NPAgentEventType
 {

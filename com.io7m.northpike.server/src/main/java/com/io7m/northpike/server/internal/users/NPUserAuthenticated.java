@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.server.internal.users;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
 import java.net.InetAddress;
@@ -23,13 +24,14 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * An user authenticated.
+ * A user authenticated successfully.
  *
  * @param address The remote address
  * @param port    The remote port
  * @param userID The user ID
  */
 
+@NPDocumentation("A user authenticated successfully.")
 public record NPUserAuthenticated(
   InetAddress address,
   int port,

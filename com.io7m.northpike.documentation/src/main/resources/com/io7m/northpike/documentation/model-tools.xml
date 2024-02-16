@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="UTF-8"?><Table xmlns="urn:com.io7m.structural:8:0" type="genericTable"><Columns><Column>Name</Column><Column>Description</Column></Columns><Row><Cell><Term type="expression">org.apache.maven</Term></Cell><Cell>Tool service for org.apache.maven (Apache Maven 3.*).</Cell></Row></Table>

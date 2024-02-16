@@ -705,6 +705,11 @@
         <artifactId>com.io7m.percentpass.extension</artifactId>
         <version>${com.io7m.percentpass.version}</version>
       </dependency>
+      <dependency>
+        <groupId>io.github.classgraph</groupId>
+        <artifactId>classgraph</artifactId>
+        <version>4.8.161</version>
+      </dependency>
 
       <!-- Mockito -->
       <dependency>

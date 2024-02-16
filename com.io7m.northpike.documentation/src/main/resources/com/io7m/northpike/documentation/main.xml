@@ -21,5 +21,11 @@
 
   <xi:include href="intro.xml"/>
   <xi:include href="model.xml"/>
+  <xi:include href="monitoring.xml"/>
+  <xi:include href="toolexec.xml"/>
+  <xi:include href="plan.xml"/>
+  <xi:include href="api-user.xml"/>
+  <xi:include href="api-agent.xml"/>
+  <xi:include href="api-agent-console.xml"/>
 
 </Document>

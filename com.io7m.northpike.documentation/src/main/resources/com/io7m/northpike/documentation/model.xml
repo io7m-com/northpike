@@ -53,18 +53,51 @@
 
   <Subsection title="Repositories"
               id="679205fa-85e3-437c-a84d-0b691b6291dc">
-    <Paragraph>
-      A <Term type="term">repository</Term> is a versioned container of source code. The most popular system for
-      managing repositories at the time of writing is arguably the
-      <LinkExternal target="https://git-scm.com/">Git</LinkExternal>
-      SCM. The
-      <Term type="package">northpike</Term>
-      package currently contains support for cloning and inspecting Git repositories.
-    </Paragraph>
-    <Paragraph>
-      A repository effectively describes <Term type="term">what</Term> will be processed by a
-      <Link target="7b6d8296-cba1-448b-96e0-10e89b61bec0">plan</Link>.
-    </Paragraph>
+    <Subsection title="Overview">
+      <Paragraph>
+        A <Term type="term">repository</Term> is a versioned container of source code. The most popular system for
+        managing repositories at the time of writing is arguably the
+        <LinkExternal target="https://git-scm.com/">Git</LinkExternal>
+        SCM. The
+        <Term type="package">northpike</Term>
+        package currently contains support for cloning and inspecting Git repositories.
+      </Paragraph>
+      <Paragraph>
+        A repository effectively describes <Term type="term">what</Term> will be processed by a
+        <Link target="7b6d8296-cba1-448b-96e0-10e89b61bec0">plan</Link>.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Commit Signatures"
+                id="a8871c5e-98ca-48e8-b577-afad7b94848c">
+      <Paragraph>
+        A <Term type="term">commit signature</Term> is a
+        <LinkExternal target="https://en.wikipedia.org/wiki/Digital_signature">digital signature</LinkExternal>
+        applied to a code revision in a repository. The
+        <Term type="package">northpike</Term>
+        server can be configured with the following signature policies:
+      </Paragraph>
+      <FormalItem title="Signature Policies">
+        <ListUnordered>
+          <Item>
+            <Term type="constant">ALLOW_UNSIGNED_COMMITS</Term>: Commits in a repository do not have to be signed. This
+            policy essentially provides no assurances that the code being processed by a plan did not come from a
+            hostile source.
+          </Item>
+          <Item>
+            <Term type="constant">REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY</Term>: Commits in a repository must be signed
+            using any of the keys that are known to the server. This policy provides moderate assurances that the code
+            being processed by a plan did not come from a hostile source.
+          </Item>
+          <Item>
+            <Term type="constant">REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS</Term>: Commits in a repository must be
+            signed using any of the keys that have been specifically assigned to the repository by the server. This
+            policy provides the strongest assurances that the code being processed by a plan did not come from a hostile
+            source; not only does code have to be signed by a known key, it has to be signed by an entity that has been
+            explicitly recognized as an entity allowed to produce code in the corresponding repository.
+          </Item>
+        </ListUnordered>
+      </FormalItem>
+    </Subsection>
   </Subsection>
 
   <Subsection title="Plans"
@@ -75,8 +108,9 @@
       <Link target="fc06253c-8194-4a04-8d65-7bc2de2e7ea9">tool executions</Link>
       along with constraints upon which
       <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agents</Link>
-      those tool executions should execute. Plans are written in a strictly-defined domain-specific language that
-      emphasizes ahead-of-time static checking and analysis, and attempts to provide the maximum possible degree of
+      those tool executions should execute. Plans are written in a strictly-defined
+      <Link target="352ba8b4-1d9d-443c-929a-21027c374207">domain-specific language</Link>
+      that emphasizes ahead-of-time static checking and analysis, and attempts to provide the maximum possible degree of
       parallelism automatically.
     </Paragraph>
     <Paragraph>
@@ -100,7 +134,8 @@
         server checked it, the associated plan is executed for each of the changes.
       </Paragraph>
     </Subsection>
-    <Subsection title="Schedules">
+    <Subsection title="Schedules"
+                id="376736fb-f2c2-4f46-b8b3-5c4d38e9393f">
       <Paragraph>
         The <Term type="package">northpike</Term> server supports the following schedule types:
       </Paragraph>
@@ -125,9 +160,52 @@
 
   <Subsection title="Tools"
               id="fc06253c-8194-4a04-8d65-7bc2de2e7ea9">
-    <Paragraph>
-      A <Term type="term">tool</Term> is...
-    </Paragraph>
+    <Subsection title="Description">
+      <Paragraph>
+        A <Term type="term">tool</Term> represents code that can be executed as part of a
+        <Link target="7b6d8296-cba1-448b-96e0-10e89b61bec0">plan</Link>. In more practical terms, a tool is an
+        executable object that usually refers to some kind of external executable program that can be installed and used
+        during software builds. Rather than provide a means to run external executables directly, the
+        <Term type="package">northpike</Term>
+        package mandates that plans execute programs via named tool invocations. Tools are implemented by implementing
+        the
+        <Term type="expression">com.io7m.northpike.tools.api.NPToolFactoryType</Term>
+        interface.
+      </Paragraph>
+      <Paragraph>
+        The reason for mandating the use of tools over calling external programs directly is that many programs do not
+        present a uniform, platform-independent interface. For example,
+        <LinkExternal target="https://maven.apache.org/">Apache Maven</LinkExternal>
+        uses an
+        <Term type="file">mvn</Term>
+        executable on Unix-like platforms, but uses an
+        <Term type="file">mvn.bat</Term>
+        script on Windows platforms. The
+        <Term type="expression">com.io7m.northpike.tools.maven.NPTMFactory3</Term>
+        class provides a completely platform-independent way to not only execute Maven builds, but to also install
+        Apache Maven in a platform-independent manner so that builds do not have to depend on any particular version of
+        Maven already being installed on the executing system.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Tool Executions"
+                id="c9234354-ea97-4693-826c-a3ccd9a006d7">
+      <Paragraph>
+        Tools have one or more defined <Term type="term">tool executions</Term>. A
+        <Term type="term">tool execution</Term>
+        is a function that, when evaluated, yields a list of arguments that will be passed to the tool executable. Tool
+        executions are defined in a
+        <Link target="63fdd8ed-b53b-4d4e-b0b1-89ba8d52fbe8">domain-specific language</Link>
+        that emphasizes ahead-of-time static checking.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Available Tools">
+      <Paragraph>
+        The <Term type="package">northpike</Term> server currently provides built-in support for the following tools:
+      </Paragraph>
+      <FormalItem title="Available Tools">
+        <xi:include href="model-tools.xml"/>
+      </FormalItem>
+    </Subsection>
   </Subsection>
 
   <Subsection title="Users"
@@ -135,8 +213,10 @@
     <Subsection title="Overview">
       <Paragraph>
         A <Term type="term">user</Term> is an entity that has a configurable degree of administrative access to the
-        <Term type="package">northpike</Term> server. The authentication of users is delegated to an external
-        <LinkExternal target="https://www.io7m.com/software/idstore">idstore</LinkExternal> server.
+        <Term type="package">northpike</Term>
+        server. The authentication of users is delegated to an external
+        <LinkExternal target="https://www.io7m.com/software/idstore">idstore</LinkExternal>
+        server.
       </Paragraph>
     </Subsection>
     <Subsection title="Role-Based Access Control">
@@ -163,6 +243,17 @@
       <FormalItem title="Objects">
         <xi:include href="sec-objects.xml"/>
       </FormalItem>
+      <Paragraph>
+        The server uses the following fixed
+        <LinkExternal target="https://www.io7m.com/software/medrina">Medrina</LinkExternal>
+        security policy:
+      </Paragraph>
+      <FormalItem title="Security Policy">
+        <Verbatim>
+          <xi:include href="com/io7m/northpike/server/SecurityPolicy.mp"
+                      parse="text"/>
+        </Verbatim>
+      </FormalItem>
     </Subsection>
   </Subsection>
 
@@ -170,27 +261,138 @@
               id="c52a0a86-9c3b-4336-a3a9-6baa5211d2ea">
     <Subsection title="Overview">
       <Paragraph>
-        The <Term type="term">server</Term> is the central component in the system.
+        The <Term type="term">server</Term> is the central component in the system. The server consists of several
+        cooperating services, and is the only part of the system that speaks directly to the
+        <Link target="90405901-1075-4a69-b602-b26cc29e6711">database</Link>.
+      </Paragraph>
+      <FormalItem title="Services">
+        <Image source="server.png"
+               width="640"
+               height="532">Services
+        </Image>
+      </FormalItem>
+    </Subsection>
+    <Subsection title="Assignment Service"
+                id="583fd595-5e8d-45ae-9bde-5145fb68802b">
+      <Paragraph>
+        The <Term type="term">assignment service</Term> is responsible for executing
+        <Link target="abbcfc20-95ca-4f09-b795-74d1fd1538f0">assignments</Link>. When some other part of the server
+        (typically the <Link target="ce49f69b-736d-4ae8-836a-5701c246840b">scheduling service</Link>) has decided that
+        it is time for a particular assignment to execute, the
+        <Term type="term">assignment service</Term>
+        is responsible for extracting and compiling the relevant
+        <Link target="7b6d8296-cba1-448b-96e0-10e89b61bec0">plan</Link>
+        from the <Link target="90405901-1075-4a69-b602-b26cc29e6711">database</Link>, asking the
+        <Link target="31942e24-debc-4e01-8174-061fa7c5b348">repository service</Link>
+        for the code to be compiled (and possibly asking the
+        <Link target="31942e24-debc-4e01-8174-061fa7c5b348">repository service</Link>
+        to verify the
+        <Link target="a8871c5e-98ca-48e8-b577-afad7b94848c">commit signature</Link>), and then distributing tasks to
+        <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agents</Link>
+        until the plan has completed.
       </Paragraph>
     </Subsection>
-    <Subsection title="Scheduler">
+    <Subsection title="Scheduling Service"
+                id="ce49f69b-736d-4ae8-836a-5701c246840b">
       <Paragraph>
-        The scheduler...
+        The <Term type="term">scheduling service</Term> is responsible for determining whether it is time for any
+        <Link target="abbcfc20-95ca-4f09-b795-74d1fd1538f0">assignment</Link>
+        to begin executing. The scheduling service simply executes in a loop, reading assignments from the database and
+        determining if each assignment should be scheduled for execution. An assignment is considered ready for
+        execution if the following conditions hold:
+      </Paragraph>
+      <FormalItem title="Ready For Execution">
+        <ListUnordered>
+          <Item>
+            The assignment's
+            <Link target="376736fb-f2c2-4f46-b8b3-5c4d38e9393f">schedule</Link>
+            indicates that the assignment might be ready to execute,
+          </Item>
+          <Item>
+            The <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">repository</Link> associated with the assignment has
+            had new changes since the last time the assignment executed.
+          </Item>
+        </ListUnordered>
+      </FormalItem>
+      <Paragraph>
+        If an assignment is considered ready for execution, the service notifies the
+        <Link target="583fd595-5e8d-45ae-9bde-5145fb68802b">assignment service</Link>.
       </Paragraph>
     </Subsection>
-    <Subsection title="User Service">
+    <Subsection title="Repository Service"
+                id="31942e24-debc-4e01-8174-061fa7c5b348">
       <Paragraph>
-        The user service...
+        The <Term type="term">repository service</Term> is responsible for maintaining local
+        <Term type="term">clones</Term>
+        of external
+        <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">repositories</Link>, producing
+        <Term type="term">archives</Term>
+        of requested <Term type="term">commits</Term> on demand, and verifying
+        <Link target="a8871c5e-98ca-48e8-b577-afad7b94848c">commit signatures</Link>.
       </Paragraph>
     </Subsection>
-    <Subsection title="Archives">
+    <Subsection title="User Service"
+                id="c049f29c-03d6-4e67-8e55-2f5dfeea5dc5">
       <Paragraph>
-        The archive service...
+        The <Term type="term">user service</Term> implements the
+        <Link target="8fc579b2-8212-42c1-a14c-6cf224e35d9c">user API</Link>.
       </Paragraph>
     </Subsection>
-    <Subsection title="Agent Service">
+    <Subsection title="Archive Service"
+                id="1d08541a-9094-45ef-af95-7d4e1c83aa76">
       <Paragraph>
-        The agent service...
+        The <Term type="term">archive service</Term> is responsible for serving archives of source code produced by the
+        <Link target="31942e24-debc-4e01-8174-061fa7c5b348">repository service</Link>. The service exposes a simple
+        <LinkExternal target="https://en.wikipedia.org/wiki/Web_server">web server</LinkExternal>
+        that is used by <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agents</Link> during the execution of tasks.
+      </Paragraph>
+      <Paragraph>
+        The <Term type="term">archive service</Term> provides a useful facade for agents such that:
+      </Paragraph>
+      <FormalItem title="Archive Service Properties">
+        <ListUnordered>
+          <Item>
+            Agents do not need to be granted direct access to source code
+            <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">repositories</Link>
+            that might otherwise be private.
+          </Item>
+          <Item>
+            Agents only need to be able to speak the HTTP protocol in order to get everything they need to execute
+            tasks. They do not need to contain support for any of the various SCM systems.
+          </Item>
+        </ListUnordered>
+      </FormalItem>
+    </Subsection>
+    <Subsection title="Agent Service"
+                id="41e87f9a-8d18-45cd-a40d-8f296328c94d">
+      <Paragraph>
+        The <Term type="term">agent service</Term> implements the
+        <Link target="c56a4477-6e26-42ab-97d5-cf042e43e223">agent API</Link>.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Event Service"
+                id="61f6ac4d-5e31-41b8-9256-40113c880034">
+      <Paragraph>
+        The <Term type="term">event service</Term> provides an <Term type="term">event stream</Term> to which other
+        services can subscribe and publish. This service is used in the implementation of other services. The server and
+        agents understand the following types of events:
+      </Paragraph>
+      <FormalItem title="Events">
+        <xi:include href="model-events.xml"/>
+      </FormalItem>
+    </Subsection>
+    <Subsection title="Telemetry Service"
+                id="3b71b88d-c33a-480f-8f4a-d8446a4293e7">
+      <Paragraph>
+        The <Term type="term">telemetry service</Term> handles parts of the telemetry used for
+        <Link target="7d2c6f1e-6847-4520-90b7-0d7d051456ae">monitoring</Link>.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Metrics Service"
+                id="338d4990-8ada-4e07-a637-08477eab7be9">
+      <Paragraph>
+        The <Term type="term">metrics service</Term> handles parts of the telemetry used for
+        <Link target="7d2c6f1e-6847-4520-90b7-0d7d051456ae">monitoring</Link>.
       </Paragraph>
     </Subsection>
   </Subsection>
@@ -231,48 +433,69 @@
       <FormalItem title="Agents">
         <Image source="agents.png"
                width="582"
-               height="362">Agents</Image>
+               height="362">Agents
+        </Image>
       </FormalItem>
     </Subsection>
     <Subsection title="Public Keys">
       <Paragraph>
-        Each agent is uniquely identified by a <Term type="term">public keypair</Term>. When an agent is created
-        in an <Term type="term">agent host</Term>, a new
-        <LinkExternal target="https://en.wikipedia.org/wiki/EdDSA">Ed25519</LinkExternal> keypair is generated, and
-        the public half of this keypair can then be communicated out-of-band to the administrator of the
-        relevant <Term type="package">northpike</Term> server. This keypair is used to authenticate the agent
-        to the server whenever the agent connects.
+        Each agent is uniquely identified by a <Term type="term">public keypair</Term>. When an agent is created in
+        an <Term type="term">agent host</Term>, a new
+        <LinkExternal target="https://en.wikipedia.org/wiki/EdDSA">Ed25519</LinkExternal>
+        keypair is generated, and the public half of this keypair can then be communicated out-of-band to the
+        administrator of the relevant <Term type="package">northpike</Term> server. This keypair is used to authenticate
+        the agent to the server whenever the agent connects.
       </Paragraph>
     </Subsection>
     <Subsection title="Work Executor"
                 id="35f12f1c-5edc-4724-8a50-d330c3defb92">
       <Paragraph>
-        A <Term type="term">work executor</Term> is a service responsible for executing
-        individual <Term type="term">tasks</Term> that have been distributed to the <Term type="term">agent host</Term>
-        from the <Term type="term">server</Term>. A <Term type="term">work executor</Term> can execute at most one
-        task at any given time, and different types of work executors are supported:
+        A <Term type="term">work executor</Term> is a service responsible for executing individual <Term type="term">
+        tasks
+      </Term> that have been distributed to the
+        <Term type="term">agent host</Term>
+        from the <Term type="term">server</Term>. A <Term type="term">work executor</Term> can execute at most one task
+        at any given time, and different types of work executors are supported:
       </Paragraph>
       <FormalItem title="Supported Work Executors">
         <ListUnordered>
           <Item>
             <Term type="constant">workexec.local</Term>: A work executor that executes each given task directly within
-            the execution environment of the agent. This type of executor is the most flexible in that it has the
-            same degree of access to the host system as the agent but is also, as a result, not strongly isolated
-            from other work executors that may be running on the same system.
+            the execution environment of the agent. This type of executor is the most flexible in that it has the same
+            degree of access to the host system as the agent but is also, as a result, not strongly isolated from other
+            work executors that may be running on the same system.
           </Item>
           <Item>
             <Term type="constant">workexec.podman</Term>: A work executor that executes each given task in a
-            <LinkExternal target="https://podman.io/">Podman</LinkExternal> container that is (optionally) destroyed
-            when the task completes. This type of executor gives the strongest isolation, but may not be suitable if
-            the task being executed requires access to system resources that may not be made available to code running
-            in containers on some operating systems.
+            <LinkExternal target="https://podman.io/">Podman</LinkExternal>
+            container that is (optionally) destroyed when the task completes. This type of executor gives the strongest
+            isolation, but may not be suitable if the task being executed requires access to system resources that may
+            not be made available to code running in containers on some operating systems.
           </Item>
         </ListUnordered>
       </FormalItem>
     </Subsection>
-    <Subsection title="Console">
+    <Subsection title="Console"
+                id="5cf3bb70-d8d1-4444-a0df-4c9e3f843acb">
       <Paragraph>
-        An <Term type="term">agent console</Term> is...
+        The <Term type="term">agent console service</Term> implements the
+        <Link target="46b5a1dc-087a-40b6-899a-e7d20485939b">agent console API</Link>.
+      </Paragraph>
+      <Paragraph>
+        Access to the service is protected by a configurable <Term type="term">access key</Term>. It is recommended that
+        the service be configured to listen only on <Term type="expression">localhost</Term>.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Labels"
+                id="3f9341dd-4d51-42e8-b0f5-370591e58afa">
+      <Paragraph>
+        Agents are assigned zero or more <Term type="term">labels</Term> by the server administrator. Labels are used
+        during the execution of <Link target="7b6d8296-cba1-448b-96e0-10e89b61bec0">plans</Link> to choose agents to
+        execute specific tasks. For example, an administrator can label agents with the names of their operating systems
+        (such as <Term type="expression">os.linux</Term>, <Term type="expression">os.solaris</Term>, etc.), and can then
+        write plans that have tasks that express constraints such as "must execute on an agent that has at least the
+        <Term type="expression">os.solaris</Term>
+        label".
       </Paragraph>
     </Subsection>
   </Subsection>
@@ -280,14 +503,16 @@
   <Subsection title="Agent Shell"
               id="0b8a3df8-878b-42c2-8f3d-0d6d4e596d79">
     <Paragraph>
-      The agent shell...
+      The <Term type="term">agent shell</Term> is the primary means by which users administer any given agent. The agent
+      shell is a program that connects to the
+      <Link target="5cf3bb70-d8d1-4444-a0df-4c9e3f843acb">agent console</Link>.
     </Paragraph>
   </Subsection>
 
   <Subsection title="User Shell"
               id="b5739d01-6ae7-47ce-be56-e3d8b80350db">
     <Paragraph>
-      The user shell...
+      The <Term type="term">user shell</Term> is the primary means by which users administer the server.
     </Paragraph>
   </Subsection>
 

@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.server.internal.assignments;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
@@ -29,6 +30,7 @@ import java.util.Objects;
  * @param execution The execution
  */
 
+@NPDocumentation("The status of an assignment execution changed.")
 public record NPAssignmentExecutionStatusChanged(
   NPAssignmentExecutionStateType execution)
   implements NPAssignmentEventType

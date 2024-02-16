@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         id="8fc579b2-8212-42c1-a14c-6cf224e35d9c"
+         title="User API">
+
+  <Paragraph>
+    The <Term type="term">user API</Term>...
+  </Paragraph>
+
+</Section>

@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.server.internal.agents;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.agents.NPAgentID;
 
@@ -24,6 +25,7 @@ import com.io7m.northpike.model.agents.NPAgentID;
  * The subset of agent events that are work item events.
  */
 
+@NPDocumentation("The subset of agent events that are work item events.")
 public interface NPAgentWorkItemEventType extends NPAgentEventType
 {
   /**

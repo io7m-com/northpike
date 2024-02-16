@@ -17,12 +17,14 @@
 
 package com.io7m.northpike.server.internal.schedule;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.telemetry.api.NPEventType;
 
 /**
  * The type of scheduler events.
  */
 
+@NPDocumentation("The type of scheduler events.")
 public interface NPSchedulerEventType
   extends NPEventType
 {

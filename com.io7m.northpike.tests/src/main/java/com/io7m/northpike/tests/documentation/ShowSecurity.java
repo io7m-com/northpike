@@ -44,10 +44,10 @@ public final class ShowSecurity
 {
   private static final DocumentBuilderFactory DOCUMENTS =
     DocumentBuilderFactory.newDefaultNSInstance();
-  public static final OpenOption[] OPEN_OPTIONS = {WRITE,
-    CREATE,
-    TRUNCATE_EXISTING};
-  public static final String STRUCTURAL_8 = "urn:com.io7m.structural:8:0";
+  private static final OpenOption[] OPEN_OPTIONS =
+    {WRITE, CREATE, TRUNCATE_EXISTING};
+  private static final String STRUCTURAL_8 =
+    "urn:com.io7m.structural:8:0";
 
   private ShowSecurity()
   {

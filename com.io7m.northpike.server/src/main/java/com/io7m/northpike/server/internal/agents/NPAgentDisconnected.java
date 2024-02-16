@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.server.internal.agents;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
@@ -31,6 +32,7 @@ import java.util.Optional;
  * @param agentID The agent ID (if available)
  */
 
+@NPDocumentation("An agent disconnected.")
 public record NPAgentDisconnected(
   InetAddress address,
   int port,

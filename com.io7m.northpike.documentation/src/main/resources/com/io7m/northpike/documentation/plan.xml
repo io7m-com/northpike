@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         id="352ba8b4-1d9d-443c-929a-21027c374207"
+         title="Plan Language">
+
+  <Subsection title="Overview">
+    <Paragraph>
+      The <Term type="term">plan</Term> language is a domain-specific language used to write
+      <Link target="7b6d8296-cba1-448b-96e0-10e89b61bec0">plans</Link>.
+    </Paragraph>
+    <Paragraph>
+      A <Term type="term">plan</Term> program consists of immutable
+      <Link target="ee2248ae-b120-40ba-8ad7-96c82750d1b2">variables</Link>,
+      <Link target="cbc2e395-4351-49fb-b90e-eb38d21e454c">tasks</Link>, and
+      <Link target="f6a513dc-e704-4e62-a562-b2530d9f5e67">barriers</Link>.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Tasks"
+              id="cbc2e395-4351-49fb-b90e-eb38d21e454c">
+    <Subsection title="Description">
+      <Paragraph>
+        A <Term type="term">task</Term> is an executable element that, when evaluated, causes a
+        <Link target="c9234354-ea97-4693-826c-a3ccd9a006d7">tool execution</Link> to be executed on
+        an appropriate <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agent</Link>.
+      </Paragraph>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Barriers"
+              id="f6a513dc-e704-4e62-a562-b2530d9f5e67">
+    <Subsection title="Description">
+      <Paragraph>
+        A <Term type="term">barrier</Term> is an executable element that...
+      </Paragraph>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Variables"
+              id="ee2248ae-b120-40ba-8ad7-96c82750d1b2">
+    <Paragraph>
+      Variables...
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Tool References"
+              id="4f5e9536-bac1-4fd9-8549-5c2404be1d3d">
+    <Paragraph>
+      Tool References...
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Semantics" id="fb2213d8-136e-4901-977b-ac7fcd5c929c">
+    <Subsection title="Dependencies" id="9147dd3d-3f83-424b-aa3b-1f826f47a4f3">
+      <Paragraph>
+        Dependencies...
+      </Paragraph>
+    </Subsection>
+  </Subsection>
+
+</Section>

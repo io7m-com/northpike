@@ -13,3 +13,8 @@ pom.xml.versionsBackup
 target
 .run
 *~
+*.vo
+*.glob
+*.vok
+*.vos
+.*.aux

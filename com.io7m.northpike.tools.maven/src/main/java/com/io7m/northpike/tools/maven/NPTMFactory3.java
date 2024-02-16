@@ -89,6 +89,6 @@ public final class NPTMFactory3 implements NPToolFactoryType
   @Override
   public String description()
   {
-    return "Tool service for %s.".formatted(PACKAGE_NAME);
+    return "Tool service for %s (Apache Maven 3.*).".formatted(PACKAGE_NAME);
   }
 }

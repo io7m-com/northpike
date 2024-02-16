@@ -26,6 +26,7 @@ open module com.io7m.northpike.tests
   requires static org.osgi.annotation.bundle;
 
   uses ArbitraryProvider;
+  uses com.io7m.northpike.tools.api.NPToolFactoryType;
 
   requires com.io7m.northpike.agent.api;
   requires com.io7m.northpike.agent.configuration;
@@ -106,6 +107,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.verdant.core;
   requires com.io7m.verona.core;
   requires com.io7m.zelador.test_extension;
+  requires io.github.classgraph;
   requires io.opentelemetry.api;
   requires java.net.http;
   requires java.sql;

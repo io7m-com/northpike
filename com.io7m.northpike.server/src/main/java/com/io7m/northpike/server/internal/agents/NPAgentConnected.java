@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.server.internal.agents;
 
+import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
 import java.net.InetAddress;
@@ -28,6 +29,7 @@ import java.util.Map;
  * @param port    The remote port
  */
 
+@NPDocumentation("An agent connected.")
 public record NPAgentConnected(
   InetAddress address,
   int port)
