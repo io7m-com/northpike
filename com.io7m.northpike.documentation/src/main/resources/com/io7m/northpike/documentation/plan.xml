@@ -59,7 +59,7 @@
             An expression <Term type="expression">AMAnything</Term> matches any agent.
           </Item>
           <Item>
-            An expression <Term type="expression">AMIsSubsetOf xs</Term> matches an agent
+            An expression <Term type="expression">(AMIsSubsetOf xs)</Term> matches an agent
             <Term type="expression">a</Term>
             where each label
             <Term type="expression">x</Term>
@@ -69,7 +69,7 @@
             <Term type="expression">(agentLabels a)</Term>.
           </Item>
           <Item>
-            An expression <Term type="expression">AMIsSupersetOf xs</Term> matches an agent
+            An expression <Term type="expression">(AMIsSupersetOf xs)</Term> matches an agent
             <Term type="expression">a</Term>
             where each label
             <Term type="expression">x</Term>
@@ -79,7 +79,7 @@
             <Term type="expression">xs</Term>.
           </Item>
           <Item>
-            An expression <Term type="expression">AMIsOverlapping xs</Term> matches an agent
+            An expression <Term type="expression">(AMIsOverlapping xs)</Term> matches an agent
             <Term type="expression">a</Term>
             where there exists at least one label
             <Term type="expression">x</Term>
@@ -89,13 +89,13 @@
             <Term type="expression">(agentLabels a)</Term>.
           </Item>
           <Item>
-            An expression <Term type="expression">AMIsEqualTo xs</Term> matches an agent
+            An expression <Term type="expression">(AMIsEqualTo xs)</Term> matches an agent
             <Term type="expression">a</Term>
             where
             <Term type="expression">xs = (agentLabels a)</Term>.
           </Item>
           <Item>
-            An expression <Term type="expression">AMIsNotEqualTo xs</Term> matches an agent
+            An expression <Term type="expression">(AMIsNotEqualTo xs)</Term> matches an agent
             <Term type="expression">a</Term>
             where
             <Term type="expression">xs ≠ (agentLabels a)</Term>.
@@ -196,7 +196,8 @@
               id="79a5df3a-a787-49b4-9839-29f5f4411547">
     <Subsection title="Overview">
       <Paragraph>
-        Programs in the <Term type="term">plan</Term> language are specified in a strictly-defined XML format.
+        Programs in the <Term type="term">plan</Term> language are specified in a strictly-defined XML format
+        conforming to a published <Link target="c69b56e6-ba24-44a3-8be3-de12b24275c5">XSD schema</Link>.
       </Paragraph>
     </Subsection>
 

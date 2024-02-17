@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="c69b56e6-ba24-44a3-8be3-de12b24275c5"
+         title="Appendix: Plan Language Schema">
+
+  <FormalItem title="Plans 1"
+              id="aa5c9b63-2c7e-42d1-a171-0f249371e84d">
+    <Verbatim>
+      <xi:include href="com/io7m/northpike/plans/parsers/plans-1.xsd"
+                  parse="text"/>
+    </Verbatim>
+  </FormalItem>
+
+</Section>
