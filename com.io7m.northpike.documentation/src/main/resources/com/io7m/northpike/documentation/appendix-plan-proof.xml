@@ -23,6 +23,13 @@
     published.
   </Paragraph>
 
+  <FormalItem title="Northpike/Plan/AgentConstraints.v"
+              id="efaa5ba5-bc57-5284-bfdb-4c03bc73db04">
+    <Verbatim>
+      <xi:include href="Northpike/Plan/AgentConstraints.v"
+                  parse="text"/>
+    </Verbatim>
+  </FormalItem>
   <FormalItem title="Northpike/Plan/Completion.v"
               id="b6616215-df7b-53b2-85a4-8bea1f9feab3">
     <Verbatim>

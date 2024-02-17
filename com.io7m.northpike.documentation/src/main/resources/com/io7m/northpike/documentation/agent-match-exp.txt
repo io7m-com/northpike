@@ -1,0 +1,8 @@
+Inductive agentMatchE : Set :=
+  | AMAnything      : agentMatchE
+  | AMIsSubsetOf    : list String.string -> agentMatchE
+  | AMIsSupersetOf  : list String.string -> agentMatchE
+  | AMIsOverlapping : list String.string -> agentMatchE
+  | AMIsEqualTo     : list String.string -> agentMatchE
+  | AMIsNotEqualTo  : list String.string -> agentMatchE
+  .

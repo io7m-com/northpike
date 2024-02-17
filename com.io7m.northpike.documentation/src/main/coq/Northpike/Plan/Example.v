@@ -18,6 +18,7 @@ Require Import Northpike.Plan.Parameters.
 Require Import Northpike.TotalMap.
 
 Require Import Coq.Lists.List.
+Require Import Coq.Strings.String.
 
 Import ListNotations.
 
@@ -219,6 +220,26 @@ Module ExamplePlan : Plan.Parameters.S.
   (** In fact, every agent is in the list of known agents. *)
   Theorem agentsAreFinite : forall e, List.In e agents.
   Proof. compute; destruct e0; intuition. Qed.
+
+  Open Scope string_scope.
+
+  (** An agent has a list of labels. *)
+  Definition agentLabels (a : agent) : list String.string :=
+    match a with
+    | A1 => ["linux"]
+    | A2 => ["windows"]
+    | A3 => []
+    end.
+
+  (** The labels of an agent are unique. *)
+  Theorem agentLabelsNoDup : forall a,
+    List.NoDup (agentLabels a).
+  Proof.
+    intro a.
+    compute; 
+    destruct a;
+      constructor; intuition; constructor.
+  Qed.
 
   (** The maximum time that an element will wait for an agent. *)
   Definition timeoutAgentWait : nat := 5.

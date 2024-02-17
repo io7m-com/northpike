@@ -2,6 +2,7 @@
 
 coqc -Q Northpike Northpike Northpike/TotalMap.v
 coqc -Q Northpike Northpike Northpike/Plan/Parameters.v
+coqc -Q Northpike Northpike Northpike/Plan/AgentConstraints.v
 coqc -Q Northpike Northpike Northpike/Plan/Example.v
 coqc -Q Northpike Northpike Northpike/Plan/State.v
 coqc -Q Northpike Northpike Northpike/Plan/Initial.v

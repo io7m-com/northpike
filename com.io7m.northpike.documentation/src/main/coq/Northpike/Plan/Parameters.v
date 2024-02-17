@@ -15,6 +15,7 @@
  *)
 
 Require Coq.Lists.List.
+Require Coq.Strings.String.
 
 Require Import Northpike.TotalMap.
 
@@ -64,8 +65,15 @@ Module Type S.
   (** The known agents are unique. *)
   Parameter agentsUnique : List.NoDup agents.
 
-  (** In fact, every agents is in the list of known agents. *)
+  (** In fact, every agent is in the list of known agents. *)
   Parameter agentsAreFinite : forall a, List.In a agents.
+
+  (** An agent has a list of labels. *)
+  Parameter agentLabels : agent -> list String.string.
+
+  (** The labels of an agent are unique. *)
+  Parameter agentLabelsNoDup : forall a,
+    List.NoDup (agentLabels a).
 
   (** The maximum time that an element will wait for an agent. *)
   Parameter timeoutAgentWait : nat.

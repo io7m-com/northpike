@@ -27,6 +27,97 @@
         to be executed on an appropriate <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agent</Link>.
       </Paragraph>
     </Subsection>
+    <Subsection title="Agent Constraints"
+                id="8aadf34b-61e3-4780-b98f-6ff638ec2786">
+      <Paragraph>
+        An <Term type="term">agent constraint</Term> is an expression used to reduce the set of
+        <Link target="43fa1060-d9b5-4e79-b139-015e1d6591f3">agents</Link>
+        that will be considered to be candidates for executing a given task. A constraint expression is evaluated
+        against the set of
+        <Link target="3f9341dd-4d51-42e8-b0f5-370591e58afa">labels</Link>
+        on a given agent. A constraint expression is a value of the given inductive type:
+      </Paragraph>
+      <FormalItem title="Agent Expression">
+        <Verbatim>
+          <xi:include href="agent-match-exp.txt"
+                      parse="text"/>
+        </Verbatim>
+      </FormalItem>
+      <Paragraph>
+        Whether an expression matches a given agent <Term type="expression">a</Term> is given by the following inductive
+        proposition:
+      </Paragraph>
+      <FormalItem title="Agent Expression Matches">
+        <Verbatim>
+          <xi:include href="agent-match-exp-prop.txt"
+                      parse="text"/>
+        </Verbatim>
+      </FormalItem>
+      <FormalItem title="Agent Expression Matches Explanation">
+        <ListUnordered>
+          <Item>
+            An expression <Term type="expression">AMAnything</Term> matches any agent.
+          </Item>
+          <Item>
+            An expression <Term type="expression">AMIsSubsetOf xs</Term> matches an agent
+            <Term type="expression">a</Term>
+            where each label
+            <Term type="expression">x</Term>
+            in
+            <Term type="expression">xs</Term>
+            is in
+            <Term type="expression">(agentLabels a)</Term>.
+          </Item>
+          <Item>
+            An expression <Term type="expression">AMIsSupersetOf xs</Term> matches an agent
+            <Term type="expression">a</Term>
+            where each label
+            <Term type="expression">x</Term>
+            in
+            <Term type="expression">(agentLabels a)</Term>
+            is in
+            <Term type="expression">xs</Term>.
+          </Item>
+          <Item>
+            An expression <Term type="expression">AMIsOverlapping xs</Term> matches an agent
+            <Term type="expression">a</Term>
+            where there exists at least one label
+            <Term type="expression">x</Term>
+            in
+            <Term type="expression">xs</Term>
+            that is in
+            <Term type="expression">(agentLabels a)</Term>.
+          </Item>
+          <Item>
+            An expression <Term type="expression">AMIsEqualTo xs</Term> matches an agent
+            <Term type="expression">a</Term>
+            where
+            <Term type="expression">xs = (agentLabels a)</Term>.
+          </Item>
+          <Item>
+            An expression <Term type="expression">AMIsNotEqualTo xs</Term> matches an agent
+            <Term type="expression">a</Term>
+            where
+            <Term type="expression">xs ≠ (agentLabels a)</Term>.
+          </Item>
+        </ListUnordered>
+      </FormalItem>
+      <Paragraph>
+        Formal descriptions of the semantics of these expressions are given in the
+        associated <Link target="efaa5ba5-bc57-5284-bfdb-4c03bc73db04">proof script</Link>.
+      </Paragraph>
+      <Paragraph>
+        A given task is associated with a mandatory <Term type="term">requirement</Term> expression, and an optional
+        <Term type="term">preference</Term>
+        expression. When a
+        <Term type="term">plan</Term>
+        program needs to find an agent for a given task, only the agents matching the
+        <Term type="term">requirement</Term>
+        expression will be considered as candidates. When multiple agents match, any agent that happens to match the
+        <Term type="term">preference</Term>
+        expression will be more likely to be offered the task first.
+      </Paragraph>
+    </Subsection>
   </Subsection>
 
   <Subsection title="Barriers"
@@ -107,7 +198,9 @@
         <Term type="expression">com.io7m.task1</Term>. The
         <Term type="expression">com.io7m.task1</Term>
         task is specified to depend on
-        <Term type="expression">com.io7m.task0</Term>, and a constraint is used to ensure that
+        <Term type="expression">com.io7m.task0</Term>, and an
+        <Link target="8aadf34b-61e3-4780-b98f-6ff638ec2786">agent constraint</Link>
+        is used to ensure that
         <Term type="expression">com.io7m.task1</Term>
         executes on the same <Link target="43fa1060-d9b5-4e79-b139-015e1d6591f3">agent</Link> as the
         <Term type="expression">com.io7m.task0</Term>.
@@ -306,8 +399,9 @@
       </Paragraph>
       <Paragraph>
         Dependencies are the only means by which to control the order of execution of elements within a
-        <Term type="term">plan</Term> program; in a program where none of the elements have dependencies,
-        implementations are free to execute any number of elements concurrently and in any order.
+        <Term type="term">plan</Term>
+        program; in a program where none of the elements have dependencies, implementations are free to execute any
+        number of elements concurrently and in any order.
       </Paragraph>
     </Subsection>
   </Subsection>

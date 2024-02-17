@@ -18,3 +18,4 @@ target
 *.vok
 *.vos
 .*.aux
+com.io7m.northpike.documentation/src/main/coq/html

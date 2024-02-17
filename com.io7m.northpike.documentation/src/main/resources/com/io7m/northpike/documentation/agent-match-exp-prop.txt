@@ -1,0 +1,22 @@
+Inductive agentMatches (a : P.agent) : agentMatchE -> Prop :=
+  | AMPAnything   : agentMatches a AMAnything
+  | AMPIsSubsetOf :
+    forall (xs : list String.string),
+      isSubsetOf xs (P.agentLabels a)
+      -> agentMatches a (AMIsSubsetOf xs)
+  | AMPIsSupersetOf :
+    forall (xs : list String.string),
+      isSupersetOf xs (P.agentLabels a)
+      -> agentMatches a (AMIsSupersetOf xs)
+  | AMPIsOverlapping :
+    forall (xs : list String.string),
+      isOverlapping xs (P.agentLabels a)
+      -> agentMatches a (AMIsOverlapping xs)
+  | AMPIsEqualTo :
+    forall (xs : list String.string),
+      xs = (P.agentLabels a)
+      -> agentMatches a (AMIsEqualTo xs)
+  | AMPIsNotEqualTo :
+    forall (xs : list String.string),
+      xs <> (P.agentLabels a)
+      -> agentMatches a (AMIsNotEqualTo xs).
