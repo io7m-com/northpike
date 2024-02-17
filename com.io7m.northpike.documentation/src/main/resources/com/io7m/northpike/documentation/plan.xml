@@ -62,11 +62,61 @@
 
   <Subsection title="Semantics"
               id="fb2213d8-136e-4901-977b-ac7fcd5c929c">
-    <Subsection title="States">
+    <Subsection title="Overview">
       <Paragraph>
         The <Term type="term">plan</Term> language is a concurrent, non-deterministic language specified as a series of
-        state transitions.
+        <Link target="d312770c-c3c0-4092-85ec-8e2dbf4b082f">state transitions</Link>. Evaluation of a program in the
+        <Term type="term">plan</Term>
+        language effectively proceeds by non-deterministically choosing an element from the set of elements in the
+        program and attempting to make that element transition to a new state. Each
+        <Term type="term">state transition</Term>
+        has an associated set of
+        <Term type="term">preconditions</Term>
+        that indicate whether an element can move to a new state according to that state transition; if the
+        preconditions for that state transition evaluate to
+        <Term type="expression">true</Term>, the element transitions to the new state.
       </Paragraph>
+      <Paragraph>
+        For the set of known state transitions,
+        <Link target="823194b3-8ff0-46dd-adf1-8bc722535fcb">formal proofs</Link>
+        exist that have verified the following properties of the language rules:
+      </Paragraph>
+      <FormalItem title="Verified Properties">
+        <ListUnordered>
+          <Item>
+            The preconditions for each defined state transition are
+            <Term type="term">decidable</Term>. That is, it is always possible to determine if a state transition is
+            applicable to a given element. Accordingly, it is always possible to determine if an element exists to which
+            any state transition applies.
+          </Item>
+          <Item>
+            The state transitions, as defined, have the property of
+            <Term type="term">strong progress</Term>. That is, if the program is not in a state
+            considered <Link target="12444ab8-7abd-4bc4-a2f9-4288f2c657dd">completed</Link>, then there is always a
+            state transition that will apply to allow the program to take another step of execution.
+          </Item>
+          <Item>
+            The state transitions, as defined, will always preserve various invariants such as "
+            <Link target="f6a513dc-e704-4e62-a562-b2530d9f5e67">barrier</Link>
+            elements are never considered for execution on an agent", "an element with no dependencies can never be
+            waiting for dependencies", and etc.
+          </Item>
+        </ListUnordered>
+      </FormalItem>
+      <Paragraph>
+        It follows that programs in the <Term type="term">plan</Term> language will always terminate in a
+        finite number of steps (due to configurable bounds on the times elements are allowed to remain in
+        various states), although the proofs do not currently attempt to verify this.
+      </Paragraph>
+      <Paragraph>
+        The actual <Term type="term">implementation</Term> of the plan evaluation logic in the server has
+        <Term type="term">not</Term>
+        been formally verified; the proofs only indicate that the design appears to be sound, not that the
+        implementation is bug-free.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="States"
+                id="d312770c-c3c0-4092-85ec-8e2dbf4b082f">
       <FormalItem title="States">
         <Image source="exec.png"
                width="640"
@@ -80,21 +130,19 @@
         <ListUnordered>
           <Item>
             If an element has a non-empty set of
-            <Link target="9147dd3d-3f83-424b-aa3b-1f826f47a4f3">dependencies</Link>,
-            then the element starts in the
+            <Link target="9147dd3d-3f83-424b-aa3b-1f826f47a4f3">dependencies</Link>, then the element starts in the
             <Term type="constant">EWaitingForDependencies</Term>
             state.
           </Item>
           <Item>
             If an element has an empty set of
-            <Link target="9147dd3d-3f83-424b-aa3b-1f826f47a4f3">dependencies</Link>,
-            then the element starts in the
+            <Link target="9147dd3d-3f83-424b-aa3b-1f826f47a4f3">dependencies</Link>, then the element starts in the
             <Term type="constant">EReady</Term>
             state.
           </Item>
         </ListUnordered>
       </FormalItem>
-      <Paragraph>
+      <Paragraph id="31edd30e-6e55-4284-a81a-9060e109f82c">
         An element is considered to have <Term type="term">succeeded</Term> if it has reached the
         <Term type="constant">ESuccess</Term>
         state. An element is considered to have
@@ -107,7 +155,7 @@
         If an element has a non-empty set of dependencies, then it remains in the
         <Term type="constant">EWaitingForDependencies</Term>
         state until either all of its dependencies have <Term type="term">succeeded</Term>, or at least one of its
-        dependencies have
+        dependencies has
         <Term type="term">failed</Term>. If any of an element's dependencies have failed, then the element itself
         transitions immediately to the <Term type="constant">EFailure</Term> state. If all the element's dependencies
         have <Term type="term">succeeded</Term>, the element transitions to the
@@ -150,11 +198,43 @@
         state.
       </Paragraph>
     </Subsection>
-
+    <Subsection title="Completion"
+                id="12444ab8-7abd-4bc4-a2f9-4288f2c657dd">
+      <Paragraph>
+        A given program <Term type="expression">p</Term> has
+        <Term type="term">completed</Term>
+        if any of the following conditions hold:
+      </Paragraph>
+      <FormalItem title="Completion Conditions">
+        <ListUnordered>
+          <Item>
+            For each element <Term type="expression">e</Term> in <Term type="expression">p</Term>, the state of
+            <Term type="expression">e</Term>
+            is
+            <Term type="constant">ESuccess</Term>.
+          </Item>
+          <Item>
+            There is an element <Term type="expression">e</Term> that exists in
+            <Term type="expression">p</Term>
+            such that the state of <Term type="expression">e</Term> is
+            <Term type="constant">EFailure</Term>
+            or <Term type="constant">EFailureTimedOut</Term>.
+          </Item>
+        </ListUnordered>
+      </FormalItem>
+      <Paragraph>
+        A program in a <Term type="term">completed</Term> state no longer takes any steps of evaluation.
+      </Paragraph>
+    </Subsection>
     <Subsection title="Dependencies"
                 id="9147dd3d-3f83-424b-aa3b-1f826f47a4f3">
       <Paragraph>
-        Dependencies...
+        The elements in a <Term type="term">plan</Term> program form a <Term type="term">directed acyclic graph</Term>.
+        A given element <Term type="term">e</Term> has a possibly-empty set of
+        <Term type="term">dependencies</Term>
+        that must have <Link target="31edd30e-6e55-4284-a81a-9060e109f82c">succeeded</Link> before
+        <Term type="term">e</Term>
+        can be processed.
       </Paragraph>
     </Subsection>
   </Subsection>

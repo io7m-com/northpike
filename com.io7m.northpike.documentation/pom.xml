@@ -117,6 +117,23 @@
           </execution>
 
           <execution>
+            <id>copy-documentation-coq</id>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <outputDirectory>${project.build.directory}/documentation/Northpike/</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/coq/Northpike/</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+
+          <execution>
             <id>copy-documentation-resources-epub</id>
             <goals>
               <goal>copy-resources</goal>
@@ -144,6 +161,23 @@
               <resources>
                 <resource>
                   <directory>src/main/epub/com/io7m/northpike/documentation/</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>copy-documentation-coq-epub</id>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <outputDirectory>${project.build.directory}/epub/Northpike/</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/coq/Northpike/</directory>
                   <filtering>false</filtering>
                 </resource>
               </resources>

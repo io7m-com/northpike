@@ -27,5 +27,6 @@
   <xi:include href="api-user.xml"/>
   <xi:include href="api-agent.xml"/>
   <xi:include href="api-agent-console.xml"/>
+  <xi:include href="appendix-plan-proof.xml"/>
 
 </Document>

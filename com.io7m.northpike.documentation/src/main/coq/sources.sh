@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for f in $(ls Northpike/*.v | sort -u)
+for f in $(find Northpike -name '*.v' | sort -u)
 do
   ID=$(uuidgen -s -n @x500 -N "$f")
 
