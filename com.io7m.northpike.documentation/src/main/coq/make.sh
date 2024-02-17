@@ -1,6 +1,7 @@
 #!/bin/sh -ex
 
 coqc -Q Northpike Northpike Northpike/TotalMap.v
+coqc -Q Northpike Northpike Northpike/Plan/ToolExec.v
 coqc -Q Northpike Northpike Northpike/Plan/Parameters.v
 coqc -Q Northpike Northpike Northpike/Plan/AgentConstraints.v
 coqc -Q Northpike Northpike Northpike/Plan/Example.v

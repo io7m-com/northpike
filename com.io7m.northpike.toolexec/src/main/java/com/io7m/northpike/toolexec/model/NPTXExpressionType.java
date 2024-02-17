@@ -23,11 +23,12 @@ package com.io7m.northpike.toolexec.model;
 
 public sealed interface NPTXExpressionType
   extends NPTXExecutableType
-  permits NPTXEAnd,
+  permits
+  NPTXEAnd,
   NPTXEFalse,
+  NPTXEInteger,
   NPTXEIsEqual,
   NPTXENot,
-  NPTXEInteger,
   NPTXEOr,
   NPTXEString,
   NPTXEStringSetContains,

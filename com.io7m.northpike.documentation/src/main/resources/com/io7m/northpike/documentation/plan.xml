@@ -118,6 +118,12 @@
         expression will be more likely to be offered the task first.
       </Paragraph>
     </Subsection>
+    <Subsection title="Tool Execution"
+                id="af703b0a-3d34-486d-a69a-4a9f4838c82d">
+      <Paragraph>
+        Tool execution...
+      </Paragraph>
+    </Subsection>
   </Subsection>
 
   <Subsection title="Barriers"
@@ -188,7 +194,20 @@
   <Subsection title="Tool References"
               id="4f5e9536-bac1-4fd9-8549-5c2404be1d3d">
     <Paragraph>
-      Tool References...
+      A <Term type="term">tool reference</Term> is a reference to a
+      <Link target="fc06253c-8194-4a04-8d65-7bc2de2e7ea9">tool</Link>
+      that will be required to run a particular
+      <Link target="cbc2e395-4351-49fb-b90e-eb38d21e454c">task</Link>. A task definition containing one or more
+      <Term type="term">tool references</Term>
+      will cause those tools to be installed into the execution environment of the
+      <Link target="43fa1060-d9b5-4e79-b139-015e1d6591f3">agent</Link>
+      executing the task just prior to the task execution. Tool installation is required to be
+      <Term type="term">idempotent</Term>, so it is safe to duplicate tool references across tasks.
+    </Paragraph>
+    <Paragraph>
+      In many cases, tasks will not need to specify anything beyond their
+      <Link target="af703b0a-3d34-486d-a69a-4a9f4838c82d">tool execution</Link>. However, more advanced use cases might
+      require that multiple tools are installed before the main tool execution is run.
     </Paragraph>
   </Subsection>
 
@@ -196,8 +215,8 @@
               id="79a5df3a-a787-49b4-9839-29f5f4411547">
     <Subsection title="Overview">
       <Paragraph>
-        Programs in the <Term type="term">plan</Term> language are specified in a strictly-defined XML format
-        conforming to a published <Link target="c69b56e6-ba24-44a3-8be3-de12b24275c5">XSD schema</Link>.
+        Programs in the <Term type="term">plan</Term> language are specified in a strictly-defined XML format conforming
+        to a published <Link target="c69b56e6-ba24-44a3-8be3-de12b24275c5">XSD schema</Link>.
       </Paragraph>
     </Subsection>
 

@@ -7,6 +7,12 @@
   <Timeouts AgentSelection="PT30M"
             TaskExecution="PT30M"/>
 
+  <Tools>
+    <Tool ReferenceName="java21"
+          ToolName="org.openjdk.jdk21"
+          ToolVersion="1"/>
+  </Tools>
+
   <Task Name="com.io7m.task0"
         Description="An example task.">
     <AgentPreferWithLabelsMatching>
@@ -17,7 +23,9 @@
     <CleanPolicyLater/>
     <ToolExecution ReferenceName="maven"
                    ExecutionName="org.apache.maven.build"
-                   ExecutionVersion="1"/>
+                   ExecutionVersion="1">
+      <ToolRequirement ReferenceName="java21"/>
+    </ToolExecution>
   </Task>
 
   <Task Name="com.io7m.task1"
@@ -26,6 +34,8 @@
     <CleanPolicyImmediately/>
     <ToolExecution ReferenceName="maven"
                    ExecutionName="org.apache.maven.deploy"
-                   ExecutionVersion="1"/>
+                   ExecutionVersion="1">
+      <ToolRequirement ReferenceName="java21"/>
+    </ToolExecution>
   </Task>
 </Plan>
