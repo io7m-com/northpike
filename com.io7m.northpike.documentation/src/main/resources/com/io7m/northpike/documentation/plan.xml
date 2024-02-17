@@ -23,7 +23,7 @@
     <Subsection title="Description">
       <Paragraph>
         A <Term type="term">task</Term> is an executable element that, when evaluated, causes a
-        <Link target="c9234354-ea97-4693-826c-a3ccd9a006d7">tool execution</Link>
+        <Link target="c9234354-ea97-4693-826c-a3ccd9a006d7">tool</Link>
         to be executed on an appropriate <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agent</Link>.
       </Paragraph>
     </Subsection>
