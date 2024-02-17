@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Section xmlns="urn:com.io7m.structural:8:0"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
          id="352ba8b4-1d9d-443c-929a-21027c374207"
          title="Plan Language">
 
@@ -41,7 +42,36 @@
               id="43fa1060-d9b5-4e79-b139-015e1d6591f3">
     <Subsection title="Description">
       <Paragraph>
-        A <Term type="term">agent</Term> is...
+        A <Term type="term">agent</Term>, from the perspective of the <Term type="term">plan</Term> language, is an
+        abstract object that can accept
+        <Link target="cbc2e395-4351-49fb-b90e-eb38d21e454c">tasks</Link>
+        for execution. In reality, agents are the objects that reside in
+        <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agent hosts</Link>.
+      </Paragraph>
+      <Paragraph>
+        An <Term type="term">agent</Term> adheres to the following finite state machine, with all agents starting in the
+        <Term type="expression">ASIdle</Term>
+        state:
+      </Paragraph>
+      <FormalItem title="FSM">
+        <Image source="agentState.png"
+               width="602"
+               height="482">Agent state
+        </Image>
+      </FormalItem>
+      <Paragraph>
+        When an agent is not executing a task, it is in the <Term type="expression">ASIdle</Term> state. The system may
+        select the agent as a candidate for executing a given task. If the agent accepts the task for execution, it
+        proceeds to the <Term type="expression">ASAccepted</Term> state and then, after an indefinite period
+        <LinkFootnote target="29a01202-ba65-478c-9761-d5c335816991"/>, proceeds to the
+        <Term type="expression">ASExecuting</Term>
+        state. The task on the agent then either succeeds or fails, causing transitions to the
+        <Term type="expression">ASSucceeded</Term>
+        or
+        <Term type="expression">ASFailed</Term>
+        states, respectively. The agent then transitions back to the
+        <Term type="expression">ASIdle</Term>
+        state.
       </Paragraph>
     </Subsection>
   </Subsection>
@@ -58,6 +88,38 @@
     <Paragraph>
       Tool References...
     </Paragraph>
+  </Subsection>
+
+  <Subsection title="Syntax"
+              id="79a5df3a-a787-49b4-9839-29f5f4411547">
+    <Subsection title="Overview">
+      <Paragraph>
+        Programs in the <Term type="term">plan</Term> language are specified in a strictly-defined XML format.
+      </Paragraph>
+    </Subsection>
+
+    <Subsection title="Example">
+      <Paragraph>
+        The following trivial example program defines two
+        <Link target="cbc2e395-4351-49fb-b90e-eb38d21e454c">tasks</Link>,
+        <Term type="expression">com.io7m.task0</Term>
+        and
+        <Term type="expression">com.io7m.task1</Term>. The
+        <Term type="expression">com.io7m.task1</Term>
+        task is specified to depend on
+        <Term type="expression">com.io7m.task0</Term>, and a constraint is used to ensure that
+        <Term type="expression">com.io7m.task1</Term>
+        executes on the same <Link target="43fa1060-d9b5-4e79-b139-015e1d6591f3">agent</Link> as the
+        <Term type="expression">com.io7m.task0</Term>.
+      </Paragraph>
+
+      <FormalItem title="Example">
+        <Verbatim>
+          <xi:include href="example-plan.xml"
+                      parse="text"/>
+        </Verbatim>
+      </FormalItem>
+    </Subsection>
   </Subsection>
 
   <Subsection title="Semantics"
@@ -104,15 +166,21 @@
         </ListUnordered>
       </FormalItem>
       <Paragraph>
-        It follows that programs in the <Term type="term">plan</Term> language will always terminate in a
-        finite number of steps (due to configurable bounds on the times elements are allowed to remain in
-        various states), although the proofs do not currently attempt to verify this.
+        It follows that programs in the <Term type="term">plan</Term> language will always terminate in a finite number
+        of steps (due to configurable bounds on the times elements are allowed to remain in various states), although
+        the proofs do not currently attempt to verify this.
       </Paragraph>
       <Paragraph>
         The actual <Term type="term">implementation</Term> of the plan evaluation logic in the server has
         <Term type="term">not</Term>
         been formally verified; the proofs only indicate that the design appears to be sound, not that the
         implementation is bug-free.
+      </Paragraph>
+      <Paragraph>
+        The evaluation of a <Term type="term">plan</Term> language program should be considered to operate in the
+        presence of a set of <Link target="43fa1060-d9b5-4e79-b139-015e1d6591f3">agents</Link>, with the state of each
+        agent being subject to change at any time. Many state transitions are dependent on an appropriate agent being
+        available to execute parts of the plan.
       </Paragraph>
     </Subsection>
     <Subsection title="States"
@@ -236,7 +304,21 @@
         <Term type="term">e</Term>
         can be processed.
       </Paragraph>
+      <Paragraph>
+        Dependencies are the only means by which to control the order of execution of elements within a
+        <Term type="term">plan</Term> program; in a program where none of the elements have dependencies,
+        implementations are free to execute any number of elements concurrently and in any order.
+      </Paragraph>
     </Subsection>
   </Subsection>
+
+  <Footnote id="29a01202-ba65-478c-9761-d5c335816991">
+    Typically, real implementations of agents will start executing tasks immediately. Agent implementations should avoid
+    using long queues to store tasks; agents should favour rejecting tasks that cannot be started promptly over placing
+    the tasks into queues. The reasoning behind this is that agents should assume that they are part of a large set of
+    distributed agents, and that if they cannot execute a given task immediately, they can likely assume that another
+    agent will be available in the set to execute the task if they cannot. In a system where agents immediately tried to
+    monopolize all tasks, many other agents would be left sitting idle with no tasks to execute.
+  </Footnote>
 
 </Section>

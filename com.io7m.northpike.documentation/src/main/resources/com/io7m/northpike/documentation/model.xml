@@ -427,8 +427,8 @@
         <Term type="term">agent host</Term>
         service, with all of the <Term type="term">agent host</Term> services connecting to a single central
         <Term type="package">northpike</Term>
-        server. In most configurations, administrators will choose run a wide variety of operating systems and hardware
-        types in order to ensure that code can be tested across those platforms.
+        server. In most configurations, administrators will choose to run a wide variety of operating systems and
+        hardware types in order to ensure that code can be tested across those platforms.
       </Paragraph>
       <FormalItem title="Agents">
         <Image source="agents.png"

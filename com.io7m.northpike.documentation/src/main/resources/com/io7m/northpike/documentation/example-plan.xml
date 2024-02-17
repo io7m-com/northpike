@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Plan xmlns="urn:com.io7m.northpike.plans:1"
+      Name="com.io7m.example.plan1"
+      Version="1">
+
+  <Timeouts AgentSelection="PT30M"
+            TaskExecution="PT30M"/>
+
+  <Task Name="com.io7m.task0"
+        Description="An example task.">
+    <AgentPreferWithLabelsMatching>
+      <SetIsSupersetOf>
+        <SetElement Value="linux"/>
+      </SetIsSupersetOf>
+    </AgentPreferWithLabelsMatching>
+    <CleanPolicyLater/>
+    <ToolExecution ReferenceName="maven"
+                   ExecutionName="org.apache.maven.build"
+                   ExecutionVersion="1"/>
+  </Task>
+
+  <Task Name="com.io7m.task1"
+        Description="An example task.">
+    <AgentRequireSameAsUsedFor Task="com.io7m.task0"/>
+    <CleanPolicyImmediately/>
+    <ToolExecution ReferenceName="maven"
+                   ExecutionName="org.apache.maven.deploy"
+                   ExecutionVersion="1"/>
+  </Task>
+</Plan>
