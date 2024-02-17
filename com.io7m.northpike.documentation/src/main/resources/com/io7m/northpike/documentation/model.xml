@@ -72,7 +72,8 @@
       <Paragraph>
         A <Term type="term">commit signature</Term> is a
         <LinkExternal target="https://en.wikipedia.org/wiki/Digital_signature">digital signature</LinkExternal>
-        applied to a code revision in a repository. The
+        applied to a code revision in a repository
+        <LinkFootnote target="1e6b5412-ec93-4ba0-b2d0-67d329af7ea9"/>. The
         <Term type="package">northpike</Term>
         server can be configured with the following signature policies:
       </Paragraph>
@@ -515,5 +516,11 @@
       The <Term type="term">user shell</Term> is the primary means by which users administer the server.
     </Paragraph>
   </Subsection>
+
+  <Footnote id="1e6b5412-ec93-4ba0-b2d0-67d329af7ea9">
+    The canonical example of this is
+    <LinkExternal target="https://git-scm.com/book/en/v2/Git-Tools-Signing-Your-Work">
+      PGP-signed git commits</LinkExternal>.
+  </Footnote>
 
 </Section>
