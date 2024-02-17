@@ -124,7 +124,18 @@
               id="f6a513dc-e704-4e62-a562-b2530d9f5e67">
     <Subsection title="Description">
       <Paragraph>
-        A <Term type="term">barrier</Term> is an executable element that...
+        A <Term type="term">barrier</Term> is an executable element that is conceptually a kind of no-op
+        <Link target="cbc2e395-4351-49fb-b90e-eb38d21e454c">task</Link>
+        that does not require an agent, and that immediately
+        <Link target="31edd30e-6e55-4284-a81a-9060e109f82c">succeeds</Link>
+        as soon as its dependencies have succeeded.
+      </Paragraph>
+      <Paragraph>
+        Barriers are essentially a convenient object used to control the execution of plan. A barrier
+        <Term type="expression">b</Term>
+        can be specified with a set of dependencies, and the execution of any plan elements that depend on
+        <Term type="expression">b</Term>
+        will not proceed until all the dependencies of <Term type="expression">b</Term> have completed successfully.
       </Paragraph>
     </Subsection>
   </Subsection>
