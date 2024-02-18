@@ -8,6 +8,9 @@
             TaskExecution="PT30M"/>
 
   <Tools>
+    <Tool ReferenceName="maven"
+          ToolName="org.apache.maven3"
+          ToolVersion="1"/>
     <Tool ReferenceName="java21"
           ToolName="org.openjdk.jdk21"
           ToolVersion="1"/>

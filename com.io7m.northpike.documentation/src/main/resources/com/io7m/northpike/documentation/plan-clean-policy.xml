@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Table xmlns="urn:com.io7m.structural:8:0" type="genericTable">
+  <Columns>
+    <Column>Policy</Column>
+    <Column>Description</Column>
+  </Columns>
+  <Row>
+    <Cell>
+      <Term type="expression">CleanImmediately</Term>
+    </Cell>
+    <Cell>
+      Any artifacts produced by the execution of this task are deleted immediately after the task completes.
+    </Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">CleanLater</Term>
+    </Cell>
+    <Cell>
+      Any artifacts produced by the execution of this task are preserved until the plan completes.
+    </Cell>
+  </Row>
+</Table>

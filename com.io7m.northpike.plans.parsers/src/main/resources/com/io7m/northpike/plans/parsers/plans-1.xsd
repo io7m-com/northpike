@@ -247,10 +247,6 @@
     </xsd:choice>
   </xsd:group>
 
-
-
-
-
   <xsd:complexType name="CleanPolicyType"
                    abstract="true">
     <xsd:annotation>
@@ -843,7 +839,7 @@
     <xsd:keyref name="ToolExists"
                 refer="np:ToolKey">
       <xsd:selector xpath="*/np:ToolExecution"/>
-      <xsd:field xpath="@Tool"/>
+      <xsd:field xpath="@ReferenceName"/>
     </xsd:keyref>
 
     <xsd:keyref name="ToolRequirementExists"

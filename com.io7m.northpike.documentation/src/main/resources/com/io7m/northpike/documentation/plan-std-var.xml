@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Table xmlns="urn:com.io7m.structural:8:0" type="genericTable">
+  <Columns>
+    <Column>Name</Column>
+    <Column>Type</Column>
+    <Column>Description</Column>
+  </Columns>
+  <Row>
+    <Cell>
+      <Term type="expression">com.io7m.northpike.scm.commit</Term>
+    </Cell>
+    <Cell>
+      String
+    </Cell>
+    <Cell>
+      The unique identifier of the current SCM commit.
+    </Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">com.io7m.northpike.scm.branches</Term>
+    </Cell>
+    <Cell>
+      StringSet
+    </Cell>
+    <Cell>
+      The branches to which the current SCM commit belongs.
+    </Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">com.io7m.northpike.archive.url</Term>
+    </Cell>
+    <Cell>
+      String
+    </Cell>
+    <Cell>
+      The URL that will deliver a source archive for the current plan.
+    </Cell>
+  </Row>
+  <Row>
+    <Cell>
+      <Term type="expression">com.io7m.northpike.archive.checksum_url</Term>
+    </Cell>
+    <Cell>
+      String
+    </Cell>
+    <Cell>
+      The URL that will deliver a checksum file for the archive sources.
+    </Cell>
+  </Row>
+</Table>

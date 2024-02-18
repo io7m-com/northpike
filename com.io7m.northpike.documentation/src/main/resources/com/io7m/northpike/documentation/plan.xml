@@ -23,106 +23,168 @@
     <Subsection title="Description">
       <Paragraph>
         A <Term type="term">task</Term> is an executable element that, when evaluated, causes a
-        <Link target="c9234354-ea97-4693-826c-a3ccd9a006d7">tool</Link>
+        <Link target="af703b0a-3d34-486d-a69a-4a9f4838c82d">tool</Link>
         to be executed on an appropriate <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agent</Link>.
       </Paragraph>
     </Subsection>
     <Subsection title="Agent Constraints"
                 id="8aadf34b-61e3-4780-b98f-6ff638ec2786">
-      <Paragraph>
-        An <Term type="term">agent constraint</Term> is an expression used to reduce the set of
-        <Link target="43fa1060-d9b5-4e79-b139-015e1d6591f3">agents</Link>
-        that will be considered to be candidates for executing a given task. A constraint expression is evaluated
-        against the set of
-        <Link target="3f9341dd-4d51-42e8-b0f5-370591e58afa">labels</Link>
-        on a given agent. A constraint expression is a value of the given inductive type:
-      </Paragraph>
-      <FormalItem title="Agent Expression">
-        <Verbatim>
-          <xi:include href="agent-match-exp.txt"
-                      parse="text"/>
-        </Verbatim>
-      </FormalItem>
-      <Paragraph>
-        Whether an expression matches a given agent <Term type="expression">a</Term> is given by the following inductive
-        proposition:
-      </Paragraph>
-      <FormalItem title="Agent Expression Matches">
-        <Verbatim>
-          <xi:include href="agent-match-exp-prop.txt"
-                      parse="text"/>
-        </Verbatim>
-      </FormalItem>
-      <FormalItem title="Agent Expression Matches Explanation">
-        <ListUnordered>
-          <Item>
-            An expression <Term type="expression">AMAnything</Term> matches any agent.
-          </Item>
-          <Item>
-            An expression <Term type="expression">(AMIsSubsetOf xs)</Term> matches an agent
-            <Term type="expression">a</Term>
-            where each label
-            <Term type="expression">x</Term>
-            in
-            <Term type="expression">xs</Term>
-            is in
-            <Term type="expression">(agentLabels a)</Term>.
-          </Item>
-          <Item>
-            An expression <Term type="expression">(AMIsSupersetOf xs)</Term> matches an agent
-            <Term type="expression">a</Term>
-            where each label
-            <Term type="expression">x</Term>
-            in
-            <Term type="expression">(agentLabels a)</Term>
-            is in
-            <Term type="expression">xs</Term>.
-          </Item>
-          <Item>
-            An expression <Term type="expression">(AMIsOverlapping xs)</Term> matches an agent
-            <Term type="expression">a</Term>
-            where there exists at least one label
-            <Term type="expression">x</Term>
-            in
-            <Term type="expression">xs</Term>
-            that is in
-            <Term type="expression">(agentLabels a)</Term>.
-          </Item>
-          <Item>
-            An expression <Term type="expression">(AMIsEqualTo xs)</Term> matches an agent
-            <Term type="expression">a</Term>
-            where
-            <Term type="expression">xs = (agentLabels a)</Term>.
-          </Item>
-          <Item>
-            An expression <Term type="expression">(AMIsNotEqualTo xs)</Term> matches an agent
-            <Term type="expression">a</Term>
-            where
-            <Term type="expression">xs ≠ (agentLabels a)</Term>.
-          </Item>
-        </ListUnordered>
-      </FormalItem>
-      <Paragraph>
-        Formal descriptions of the semantics of these expressions are given in the
-        associated <Link target="efaa5ba5-bc57-5284-bfdb-4c03bc73db04">proof script</Link>.
-      </Paragraph>
-      <Paragraph>
-        A given task is associated with a mandatory <Term type="term">requirement</Term> expression, and an optional
-        <Term type="term">preference</Term>
-        expression. When a
-        <Term type="term">plan</Term>
-        program needs to find an agent for a given task, only the agents matching the
-        <Term type="term">requirement</Term>
-        expression will be considered as candidates. When multiple agents match, any agent that happens to match the
-        <Term type="term">preference</Term>
-        expression will be more likely to be offered the task first.
-      </Paragraph>
+      <Subsection title="Overview">
+        <Paragraph>
+          An <Term type="term">agent constraint</Term> is an expression used to reduce the set of
+          <Link target="43fa1060-d9b5-4e79-b139-015e1d6591f3">agents</Link>
+          that will be considered to be candidates for executing a given task. A constraint can consist of either
+          an <Link target="1eecb80c-b738-4aef-a45a-8daa222117fa">agent label match expression</Link>, or a
+          <Link target="39f13423-cc62-4f79-91b7-272fcf947d1c">same-as</Link>
+          expression.
+        </Paragraph>
+      </Subsection>
+      <Subsection title="Agent Label Match Expressions"
+                  id="1eecb80c-b738-4aef-a45a-8daa222117fa">
+        <Paragraph>
+          An
+          <Term type="term">agent label match expression</Term>
+          is evaluated against the set of
+          <Link target="3f9341dd-4d51-42e8-b0f5-370591e58afa">labels</Link>
+          on a given agent. An <Term type="term">agent label match</Term> is a value of the given inductive type:
+        </Paragraph>
+        <FormalItem title="Agent Expression">
+          <Verbatim>
+            <xi:include href="agent-match-exp.txt"
+                        parse="text"/>
+          </Verbatim>
+        </FormalItem>
+        <Paragraph>
+          Whether an expression matches a given agent <Term type="expression">a</Term> is given by the following
+          inductive proposition:
+        </Paragraph>
+        <FormalItem title="Agent Expression Matches">
+          <Verbatim>
+            <xi:include href="agent-match-exp-prop.txt"
+                        parse="text"/>
+          </Verbatim>
+        </FormalItem>
+        <FormalItem title="Agent Expression Matches Explanation">
+          <ListUnordered>
+            <Item>
+              An expression <Term type="expression">AMAnything</Term> matches any agent.
+            </Item>
+            <Item>
+              An expression <Term type="expression">(AMIsSubsetOf xs)</Term> matches an agent
+              <Term type="expression">a</Term>
+              where each label
+              <Term type="expression">x</Term>
+              in
+              <Term type="expression">xs</Term>
+              is in
+              <Term type="expression">(agentLabels a)</Term>.
+            </Item>
+            <Item>
+              An expression <Term type="expression">(AMIsSupersetOf xs)</Term> matches an agent
+              <Term type="expression">a</Term>
+              where each label
+              <Term type="expression">x</Term>
+              in
+              <Term type="expression">(agentLabels a)</Term>
+              is in
+              <Term type="expression">xs</Term>.
+            </Item>
+            <Item>
+              An expression <Term type="expression">(AMIsOverlapping xs)</Term> matches an agent
+              <Term type="expression">a</Term>
+              where there exists at least one label
+              <Term type="expression">x</Term>
+              in
+              <Term type="expression">xs</Term>
+              that is in
+              <Term type="expression">(agentLabels a)</Term>.
+            </Item>
+            <Item>
+              An expression <Term type="expression">(AMIsEqualTo xs)</Term> matches an agent
+              <Term type="expression">a</Term>
+              where
+              <Term type="expression">xs = (agentLabels a)</Term>.
+            </Item>
+            <Item>
+              An expression <Term type="expression">(AMIsNotEqualTo xs)</Term> matches an agent
+              <Term type="expression">a</Term>
+              where
+              <Term type="expression">xs ≠ (agentLabels a)</Term>.
+            </Item>
+          </ListUnordered>
+        </FormalItem>
+        <Paragraph>
+          Formal descriptions of the semantics of these expressions are given in the
+          associated <Link target="efaa5ba5-bc57-5284-bfdb-4c03bc73db04">proof script</Link>.
+        </Paragraph>
+      </Subsection>
+      <Subsection title="Same-As Expression"
+                  id="39f13423-cc62-4f79-91b7-272fcf947d1c">
+        <Paragraph>
+          A <Term type="term">same-as</Term> expression is a simple constraint that states that a given task
+          <Term type="expression">T</Term>
+          should execute on the same agent that executed task
+          <Term type="expression">U</Term>. Setting a <Term type="term">same-as</Term> constraint on a task
+          <Term type="expression">T</Term>
+          to a task <Term type="expression">U</Term> automatically adds a
+          <Link target="9147dd3d-3f83-424b-aa3b-1f826f47a4f3">dependency</Link>
+          on task
+          <Term type="expression">U</Term>
+          for task <Term type="expression">T</Term>.
+        </Paragraph>
+        <Paragraph>
+          A <Term type="term">same-as</Term> constraint is useful when a task <Term type="expression">T</Term> needs 
+          to reuse objects that were produced by <Term type="expression">U</Term> when
+          <Term type="expression">U</Term> executed on a given agent. A concrete example of this is when a
+          task produces a set of 
+          <LinkExternal target="https://en.wikipedia.org/wiki/JAR_(file_format)">JAR</LinkExternal> files,
+          and a later task wants to publish those JAR files to
+          <LinkExternal target="https://central.sonatype.com/">Maven Central</LinkExternal> if and only if
+          other tasks in the plan succeed. Note that, if the task <Term type="expression">T</Term> needs to
+          guarantee that artifacts produced by <Term type="expression">U</Term> are still available by the time
+          <Term type="expression">T</Term> executes, then
+          <Term type="expression">U</Term> needs to be configured with a
+          <Link target="912cce33-462d-4297-a67f-73b3173fa2b6">clean policy</Link> of at least
+          <Term type="expression">CleanLater</Term> (otherwise, the agent is free to delete any artifacts produced
+          by <Term type="expression">U</Term> as soon as it completes, which may be undesirable).
+        </Paragraph>
+      </Subsection>
+      <Subsection title="Requires/Prefers">
+        <Paragraph>
+          A given task is associated with a mandatory <Term type="term">requirement</Term> constraint, and an optional
+          <Term type="term">preference</Term>
+          constraint. When a
+          <Term type="term">plan</Term>
+          program needs to find an agent for a given task, only the agents matching the
+          <Term type="term">requirement</Term>
+          constraint will be considered as candidates. When multiple agents match, any agent that happens to match the
+          <Term type="term">preference</Term>
+          constraint will be more likely to be offered the task first.
+        </Paragraph>
+      </Subsection>
     </Subsection>
     <Subsection title="Tool Execution"
                 id="af703b0a-3d34-486d-a69a-4a9f4838c82d">
       <Paragraph>
-        Tool execution...
+        The <Term type="term">tool execution</Term> associated with the task is the
+        <Link target="63fdd8ed-b53b-4d4e-b0b1-89ba8d52fbe8">tool execution</Link>
+        that will be used to execute the referenced
+        <Link target="fc06253c-8194-4a04-8d65-7bc2de2e7ea9">tool</Link>
+        on the agent when the task runs.
       </Paragraph>
+    </Subsection>
+    <Subsection title="Clean Policy"
+                id="912cce33-462d-4297-a67f-73b3173fa2b6">
+      <Paragraph>
+        The <Term type="term">clean policy</Term> for the task instructs the executing agent on whether it should
+        preserve or destroy any artifacts produced by the execution of the task. Agents are free to destroy anything
+        produced by plans after the plan has completed, but some plans may require that the results of tasks are
+        preserved at least until the end of the plan. The following <Term type="term">clean policies</Term> are
+        available:
+      </Paragraph>
+      <FormalItem title="Clean Policies">
+        <xi:include href="plan-clean-policy.xml"/>
+      </FormalItem>
     </Subsection>
   </Subsection>
 
@@ -186,9 +248,66 @@
 
   <Subsection title="Variables"
               id="ee2248ae-b120-40ba-8ad7-96c82750d1b2">
-    <Paragraph>
-      Variables...
-    </Paragraph>
+    <Subsection title="Overview">
+      <Paragraph>
+        A <Term type="term">variable</Term> is a named constant value that is made available to
+        <Link target="af703b0a-3d34-486d-a69a-4a9f4838c82d">tool executions</Link>
+        in a plan.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Types">
+      <Paragraph>
+        A <Term type="term">variable</Term> has one of the following types:
+      </Paragraph>
+      <FormalItem title="Types">
+        <Table type="genericTable">
+          <Columns>
+            <Column>Type</Column>
+            <Column>Value Set</Column>
+          </Columns>
+          <Row>
+            <Cell>
+              <Term type="type">String</Term>
+            </Cell>
+            <Cell>
+              Any string.
+            </Cell>
+          </Row>
+          <Row>
+            <Cell>
+              <Term type="type">StringSet</Term>
+            </Cell>
+            <Cell>
+              A set of strings.
+            </Cell>
+          </Row>
+          <Row>
+            <Cell>
+              <Term type="type">Integer</Term>
+            </Cell>
+            <Cell>
+              <Term type="expression">[-9223372036854775808, 9223372036854775808]</Term>
+            </Cell>
+          </Row>
+          <Row>
+            <Cell>
+              <Term type="type">Boolean</Term>
+            </Cell>
+            <Cell>
+              <Term type="expression">{true, false}</Term>
+            </Cell>
+          </Row>
+        </Table>
+      </FormalItem>
+    </Subsection>
+    <Subsection title="Standard Variables">
+      <Paragraph>
+        The following variables are always made accessible to plans:
+      </Paragraph>
+      <FormalItem title="Standard Variables">
+        <xi:include href="plan-std-var.xml"/>
+      </FormalItem>
+    </Subsection>
   </Subsection>
 
   <Subsection title="Tool References"
