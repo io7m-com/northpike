@@ -27,6 +27,18 @@
         to be executed on an appropriate <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agent</Link>.
       </Paragraph>
     </Subsection>
+
+    <Subsection title="Workspaces"
+                id="6c1de05e-cd57-4e13-95f7-52bd6b4b9595">
+      <Paragraph>
+        When a <Term type="term">task</Term> is executed on an agent, a <Term type="term">workspace</Term> is created.
+        It is within this <Term type="term">workspace</Term> that the
+        <Link target="af703b0a-3d34-486d-a69a-4a9f4838c82d">tool</Link>
+        associated with the task is executed. Workspaces may be destroyed after the task finishes execution,
+        dependent upon the task's <Link target="912cce33-462d-4297-a67f-73b3173fa2b6">clean policy</Link>.
+      </Paragraph>
+    </Subsection>
+
     <Subsection title="Agent Constraints"
                 id="8aadf34b-61e3-4780-b98f-6ff638ec2786">
       <Subsection title="Overview">
@@ -39,6 +51,7 @@
           expression.
         </Paragraph>
       </Subsection>
+
       <Subsection title="Agent Label Match Expressions"
                   id="1eecb80c-b738-4aef-a45a-8daa222117fa">
         <Paragraph>
@@ -118,6 +131,7 @@
           associated <Link target="efaa5ba5-bc57-5284-bfdb-4c03bc73db04">proof script</Link>.
         </Paragraph>
       </Subsection>
+
       <Subsection title="Same-As Expression"
                   id="39f13423-cc62-4f79-91b7-272fcf947d1c">
         <Paragraph>
@@ -133,22 +147,27 @@
           for task <Term type="expression">T</Term>.
         </Paragraph>
         <Paragraph>
-          A <Term type="term">same-as</Term> constraint is useful when a task <Term type="expression">T</Term> needs 
-          to reuse objects that were produced by <Term type="expression">U</Term> when
-          <Term type="expression">U</Term> executed on a given agent. A concrete example of this is when a
-          task produces a set of 
-          <LinkExternal target="https://en.wikipedia.org/wiki/JAR_(file_format)">JAR</LinkExternal> files,
-          and a later task wants to publish those JAR files to
-          <LinkExternal target="https://central.sonatype.com/">Maven Central</LinkExternal> if and only if
-          other tasks in the plan succeed. Note that, if the task <Term type="expression">T</Term> needs to
-          guarantee that artifacts produced by <Term type="expression">U</Term> are still available by the time
-          <Term type="expression">T</Term> executes, then
-          <Term type="expression">U</Term> needs to be configured with a
-          <Link target="912cce33-462d-4297-a67f-73b3173fa2b6">clean policy</Link> of at least
-          <Term type="expression">CleanLater</Term> (otherwise, the agent is free to delete any artifacts produced
-          by <Term type="expression">U</Term> as soon as it completes, which may be undesirable).
+          A <Term type="term">same-as</Term> constraint is useful when a task <Term type="expression">T</Term> needs to
+          reuse objects that were produced by <Term type="expression">U</Term> when
+          <Term type="expression">U</Term>
+          executed on a given agent. A concrete example of this is when a task produces a set of
+          <LinkExternal target="https://en.wikipedia.org/wiki/JAR_(file_format)">JAR</LinkExternal>
+          files, and a later task wants to publish those JAR files to
+          <LinkExternal target="https://central.sonatype.com/">Maven Central</LinkExternal>
+          if and only if other tasks in the plan succeed. Note that, if the task <Term type="expression">T</Term> needs
+          to guarantee that artifacts produced by <Term type="expression">U</Term> are still available by the time
+          <Term type="expression">T</Term>
+          executes, then
+          <Term type="expression">U</Term>
+          needs to be configured with a
+          <Link target="912cce33-462d-4297-a67f-73b3173fa2b6">clean policy</Link>
+          of at least
+          <Term type="expression">CleanLater</Term>
+          (otherwise, the agent is free to delete any artifacts produced by <Term type="expression">U</Term> as soon as
+          it completes, which may be undesirable).
         </Paragraph>
       </Subsection>
+
       <Subsection title="Requires/Prefers">
         <Paragraph>
           A given task is associated with a mandatory <Term type="term">requirement</Term> constraint, and an optional
@@ -163,6 +182,7 @@
         </Paragraph>
       </Subsection>
     </Subsection>
+
     <Subsection title="Tool Execution"
                 id="af703b0a-3d34-486d-a69a-4a9f4838c82d">
       <Paragraph>
@@ -173,14 +193,16 @@
         on the agent when the task runs.
       </Paragraph>
     </Subsection>
+
     <Subsection title="Clean Policy"
                 id="912cce33-462d-4297-a67f-73b3173fa2b6">
       <Paragraph>
         The <Term type="term">clean policy</Term> for the task instructs the executing agent on whether it should
-        preserve or destroy any artifacts produced by the execution of the task. Agents are free to destroy anything
-        produced by plans after the plan has completed, but some plans may require that the results of tasks are
-        preserved at least until the end of the plan. The following <Term type="term">clean policies</Term> are
-        available:
+        preserve or destroy the
+        <Link target="6c1de05e-cd57-4e13-95f7-52bd6b4b9595">workspace</Link>
+        produced for the execution of the task. Agents are free to destroy anything produced by plans after the plan has
+        completed, but some plans may require that the results of tasks are preserved at least until the end of the
+        plan. The following <Term type="term">clean policies</Term> are available:
       </Paragraph>
       <FormalItem title="Clean Policies">
         <xi:include href="plan-clean-policy.xml"/>
