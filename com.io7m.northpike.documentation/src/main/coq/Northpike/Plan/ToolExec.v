@@ -14,6 +14,11 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *)
 
+From Coq Require Import ssreflect ssrfun ssrbool.
+Set Implicit Arguments.
+Unset Strict Implicit.
+Unset Printing Implicit Defensive.
+
 Require Import Coq.ZArith.ZArith.
 Require Import Coq.Strings.String.
 Require Import Coq.MSets.MSetInterface.
@@ -66,95 +71,428 @@ Module StringDecidable <: DecidableType.
 
 End StringDecidable.
 
-Module StringSets : MSetInterface.WSets :=
+Module StringSets <: MSetInterface.WSets :=
   MSetWeakList.Make StringDecidable.
 
-Inductive exp : Set :=
-  | EAnd               : exp -> exp -> exp
-  | EFalse             : exp
-  | EInteger           : Z -> exp
-  | EIsEqual           : exp -> exp -> exp
-  | ENot               : exp -> exp
-  | EOr                : exp -> exp -> exp
-  | EString            : string -> exp
-  | EStringSetContains : string -> exp -> exp
-  | ETrue              : exp
-  | EVariableBoolean   : string -> exp
-  | EVariableInteger   : string -> exp
-  | EVariableString    : string -> exp
-  | EVariableStringSet : string -> exp
+Inductive constant : Type :=
+  | CBoolean   : bool -> constant
+  | CInteger   : Z -> constant
+  | CString    : string -> constant
+  | CStringSet : StringSets.t -> constant
   .
 
-Inductive st : Set :=
-  | SComment           : string -> st
-  | SArgumentAdd       : string -> st
-  | SEnvironmentClear  : st
-  | SEnvironmentPass   : string -> st
-  | SEnvironmentRemove : string -> st
-  | SEnvironmentSet    : string -> string -> st
-  | SIf                : exp -> list st -> list st -> st
-  .
-
-Inductive val : Type :=
-  | VBoolean   : bool -> val
-  | VInteger   : Z -> val
-  | VString    : string -> val
-  | VStringSet : StringSets.t -> val 
-  .
-
-Definition valEqb (v0 v1 : val) : bool :=
-  match v0, v1 with
-  | VBoolean   b0, VBoolean   b1 => Bool.eqb b0 b1
-  | VInteger   z0, VInteger   z1 => Zeq_bool z0 z1
-  | VString    s0, VString    s1 => String.eqb s0 s1
-  | VStringSet s0, VStringSet s1 => StringSets.equal s0 s1
-  | _, _                         => false
+Definition constantEqb (c0 c1 : constant) : bool :=
+  match c0, c1 with
+  | CBoolean x, CBoolean y => Bool.eqb x y
+  | CInteger x, CInteger y => Zeq_bool x y
+  | CString x,  CString y  => String.eqb x y
+  | _, _                   => false
   end.
 
-Inductive evalE : exp -> val -> Prop :=
-  | EEAnd :
-    forall (e0 e1 : exp) (v0 v1 : bool),
-       evalE e0 (VBoolean v0)
-    -> evalE e1 (VBoolean v1)
-    -> evalE (EAnd e0 e1) (VBoolean (andb v0 v1))
-  | EEFalse :
-    evalE EFalse (VBoolean false)
-  | EEInteger :
+Inductive expression : Type :=
+  | EConstant          : constant -> expression
+  | EAnd               : expression -> expression -> expression
+  | EIsEqual           : expression -> expression -> expression
+  | ENot               : expression -> expression
+  | EOr                : expression -> expression -> expression
+  | EStringSetContains : string -> expression -> expression
+  | EVariableBoolean   : string -> expression
+  | EVariableInteger   : string -> expression
+  | EVariableString    : string -> expression
+  | EVariableStringSet : string -> expression
+  .
+
+Definition boolConst (b : bool) :=
+  EConstant (CBoolean b).
+
+Definition stringSetConst (s : StringSets.t) :=
+  EConstant (CStringSet s).
+
+Definition eFalse :=
+  boolConst false.
+
+Definition eTrue :=
+  boolConst true.
+
+Inductive type :=
+  | TBoolean
+  | TInteger
+  | TString
+  | TStringSet
+  | TUnit
+  .
+
+Theorem typeEqDec : forall (t0 t1 : type),
+  {t0 = t1}+{~t0 = t1}.
+Proof. decide equality. Qed.
+
+Inductive typeE : expression -> type -> Prop :=
+  | ETConstantInteger :
     forall (z : Z),
-    evalE (EInteger z) (VInteger z)
-  | EEIsEqual :
-    forall (e0 e1 : exp) (v0 v1 : val),
-       evalE e0 v0
-    -> evalE e1 v1
-    -> evalE (EIsEqual e0 e1) (VBoolean (valEqb v0 v1))
-  | EENot :
-    forall (e0 : exp) (v0 : bool),
-       evalE e0 (VBoolean v0)
-    -> evalE (ENot e0) (VBoolean (negb v0))
-  | EEOr :
-    forall (e0 e1 : exp) (v0 v1 : bool),
-       evalE e0 (VBoolean v0)
-    -> evalE e1 (VBoolean v1)
-    -> evalE (EOr e0 e1) (VBoolean (orb v0 v1))
-  | EEString :
+    typeE (EConstant (CInteger z)) TInteger
+  | ETConstantBoolean :
+    forall (b : bool),
+    typeE (EConstant (CBoolean b)) TBoolean
+  | ETConstantString :
     forall (s : string),
-    evalE (EString s) (VString s)
-  | EEStringSetContains :
-    forall (e : exp) (v : val) (s : string) (b : bool),
-       evalE e v
-    -> evalE (EStringSetContains s e) (VBoolean b)
-  | EETrue :
-    evalE ETrue (VBoolean true)
-  | EEVariableBoolean :
-    forall (b : bool) (s : string),
-    evalE (EVariableBoolean s) (VBoolean b)
-  | EEVariableInteger :
-    forall (z : Z) (s : string),
-    evalE (EVariableInteger s) (VInteger z)
-  | EEVariableString :
-    forall (x : string) (s : string),
-    evalE (EVariableString s) (VString x)
-  | EEVariableStringSet :
-    forall (x : StringSets.t) (s : string),
-    evalE (EVariableStringSet s) (VStringSet x)
+    typeE (EConstant (CString s)) TString
+  | ETConstantStringSet :
+    forall (s : StringSets.t),
+    typeE (EConstant (CStringSet s)) TStringSet
+  | ETAnd :
+    forall (e0 e1 : expression),
+       typeE e0 TBoolean
+    -> typeE e1 TBoolean
+    -> typeE (EAnd e0 e1) TBoolean
+  | ETIsEqual :
+    forall (e0 e1 : expression) (t : type),
+       typeE e0 t
+    -> typeE e1 t
+    -> typeE (EIsEqual e0 e1) TBoolean
+  | ETNot :
+    forall (e : expression),
+       typeE e TBoolean
+    -> typeE (ENot e) TBoolean
+  | ETOr :
+    forall (e0 e1 : expression),
+       typeE e0 TBoolean
+    -> typeE e1 TBoolean
+    -> typeE (EOr e0 e1) TBoolean
+  | ETVariableBoolean :
+    forall (s : string),
+    typeE (EVariableBoolean s) TBoolean
+  | ETVariableInteger :
+    forall (s : string),
+    typeE (EVariableInteger s) TInteger
+  | ETVariableString :
+    forall (s : string),
+    typeE (EVariableString s) TString
+  | ETVariableStringSet :
+    forall (s : string),
+    typeE (EVariableStringSet s) TStringSet
+  .
+
+Inductive statement : Type :=
+  | SComment           : string -> statement
+  | SArgumentAdd       : string -> statement
+  | SEnvironmentClear  : statement
+  | SEnvironmentPass   : string -> statement
+  | SEnvironmentRemove : string -> statement
+  | SEnvironmentSet    : string -> string -> statement
+  | SIf                : expression -> list statement -> list statement -> statement
+  .
+
+Inductive stepE : expression -> expression -> Prop :=
+  (* And *)
+  | SEAndConstant :
+    forall (x y : bool),
+    stepE (EAnd (boolConst x) (boolConst y)) (boolConst (andb x y))
+  | SEAndStep0 :
+    forall (e e' : expression) (c : constant),
+       stepE e e'
+    -> stepE (EAnd (EConstant c) e) (EAnd (EConstant c) e')
+  | SEAndStep1 :
+    forall (e0 e0' e1 : expression),
+       stepE e0 e0'
+    -> stepE (EAnd e0 e1) (EAnd e0' e1)
+
+  (* IsEqual *)
+  | SEIsEqualConstant :
+    forall (c0 c1 : constant),
+    stepE (EIsEqual (EConstant c0) (EConstant c1)) (boolConst (constantEqb c0 c1))
+  | SEIsEqualStep1 :
+    forall (e e' : expression) (c : constant),
+       stepE e e'
+    -> stepE (EIsEqual (EConstant c) e) (EIsEqual (EConstant c) e')
+  | SEIsEqualStepL :
+    forall (e0 e0' e1 : expression),
+       stepE e0 e0'
+    -> stepE (EIsEqual e0 e1) (EIsEqual e0' e1)
+
+  (* Not *)
+  | SENotConstant :
+    forall (b : bool),
+    stepE (ENot (boolConst b)) (boolConst (negb b))
+  | SENotStep0 :
+    forall (e e' : expression),
+       stepE e e'
+    -> stepE (ENot e) (ENot e')
+
+  (* Or *)
+  | SEOrConstant :
+    forall (x y : bool),
+    stepE (EOr (boolConst x) (boolConst y)) (boolConst (orb x y))
+  | SEOrStep0 :
+    forall (e e' e1 : expression) (c : constant),
+       stepE e e'
+    -> stepE (EOr (EConstant c) e) (EOr (EConstant c) e')
+  | SEOrStep1 :
+    forall (e0 e0' e1 : expression),
+       stepE e0 e0'
+    -> stepE (EOr e0 e1) (EOr e0' e1)
+
+  (* StringSetContains *)
+  | SEStringSetContainsConst0 :
+    forall (s : string) (ss : StringSets.t),
+    stepE (EStringSetContains s (stringSetConst ss)) (boolConst (StringSets.mem s ss))
+  | SEStringSetStepL :
+    forall (s : string) (e e' : expression),
+       stepE e e'
+    -> stepE (EStringSetContains s e) (EStringSetContains s e')
+  .
+
+Theorem stepEDeterministic : forall (e0 e1 e2: expression), 
+     stepE e0 e1
+  -> stepE e0 e2
+  -> e1 = e2.
+Proof.
+  move => e0 e1 e2 He1 He2.
+  generalize dependent e2.
+  induction He1.
+  - move => e2 He2.
+    inversion He2.
+    * subst; reflexivity.
+    * subst; inversion H2.
+    * subst; inversion H2.
+  - move => e2 He2.
+    inversion He2.
+    * subst; inversion He1.
+    * subst.
+      rewrite (IHHe1 _ H2).
+      reflexivity.
+    * subst.
+      inversion H2.
+  - move => e2 He2.
+    inversion He2.
+    * subst; inversion He1.
+    * subst; inversion He1.
+    * subst.
+      rewrite (IHHe1 _ H2).
+      reflexivity.
+  - move => e2 He2.
+    inversion He2.
+    * subst; reflexivity.
+    * subst; inversion H2.
+    * subst; inversion H2.
+  - move => e2 He2.
+    inversion He2.
+    * subst; inversion He1.
+    * subst.
+      rewrite (IHHe1 _ H2).
+      reflexivity.
+    * subst; inversion H2.
+  - move => e2 He2.
+    inversion He2.
+    * subst; inversion He1.
+    * subst; inversion He1.
+    * subst.
+      rewrite (IHHe1 _ H2).
+      reflexivity.
+  - move => e2 He2.
+    inversion He2.
+    * subst; reflexivity.
+    * subst; inversion H0.
+  - move => e2 He2.
+    inversion He2.
+    * subst; inversion He1.
+    * subst.
+      rewrite (IHHe1 _ H0).
+      reflexivity.
+  - move => e2 He2.
+    inversion He2.
+    * subst; reflexivity.
+    * subst; inversion H2.
+    * subst; inversion H2.
+  - move => e2 He2.
+    inversion He2.
+    * subst; inversion He1.
+    * subst.
+      rewrite (IHHe1 _ H2).
+      reflexivity.
+    * subst; inversion H2.
+  - move => e2 He2.
+    inversion He2.
+    * subst; inversion He1.
+    * subst; inversion He1.
+    * subst.
+      rewrite (IHHe1 _ H2).
+      reflexivity.
+  - move => e2 He2.
+    inversion He2.
+    * subst; reflexivity.
+    * subst; inversion H2.
+  - move => e2 He2.
+    inversion He2.
+    * subst; inversion He1.
+    * subst.
+      rewrite (IHHe1 _ H2).
+      reflexivity.
+Qed.
+
+Theorem typeDeterministic : forall (e : expression) (t0 t1 : type),
+     typeE e t0
+  -> typeE e t1
+  -> t0 = t1.
+Proof.
+  move => e t0 t1 Ht0.
+  induction Ht0.
+  - move => Ht1.
+    inversion Ht1.
+    subst.
+    reflexivity.
+  - move => Ht1.
+    inversion Ht1.
+    subst.
+    reflexivity.
+  - move => Ht1.
+    inversion Ht1.
+    subst.
+    reflexivity.
+  - move => Ht1.
+    inversion Ht1.
+    subst.
+    reflexivity.
+  - move => Ht1.
+    inversion Ht1.
+    subst.
+    reflexivity.
+  - move => Ht1.
+    inversion Ht1.
+    subst.
+    reflexivity.
+  - move => Ht1.
+    inversion Ht1.
+    subst.
+    reflexivity.
+  - move => Ht1.
+    inversion Ht1.
+    subst.
+    reflexivity.
+  - move => Ht1.
+    inversion Ht1.
+    subst.
+    reflexivity.
+  - move => Ht1.
+    inversion Ht1.
+    subst.
+    reflexivity.
+  - move => Ht1.
+    inversion Ht1.
+    subst.
+    reflexivity.
+  - move => Ht1.
+    inversion Ht1.
+    subst.
+    reflexivity.
+Qed.
+
+Theorem typeDeterministicInv : forall (e : expression) (t0 t1 : type),
+     typeE e t0
+  -> ~typeE e t1
+  -> t0 <> t1.
+Proof.
+  move => e t0 t1 Ht0.
+  induction Ht0.
+  - move => Ht1.
+    destruct t1; discriminate || (contradict Ht1; constructor).
+  - move => Ht1.
+    destruct t1; discriminate || (contradict Ht1; constructor).
+  - move => Ht1.
+    destruct t1; discriminate || (contradict Ht1; constructor).
+  - move => Ht1.
+    destruct t1; discriminate || (contradict Ht1; constructor).
+  - move => Ht1.
+    destruct t1; discriminate || (contradict Ht1; constructor; auto).
+  - move => Ht1.
+    destruct t1; discriminate || (contradict Ht1; apply (ETIsEqual Ht0_1 Ht0_2)).
+  - move => Ht1.
+    destruct t1; discriminate || (contradict Ht1; constructor; auto).
+  - move => Ht1.
+    destruct t1; discriminate || (contradict Ht1; constructor; auto).
+  - move => Ht1.
+    destruct t1; discriminate || (contradict Ht1; constructor; auto).
+  - move => Ht1.
+    destruct t1; discriminate || (contradict Ht1; constructor; auto).
+  - move => Ht1.
+    destruct t1; discriminate || (contradict Ht1; constructor; auto).
+  - move => Ht1.
+    destruct t1; discriminate || (contradict Ht1; constructor; auto).
+Qed.
+
+Lemma typeEUnique : forall (e0 e1 : expression) (t : type),
+      typeE e0 t
+  -> ~typeE e1 t
+  -> ~(exists u, typeE e1 t /\ u = t).
+Proof.
+  move => e0 e1 t Ht0.
+  induction Ht0.
+  - move => Ht1.
+    intro Hfalse; inversion Hfalse; intuition.
+  - move => Ht1.
+    intro Hfalse; inversion Hfalse; intuition.
+  - move => Ht1.
+    intro Hfalse; inversion Hfalse; intuition.
+  - move => Ht1.
+    intro Hfalse; inversion Hfalse; intuition.
+  - move => Ht1.
+    intro Hfalse; inversion Hfalse; intuition.
+  - move => Ht1.
+    intro Hfalse; inversion Hfalse; intuition.
+  - move => Ht1.
+    intro Hfalse; inversion Hfalse; intuition.
+  - move => Ht1.
+    intro Hfalse; inversion Hfalse; intuition.
+  - move => Ht1.
+    intro Hfalse; inversion Hfalse; intuition.
+  - move => Ht1.
+    intro Hfalse; inversion Hfalse; intuition.
+  - move => Ht1.
+    intro Hfalse; inversion Hfalse; intuition.
+  - move => Ht1.
+    intro Hfalse; inversion Hfalse; intuition.
+Qed.
+
+Theorem typeEDecidable : forall (e : expression) (t : type), 
+  {typeE e t}+{~typeE e t}.
+Proof.
+  induction e.
+  - destruct c as [b|i|s|ss];
+      destruct t; (left; constructor) || (right; intro Hf; inversion Hf).
+  - destruct (IHe1 TBoolean) as [tl1|t1r].
+    * destruct (IHe2 TBoolean) as [tl2|t2r].
+      ** move => t.
+         destruct t; (left; constructor) || (right; intro H; inversion H); auto.
+      ** move => t.
+         right.
+         intros H.
+         inversion H.
+         subst.
+         contradiction.
+    * right.
+      intros H.
+      inversion H.
+      subst.
+      contradiction.
+  - move => u.
+
+Abort.
+
+Inductive state : Set :=
+  State : forall (arguments : list string), state.
+
+Definition withArgument
+  (st : state)
+  (a  : string)
+: state :=
+  match st with
+  | State args => State (List.app args (cons a nil))
+  end.
+
+Inductive stepS : state -> statement -> state -> Prop :=
+  | SSComment :
+    forall (st : state) (s : string),
+      stepS st (SComment s) st
+  | SSArgumentAdd :
+    forall (st : state) (s : string),
+      stepS st (SArgumentAdd s) (withArgument st s)
   .

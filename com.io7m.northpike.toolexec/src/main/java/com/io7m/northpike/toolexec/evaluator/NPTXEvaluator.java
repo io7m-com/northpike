@@ -18,6 +18,7 @@
 package com.io7m.northpike.toolexec.evaluator;
 
 import com.io7m.northpike.toolexec.checker.NPTXTypeChecked;
+import com.io7m.northpike.toolexec.model.NPTXComment;
 import com.io7m.northpike.toolexec.model.NPTXEAnd;
 import com.io7m.northpike.toolexec.model.NPTXEFalse;
 import com.io7m.northpike.toolexec.model.NPTXEInteger;
@@ -83,7 +84,7 @@ public final class NPTXEvaluator
     this.outputEnvironment =
       new HashMap<>();
     this.outputArguments =
-      new ArrayList<String>();
+      new ArrayList<>();
   }
 
   /**
@@ -118,29 +119,28 @@ public final class NPTXEvaluator
   private void evaluateStatement(
     final NPTXStatementType statement)
   {
-    if (statement instanceof final NPTXSArgumentAdd add) {
-      this.evaluateSArgumentAdd(add);
-      return;
-    }
-    if (statement instanceof final NPTXSEnvironmentSet set) {
-      this.evaluateSEnvironmentSet(set);
-      return;
-    }
-    if (statement instanceof final NPTXSEnvironmentRemove rm) {
-      this.evaluateSEnvironmentRemove(rm);
-      return;
-    }
-    if (statement instanceof final NPTXSEnvironmentPass pass) {
-      this.evaluateSEnvironmentPass(pass);
-      return;
-    }
-    if (statement instanceof final NPTXSEnvironmentClear clear) {
-      this.evaluateSEnvironmentClear(clear);
-      return;
-    }
-    if (statement instanceof final NPTXSIf sIf) {
-      this.evaluateSIf(sIf);
-      return;
+    switch (statement) {
+      case final NPTXSArgumentAdd add -> {
+        this.evaluateSArgumentAdd(add);
+      }
+      case final NPTXSEnvironmentSet set -> {
+        this.evaluateSEnvironmentSet(set);
+      }
+      case final NPTXSEnvironmentRemove rm -> {
+        this.evaluateSEnvironmentRemove(rm);
+      }
+      case final NPTXSEnvironmentPass pass -> {
+        this.evaluateSEnvironmentPass(pass);
+      }
+      case final NPTXSEnvironmentClear clear -> {
+        this.evaluateSEnvironmentClear(clear);
+      }
+      case final NPTXSIf sIf -> {
+        this.evaluateSIf(sIf);
+      }
+      case final NPTXComment comment -> {
+        // Nothing
+      }
     }
   }
 
@@ -157,79 +157,67 @@ public final class NPTXEvaluator
   private Object evaluateExpression(
     final NPTXExpressionType expression)
   {
-    if (expression instanceof NPTXEFalse) {
-      return FALSE;
-    }
-
-    if (expression instanceof NPTXETrue) {
-      return TRUE;
-    }
-
-    if (expression instanceof final NPTXEInteger e) {
-      return e.value();
-    }
-
-    if (expression instanceof final NPTXEString e) {
-      return e.value();
-    }
-
-    if (expression instanceof final NPTXEIsEqual isEqual) {
-      final var e0 = this.evaluateExpression(isEqual.e0());
-      final var e1 = this.evaluateExpression(isEqual.e1());
-      return Boolean.valueOf(Objects.equals(e0, e1));
-    }
-
-    if (expression instanceof final NPTXEVariableString v) {
-      final var vv = (NPTXPlanVariableString)
-        this.source.planVariables().variables().get(v.name());
-      return vv.value();
-    }
-
-    if (expression instanceof final NPTXEVariableStringSet v) {
-      final var vv = (NPTXPlanVariableStringSet)
-        this.source.planVariables().variables().get(v.name());
-      return vv.value();
-    }
-
-    if (expression instanceof final NPTXEVariableInteger v) {
-      final var vv = (NPTXPlanVariableInteger)
-        this.source.planVariables().variables().get(v.name());
-      return vv.value();
-    }
-
-    if (expression instanceof final NPTXEVariableBoolean v) {
-      final var vv = (NPTXPlanVariableBoolean)
-        this.source.planVariables().variables().get(v.name());
-      return Boolean.valueOf(vv.value());
-    }
-
-    if (expression instanceof final NPTXEOr or) {
-      final var e0 = this.evaluateExpression(or.e0());
-      if (Objects.equals(e0, TRUE)) {
-        return TRUE;
-      }
-      return (Boolean) this.evaluateExpression(or.e1());
-    }
-
-    if (expression instanceof final NPTXEAnd and) {
-      final var e0 = this.evaluateExpression(and.e0());
-      if (Objects.equals(e0, FALSE)) {
+    switch (expression) {
+      case final NPTXEFalse f -> {
         return FALSE;
       }
-      return (Boolean) this.evaluateExpression(and.e1());
+      case final NPTXETrue t -> {
+        return TRUE;
+      }
+      case final NPTXEInteger e -> {
+        return e.value();
+      }
+      case final NPTXEString e -> {
+        return e.value();
+      }
+      case final NPTXEIsEqual isEqual -> {
+        final var e0 = this.evaluateExpression(isEqual.e0());
+        final var e1 = this.evaluateExpression(isEqual.e1());
+        return Boolean.valueOf(Objects.equals(e0, e1));
+      }
+      case final NPTXEVariableString v -> {
+        final var vv = (NPTXPlanVariableString)
+          this.source.planVariables().variables().get(v.name());
+        return vv.value();
+      }
+      case final NPTXEVariableStringSet v -> {
+        final var vv = (NPTXPlanVariableStringSet)
+          this.source.planVariables().variables().get(v.name());
+        return vv.value();
+      }
+      case final NPTXEVariableInteger v -> {
+        final var vv = (NPTXPlanVariableInteger)
+          this.source.planVariables().variables().get(v.name());
+        return vv.value();
+      }
+      case final NPTXEVariableBoolean v -> {
+        final var vv = (NPTXPlanVariableBoolean)
+          this.source.planVariables().variables().get(v.name());
+        return Boolean.valueOf(vv.value());
+      }
+      case final NPTXEOr or -> {
+        final var e0 = this.evaluateExpression(or.e0());
+        if (Objects.equals(e0, TRUE)) {
+          return TRUE;
+        }
+        return (Boolean) this.evaluateExpression(or.e1());
+      }
+      case final NPTXEAnd and -> {
+        final var e0 = this.evaluateExpression(and.e0());
+        if (Objects.equals(e0, FALSE)) {
+          return FALSE;
+        }
+        return (Boolean) this.evaluateExpression(and.e1());
+      }
+      case final NPTXENot not -> {
+        final var e0 = this.evaluateExpression(not.e0());
+        return Boolean.valueOf(!((Boolean) e0).booleanValue());
+      }
+      case final NPTXEStringSetContains sc -> {
+        final Set<String> e0 = (Set<String>) this.evaluateExpression(sc.e0());
+        return Boolean.valueOf(e0.contains(sc.value()));
+      }
     }
-
-    if (expression instanceof final NPTXENot not) {
-      final var e0 = this.evaluateExpression(not.e0());
-      return Boolean.valueOf(!((Boolean) e0).booleanValue());
-    }
-
-    if (expression instanceof final NPTXEStringSetContains sc) {
-      final Set<String> e0 = (Set<String>) this.evaluateExpression(sc.e0());
-      return Boolean.valueOf(e0.contains(sc.value()));
-    }
-
-    throw new IllegalStateException();
   }
 
   private void evaluateSEnvironmentClear(
