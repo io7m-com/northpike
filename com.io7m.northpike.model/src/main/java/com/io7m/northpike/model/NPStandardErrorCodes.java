@@ -51,6 +51,32 @@ public final class NPStandardErrorCodes
     return ERROR_AUTHENTICATION;
   }
 
+  private static final NPErrorCode ERROR_COMPILATION_FAILED =
+    new NPErrorCode("error-compilation-failed");
+
+  /**
+   * Compilation failed.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorCompilationFailed()
+  {
+    return ERROR_COMPILATION_FAILED;
+  }
+
+  private static final NPErrorCode ERROR_CONFIGURATION =
+    new NPErrorCode("error-configuration");
+
+  /**
+   * A configuration error was encountered.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorConfiguration()
+  {
+    return ERROR_CONFIGURATION;
+  }
+
   private static final NPErrorCode ERROR_CYCLIC =
     new NPErrorCode("error-cyclic");
 
@@ -75,6 +101,19 @@ public final class NPStandardErrorCodes
   public static NPErrorCode errorDuplicate()
   {
     return ERROR_DUPLICATE;
+  }
+
+  private static final NPErrorCode ERROR_EXTERNAL_PROGRAM_FAILED =
+    new NPErrorCode("error-external-program");
+
+  /**
+   * An external program failed.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorExternalProgramFailed()
+  {
+    return ERROR_EXTERNAL_PROGRAM_FAILED;
   }
 
   private static final NPErrorCode ERROR_HTTP_METHOD =
@@ -168,6 +207,19 @@ public final class NPStandardErrorCodes
     return ERROR_PARSE;
   }
 
+  private static final NPErrorCode ERROR_PLAN_STILL_REFERENCED =
+    new NPErrorCode("error-plan-still-referenced");
+
+  /**
+   * The given plan cannot be deleted because it is still referenced by one or more assignments.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorPlanStillReferenced()
+  {
+    return ERROR_PLAN_STILL_REFERENCED;
+  }
+
   private static final NPErrorCode ERROR_PROTOCOL =
     new NPErrorCode("error-protocol");
 
@@ -218,6 +270,32 @@ public final class NPStandardErrorCodes
   public static NPErrorCode errorSecurityPolicyDenied()
   {
     return ERROR_SECURITY_POLICY_DENIED;
+  }
+
+  private static final NPErrorCode ERROR_SIGNATURE_CREATION_FAILED =
+    new NPErrorCode("error-signature-creation-failed");
+
+  /**
+   * Signature creation failed.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorSignatureCreationFailed()
+  {
+    return ERROR_SIGNATURE_CREATION_FAILED;
+  }
+
+  private static final NPErrorCode ERROR_SIGNATURE_VERIFICATION_FAILED =
+    new NPErrorCode("error-signature-verification-failed");
+
+  /**
+   * Signature verification failed.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorSignatureVerificationFailed()
+  {
+    return ERROR_SIGNATURE_VERIFICATION_FAILED;
   }
 
   private static final NPErrorCode ERROR_SQL_FOREIGN_KEY =
@@ -283,6 +361,19 @@ public final class NPStandardErrorCodes
   public static NPErrorCode errorSql()
   {
     return ERROR_SQL;
+  }
+
+  private static final NPErrorCode ERROR_TOOL_EXECUTION_STILL_REFERENCED =
+    new NPErrorCode("error-tool-execution-still-referenced");
+
+  /**
+   * The tool execution cannot be deleted because it is still referenced by one or more plans.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorToolExecutionStillReferenced()
+  {
+    return ERROR_TOOL_EXECUTION_STILL_REFERENCED;
   }
 
   private static final NPErrorCode ERROR_TRASCO =
@@ -428,71 +519,6 @@ public final class NPStandardErrorCodes
     return ERROR_USER_NONEXISTENT;
   }
 
-  private static final NPErrorCode ERROR_COMPILATION_FAILED =
-    new NPErrorCode("error-compilation-failed");
-
-  /**
-   * Compilation failed.
-   *
-   * @return The error code
-   */
-  public static NPErrorCode errorCompilationFailed()
-  {
-    return ERROR_COMPILATION_FAILED;
-  }
-
-  private static final NPErrorCode ERROR_SIGNATURE_VERIFICATION_FAILED =
-    new NPErrorCode("error-signature-verification-failed");
-
-  /**
-   * Signature verification failed.
-   *
-   * @return The error code
-   */
-  public static NPErrorCode errorSignatureVerificationFailed()
-  {
-    return ERROR_SIGNATURE_VERIFICATION_FAILED;
-  }
-
-  private static final NPErrorCode ERROR_SIGNATURE_CREATION_FAILED =
-    new NPErrorCode("error-signature-creation-failed");
-
-  /**
-   * Signature creation failed.
-   *
-   * @return The error code
-   */
-  public static NPErrorCode errorSignatureCreationFailed()
-  {
-    return ERROR_SIGNATURE_CREATION_FAILED;
-  }
-
-  private static final NPErrorCode ERROR_PLAN_STILL_REFERENCED =
-    new NPErrorCode("error-plan-still-referenced");
-
-  /**
-   * The given plan cannot be deleted because it is still referenced by one or more assignments.
-   *
-   * @return The error code
-   */
-  public static NPErrorCode errorPlanStillReferenced()
-  {
-    return ERROR_PLAN_STILL_REFERENCED;
-  }
-
-  private static final NPErrorCode ERROR_TOOL_EXECUTION_STILL_REFERENCED =
-    new NPErrorCode("error-tool-execution-still-referenced");
-
-  /**
-   * The tool execution cannot be deleted because it is still referenced by one or more plans.
-   *
-   * @return The error code
-   */
-  public static NPErrorCode errorToolExecutionStillReferenced()
-  {
-    return ERROR_TOOL_EXECUTION_STILL_REFERENCED;
-  }
-
   private static final NPErrorCode ERROR_WRONG_ALGORITHM =
     new NPErrorCode("error-wrong-algorithm");
 
@@ -506,30 +532,17 @@ public final class NPStandardErrorCodes
     return ERROR_WRONG_ALGORITHM;
   }
 
-  private static final NPErrorCode ERROR_CONFIGURATION =
-    new NPErrorCode("error-configuration");
+  private static final NPErrorCode ERROR_TOOL_EXECUTION_FAILED =
+    new NPErrorCode("error-tool-execution-failed");
 
   /**
-   * A configuration error was encountered.
+   * The tool execution failed.
    *
    * @return The error code
    */
-  public static NPErrorCode errorConfiguration()
+  public static NPErrorCode errorToolExecutionFailed()
   {
-    return ERROR_CONFIGURATION;
-  }
-
-  private static final NPErrorCode ERROR_EXTERNAL_PROGRAM_FAILED =
-    new NPErrorCode("error-external-program");
-
-  /**
-   * An external program failed.
-   *
-   * @return The error code
-   */
-  public static NPErrorCode errorExternalProgramFailed()
-  {
-    return ERROR_EXTERNAL_PROGRAM_FAILED;
+    return ERROR_TOOL_EXECUTION_FAILED;
   }
 }
 

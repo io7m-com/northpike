@@ -69,6 +69,8 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.tests.arbitraries;
   requires com.io7m.northpike.tls;
   requires com.io7m.northpike.toolexec;
+  requires com.io7m.northpike.toolexecj.api;
+  requires com.io7m.northpike.toolexecj.runner;
   requires com.io7m.northpike.tools.api;
   requires com.io7m.northpike.tools.maven;
   requires com.io7m.northpike.user_client.api;
