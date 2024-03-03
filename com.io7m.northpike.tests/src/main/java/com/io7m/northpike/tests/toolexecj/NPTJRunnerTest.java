@@ -17,9 +17,6 @@
 
 package com.io7m.northpike.tests.toolexecj;
 
-import com.io7m.northpike.model.NPErrorCode;
-import com.io7m.northpike.model.NPStandardErrorCodes;
-import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.toolexecj.runner.NPTJException;
 import com.io7m.northpike.toolexecj.runner.NPTJRunnerServiceType;
 import com.io7m.northpike.toolexecj.runner.NPTJRunners;
@@ -33,14 +30,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
-import java.util.Arrays;
-import java.util.Locale;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.io7m.northpike.model.NPStandardErrorCodes.errorCompilationFailed;
-import static com.io7m.northpike.model.NPStandardErrorCodes.errorToolExecutionFailed;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class NPTJRunnerTest
 {
@@ -71,14 +67,7 @@ public final class NPTJRunnerTest
   public void setup()
     throws IOException
   {
-    this.runners = NPTJRunners.create(NPStrings.create(Locale.ROOT));
-  }
-
-  record FailureCase(
-    String name,
-    NPErrorCode errorCode)
-  {
-
+    this.runners = NPTJRunners.create();
   }
 
   @TestFactory
@@ -86,46 +75,130 @@ public final class NPTJRunnerTest
     throws Exception
   {
     return Stream.of(
-      new FailureCase("TEJError0", errorCompilationFailed()),
-      new FailureCase("TEJError1", errorToolExecutionFailed()),
-      new FailureCase("TEJError2", errorToolExecutionFailed()),
-      new FailureCase("TEJError3", errorToolExecutionFailed()),
-      new FailureCase("TEJError4", errorToolExecutionFailed())
-    ).map(failureCase -> {
-      return DynamicTest.dynamicTest("testCompileFailure_" + failureCase.name, () -> {
-        this.fail(failureCase);
+      "ToolExecJ0",
+      "ToolExecJ1",
+      "ToolExecJ2"
+    ).map(name -> {
+      return DynamicTest.dynamicTest("testCompileFailure_" + name, () -> {
+        this.fail(name);
       });
     });
   }
 
   @Test
-  public void testCompileCorruptBytecode()
-    throws Exception
+  public void testSuccess0()
+    throws NPTJException
   {
     final var runner =
       this.runners.create(
-        "TEJError1",
-        text("TEJError1.java"),
-        NPTJRunnerTest::corrupt
+        Map.ofEntries(
+          Map.entry("X", "1"),
+          Map.entry("Y", "2"),
+          Map.entry("Z", "3")
+        ),
+"""
+execution.environmentRemove("Y");
+"""
       );
 
-    final var ex =
-      assertThrows(NPTJException.class, runner::execute);
+    final var result = runner.execute();
+    assertEquals(List.of(), result.arguments());
+    assertEquals(Map.ofEntries(
+      Map.entry("X", "1"),
+      Map.entry("Z", "3")
+    ), result.environment());
+  }
 
-    LOG.error("", ex);
-    for (final var e : ex.errors()) {
-      LOG.error("{}", e);
-    }
+  @Test
+  public void testSuccess1()
+    throws NPTJException
+  {
+    final var runner =
+      this.runners.create(
+        Map.ofEntries(
+          Map.entry("X", "1"),
+          Map.entry("Y", "2"),
+          Map.entry("Z", "3")
+        ),
+        """
+        execution.environmentClear();
+        """
+      );
+
+    final var result = runner.execute();
+    assertEquals(List.of(), result.arguments());
+    assertEquals(Map.of(), result.environment());
+  }
+
+  @Test
+  public void testSuccess2()
+    throws NPTJException
+  {
+    final var runner =
+      this.runners.create(
+        Map.ofEntries(
+          Map.entry("X", "1"),
+          Map.entry("Z", "3")
+        ),
+        """
+        execution.environmentPut("Y", "2");
+        """
+      );
+
+    final var result = runner.execute();
+    assertEquals(List.of(), result.arguments());
+    assertEquals(Map.ofEntries(
+      Map.entry("X", "1"),
+      Map.entry("Y", "2"),
+      Map.entry("Z", "3")
+    ), result.environment());
+  }
+
+  @Test
+  public void testSuccess3()
+    throws NPTJException
+  {
+    final var runner =
+      this.runners.create(
+        Map.of(),
+        """
+        execution.argumentAdd("A");
+        execution.argumentAdd("B");
+        execution.argumentAdd("C");
+        """
+      );
+
+    final var result = runner.execute();
+    assertEquals(List.of("A", "B", "C"), result.arguments());
+    assertEquals(Map.of(), result.environment());
+  }
+
+  @Test
+  public void testSuccess4()
+    throws NPTJException
+  {
+    final var runner =
+      this.runners.create(
+        Map.of(),
+        """
+console.log("HELLO!");
+        """
+      );
+
+    final var result = runner.execute();
+    assertEquals(List.of(), result.arguments());
+    assertTrue(result.outputMessages().stream().anyMatch(s -> s.contains("HELLO!")));
+    assertEquals(Map.of(), result.environment());
   }
 
   private void fail(
-    final FailureCase failureCase)
+    final String name)
     throws IOException
   {
     final var runner =
       this.runners.create(
-        failureCase.name,
-        text(failureCase.name + ".java")
+        Map.of(),
+        text(name + ".js")
       );
 
     final var ex =
@@ -135,17 +208,5 @@ public final class NPTJRunnerTest
     for (final var e : ex.errors()) {
       LOG.error("{}", e);
     }
-
-    assertEquals(failureCase.errorCode, ex.errorCode());
-  }
-
-  private static byte[] corrupt(
-    final byte[] bytes)
-  {
-    final var copy = Arrays.copyOf(bytes, bytes.length);
-    for (int index = 0; index < copy.length; ++index) {
-      copy[index] = (byte) ((int) copy[index] ^ 0x23);
-    }
-    return copy;
   }
 }

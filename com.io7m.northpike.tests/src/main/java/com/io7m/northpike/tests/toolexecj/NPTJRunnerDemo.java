@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Map;
 
 public final class NPTJRunnerDemo
 {
@@ -41,27 +42,20 @@ public final class NPTJRunnerDemo
     throws IOException, NPTJException
   {
     final var runners =
-      NPTJRunners.create(NPStrings.create(Locale.ROOT));
+      NPTJRunners.create();
 
     final var runner =
       runners.create(
-        "TEJError2",
+        Map.of(),
         """
-import com.io7m.northpike.toolexecj.api.NPTJContextType;
-
-public class TEJError2
-{
-  public TEJError2(NPTJContextType context)
-    throws Exception
-  {
-    throw new Exception();
-  }
-}
+execution.environmentClear();
+execution.environmentPut("23", "34");
           """
       );
 
     try {
-      runner.execute();
+      final var eval = runner.execute();
+      LOG.debug("{}", eval);
     } catch (final NPTJException ex) {
       LOG.error("", ex);
       for (final var e : ex.errors()) {

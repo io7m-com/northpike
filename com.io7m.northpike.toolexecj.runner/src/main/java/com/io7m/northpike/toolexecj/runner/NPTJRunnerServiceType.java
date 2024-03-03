@@ -19,21 +19,25 @@ package com.io7m.northpike.toolexecj.runner;
 
 import com.io7m.repetoir.core.RPServiceType;
 
-import java.util.function.Function;
+import java.util.Map;
+
+/**
+ * The runner service.
+ */
 
 public interface NPTJRunnerServiceType
   extends RPServiceType
 {
-  default NPTJRunnerType create(
-    final String className,
-    final String program)
-  {
-    return this.create(className, program, Function.identity());
-  }
+  /**
+   * Create a new runner.
+   *
+   * @param initialEnvironment The initial environment
+   * @param program            The program text
+   *
+   * @return A new runner
+   */
 
   NPTJRunnerType create(
-    String className,
-    String program,
-    Function<byte[], byte[]> bytecodeTransformer
-  );
+    Map<String, String> initialEnvironment,
+    String program);
 }

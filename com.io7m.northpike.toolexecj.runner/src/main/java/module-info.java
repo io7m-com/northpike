@@ -27,10 +27,8 @@ module com.io7m.northpike.toolexecj.runner
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.toolexecj.api;
 
-  requires com.io7m.jmulticlose.core;
   requires com.io7m.repetoir.core;
-  requires java.compiler;
-  requires org.objectweb.asm;
+  requires org.graalvm.polyglot;
   requires org.slf4j;
 
   exports com.io7m.northpike.toolexecj.runner;

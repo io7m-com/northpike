@@ -23,13 +23,37 @@ package com.io7m.northpike.toolexecj.api;
 public interface NPTJContextType
 {
   /**
-   * Log a message.
-   *
-   * @param format The message format string
-   * @param args   The arguments
+   * Clear the environment entirely.
    */
 
-  void log(
-    String format,
-    Object... args);
+  void environmentClear();
+
+  /**
+   * Set an environment variable.
+   *
+   * @param name  The variable name
+   * @param value The variable value
+   */
+
+  void environmentPut(
+    String name,
+    String value);
+
+  /**
+   * Remove an environment variable.
+   *
+   * @param name The variable name
+   */
+
+  void environmentRemove(
+    String name);
+
+  /**
+   * Add an argument to the output.
+   *
+   * @param argument The argument
+   */
+
+  void argumentAdd(
+    String argument);
 }

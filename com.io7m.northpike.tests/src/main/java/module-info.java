@@ -122,6 +122,11 @@ open module com.io7m.northpike.tests
   requires org.apache.commons.lang3;
   requires org.apache.commons.text;
   requires org.bouncycastle.pg;
+  requires org.graalvm.js;
+  requires org.graalvm.polyglot;
+  requires org.graalvm.truffle.compiler;
+  requires org.graalvm.truffle.runtime;
+  requires org.graalvm.truffle;
   requires org.jgrapht.core;
   requires org.jline;
   requires org.mockito;
@@ -132,8 +137,4 @@ open module com.io7m.northpike.tests
   requires transitive org.junit.jupiter.engine;
   requires transitive org.junit.platform.commons;
   requires transitive org.junit.platform.engine;
-
-  exports com.io7m.northpike.tests.database;
-  exports com.io7m.northpike.tests.containers;
-  exports com.io7m.northpike.tests.scm_repository;
 }

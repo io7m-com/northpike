@@ -198,29 +198,8 @@
   <!-- Toolexec/J -->
   <!--            -->
 
-  <entry key="toolexecj_compilation_failed">
-    Compilation of the toolexec program failed.
-  </entry>
-  <entry key="toolexecj_class_load_failed">
-    The compiled tool execution class could not be loaded.
-  </entry>
-  <entry key="toolexecj_class_constructor">
-    The loaded tool execution class does not have a usable constructor.
-  </entry>
-  <entry key="toolexecj_class_constructor_failed">
-    The constructor of the loaded tool execution class failed.
-  </entry>
-  <entry key="toolexecj_execute_method_lookup">
-    The loaded tool execution class did not have a suitable 'execute' method.
-  </entry>
-  <entry key="toolexecj_execute_security">
-    The tool execution 'execute' method attempted to violate security policy.
-  </entry>
   <entry key="toolexecj_execute_failed">
-    The tool execution 'execute' method failed.
-  </entry>
-  <entry key="toolexecj_no_system_compiler">
-    No system Java compiler appears to be available.
+    Evaluation of the toolexec program failed.
   </entry>
 
 </properties>

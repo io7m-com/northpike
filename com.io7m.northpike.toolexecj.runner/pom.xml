@@ -15,7 +15,7 @@
 
   <packaging>jar</packaging>
   <name>com.io7m.northpike.toolexecj.runner</name>
-  <description>Continuous integration (Tool execution Java runner)</description>
+  <description>Continuous integration (Tool execution JS runner)</description>
   <url>https://www.io7m.com/software/northpike</url>
 
   <dependencies>
@@ -26,19 +26,10 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.strings</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.model</artifactId>
       <version>${project.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
     <dependency>
       <groupId>com.io7m.repetoir</groupId>
       <artifactId>com.io7m.repetoir.core</artifactId>
@@ -47,17 +38,18 @@
       <groupId>com.io7m.seltzer</groupId>
       <artifactId>com.io7m.seltzer.api</artifactId>
     </dependency>
+
     <dependency>
-      <groupId>com.io7m.jmulticlose</groupId>
-      <artifactId>com.io7m.jmulticlose.core</artifactId>
+      <groupId>org.graalvm.polyglot</groupId>
+      <artifactId>polyglot</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm</artifactId>
+      <groupId>org.graalvm.js</groupId>
+      <artifactId>js-language</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.graalvm.espresso</groupId>
-      <artifactId>espresso-language</artifactId>
+      <groupId>org.graalvm.truffle</groupId>
+      <artifactId>truffle-runtime</artifactId>
     </dependency>
 
     <dependency>
@@ -77,6 +69,22 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
+
+        <configuration>
+          <failOnWarning>true</failOnWarning>
+          <ignoredUnusedDeclaredDependencies>
+            <ignoredUnusedDeclaredDependency>
+              org.graalvm:*
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.graalvm.js:*
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.graalvm.truffle:*
+            </ignoredUnusedDeclaredDependency>
+          </ignoredUnusedDeclaredDependencies>
+        </configuration>
+
         <executions>
           <!-- Unpack API -->
           <execution>

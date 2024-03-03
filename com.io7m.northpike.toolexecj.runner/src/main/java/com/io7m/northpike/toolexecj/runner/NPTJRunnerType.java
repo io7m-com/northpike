@@ -17,8 +17,18 @@
 
 package com.io7m.northpike.toolexecj.runner;
 
+/**
+ * The type of toolexec/js runners.
+ */
+
 public interface NPTJRunnerType
 {
+  /**
+   * @return The result of execution
+   *
+   * @throws NPTJException On errors
+   */
+
   NPTJEvaluation execute()
     throws NPTJException;
 }
