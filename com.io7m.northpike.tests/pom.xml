@@ -157,12 +157,17 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.toolexecj.api</artifactId>
+      <artifactId>com.io7m.northpike.toolexec.api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.toolexecj.runner</artifactId>
+      <artifactId>com.io7m.northpike.toolexec.program.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.toolexec.js</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

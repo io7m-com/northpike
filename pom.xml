@@ -70,9 +70,10 @@
     <module>com.io7m.northpike.tests.arbitraries</module>
     <module>com.io7m.northpike.tests</module>
     <module>com.io7m.northpike.tls</module>
+    <module>com.io7m.northpike.toolexec.api</module>
+    <module>com.io7m.northpike.toolexec.js</module>
+    <module>com.io7m.northpike.toolexec.program.api</module>
     <module>com.io7m.northpike.toolexec</module>
-    <module>com.io7m.northpike.toolexecj.api</module>
-    <module>com.io7m.northpike.toolexecj.runner</module>
     <module>com.io7m.northpike.tools.api</module>
     <module>com.io7m.northpike.tools.common</module>
     <module>com.io7m.northpike.tools.maven</module>
