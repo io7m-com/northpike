@@ -111,6 +111,16 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.toolexec.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.toolexec.js</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.plans</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -238,6 +248,7 @@
           <ignoredUnusedDeclaredDependencies>
             <ignoredUnusedDeclaredDependency>org.jetbrains.kotlin:kotlin-stdlib:*</ignoredUnusedDeclaredDependency>
             <ignoredUnusedDeclaredDependency>com.squareup.okio:*</ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>com.io7m.northpike:*</ignoredUnusedDeclaredDependency>
           </ignoredUnusedDeclaredDependencies>
         </configuration>
       </plugin>

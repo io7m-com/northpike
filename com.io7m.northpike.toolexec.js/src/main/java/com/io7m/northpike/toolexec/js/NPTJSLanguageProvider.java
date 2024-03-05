@@ -21,7 +21,9 @@ import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.toolexec.api.NPTEvaluableType;
 import com.io7m.northpike.toolexec.api.NPTEvaluationLanguageProviderType;
 import com.io7m.northpike.toolexec.js.internal.NPTJs;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableType;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,8 +54,9 @@ public final class NPTJSLanguageProvider
   @Override
   public NPTEvaluableType create(
     final Map<String, String> initialEnvironment,
+    final List<NPTPVariableType> variables,
     final String program)
   {
-    return new NPTJs(initialEnvironment, program);
+    return new NPTJs(initialEnvironment, program, variables);
   }
 }

@@ -17,9 +17,13 @@
 
 package com.io7m.northpike.tests.toolexec.js;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.toolexec.api.NPTEvaluationLanguageProviderType;
 import com.io7m.northpike.toolexec.api.NPTException;
 import com.io7m.northpike.toolexec.js.NPTJSLanguageProvider;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableInteger;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableString;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableStringSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -28,10 +32,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -96,6 +102,7 @@ public final class NPTJRunnerTest
           Map.entry("Y", "2"),
           Map.entry("Z", "3")
         ),
+        List.of(),
 """
 execution.environmentRemove("Y");
 """
@@ -120,6 +127,7 @@ execution.environmentRemove("Y");
           Map.entry("Y", "2"),
           Map.entry("Z", "3")
         ),
+        List.of(),
         """
         execution.environmentClear();
         """
@@ -140,6 +148,7 @@ execution.environmentRemove("Y");
           Map.entry("X", "1"),
           Map.entry("Z", "3")
         ),
+        List.of(),
         """
         execution.environmentPut("Y", "2");
         """
@@ -161,6 +170,7 @@ execution.environmentRemove("Y");
     final var runner =
       this.runners.create(
         Map.of(),
+        List.of(),
         """
         execution.argumentAdd("A");
         execution.argumentAdd("B");
@@ -180,6 +190,7 @@ execution.environmentRemove("Y");
     final var runner =
       this.runners.create(
         Map.of(),
+        List.of(),
         """
 console.log("HELLO!");
         """
@@ -191,6 +202,204 @@ console.log("HELLO!");
     assertEquals(Map.of(), result.environment());
   }
 
+  @Test
+  public void testSuccess5()
+    throws NPTException
+  {
+    final var runner =
+      this.runners.create(
+        Map.of(),
+        List.of(
+          new NPTPVariableInteger(
+            new RDottedName("x"),
+            BigInteger.valueOf(23L)
+          )
+        ),
+        """
+console.log(execution.valueOfVariableInteger("x"));
+        """
+      );
+
+    final var result = runner.execute();
+    assertEquals(List.of(), result.arguments());
+    assertTrue(result.outputMessages().stream().anyMatch(s -> s.contains("23")));
+    assertEquals(Map.of(), result.environment());
+  }
+
+  @Test
+  public void testSuccess6()
+    throws NPTException
+  {
+    final var runner =
+      this.runners.create(
+        Map.of(),
+        List.of(
+          new NPTPVariableString(
+            new RDottedName("x"),
+            "23"
+          )
+        ),
+        """
+console.log(execution.valueOfVariableString("x"));
+        """
+      );
+
+    final var result = runner.execute();
+    assertEquals(List.of(), result.arguments());
+    assertTrue(result.outputMessages().stream().anyMatch(s -> s.contains("23")));
+    assertEquals(Map.of(), result.environment());
+  }
+
+  @Test
+  public void testSuccess7()
+    throws NPTException
+  {
+    final var runner =
+      this.runners.create(
+        Map.of(),
+        List.of(
+          new NPTPVariableStringSet(
+            new RDottedName("x"),
+            Set.of("23", "24")
+          )
+        ),
+        """
+console.log(execution.valueOfVariableStringSetArray("x"));
+        """
+      );
+
+    final var result = runner.execute();
+    assertEquals(List.of(), result.arguments());
+    assertTrue(result.outputMessages().stream().anyMatch(s -> s.contains("23")));
+    assertEquals(Map.of(), result.environment());
+  }
+
+  @Test
+  public void testFailType0()
+  {
+    final var runner =
+      this.runners.create(
+        Map.of(),
+        List.of(
+          new NPTPVariableStringSet(
+            new RDottedName("x"),
+            Set.of("23", "24")
+          )
+        ),
+        """
+console.log(execution.valueOfVariableString("x"));
+        """
+      );
+
+    final var x = assertThrows(NPTException.class, runner::execute);
+    assertTrue(x.getMessage().contains("type 'string-set'"));
+  }
+
+  @Test
+  public void testFailType1()
+  {
+    final var runner =
+      this.runners.create(
+        Map.of(),
+        List.of(
+          new NPTPVariableStringSet(
+            new RDottedName("x"),
+            Set.of("23", "24")
+          )
+        ),
+        """
+console.log(execution.valueOfVariableInteger("x"));
+        """
+      );
+
+    final var x = assertThrows(NPTException.class, runner::execute);
+    assertTrue(x.getMessage().contains("type 'string-set'"));
+  }
+
+  @Test
+  public void testFailType2()
+  {
+    final var runner =
+      this.runners.create(
+        Map.of(),
+        List.of(
+          new NPTPVariableString(
+            new RDottedName("x"),
+            "23"
+          )
+        ),
+        """
+console.log(execution.valueOfVariableInteger("x"));
+        """
+      );
+
+    final var x = assertThrows(NPTException.class, runner::execute);
+    assertTrue(x.getMessage().contains("type 'string'"));
+  }
+
+  @Test
+  public void testFailType3()
+  {
+    final var runner =
+      this.runners.create(
+        Map.of(),
+        List.of(
+          new NPTPVariableString(
+            new RDottedName("x"),
+            "23"
+          )
+        ),
+        """
+console.log(execution.valueOfVariableStringSet("x"));
+        """
+      );
+
+    final var x = assertThrows(NPTException.class, runner::execute);
+    assertTrue(x.getMessage().contains("type 'string'"));
+  }
+
+  @Test
+  public void testFailType4()
+  {
+    final var runner =
+      this.runners.create(
+        Map.of(),
+        List.of(
+          new NPTPVariableInteger(
+            new RDottedName("x"),
+            BigInteger.valueOf(23)
+          )
+        ),
+        """
+console.log(execution.valueOfVariableString("x"));
+        """
+      );
+
+    final var x = assertThrows(NPTException.class, runner::execute);
+    assertTrue(x.getMessage().contains("type 'integer'"));
+  }
+
+  @Test
+  public void testFailType5()
+  {
+    final var runner =
+      this.runners.create(
+        Map.of(),
+        List.of(
+          new NPTPVariableInteger(
+            new RDottedName("x"),
+            BigInteger.valueOf(23)
+          )
+        ),
+        """
+console.log(execution.valueOfVariableStringSet("x"));
+        """
+      );
+
+    final var x = assertThrows(NPTException.class, runner::execute);
+    assertTrue(x.getMessage().contains("type 'integer'"));
+  }
+
   private void fail(
     final String name)
     throws IOException
@@ -198,6 +407,7 @@ console.log("HELLO!");
     final var runner =
       this.runners.create(
         Map.of(),
+        List.of(),
         text(name + ".js")
       );
 

@@ -23,5 +23,7 @@ module com.io7m.northpike.toolexec.program.api
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
+  requires com.io7m.lanark.core;
+
   exports com.io7m.northpike.toolexec.program.api;
 }

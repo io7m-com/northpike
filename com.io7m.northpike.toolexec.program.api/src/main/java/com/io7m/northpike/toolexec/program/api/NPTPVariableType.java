@@ -14,24 +14,23 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-import com.io7m.northpike.toolexec.api.NPTEvaluationLanguageProviderType;
+
+package com.io7m.northpike.toolexec.program.api;
+
+import com.io7m.lanark.core.RDottedName;
 
 /**
- * Continuous integration (Tool execution API)
+ * The type of plan variables exposed to programs.
  */
 
-module com.io7m.northpike.toolexec.api
+public sealed interface NPTPVariableType
+  permits NPTPVariableInteger,
+  NPTPVariableString,
+  NPTPVariableStringSet
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * @return The variable name
+   */
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.strings;
-  requires com.io7m.northpike.toolexec.program.api;
-
-  requires com.io7m.repetoir.core;
-
-  uses NPTEvaluationLanguageProviderType;
-
-  exports com.io7m.northpike.toolexec.api;
+  RDottedName name();
 }

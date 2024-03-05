@@ -46,6 +46,7 @@ module com.io7m.northpike.server
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
   requires com.io7m.northpike.tls;
+  requires com.io7m.northpike.toolexec.api;
   requires com.io7m.northpike.toolexec;
 
   requires com.io7m.anethum.api;
@@ -56,9 +57,9 @@ module com.io7m.northpike.server
   requires com.io7m.jmulticlose.core;
   requires com.io7m.medrina.vanilla;
   requires com.io7m.repetoir.core;
+  requires io.helidon.webserver;
   requires io.opentelemetry.api;
   requires io.opentelemetry.context;
-  requires io.helidon.webserver;
   requires org.slf4j;
 
   uses NPAgentCommandExecutorType;

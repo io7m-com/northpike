@@ -18,13 +18,21 @@
 package com.io7m.northpike.toolexec.api;
 
 import com.io7m.northpike.model.NPFormatName;
+import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableType;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
+
+import static com.io7m.northpike.strings.NPStringConstants.FORMAT;
+import static com.io7m.northpike.strings.NPStringConstants.TOOLEXEC_NO_SUCH_LANGUAGE;
+import static com.io7m.northpike.strings.NPStringConstants.TOOLEXEC_PROVIDER_INDEXED;
 
 /**
  * Tool execution evaluation service.
@@ -86,13 +94,44 @@ public final class NPTPEvaluationService
   public NPTEvaluableType create(
     final NPFormatName formatName,
     final Map<String, String> initialEnvironment,
+    final List<NPTPVariableType> variables,
     final String program)
+    throws NPTException
   {
     Objects.requireNonNull(formatName, "formatName");
     Objects.requireNonNull(initialEnvironment, "initialEnvironment");
+    Objects.requireNonNull(variables, "variables");
     Objects.requireNonNull(program, "program");
 
-    return null;
+    for (final var languageProvider : this.languageProviders) {
+      if (Objects.equals(languageProvider.languageSupported(), formatName)) {
+        return languageProvider.create(initialEnvironment, variables, program);
+      }
+    }
+
+    throw this.errorNoSuchLanguageProvider(formatName);
+  }
+
+  private NPTException errorNoSuchLanguageProvider(
+    final NPFormatName formatName)
+  {
+    final var attributes = new HashMap<String, String>();
+    for (int index = 0; index < this.languageProviders.size(); ++index) {
+      final var provider = this.languageProviders.get(index);
+      attributes.put(
+        this.strings.format(TOOLEXEC_PROVIDER_INDEXED, index),
+        provider.languageSupported().toString()
+      );
+    }
+
+    attributes.put(this.strings.format(FORMAT), formatName.toString());
+    return new NPTException(
+      this.strings.format(TOOLEXEC_NO_SUCH_LANGUAGE),
+      NPStandardErrorCodes.errorToolExecutionFailed(),
+      attributes,
+      Optional.empty(),
+      List.of()
+    );
   }
 
   @Override

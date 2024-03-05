@@ -18,7 +18,9 @@
 package com.io7m.northpike.toolexec.api;
 
 import com.io7m.northpike.model.NPFormatName;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableType;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,6 +39,7 @@ public interface NPTEvaluationLanguageProviderType
    * Create a new evaluable object.
    *
    * @param initialEnvironment The initial environment
+   * @param variables          The program variables
    * @param program            The program text
    *
    * @return A new evaluable object
@@ -44,5 +47,6 @@ public interface NPTEvaluationLanguageProviderType
 
   NPTEvaluableType create(
     Map<String, String> initialEnvironment,
+    List<NPTPVariableType> variables,
     String program);
 }

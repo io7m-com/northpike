@@ -14,24 +14,36 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-import com.io7m.northpike.toolexec.api.NPTEvaluationLanguageProviderType;
+
+package com.io7m.northpike.toolexec.program.api;
+
+import com.io7m.lanark.core.RDottedName;
+
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
- * Continuous integration (Tool execution API)
+ * An integer variable.
+ *
+ * @param name  The name
+ * @param value The value
  */
 
-module com.io7m.northpike.toolexec.api
+public record NPTPVariableInteger(
+  RDottedName name,
+  BigInteger value)
+  implements NPTPVariableType
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * An integer variable.
+   *
+   * @param name  The name
+   * @param value The value
+   */
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.strings;
-  requires com.io7m.northpike.toolexec.program.api;
-
-  requires com.io7m.repetoir.core;
-
-  uses NPTEvaluationLanguageProviderType;
-
-  exports com.io7m.northpike.toolexec.api;
+  public NPTPVariableInteger
+  {
+    Objects.requireNonNull(name, "name");
+    Objects.requireNonNull(value, "value");
+  }
 }

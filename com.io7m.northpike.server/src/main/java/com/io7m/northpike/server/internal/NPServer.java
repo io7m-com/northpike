@@ -68,6 +68,8 @@ import com.io7m.northpike.tls.NPTLSContextServiceType;
 import com.io7m.northpike.toolexec.NPTXCompilerFactoryType;
 import com.io7m.northpike.toolexec.NPTXCompilers;
 import com.io7m.northpike.toolexec.NPTXParserFactoryType;
+import com.io7m.northpike.toolexec.api.NPTEvaluationServiceType;
+import com.io7m.northpike.toolexec.api.NPTPEvaluationService;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 import com.io7m.repetoir.core.RPServiceDirectoryWritableType;
@@ -256,6 +258,11 @@ public final class NPServer implements NPServerType
 
     loadParsers(services);
     services.register(NPTXCompilerFactoryType.class, new NPTXCompilers());
+
+    services.register(
+      NPTEvaluationServiceType.class,
+      NPTPEvaluationService.createFromServiceLoader(strings)
+    );
 
     final var archive = NPArchiveService.create(services);
     services.register(NPArchiveServiceType.class, archive);

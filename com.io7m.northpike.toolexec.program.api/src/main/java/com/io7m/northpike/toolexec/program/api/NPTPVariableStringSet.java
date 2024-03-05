@@ -14,24 +14,36 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-import com.io7m.northpike.toolexec.api.NPTEvaluationLanguageProviderType;
+
+package com.io7m.northpike.toolexec.program.api;
+
+import com.io7m.lanark.core.RDottedName;
+
+import java.util.Objects;
+import java.util.Set;
 
 /**
- * Continuous integration (Tool execution API)
+ * A string set variable.
+ *
+ * @param name  The name
+ * @param value The value
  */
 
-module com.io7m.northpike.toolexec.api
+public record NPTPVariableStringSet(
+  RDottedName name,
+  Set<String> value)
+  implements NPTPVariableType
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * A string set variable.
+   *
+   * @param name  The name
+   * @param value The value
+   */
 
-  requires com.io7m.northpike.model;
-  requires com.io7m.northpike.strings;
-  requires com.io7m.northpike.toolexec.program.api;
-
-  requires com.io7m.repetoir.core;
-
-  uses NPTEvaluationLanguageProviderType;
-
-  exports com.io7m.northpike.toolexec.api;
+  public NPTPVariableStringSet
+  {
+    Objects.requireNonNull(name, "name");
+    Objects.requireNonNull(value, "value");
+  }
 }

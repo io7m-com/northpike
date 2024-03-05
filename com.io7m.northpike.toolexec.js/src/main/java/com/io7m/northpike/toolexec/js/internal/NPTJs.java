@@ -17,9 +17,11 @@
 
 package com.io7m.northpike.toolexec.js.internal;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.toolexec.api.NPTEvaluableType;
 import com.io7m.northpike.toolexec.api.NPTEvaluationResult;
 import com.io7m.northpike.toolexec.api.NPTException;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableType;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.ResourceLimits;
 import org.graalvm.polyglot.SandboxPolicy;
@@ -33,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorIo;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorToolExecutionFailed;
@@ -47,22 +50,31 @@ public final class NPTJs
 {
   private final Map<String, String> initialEnvironment;
   private final String program;
+  private final Map<RDottedName, NPTPVariableType> variables;
 
   /**
    * A GraalVM based runner.
    *
    * @param inInitialEnvironment The initial environment
    * @param inProgram            The program text
+   * @param inVariables          The list of variables
    */
 
   public NPTJs(
     final Map<String, String> inInitialEnvironment,
-    final String inProgram)
+    final String inProgram,
+    final List<NPTPVariableType> inVariables)
   {
     this.initialEnvironment =
       Map.copyOf(inInitialEnvironment);
     this.program =
       Objects.requireNonNull(inProgram, "program");
+    this.variables =
+      Map.copyOf(
+        inVariables.stream()
+          .map(v -> Map.entry(v.name(), v))
+          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+      );
   }
 
   @Override
@@ -89,7 +101,7 @@ public final class NPTJs
     final var errStream =
       new ByteArrayOutputStream();
     final var execContext =
-      new NPTJsContext(this.initialEnvironment);
+      new NPTJsContext(this.initialEnvironment, this.variables);
 
     try {
       final var contextBuilder =

@@ -202,4 +202,9 @@
     Evaluation of the toolexec program failed.
   </entry>
 
+  <entry key="toolexec_no_such_language">
+    No available provider supports toolexec programs of the given format.
+  </entry>
+  <entry key="toolexec_provider_indexed">Provider [{0}]</entry>
+
 </properties>
