@@ -19,7 +19,6 @@ package com.io7m.northpike.tests.documentation;
 
 import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.telemetry.api.NPEventType;
-import io.github.classgraph.AnnotationInfo;
 import io.github.classgraph.ClassGraph;
 import org.w3c.dom.Document;
 import org.w3c.dom.ls.DOMImplementationLS;

@@ -19,17 +19,21 @@ package com.io7m.northpike.toolexec.js.internal;
 
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.toolexec.program.api.NPTPContextType;
+import com.io7m.northpike.toolexec.program.api.NPTPEnvironmentClear;
+import com.io7m.northpike.toolexec.program.api.NPTPEnvironmentOperationType;
+import com.io7m.northpike.toolexec.program.api.NPTPEnvironmentSet;
+import com.io7m.northpike.toolexec.program.api.NPTPEnvironmentUnset;
 import com.io7m.northpike.toolexec.program.api.NPTPVariableType;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyArray;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -39,23 +43,21 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public final class NPTJsContext
   implements NPTPContextType
 {
-  private final Map<String, String> environment;
   private final Map<RDottedName, NPTPVariableType> variables;
   private final ConcurrentLinkedQueue<String> arguments;
+  private final ArrayList<NPTPEnvironmentOperationType> environmentOps;
 
   /**
    * The execution context.
    *
-   * @param env         The initial environment
    * @param inVariables The variables
    */
 
   public NPTJsContext(
-    final Map<String, String> env,
     final Map<RDottedName, NPTPVariableType> inVariables)
   {
-    this.environment =
-      new ConcurrentHashMap<>(env);
+    this.environmentOps =
+      new ArrayList<>();
     this.variables =
       Objects.requireNonNull(inVariables, "variables");
     this.arguments =
@@ -63,12 +65,12 @@ public final class NPTJsContext
   }
 
   /**
-   * @return The environment
+   * @return The list of environment operations
    */
 
-  public Map<String, String> environment()
+  public List<NPTPEnvironmentOperationType> environmentOps()
   {
-    return Map.copyOf(this.environment);
+    return List.copyOf(this.environmentOps);
   }
 
   /**
@@ -139,27 +141,24 @@ public final class NPTJsContext
   @HostAccess.Export
   public void environmentClear()
   {
-    this.environment.clear();
+    this.environmentOps.add(new NPTPEnvironmentClear());
   }
 
   @Override
   @HostAccess.Export
-  public void environmentPut(
+  public void environmentSet(
     final String name,
     final String value)
   {
-    this.environment.put(
-      Objects.requireNonNull(name, "name"),
-      Objects.requireNonNull(value, "value")
-    );
+    this.environmentOps.add(new NPTPEnvironmentSet(name, value));
   }
 
   @Override
   @HostAccess.Export
-  public void environmentRemove(
+  public void environmentUnset(
     final String name)
   {
-    this.environment.remove(Objects.requireNonNull(name, "name"));
+    this.environmentOps.add(new NPTPEnvironmentUnset(name));
   }
 
   @Override

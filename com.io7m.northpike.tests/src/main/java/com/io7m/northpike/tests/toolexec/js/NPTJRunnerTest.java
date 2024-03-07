@@ -21,6 +21,10 @@ import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.toolexec.api.NPTEvaluationLanguageProviderType;
 import com.io7m.northpike.toolexec.api.NPTException;
 import com.io7m.northpike.toolexec.js.NPTJSLanguageProvider;
+import com.io7m.northpike.toolexec.program.api.NPTPEnvironmentClear;
+import com.io7m.northpike.toolexec.program.api.NPTPEnvironmentSet;
+import com.io7m.northpike.toolexec.program.api.NPTPEnvironmentUnset;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableBoolean;
 import com.io7m.northpike.toolexec.program.api.NPTPVariableInteger;
 import com.io7m.northpike.toolexec.program.api.NPTPVariableString;
 import com.io7m.northpike.toolexec.program.api.NPTPVariableStringSet;
@@ -36,7 +40,6 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -97,23 +100,18 @@ public final class NPTJRunnerTest
   {
     final var runner =
       this.runners.create(
-        Map.ofEntries(
-          Map.entry("X", "1"),
-          Map.entry("Y", "2"),
-          Map.entry("Z", "3")
-        ),
         List.of(),
 """
-execution.environmentRemove("Y");
+execution.environmentUnset("Y");
 """
       );
 
     final var result = runner.execute();
     assertEquals(List.of(), result.arguments());
-    assertEquals(Map.ofEntries(
-      Map.entry("X", "1"),
-      Map.entry("Z", "3")
-    ), result.environment());
+    assertEquals(
+      List.of(new NPTPEnvironmentUnset("Y")),
+      result.environmentOperations()
+    );
   }
 
   @Test
@@ -122,11 +120,6 @@ execution.environmentRemove("Y");
   {
     final var runner =
       this.runners.create(
-        Map.ofEntries(
-          Map.entry("X", "1"),
-          Map.entry("Y", "2"),
-          Map.entry("Z", "3")
-        ),
         List.of(),
         """
         execution.environmentClear();
@@ -135,7 +128,10 @@ execution.environmentRemove("Y");
 
     final var result = runner.execute();
     assertEquals(List.of(), result.arguments());
-    assertEquals(Map.of(), result.environment());
+    assertEquals(
+      List.of(new NPTPEnvironmentClear()),
+      result.environmentOperations()
+    );
   }
 
   @Test
@@ -144,23 +140,18 @@ execution.environmentRemove("Y");
   {
     final var runner =
       this.runners.create(
-        Map.ofEntries(
-          Map.entry("X", "1"),
-          Map.entry("Z", "3")
-        ),
         List.of(),
         """
-        execution.environmentPut("Y", "2");
+        execution.environmentSet("Y", "2");
         """
       );
 
     final var result = runner.execute();
     assertEquals(List.of(), result.arguments());
-    assertEquals(Map.ofEntries(
-      Map.entry("X", "1"),
-      Map.entry("Y", "2"),
-      Map.entry("Z", "3")
-    ), result.environment());
+    assertEquals(
+      List.of(new NPTPEnvironmentSet("Y", "2")),
+      result.environmentOperations()
+    );
   }
 
   @Test
@@ -169,7 +160,6 @@ execution.environmentRemove("Y");
   {
     final var runner =
       this.runners.create(
-        Map.of(),
         List.of(),
         """
         execution.argumentAdd("A");
@@ -180,7 +170,7 @@ execution.environmentRemove("Y");
 
     final var result = runner.execute();
     assertEquals(List.of("A", "B", "C"), result.arguments());
-    assertEquals(Map.of(), result.environment());
+    assertEquals(List.of(), result.environmentOperations());
   }
 
   @Test
@@ -189,7 +179,6 @@ execution.environmentRemove("Y");
   {
     final var runner =
       this.runners.create(
-        Map.of(),
         List.of(),
         """
 console.log("HELLO!");
@@ -199,7 +188,7 @@ console.log("HELLO!");
     final var result = runner.execute();
     assertEquals(List.of(), result.arguments());
     assertTrue(result.outputMessages().stream().anyMatch(s -> s.contains("HELLO!")));
-    assertEquals(Map.of(), result.environment());
+    assertEquals(List.of(), result.environmentOperations());
   }
 
   @Test
@@ -208,7 +197,6 @@ console.log("HELLO!");
   {
     final var runner =
       this.runners.create(
-        Map.of(),
         List.of(
           new NPTPVariableInteger(
             new RDottedName("x"),
@@ -223,7 +211,7 @@ console.log(execution.valueOfVariableInteger("x"));
     final var result = runner.execute();
     assertEquals(List.of(), result.arguments());
     assertTrue(result.outputMessages().stream().anyMatch(s -> s.contains("23")));
-    assertEquals(Map.of(), result.environment());
+    assertEquals(List.of(), result.environmentOperations());
   }
 
   @Test
@@ -232,7 +220,6 @@ console.log(execution.valueOfVariableInteger("x"));
   {
     final var runner =
       this.runners.create(
-        Map.of(),
         List.of(
           new NPTPVariableString(
             new RDottedName("x"),
@@ -247,7 +234,7 @@ console.log(execution.valueOfVariableString("x"));
     final var result = runner.execute();
     assertEquals(List.of(), result.arguments());
     assertTrue(result.outputMessages().stream().anyMatch(s -> s.contains("23")));
-    assertEquals(Map.of(), result.environment());
+    assertEquals(List.of(), result.environmentOperations());
   }
 
   @Test
@@ -256,7 +243,6 @@ console.log(execution.valueOfVariableString("x"));
   {
     final var runner =
       this.runners.create(
-        Map.of(),
         List.of(
           new NPTPVariableStringSet(
             new RDottedName("x"),
@@ -271,7 +257,7 @@ console.log(execution.valueOfVariableStringSetArray("x"));
     final var result = runner.execute();
     assertEquals(List.of(), result.arguments());
     assertTrue(result.outputMessages().stream().anyMatch(s -> s.contains("23")));
-    assertEquals(Map.of(), result.environment());
+    assertEquals(List.of(), result.environmentOperations());
   }
 
   @Test
@@ -279,7 +265,6 @@ console.log(execution.valueOfVariableStringSetArray("x"));
   {
     final var runner =
       this.runners.create(
-        Map.of(),
         List.of(
           new NPTPVariableStringSet(
             new RDottedName("x"),
@@ -300,7 +285,6 @@ console.log(execution.valueOfVariableString("x"));
   {
     final var runner =
       this.runners.create(
-        Map.of(),
         List.of(
           new NPTPVariableStringSet(
             new RDottedName("x"),
@@ -321,7 +305,6 @@ console.log(execution.valueOfVariableInteger("x"));
   {
     final var runner =
       this.runners.create(
-        Map.of(),
         List.of(
           new NPTPVariableString(
             new RDottedName("x"),
@@ -342,7 +325,6 @@ console.log(execution.valueOfVariableInteger("x"));
   {
     final var runner =
       this.runners.create(
-        Map.of(),
         List.of(
           new NPTPVariableString(
             new RDottedName("x"),
@@ -363,7 +345,6 @@ console.log(execution.valueOfVariableStringSet("x"));
   {
     final var runner =
       this.runners.create(
-        Map.of(),
         List.of(
           new NPTPVariableInteger(
             new RDottedName("x"),
@@ -384,7 +365,6 @@ console.log(execution.valueOfVariableString("x"));
   {
     final var runner =
       this.runners.create(
-        Map.of(),
         List.of(
           new NPTPVariableInteger(
             new RDottedName("x"),
@@ -400,13 +380,92 @@ console.log(execution.valueOfVariableStringSet("x"));
     assertTrue(x.getMessage().contains("type 'integer'"));
   }
 
+  @Test
+  public void testFailType6()
+  {
+    final var runner =
+      this.runners.create(
+        List.of(
+          new NPTPVariableBoolean(
+            new RDottedName("x"),
+            true
+          )
+        ),
+        """
+console.log(execution.valueOfVariableString("x"));
+        """
+      );
+
+    final var x = assertThrows(NPTException.class, runner::execute);
+    assertTrue(x.getMessage().contains("type 'boolean'"));
+  }
+
+  @Test
+  public void testFailType7()
+  {
+    final var runner =
+      this.runners.create(
+        List.of(
+          new NPTPVariableBoolean(
+            new RDottedName("x"),
+            true
+          )
+        ),
+        """
+console.log(execution.valueOfVariableStringSet("x"));
+        """
+      );
+
+    final var x = assertThrows(NPTException.class, runner::execute);
+    assertTrue(x.getMessage().contains("type 'boolean'"));
+  }
+
+  @Test
+  public void testFailHostile0()
+  {
+    final var runner =
+      this.runners.create(
+        List.of(
+          new NPTPVariableBoolean(
+            new RDottedName("x"),
+            true
+          )
+        ),
+        """
+(x => x(x))(x => x(x))
+        """
+      );
+
+    final var x = assertThrows(NPTException.class, runner::execute);
+    assertTrue(x.getMessage().contains("stack"));
+  }
+
+  @Test
+  public void testFailHostile1()
+  {
+    final var runner =
+      this.runners.create(
+        List.of(
+          new NPTPVariableBoolean(
+            new RDottedName("x"),
+            true
+          )
+        ),
+        """
+await new Promise(x => setTimeout(x, 99999999));
+        """
+      );
+
+    final var x = assertThrows(NPTException.class, runner::execute);
+    assertTrue(x.getMessage().contains("await"));
+  }
+
   private void fail(
     final String name)
     throws IOException
   {
     final var runner =
       this.runners.create(
-        Map.of(),
         List.of(),
         text(name + ".js")
       );

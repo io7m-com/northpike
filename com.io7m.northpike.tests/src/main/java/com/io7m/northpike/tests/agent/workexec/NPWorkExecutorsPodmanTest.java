@@ -32,7 +32,6 @@ import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
-import com.io7m.northpike.tests.NPTestProperties;
 import com.io7m.northpike.tools.maven.NPTMFactory3;
 import com.io7m.quixote.core.QWebServerAddresses;
 import com.io7m.quixote.core.QWebServerType;
@@ -48,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

@@ -17,10 +17,11 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-import com.io7m.northpike.model.NPCompilationMessage;
 import com.io7m.northpike.protocol.user.NPUResponsePlanValidate;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
+import com.io7m.seltzer.api.SStructuredError;
 import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
 
 import java.util.UUID;
@@ -36,10 +37,15 @@ public final class NPArbUResponsePlanValidate
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
           Arbitraries.create(UUID::randomUUID),
-          Arbitraries.defaultFor(NPCompilationMessage.class)
-            .list()
+          errors().list()
         ).as(NPUResponsePlanValidate::new);
       }
     );
+  }
+
+  private static Arbitrary<SStructuredError<String>> errors()
+  {
+    return Arbitraries.defaultFor(SStructuredError.class)
+      .map(x -> (SStructuredError<String>) x);
   }
 }

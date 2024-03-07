@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 public final class NPTJRunnerDemo
 {
@@ -45,11 +44,9 @@ public final class NPTJRunnerDemo
 
     final var runner =
       runners.create(
-        Map.of(),
         List.of(),
         """
-execution.environmentClear();
-execution.environmentPut("23", "34");
+(x => x(x))(x => x(x))
           """
       );
 

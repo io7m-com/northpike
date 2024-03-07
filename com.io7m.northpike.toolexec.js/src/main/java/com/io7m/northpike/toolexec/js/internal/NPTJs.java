@@ -48,25 +48,20 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public final class NPTJs
   implements NPTEvaluableType
 {
-  private final Map<String, String> initialEnvironment;
   private final String program;
   private final Map<RDottedName, NPTPVariableType> variables;
 
   /**
    * A GraalVM based runner.
    *
-   * @param inInitialEnvironment The initial environment
    * @param inProgram            The program text
    * @param inVariables          The list of variables
    */
 
   public NPTJs(
-    final Map<String, String> inInitialEnvironment,
     final String inProgram,
     final List<NPTPVariableType> inVariables)
   {
-    this.initialEnvironment =
-      Map.copyOf(inInitialEnvironment);
     this.program =
       Objects.requireNonNull(inProgram, "program");
     this.variables =
@@ -101,7 +96,7 @@ public final class NPTJs
     final var errStream =
       new ByteArrayOutputStream();
     final var execContext =
-      new NPTJsContext(this.initialEnvironment, this.variables);
+      new NPTJsContext(this.variables);
 
     try {
       final var contextBuilder =
@@ -111,6 +106,9 @@ public final class NPTJs
             ResourceLimits.newBuilder()
               .statementLimit(1000L, s -> true)
               .build())
+          .option("js.strict", "true")
+          .option("js.allow-eval", "false")
+          .option("js.ecmascript-version", "14")
           .err(errStream)
           .out(outputStream);
 
@@ -121,7 +119,7 @@ public final class NPTJs
       }
 
       return new NPTEvaluationResult(
-        Map.copyOf(execContext.environment()),
+        List.copyOf(execContext.environmentOps()),
         List.copyOf(execContext.arguments()),
         linesOf(outputStream, errStream)
       );

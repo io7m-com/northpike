@@ -20,7 +20,7 @@ package com.io7m.northpike.plans;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.plans.variables.NPPlanVariables;
-import com.io7m.northpike.toolexec.checker.NPTXTypeChecked;
+import com.io7m.northpike.toolexec.api.NPTEvaluationResult;
 
 /**
  * An interface that can be used to compile tool executions for plans.
@@ -39,7 +39,7 @@ public interface NPPlanToolExecutionCompilerType
    * @throws NPException On errors
    */
 
-  NPTXTypeChecked toolCompile(
+  NPTEvaluationResult toolCompile(
     NPToolExecutionIdentifier execution,
     NPPlanVariables planVariables)
     throws NPException;

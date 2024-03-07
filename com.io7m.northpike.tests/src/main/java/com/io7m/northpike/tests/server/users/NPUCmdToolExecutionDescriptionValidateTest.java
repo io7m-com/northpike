@@ -21,7 +21,6 @@ import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
-import com.io7m.northpike.model.NPCompilationMessage;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPFormatName;
@@ -38,15 +37,17 @@ import com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionVa
 import com.io7m.northpike.server.internal.users.NPUserCommandContextType;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
-import com.io7m.northpike.toolexec.NPTXCompilationResultType;
-import com.io7m.northpike.toolexec.NPTXCompilerFactoryType;
-import com.io7m.northpike.toolexec.NPTXCompilerType;
-import com.io7m.northpike.toolexec.checker.NPTXTypeChecked;
+import com.io7m.northpike.toolexec.api.NPTEvaluableType;
+import com.io7m.northpike.toolexec.api.NPTEvaluationResult;
+import com.io7m.northpike.toolexec.api.NPTEvaluationServiceType;
+import com.io7m.northpike.toolexec.api.NPTException;
 import com.io7m.repetoir.core.RPServiceDirectory;
+import com.io7m.seltzer.api.SStructuredError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -55,6 +56,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorCompilationFailed;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -84,8 +86,8 @@ public final class NPUCmdToolExecutionDescriptionValidateTest
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private RPServiceDirectory services;
-  private NPTXCompilerFactoryType compilers;
-  private NPTXCompilerType compiler;
+  private NPTEvaluationServiceType compilers;
+  private NPTEvaluableType evaluable;
 
   @BeforeEach
   public void setup()
@@ -94,20 +96,20 @@ public final class NPUCmdToolExecutionDescriptionValidateTest
     NPSecurity.setPolicy(NPSecurityPolicy.open());
 
     this.compilers =
-      Mockito.mock(NPTXCompilerFactoryType.class);
-    this.compiler =
-      Mockito.mock(NPTXCompilerType.class);
+      Mockito.mock(NPTEvaluationServiceType.class);
     this.context =
       Mockito.mock(NPUserCommandContextType.class);
+    this.evaluable =
+      Mockito.mock(NPTEvaluableType.class);
 
     this.services = new RPServiceDirectory();
     this.services.register(NPStrings.class, NPStrings.create(Locale.ROOT));
-    this.services.register(NPTXCompilerFactoryType.class, this.compilers);
+    this.services.register(NPTEvaluationServiceType.class, this.compilers);
 
     Mockito.when(this.context.services())
       .thenReturn(this.services);
-    Mockito.when(this.compilers.create(any()))
-      .thenReturn(this.compiler);
+    Mockito.when(this.compilers.create(any(), any(), any()))
+      .thenReturn(this.evaluable);
 
     this.connection =
       Mockito.mock(NPDatabaseConnectionType.class);
@@ -199,25 +201,19 @@ public final class NPUCmdToolExecutionDescriptionValidateTest
     Mockito.when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
 
-    final var failure =
-      new NPTXCompilationResultType.Failure(
-        List.of(
-          new NPCompilationMessage(
-            NPCompilationMessage.Kind.ERROR,
-            1,
-            0,
-            "Failed!"
-          )
-        )
-      );
-
-    Mockito.when(this.compiler.execute(any(), any(), any()))
-      .thenReturn(failure);
+    Mockito.when(this.evaluable.execute())
+      .thenThrow(new NPTException(
+        "ERROR_COMPILATION_FAILED",
+        errorCompilationFailed(),
+        Map.of(),
+        Optional.empty(),
+        List.of()
+      ));
 
     final var r =
       handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
-    assertFalse(r.isValid(false));
+    assertFalse(r.isValid());
   }
 
   /**
@@ -249,14 +245,14 @@ public final class NPUCmdToolExecutionDescriptionValidateTest
     Mockito.when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
 
-    Mockito.when(this.compiler.execute(any(), any(), any()))
-      .thenReturn(new NPTXCompilationResultType.Success(
-        Mockito.mock(NPTXTypeChecked.class)
-      ));
+    Mockito.when(this.evaluable.execute())
+      .thenReturn(
+        new NPTEvaluationResult(List.of(), List.of(), List.of())
+      );
 
     final var r =
       handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
-    assertTrue(r.isValid(false));
+    assertTrue(r.isValid());
   }
 }

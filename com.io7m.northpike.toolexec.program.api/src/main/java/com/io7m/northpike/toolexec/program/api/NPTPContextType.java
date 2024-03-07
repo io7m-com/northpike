@@ -58,13 +58,15 @@ public interface NPTPContextType
     final RDottedName name)
   {
     return switch (this.valueOfVariable(name)) {
-      case final NPTPVariableInteger i -> i.value();
+      case final NPTPVariableInteger i -> {
+        yield i.value();
+      }
       case final NPTPVariableString ignored ->
-        throw new IllegalArgumentException(
-          "Type error: The variable %s is of type 'string'".formatted(name));
+        throw errorWrongType(name, "string");
       case final NPTPVariableStringSet ignored ->
-        throw new IllegalArgumentException(
-          "Type error: The variable %s is of type 'string-set'".formatted(name));
+        throw errorWrongType(name, "string-set");
+      case final NPTPVariableBoolean ignored ->
+        throw errorWrongType(name, "boolean");
     };
   }
 
@@ -83,6 +85,40 @@ public interface NPTPContextType
   /**
    * @param name The variable name
    *
+   * @return The value of the boolean typed variable
+   */
+
+  default boolean valueOfVariableBoolean(
+    final RDottedName name)
+  {
+    return switch (this.valueOfVariable(name)) {
+      case final NPTPVariableBoolean i -> {
+        yield i.value();
+      }
+      case final NPTPVariableString ignored ->
+        throw errorWrongType(name, "string");
+      case final NPTPVariableStringSet ignored ->
+        throw errorWrongType(name, "string-set");
+      case final NPTPVariableInteger ignored ->
+        throw errorWrongType(name, "integer");
+    };
+  }
+
+  /**
+   * @param name The variable name
+   *
+   * @return The value of the boolean typed variable
+   */
+
+  default boolean valueOfVariableBoolean(
+    final String name)
+  {
+    return this.valueOfVariableBoolean(new RDottedName(name));
+  }
+
+  /**
+   * @param name The variable name
+   *
    * @return The value of the string typed variable
    */
 
@@ -90,13 +126,15 @@ public interface NPTPContextType
     final RDottedName name)
   {
     return switch (this.valueOfVariable(name)) {
-      case final NPTPVariableString s -> s.value();
+      case final NPTPVariableString s -> {
+        yield s.value();
+      }
       case final NPTPVariableInteger ignored ->
-        throw new IllegalArgumentException(
-          "Type error: The variable %s is of type 'integer'".formatted(name));
+        throw errorWrongType(name, "integer");
       case final NPTPVariableStringSet ignored ->
-        throw new IllegalArgumentException(
-          "Type error: The variable %s is of type 'string-set'".formatted(name));
+        throw errorWrongType(name, "string-set");
+      case final NPTPVariableBoolean ignored ->
+        throw errorWrongType(name, "boolean");
     };
   }
 
@@ -122,14 +160,26 @@ public interface NPTPContextType
     final RDottedName name)
   {
     return switch (this.valueOfVariable(name)) {
-      case final NPTPVariableStringSet ss -> ss.value();
+      case final NPTPVariableStringSet ss -> {
+        yield ss.value();
+      }
       case final NPTPVariableInteger ignored ->
-        throw new IllegalArgumentException(
-          "Type error: The variable %s is of type 'integer'".formatted(name));
+        throw errorWrongType(name, "integer");
       case final NPTPVariableString ignored ->
-        throw new IllegalArgumentException(
-          "Type error: The variable %s is of type 'string'".formatted(name));
+        throw errorWrongType(name, "string");
+      case final NPTPVariableBoolean ignored ->
+        throw errorWrongType(name, "boolean");
     };
+  }
+
+  private static IllegalArgumentException errorWrongType(
+    final RDottedName name,
+    final String expectedType)
+  {
+    return new IllegalArgumentException(
+      "Type error: The variable %s is of type '%s'".formatted(
+        name,
+        expectedType));
   }
 
   /**
@@ -176,7 +226,7 @@ public interface NPTPContextType
    * @param value The variable value
    */
 
-  void environmentPut(
+  void environmentSet(
     String name,
     String value);
 
@@ -186,7 +236,7 @@ public interface NPTPContextType
    * @param name The variable name
    */
 
-  void environmentRemove(
+  void environmentUnset(
     String name);
 
   /**

@@ -22,7 +22,6 @@ import com.io7m.ervilla.api.EContainerSupervisorType;
 import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
-import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
@@ -30,10 +29,9 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
@@ -44,7 +42,6 @@ import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
-import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
@@ -66,7 +63,6 @@ import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.containers.NPDatabaseFixture;
 import com.io7m.northpike.tests.containers.NPFixtures;
-import com.io7m.northpike.toolexec.NPTXFormats;
 import com.io7m.verona.core.Version;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
@@ -1181,8 +1177,8 @@ public final class NPDatabasePlansTest
         ),
         NPToolName.of("com.io7m.tool"),
         "A description.",
-        NPTXFormats.nptx1(),
-        "Data."
+        NPFormatName.of("com.io7m.northpike.toolexec.js"),
+        ""
       );
 
     final var tool1 =
@@ -1193,8 +1189,8 @@ public final class NPDatabasePlansTest
         ),
         NPToolName.of("com.io7m.tool"),
         "A description.",
-        NPTXFormats.nptx1(),
-        "Data."
+        NPFormatName.of("com.io7m.northpike.toolexec.js"),
+        ""
       );
 
     final var tool2 =
@@ -1205,8 +1201,8 @@ public final class NPDatabasePlansTest
         ),
         NPToolName.of("com.io7m.tool"),
         "A description.",
-        NPTXFormats.nptx1(),
-        "Data."
+        NPFormatName.of("com.io7m.northpike.toolexec.js"),
+        ""
       );
 
     toolPut.execute(tool0);

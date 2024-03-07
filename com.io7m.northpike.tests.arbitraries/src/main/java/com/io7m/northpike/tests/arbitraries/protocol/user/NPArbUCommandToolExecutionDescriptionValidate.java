@@ -20,7 +20,7 @@ package com.io7m.northpike.tests.arbitraries.protocol.user;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableType;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableType;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 
@@ -36,7 +36,7 @@ public final class NPArbUCommandToolExecutionDescriptionValidate
       () -> {
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
-          Arbitraries.defaultFor(NPTXPlanVariableType.class).list(),
+          Arbitraries.defaultFor(NPTPVariableType.class).list(),
           Arbitraries.defaultFor(NPToolExecutionDescription.class)
         ).as(NPUCommandToolExecutionDescriptionValidate::new);
       }

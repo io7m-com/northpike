@@ -28,7 +28,7 @@ module com.io7m.northpike.shell
   requires com.io7m.northpike.protocol.user;
   requires com.io7m.northpike.shell.commons;
   requires com.io7m.northpike.strings;
-  requires com.io7m.northpike.toolexec;
+  requires com.io7m.northpike.toolexec.program.api;
   requires com.io7m.northpike.user_client.api;
 
   requires com.io7m.anethum.api;

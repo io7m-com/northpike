@@ -25,6 +25,7 @@ import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.model.NPErrorCode;
+import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
@@ -61,7 +62,6 @@ import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.containers.NPFixtures;
 import com.io7m.northpike.tests.containers.NPIdstoreFixture;
 import com.io7m.northpike.tests.containers.NPServerFixture;
-import com.io7m.northpike.toolexec.NPTXFormats;
 import com.io7m.northpike.user_client.NPUserClients;
 import com.io7m.northpike.user_client.api.NPUserClientConfiguration;
 import com.io7m.northpike.user_client.api.NPUserClientException;
@@ -77,7 +77,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ServerSocketFactory;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.URI;
@@ -547,15 +546,8 @@ public final class NPUserClientTest
         identifier,
         NPToolName.of("org.apache.maven"),
         "An execution.",
-        NPTXFormats.nptx1(),
-        """
-          <?xml version="1.0" encoding="UTF-8" ?>
-          <ToolExecution xmlns="urn:com.io7m.northpike.toolexec:1"
-                         Name="com.io7m.ex0"
-                         Version="1">
-            <ArgumentAdd Value="ok"/>
-          </ToolExecution>
-                    """.strip()
+        NPFormatName.of("com.io7m.northpike.toolexec.js"),
+        "execution.argumentAdd('ok')"
       );
 
     this.userClient.execute(

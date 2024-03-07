@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.model.NPCompilationMessage;
+import com.io7m.seltzer.api.SStructuredError;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,55 +26,38 @@ import java.util.UUID;
 /**
  * A tool execution validation.
  *
- * @param messageID           The message ID
- * @param correlationID       The command that prompted this response
- * @param compilationMessages The compilation messages
+ * @param messageID         The message ID
+ * @param correlationID     The command that prompted this response
+ * @param compilationErrors The compilation errors
  */
 
 public record NPUResponseToolExecutionDescriptionValidate(
   UUID messageID,
   UUID correlationID,
-  List<NPCompilationMessage> compilationMessages)
+  List<SStructuredError<String>> compilationErrors)
   implements NPUResponseType
 {
   /**
    * A tool execution validation.
    *
-   * @param messageID           The message ID
-   * @param correlationID       The command that prompted this response
-   * @param compilationMessages The compilation messages
+   * @param messageID         The message ID
+   * @param correlationID     The command that prompted this response
+   * @param compilationErrors The compilation errors
    */
 
   public NPUResponseToolExecutionDescriptionValidate
   {
     Objects.requireNonNull(messageID, "messageID");
     Objects.requireNonNull(correlationID, "correlationID");
-    Objects.requireNonNull(compilationMessages, "compilationMessages");
+    Objects.requireNonNull(compilationErrors, "compilationMessages");
   }
 
   /**
-   * @param allowWarnings {@code true} if warnings are to be allowed
-   *
-   * @return {@code true} if the server determine that the execution is valid
+   * @return {@code true} if the server determined that the execution is valid
    */
 
-  public boolean isValid(
-    final boolean allowWarnings)
+  public boolean isValid()
   {
-    return this.compilationMessages.stream()
-      .noneMatch(m -> {
-        return isKindError(m.kind(), allowWarnings);
-      });
-  }
-
-  private static boolean isKindError(
-    final NPCompilationMessage.Kind kind,
-    final boolean allowWarnings)
-  {
-    return switch (kind) {
-      case INFO -> false;
-      case WARNING -> !allowWarnings;
-      case ERROR -> true;
-    };
+    return this.compilationErrors.isEmpty();
   }
 }

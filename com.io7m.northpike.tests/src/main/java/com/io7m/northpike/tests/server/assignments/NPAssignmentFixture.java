@@ -62,8 +62,8 @@ import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tests.NPEventInterceptingService;
 import com.io7m.northpike.tests.containers.NPDatabaseFixture;
 import com.io7m.northpike.tests.containers.NPIdstoreFixture;
-import com.io7m.northpike.toolexec.NPTXParserFactoryType;
-import com.io7m.northpike.toolexec.NPTXParsers;
+import com.io7m.northpike.toolexec.api.NPTEvaluationServiceType;
+import com.io7m.northpike.toolexec.api.NPTEvaluationService;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
@@ -287,10 +287,13 @@ public final class NPAssignmentFixture implements AutoCloseable
       ));
     this.transaction.commit();
 
+    final var strings =
+      NPStrings.create(Locale.ROOT);
+
     this.services.register(
       NPTelemetryServiceType.class, NPTelemetryNoOp.noop());
     this.services.register(
-      NPStrings.class, NPStrings.create(Locale.ROOT));
+      NPStrings.class, strings);
     this.services.register(
       NPDatabaseType.class, this.database);
     this.services.register(
@@ -306,7 +309,9 @@ public final class NPAssignmentFixture implements AutoCloseable
     this.services.register(
       NPPlanParserFactoryType.class, new NPPlanParsers());
     this.services.register(
-      NPTXParserFactoryType.class, new NPTXParsers());
+      NPTEvaluationServiceType.class,
+      NPTEvaluationService.createFromServiceLoader(strings)
+    );
 
     this.createRepositories();
     this.transaction.commit();

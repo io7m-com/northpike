@@ -25,11 +25,11 @@ module com.io7m.northpike.plans
 
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.strings;
-  requires com.io7m.northpike.toolexec;
+  requires com.io7m.northpike.toolexec.api;
+  requires com.io7m.northpike.toolexec.program.api;
 
   requires com.io7m.jaffirm.core;
   requires com.io7m.jdeferthrow.core;
-  requires com.io7m.jxe.core;
   requires com.io7m.lanark.core;
   requires com.io7m.verona.core;
   requires org.jgrapht.core;

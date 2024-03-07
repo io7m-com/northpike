@@ -152,11 +152,6 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.toolexec</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.toolexec.api</artifactId>
       <version>${project.version}</version>
     </dependency>

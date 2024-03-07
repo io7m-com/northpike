@@ -22,7 +22,6 @@ import com.io7m.northpike.toolexec.program.api.NPTPVariableType;
 import com.io7m.repetoir.core.RPServiceType;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * The evaluation service interface.
@@ -34,10 +33,9 @@ public interface NPTEvaluationServiceType
   /**
    * Create a new evaluable object.
    *
-   * @param initialEnvironment The initial environment
-   * @param formatName         The format of the given program text
-   * @param variables          The program variables
-   * @param program            The program text
+   * @param formatName The format of the given program text
+   * @param variables  The program variables
+   * @param program    The program text
    *
    * @return A new evaluable object
    *
@@ -46,7 +44,6 @@ public interface NPTEvaluationServiceType
 
   NPTEvaluableType create(
     NPFormatName formatName,
-    Map<String, String> initialEnvironment,
     List<NPTPVariableType> variables,
     String program)
     throws NPTException;

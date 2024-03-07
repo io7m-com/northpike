@@ -21,7 +21,6 @@ import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
-import com.io7m.northpike.model.NPCompilationMessage;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
@@ -38,6 +37,7 @@ import com.io7m.northpike.server.internal.users.NPUserCommandContextType;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.repetoir.core.RPServiceDirectory;
+import com.io7m.seltzer.api.SStructuredError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -184,11 +184,12 @@ public final class NPUCmdPlanValidateTest
     final var failure =
       new NPPlanCompilationResultType.Failure(
         List.of(
-          new NPCompilationMessage(
-            NPCompilationMessage.Kind.ERROR,
-            1,
-            0,
-            "Failed!"
+          new SStructuredError<>(
+            "error",
+            "ERROR!",
+            Map.of("x", "y"),
+            Optional.empty(),
+            Optional.empty()
           )
         )
       );
@@ -199,7 +200,7 @@ public final class NPUCmdPlanValidateTest
     final var r =
       handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
-    assertFalse(r.isValid(false));
+    assertFalse(r.isValid());
   }
 
   /**
@@ -238,6 +239,6 @@ public final class NPUCmdPlanValidateTest
     final var r =
       handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
-    assertTrue(r.isValid(false));
+    assertTrue(r.isValid());
   }
 }

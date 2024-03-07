@@ -17,34 +17,68 @@
 
 package com.io7m.northpike.toolexec.api;
 
+import com.io7m.northpike.toolexec.program.api.NPTPEnvironmentClear;
+import com.io7m.northpike.toolexec.program.api.NPTPEnvironmentOperationType;
+import com.io7m.northpike.toolexec.program.api.NPTPEnvironmentSet;
+import com.io7m.northpike.toolexec.program.api.NPTPEnvironmentUnset;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * The result of evaluating a tool execution description.
  *
- * @param environment    The agent's resulting environment variables
- * @param arguments      The resulting tool arguments
- * @param outputMessages The produced output messages
+ * @param environmentOperations The operations to perform on the agent's environment variables
+ * @param arguments             The resulting tool arguments
+ * @param outputMessages        The produced output messages
  */
 
 public record NPTEvaluationResult(
-  Map<String, String> environment,
+  List<NPTPEnvironmentOperationType> environmentOperations,
   List<String> arguments,
   List<String> outputMessages)
 {
   /**
    * The result of evaluating a tool execution description.
    *
-   * @param environment    The agent's resulting environment variables
-   * @param arguments      The resulting tool arguments
-   * @param outputMessages The produced output messages
+   * @param environmentOperations The operations to perform on the agent's environment variables
+   * @param arguments             The resulting tool arguments
+   * @param outputMessages        The produced output messages
    */
 
   public NPTEvaluationResult
   {
-    environment = Map.copyOf(environment);
+    environmentOperations = List.copyOf(environmentOperations);
     arguments = List.copyOf(arguments);
     outputMessages = List.copyOf(outputMessages);
+  }
+
+  /**
+   * Evaluate the environment operations against the given environment.
+   *
+   * @param initial The environment
+   *
+   * @return The resulting environment
+   */
+
+  public Map<String, String> evaluateEnvironment(
+    final Map<String, String> initial)
+  {
+    final var result = new HashMap<>(initial);
+    for (final var op : this.environmentOperations) {
+      switch (op) {
+        case final NPTPEnvironmentClear ignored -> {
+          result.clear();
+        }
+        case final NPTPEnvironmentSet set -> {
+          result.put(set.name(), set.value());
+        }
+        case final NPTPEnvironmentUnset unset -> {
+          result.remove(unset.name());
+        }
+      }
+    }
+    return Map.copyOf(result);
   }
 }

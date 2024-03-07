@@ -25,11 +25,11 @@ import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionValidate;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableBoolean;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableInteger;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableString;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableStringSet;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableType;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableBoolean;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableInteger;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableString;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableStringSet;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableType;
 import com.io7m.quarrel.core.QCommandContextType;
 import com.io7m.quarrel.core.QCommandMetadata;
 import com.io7m.quarrel.core.QParameterNamed0N;
@@ -39,6 +39,7 @@ import com.io7m.quarrel.core.QStringType.QConstant;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -152,19 +153,19 @@ public final class NPShellCmdToolExecutionDescriptionValidate
     throws ParsingException, IOException
   {
     final var variables =
-      new ArrayList<NPTXPlanVariableType>();
+      new ArrayList<NPTPVariableType>();
 
     for (final var x : context.parameterValues(VARIABLE_BOOLEAN)) {
-      variables.add(new NPTXPlanVariableBoolean(x, false));
+      variables.add(new NPTPVariableBoolean(x, false));
     }
     for (final var x : context.parameterValues(VARIABLE_INTEGER)) {
-      variables.add(new NPTXPlanVariableInteger(x, 0L));
+      variables.add(new NPTPVariableInteger(x, BigInteger.valueOf(0L)));
     }
     for (final var x : context.parameterValues(VARIABLE_STRING)) {
-      variables.add(new NPTXPlanVariableString(x, ""));
+      variables.add(new NPTPVariableString(x, ""));
     }
     for (final var x : context.parameterValues(VARIABLE_STRING_SET)) {
-      variables.add(new NPTXPlanVariableStringSet(x, Set.of()));
+      variables.add(new NPTPVariableStringSet(x, Set.of()));
     }
 
     final var text =
@@ -196,7 +197,7 @@ public final class NPShellCmdToolExecutionDescriptionValidate
   {
     final var w = context.output();
 
-    if (!response.isValid(false)) {
+    if (!response.isValid()) {
       w.println("Validation failed.");
     } else {
       w.println("Validation succeeded.");
@@ -204,15 +205,18 @@ public final class NPShellCmdToolExecutionDescriptionValidate
 
     w.println();
 
-    for (final var message : response.compilationMessages()) {
-      w.print(message.kind());
-      w.print(": ");
-      w.print(message.line());
+    for (final var error : response.compilationErrors()) {
+      w.print(error.errorCode());
       w.print(":");
-      w.print(message.column());
-      w.print(": ");
-      w.print(message.message());
+      w.print(error.message());
       w.println();
+      for (final var entry : error.attributes().entrySet()) {
+        w.println("  ");
+        w.print(entry.getKey());
+        w.print(":");
+        w.print(entry.getValue());
+        w.println();
+      }
     }
 
     w.println();

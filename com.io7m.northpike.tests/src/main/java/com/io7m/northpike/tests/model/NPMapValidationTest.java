@@ -17,10 +17,10 @@
 
 package com.io7m.northpike.tests.model;
 
-import com.io7m.northpike.model.agents.NPAgentLabel;
-import com.io7m.northpike.model.agents.NPAgentLabelName;
 import com.io7m.northpike.model.NPMapValidation;
 import com.io7m.northpike.model.NPValidityException;
+import com.io7m.northpike.model.agents.NPAgentLabel;
+import com.io7m.northpike.model.agents.NPAgentLabelName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;

@@ -20,7 +20,6 @@ import com.io7m.ervilla.api.EContainerSupervisorType;
 import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
-import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
@@ -29,10 +28,9 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.DeleteExecutio
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.GetExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.SearchExecutionDescriptionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSearchParameters;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
@@ -41,7 +39,6 @@ import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
-import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.comparisons.NPComparisonExactType;
 import com.io7m.northpike.model.plans.NPPlanToolExecution;
 import com.io7m.northpike.plans.NPPlans;
@@ -49,7 +46,6 @@ import com.io7m.northpike.plans.parsers.NPPlanSerializers;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.containers.NPDatabaseFixture;
 import com.io7m.northpike.tests.containers.NPFixtures;
-import com.io7m.northpike.toolexec.NPTXFormats;
 import com.io7m.verona.core.Version;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
@@ -128,8 +124,8 @@ public final class NPDatabaseToolsTest
         ),
         NPToolName.of("com.io7m.tool"),
         "A description.",
-        NPTXFormats.nptx1(),
-        "Data."
+        NPFormatName.of("com.io7m.northpike.toolexec.js"),
+        "execution.argumentAdd('ok')"
       );
 
     put.execute(tool);
@@ -187,8 +183,8 @@ public final class NPDatabaseToolsTest
             NPToolName.of("com.io7m.tool_%d"
                             .formatted(Integer.valueOf(toolIndex))),
             "A description.",
-            NPTXFormats.nptx1(),
-            "Data."
+            NPFormatName.of("com.io7m.northpike.toolexec.js"),
+            "execution.argumentAdd('ok')"
           );
         put.execute(tool);
       }
@@ -266,8 +262,8 @@ public final class NPDatabaseToolsTest
             NPToolName.of("com.io7m.tool_%d"
                             .formatted(Integer.valueOf(toolIndex))),
             "A description.",
-            NPTXFormats.nptx1(),
-            "Data."
+            NPFormatName.of("com.io7m.northpike.toolexec.js"),
+            "execution.argumentAdd('ok')"
           );
         put.execute(tool);
       }
@@ -388,8 +384,8 @@ public final class NPDatabaseToolsTest
         ),
         NPToolName.of("com.io7m.tool"),
         "A description.",
-        NPTXFormats.nptx1(),
-        "Data."
+        NPFormatName.of("com.io7m.northpike.toolexec.js"),
+        "execution.argumentAdd('ok')"
       );
 
     put.execute(tool);

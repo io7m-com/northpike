@@ -106,12 +106,12 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.toolexec</artifactId>
+      <artifactId>com.io7m.northpike.toolexec.api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.toolexec.api</artifactId>
+      <artifactId>com.io7m.northpike.toolexec.program.api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -146,10 +146,6 @@
     <dependency>
       <groupId>com.io7m.seltzer</groupId>
       <artifactId>com.io7m.seltzer.api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.jlexing</groupId>
-      <artifactId>com.io7m.jlexing.core</artifactId>
     </dependency>
     <dependency>
       <groupId>com.io7m.jaffirm</groupId>

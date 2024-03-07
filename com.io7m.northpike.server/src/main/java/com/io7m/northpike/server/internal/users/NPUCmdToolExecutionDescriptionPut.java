@@ -20,24 +20,16 @@ package com.io7m.northpike.server.internal.users;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionPut;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.server.internal.security.NPSecurity;
-import com.io7m.northpike.strings.NPStrings;
-import com.io7m.northpike.toolexec.NPTXCompilationResultType;
-import com.io7m.northpike.toolexec.NPTXCompilerConfiguration;
-import com.io7m.northpike.toolexec.NPTXCompilerFactoryType;
-import com.io7m.northpike.toolexec.NPTXParserFactoryType;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariables;
+import com.io7m.northpike.toolexec.api.NPTEvaluationServiceType;
 
 import java.util.List;
 
-import static com.io7m.northpike.strings.NPStringConstants.ERROR_COMPILATION_FAILED;
 import static com.io7m.northpike.strings.NPStringConstants.FORMAT;
-import static com.io7m.northpike.strings.NPStringConstants.SUGGEST_COMPILATION_FAILED;
 
 /**
  * @see NPUCommandToolExecutionDescriptionPut
@@ -69,59 +61,34 @@ public final class NPUCmdToolExecutionDescriptionPut
       NPSecAction.WRITE.action()
     );
 
+    final var description = command.description();
     context.setAttribute(
       FORMAT,
-      command.description().format().toString()
+      description.format().toString()
     );
 
     final var services =
       context.services();
-
-    final var strings =
-      services.requireService(NPStrings.class);
-    final var parsersAvailable =
-      services.optionalServices(NPTXParserFactoryType.class);
-    final var compilers =
-      services.requireService(NPTXCompilerFactoryType.class);
-
     final var compiler =
-      compilers.create(
-        new NPTXCompilerConfiguration(
-          strings,
-          false,
-          (List<NPTXParserFactoryType>) parsersAvailable
-        )
+      services.requireService(NPTEvaluationServiceType.class);
+
+    final var evaluable =
+      compiler.create(
+        description.format(),
+        List.of(),
+        description.text()
       );
 
-    final var result =
-      compiler.execute(
-        NPTXPlanVariables.ofList(List.of()),
-        command.description().format(),
-        command.description().text()
-      );
+    evaluable.execute();
 
-    if (result instanceof final NPTXCompilationResultType.Failure f) {
-      throw context.failWithRemediation(
-        ERROR_COMPILATION_FAILED,
-        NPStandardErrorCodes.errorCompilationFailed(),
-        SUGGEST_COMPILATION_FAILED
-      );
-    }
-
-    if (result instanceof NPTXCompilationResultType.Success) {
-      try (var connection = context.databaseConnection()) {
-        try (var transaction = connection.openTransaction()) {
-          transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
-          transaction.queries(PutExecutionDescriptionType.class)
-            .execute(command.description());
-          transaction.commit();
-          return NPUResponseOK.createCorrelated(command);
-        }
+    try (var connection = context.databaseConnection()) {
+      try (var transaction = connection.openTransaction()) {
+        transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
+        transaction.queries(PutExecutionDescriptionType.class)
+          .execute(description);
+        transaction.commit();
+        return NPUResponseOK.createCorrelated(command);
       }
     }
-
-    throw new IllegalStateException(
-      "Unrecognized result: %s".formatted(result)
-    );
   }
 }

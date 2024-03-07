@@ -17,23 +17,26 @@
 
 package com.io7m.northpike.plans.compiler;
 
-import com.io7m.anethum.api.ParseSeverity;
 import com.io7m.anethum.api.ParseStatusType;
 import com.io7m.anethum.api.ParsingException;
-import com.io7m.northpike.model.NPCompilationMessage;
 import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.plans.NPPlans;
 import com.io7m.northpike.plans.compiler.NPPlanCompilationResultType.Success;
+import com.io7m.seltzer.api.SStructuredError;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
-import static com.io7m.northpike.model.NPCompilationMessage.Kind.ERROR;
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorUnsupported;
+import static com.io7m.northpike.strings.NPStringConstants.COLUMN;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_FORMAT_UNSUPPORTED;
+import static com.io7m.northpike.strings.NPStringConstants.LINE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
@@ -96,11 +99,12 @@ public final class NPPlanCompilers implements NPPlanCompilerFactoryType
       if (parsersSupportingFormat.isEmpty()) {
         return new NPPlanCompilationResultType.Failure(
           List.of(
-            new NPCompilationMessage(
-              ERROR,
-              0,
-              0,
-              strings.format(ERROR_FORMAT_UNSUPPORTED)
+            new SStructuredError<>(
+              errorUnsupported().id(),
+              strings.format(ERROR_FORMAT_UNSUPPORTED),
+              Map.of(),
+              Optional.empty(),
+              Optional.empty()
             )
           )
         );
@@ -109,7 +113,7 @@ public final class NPPlanCompilers implements NPPlanCompilerFactoryType
       final var textBytes =
         text.getBytes(UTF_8);
       final var messages =
-        new ArrayList<NPCompilationMessage>();
+        new ArrayList<SStructuredError<String>>();
 
       for (final var parsers : parsersSupportingFormat) {
         try {
@@ -124,16 +128,17 @@ public final class NPPlanCompilers implements NPPlanCompilerFactoryType
           messages.addAll(
             e.statusValues()
               .stream()
-              .map(NPPlanCompilers::mapStatus)
+              .map(this::mapStatus)
               .toList()
           );
         } catch (final NPPlanException e) {
           messages.add(
-            new NPCompilationMessage(
-              ERROR,
-              0,
-              0,
-              e.getMessage()
+            new SStructuredError<>(
+              e.errorCode().id(),
+              e.getMessage(),
+              e.attributes(),
+              e.remediatingAction(),
+              Optional.of(e)
             )
           );
         }
@@ -143,26 +148,29 @@ public final class NPPlanCompilers implements NPPlanCompilerFactoryType
         List.copyOf(messages)
       );
     }
-  }
 
-  private static NPCompilationMessage mapStatus(
-    final ParseStatusType status)
-  {
-    return new NPCompilationMessage(
-      mapKind(status.severity()),
-      status.lexical().line(),
-      status.lexical().column(),
-      status.message()
-    );
-  }
+    private SStructuredError<String> mapStatus(
+      final ParseStatusType status)
+    {
+      final var strings =
+        this.configuration.strings();
 
-  private static NPCompilationMessage.Kind mapKind(
-    final ParseSeverity severity)
-  {
-    return switch (severity) {
-      case PARSE_ERROR -> ERROR;
-      case PARSE_WARNING -> NPCompilationMessage.Kind.WARNING;
-      case PARSE_INFO -> NPCompilationMessage.Kind.INFO;
-    };
+      return new SStructuredError<String>(
+        status.errorCode(),
+        status.message(),
+        Map.ofEntries(
+          Map.entry(
+            strings.format(LINE),
+            Integer.toString(status.lexical().line())
+          ),
+          Map.entry(
+            strings.format(COLUMN),
+            Integer.toString(status.lexical().column())
+          )
+        ),
+        Optional.empty(),
+        Optional.empty()
+      );
+    }
   }
 }

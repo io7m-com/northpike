@@ -36,10 +36,14 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.toolexec</artifactId>
+      <artifactId>com.io7m.northpike.toolexec.program.api</artifactId>
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.io7m.seltzer</groupId>
+      <artifactId>com.io7m.seltzer.api</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.io7m.lanark</groupId>
       <artifactId>com.io7m.lanark.core</artifactId>

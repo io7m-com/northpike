@@ -20,7 +20,7 @@ package com.io7m.northpike.plans.preparation;
 import com.io7m.northpike.model.plans.NPPlanElementName;
 import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.variables.NPPlanVariables;
-import com.io7m.northpike.toolexec.checker.NPTXTypeChecked;
+import com.io7m.northpike.toolexec.api.NPTEvaluationResult;
 
 import java.util.Map;
 
@@ -46,5 +46,5 @@ public interface NPPlanPreparationType
    * @return The compiled tool executions for each task
    */
 
-  Map<NPPlanElementName, NPTXTypeChecked> toolExecutions();
+  Map<NPPlanElementName, NPTEvaluationResult> toolExecutions();
 }

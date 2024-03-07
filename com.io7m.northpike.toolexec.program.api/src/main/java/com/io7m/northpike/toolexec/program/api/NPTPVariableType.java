@@ -24,7 +24,8 @@ import com.io7m.lanark.core.RDottedName;
  */
 
 public sealed interface NPTPVariableType
-  permits NPTPVariableInteger,
+  permits NPTPVariableBoolean,
+  NPTPVariableInteger,
   NPTPVariableString,
   NPTPVariableStringSet
 {
