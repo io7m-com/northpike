@@ -226,6 +226,26 @@
         allowed to perform a given <Term type="term">action</Term> on a given <Term type="term">object</Term>.
       </Paragraph>
       <Paragraph>
+        A role <Term type="variable">R</Term> may be <Term type="term">granted</Term> to a user
+        <Term type="variable">A</Term>
+        by user <Term type="variable">B</Term> if
+        <Term type="variable">B</Term>
+        has role <Term type="variable">R</Term>. Accordingly, a role <Term type="variable">R</Term> may be
+        <Term type="term">revoked</Term>
+        from a user
+        <Term type="variable">A</Term>
+        by user <Term type="variable">B</Term> if
+        <Term type="variable">B</Term>
+        has role <Term type="variable">R</Term>.
+      </Paragraph>
+      <Paragraph id="f57f5739-f60b-4eeb-b31c-99be0efbfde4">
+        A user holding the <Term type="expression">administrator</Term> role effectively always has all available
+        roles. If new roles are added in future versions of the <Term type="package">northpike</Term> package, users
+        holding the <Term type="expression">administrator</Term> role will be automatically granted the new roles. It
+        is recommended to limit this role to a single user, and to avoid using that user account for day-to-day
+        operations.
+      </Paragraph>
+      <Paragraph>
         The system defines the following roles:
       </Paragraph>
       <FormalItem title="Roles">

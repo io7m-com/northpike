@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<UserService xmlns="urn:com.io7m.northpike.server.configuration:1"
+              xmlns:t="urn:com.io7m.northpike.tls:1"
+              ListenAddress="100.100.100.100"
+              ListenPort="20050"
+              MaximumCommandSizeOctets="1000000">
+  <t:TLSEnabled>
+    <t:KeyStore Type="CANONMILL"
+                Provider="CANONMILL"
+                Password="changeit"
+                File="user_keystore.xml"/>
+    <t:TrustStore Type="CANONMILL"
+                  Provider="CANONMILL"
+                  Password="changeit"
+                  File="user_truststore.xml"/>
+  </t:TLSEnabled>
+</UserService>

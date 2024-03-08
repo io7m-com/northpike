@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="6363eb09-68f2-4562-aefc-0ed56a6a6c09"
+         title="Server Installation">
+
+  <Subsection title="Overview">
+    <Paragraph>
+      The <Term type="package">northpike</Term> server package is available from the following sources:
+    </Paragraph>
+    <FormalItem title="Sources">
+      <ListUnordered>
+        <Item>
+          <Link target="6d054a64-cbad-4525-9b2e-a998cf55ba26">Maven Central</Link>
+        </Item>
+        <Item>
+          <Link target="459da445-e973-4100-a163-5c3198773796">Quay.io</Link>
+        </Item>
+      </ListUnordered>
+    </FormalItem>
+    <Paragraph>
+      Regardless of the distribution method, the <Term type="package">northpike</Term> package will contain a command
+      named <Term type="command">northpike</Term> that acts as the main entrypoint to all of the server and client
+      functionality.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="PostgreSQL"
+              id="e0fe9af5-0e83-4ee1-bec2-c96e5742b681">
+    <Paragraph>
+      The <Term type="package">northpike</Term> server requires a
+      <Link target="69880f7e-de25-4aba-b9a6-514edae29aea">PostgreSQL</Link>
+      server. The <Term type="package">northpike</Term> server will create the required tables and database objects on
+      first startup, given the name of a running PostgreSQL database, and a PostgreSQL role and password.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Idstore"
+              id="75111c92-3fb5-4508-86a1-35aa7818eac1">
+    <Paragraph>
+      The <Term type="package">northpike</Term> server delegates all user and password management to
+      <LinkExternal target="https://www.io7m.com/software/idstore">idstore</LinkExternal> and therefore requires
+      a running <Term type="package">idstore</Term> server in order to work.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Maven Central"
+              id="6d054a64-cbad-4525-9b2e-a998cf55ba26">
+    <Paragraph>
+      A distribution package can be found at
+      <LinkExternal target="https://repo1.maven.org/maven2/com/io7m/northpike/com.io7m.northpike.main/${project.version}/com.io7m.northpike.main-${project.version}-distribution.zip">
+        Maven Central</LinkExternal>.
+    </Paragraph>
+    <Paragraph>
+      The <Term type="command">northpike</Term> command requires that a Java 21+ compatible JVM be accessible
+      via <Term type="command">/usr/bin/env java</Term>.
+    </Paragraph>
+    <Paragraph>
+      Verify the integrity of the distribution zip file:
+    </Paragraph>
+    <FormalItem title="Verify">
+      <Verbatim><![CDATA[
+$ gpg --verify com.io7m.northpike.main-${project.version}-distribution.zip.asc
+gpg: assuming signed data in 'com.io7m.northpike.main-${project.version}-distribution.zip.asc'
+gpg: Signature made Tue 28 Jun 2022 15:01:56 GMT
+gpg:                using RSA key 3CCE59428B30462D10459909C5607DA146E128B8
+gpg:                issuer "contact@io7m.com"
+gpg: using pgp trust model
+gpg: Good signature from "io7m.com (2022 maven-rsa-key) <contact@io7m.com>" [unknown]
+]]></Verbatim>
+    </FormalItem>
+    <Paragraph>
+      Unzip the zip file, and set up the environment appropriately. The <Term type="command">northpike</Term> command
+      expects an environment variable named <Term type="variable">NORTHPIKE_HOME</Term>
+      to be defined that points to the installation directory.
+    </Paragraph>
+    <FormalItem title="Extract">
+      <Verbatim><![CDATA[
+$ unzip com.io7m.northpike.main-${project.version}-distribution.zip
+$ export NORTHPIKE_HOME=$(realpath northpike)
+$ ./northpike/bin/northpike
+northpike: usage: northpike [command] [arguments ...]
+...
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="OCI Images" id="459da445-e973-4100-a163-5c3198773796">
+    <Subsection title="Quay.io">
+      <Paragraph>
+        <LinkExternal target="https://opencontainers.org/">OCI</LinkExternal> images are available
+        from <LinkExternal target="https://quay.io/repository/io7mcom/northpike">Quay.io</LinkExternal>
+        for use with <LinkExternal target="https://podman.io/">podman</LinkExternal> or
+        <LinkExternal target="https://www.docker.com/">docker</LinkExternal>.
+      </Paragraph>
+      <FormalItem title="Podman/Docker">
+        <Verbatim><![CDATA[$ podman pull quay.io/io7mcom/northpike:${project.version}
+$ podman run quay.io/io7mcom/northpike:${project.version}
+northpike: usage: northpike [command] [arguments ...]
+...
+]]></Verbatim>
+      </FormalItem>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Running The Server">
+    <Subsection title="Initialization" id="1720443b-3f44-485b-b5c0-d0268d418785">
+      <Paragraph>
+        Given an appropriate
+        <Link target="f1e0e558-035d-4f3c-b1a2-cf3a096044f3">configuration file</Link>
+        in <Term type="expression">server.conf</Term>, it's necessary to tell
+        <Term type="command">northpike</Term>
+        to configure the database and create an
+        initial <Link target="f57f5739-f60b-4eeb-b31c-99be0efbfde4">administrator</Link>. It's necessary to specify
+        the <Term type="package">idstore</Term> user ID
+        of a user that will be considered to be the administrator of the <Term type="command">northpike</Term>
+        server:
+      </Paragraph>
+      <FormalItem title="Initialize">
+        <Verbatim>
+          <xi:include href="c-initialize-example.txt"
+                      parse="text"/>
+        </Verbatim>
+      </FormalItem>
+      <Paragraph>
+        It is not critical that the username given match the user ID on the <Term type="package">idstore</Term>
+        server; the name will be updated automatically from that server when a user logs in.
+      </Paragraph>
+    </Subsection>
+
+    <Subsection title="Running">
+      <Paragraph>
+        The server can now be run with <Term type="command">northpike server</Term>:
+      </Paragraph>
+      <FormalItem title="Run">
+        <Verbatim>
+          <xi:include href="c-server-example.txt"
+                      parse="text"/>
+        </Verbatim>
+      </FormalItem>
+      <Paragraph>
+        The server <Term type="emphasis">does not</Term> fork into the background and is designed to be run under process
+        supervision.
+      </Paragraph>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Running The Shell" id="dc0ae0e0-c6ba-4dec-9a28-bc66d0328b0f">
+    <Paragraph>
+      Run <Term type="expression">northpike shell</Term> <LinkFootnote target="6ea0d34a-dac7-4a03-bdb7-d8fd04b213d0"/>
+      to start the user <Link target="ee76b065-9857-469c-9aca-02f0f0d58a07">shell</Link>:
+    </Paragraph>
+    <FormalItem title="Shell">
+      <Verbatim>
+        <xi:include href="c-shell-example.txt"
+                    parse="text"/>
+      </Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Database" id="69880f7e-de25-4aba-b9a6-514edae29aea">
+    <Subsection title="Overview">
+      <Paragraph>
+        The <Term type="package">northpike</Term> package uses
+        <LinkExternal target="https://www.postgresql.org/">PostgreSQL</LinkExternal> for all persistent data.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Roles">
+      <Subsection title="Overview">
+        <Paragraph>
+          The <Term type="package">northpike</Term> package sets up multiple roles during database initialization. The
+          configured roles have different degrees of privileges in order to allow, for example, external systems such as
+          database metrics collectors read-only access to the database. All the defined rules are declared with
+          the built-in PostgreSQL restrictions such as <Term type="constant">nocreatedb</Term>,
+          <Term type="constant">nocreaterole</Term>, etc.
+        </Paragraph>
+        <Paragraph>
+          During the startup of the <Term type="package">northpike</Term> server, the server will connect to the
+          database using the <Link target="e6639080-328c-4695-a2a0-e155d0c39e0b">owner</Link> role and do any
+          database table initialization and/or schema upgrades necessary. The server will then disconnect from
+          the database, and then connect to the database again using the
+          <Link target="6c89b8de-d39c-4d32-8e1a-bb23e3c22601">worker</Link> role. The
+          worker role is then used for normal operation of the server; if this role is somehow compromised,
+          the role only has a limited ability to do any damage to the database, and cannot affect the
+          audit log at all.
+        </Paragraph>
+      </Subsection>
+      <Subsection title="Owner" id="e6639080-328c-4695-a2a0-e155d0c39e0b">
+        <Paragraph>
+          The <Term type="term">owner</Term> role is the role that owns the database and is permitted to create tables,
+          create new roles, etc. This role is used by the <Term type="package">northpike</Term> package when creating
+          the database during the first run of the server, and for upgrading database schemas later. Administrators
+          are free to pick the name of the role, although it is recommended that the role be named
+          <Term type="constant">northpike_install</Term> to make it clear as to the purpose of the role.
+        </Paragraph>
+        <Paragraph>
+          If the <LinkExternal target="https://hub.docker.com/_/postgres/">PostgreSQL OCI image</LinkExternal> is used,
+          it is common to have the image create this role automatically using the
+          <Term type="constant">POSTGRES_USER</Term> and <Term type="constant">POSTGRES_PASSWORD</Term> variables:
+        </Paragraph>
+        <FormalItem title="Example">
+          <Verbatim><![CDATA[
+$ podman run \
+  --name some-postgres \
+  -e POSTGRES_USER=northpike_install \
+  -e POSTGRES_PASSWORD=mysecretpassword \
+  -d postgres
+]]></Verbatim>
+        </FormalItem>
+      </Subsection>
+      <Subsection title="Worker" id="6c89b8de-d39c-4d32-8e1a-bb23e3c22601">
+        <Paragraph>
+          The <Term type="term">worker</Term> role is the role that is used for normal database operation. It is
+          a role that has read/write access to all tables (except for the audit log which is restricted to
+          being append-only), although it is not granted the ability to create new tables, drop tables, or do
+          other schema manipulation. The role is always named <Term type="constant">northpike</Term>, and adminstrators
+          are required to set a password for this role.
+        </Paragraph>
+      </Subsection>
+      <Subsection title="Reader" id="5d456422-0afa-4faf-9299-38669b5a3444">
+        <Paragraph>
+          The <Term type="term">reader</Term> role is a role that is permitted read-only access to some of the
+          database. It is effectively an optional role that can be used by various database metrics systems if
+          required. If a password is not specified for the role in the server's configuration file, then logging
+          in is not permitted at all.
+        </Paragraph>
+      </Subsection>
+    </Subsection>
+  </Subsection>
+
+  <Footnote id="6ea0d34a-dac7-4a03-bdb7-d8fd04b213d0">
+    If running under <Term type="package">podman</Term> or <Term type="package">docker</Term>, remember to use
+    the <Term type="parameter">-i</Term> and <Term type="parameter">-t</Term> options.
+  </Footnote>
+
+</Section>

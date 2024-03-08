@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Idstore xmlns="urn:com.io7m.northpike.server.configuration:1"
+         BaseURI="https://idstore.example.com:50000"
+         PasswordResetURI="https://idstore.example.com:50001/reset"/>

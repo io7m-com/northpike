@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         title="Server Configuration"
+         id="f1e0e558-035d-4f3c-b1a2-cf3a096044f3"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <Subsection title="Overview">
+    <Paragraph>
+      The <Term type="package">northpike</Term> server is configured using a single XML-formatted configuration file.
+      The format has a fully documented <Link target="bf9d263d-a279-41bd-bfdf-78f7c3fbf7a9">schema</Link> and so
+      configuration files can be independently validated, and benefit from autocompletion in most modern IDEs.
+    </Paragraph>
+
+    <Paragraph>
+      The configuration file must consist of a single top-level
+      <Term type="expression">Configuration</Term>
+      element in the <Term type="expression">urn:com.io7m.northpike.server.configuration:1</Term> namespace.
+      In modern IDEs, simply creating a file containing this element will immediately fill in all the other
+      required child elements.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Smallest Working Configuration">
+    <Paragraph>
+      The smallest working configuration file, assuming a database at
+      <Term type="expression">db.example.com</Term>
+      and an <Term type="package">idstore</Term> server at
+      <Term type="expression">idstore.example.com</Term>:
+    </Paragraph>
+    <FormalItem title="Example">
+      <Verbatim>
+        <xi:include href="config_smallest.xml"
+                    parse="text"/>
+      </Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="AgentService">
+    <Subsection title="Description">
+      <Paragraph>
+        The <Term type="expression">AgentService</Term> section of the configuration file configures the main
+        <Link target="41e87f9a-8d18-45cd-a40d-8f296328c94d">agent service</Link>.
+      </Paragraph>
+      <Paragraph>
+        The
+        <Term type="expression">ListenAddress</Term>
+        and <Term type="expression">ListenPort</Term> attributes specify the address and port to which to the
+        service will bind.
+      </Paragraph>
+      <Paragraph>
+        The
+        <Term type="expression">MaximumCommandSizeOctets</Term>
+        attribute specifies the maximum size in octets of commands that will be accepted by the service.
+      </Paragraph>
+      <Paragraph>
+        By convention, the agent service should listen on TCP port <Term type="constant">20048</Term>.
+      </Paragraph>
+      <Paragraph>
+        The <Term type="expression">AgentService</Term> element must contain either a
+        <Term type="expression">TLSEnabled</Term>
+        or <Term type="expression">TLSDisabled</Term> element specifying whether TLS should be enabled or disabled,
+        respectively. The
+        <Term type="expression">TLSEnabled</Term>
+        element describes the key store and trust store. The <Term type="package">northpike</Term> server automatically
+        reloads certificates periodically in order to work well in environments using the
+        <LinkExternal target="https://datatracker.ietf.org/doc/html/rfc8555">ACME</LinkExternal>
+        protocol to issue certificates.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Example">
+      <Paragraph>
+        An example service configuration:
+      </Paragraph>
+      <FormalItem title="Example">
+        <Verbatim>
+          <xi:include href="config_server-agent.xml"
+                      parse="text"/>
+        </Verbatim>
+      </FormalItem>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="ArchiveService">
+    <Subsection title="Description">
+      <Paragraph>
+        The <Term type="expression">ArchiveService</Term> section of the configuration file configures the main
+        <Link target="41e87f9a-8d18-45cd-a40d-8f296328c94d">archive service</Link>.
+      </Paragraph>
+      <Paragraph>
+        The
+        <Term type="expression">ListenAddress</Term>
+        and <Term type="expression">ListenPort</Term> attributes specify the address and port to which to the
+        service will bind.
+      </Paragraph>
+      <Paragraph>
+        The
+        <Term type="expression">AdvertiseURI</Term>
+        attribute specifies the URI that should be used by external agents to download archives from the service.
+      </Paragraph>
+      <Paragraph>
+        The
+        <Term type="expression">MaximumCommandSizeOctets</Term>
+        attribute specifies the maximum size in octets of commands that will be accepted by the service.
+      </Paragraph>
+      <Paragraph>
+        By convention, the archive service should listen on TCP port <Term type="constant">20049</Term>.
+      </Paragraph>
+      <Paragraph>
+        The <Term type="expression">ArchiveService</Term> element must contain either a
+        <Term type="expression">TLSEnabled</Term>
+        or <Term type="expression">TLSDisabled</Term> element specifying whether TLS should be enabled or disabled,
+        respectively. The
+        <Term type="expression">TLSEnabled</Term>
+        element describes the key store and trust store. The <Term type="package">northpike</Term> server automatically
+        reloads certificates periodically in order to work well in environments using the
+        <LinkExternal target="https://datatracker.ietf.org/doc/html/rfc8555">ACME</LinkExternal>
+        protocol to issue certificates.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Example">
+      <Paragraph>
+        An example service configuration:
+      </Paragraph>
+      <FormalItem title="Example">
+        <Verbatim>
+          <xi:include href="config_server-archive.xml"
+                      parse="text"/>
+        </Verbatim>
+      </FormalItem>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Database">
+    <Subsection title="Overview">
+      <Paragraph>
+        The <Term type="expression">Database</Term> section of the configuration file configures the database.
+      </Paragraph>
+      <Paragraph>
+        The <Term type="expression">OwnerRoleName</Term> attribute specifies the name of the role that
+        <Link target="e6639080-328c-4695-a2a0-e155d0c39e0b">owns the database</Link>. Conventionally, this should be
+        <Term type="constant">northpike_install</Term>, but can be set independently by the database administrator.
+      </Paragraph>
+      <Paragraph>
+        The <Term type="expression">OwnerRolePassword</Term> attribute specifies the password of the owner role.
+      </Paragraph>
+      <Paragraph>
+        The <Term type="expression">WorkerRolePassword</Term> attribute specifies the password of the
+        <Link target="6c89b8de-d39c-4d32-8e1a-bb23e3c22601">worker</Link>
+        role used for normal database operation.
+      </Paragraph>
+      <Paragraph>
+        The <Term type="expression">ReaderRolePassword</Term> attribute specifies the password of the
+        <Link target="5d456422-0afa-4faf-9299-38669b5a3444">reader</Link>
+        role used for read-only database access. If this attribute is not specified, logging in using this role will be
+        prevented.
+      </Paragraph>
+      <Paragraph>
+        The <Term type="expression">Name</Term> attribute specifies the database name.
+      </Paragraph>
+      <Paragraph>
+        The <Term type="expression">Create</Term> attribute specifies that the database schema should be created on
+        startup.
+      </Paragraph>
+      <Paragraph>
+        The <Term type="expression">Upgrade</Term> attribute specifies that the database schema should be upgraded on
+        startup.
+      </Paragraph>
+      <Paragraph>
+        The <Term type="expression">Language</Term> attribute specifies the language that will be used internally for
+        full-text searching.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Example">
+      <Paragraph>
+        An example database configuration:
+      </Paragraph>
+      <FormalItem title="Example">
+        <Verbatim><![CDATA[
+<Database Kind="POSTGRESQL"
+          OwnerRoleName="northpike_install"
+          OwnerRolePassword="mydatabase"
+          WorkerRolePassword="willquickly"
+          ReaderRolePassword="becompromised"
+          Address="db.example.com"
+          Port="5432"
+          Name="northpike"
+          Create="true"
+          Upgrade="true"
+          Language="english"/>
+]]></Verbatim>
+      </FormalItem>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Directories">
+    <Paragraph>
+      The <Term type="expression">Directories</Term> section of the configuration file configures the paths
+      that will be used to store volatile data that, for whatever reason, cannot be stored in the database.
+    </Paragraph>
+    <Paragraph>
+      The <Term type="expression">RepositoryDirectory</Term> attribute specifies the base directory that will
+      be used to store cloned <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">repositories</Link>.
+    </Paragraph>
+    <Paragraph>
+      The <Term type="expression">ArchiveDirectory</Term> attribute specifies the base directory that will
+      be used to store archives of <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">commits</Link> to be
+      downloaded by agents.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Idstore">
+    <Subsection title="Overview">
+      <Paragraph>
+        The <Term type="expression">Idstore</Term> section of the configuration file configures the external
+        <LinkExternal target="https://www.io7m.com/software/idstore">idstore</LinkExternal> server.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Description">
+      <Paragraph>
+        The <Term type="expression">BaseURI</Term> attribute specifies the base URI of the User API of the
+        external <Term type="package">idstore</Term> server. This server is used to authenticate users whenever
+        they try to log in to the <Term type="package">northpike</Term> server.
+      </Paragraph>
+      <Paragraph>
+        The <Term type="expression">PasswordResetURI</Term> attribute specifies the URI to which users should
+        be redirected if they want to reset their passwords. This is the URI of the User View service on the external
+        <Term type="package">idstore</Term> server.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Example">
+      <Paragraph>
+        An example service configuration:
+      </Paragraph>
+      <FormalItem title="Example">
+        <Verbatim>
+          <xi:include href="config_idstore.xml"
+                      parse="text"/>
+        </Verbatim>
+      </FormalItem>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Maintenance">
+    <Subsection title="Overview">
+      <Paragraph>
+        The <Term type="expression">Maintenance</Term> section of the configuration file configures the maintenance
+        service.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="TLSReloadInterval">
+      <Paragraph>
+        The <Term type="expression">TLSReloadInterval</Term> attribute specifies how frequently the server will reload
+        the TLS certificates for the HTTP services; the server will reload certificates every time this interval
+        elapses. The attribute must be
+        formatted as an
+        <LinkExternal target="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601 duration string</LinkExternal>.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="ArchiveMaximumAge">
+      <Paragraph>
+        The <Term type="expression">ArchiveMaximumAge</Term> attribute specifies how frequently the maximum duration
+        for which archives of commits will be stored; any archives older than this age will be deleted when the
+        maintenance service executes.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="AgentLoginRecordsMaximumAge">
+      <Paragraph>
+        The <Term type="expression">AgentLoginRecordsMaximumAge</Term> attribute specifies how long records of
+        agent login operations will be kept; any records that have existed for longer than this duration will be
+        deleted when the maintenance service executes.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="AssignmentExecutionsMaximumAge">
+      <Paragraph>
+        The <Term type="expression">AssignmentExecutionsMaximumAge</Term> attribute specifies how long records of
+        assignment executions will be kept; any execution records that have existed for longer than this duration
+        will be deleted when the maintenance service executes.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="AuditMaximumAge">
+      <Paragraph>
+        The <Term type="expression">AuditMaximumAge</Term> attribute specifies how long audit records will be kept;
+        any audit records that have existed for longer than this duration will be deleted when the maintenance service
+        executes.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Example">
+      <Paragraph>
+        An example maintenance configuration:
+      </Paragraph>
+      <FormalItem title="Example">
+        <Verbatim><![CDATA[
+<c:Maintenance ArchiveMaximumAge="PT24H"
+               AgentLoginRecordsMaximumAge="PT8760H"
+               AssignmentExecutionsMaximumAge="PT8760H"
+               AuditMaximumAge="PT8760H"/>
+]]></Verbatim>
+      </FormalItem>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="OpenTelemetry"
+              id="694ad99a-9977-47bf-ae12-85fb7e9a204e">
+    <Subsection title="Overview">
+      <Paragraph>
+        The <Term type="expression">OpenTelemetry</Term> section of the configuration file configures
+        <LinkExternal target="https://opentelemetry.io/">Open Telemetry</LinkExternal>. This section is optional and
+        telemetry is disabled if the section is not present.
+      </Paragraph>
+      <Paragraph>
+        The logical service name should be provided in the
+        <Term type="expression">LogicalServiceName</Term>
+        attribute.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Traces"
+                id="1e5d55f4-0334-4613-bd0c-8e307de47af7">
+      <Paragraph>
+        If the <Term type="expression">OpenTelemetry</Term> element contains a
+        <Term type="expression">Traces</Term>
+        element, OTLP
+        <LinkExternal target="https://opentelemetry.io/docs/concepts/signals/traces/">traces</LinkExternal>
+        will be sent to a specified endpoint. The <Term type="expression">Endpoint</Term> attribute specifies the
+        endpoint, and the <Term type="expression">Protocol</Term> attribute can either be <Term type="constant">GRPC
+      </Term> or <Term type="constant">HTTP</Term>.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Metrics">
+      <Paragraph>
+        If the <Term type="expression">OpenTelemetry</Term> element contains a
+        <Term type="expression">Metrics</Term>
+        element, OTLP
+        <LinkExternal target="https://opentelemetry.io/docs/concepts/signals/metrics/">metrics</LinkExternal>
+        will be sent to a specified endpoint. The <Term type="expression">Endpoint</Term> attribute specifies the
+        endpoint, and the <Term type="expression">Protocol</Term> attribute can either be <Term type="constant">GRPC
+      </Term> or <Term type="constant">HTTP</Term>.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Logs"
+                id="dea6eac7-9436-46aa-839a-a018ed497913">
+      <Paragraph>
+        If the <Term type="expression">OpenTelemetry</Term> element contains a
+        <Term type="expression">Logs</Term>
+        element, OTLP
+        <LinkExternal target="https://opentelemetry.io/docs/concepts/signals/logs/">logs</LinkExternal>
+        will be sent to a specified endpoint. The <Term type="expression">Endpoint</Term> attribute specifies the
+        endpoint, and the <Term type="expression">Protocol</Term> attribute can either be <Term type="constant">GRPC
+      </Term> or <Term type="constant">HTTP</Term>.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Example">
+      <Paragraph>
+        An example Open Telemetry configuration:
+      </Paragraph>
+      <FormalItem title="Example">
+        <Verbatim><![CDATA[
+<OpenTelemetry LogicalServiceName="idstore">
+  <Logs Endpoint="http://logs.example.com:4317"
+        Protocol="GRPC"/>
+  <Metrics Endpoint="http://metrics.example.com:4317"
+           Protocol="GRPC"/>
+  <Traces Endpoint="http://traces.example.com:4317"
+          Protocol="GRPC"/>
+</OpenTelemetry>
+]]></Verbatim>
+      </FormalItem>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="UserService">
+    <Subsection title="Description">
+      <Paragraph>
+        The <Term type="expression">UserService</Term> section of the configuration file configures the main
+        <Link target="c049f29c-03d6-4e67-8e55-2f5dfeea5dc5">user service</Link>.
+      </Paragraph>
+      <Paragraph>
+        The
+        <Term type="expression">ListenAddress</Term>
+        and <Term type="expression">ListenPort</Term> attributes specify the address and port to which to the
+        service will bind.
+      </Paragraph>
+      <Paragraph>
+        The
+        <Term type="expression">MaximumCommandSizeOctets</Term>
+        attribute specifies the maximum size in octets of commands that will be accepted by the service.
+      </Paragraph>
+      <Paragraph>
+        By convention, the agent service should listen on TCP port <Term type="constant">20048</Term>.
+      </Paragraph>
+      <Paragraph>
+        The <Term type="expression">UserService</Term> element must contain either a
+        <Term type="expression">TLSEnabled</Term>
+        or <Term type="expression">TLSDisabled</Term> element specifying whether TLS should be enabled or disabled,
+        respectively. The
+        <Term type="expression">TLSEnabled</Term>
+        element describes the key store and trust store. The <Term type="package">northpike</Term> server automatically
+        reloads certificates periodically in order to work well in environments using the
+        <LinkExternal target="https://datatracker.ietf.org/doc/html/rfc8555">ACME</LinkExternal>
+        protocol to issue certificates.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Example">
+      <Paragraph>
+        An example service configuration:
+      </Paragraph>
+      <FormalItem title="Example">
+        <Verbatim>
+          <xi:include href="config_server-user.xml"
+                      parse="text"/>
+        </Verbatim>
+      </FormalItem>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Schema"
+              id="bf9d263d-a279-41bd-bfdf-78f7c3fbf7a9">
+    <Paragraph>
+      The XSD schema for the configuration file is as follows:
+    </Paragraph>
+    <FormalItem title="Configuration Schema">
+      <Verbatim>
+        <xi:include href="com/io7m/northpike/server/configuration/server-configuration-1.xsd"
+                    parse="text"/>
+      </Verbatim>
+    </FormalItem>
+    <FormalItem title="TLS Schema">
+      <Verbatim>
+        <xi:include href="com/io7m/northpike/tls/tls-1.xsd"
+                    parse="text"/>
+      </Verbatim>
+    </FormalItem>
+  </Subsection>
+
+</Section>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section id="ee76b065-9857-469c-9aca-02f0f0d58a07"
+         title="User Shell"
+         xmlns="urn:com.io7m.structural:8:0"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <Section title="Usage">
+    <Subsection title="Overview">
+      <Paragraph>
+        In addition to the API access the server provides, the <Term type="package">cardant</Term> package includes
+        an interactive command-line shell for performing tasks.
+      </Paragraph>
+      <Paragraph>
+        The shell is started using the <Link target="dc0ae0e0-c6ba-4dec-9a28-bc66d0328b0f">shell</Link>
+        command. The shell supports basic tab-completion and history accessed with the up and down arrows.
+      </Paragraph>
+    </Subsection>
+  </Section>
+
+</Section>
