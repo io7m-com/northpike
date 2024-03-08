@@ -37,6 +37,7 @@ import com.io7m.quarrel.core.QStringType;
 import com.io7m.quarrel.ext.logback.QLogback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.nio.file.Path;
 import java.security.Security;
@@ -118,9 +119,15 @@ public final class NPACmdSetAdmin implements QCommandType
     final QCommandContextType context)
     throws Exception
   {
-    QLogback.configure(context);
+    System.setProperty("org.jooq.no-tips", "true");
+    System.setProperty("org.jooq.no-logo", "true");
+
+    SLF4JBridgeHandler.removeHandlersForRootLogger();
+    SLF4JBridgeHandler.install();
 
     Security.addProvider(new CMKeyStoreProvider());
+
+    QLogback.configure(context);
 
     final var configurationFile =
       context.parameterValue(CONFIGURATION_FILE);

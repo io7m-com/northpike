@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Section xmlns:xi="http://www.w3.org/2001/XInclude" id="fd17bf6f-746a-3790-b4cf-660173c53fe1" title="agent-label-delete" xmlns="urn:com.io7m.structural:8:0">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="command">agent-label-delete</Term>
+       - Delete agent labels.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The 
+      <Term type="command">agent-label-delete</Term>
+       command... 
+    </Paragraph>
+  </Subsection>
+  <xi:include href="scmd-agent-label-delete-parameters.xml"/>
+  <Subsection title="Examples">
+    <FormalItem title="Example" type="example">
+      <Verbatim>...</Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>
+

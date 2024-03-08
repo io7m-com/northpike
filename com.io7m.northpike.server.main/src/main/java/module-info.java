@@ -36,6 +36,7 @@ module com.io7m.northpike.server.main
   requires com.io7m.idstore.model;
   requires com.io7m.quarrel.core;
   requires com.io7m.quarrel.ext.logback;
+  requires jul.to.slf4j;
   requires org.slf4j;
 
   exports com.io7m.northpike.server.main;

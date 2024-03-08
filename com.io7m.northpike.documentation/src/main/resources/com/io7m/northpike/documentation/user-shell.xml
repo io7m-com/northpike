@@ -11,11 +11,169 @@
         In addition to the API access the server provides, the <Term type="package">northpike</Term> package includes
         an interactive command-line shell for performing tasks.
       </Paragraph>
+    </Subsection>
+
+    <Subsection title="Tab Completion">
       <Paragraph>
-        The shell is started using the <Link target="dc0ae0e0-c6ba-4dec-9a28-bc66d0328b0f">shell</Link>
-        command. The shell supports basic tab-completion and history accessed with the up and down arrows.
+        When running on an appropriate terminal, the shell supports tab completion for command and most
+        command arguments. Begin typing the name of a command, or the name of a command argument, and then
+        press tab. A set of completion options will be displayed.
+      </Paragraph>
+      <FormalItem title="Command Completion">
+        <Image source="term0.png" width="495" height="314">Command completion.</Image>
+      </FormalItem>
+      <FormalItem title="Argument Completion">
+        <Image source="term1.png" width="495" height="314">Argument completion.</Image>
+      </FormalItem>
+    </Subsection>
+
+    <Subsection title="History">
+      <Paragraph>
+        When running on an appropriate terminal, the command shell stores the history of commands in memory (the
+        history is not saved to disk, for security reasons). Press the up and down arrows to navigate to previously
+        executed commands.
       </Paragraph>
     </Subsection>
+
+    <Subsection title="Quoting">
+      <Paragraph>
+        Arguments to shell commands may be quoted using the <Term type="constant">"</Term> or
+        <Term type="constant">'</Term> characters. This is required when calling commands that take arguments
+        that may need to contain strings.
+      </Paragraph>
+      <FormalItem title="Strings">
+        <Image source="term2.png" width="495" height="314">Quoting.</Image>
+      </FormalItem>
+    </Subsection>
+
+    <Subsection title="Newlines">
+      <Paragraph>
+        Typically, the <Term type="expression">ENTER</Term> key ends the current line. This will cause the shell to
+        interpret the contents of a line as a command and execute it. Pressing <Term type="expression">ALT+ENTER</Term>
+        inserts an actual newline character without executing the command. This can be useful if an argument to a
+        command needs to contain a newline character:
+      </Paragraph>
+      <FormalItem title="Strings">
+        <Image source="term3.png" width="495" height="314">Multiline.</Image>
+      </FormalItem>
+      <Paragraph>
+        When in this mode, the cursor can be moved around freely with the arrow keys to allow for editing lines.
+        Pressing the <Term type="expression">ENTER</Term> key ends the multiline editing mode and executes the
+        command.
+      </Paragraph>
+    </Subsection>
+
+    <Subsection title="Formatter" id="0b517415-924e-4024-af06-c4a604593abd">
+      <Paragraph>
+        The shell provides different formatting options for tabular data.
+      </Paragraph>
+      <FormalItem title="Formatters">
+        <Table type="genericTable">
+          <Columns>
+            <Column>Name</Column>
+            <Column>Description</Column>
+          </Columns>
+          <Row>
+            <Cell>PRETTY</Cell>
+            <Cell>Provides pretty Unicode tables.</Cell>
+          </Row>
+          <Row>
+            <Cell>RAW</Cell>
+            <Cell>Provides raw tables.</Cell>
+          </Row>
+        </Table>
+      </FormalItem>
+      <Paragraph>
+        The formatter can be set using the <Link target="ebf203c1-a05b-3a42-86ca-682d1d88842f">set</Link> command.
+      </Paragraph>
+      <FormalItem title="Example">
+        <Verbatim><![CDATA[
+[northpike]$ set --formatter PRETTY
+[northpike]$ audit-search-begin
+Search results: Page 1 of 1
+┌────┬──────────────────────────────────────┬────────────────┬─────────────────────────────┬─────────────────────────────────────────────────────────────────────────┐
+│ ID │ Owner                                │ Type           │ Time                        │ Data                                                                    │
+├────┼──────────────────────────────────────┼────────────────┼─────────────────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ 1  │ c5574d46-7413-43c8-b6db-31001c382ca3 │ USER_LOGGED_IN │ 2023-12-21T11:30:11.171839Z │ {UserAgent=com.io7m.northpike.client/0.0.1-SNAPSHOT, Host=10.1.6.1:536} │
+└────┴──────────────────────────────────────┴────────────────┴─────────────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+[northpike]$ set --formatter RAW
+[northpike]$ audit-search-begin
+# Search results: Page 1 of 1
+#--------------------------------
+1 c5574d46-7413-43c8-b6db-31001c382ca3 USER_LOGGED_IN 2023-12-21T11:30:11.171839Z {UserAgent=com.io7m.northpike.client/0.0.1-SNAPSHOT, Host=10.1.6.1:536}
+]]>
+        </Verbatim>
+      </FormalItem>
+    </Subsection>
+  </Section>
+
+  <Section title="Shell Command Reference">
+    <xi:include href="scmd-agent-get.xml"/>
+    <xi:include href="scmd-agent-label-assign.xml"/>
+    <xi:include href="scmd-agent-label-delete.xml"/>
+    <xi:include href="scmd-agent-label-get.xml"/>
+    <xi:include href="scmd-agent-label-put.xml"/>
+    <xi:include href="scmd-agent-label-search-begin.xml"/>
+    <xi:include href="scmd-agent-label-search-next.xml"/>
+    <xi:include href="scmd-agent-label-search-previous.xml"/>
+    <xi:include href="scmd-agent-label-unassign.xml"/>
+    <xi:include href="scmd-agent-login-challenge-agent-create.xml"/>
+    <xi:include href="scmd-agent-login-challenge-delete.xml"/>
+    <xi:include href="scmd-agent-login-challenge-search-begin.xml"/>
+    <xi:include href="scmd-agent-login-challenge-search-next.xml"/>
+    <xi:include href="scmd-agent-login-challenge-search-previous.xml"/>
+    <xi:include href="scmd-agent-put.xml"/>
+    <xi:include href="scmd-agent-search-begin.xml"/>
+    <xi:include href="scmd-agent-search-next.xml"/>
+    <xi:include href="scmd-agent-search-previous.xml"/>
+    <xi:include href="scmd-agent-work-items.xml"/>
+    <xi:include href="scmd-agents-connected.xml"/>
+    <xi:include href="scmd-assignment-get.xml"/>
+    <xi:include href="scmd-assignment-put.xml"/>
+    <xi:include href="scmd-assignment-search-begin.xml"/>
+    <xi:include href="scmd-assignment-search-next.xml"/>
+    <xi:include href="scmd-assignment-search-previous.xml"/>
+    <xi:include href="scmd-audit-search-begin.xml"/>
+    <xi:include href="scmd-audit-search-next.xml"/>
+    <xi:include href="scmd-audit-search-previous.xml"/>
+    <xi:include href="scmd-help.xml"/>
+    <xi:include href="scmd-login.xml"/>
+    <xi:include href="scmd-logout.xml"/>
+    <xi:include href="scmd-plan-delete.xml"/>
+    <xi:include href="scmd-plan-get.xml"/>
+    <xi:include href="scmd-plan-put.xml"/>
+    <xi:include href="scmd-plan-search-begin.xml"/>
+    <xi:include href="scmd-plan-search-next.xml"/>
+    <xi:include href="scmd-plan-search-previous.xml"/>
+    <xi:include href="scmd-plan-validate.xml"/>
+    <xi:include href="scmd-public-key-delete.xml"/>
+    <xi:include href="scmd-public-key-get.xml"/>
+    <xi:include href="scmd-public-key-put.xml"/>
+    <xi:include href="scmd-public-key-search-begin.xml"/>
+    <xi:include href="scmd-public-key-search-next.xml"/>
+    <xi:include href="scmd-public-key-search-previous.xml"/>
+    <xi:include href="scmd-repository-get.xml"/>
+    <xi:include href="scmd-repository-public-key-assign.xml"/>
+    <xi:include href="scmd-repository-public-key-unassign.xml"/>
+    <xi:include href="scmd-repository-public-keys-assigned.xml"/>
+    <xi:include href="scmd-repository-put.xml"/>
+    <xi:include href="scmd-repository-search-begin.xml"/>
+    <xi:include href="scmd-repository-search-next.xml"/>
+    <xi:include href="scmd-repository-search-previous.xml"/>
+    <xi:include href="scmd-scm-providers-supported.xml"/>
+    <xi:include href="scmd-self.xml"/>
+    <xi:include href="scmd-set.xml"/>
+    <xi:include href="scmd-tool-execution-get.xml"/>
+    <xi:include href="scmd-tool-execution-put.xml"/>
+    <xi:include href="scmd-tool-execution-search-begin.xml"/>
+    <xi:include href="scmd-tool-execution-search-next.xml"/>
+    <xi:include href="scmd-tool-execution-search-previous.xml"/>
+    <xi:include href="scmd-tool-execution-validate.xml"/>
+    <xi:include href="scmd-user-search-begin.xml"/>
+    <xi:include href="scmd-user-search-next.xml"/>
+    <xi:include href="scmd-user-search-previous.xml"/>
+    <xi:include href="scmd-version.xml"/>
   </Section>
 
 </Section>

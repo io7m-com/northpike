@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Section xmlns:xi="http://www.w3.org/2001/XInclude" id="f56ca02a-1336-3f04-9532-9b80d9db1e53" title="agent-login-challenge-delete" xmlns="urn:com.io7m.structural:8:0">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="command">agent-login-challenge-delete</Term>
+       - Begin searching for agent login challenge records.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The 
+      <Term type="command">agent-login-challenge-delete</Term>
+       command... 
+    </Paragraph>
+  </Subsection>
+  <xi:include href="scmd-agent-login-challenge-delete-parameters.xml"/>
+  <Subsection title="Examples">
+    <FormalItem title="Example" type="example">
+      <Verbatim>...</Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>
+

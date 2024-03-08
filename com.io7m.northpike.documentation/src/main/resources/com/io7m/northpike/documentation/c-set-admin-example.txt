@@ -1,0 +1,4 @@
+$ northpike set-admin \
+  --user-id '92f83bce-3973-4db8-8aaf-d401443a9772' \
+  --user-name 'someone' \
+  --configuration server.xml

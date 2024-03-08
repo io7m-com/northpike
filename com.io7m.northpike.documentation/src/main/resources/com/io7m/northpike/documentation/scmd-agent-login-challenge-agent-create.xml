@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Section xmlns:xi="http://www.w3.org/2001/XInclude" id="ab09a729-d6d4-36d0-8051-fe68d55ec45a" title="agent-login-challenge-agent-create" xmlns="urn:com.io7m.structural:8:0">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="command">agent-login-challenge-agent-create</Term>
+       - Create an agent from a login challenge record.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The 
+      <Term type="command">agent-login-challenge-agent-create</Term>
+       command... 
+    </Paragraph>
+  </Subsection>
+  <xi:include href="scmd-agent-login-challenge-agent-create-parameters.xml"/>
+  <Subsection title="Examples">
+    <FormalItem title="Example" type="example">
+      <Verbatim>...</Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>
+

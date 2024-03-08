@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<Section xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="be5bac4b-8907-393e-9c99-e1d403ab1f76"
+         title="agent-label-assign"
+         xmlns="urn:com.io7m.structural:8:0">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="command">agent-label-assign</Term>
+      - Assign labels to an agent.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The
+      <Term type="command">agent-label-assign</Term>
+      command...
+    </Paragraph>
+  </Subsection>
+  <xi:include href="scmd-agent-label-assign-parameters.xml"/>
+  <Subsection title="Examples">
+    <FormalItem title="Example"
+                type="example">
+      <Verbatim>...</Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>
+

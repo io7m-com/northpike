@@ -117,9 +117,9 @@ northpike: usage: northpike [command] [arguments ...]
         of a user that will be considered to be the administrator of the <Term type="command">northpike</Term>
         server:
       </Paragraph>
-      <FormalItem title="Initialize">
+      <FormalItem title="set-admin">
         <Verbatim>
-          <xi:include href="c-initialize-example.txt"
+          <xi:include href="c-set-admin-example.txt"
                       parse="text"/>
         </Verbatim>
       </FormalItem>
@@ -131,11 +131,11 @@ northpike: usage: northpike [command] [arguments ...]
 
     <Subsection title="Running">
       <Paragraph>
-        The server can now be run with <Term type="command">northpike server</Term>:
+        The server can now be run with <Term type="command">northpike run</Term>:
       </Paragraph>
       <FormalItem title="Run">
         <Verbatim>
-          <xi:include href="c-server-example.txt"
+          <xi:include href="c-run-example.txt"
                       parse="text"/>
         </Verbatim>
       </FormalItem>
@@ -144,19 +144,6 @@ northpike: usage: northpike [command] [arguments ...]
         supervision.
       </Paragraph>
     </Subsection>
-  </Subsection>
-
-  <Subsection title="Running The Shell" id="dc0ae0e0-c6ba-4dec-9a28-bc66d0328b0f">
-    <Paragraph>
-      Run <Term type="expression">northpike shell</Term> <LinkFootnote target="6ea0d34a-dac7-4a03-bdb7-d8fd04b213d0"/>
-      to start the user <Link target="ee76b065-9857-469c-9aca-02f0f0d58a07">shell</Link>:
-    </Paragraph>
-    <FormalItem title="Shell">
-      <Verbatim>
-        <xi:include href="c-shell-example.txt"
-                    parse="text"/>
-      </Verbatim>
-    </FormalItem>
   </Subsection>
 
   <Subsection title="Database" id="69880f7e-de25-4aba-b9a6-514edae29aea">
@@ -228,10 +215,5 @@ $ podman run \
       </Subsection>
     </Subsection>
   </Subsection>
-
-  <Footnote id="6ea0d34a-dac7-4a03-bdb7-d8fd04b213d0">
-    If running under <Term type="package">podman</Term> or <Term type="package">docker</Term>, remember to use
-    the <Term type="parameter">-i</Term> and <Term type="parameter">-t</Term> options.
-  </Footnote>
 
 </Section>

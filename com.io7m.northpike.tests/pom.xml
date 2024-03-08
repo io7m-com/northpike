@@ -212,6 +212,10 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.quarrel</groupId>
+      <artifactId>com.io7m.quarrel.ext.xstructural</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.cedarbridge</groupId>
       <artifactId>com.io7m.cedarbridge.runtime.time</artifactId>
     </dependency>

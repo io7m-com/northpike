@@ -1,3 +1,0 @@
-$ northpike shell
-[northpike]# version
-com.io7m.northpike 0.0.1-SNAPSHOT 85ebd0079b150376c19204c22de08c76aa16064b

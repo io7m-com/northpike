@@ -157,7 +157,7 @@ public final class NPSchedulingService
 
   private void runSchedule()
   {
-    LOG.info("Scheduling task starting");
+    LOG.debug("Scheduling task starting");
 
     final var span =
       this.telemetry.tracer()

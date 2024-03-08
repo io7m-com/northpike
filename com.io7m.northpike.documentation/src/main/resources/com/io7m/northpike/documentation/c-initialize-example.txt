@@ -1,4 +1,0 @@
-$ northpike initialize \
-  --admin-id '92f83bce-3973-4db8-8aaf-d401443a9772' \
-  --admin-name 'someone' \
-  --configuration server.xml

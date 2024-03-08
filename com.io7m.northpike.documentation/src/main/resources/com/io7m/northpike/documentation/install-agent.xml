@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="11820a41-7dcd-41d0-acf0-ee5696fe4788"
+         title="Agent Installation">
+
+  <Subsection title="Overview">
+    <Paragraph>
+      The <Term type="package">northpike</Term> agent package is available from the following sources:
+    </Paragraph>
+    <FormalItem title="Sources">
+      <ListUnordered>
+        <Item>
+          <Link target="6d054a64-cbad-4525-9b2e-a998cf55ba26">Maven Central</Link>
+        </Item>
+        <Item>
+          <Link target="459da445-e973-4100-a163-5c3198773796">Quay.io</Link>
+        </Item>
+      </ListUnordered>
+    </FormalItem>
+  </Subsection>
+
+</Section>

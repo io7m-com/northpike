@@ -102,6 +102,10 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.quarrel</groupId>
       <artifactId>com.io7m.quarrel.core</artifactId>
     </dependency>
