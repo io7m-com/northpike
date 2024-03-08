@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         id="855f41ca-b954-31cb-a571-328d99e3b5ad"
+         title="environmentUnset">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="function">environmentUnset (String) → void</Term>
+    </Paragraph>
+    <Paragraph>
+      Unset an environment variable.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The <Term type="function">environmentUnset</Term> function instructs the agent to unset an environment
+      variable.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Example">
+    <FormalItem title="Example Code">
+      <Verbatim><![CDATA[
+execution.environmentUnset("DISPLAY");
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>

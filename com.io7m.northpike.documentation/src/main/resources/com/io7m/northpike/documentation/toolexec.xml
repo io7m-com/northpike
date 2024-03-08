@@ -2,10 +2,66 @@
 
 <Section xmlns="urn:com.io7m.structural:8:0"
          id="63fdd8ed-b53b-4d4e-b0b1-89ba8d52fbe8"
-         title="ToolExec Language">
+         title="ToolExec/JS">
 
-  <Paragraph>
-    The <Term type="term">toolexec</Term> language...
-  </Paragraph>
+  <Subsection title="Overview">
+    <Paragraph>
+      The <Term type="term">toolexec/js</Term> language is a
+      <LinkExternal target="https://en.wikipedia.org/wiki/JavaScript">JavaScript-based</LinkExternal>
+      domain-specific language for writing tool executions.
+    </Paragraph>
+    <Paragraph>
+      Any given <Term type="term">toolexec/js</Term> has two purposes:
+    </Paragraph>
+    <FormalItem title="Purpose">
+      <ListUnordered>
+        <Item>
+          Determine the command-line arguments that will be passed to the
+          executed <Link target="fc06253c-8194-4a04-8d65-7bc2de2e7ea9">tool</Link>.
+        </Item>
+        <Item>
+          Determine the environment variables that will be present when the
+          <Link target="fc06253c-8194-4a04-8d65-7bc2de2e7ea9">tool</Link>
+          is executed.
+        </Item>
+      </ListUnordered>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="API">
+    <Paragraph>
+      When a <Term type="term">toolexec/js</Term> program is executed, a global
+      <Term type="variable">execution</Term> variable is provided that exposes several functions used
+      to produce results and access <Link target="ee2248ae-b120-40ba-8ad7-96c82750d1b2">plan variables</Link>.
+    </Paragraph>
+    <Paragraph>
+      The provided functions are documented in the
+      <Link target="4a6d0387-29e2-465f-81a9-836b3c2c9c86">toolexec/js appendix</Link>.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Example">
+    <Paragraph>
+      The following is an example <Term type="term">toolexec/js</Term> program:
+    </Paragraph>
+    <FormalItem title="Example Program">
+      <Verbatim><![CDATA[
+execution.environmentUnset("DISPLAY");
+execution.environmentSet("EX0", "Value");
+
+execution.argumentAdd("-C");
+execution.argumentAdd("-e");
+execution.argumentAdd("-U");
+
+if (execution.valueOfVariableBoolean("com.io7m.northpike.scm.is-tagged")) {
+  execution.argumentAdd("-Drelease=true");
+}
+
+execution.argumentAdd("clean");
+execution.argumentAdd("deploy");
+execution.argumentAdd("site");
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
 
 </Section>

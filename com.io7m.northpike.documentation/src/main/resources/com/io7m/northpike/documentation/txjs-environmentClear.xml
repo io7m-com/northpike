@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         id="dfd98858-55c8-3870-bffd-0206016e27da"
+         title="environmentClear">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="function">environmentClear () → void</Term>
+    </Paragraph>
+    <Paragraph>
+      Clear all environment variables.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The <Term type="function">environmentClear</Term> function instructs the agent to clear all environment
+      variables.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Example">
+    <FormalItem title="Example Code">
+      <Verbatim><![CDATA[
+execution.environmentClear();
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>

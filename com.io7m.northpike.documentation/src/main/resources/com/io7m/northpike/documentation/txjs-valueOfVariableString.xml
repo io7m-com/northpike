@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         id="d42ab6d6-62da-329b-b448-6ed79e9152e8"
+         title="valueOfVariableString">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="function">valueOfVariableString (String) → String</Term>
+    </Paragraph>
+    <Paragraph>
+      Obtain the value of a plan variable.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The <Term type="function">valueOfVariableString</Term> function obtains the value of the
+      named, string-typed <Link target="ee2248ae-b120-40ba-8ad7-96c82750d1b2">plan variable</Link>.
+      The function raises an exception if the variable does not exist, or is not of a string type.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Example">
+    <FormalItem title="Example Code">
+      <Verbatim><![CDATA[
+execution.argumentAdd("--color");
+execution.argumentAdd(execution.valueOfVariableString("com.io7m.example.color"));
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>

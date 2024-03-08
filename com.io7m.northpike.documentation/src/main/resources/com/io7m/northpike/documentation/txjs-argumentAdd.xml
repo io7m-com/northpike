@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         id="3d69a414-9828-3132-99ed-ad905afefd94"
+         title="argumentAdd">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="function">argumentAdd (String) → void</Term>
+    </Paragraph>
+    <Paragraph>
+      Add an argument to the tool execution.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The <Term type="function">argumentAdd</Term> function adds a new argument to the output of the program.
+      When a program has been fully executed, the resulting argument list is the list of every parameter that
+      has been passed to an <Term type="function">argumentAdd</Term> call.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Example">
+    <FormalItem title="Example Code">
+      <Verbatim><![CDATA[
+execution.argumentAdd("-v");
+execution.argumentAdd("-c");
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         id="057c2246-d710-32d2-9eb8-8a60adadf135"
+         title="valueOfVariableBoolean">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="function">valueOfVariableBoolean (RDottedName) → boolean</Term>
+    </Paragraph>
+    <Paragraph>
+      Obtain the value of a plan variable.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The <Term type="function">valueOfVariableBoolean</Term> function obtains the value of the
+      named, boolean-typed <Link target="ee2248ae-b120-40ba-8ad7-96c82750d1b2">plan variable</Link>.
+      The function raises an exception if the variable does not exist, or is not of a boolean type.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Example">
+    <FormalItem title="Example Code">
+      <Verbatim><![CDATA[
+if (execution.valueOfVariableBoolean("com.io7m.northpike.scm.is-tagged")) {
+  execution.argumentAdd("-Drelease=true");
+}
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>

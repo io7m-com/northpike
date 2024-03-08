@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="4a6d0387-29e2-465f-81a9-836b3c2c9c86"
+         title="Appendix: Toolexec/JS API">
+
+  <xi:include href="txjs-argumentAdd.xml"/>
+  <xi:include href="txjs-environmentClear.xml"/>
+  <xi:include href="txjs-environmentSet.xml"/>
+  <xi:include href="txjs-environmentUnset.xml"/>
+  <xi:include href="txjs-valueOfVariableBoolean.xml"/>
+  <xi:include href="txjs-valueOfVariableInteger.xml"/>
+  <xi:include href="txjs-valueOfVariableString.xml"/>
+  <xi:include href="txjs-valueOfVariableStringSet.xml"/>
+</Section>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         id="642e76f4-be36-34da-98ec-87bc2a5954ba"
+         title="valueOfVariableStringSet">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="function">valueOfVariableStringSet (RDottedName) → String[]</Term>
+    </Paragraph>
+    <Paragraph>
+      Obtain the value of a plan variable.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The <Term type="function">valueOfVariableStringSet</Term> function obtains the value of the
+      named, string-set-typed <Link target="ee2248ae-b120-40ba-8ad7-96c82750d1b2">plan variable</Link>.
+      The function raises an exception if the variable does not exist, or is not of a string-set type.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Example">
+    <FormalItem title="Example Code">
+      <Verbatim><![CDATA[
+for (var x in execution.valueOfVariableStringSet("com.io7m.example.items")) {
+  execution.argumentAdd("--item");
+  execution.argumentAdd(x);
+}
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>
