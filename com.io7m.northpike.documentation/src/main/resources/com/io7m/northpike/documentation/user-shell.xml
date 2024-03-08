@@ -8,7 +8,7 @@
   <Section title="Usage">
     <Subsection title="Overview">
       <Paragraph>
-        In addition to the API access the server provides, the <Term type="package">cardant</Term> package includes
+        In addition to the API access the server provides, the <Term type="package">northpike</Term> package includes
         an interactive command-line shell for performing tasks.
       </Paragraph>
       <Paragraph>
