@@ -278,13 +278,6 @@
         will be deleted when the maintenance service executes.
       </Paragraph>
     </Subsection>
-    <Subsection title="AuditMaximumAge">
-      <Paragraph>
-        The <Term type="expression">AuditMaximumAge</Term> attribute specifies how long audit records will be kept;
-        any audit records that have existed for longer than this duration will be deleted when the maintenance service
-        executes.
-      </Paragraph>
-    </Subsection>
     <Subsection title="Example">
       <Paragraph>
         An example maintenance configuration:
@@ -293,8 +286,7 @@
         <Verbatim><![CDATA[
 <c:Maintenance ArchiveMaximumAge="PT24H"
                AgentLoginRecordsMaximumAge="PT8760H"
-               AssignmentExecutionsMaximumAge="PT8760H"
-               AuditMaximumAge="PT8760H"/>
+               AssignmentExecutionsMaximumAge="PT8760H"/>
 ]]></Verbatim>
       </FormalItem>
     </Subsection>

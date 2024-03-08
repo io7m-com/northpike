@@ -56,6 +56,7 @@ import java.util.stream.Collectors;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.security.NPSecRole.ADMINISTRATOR;
+import static com.io7m.northpike.model.security.NPSecRole.LOGIN;
 import static com.io7m.northpike.model.security.NPSecRole.allRoles;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -179,7 +180,50 @@ public final class NPDatabaseUsersTest
    */
 
   @Test
-  public void testUserAdminMaintenance()
+  public void testUserAdminMaintenance0()
+    throws Exception
+  {
+    final var get =
+      this.transaction.queries(NPDatabaseQueriesUsersType.GetType.class);
+    final var put =
+      this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
+    final var maintenance =
+      this.transaction.queries(NPDatabaseQueriesMaintenanceType.UpdateUserRolesType.class);
+
+    final var user =
+      new NPUser(
+        UUID.randomUUID(),
+        new IdName("x"),
+        new MSubject(Set.of(ADMINISTRATOR.role(), LOGIN.role()))
+      );
+
+    final var userWithAllRoles =
+      new NPUser(
+        user.userId(),
+        user.name(),
+        new MSubject(
+          allRoles()
+            .stream()
+            .map(NPSecRole::role)
+            .collect(Collectors.toUnmodifiableSet())
+        )
+      );
+
+    this.transaction.setOwner(new User(user.userId()));
+    put.execute(user);
+    maintenance.execute(NPDatabaseUnit.UNIT);
+
+    assertEquals(userWithAllRoles, get.execute(user.userId()).orElseThrow());
+  }
+
+  /**
+   * Maintenance will ignore users that do not have the LOGIN role.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testUserAdminMaintenance1()
     throws Exception
   {
     final var get =
@@ -196,24 +240,11 @@ public final class NPDatabaseUsersTest
         new MSubject(Set.of(ADMINISTRATOR.role()))
       );
 
-    final var userWithAllRoles =
-      new NPUser(
-        user.userId(),
-        user.name(),
-        new MSubject(
-          allRoles()
-            .stream()
-            .filter(r -> r != NPSecRole.LOGIN)
-            .map(NPSecRole::role)
-            .collect(Collectors.toUnmodifiableSet())
-        )
-      );
-
     this.transaction.setOwner(new User(user.userId()));
     put.execute(user);
     maintenance.execute(NPDatabaseUnit.UNIT);
 
-    assertEquals(userWithAllRoles, get.execute(user.userId()).orElseThrow());
+    assertEquals(user, get.execute(user.userId()).orElseThrow());
   }
 
   /**

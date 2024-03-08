@@ -522,17 +522,6 @@
         </xsd:annotation>
       </xsd:attribute>
 
-      <xsd:attribute name="AuditMaximumAge"
-                     type="xsd:duration"
-                     use="required">
-        <xsd:annotation>
-          <xsd:documentation>
-            The maximum age allowed for audit records. Audit records older than
-            the current time minus this duration will be deleted.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:attribute>
-
       <xsd:attribute name="AssignmentExecutionsMaximumAge"
                      type="xsd:duration"
                      use="required">

@@ -40,6 +40,7 @@ import com.io7m.northpike.user_client.api.NPUserClientException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
 import java.util.List;
@@ -89,9 +90,15 @@ public final class NPUserConnectionHandlers
         configuration.address();
 
       try {
+        final var socketAddressResolved =
+          new InetSocketAddress(
+            socketAddress.getHostName(),
+            socketAddress.getPort()
+          );
+
         socket.setTcpNoDelay(true);
         socket.setPerformancePreferences(1, 2, 0);
-        socket.connect(socketAddress, 10);
+        socket.connect(socketAddressResolved, 10);
         return negotiateVersion(configuration.configuration(), socket);
       } catch (final IOException | NPProtocolException e) {
         socket.close();

@@ -43,7 +43,6 @@
 
   <c:Maintenance ArchiveMaximumAge="PT24H"
                  AssignmentExecutionsMaximumAge="P14D"
-                 AuditMaximumAge="P365D"
                  AgentLoginRecordsMaximumAge="PT24H"/>
 
   <c:OpenTelemetry LogicalServiceName="northpike">

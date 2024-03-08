@@ -41,7 +41,9 @@ public final class NPDBQMaintenanceUpdateUserRoles
     LoggerFactory.getLogger(NPDBQMaintenanceUpdateUserRoles.class);
 
   private static final Service<NPDatabaseUnit, NPDatabaseUnit, UpdateUserRolesType> SERVICE =
-    new Service<>(UpdateUserRolesType.class, NPDBQMaintenanceUpdateUserRoles::new);
+    new Service<>(
+      UpdateUserRolesType.class,
+      NPDBQMaintenanceUpdateUserRoles::new);
 
   /**
    * Construct a query.
@@ -69,27 +71,33 @@ public final class NPDBQMaintenanceUpdateUserRoles
     final DSLContext context,
     final NPDatabaseUnit parameters)
   {
-    final var roleNamesWithoutLogin =
+    final var roleNamesWithLogin =
       NPSecRole.allRoles()
         .stream()
-        .filter(role -> role != NPSecRole.LOGIN)
         .map(NPSecRole::role)
         .map(MRoleName::value)
         .map(RDottedName::value)
         .toList();
 
-    final var rolesArray = new String[roleNamesWithoutLogin.size()];
-    roleNamesWithoutLogin.toArray(rolesArray);
+    final var rolesArrayWithLogin =
+      new String[roleNamesWithLogin.size()];
+    roleNamesWithLogin.toArray(rolesArrayWithLogin);
 
     final var adminRoleName =
       NPSecRole.ADMINISTRATOR.role().value().value();
     final var adminRoleNameA =
       new String[]{adminRoleName};
 
+    final var loginRoleName =
+      NPSecRole.LOGIN.role().value().value();
+    final var loginRoleNameA =
+      new String[]{loginRoleName};
+
     final var updated =
       context.update(USERS)
-        .set(USERS.U_ROLES, rolesArray)
-        .where(USERS.U_ROLES.contains(adminRoleNameA))
+        .set(USERS.U_ROLES, rolesArrayWithLogin)
+        .where(USERS.U_ROLES.contains(adminRoleNameA)
+                 .and(USERS.U_ROLES.contains(loginRoleNameA)))
         .execute();
 
     LOG.debug(

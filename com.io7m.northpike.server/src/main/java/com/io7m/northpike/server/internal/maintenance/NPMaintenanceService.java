@@ -22,7 +22,6 @@ import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.DeleteExpiredArchivesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.DeleteExpiredAssignmentExecutionsType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.DeleteExpiredAuditType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.DeleteExpiredLoginChallengesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.UpdateUserRolesType;
 import com.io7m.northpike.database.api.NPDatabaseRole;
@@ -252,12 +251,6 @@ public final class NPMaintenanceService
           }
 
           try {
-            this.deleteExpiredAudit(transaction);
-          } catch (final Exception e) {
-            span.recordException(e);
-          }
-
-          try {
             this.deleteExpiredAssignmentExecutions(transaction);
           } catch (final Exception e) {
             span.recordException(e);
@@ -320,28 +313,6 @@ public final class NPMaintenanceService
 
     transaction.commit();
     LOG.debug("Deleted {} old assignment execution records.", deleted);
-  }
-
-  private void deleteExpiredAudit(
-    final NPDatabaseTransactionType transaction)
-    throws NPDatabaseException
-  {
-    final var maximumAge =
-      this.configuration.configuration()
-        .maintenanceConfiguration()
-        .auditMaximumAge();
-
-    final var cutoffTime =
-      this.clock.now()
-        .minusSeconds(maximumAge.toSeconds());
-
-    final var deleted =
-      transaction.queries(DeleteExpiredAuditType.class)
-        .execute(cutoffTime);
-
-    transaction.commit();
-
-    LOG.debug("Deleted {} old audit records.", deleted);
   }
 
   private void deleteExpiredArchives(

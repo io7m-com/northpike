@@ -34,7 +34,6 @@ public final class NPSC1Maintenance
 {
   private Optional<Duration> tlsReloadDuration = Optional.empty();
   private Duration archiveMaximumAge;
-  private Duration auditMaximumAge;
   private Duration assignmentsMaximumAge;
   private Duration agentLoginRecordsMaximumAge;
 
@@ -61,8 +60,6 @@ public final class NPSC1Maintenance
 
     this.archiveMaximumAge =
       Duration.parse(attributes.getValue("ArchiveMaximumAge"));
-    this.auditMaximumAge =
-      Duration.parse(attributes.getValue("AuditMaximumAge"));
     this.assignmentsMaximumAge =
       Duration.parse(attributes.getValue("AssignmentExecutionsMaximumAge"));
     this.agentLoginRecordsMaximumAge =
@@ -76,7 +73,6 @@ public final class NPSC1Maintenance
     return new NPServerMaintenanceConfiguration(
       this.tlsReloadDuration,
       this.archiveMaximumAge,
-      this.auditMaximumAge,
       this.assignmentsMaximumAge,
       this.agentLoginRecordsMaximumAge
     );

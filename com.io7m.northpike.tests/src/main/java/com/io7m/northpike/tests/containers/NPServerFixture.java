@@ -153,7 +153,6 @@ public final class NPServerFixture
           empty(),
           Duration.ofDays(1L),
           Duration.ofDays(1L),
-          Duration.ofDays(1L),
           Duration.ofDays(1L)
         ),
         empty()
