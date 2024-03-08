@@ -3,21 +3,16 @@
   <Subsection title="Name">
     <Paragraph>
       <Term type="command">audit-search-begin</Term>
-       - Begin searching for audits.
+       - Begin searching for audit events.
     </Paragraph>
   </Subsection>
   <Subsection title="Description">
     <Paragraph>
       The 
       <Term type="command">audit-search-begin</Term>
-       command... 
+       command begins searching for audit events.
     </Paragraph>
   </Subsection>
   <xi:include href="scmd-audit-search-begin-parameters.xml"/>
-  <Subsection title="Examples">
-    <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
-    </FormalItem>
-  </Subsection>
 </Section>
 
