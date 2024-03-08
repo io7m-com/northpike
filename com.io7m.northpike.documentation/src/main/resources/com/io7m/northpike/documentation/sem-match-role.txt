@@ -1,0 +1,6 @@
+match_role_evaluate with-any-role s                 ⇒ true
+match_role_evaluate (with-roles-to t) s             ⇒ s = t
+match_role_evaluate (with-roles-not-equal-to t) s   ⇒ s ≠ t
+match_role_evaluate (with-roles-superset-of t) s    ⇒ s ⊆ t
+match_role_evaluate (with-roles-subset-of t) s      ⇒ s ⊇ t
+match_role_evaluate (with-roles-overlapping t) s    ⇒ ∃ e. e ∈ t ∧ e ∈ s

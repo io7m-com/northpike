@@ -245,6 +245,172 @@ Search results: Page 1 of 1
         </FormalItem>
       </Subsection>
 
+      <Subsection title="Role Matching" id="063dbe54-c02c-420c-95fd-b756ca123ea3">
+        <Paragraph>
+          A <Term type="term">role match expression</Term> is an expression used to filter search results. The
+          expression is evaluated using the object's set of roles as input and the object is included in search results
+          if the expression evaluates to <Term type="constant">true</Term>.
+        </Paragraph>
+        <Paragraph>
+          An expression takes one of the following forms:
+        </Paragraph>
+        <FormalItem title="Forms">
+          <ListUnordered>
+            <Item>
+              <Term type="expression">with-any-roles</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-roles-equal-to n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-roles-not-equal-to n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-roles-superset-of n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-roles-subset-of n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-roles-overlapping n)</Term>
+            </Item>
+          </ListUnordered>
+        </FormalItem>
+        <Paragraph>
+          Expressions have the following semantics, given in terms of a
+          <Term type="expression">match_role_evaluate</Term> function:
+        </Paragraph>
+        <FormalItem title="Semantics">
+          <Verbatim><xi:include href="sem-match-role.txt" parse="text"/></Verbatim>
+        </FormalItem>
+        <FormalItem title="Semantics Explanation">
+          <ListUnordered>
+            <Item>
+              An expression <Term type="expression">with-any-roles</Term> always evaluates to
+              <Term type="constant">true</Term>.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">s</Term>,
+              <Term type="expression">(with-roles-equal-to t) s</Term> evaluates to <Term type="constant">true</Term>
+              iff <Term type="constant">t = s</Term>. Note that sets are not ordered.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">s</Term>,
+              <Term type="expression">(with-roles-not-equal-to t) s</Term> evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">s ≠ t</Term>. Note that sets are not ordered.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">s</Term>,
+              <Term type="expression">(with-roles-subset-of t) s</Term> evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">s</Term> is a subset of <Term type="constant">t</Term>.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">s</Term>,
+              <Term type="expression">(with-roles-superset-of t) s</Term> evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">s</Term> is a superset of <Term type="constant">t</Term>.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">s</Term>,
+              <Term type="expression">(with-roles-overlapping t) s</Term> evaluates to
+              <Term type="constant">true</Term>
+              iff there exists some element
+              <Term type="constant">e</Term>
+              that is present in both
+              <Term type="constant">s</Term> and <Term type="constant">t</Term>.
+            </Item>
+          </ListUnordered>
+        </FormalItem>
+        <FormalItem title="Syntax">
+          <Verbatim><xi:include href="syn-match-role.txt" parse="text"/></Verbatim>
+        </FormalItem>
+      </Subsection>
+
+      <Subsection title="Label Matching" id="b77e4899-00ad-4cab-85e1-069b88a8987d">
+        <Paragraph>
+          A <Term type="term">label match expression</Term> is an expression used to filter search results. The
+          expression is evaluated using the object's set of labels as input and the object is included in search results
+          if the expression evaluates to <Term type="constant">true</Term>.
+        </Paragraph>
+        <Paragraph>
+          An expression takes one of the following forms:
+        </Paragraph>
+        <FormalItem title="Forms">
+          <ListUnordered>
+            <Item>
+              <Term type="expression">with-any-labels</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-labels-equal-to n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-labels-not-equal-to n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-labels-superset-of n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-labels-subset-of n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-labels-overlapping n)</Term>
+            </Item>
+          </ListUnordered>
+        </FormalItem>
+        <Paragraph>
+          Expressions have the following semantics, given in terms of a
+          <Term type="expression">match_label_evaluate</Term> function:
+        </Paragraph>
+        <FormalItem title="Semantics">
+          <Verbatim><xi:include href="sem-match-label.txt" parse="text"/></Verbatim>
+        </FormalItem>
+        <FormalItem title="Semantics Explanation">
+          <ListUnordered>
+            <Item>
+              An expression <Term type="expression">with-any-labels</Term> always evaluates to
+              <Term type="constant">true</Term>.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">s</Term>,
+              <Term type="expression">(with-labels-equal-to t) s</Term> evaluates to <Term type="constant">true</Term>
+              iff <Term type="constant">t = s</Term>. Note that sets are not ordered.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">s</Term>,
+              <Term type="expression">(with-labels-not-equal-to t) s</Term> evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">s ≠ t</Term>. Note that sets are not ordered.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">s</Term>,
+              <Term type="expression">(with-labels-subset-of t) s</Term> evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">s</Term> is a subset of <Term type="constant">t</Term>.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">s</Term>,
+              <Term type="expression">(with-labels-superset-of t) s</Term> evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">s</Term> is a superset of <Term type="constant">t</Term>.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">s</Term>,
+              <Term type="expression">(with-labels-overlapping t) s</Term> evaluates to
+              <Term type="constant">true</Term>
+              iff there exists some element
+              <Term type="constant">e</Term>
+              that is present in both
+              <Term type="constant">s</Term> and <Term type="constant">t</Term>.
+            </Item>
+          </ListUnordered>
+        </FormalItem>
+        <FormalItem title="Syntax">
+          <Verbatim><xi:include href="syn-match-label.txt" parse="text"/></Verbatim>
+        </FormalItem>
+      </Subsection>
+
       <Subsection title="Description Matching" id="18bd4daf-7b68-4f8f-88f8-4aaf00100c2b">
         <Paragraph>
           A <Term type="term">description match expression</Term> is an expression used to filter search results. The

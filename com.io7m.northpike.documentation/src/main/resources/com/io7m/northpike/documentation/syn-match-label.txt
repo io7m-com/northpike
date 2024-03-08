@@ -1,0 +1,8 @@
+match_label ::=
+    "with-any-label"
+  | "(" "with-labels-equal-to" <label-identifier> [<label-identifier>, ...] ")"
+  | "(" "with-labels-not-equal-to" <label-identifier> [<label-identifier>, ...] ")"
+  | "(" "with-labels-superset-of" <label-identifier> [<label-identifier>, ...] ")"
+  | "(" "with-labels-subset-of" <label-identifier> [<label-identifier>, ...] ")"
+  | "(" "with-labels-overlapping" <label-identifier> [<label-identifier>, ...] ")"
+  ;

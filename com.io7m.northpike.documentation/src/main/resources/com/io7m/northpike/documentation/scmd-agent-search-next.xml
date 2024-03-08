@@ -10,13 +10,12 @@
     <Paragraph>
       The 
       <Term type="command">agent-search-next</Term>
-       command... 
+       command goes to the next page of agents.
     </Paragraph>
-  </Subsection>
-  <Subsection title="Examples">
-    <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
-    </FormalItem>
+    <Paragraph>
+      The command can only be used after the associated <Link target="b65a9614-6af9-394d-a49d-c37613a361ab">begin</Link>
+      command.
+    </Paragraph>
   </Subsection>
 </Section>
 

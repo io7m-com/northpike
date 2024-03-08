@@ -10,13 +10,12 @@
     <Paragraph>
       The 
       <Term type="command">user-search-next</Term>
-       command... 
+       command goes to the next page of search results.
     </Paragraph>
-  </Subsection>
-  <Subsection title="Examples">
-    <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
-    </FormalItem>
+    <Paragraph>
+      The command can only be used after the associated <Link target="a31c85ad-54eb-3dab-9e90-44f29ae6a65e">begin</Link>
+      command.
+    </Paragraph>
   </Subsection>
 </Section>
 

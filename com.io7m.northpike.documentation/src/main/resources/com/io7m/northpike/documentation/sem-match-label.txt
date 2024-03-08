@@ -1,0 +1,6 @@
+match_label_evaluate with-any-label s                 ⇒ true
+match_label_evaluate (with-labels-to t) s             ⇒ s = t
+match_label_evaluate (with-labels-not-equal-to t) s   ⇒ s ≠ t
+match_label_evaluate (with-labels-superset-of t) s    ⇒ s ⊆ t
+match_label_evaluate (with-labels-subset-of t) s      ⇒ s ⊇ t
+match_label_evaluate (with-labels-overlapping t) s    ⇒ ∃ e. e ∈ t ∧ e ∈ s

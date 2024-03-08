@@ -1,0 +1,8 @@
+match_role ::=
+    "with-any-role"
+  | "(" "with-roles-equal-to" <role-identifier> [<role-identifier>, ...] ")"
+  | "(" "with-roles-not-equal-to" <role-identifier> [<role-identifier>, ...] ")"
+  | "(" "with-roles-superset-of" <role-identifier> [<role-identifier>, ...] ")"
+  | "(" "with-roles-subset-of" <role-identifier> [<role-identifier>, ...] ")"
+  | "(" "with-roles-overlapping" <role-identifier> [<role-identifier>, ...] ")"
+  ;

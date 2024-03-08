@@ -3,7 +3,7 @@
   <Subsection title="Name">
     <Paragraph>
       <Term type="command">agent-label-get</Term>
-       - Retrieve a agent label.
+       - Retrieve an agent label.
     </Paragraph>
   </Subsection>
   <Subsection title="Description">

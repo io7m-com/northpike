@@ -10,14 +10,15 @@
     <Paragraph>
       The 
       <Term type="command">user-search-begin</Term>
-       command... 
+       command starts searching for users.
+    </Paragraph>
+    <Paragraph>
+      Labels can be filtered based on matching their names against a given
+      <Link target="733cf6a3-dedc-4a3c-ae1c-b8301066ece3">name match</Link> expression, and their
+      roles against a given
+      <Link target="063dbe54-c02c-420c-95fd-b756ca123ea3">role match</Link> expression.
     </Paragraph>
   </Subsection>
   <xi:include href="scmd-user-search-begin-parameters.xml"/>
-  <Subsection title="Examples">
-    <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
-    </FormalItem>
-  </Subsection>
 </Section>
 

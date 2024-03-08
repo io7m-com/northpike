@@ -10,14 +10,13 @@
     <Paragraph>
       The 
       <Term type="command">agent-search-begin</Term>
-       command... 
+       command begins searching for agents.
+    </Paragraph>
+    <Paragraph>
+      Labels can be filtered based on matching their labels against a given
+      <Link target="b77e4899-00ad-4cab-85e1-069b88a8987d">label match</Link> expression.
     </Paragraph>
   </Subsection>
   <xi:include href="scmd-agent-search-begin-parameters.xml"/>
-  <Subsection title="Examples">
-    <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
-    </FormalItem>
-  </Subsection>
 </Section>
 
