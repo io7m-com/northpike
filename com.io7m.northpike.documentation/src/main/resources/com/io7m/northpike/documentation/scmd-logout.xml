@@ -10,12 +10,14 @@
     <Paragraph>
       The 
       <Term type="command">logout</Term>
-       command... 
+       command logs out from the server.
     </Paragraph>
   </Subsection>
   <Subsection title="Examples">
     <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
+      <Verbatim><![CDATA[
+[northpike]$ logout
+]]></Verbatim>
     </FormalItem>
   </Subsection>
 </Section>

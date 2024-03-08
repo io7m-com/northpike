@@ -1,0 +1,5 @@
+match_name_evaluate with-any-name n                 ⇒ true
+match_name_evaluate (with-name-equal-to m) n        ⇒ n = m
+match_name_evaluate (with-name-not-equal-to m) n    ⇒ n ≠ m
+match_name_evaluate (with-name-similar-to m) n      ⇒ n ≃ m
+match_name_evaluate (with-name-not-similar-to m) n  ⇒ not (n ≃ m)

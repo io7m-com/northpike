@@ -10,13 +10,15 @@
     <Paragraph>
       The 
       <Term type="command">agent-put</Term>
-       command... 
+       command creates or updates agents.
     </Paragraph>
   </Subsection>
   <xi:include href="scmd-agent-put-parameters.xml"/>
   <Subsection title="Examples">
     <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
+      <Verbatim><![CDATA[
+
+]]></Verbatim>
     </FormalItem>
   </Subsection>
 </Section>

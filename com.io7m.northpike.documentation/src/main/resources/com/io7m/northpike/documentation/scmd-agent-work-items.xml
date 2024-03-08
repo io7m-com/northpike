@@ -10,12 +10,16 @@
     <Paragraph>
       The 
       <Term type="command">agent-work-items</Term>
-       command... 
+       command lists the work items that are currently executing
+       on agents.
     </Paragraph>
   </Subsection>
   <Subsection title="Examples">
     <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
+      <Verbatim><![CDATA[
+[northpike]$ agent-work-items
+]]>
+</Verbatim>
     </FormalItem>
   </Subsection>
 </Section>

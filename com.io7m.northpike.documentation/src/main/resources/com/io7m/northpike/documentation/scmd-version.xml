@@ -10,12 +10,15 @@
     <Paragraph>
       The 
       <Term type="command">version</Term>
-       command... 
+       command displays the shell version.
     </Paragraph>
   </Subsection>
   <Subsection title="Examples">
     <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
+      <Verbatim><![CDATA[
+[northpike]$ version
+com.io7m.northpike 0.0.2-SNAPSHOT 2d4f230366ef953270178ae7a91d1f91e8039af6
+]]></Verbatim>
     </FormalItem>
   </Subsection>
 </Section>

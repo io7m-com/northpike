@@ -10,13 +10,15 @@
     <Paragraph>
       The 
       <Term type="command">agent-label-delete</Term>
-       command... 
+       command delete labels.
     </Paragraph>
   </Subsection>
   <xi:include href="scmd-agent-label-delete-parameters.xml"/>
   <Subsection title="Examples">
     <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
+      <Verbatim><![CDATA[
+[northpike]$ agent-label-delete --name os.linux --name os.windows
+]]></Verbatim>
     </FormalItem>
   </Subsection>
 </Section>

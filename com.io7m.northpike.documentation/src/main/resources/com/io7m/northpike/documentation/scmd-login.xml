@@ -10,13 +10,15 @@
     <Paragraph>
       The 
       <Term type="command">login</Term>
-       command... 
+       command logs in to the server.
     </Paragraph>
   </Subsection>
   <xi:include href="scmd-login-parameters.xml"/>
   <Subsection title="Examples">
     <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
+      <Verbatim><![CDATA[
+[northpike]$ login --user someone --password 2d4f230366ef953270178ae7a91d1f91e8039af6 --server northpike.example.com --port 20050
+]]></Verbatim>
     </FormalItem>
   </Subsection>
 </Section>

@@ -1,0 +1,7 @@
+match_name ::=
+    "with-any-name"
+  | "(" "with-name-equal-to" <name> ")"
+  | "(" "with-name-not-equal-to" <name> ")"
+  | "(" "with-name-similar-to" <string> ")"
+  | "(" "with-name-not-similar-to" <string> ")"
+  ;

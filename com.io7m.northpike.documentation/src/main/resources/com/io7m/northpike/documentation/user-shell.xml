@@ -8,62 +8,75 @@
   <Section title="Usage">
     <Subsection title="Overview">
       <Paragraph>
-        In addition to the API access the server provides, the <Term type="package">northpike</Term> package includes
-        an interactive command-line shell for performing tasks.
+        In addition to the API access the server provides, the <Term type="package">northpike</Term> package includes an
+        interactive command-line shell for performing tasks.
       </Paragraph>
     </Subsection>
 
     <Subsection title="Tab Completion">
       <Paragraph>
-        When running on an appropriate terminal, the shell supports tab completion for command and most
-        command arguments. Begin typing the name of a command, or the name of a command argument, and then
-        press tab. A set of completion options will be displayed.
+        When running on an appropriate terminal, the shell supports tab completion for command and most command
+        arguments. Begin typing the name of a command, or the name of a command argument, and then press tab. A set of
+        completion options will be displayed.
       </Paragraph>
       <FormalItem title="Command Completion">
-        <Image source="term0.png" width="495" height="314">Command completion.</Image>
+        <Image source="term0.png"
+               width="495"
+               height="314">Command completion.
+        </Image>
       </FormalItem>
       <FormalItem title="Argument Completion">
-        <Image source="term1.png" width="495" height="314">Argument completion.</Image>
+        <Image source="term1.png"
+               width="495"
+               height="314">Argument completion.
+        </Image>
       </FormalItem>
     </Subsection>
 
     <Subsection title="History">
       <Paragraph>
-        When running on an appropriate terminal, the command shell stores the history of commands in memory (the
-        history is not saved to disk, for security reasons). Press the up and down arrows to navigate to previously
-        executed commands.
+        When running on an appropriate terminal, the command shell stores the history of commands in memory (the history
+        is not saved to disk, for security reasons). Press the up and down arrows to navigate to previously executed
+        commands.
       </Paragraph>
     </Subsection>
 
     <Subsection title="Quoting">
       <Paragraph>
         Arguments to shell commands may be quoted using the <Term type="constant">"</Term> or
-        <Term type="constant">'</Term> characters. This is required when calling commands that take arguments
-        that may need to contain strings.
+        <Term type="constant">'</Term>
+        characters. This is required when calling commands that take arguments that may need to contain strings.
       </Paragraph>
       <FormalItem title="Strings">
-        <Image source="term2.png" width="495" height="314">Quoting.</Image>
+        <Image source="term2.png"
+               width="495"
+               height="314">Quoting.
+        </Image>
       </FormalItem>
     </Subsection>
 
     <Subsection title="Newlines">
       <Paragraph>
         Typically, the <Term type="expression">ENTER</Term> key ends the current line. This will cause the shell to
-        interpret the contents of a line as a command and execute it. Pressing <Term type="expression">ALT+ENTER</Term>
+        interpret the contents of a line as a command and execute it. Pressing
+        <Term type="expression">ALT+ENTER</Term>
         inserts an actual newline character without executing the command. This can be useful if an argument to a
         command needs to contain a newline character:
       </Paragraph>
       <FormalItem title="Strings">
-        <Image source="term3.png" width="495" height="314">Multiline.</Image>
+        <Image source="term3.png"
+               width="495"
+               height="314">Multiline.
+        </Image>
       </FormalItem>
       <Paragraph>
         When in this mode, the cursor can be moved around freely with the arrow keys to allow for editing lines.
-        Pressing the <Term type="expression">ENTER</Term> key ends the multiline editing mode and executes the
-        command.
+        Pressing the <Term type="expression">ENTER</Term> key ends the multiline editing mode and executes the command.
       </Paragraph>
     </Subsection>
 
-    <Subsection title="Formatter" id="0b517415-924e-4024-af06-c4a604593abd">
+    <Subsection title="Formatter"
+                id="0b517415-924e-4024-af06-c4a604593abd">
       <Paragraph>
         The shell provides different formatting options for tabular data.
       </Paragraph>
@@ -105,6 +118,213 @@ Search results: Page 1 of 1
 ]]>
         </Verbatim>
       </FormalItem>
+    </Subsection>
+
+    <Subsection title="Searching">
+      <Subsection title="Description"
+                  id="a14610db-3fbe-46b2-91a6-23d861f8d454">
+        <Paragraph>
+          The <Term type="package">cardant</Term> package exposes many commands for searching the database.
+        </Paragraph>
+        <Paragraph>
+          All <Term type="term">search</Term> commands in the <Term type="package">cardant</Term> package provide
+          automatic <Term type="term">pagination</Term>. Searches are performed by beginning a search with a
+          <Term type="term">begin</Term>
+          command which will yield the first page of results. Searches are then continued with
+          <Term type="term">next</Term>
+          and <Term type="term">previous</Term> commands which will return the next and previous pages of results,
+          respectively. It is an error to try to execute a
+          <Term type="term">next</Term>
+          or <Term type="term">previous</Term> command without first having executed a
+          <Term type="term">begin</Term> command.
+        </Paragraph>
+        <Paragraph>
+          Each page of search results includes the number of the current page, and the number of pages of search results
+          available. Attempting to seek beyond the end of the set of pages with a
+          <Term type="term">next</Term>
+          command is not an error; the server will simply repeatedly return the last page in the set. Similarly,
+          attempting to seek before the first page of results with a <Term type="term">previous</Term> command will
+          simply return the first page of results, repeatedly.
+        </Paragraph>
+        <Paragraph>
+          The search commands typically accept different
+          <Term type="term">filtering expressions</Term>
+          to allow for very rich search capabilities. The syntactic forms of all the different expression types are
+          listed in the following sections of the documentation.
+        </Paragraph>
+      </Subsection>
+
+      <Subsection title="Name Matching"
+                  id="733cf6a3-dedc-4a3c-ae1c-b8301066ece3">
+        <Paragraph>
+          A <Term type="term">name match expression</Term> is an expression used to filter search results. The
+          expression is evaluated using the object's name as input and the object is included in search results if the
+          expression evaluates to <Term type="constant">true</Term>.
+        </Paragraph>
+        <Paragraph>
+          An expression takes one of the following forms:
+        </Paragraph>
+        <FormalItem title="Forms">
+          <ListUnordered>
+            <Item>
+              <Term type="expression">with-any-name</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-name-equal-to n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-name-not-equal-to n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-name-similar-to n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-name-not-similar-to n)</Term>
+            </Item>
+          </ListUnordered>
+        </FormalItem>
+        <Paragraph>
+          Expressions have the following semantics, given in terms of a
+          <Term type="expression">match_name_evaluate</Term>
+          function:
+        </Paragraph>
+        <FormalItem title="Semantics">
+          <Verbatim>
+            <xi:include href="sem-match-name.txt"
+                        parse="text"/>
+          </Verbatim>
+        </FormalItem>
+        <FormalItem title="Semantics Explanation">
+          <ListUnordered>
+            <Item>
+              An expression <Term type="expression">with-any-name</Term> always evaluates to
+              <Term type="constant">true</Term>.
+            </Item>
+            <Item>
+              For all names <Term type="expression">m</Term>,
+              <Term type="expression">(with-name-equal-to n) m</Term>
+              evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">m = n</Term>.
+            </Item>
+            <Item>
+              For all names <Term type="expression">m</Term>,
+              <Term type="expression">(with-name-not-equal-to n) m</Term>
+              evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">m ≠ n</Term>.
+            </Item>
+            <Item>
+              For all names <Term type="expression">m</Term>,
+              <Term type="expression">(with-name-similar-to n) m</Term>
+              evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">m</Term> is sufficiently similar to <Term type="constant">n</Term> according to
+              an implementation-defined, language-specific similarity function.
+            </Item>
+            <Item>
+              For all names <Term type="expression">m</Term>,
+              <Term type="expression">(with-name-not-similar-to n) m</Term>
+              evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">m</Term> is not sufficiently similar to <Term type="constant">n</Term> according
+              to an implementation-defined, language-specific similarity function.
+            </Item>
+          </ListUnordered>
+        </FormalItem>
+        <Paragraph>
+          Specifically, the "similarity" function is currently implemented in terms of
+          <LinkExternal target="https://www.postgresql.org/docs/current/textsearch-intro.html#TEXTSEARCH-MATCHING">
+            PostgreSQL's full text search functionality</LinkExternal>.
+        </Paragraph>
+        <FormalItem title="Syntax">
+          <Verbatim>
+            <xi:include href="syn-match-name.txt"
+                        parse="text"/>
+          </Verbatim>
+        </FormalItem>
+      </Subsection>
+
+      <Subsection title="Description Matching" id="18bd4daf-7b68-4f8f-88f8-4aaf00100c2b">
+        <Paragraph>
+          A <Term type="term">description match expression</Term> is an expression used to filter search results. The
+          expression is evaluated using the object's description as input and the object is included in search results
+          if the expression evaluates to <Term type="constant">true</Term>.
+        </Paragraph>
+        <Paragraph>
+          An expression takes one of the following forms:
+        </Paragraph>
+        <FormalItem title="Forms">
+          <ListUnordered>
+            <Item>
+              <Term type="expression">with-any-description</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-description-equal-to n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-description-not-equal-to n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-description-similar-to n)</Term>
+            </Item>
+            <Item>
+              <Term type="expression">(with-description-not-similar-to n)</Term>
+            </Item>
+          </ListUnordered>
+        </FormalItem>
+        <Paragraph>
+          Expressions have the following semantics, given in terms of a
+          <Term type="expression">match_description_evaluate</Term>
+          function:
+        </Paragraph>
+        <FormalItem title="Semantics">
+          <Verbatim><xi:include href="sem-match-description.txt" parse="text"/></Verbatim>
+        </FormalItem>
+        <FormalItem title="Semantics Explanation">
+          <ListUnordered>
+            <Item>
+              An expression <Term type="expression">with-any-description</Term> always evaluates to
+              <Term type="constant">true</Term>.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">m</Term>,
+              <Term type="expression">(with-description-equal-to n) m</Term> evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">m = n</Term>.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">m</Term>,
+              <Term type="expression">(with-description-not-equal-to n) m</Term> evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">m ≠ n</Term>.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">m</Term>,
+              <Term type="expression">(with-description-similar-to n) m</Term> evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">m</Term> is sufficiently similar to <Term type="constant">n</Term> according
+              to an implementation-defined, language-specific similarity function.
+            </Item>
+            <Item>
+              For all descriptions <Term type="expression">m</Term>,
+              <Term type="expression">(with-description-not-similar-to n) m</Term> evaluates to
+              <Term type="constant">true</Term>
+              iff <Term type="constant">m</Term> is not sufficiently similar to <Term type="constant">n</Term> according
+              to an implementation-defined, language-specific similarity function.
+            </Item>
+          </ListUnordered>
+        </FormalItem>
+        <Paragraph>
+          Specifically, the "similarity" function is currently implemented in terms of
+          <LinkExternal target="https://www.postgresql.org/docs/current/textsearch-intro.html#TEXTSEARCH-MATCHING">
+            PostgreSQL's full text search functionality
+          </LinkExternal>.
+        </Paragraph>
+        <FormalItem title="Syntax">
+          <Verbatim><xi:include href="syn-match-description.txt" parse="text"/></Verbatim>
+        </FormalItem>
+      </Subsection>
     </Subsection>
   </Section>
 

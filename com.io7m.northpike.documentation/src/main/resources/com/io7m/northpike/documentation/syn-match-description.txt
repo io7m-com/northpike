@@ -1,0 +1,7 @@
+match_description ::=
+    "with-any-description"
+  | "(" "with-description-equal-to" <description> ")"
+  | "(" "with-description-not-equal-to" <description> ")"
+  | "(" "with-description-similar-to" <string> ")"
+  | "(" "with-description-not-similar-to" <string> ")"
+  ;

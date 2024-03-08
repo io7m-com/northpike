@@ -10,13 +10,12 @@
     <Paragraph>
       The 
       <Term type="command">agent-label-search-next</Term>
-       command... 
+       command goes to the next page of labels.
     </Paragraph>
-  </Subsection>
-  <Subsection title="Examples">
-    <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
-    </FormalItem>
+    <Paragraph>
+      The command can only be used after the associated <Link target="6584f675-7ada-3beb-bc9d-9079c7be59c6">begin</Link>
+      command.
+    </Paragraph>
   </Subsection>
 </Section>
 

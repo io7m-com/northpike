@@ -14,14 +14,16 @@
     <Paragraph>
       The
       <Term type="command">agent-label-assign</Term>
-      command...
+      command assigns labels to agents.
     </Paragraph>
   </Subsection>
   <xi:include href="scmd-agent-label-assign-parameters.xml"/>
   <Subsection title="Examples">
     <FormalItem title="Example"
                 type="example">
-      <Verbatim>...</Verbatim>
+      <Verbatim><![CDATA[
+[northpike]$ agent-label-assign --agent f449a329-cc5b-47e7-b8db-110ba4396fd9 --label os.linux
+]]></Verbatim>
     </FormalItem>
   </Subsection>
 </Section>

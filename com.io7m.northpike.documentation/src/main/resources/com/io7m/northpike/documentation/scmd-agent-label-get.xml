@@ -10,13 +10,20 @@
     <Paragraph>
       The 
       <Term type="command">agent-label-get</Term>
-       command... 
+       command retrieves an agent label definition.
     </Paragraph>
   </Subsection>
   <xi:include href="scmd-agent-label-get-parameters.xml"/>
   <Subsection title="Examples">
     <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
+      <Verbatim><![CDATA[
+[northpike]$ agent-label-get --name os.linux
+┌───────────────────────────────────────────────┬─────────────────────────────┐
+│ Name                                          │ Description                 │
+├───────────────────────────────────────────────┼─────────────────────────────┤
+│ os.linux                                      │ The agent is running Linux. │
+└───────────────────────────────────────────────┴─────────────────────────────┘
+]]></Verbatim>
     </FormalItem>
   </Subsection>
 </Section>

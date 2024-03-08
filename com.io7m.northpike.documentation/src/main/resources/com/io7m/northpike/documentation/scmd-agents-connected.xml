@@ -10,12 +10,21 @@
     <Paragraph>
       The 
       <Term type="command">agents-connected</Term>
-       command... 
+       command lists the connected agents.
     </Paragraph>
   </Subsection>
   <Subsection title="Examples">
     <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
+      <Verbatim><![CDATA[
+[northpike]$ agents-connected
+┌───────────────────────────────────────────┐
+│ ID                                        │
+├───────────────────────────────────────────┤
+│ 933a9576-3e30-448d-b827-fbc6c3c78c29      │
+├───────────────────────────────────────────┤
+│ bd454889-da67-4ed0-bc9b-b2b26796b5bc      │
+└───────────────────────────────────────────┘
+]]></Verbatim>
     </FormalItem>
   </Subsection>
 </Section>

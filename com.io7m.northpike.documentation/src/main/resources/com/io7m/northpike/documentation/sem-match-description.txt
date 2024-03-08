@@ -1,0 +1,5 @@
+match_description_evaluate with-any-description n                 ⇒ true
+match_description_evaluate (with-description-equal-to m) n        ⇒ n = m
+match_description_evaluate (with-description-not-equal-to m) n    ⇒ n ≠ m
+match_description_evaluate (with-description-similar-to m) n      ⇒ n ≃ m
+match_description_evaluate (with-description-not-similar-to m) n  ⇒ not (n ≃ m)
