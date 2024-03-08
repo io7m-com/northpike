@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<c:Configuration xmlns:c="urn:com.io7m.northpike.agent.configuration:1"
+                 xmlns:t="urn:com.io7m.northpike.tls:1">
+
+  <c:Console Address="localhost"
+             Port="20051"
+             AccessKey="99190121e71101c573f267056a28b17c7cc4c21167ebd22e0af5578b8178803d"/>
+
+  <c:Database Kind="SQLITE"
+              File="/var/northpike-agent/database.db"
+              Create="true"
+              Upgrade="true"/>
+
+  <c:OpenTelemetry LogicalServiceName="northpike-agent">
+    <c:Logs Endpoint="http://logs.example.com:4317"
+            Protocol="GRPC"/>
+    <c:Metrics Endpoint="http://metrics.example.com:4317"
+               Protocol="GRPC"/>
+    <c:Traces Endpoint="http://traces.example.com:4317"
+              Protocol="GRPC"/>
+  </c:OpenTelemetry>
+
+</c:Configuration>

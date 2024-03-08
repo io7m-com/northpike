@@ -22,7 +22,7 @@
   <xi:include href="intro.xml"/>
   <xi:include href="install-server.xml"/>
   <xi:include href="model.xml"/>
-  <xi:include href="config-server.xml"/>
+  <xi:include href="config.xml"/>
   <xi:include href="monitoring.xml"/>
   <xi:include href="toolexec.xml"/>
   <xi:include href="plan.xml"/>

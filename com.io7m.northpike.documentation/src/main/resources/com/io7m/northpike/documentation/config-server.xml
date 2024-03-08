@@ -355,7 +355,7 @@
       </Paragraph>
       <FormalItem title="Example">
         <Verbatim><![CDATA[
-<OpenTelemetry LogicalServiceName="idstore">
+<OpenTelemetry LogicalServiceName="northpike01">
   <Logs Endpoint="http://logs.example.com:4317"
         Protocol="GRPC"/>
   <Metrics Endpoint="http://metrics.example.com:4317"

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         title="Configuration"
+         id="4ea42549-3a28-48b1-8e19-c18ec03af033"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="config-server.xml"/>
+  <xi:include href="config-agent.xml"/>
+
+</Section>

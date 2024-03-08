@@ -38,7 +38,7 @@
                  AssignmentExecutionsMaximumAge="PT8760H"
                  AuditMaximumAge="PT8760H"/>
 
-  <c:OpenTelemetry LogicalServiceName="cardant01">
+  <c:OpenTelemetry LogicalServiceName="northpike01">
     <c:Logs Endpoint="http://logs.example.com:4317"
             Protocol="GRPC"/>
     <c:Metrics Endpoint="http://metrics.example.com:4317"

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         title="Agent Configuration"
+         id="19b33ab8-58e1-4210-8b3f-0cf6ce87e79c"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <Subsection title="Overview">
+    <Paragraph>
+      The <Term type="package">northpike</Term> agent host is configured using a single XML-formatted configuration
+      file. The format has a fully documented <Link target="c43283ed-4848-4d58-9d5b-aa91d0bb4f9b">schema</Link> and so
+      configuration files can be independently validated, and benefit from autocompletion in most modern IDEs.
+    </Paragraph>
+
+    <Paragraph>
+      The configuration file must consist of a single top-level
+      <Term type="expression">Configuration</Term>
+      element in the <Term type="expression">urn:com.io7m.northpike.agent.configuration:1</Term> namespace. In modern
+      IDEs, simply creating a file containing this element will immediately fill in all the other required child
+      elements.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Console">
+    <Paragraph>
+      The <Term type="expression">Console</Term> section of the configuration file configures the
+      <Link target="5cf3bb70-d8d1-4444-a0df-4c9e3f843acb">agent console service</Link>.
+    </Paragraph>
+    <Paragraph>
+      The
+      <Term type="expression">Address</Term>
+      and <Term type="expression">Port</Term> attributes specify the address and port to which to the service will bind.
+      It is recommended that the agent console only be accessible on
+      <Term type="expression">localhost</Term>. Conventionally, port
+      <Term type="expression">20051</Term>
+      is used for the console.
+    </Paragraph>
+    <Paragraph>
+      The <Term type="expression">AccessKey</Term> attribute specifies the access key that is required for access to the
+      console.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Database">
+    <Paragraph>
+      The <Term type="expression">Database</Term> section of the configuration file configures the database used to
+      store persistent configuration information.
+    </Paragraph>
+    <Paragraph>
+      The <Term type="expression">Kind</Term> attribute specifies the type of database. Currently, the only supported
+      value is <Term type="expression">SQLITE</Term>.
+    </Paragraph>
+    <Paragraph>
+      The <Term type="expression">File</Term> attribute specifies the file that will be used to store the database.
+    </Paragraph>
+    <Paragraph>
+      The <Term type="expression">Create</Term> attribute specifies whether the database should be created if it does
+      not already exist.
+    </Paragraph>
+    <Paragraph>
+      The <Term type="expression">Upgrade</Term> attribute specifies whether the database schema should be upgraded if
+      it is of a version older than that used by the current agent.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="OpenTelemetry"
+              id="9d7f28c4-5eb6-4be5-8190-20ee8b0f92b1">
+    <Subsection title="Overview">
+      <Paragraph>
+        The <Term type="expression">OpenTelemetry</Term> section of the configuration file configures
+        <LinkExternal target="https://opentelemetry.io/">Open Telemetry</LinkExternal>. This section is optional and
+        telemetry is disabled if the section is not present.
+      </Paragraph>
+      <Paragraph>
+        The logical service name should be provided in the
+        <Term type="expression">LogicalServiceName</Term>
+        attribute.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Traces"
+                id="88aa2941-2183-4ff9-a2c8-1d8a4abb7474">
+      <Paragraph>
+        If the <Term type="expression">OpenTelemetry</Term> element contains a
+        <Term type="expression">Traces</Term>
+        element, OTLP
+        <LinkExternal target="https://opentelemetry.io/docs/concepts/signals/traces/">traces</LinkExternal>
+        will be sent to a specified endpoint. The <Term type="expression">Endpoint</Term> attribute specifies the
+        endpoint, and the <Term type="expression">Protocol</Term> attribute can either be <Term type="constant">GRPC
+      </Term> or <Term type="constant">HTTP</Term>.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Metrics">
+      <Paragraph>
+        If the <Term type="expression">OpenTelemetry</Term> element contains a
+        <Term type="expression">Metrics</Term>
+        element, OTLP
+        <LinkExternal target="https://opentelemetry.io/docs/concepts/signals/metrics/">metrics</LinkExternal>
+        will be sent to a specified endpoint. The <Term type="expression">Endpoint</Term> attribute specifies the
+        endpoint, and the <Term type="expression">Protocol</Term> attribute can either be <Term type="constant">GRPC
+      </Term> or <Term type="constant">HTTP</Term>.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Logs"
+                id="12b424cf-51b5-472e-abca-cb0f1af3aad8">
+      <Paragraph>
+        If the <Term type="expression">OpenTelemetry</Term> element contains a
+        <Term type="expression">Logs</Term>
+        element, OTLP
+        <LinkExternal target="https://opentelemetry.io/docs/concepts/signals/logs/">logs</LinkExternal>
+        will be sent to a specified endpoint. The <Term type="expression">Endpoint</Term> attribute specifies the
+        endpoint, and the <Term type="expression">Protocol</Term> attribute can either be <Term type="constant">GRPC
+      </Term> or <Term type="constant">HTTP</Term>.
+      </Paragraph>
+    </Subsection>
+    <Subsection title="Example">
+      <Paragraph>
+        An example Open Telemetry configuration:
+      </Paragraph>
+      <FormalItem title="Example">
+        <Verbatim><![CDATA[
+<OpenTelemetry LogicalServiceName="agent-23">
+  <Logs Endpoint="http://logs.example.com:4317"
+        Protocol="GRPC"/>
+  <Metrics Endpoint="http://metrics.example.com:4317"
+           Protocol="GRPC"/>
+  <Traces Endpoint="http://traces.example.com:4317"
+          Protocol="GRPC"/>
+</OpenTelemetry>
+]]></Verbatim>
+      </FormalItem>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Smallest Working Configuration">
+    <Paragraph>
+      The smallest working configuration file:
+    </Paragraph>
+    <FormalItem title="Example">
+      <Verbatim>
+        <xi:include href="config_smallest_agent.xml"
+                    parse="text"/>
+      </Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Schema"
+              id="c43283ed-4848-4d58-9d5b-aa91d0bb4f9b">
+    <Paragraph>
+      The XSD schema for the configuration file is as follows:
+    </Paragraph>
+    <FormalItem title="Configuration Schema">
+      <Verbatim>
+        <xi:include href="com/io7m/northpike/agent/configuration/agent-configuration-1.xsd"
+                    parse="text"/>
+      </Verbatim>
+    </FormalItem>
+    <FormalItem title="TLS Schema">
+      <Verbatim>
+        <xi:include href="com/io7m/northpike/tls/tls-1.xsd"
+                    parse="text"/>
+      </Verbatim>
+    </FormalItem>
+  </Subsection>
+
+</Section>
