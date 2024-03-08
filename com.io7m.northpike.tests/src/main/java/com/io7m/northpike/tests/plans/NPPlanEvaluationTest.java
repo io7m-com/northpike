@@ -17,11 +17,11 @@
 
 package com.io7m.northpike.tests.plans;
 
-import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.plans.NPPlanElementName;
 import com.io7m.northpike.model.plans.NPPlanToolExecution;
 import com.io7m.northpike.model.plans.NPPlanType;

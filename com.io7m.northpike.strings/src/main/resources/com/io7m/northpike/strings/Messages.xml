@@ -123,6 +123,8 @@
   <entry key="type">Type</entry>
   <entry key="server">Server</entry>
   <entry key="login_challenge">Login Challenge</entry>
+  <entry key="line">Line</entry>
+  <entry key="column">Column</entry>
 
   <entry key="type_check_undefined_variable">Undefined variable.</entry>
   <entry key="type_check_expression">An expression did not have the expected type.</entry>
@@ -193,5 +195,18 @@
   <entry key="agent_status_not_configured_workexec">No work executor configured.</entry>
   <entry key="agent_status_ready">Ready.</entry>
   <entry key="agent_status_executing_work">Executing work item {0}.</entry>
+
+  <!--            -->
+  <!-- Toolexec/J -->
+  <!--            -->
+
+  <entry key="toolexecj_execute_failed">
+    Evaluation of the toolexec program failed.
+  </entry>
+
+  <entry key="toolexec_no_such_language">
+    No available provider supports toolexec programs of the given format.
+  </entry>
+  <entry key="toolexec_provider_indexed">Provider [{0}]</entry>
 
 </properties>

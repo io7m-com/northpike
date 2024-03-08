@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.tests.shell;
 
-import com.io7m.northpike.model.NPCompilationMessage;
 import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
@@ -41,6 +40,7 @@ import com.io7m.northpike.shell.NPShells;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.user_client.api.NPUserClientFactoryType;
 import com.io7m.northpike.user_client.api.NPUserClientType;
+import com.io7m.seltzer.api.SStructuredError;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +55,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -62,9 +63,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.io7m.northpike.model.NPCompilationMessage.Kind.ERROR;
-import static com.io7m.northpike.model.NPCompilationMessage.Kind.INFO;
-import static com.io7m.northpike.model.NPCompilationMessage.Kind.WARNING;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.text.StringEscapeUtils.escapeJava;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -171,9 +169,13 @@ public final class NPShellPlansTest
         UUID.randomUUID(),
         UUID.randomUUID(),
         List.of(
-          new NPCompilationMessage(ERROR, 1, 1, "E 1 1"),
-          new NPCompilationMessage(INFO, 2, 2, "I 2 2"),
-          new NPCompilationMessage(WARNING, 3, 3, "W 3 3")
+          new SStructuredError<>(
+            "error",
+            "ERROR!",
+            Map.of("x", "y"),
+            Optional.empty(),
+            Optional.empty()
+          )
         )
       );
 

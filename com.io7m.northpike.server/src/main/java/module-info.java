@@ -19,7 +19,6 @@ import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
 import com.io7m.northpike.server.internal.agents.NPAgentCommandExecutorType;
 import com.io7m.northpike.server.internal.users.NPUserCommandExecutorType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
-import com.io7m.northpike.toolexec.NPTXParserFactoryType;
 
 /**
  * Continuous integration (Server)
@@ -46,7 +45,8 @@ module com.io7m.northpike.server
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
   requires com.io7m.northpike.tls;
-  requires com.io7m.northpike.toolexec;
+  requires com.io7m.northpike.toolexec.api;
+  requires com.io7m.northpike.toolexec.program.api;
 
   requires com.io7m.anethum.api;
   requires com.io7m.anethum.slf4j;
@@ -56,15 +56,14 @@ module com.io7m.northpike.server
   requires com.io7m.jmulticlose.core;
   requires com.io7m.medrina.vanilla;
   requires com.io7m.repetoir.core;
+  requires io.helidon.webserver;
   requires io.opentelemetry.api;
   requires io.opentelemetry.context;
-  requires io.helidon.webserver;
   requires org.slf4j;
 
   uses NPAgentCommandExecutorType;
   uses NPPlanCompilerFactoryType;
   uses NPPlanParserFactoryType;
-  uses NPTXParserFactoryType;
   uses NPTelemetryServiceFactoryType;
   uses NPUserCommandExecutorType;
 

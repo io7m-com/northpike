@@ -195,8 +195,7 @@
         <Term type="term">tool execution</Term>
         is a function that, when evaluated, yields a list of arguments that will be passed to the tool executable. Tool
         executions are defined in a
-        <Link target="63fdd8ed-b53b-4d4e-b0b1-89ba8d52fbe8">domain-specific language</Link>
-        that emphasizes ahead-of-time static checking.
+        <Link target="63fdd8ed-b53b-4d4e-b0b1-89ba8d52fbe8">domain-specific language</Link>.
       </Paragraph>
     </Subsection>
     <Subsection title="Available Tools">

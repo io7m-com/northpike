@@ -9,7 +9,7 @@
   <parent>
     <artifactId>com.io7m.northpike</artifactId>
     <groupId>com.io7m.northpike</groupId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
   </parent>
   <artifactId>com.io7m.northpike.shell</artifactId>
 
@@ -46,12 +46,12 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.toolexec</artifactId>
+      <artifactId>com.io7m.northpike.shell.commons</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.shell.commons</artifactId>
+      <artifactId>com.io7m.northpike.toolexec.program.api</artifactId>
       <version>${project.version}</version>
     </dependency>
 

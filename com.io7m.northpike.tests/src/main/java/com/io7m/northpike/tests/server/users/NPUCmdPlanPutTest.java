@@ -23,13 +23,12 @@ import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
-import com.io7m.northpike.model.NPCompilationMessage;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
-import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.plans.NPPlanType;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.plans.compiler.NPPlanCompilationResultType;
 import com.io7m.northpike.plans.compiler.NPPlanCompilerFactoryType;
 import com.io7m.northpike.plans.compiler.NPPlanCompilerType;
@@ -43,6 +42,7 @@ import com.io7m.northpike.server.internal.users.NPUserCommandContextType;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.repetoir.core.RPServiceDirectory;
+import com.io7m.seltzer.api.SStructuredError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -250,11 +250,12 @@ public final class NPUCmdPlanPutTest
     final var failure =
       new NPPlanCompilationResultType.Failure(
         List.of(
-          new NPCompilationMessage(
-            NPCompilationMessage.Kind.ERROR,
-            1,
-            0,
-            "Failed!"
+          new SStructuredError<>(
+            "error",
+            "ERROR!",
+            Map.of("x", "y"),
+            Optional.empty(),
+            Optional.empty()
           )
         )
       );

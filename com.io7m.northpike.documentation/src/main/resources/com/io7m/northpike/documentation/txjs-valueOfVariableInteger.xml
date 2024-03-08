@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         id="5b3459fe-9491-33c6-87e2-2a30fb1383e0"
+         title="valueOfVariableInteger">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="function">valueOfVariableInteger (RDottedName) → BigInteger</Term>
+    </Paragraph>
+    <Paragraph>
+      Obtain the value of a plan variable.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The <Term type="function">valueOfVariableInteger</Term> function obtains the value of the
+      named, integer-typed <Link target="ee2248ae-b120-40ba-8ad7-96c82750d1b2">plan variable</Link>.
+      The function raises an exception if the variable does not exist, or is not of an integer type.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Example">
+    <FormalItem title="Example Code">
+      <Verbatim><![CDATA[
+execution.argumentAdd("--count");
+execution.argumentAdd(execution.valueOfVariableInteger("com.io7m.example.count").toString());
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>

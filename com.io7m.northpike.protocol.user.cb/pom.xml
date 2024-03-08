@@ -9,7 +9,7 @@
   <parent>
     <artifactId>com.io7m.northpike</artifactId>
     <groupId>com.io7m.northpike</groupId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
   </parent>
   <artifactId>com.io7m.northpike.protocol.user.cb</artifactId>
 
@@ -36,10 +36,14 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.toolexec</artifactId>
+      <artifactId>com.io7m.northpike.toolexec.program.api</artifactId>
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.io7m.seltzer</groupId>
+      <artifactId>com.io7m.seltzer.api</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.io7m.lanark</groupId>
       <artifactId>com.io7m.lanark.core</artifactId>

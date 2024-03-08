@@ -30,7 +30,7 @@ import com.io7m.northpike.plans.variables.NPPlanVariableString;
 import com.io7m.northpike.plans.variables.NPPlanVariableStringSet;
 import com.io7m.northpike.plans.variables.NPPlanVariableType;
 import com.io7m.northpike.plans.variables.NPPlanVariables;
-import com.io7m.northpike.toolexec.checker.NPTXTypeChecked;
+import com.io7m.northpike.toolexec.api.NPTEvaluationResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,12 +48,12 @@ public final class NPPlanPreparation
 {
   private final NPPlanType plan;
   private final NPPlanVariables variables;
-  private final Map<NPPlanElementName, NPTXTypeChecked> toolsCompiled;
+  private final Map<NPPlanElementName, NPTEvaluationResult> toolsCompiled;
 
   private NPPlanPreparation(
     final NPPlanType inPlan,
     final NPPlanVariables inVariables,
-    final Map<NPPlanElementName, NPTXTypeChecked> inToolsCompiled)
+    final Map<NPPlanElementName, NPTEvaluationResult> inToolsCompiled)
   {
     this.plan =
       Objects.requireNonNull(inPlan, "plan");
@@ -68,10 +68,10 @@ public final class NPPlanPreparation
   /**
    * Prepare a plan for the given commit.
    *
-   * @param compiler The tool execution compiler
-   * @param commit   The commit
-   * @param archive  A hosted archive of sources for the plan
-   * @param plan     The plan
+   * @param toolCompiler The tool execution compiler
+   * @param commit    The commit
+   * @param archive   A hosted archive of sources for the plan
+   * @param plan      The plan
    *
    * @return A prepared plan
    *
@@ -79,13 +79,13 @@ public final class NPPlanPreparation
    */
 
   public static NPPlanPreparationType forCommit(
-    final NPPlanToolExecutionCompilerType compiler,
+    final NPPlanToolExecutionCompilerType toolCompiler,
     final NPCommit commit,
     final NPArchiveWithLinks archive,
     final NPPlanType plan)
     throws NPException
   {
-    Objects.requireNonNull(compiler, "compiler");
+    Objects.requireNonNull(toolCompiler, "compiler");
     Objects.requireNonNull(commit, "commit");
     Objects.requireNonNull(archive, "archive");
     Objects.requireNonNull(plan, "plan");
@@ -96,7 +96,7 @@ public final class NPPlanPreparation
     final var planVariables =
       NPPlanVariables.ofList(variables);
     final var toolsCompiled =
-      new HashMap<NPPlanElementName, NPTXTypeChecked>();
+      new HashMap<NPPlanElementName, NPTEvaluationResult>();
 
     final var exceptions = new ExceptionTracker<NPPlanException>();
     for (final var element : plan.elements().values()) {
@@ -104,8 +104,8 @@ public final class NPPlanPreparation
         if (element instanceof final NPPlanTaskType task) {
           final var toolExec =
             task.toolExecution();
-          final NPTXTypeChecked toolCompiled =
-            compiler.toolCompile(toolExec.execution(), planVariables);
+          final var toolCompiled =
+            toolCompiler.toolCompile(toolExec.execution(), planVariables);
           toolsCompiled.put(task.name(), toolCompiled);
         }
       } catch (final NPPlanException e) {
@@ -138,6 +138,10 @@ public final class NPPlanPreparation
       new NPPlanVariableStringSet(
         NPPlanStandardVariables.scmBranches().name(),
         commit.branches()
+      ),
+      new NPPlanVariableStringSet(
+        NPPlanStandardVariables.scmTags().name(),
+        commit.tags()
       )
     );
   }
@@ -155,7 +159,7 @@ public final class NPPlanPreparation
   }
 
   @Override
-  public Map<NPPlanElementName, NPTXTypeChecked> toolExecutions()
+  public Map<NPPlanElementName, NPTEvaluationResult> toolExecutions()
   {
     return this.toolsCompiled;
   }

@@ -46,7 +46,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
-import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorOperationNotPermitted;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;

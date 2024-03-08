@@ -59,8 +59,8 @@ import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tests.NPEventInterceptingService;
 import com.io7m.northpike.tests.containers.NPDatabaseFixture;
 import com.io7m.northpike.tests.containers.NPFixtures;
-import com.io7m.northpike.toolexec.NPTXParserFactoryType;
-import com.io7m.northpike.toolexec.NPTXParsers;
+import com.io7m.northpike.toolexec.api.NPTEvaluationServiceType;
+import com.io7m.northpike.toolexec.api.NPTEvaluationService;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.repetoir.core.RPServiceDirectoryWritableType;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
@@ -70,14 +70,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Path;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Locale;
@@ -137,8 +135,6 @@ public final class NPAssignmentServiceTest
     this.services.register(
       NPClockServiceType.class, new NPClock(Clock.systemUTC()));
     this.services.register(
-      NPTXParserFactoryType.class, new NPTXParsers());
-    this.services.register(
       NPPlanParserFactoryType.class, new NPPlanParsers());
 
     this.archives =
@@ -161,6 +157,10 @@ public final class NPAssignmentServiceTest
         NPEventService.create(NPTelemetryNoOp.noop())
       );
     this.services.register(NPEventServiceType.class, this.events);
+    this.services.register(
+      NPTEvaluationServiceType.class,
+      NPTEvaluationService.createFromServiceLoader(NPStrings.create(Locale.ROOT))
+    );
   }
 
   @AfterEach

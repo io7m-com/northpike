@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.plans.compiler;
 
-import com.io7m.northpike.model.NPCompilationMessage;
 import com.io7m.northpike.model.plans.NPPlanType;
+import com.io7m.seltzer.api.SStructuredError;
 
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +36,7 @@ public sealed interface NPPlanCompilationResultType
    */
 
   record Failure(
-    List<NPCompilationMessage> messages)
+    List<SStructuredError<String>> messages)
     implements NPPlanCompilationResultType
   {
     /**

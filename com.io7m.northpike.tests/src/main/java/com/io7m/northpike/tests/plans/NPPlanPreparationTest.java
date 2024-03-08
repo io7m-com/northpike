@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.tests.plans;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPArchiveLinks;
 import com.io7m.northpike.model.NPArchiveWithLinks;
@@ -42,9 +41,7 @@ import com.io7m.northpike.plans.variables.NPPlanStandardVariables;
 import com.io7m.northpike.plans.variables.NPPlanVariableString;
 import com.io7m.northpike.plans.variables.NPPlanVariableStringSet;
 import com.io7m.northpike.strings.NPStrings;
-import com.io7m.northpike.toolexec.checker.NPTXChecker;
-import com.io7m.northpike.toolexec.model.NPTXDescription;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariables;
+import com.io7m.northpike.toolexec.api.NPTEvaluationResult;
 import com.io7m.verona.core.Version;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -206,13 +203,10 @@ public final class NPPlanPreparationTest
     throws Exception
   {
     final var checked =
-      NPTXChecker.checkDescription(
-        new NPTXPlanVariables(Map.of()),
-        new NPTXDescription(
-          new RDottedName("t"),
-          1L,
-          List.of()
-        )
+      new NPTEvaluationResult(
+        List.of(),
+        List.of(),
+        List.of()
       );
 
     final var resources =

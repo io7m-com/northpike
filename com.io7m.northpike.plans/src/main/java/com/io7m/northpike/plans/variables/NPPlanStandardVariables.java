@@ -39,6 +39,13 @@ public final class NPPlanStandardVariables
       "The branches to which the current SCM commit belongs."
     );
 
+  private static final NPPlanVariableDeclaration<NPPlanVariableStringSet> SCM_TAGS =
+    new NPPlanVariableDeclaration<>(
+      NPPlanVariableStringSet.class,
+      new RDottedName("com.io7m.northpike.scm.tags"),
+      "The tags applied to the current SCM commit."
+    );
+
   private static final NPPlanVariableDeclaration<NPPlanVariableString> ARCHIVE_URL =
     new NPPlanVariableDeclaration<>(
       NPPlanVariableString.class,
@@ -77,6 +84,15 @@ public final class NPPlanStandardVariables
   }
 
   /**
+   * @return The SCM tags applied to this commit
+   */
+
+  public static NPPlanVariableDeclaration<NPPlanVariableStringSet> scmTags()
+  {
+    return SCM_TAGS;
+  }
+
+  /**
    * @return The URL of the source archive for this plan execution
    */
 
@@ -86,7 +102,7 @@ public final class NPPlanStandardVariables
   }
 
   /**
-   * @return The URL of the checksym of the source archive for this plan execution
+   * @return The URL of the checksum of the source archive for this plan execution
    */
 
   public static NPPlanVariableDeclaration<NPPlanVariableString> archiveChecksumURL()

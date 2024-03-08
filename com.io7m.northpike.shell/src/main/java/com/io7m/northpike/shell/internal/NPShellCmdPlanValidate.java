@@ -127,7 +127,7 @@ public final class NPShellCmdPlanValidate
   {
     final var w = context.output();
 
-    if (!response.isValid(false)) {
+    if (!response.isValid()) {
       w.println("Validation failed.");
     } else {
       w.println("Validation succeeded.");
@@ -135,15 +135,18 @@ public final class NPShellCmdPlanValidate
 
     w.println();
 
-    for (final var message : response.compilationMessages()) {
-      w.print(message.kind());
-      w.print(": ");
-      w.print(message.line());
+    for (final var error : response.compilationErrors()) {
+      w.print(error.errorCode());
       w.print(":");
-      w.print(message.column());
-      w.print(": ");
-      w.print(message.message());
+      w.print(error.message());
       w.println();
+      for (final var entry : error.attributes().entrySet()) {
+        w.println("  ");
+        w.print(entry.getKey());
+        w.print(":");
+        w.print(entry.getValue());
+        w.println();
+      }
     }
 
     w.println();

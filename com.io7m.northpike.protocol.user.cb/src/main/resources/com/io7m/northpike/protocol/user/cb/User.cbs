@@ -185,16 +185,16 @@
   [field description cb:String]
 ]
 
-[documentation NPU1CompilationMessage "A compilation message."]
-[record NPU1CompilationMessage
-  [documentation kind "The message kind."]
-  [field kind cb:String]
-  [documentation line "The message line."]
-  [field line cb:IntegerUnsigned32]
-  [documentation column "The message column."]
-  [field column cb:IntegerUnsigned32]
-  [documentation message "The message text."]
+[documentation NPU1StructuredError "A structured error message."]
+[record NPU1StructuredError
+  [documentation errorCode "The error code."]
+  [field errorCode cb:String]
+  [documentation message "The error message."]
   [field message cb:String]
+  [documentation attributes "The error attributes."]
+  [field attributes [cb:Map cb:String cb:String]]
+  [documentation remediatingAction "The remediating action."]
+  [field remediatingAction [cb:Option cb:String]]
 ]
 
 [documentation NPU1ToolExecutionVariable "A tool execution variable."]
@@ -1203,7 +1203,7 @@
   [documentation correlationId "The message correlation ID"]
   [field correlationId cb:UUID]
   [documentation compilationMessages "The compilation messages."]
-  [field compilationMessages [cb:List NPU1CompilationMessage]]
+  [field compilationMessages [cb:List NPU1StructuredError]]
 ]
 
 [documentation NPU1ResponseToolExecutionDescriptionGet "A response to NPU1CommandToolExecutionDescriptionGet."]
@@ -1233,7 +1233,7 @@
   [documentation correlationId "The message correlation ID"]
   [field correlationId cb:UUID]
   [documentation compilationMessages "The compilation messages."]
-  [field compilationMessages [cb:List NPU1CompilationMessage]]
+  [field compilationMessages [cb:List NPU1StructuredError]]
 ]
 
 [documentation NPU1ResponsePlanGet "A response to NPU1CommandPlanGet."]

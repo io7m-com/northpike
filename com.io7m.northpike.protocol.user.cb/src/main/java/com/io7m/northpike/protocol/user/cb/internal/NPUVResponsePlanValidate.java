@@ -23,7 +23,7 @@ import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.NPUResponsePlanValidate;
 import com.io7m.northpike.protocol.user.cb.NPU1ResponsePlanValidate;
 
-import static com.io7m.northpike.protocol.user.cb.internal.NPUVCompilationMessage.COMPILATION_MESSAGE;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVSStructuredError.STRUCTURED_ERROR;
 
 /**
  * A validator.
@@ -48,8 +48,8 @@ public enum NPUVResponsePlanValidate
       new CBUUID(message.messageID()),
       new CBUUID(message.correlationID()),
       CBLists.ofCollection(
-        message.compilationMessages(),
-        COMPILATION_MESSAGE::convertToWire
+        message.compilationErrors(),
+        STRUCTURED_ERROR::convertToWire
       )
     );
   }
@@ -63,7 +63,7 @@ public enum NPUVResponsePlanValidate
       message.fieldCorrelationId().value(),
       CBLists.toList(
         message.fieldCompilationMessages(),
-        COMPILATION_MESSAGE::convertFromWire
+        STRUCTURED_ERROR::convertFromWire
       )
     );
   }

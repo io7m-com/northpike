@@ -92,8 +92,8 @@ import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPEventType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
-import com.io7m.northpike.toolexec.NPTXParserFactoryType;
-import com.io7m.northpike.toolexec.evaluator.NPTXEvaluator;
+import com.io7m.northpike.toolexec.api.NPTEvaluationResult;
+import com.io7m.northpike.toolexec.api.NPTEvaluationServiceType;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,7 +165,7 @@ public final class NPAssignmentTask
   private final NPStrings strings;
   private final NPTelemetryServiceType telemetry;
   private final Set<NPPlanParserFactoryType> planParsers;
-  private final Set<NPTXParserFactoryType> toolExecParsers;
+  private final NPTEvaluationServiceType toolExecEvaluation;
   private final NPAssignmentExecutionID executionId;
   private NPArchiveLinks archiveLinks;
 
@@ -178,7 +178,7 @@ public final class NPAssignmentTask
     final NPRepositoryServiceType inRepositories,
     final NPArchiveServiceType inArchives,
     final Set<NPPlanParserFactoryType> inParserFactories,
-    final Set<NPTXParserFactoryType> inToolExecParsers,
+    final NPTEvaluationServiceType inToolExecEvaluation,
     final NPStrings inStrings,
     final NPAssignmentExecutionRequest inRequest,
     final NPAssignmentExecutionID inExecutionId)
@@ -199,8 +199,8 @@ public final class NPAssignmentTask
       Objects.requireNonNull(inArchives, "inArchives");
     this.planParsers =
       Objects.requireNonNull(inParserFactories, "parserFactories");
-    this.toolExecParsers =
-      Objects.requireNonNull(inToolExecParsers, "toolExecParsers");
+    this.toolExecEvaluation =
+      Objects.requireNonNull(inToolExecEvaluation, "toolExecEvaluation");
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
     this.assignmentRequest =
@@ -247,7 +247,7 @@ public final class NPAssignmentTask
       services.requireService(NPRepositoryServiceType.class),
       services.requireService(NPArchiveServiceType.class),
       Set.copyOf(services.optionalServices(NPPlanParserFactoryType.class)),
-      Set.copyOf(services.optionalServices(NPTXParserFactoryType.class)),
+      services.requireService(NPTEvaluationServiceType.class),
       services.requireService(NPStrings.class),
       assignment,
       executionId
@@ -499,7 +499,7 @@ public final class NPAssignmentTask
         final var compiler =
           new NPAssignmentToolExecutionCompiler(
             this.strings,
-            this.toolExecParsers,
+            this.toolExecEvaluation,
             toolGet
           );
 
@@ -878,13 +878,9 @@ public final class NPAssignmentTask
     final NPAgentDescription agent)
     throws NPServerException
   {
-    final var typeChecked =
+    final NPTEvaluationResult evaluated =
       this.planPreparation.toolExecutions()
         .get(task.name());
-
-    final var evaluated =
-      new NPTXEvaluator(agent.environmentVariables(), typeChecked)
-        .evaluate();
 
     final var toolExecution =
       task.toolExecution();
@@ -919,7 +915,7 @@ public final class NPAssignmentTask
       toolsRequired,
       new NPToolExecutionEvaluated(
         toolReference,
-        evaluated.environment(),
+        evaluated.evaluateEnvironment(agent.environmentVariables()),
         evaluated.arguments()
       ),
       this.archiveLinks,

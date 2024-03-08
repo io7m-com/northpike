@@ -20,14 +20,13 @@ package com.io7m.northpike.server.internal.users;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionValidate;
-import com.io7m.northpike.strings.NPStrings;
-import com.io7m.northpike.toolexec.NPTXCompilationResultType;
-import com.io7m.northpike.toolexec.NPTXCompilerConfiguration;
-import com.io7m.northpike.toolexec.NPTXCompilerFactoryType;
-import com.io7m.northpike.toolexec.NPTXParserFactoryType;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariables;
+import com.io7m.northpike.toolexec.api.NPTEvaluationServiceType;
+import com.io7m.northpike.toolexec.api.NPTException;
+import com.io7m.seltzer.api.SStructuredError;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.io7m.northpike.strings.NPStringConstants.FORMAT;
@@ -62,50 +61,49 @@ public final class NPUCmdToolExecutionDescriptionValidate
       command.description().format().toString()
     );
 
+    final var description = command.description();
+    context.setAttribute(
+      FORMAT,
+      description.format().toString()
+    );
+
     final var services =
       context.services();
-
-    final var strings =
-      services.requireService(NPStrings.class);
-    final var parsersAvailable =
-      services.optionalServices(NPTXParserFactoryType.class);
-    final var compilers =
-      services.requireService(NPTXCompilerFactoryType.class);
-
     final var compiler =
-      compilers.create(
-        new NPTXCompilerConfiguration(
-          strings,
-          false,
-          (List<NPTXParserFactoryType>) parsersAvailable
-        )
+      services.requireService(NPTEvaluationServiceType.class);
+
+    final var evaluable =
+      compiler.create(
+        description.format(),
+        List.of(),
+        description.text()
       );
 
-    final var result =
-      compiler.execute(
-        NPTXPlanVariables.ofList(command.variables()),
-        command.description().format(),
-        command.description().text()
-      );
-
-    if (result instanceof NPTXCompilationResultType.Failure f) {
-      return new NPUResponseToolExecutionDescriptionValidate(
-        UUID.randomUUID(),
-        command.messageID(),
-        List.copyOf(f.messages())
-      );
-    }
-
-    if (result instanceof NPTXCompilationResultType.Success) {
+    try {
+      evaluable.execute();
       return new NPUResponseToolExecutionDescriptionValidate(
         UUID.randomUUID(),
         command.messageID(),
         List.of()
       );
-    }
+    } catch (final NPTException e) {
+      final var errors = new ArrayList<SStructuredError<String>>();
+      errors.add(
+        new SStructuredError<>(
+          e.errorCode().id(),
+          e.message(),
+          e.attributes(),
+          e.remediatingAction(),
+          Optional.empty()
+        )
+      );
+      errors.addAll(e.errors());
 
-    throw new IllegalStateException(
-      "Unrecognized result: %s".formatted(result)
-    );
+      return new NPUResponseToolExecutionDescriptionValidate(
+        UUID.randomUUID(),
+        command.messageID(),
+        List.copyOf(errors)
+      );
+    }
   }
 }

@@ -9,7 +9,7 @@
   <parent>
     <artifactId>com.io7m.northpike</artifactId>
     <groupId>com.io7m.northpike</groupId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
   </parent>
   <artifactId>com.io7m.northpike.server</artifactId>
 
@@ -106,7 +106,17 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>com.io7m.northpike.toolexec</artifactId>
+      <artifactId>com.io7m.northpike.toolexec.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.toolexec.program.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.toolexec.js</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -136,10 +146,6 @@
     <dependency>
       <groupId>com.io7m.seltzer</groupId>
       <artifactId>com.io7m.seltzer.api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.jlexing</groupId>
-      <artifactId>com.io7m.jlexing.core</artifactId>
     </dependency>
     <dependency>
       <groupId>com.io7m.jaffirm</groupId>
@@ -238,6 +244,7 @@
           <ignoredUnusedDeclaredDependencies>
             <ignoredUnusedDeclaredDependency>org.jetbrains.kotlin:kotlin-stdlib:*</ignoredUnusedDeclaredDependency>
             <ignoredUnusedDeclaredDependency>com.squareup.okio:*</ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>com.io7m.northpike:*</ignoredUnusedDeclaredDependency>
           </ignoredUnusedDeclaredDependencies>
         </configuration>
       </plugin>

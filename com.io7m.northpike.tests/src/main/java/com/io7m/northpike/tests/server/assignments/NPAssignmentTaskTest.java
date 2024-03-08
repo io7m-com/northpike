@@ -66,7 +66,6 @@ import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.containers.NPDatabaseFixture;
 import com.io7m.northpike.tests.containers.NPFixtures;
 import com.io7m.northpike.tests.keys.NPPublicKeysTest;
-import com.io7m.northpike.toolexec.NPTXFormats;
 import com.io7m.verona.core.Version;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
@@ -124,12 +123,9 @@ public final class NPAssignmentTaskTest
       NPToolExecutionIdentifier.of("run", 1L),
       NPToolName.of("tool"),
       "A description.",
-      NPTXFormats.nptx1(),
+      NPFormatName.of("com.io7m.northpike.toolexec.js"),
       """
-        <?xml version="1.0" encoding="UTF-8" ?>
-        <ToolExecution xmlns="urn:com.io7m.northpike.toolexec:1"
-                       Name="run"
-                       Version="1"></ToolExecution>
+
         """);
 
   private static final NPToolReference TOOL_REFERENCE =

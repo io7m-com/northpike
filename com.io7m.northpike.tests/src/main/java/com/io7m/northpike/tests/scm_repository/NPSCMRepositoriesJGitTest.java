@@ -366,7 +366,7 @@ public final class NPSCMRepositoriesJGitTest
     try (var tarStream =
            new TarArchiveInputStream(Files.newInputStream(output))) {
       while (true) {
-        final var entry = tarStream.getNextTarEntry();
+        final var entry = tarStream.getNextEntry();
         if (entry == null) {
           break;
         }

@@ -13,7 +13,7 @@
 
   <groupId>com.io7m.northpike</groupId>
   <artifactId>com.io7m.northpike</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>com.io7m.northpike</name>
@@ -70,7 +70,9 @@
     <module>com.io7m.northpike.tests.arbitraries</module>
     <module>com.io7m.northpike.tests</module>
     <module>com.io7m.northpike.tls</module>
-    <module>com.io7m.northpike.toolexec</module>
+    <module>com.io7m.northpike.toolexec.api</module>
+    <module>com.io7m.northpike.toolexec.js</module>
+    <module>com.io7m.northpike.toolexec.program.api</module>
     <module>com.io7m.northpike.tools.api</module>
     <module>com.io7m.northpike.tools.common</module>
     <module>com.io7m.northpike.tools.maven</module>
@@ -108,8 +110,10 @@
     <com.io7m.xstructural.version>1.8.0</com.io7m.xstructural.version>
     <com.io7m.zelador.version>0.0.1</com.io7m.zelador.version>
 
-    <helidon.version>4.0.4</helidon.version>
     <io7m.api.previousVersion>0.0.1-SNAPSHOT</io7m.api.previousVersion>
+    <io7m.java.targetJavaVersion>21</io7m.java.targetJavaVersion>
+
+    <helidon.version>4.0.4</helidon.version>
     <jackson.version>2.14.2</jackson.version>
     <javafx.version>20.0.1</javafx.version>
     <jaxb.version>4.0.0</jaxb.version>
@@ -126,6 +130,7 @@
     <containers.postgresql.version>15.2</containers.postgresql.version>
     <containers.idstore.version>${com.io7m.idstore.version}</containers.idstore.version>
     <org.bouncycastle.version>1.77</org.bouncycastle.version>
+    <org.graalvm.version>23.1.2</org.graalvm.version>
   </properties>
 
   <licenses>
@@ -771,6 +776,33 @@
         <groupId>org.xerial</groupId>
         <artifactId>sqlite-jdbc</artifactId>
         <version>3.45.0.0</version>
+      </dependency>
+
+      <!-- Tool execution. -->
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>9.6</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-util</artifactId>
+        <version>9.6</version>
+      </dependency>
+      <dependency>
+        <groupId>org.graalvm.polyglot</groupId>
+        <artifactId>polyglot</artifactId>
+        <version>${org.graalvm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.graalvm.js</groupId>
+        <artifactId>js-language</artifactId>
+        <version>${org.graalvm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.graalvm.truffle</groupId>
+        <artifactId>truffle-runtime</artifactId>
+        <version>${org.graalvm.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

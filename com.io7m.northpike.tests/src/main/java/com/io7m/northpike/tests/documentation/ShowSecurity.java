@@ -26,10 +26,8 @@ import com.io7m.northpike.model.security.NPSecObject;
 import com.io7m.northpike.model.security.NPSecRole;
 import org.w3c.dom.Document;
 import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;

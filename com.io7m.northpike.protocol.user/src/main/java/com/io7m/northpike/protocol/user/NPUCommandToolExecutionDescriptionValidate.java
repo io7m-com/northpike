@@ -18,7 +18,7 @@
 package com.io7m.northpike.protocol.user;
 
 import com.io7m.northpike.model.NPToolExecutionDescription;
-import com.io7m.northpike.toolexec.model.NPTXPlanVariableType;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableType;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,7 +34,7 @@ import java.util.UUID;
 
 public record NPUCommandToolExecutionDescriptionValidate(
   UUID messageID,
-  List<NPTXPlanVariableType> variables,
+  List<NPTPVariableType> variables,
   NPToolExecutionDescription description)
   implements NPUCommandType<NPUResponseToolExecutionDescriptionValidate>
 {

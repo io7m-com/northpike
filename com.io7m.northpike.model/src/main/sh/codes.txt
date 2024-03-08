@@ -37,3 +37,4 @@ UNSAFE_ARCHIVE_ENTRY|unsafe-archive-entry|An unsafe archive entry was encountere
 UNSUPPORTED|unsupported|An operation was unsupported.
 USER_NONEXISTENT|user-nonexistent|An attempt was made to reference a user that does not exist.
 WRONG_ALGORITHM|wrong-algorithm|The wrong algorithm ID was encountered.
+TOOL_EXECUTION_FAILED|tool-execution-failed|The tool execution failed.

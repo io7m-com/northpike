@@ -24,17 +24,19 @@ open module com.io7m.northpike.tests.arbitraries
   requires net.jqwik.api;
   requires com.io7m.jlexing.core;
 
+  requires com.io7m.northpike.agent.workexec.api;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.protocol.agent;
   requires com.io7m.northpike.protocol.agent_console;
   requires com.io7m.northpike.protocol.intro;
   requires com.io7m.northpike.protocol.user;
-  requires com.io7m.northpike.toolexec;
-  requires com.io7m.northpike.agent.workexec.api;
+  requires com.io7m.northpike.toolexec.program.api;
 
   uses ArbitraryProvider;
 
   provides ArbitraryProvider with
+    com.io7m.northpike.tests.arbitraries.toolexec.NPArbTEVariable,
+    com.io7m.northpike.tests.arbitraries.NPArbSStructuredError,
     com.io7m.northpike.tests.arbitraries.NPArbAgentDescription,
     com.io7m.northpike.tests.arbitraries.NPArbAgentGetResult,
     com.io7m.northpike.tests.arbitraries.NPArbAgentID,
@@ -71,7 +73,6 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbCommitAuthor,
     com.io7m.northpike.tests.arbitraries.NPArbCommitID,
     com.io7m.northpike.tests.arbitraries.NPArbCommitUnqualifiedID,
-    com.io7m.northpike.tests.arbitraries.NPArbCompilationMessage,
     com.io7m.northpike.tests.arbitraries.NPArbDottedName,
     com.io7m.northpike.tests.arbitraries.NPArbErrorCode,
     com.io7m.northpike.tests.arbitraries.NPArbFailurePolicy,
@@ -275,35 +276,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseToolExecutionDescriptionSearch,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseToolExecutionDescriptionValidate,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseUserSearch,
-    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseUsersConnected,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbDescription,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbEAnd,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbEFalse,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbEInteger,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbEIsEqual,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbENot,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbEOr,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbEString,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbEStringSetContains,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbETrue,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbEVariableBoolean,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbEVariableInteger,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbEVariableString,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbEVariableStringSet,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbExpressionType,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbPlanVariable,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbPlanVariableBoolean,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbPlanVariableInteger,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbPlanVariableString,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbPlanVariables,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbSArgumentAdd,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbSComment,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbSEnvironmentClear,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbSEnvironmentPass,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbSEnvironmentRemove,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbSEnvironmentSet,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbSIf,
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbStatementType
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseUsersConnected
     ;
 
   exports com.io7m.northpike.tests.arbitraries;

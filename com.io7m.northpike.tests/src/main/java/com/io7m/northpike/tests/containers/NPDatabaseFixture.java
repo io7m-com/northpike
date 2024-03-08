@@ -22,7 +22,6 @@ import com.io7m.idstore.model.IdUser;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConfiguration;
 import com.io7m.northpike.database.api.NPDatabaseCreate;
-import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseTelemetry;
