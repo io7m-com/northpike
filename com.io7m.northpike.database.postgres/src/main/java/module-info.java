@@ -16,6 +16,7 @@
 
 import com.io7m.northpike.database.api.NPDatabaseFactoryType;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
+import com.io7m.northpike.database.postgres.internal.NPDBQAgentLoginChallengeGetForKey;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType;
 
 /**
@@ -69,6 +70,7 @@ module com.io7m.northpike.database.postgres
     com.io7m.northpike.database.postgres.internal.NPDBQAgentLabelSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentLoginChallengeDelete,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentLoginChallengeGet,
+    com.io7m.northpike.database.postgres.internal.NPDBQAgentLoginChallengeGetForKey,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentLoginChallengePut,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentLoginChallengeSearch,
     com.io7m.northpike.database.postgres.internal.NPDBQAgentPut,

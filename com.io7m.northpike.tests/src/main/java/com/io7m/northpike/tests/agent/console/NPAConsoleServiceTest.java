@@ -48,7 +48,7 @@ import com.io7m.northpike.protocol.agent_console.NPACCommandServerList;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerPut;
 import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecPut;
-import com.io7m.northpike.server.internal.events.NPEventService;
+import com.io7m.northpike.telemetry.api.NPEventService;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;

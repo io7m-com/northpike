@@ -14,12 +14,9 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.server.internal.events;
+package com.io7m.northpike.telemetry.api;
 
 import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.telemetry.api.NPEventServiceType;
-import com.io7m.northpike.telemetry.api.NPEventType;
-import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.logs.Severity;
 import io.opentelemetry.api.trace.Span;

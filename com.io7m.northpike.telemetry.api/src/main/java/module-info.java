@@ -27,6 +27,7 @@ module com.io7m.northpike.telemetry.api
 
   requires com.io7m.repetoir.core;
   requires io.opentelemetry.api;
+  requires org.slf4j;
 
   exports com.io7m.northpike.telemetry.api;
 }

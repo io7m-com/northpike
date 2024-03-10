@@ -29,6 +29,15 @@ public final class NPStandardServicePorts
   }
 
   /**
+   * @return The standard port for the agent shell on each agent
+   */
+
+  public static int agentShellPort()
+  {
+    return 20051;
+  }
+
+  /**
    * @return The standard port for the user service
    */
 
@@ -81,4 +90,6 @@ public final class NPStandardServicePorts
   {
     return 21048;
   }
+
+
 }

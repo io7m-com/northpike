@@ -50,7 +50,7 @@ import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
 import com.io7m.northpike.server.api.NPServerMaintenanceConfiguration;
 import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
-import com.io7m.northpike.server.internal.events.NPEventService;
+import com.io7m.northpike.telemetry.api.NPEventService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryArchiveCreated;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryConfigureFailed;

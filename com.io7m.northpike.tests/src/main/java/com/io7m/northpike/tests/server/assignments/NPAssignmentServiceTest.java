@@ -48,7 +48,7 @@ import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
 import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
 import com.io7m.northpike.server.internal.assignments.NPAssignmentService;
 import com.io7m.northpike.server.internal.assignments.NPAssignmentServiceType;
-import com.io7m.northpike.server.internal.events.NPEventService;
+import com.io7m.northpike.telemetry.api.NPEventService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;

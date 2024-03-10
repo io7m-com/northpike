@@ -46,7 +46,7 @@ import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.server.internal.archives.NPArchiveService;
 import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
-import com.io7m.northpike.server.internal.events.NPEventService;
+import com.io7m.northpike.telemetry.api.NPEventService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;

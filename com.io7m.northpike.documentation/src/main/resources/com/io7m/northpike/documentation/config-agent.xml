@@ -143,6 +143,27 @@
     </FormalItem>
   </Subsection>
 
+  <Subsection title="Standard Ports"
+              id="bec529d5-74d7-47b0-9b32-314c49715972">
+    <Paragraph>
+      Services are encouraged to use the following ports:
+    </Paragraph>
+    <FormalItem title="Ports">
+      <Table>
+        <Columns>
+          <Column>Protocol</Column>
+          <Column>Port</Column>
+          <Column>Description</Column>
+        </Columns>
+        <Row>
+          <Cell>TCP</Cell>
+          <Cell>20051</Cell>
+          <Cell>The agent shell.</Cell>
+        </Row>
+      </Table>
+    </FormalItem>
+  </Subsection>
+
   <Subsection title="Schema"
               id="c43283ed-4848-4d58-9d5b-aa91d0bb4f9b">
     <Paragraph>

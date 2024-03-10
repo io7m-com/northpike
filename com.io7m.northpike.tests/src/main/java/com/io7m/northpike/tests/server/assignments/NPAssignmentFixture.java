@@ -52,7 +52,7 @@ import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryType;
 import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
 import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
-import com.io7m.northpike.server.internal.events.NPEventService;
+import com.io7m.northpike.telemetry.api.NPEventService;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;

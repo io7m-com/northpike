@@ -20,6 +20,8 @@ package com.io7m.northpike.tests.server.agents;
 import com.io7m.northpike.clock.NPClock;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeGetForKeyType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengePutType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPErrorCode;
@@ -60,6 +62,7 @@ public final class NPACmdLoginTest
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private LoginChallengePutType challengePut;
+  private LoginChallengeGetForKeyType challengeGetForKey;
 
   @BeforeEach
   public void setup()
@@ -79,6 +82,8 @@ public final class NPACmdLoginTest
       Mockito.mock(NPDatabaseTransactionType.class);
     this.challengePut =
       Mockito.mock(LoginChallengePutType.class);
+    this.challengeGetForKey =
+      Mockito.mock(LoginChallengeGetForKeyType.class);
 
     this.services.register(NPClockServiceType.class, this.clockService);
 
@@ -92,6 +97,11 @@ public final class NPACmdLoginTest
       .thenReturn(this.connection);
     Mockito.when(this.transaction.queries(LoginChallengePutType.class))
       .thenReturn(this.challengePut);
+    Mockito.when(this.transaction.queries(LoginChallengeGetForKeyType.class))
+      .thenReturn(this.challengeGetForKey);
+
+    Mockito.when(this.challengeGetForKey.execute(any()))
+        .thenReturn(Optional.empty());
 
     Mockito.doAnswer(invocationOnMock -> {
       final var message =

@@ -31,10 +31,11 @@
 
 [documentation NPAC1TLSConfiguration "A TLS configuration."]
 [variant NPAC1TLSConfiguration
-  [case NPAC1TLSEnabled
+  [case NPAC1TLSEnabledExplicit
     [field keyStore   NPAC1TLSStore]
     [field trustStore NPAC1TLSStore]
   ]
+  [case NPAC1TLSEnabledClientAnonymous]
   [case NPAC1TLSDisabled]
 ]
 

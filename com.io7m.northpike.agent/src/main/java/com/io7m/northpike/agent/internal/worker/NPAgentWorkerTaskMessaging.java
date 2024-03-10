@@ -156,11 +156,6 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
         // Ignored
       }
     }
-
-    if (message instanceof final NPACommandS2CType<?> s2c) {
-      this.runHandleS2CCommand(s2c);
-      return;
-    }
   }
 
   private void runHandleCommand(
@@ -191,7 +186,6 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
       case final NPACommandSWorkSent sent -> {
         this.runHandleCommandWorkSent(sent);
       }
-      case null, default -> throw new IllegalStateException();
     }
   }
 

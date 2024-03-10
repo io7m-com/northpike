@@ -14,6 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseFactoryType;
 import com.io7m.northpike.agent.database.sqlite.internal.NPASQueryProviderType;
 
 /**
@@ -42,6 +43,9 @@ module com.io7m.northpike.agent.database.sqlite
   requires com.io7m.northpike.agent.workexec.api;
 
   uses NPASQueryProviderType;
+
+  provides NPAgentDatabaseFactoryType
+    with com.io7m.northpike.agent.database.sqlite.NPASDatabases;
 
   provides NPASQueryProviderType with
     com.io7m.northpike.agent.database.sqlite.internal.NPASAgentDelete,

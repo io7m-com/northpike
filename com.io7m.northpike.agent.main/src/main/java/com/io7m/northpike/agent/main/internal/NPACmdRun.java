@@ -29,8 +29,10 @@ import com.io7m.quarrel.core.QCommandType;
 import com.io7m.quarrel.core.QParameterNamed1;
 import com.io7m.quarrel.core.QParameterNamedType;
 import com.io7m.quarrel.core.QStringType;
+import com.io7m.quarrel.ext.logback.QLogback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -72,7 +74,7 @@ public final class NPACmdRun implements QCommandType
   @Override
   public List<QParameterNamedType<?>> onListNamedParameters()
   {
-    return List.of(CONFIGURATION);
+    return QLogback.plusParameters(List.of(CONFIGURATION));
   }
 
   @Override
@@ -80,6 +82,14 @@ public final class NPACmdRun implements QCommandType
     final QCommandContextType context)
     throws Exception
   {
+    System.setProperty("org.jooq.no-tips", "true");
+    System.setProperty("org.jooq.no-logo", "true");
+
+    SLF4JBridgeHandler.removeHandlersForRootLogger();
+    SLF4JBridgeHandler.install();
+
+    QLogback.configure(context);
+
     final var configurationFilePath =
       context.parameterValue(CONFIGURATION);
 

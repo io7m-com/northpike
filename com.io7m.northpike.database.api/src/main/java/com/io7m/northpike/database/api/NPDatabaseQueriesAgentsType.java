@@ -151,6 +151,17 @@ public sealed interface NPDatabaseQueriesAgentsType
    * Retrieve a login challenge.
    */
 
+  non-sealed interface LoginChallengeGetForKeyType
+    extends NPDatabaseQueryType<NPAgentKeyPublicType, Optional<NPAgentLoginChallengeRecord>>,
+    NPDatabaseQueriesAgentsType
+  {
+
+  }
+
+  /**
+   * Retrieve a login challenge.
+   */
+
   non-sealed interface LoginChallengeGetType
     extends NPDatabaseQueryType<UUID, Optional<NPAgentLoginChallengeRecord>>,
     NPDatabaseQueriesAgentsType

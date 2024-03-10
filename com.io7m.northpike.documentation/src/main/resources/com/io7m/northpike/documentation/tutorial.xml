@@ -371,9 +371,276 @@ f71154c9-f7ac-472c-88fe-0c367f679a7a
     <Subsection title="Overview">
       <Paragraph>
         By itself, the <Term type="package">northpike</Term> server isn't particularly useful; it merely coordinates
-        work. The actual work is performed by <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agents</Link>.
-        We'll need to set up an agent and connect it to the server.
+        work. The actual work is performed by <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agents</Link>. We'll
+        need to set up an agent host, create one or more agents, and connect them to the server.
       </Paragraph>
+      <Paragraph>
+        It's recommended, but not strictly required, that agents be run on different physical (or virtual) machines to
+        the server. This tutorial will be written under the assumption that the agent we set up is on a separate system
+        from the server.
+      </Paragraph>
+      <Paragraph>
+        We'll assume that the agent software has been installed at <Term type="file">/opt/northpike-agent</Term>. This
+        is the standard location when using the provided <Term type="file">.deb</Term> packages.
+      </Paragraph>
+    </Subsection>
+
+    <Subsection title="Users">
+      <Paragraph>
+        We'll assume that an unprivileged user <Term type="constant">_northpike-agent</Term> exists on the system we'll
+        use to run the agents. The agents require no privileges.
+      </Paragraph>
+    </Subsection>
+
+    <Subsection title="Filesystem">
+      <Paragraph>
+        The agent host needs space to store a fairly small internal SQLite database, and it also needs space for
+        creating workspaces within which to execute tasks it receives from the server.
+      </Paragraph>
+      <Paragraph>
+        We'll assume that the agent host has been given a decently sized volume of its own mounted at
+        <Term type="file">/northpike</Term>:
+      </Paragraph>
+      <FormalItem title="Volume">
+        <Verbatim><![CDATA[
+agent-machine# df -h
+/dev/mapper/linuxbuilds01--vg-northpike  196G   36K  186G   1% /northpike
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        We'll set up directories to hold the database and any workspaces:
+      </Paragraph>
+      <FormalItem title="Directories">
+        <Verbatim><![CDATA[
+agent-machine# mkdir /northpike/databases
+agent-machine# mkdir /northpike/workspaces
+agent-machine# chown -R _northpike-agent:_northpike-agent /northpike/databases
+agent-machine# chown -R _northpike-agent:_northpike-agent /northpike/workspaces
+]]></Verbatim>
+      </FormalItem>
+    </Subsection>
+
+    <Subsection title="Configuration">
+      <Paragraph>
+        Only a very basic configuration file is required for the agent host, as most of the configuration is performed
+        through the <Link target="c3b99531-ff6d-49d0-9105-ae5effd06ae6">agent shell</Link>. A minimal configuration file
+        is required that tells the agent host where to store its own database, any required telemetry settings, and how
+        the agent host should expose a shell. We'll expose the agent shell on
+        <Term type="address">localhost</Term>
+        on port <Term type="constant">20051</Term>, and we'll require that anyone connecting to it must present the
+        secret access key
+        <Term type="constant">8cf811bcc5a74b4a8cf10cedfc4cafb68a974b0caf01b5ef8b596c9b109966c3</Term>. We'll place the
+        configuration file at <Term type="file">/etc/northpike-agent/config.xml</Term> for this example.
+      </Paragraph>
+      <FormalItem title="Configuration File">
+        <Verbatim><![CDATA[
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<c:Configuration xmlns:c="urn:com.io7m.northpike.agent.configuration:1">
+
+  <c:Console Address="localhost"
+             Port="20051"
+             AccessKey="8cf811bcc5a74b4a8cf10cedfc4cafb68a974b0caf01b5ef8b596c9b109966c3"/>
+
+  <c:Database Kind="SQLITE"
+              File="/northpike/database/database.db"
+              Create="true"
+              Upgrade="true"/>
+
+  <c:OpenTelemetry LogicalServiceName="northpike.agent01">
+    <c:Logs    Endpoint="http://logs.example.com:4317"    Protocol="GRPC"/>
+    <c:Metrics Endpoint="http://metrics.example.com:4317" Protocol="GRPC"/>
+    <c:Traces  Endpoint="http://traces.example.com:4317"  Protocol="GRPC"/>
+  </c:OpenTelemetry>
+
+</c:Configuration>
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        We can now start the agent host:
+      </Paragraph>
+      <FormalItem title="Startup">
+        <Verbatim><![CDATA[
+agent-machine$ /opt/northpike-agent/bin/northpike-agent run \
+--verbose trace \
+--configuration \
+/etc/northpike-agent/config.xml
+]]></Verbatim>
+      </FormalItem>
+    </Subsection>
+
+    <Subsection title="Shell">
+      <Paragraph>
+        With the agent host running, we can connect to it using the agent shell.
+      </Paragraph>
+      <FormalItem title="Shell">
+        <Verbatim><![CDATA[
+agent-machine$ /opt/northpike-agent/bin/northpike-agent shell
+[northpike-agent]$
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        As we configured the agent shell service to run on <Term type="address">localhost</Term> using the
+        <Link target="bec529d5-74d7-47b0-9b32-314c49715972">standard port</Link>, we only need to provide the access key
+        to the <Term type="command">login</Term> command to connect to the agent:
+      </Paragraph>
+      <FormalItem title="Login">
+        <Verbatim><![CDATA[
+[northpike-agent]$ login --access-key 2053e737047446655de7a245ccf0a2b6921ab92da7a19a4065956949bf66380a
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        If everything succeeds, the command says nothing.
+      </Paragraph>
+    </Subsection>
+
+    <Subsection title="Agent Creation">
+      <Paragraph>
+        We now need to define an agent. Agents are assigned unique names within an agent host, but the name is
+        essentially unused outside the agent host; agents are globally identified with an
+        <LinkExternal target="https://en.wikipedia.org/wiki/EdDSA">Ed448</LinkExternal>
+        keypair. We can use the <Term type="command">agent-create</Term> command to create a new agent, and
+        automatically generate a new keypair in the process:
+      </Paragraph>
+      <FormalItem title="Create">
+        <Verbatim><![CDATA[
+[northpike-agent]$ agent-create --name main
+
+[northpike-agent]$ agent-list
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Name                                                                                                │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ main                                                                                                │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+[northpike-agent]$ agent-get --name main
+┌──────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Attribute            │ Value                                                                                                                │
+├──────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Name                 │ main                                                                                                                 │
+├──────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Public Key Algorithm │ Ed448                                                                                                                │
+├──────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Public Key           │ 0000b1c6e7c1cc4daa8b66d8b2d375043e735cd953616358a15bd0b6b87cf6909c04ec3923e4bb7c2530ce0ccdeb28b3a7b3c00afd1de7a9a4f8 │
+└──────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
+    </Subsection>
+
+    <Subsection title="Agent Connection">
+      <Paragraph>
+        We now need to tell the agent how to connect to the server. The agent host attempts to ensure that all agents
+        that have defined servers will maintain persistent connections to the server. Right now, the agent doesn't know
+        about our server, and the server doesn't know about any agents. We introduce the two to each other by first
+        telling the agent about the server. The agent will attempt to connect to the server, but the server will not
+        allow the agent to log in (because the server has no agents defined). The server will, however, store a 
+        <Term type="term">login challenge</Term> for the agent. We can look at the current list of 
+        <Term type="term">login challenges</Term> on the server,
+        select the one that came from the agent we defined, and then use a single command to automatically create an
+        agent definition on the server.
+      </Paragraph>
+      <Paragraph>
+        The first step is define a server. Servers within an agent host are uniquely identified by UUID values, so
+        we pick an arbitrary unused UUID. We also specify that the agent should connect to the server using TLS.
+      </Paragraph>
+      <FormalItem title="Server Definition">
+        <Verbatim><![CDATA[
+[northpike-agent]$ server-put
+--hostname northpike.example.com
+--port 21048
+--server ac2fc9d0-65d1-4539-8949-8d6198a7e526
+--message-size-limit 1000000
+
+[northpike-agent]$ server-set-tls --server ac2fc9d0-65d1-4539-8949-8d6198a7e526 --tls TLS_ENABLED_CLIENT_ANONYMOUS
+
+[northpike-agent]$ server-list
+┌───────────────────────────────────────────────────────────────────────────────┬─────────────────────────┐
+│ ID                                                                            │ Hostname                │
+├───────────────────────────────────────────────────────────────────────────────┼─────────────────────────┤
+│ ac2fc9d0-65d1-4539-8949-8d6198a7e526                                          │ northpike.int.arc7.info │
+└───────────────────────────────────────────────────────────────────────────────┴─────────────────────────┘
+
+[northpike-agent]$ server-get --server ac2fc9d0-65d1-4539-8949-8d6198a7e526
+┌────────────────────────────────────────────┬──────────────────────────────────────┐
+│ Attribute                                  │ Value                                │
+├────────────────────────────────────────────┼──────────────────────────────────────┤
+│ ID                                         │ ac2fc9d0-65d1-4539-8949-8d6198a7e526 │
+├────────────────────────────────────────────┼──────────────────────────────────────┤
+│ Hostname                                   │ northpike.example.com                │
+├────────────────────────────────────────────┼──────────────────────────────────────┤
+│ Port                                       │ 21048                                │
+├────────────────────────────────────────────┼──────────────────────────────────────┤
+│ Message Size Limit                         │ 1000000                              │
+└────────────────────────────────────────────┴──────────────────────────────────────┘
+TLS
+┌─────────────────────────────────────────────────────────────┬─────────────────────┐
+│ Attribute                                                   │ Value               │
+├─────────────────────────────────────────────────────────────┼─────────────────────┤
+│ Type                                                        │ Enabled (Anonymous) │
+└─────────────────────────────────────────────────────────────┴─────────────────────┘
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        We then assign the server we defined to our agent.
+      </Paragraph>
+      <FormalItem title="Server Assignment">
+        <Verbatim><![CDATA[
+[northpike-agent]$ agent-server-assign
+--server ac2fc9d0-65d1-4539-8949-8d6198a7e526
+--agent main
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        At this point, the agent will start repeatedly trying to connect to the server. We can use the
+        <Link target="66d120fd-a08f-3c76-b440-1049fe86a593">agent-login-challenge-search-begin</Link>
+        command to list the current login challenges:
+      </Paragraph>
+      <FormalItem title="Login Challenge">
+        <Verbatim><![CDATA[
+[northpike]$ agent-login-challenge-search-begin
+┌─────────────────────────────────────┬──────────────────────────────────────┬───────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Time                                │ ID                                   │ Source            │ Key                                                                                                                  │
+├─────────────────────────────────────┼──────────────────────────────────────┼───────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 2024-03-10T21:44:24Z                │ 528b2fdb-c644-4b3e-a4ca-ed4f31c5ab4d │ /10.0.2.100:46088 │ 0000b1c6e7c1cc4daa8b66d8b2d375043e735cd953616358a15bd0b6b87cf6909c04ec3923e4bb7c2530ce0ccdeb28b3a7b3c00afd1de7a9a4f8 │
+└─────────────────────────────────────┴──────────────────────────────────────┴───────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        We can instruct the server to define a new agent based on this login challenge. The next time
+        the agent connects, it will sign the login challenge (proving that it owns the private key associated
+        with the published public key), and the server will permit the login. We're required to provide an
+        unused UUID value to identify the agent, and to provide a helpful name for organizational purposes. We'll
+        use the name <Term type="constant">linuxbuilds01</Term> for our agent.
+      </Paragraph>
+      <FormalItem title="Agent Creation">
+        <Verbatim><![CDATA[
+[northpike]$ agent-login-challenge-agent-create
+--challenge-id 528b2fdb-c644-4b3e-a4ca-ed4f31c5ab4d
+--agent-id fc1a2389-7c30-46b2-b5f2-3c9e0e3e0d6d
+--agent-name linuxbuilds01
+
+[northpike]$ agent-search-begin
+ Page 1 of 1, offset 0
+┌─────────────────────────────────────────────────────────────────────────────┬───────────────┐
+│ ID                                                                          │ Name          │
+├─────────────────────────────────────────────────────────────────────────────┼───────────────┤
+│ fc1a2389-7c30-46b2-b5f2-3c9e0e3e0d6d                                        │ linuxbuilds01 │
+└─────────────────────────────────────────────────────────────────────────────┴───────────────┘
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        With the agent now defined on the server, the agent successfully authenticates within a second:
+      </Paragraph>
+      <FormalItem title="Agent Connected">
+        <Verbatim><![CDATA[
+[northpike]$ agents-connected
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│ ID                                                                                      │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│ fc1a2389-7c30-46b2-b5f2-3c9e0e3e0d6d                                                    │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
     </Subsection>
   </Subsection>
 
@@ -381,8 +648,8 @@ f71154c9-f7ac-472c-88fe-0c367f679a7a
     <Subsection title="Repositories">
       <Paragraph>
         In order to do useful work such as building code, we'll need to tell the server how to actually get that code.
-        We'll add the <LinkExternal target="https://www.github.com/io7m/abstand">abstand</LinkExternal> repository to the
-        server as it's a fairly small and self-contained project that builds quickly. We'll use the
+        We'll add the <LinkExternal target="https://www.github.com/io7m/abstand">abstand</LinkExternal> repository to
+        the server as it's a fairly small and self-contained project that builds quickly. We'll use the
         <Link target="29a0885f-9292-3820-8089-fabed0903981">repository-put</Link>
         command to define the repository:
       </Paragraph>
@@ -404,14 +671,14 @@ f71154c9-f7ac-472c-88fe-0c367f679a7a
       </FormalItem>
       <Paragraph>
         The <Term type="package">abstand</Term> repository contains commits that are
-        <LinkExternal target="https://en.wikipedia.org/wiki/Pretty_Good_Privacy">PGP</LinkExternal> signed. It would
-        therefore be a good idea to set the signing policy of the repository to require that only commits signed
-        by specific keys are allowed to be used by the <Term type="package">northpike</Term> server. At the time
-        of writing, all the commits in the <Term type="package">abstand</Term> repository are signed with
-        the PGP key that has the fingerprint
-        <Term type="expression">E362 BB4F 16A9 981D E781 2F6E 10E4 AAD0 B00D 6CDD</Term>. This key can be found
-        on the <LinkExternal
-        target="https://keyserver.ubuntu.com/pks/lookup?search=E362BB4F16A9981DE7812F6E10E4AAD0B00D6CDD&amp;op=index">public keyservers</LinkExternal>.
+        <LinkExternal target="https://en.wikipedia.org/wiki/Pretty_Good_Privacy">PGP</LinkExternal>
+        signed. It would therefore be a good idea to set the signing policy of the repository to require that only
+        commits signed by specific keys are allowed to be used by the <Term type="package">northpike</Term> server. At
+        the time of writing, all the commits in the <Term type="package">abstand</Term> repository are signed with the
+        PGP key that has the fingerprint
+        <Term type="expression">E362 BB4F 16A9 981D E781 2F6E 10E4 AAD0 B00D 6CDD</Term>. This key can be found on
+        the <LinkExternal target="https://keyserver.ubuntu.com/pks/lookup?search=E362BB4F16A9981DE7812F6E10E4AAD0B00D6CDD&amp;op=index">
+        public keyservers</LinkExternal>.
       </Paragraph>
       <Paragraph>
         We download the key to a file, and then import it using the shell:
@@ -455,11 +722,12 @@ E362BB4F16A9981DE7812F6E10E4AAD0B00D6CDD.asc: PGP public key block
 ]]></Verbatim>
       </FormalItem>
       <Paragraph>
-        We then update the repository's <Link target="a8871c5e-98ca-48e8-b577-afad7b94848c">signature policy</Link>
-        to specify that only commits that have been signed with the exact keys assigned to the repository are allowed
-        to be processed. The <Term type="constant">REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS</Term> policy will cause
-        the server to refuse to process any commits that are not signed with one of the public keys that have been
-        assigned to the repository.
+        We then update the repository's
+        <Link target="a8871c5e-98ca-48e8-b577-afad7b94848c">signature policy</Link>
+        to specify that only commits that have been signed with the exact keys assigned to the repository are allowed to
+        be processed. The <Term type="constant">REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS</Term> policy will cause the
+        server to refuse to process any commits that are not signed with one of the public keys that have been assigned
+        to the repository.
       </Paragraph>
       <FormalItem title="Signature Policy">
         <Verbatim><![CDATA[

@@ -217,7 +217,7 @@ public final class NPAShellBasicTest
   {
     final var w = this.terminal.sendInputToTerminalWriter();
     w.println(
-      "login --access-key 1234 --agent localhost --port 30000");
+      "login --access-key 1234 --hostname localhost --port 30000");
     w.flush();
     w.close();
 
@@ -607,15 +607,15 @@ public final class NPAShellBasicTest
     w.println("set --terminate-on-errors true");
     w.print("server-set-tls ");
     w.print(" --server a753a5cb-e50d-4dcf-952c-27cb1898c66b ");
-    w.print(" --enabled true ");
-    w.print(" --key-store-type CANONMILL ");
-    w.print(" --key-store-provider CANONMILL ");
-    w.print(" --key-store-password changeit ");
-    w.print(" --key-store-path /tmp/p ");
-    w.print(" --trust-store-type CANONMILL ");
-    w.print(" --trust-store-provider CANONMILL ");
-    w.print(" --trust-store-password changeit ");
-    w.print(" --trust-store-path /tmp/p ");
+    w.print(" --tls TLS_ENABLED_EXPLICIT ");
+    w.print(" --tls-keystore-type CANONMILL ");
+    w.print(" --tls-keystore-provider CANONMILL ");
+    w.print(" --tls-keystore-password changeit ");
+    w.print(" --tls-keystore /tmp/p ");
+    w.print(" --tls-truststore-type CANONMILL ");
+    w.print(" --tls-truststore-provider CANONMILL ");
+    w.print(" --tls-truststore-password changeit ");
+    w.print(" --tls-truststore /tmp/p ");
     w.println();
     w.flush();
     w.close();
@@ -654,7 +654,7 @@ public final class NPAShellBasicTest
     w.println("set --terminate-on-errors true");
     w.print("server-set-tls ");
     w.print(" --server a753a5cb-e50d-4dcf-952c-27cb1898c66b ");
-    w.print(" --enabled false ");
+    w.print(" --tls TLS_DISABLED ");
     w.println();
     w.flush();
     w.close();
@@ -693,17 +693,17 @@ public final class NPAShellBasicTest
     w.println("set --terminate-on-errors true");
     w.print("server-set-tls ");
     w.print(" --server a753a5cb-e50d-4dcf-952c-27cb1898c66b ");
-    w.print(" --enabled true ");
+    w.print(" --tls TLS_ENABLED_CLIENT_ANONYMOUS ");
     w.println();
     w.flush();
     w.close();
 
     this.waitForShell();
-    assertEquals(1, this.exitCode);
+    assertEquals(0, this.exitCode);
 
     Mockito.verify(this.consoleClient, new Times(1))
       .execute(isA(NPACCommandServerGet.class));
-    Mockito.verify(this.consoleClient, new Times(0))
+    Mockito.verify(this.consoleClient, new Times(1))
       .execute(isA(NPACCommandServerPut.class));
     Mockito.verify(this.consoleClient, new Times(1))
       .close();

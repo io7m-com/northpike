@@ -62,6 +62,7 @@ public final class NPACCmdAgentServerAssign
             .execute(command.name());
         }
 
+        transaction.commit();
         return NPACResponseOK.createCorrelated(command);
       }
     }

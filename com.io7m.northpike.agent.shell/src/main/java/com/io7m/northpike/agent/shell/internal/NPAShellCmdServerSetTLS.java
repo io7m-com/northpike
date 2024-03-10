@@ -20,7 +20,8 @@ import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
-import com.io7m.northpike.model.tls.NPTLSDisabled;
+import com.io7m.northpike.model.tls.NPTLSConfigurationKind;
+import com.io7m.northpike.model.tls.NPTLSEnabledClientAnonymous;
 import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerGet;
@@ -42,6 +43,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.io7m.northpike.model.tls.NPTLSDisabled.TLS_DISABLED;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
 import static java.util.Map.entry;
 
@@ -62,94 +64,94 @@ public final class NPAShellCmdServerSetTLS
       NPAgentServerID.class
     );
 
-  private static final QParameterNamed1<Boolean> ENABLED =
+  private static final QParameterNamed1<NPTLSConfigurationKind> TLS =
     new QParameterNamed1<>(
-      "--enabled",
+      "--tls",
       List.of(),
       new QConstant(
-        "True if TLS is enabled."),
-      Optional.empty(),
-      Boolean.class
+        "Set the TLS type."),
+      Optional.of(NPTLSConfigurationKind.TLS_DISABLED),
+      NPTLSConfigurationKind.class
     );
 
-  private static final QParameterNamed01<String> KS_TYPE =
+  private static final QParameterNamed01<Path> TLS_KEYSTORE_FILE =
     new QParameterNamed01<>(
-      "--key-store-type",
+      "--tls-keystore",
       List.of(),
       new QConstant(
-        "The keystore type."),
-      Optional.empty(),
-      String.class
-    );
-
-  private static final QParameterNamed01<String> KS_PROVIDER =
-    new QParameterNamed01<>(
-      "--key-store-provider",
-      List.of(),
-      new QConstant(
-        "The keystore provider."),
-      Optional.empty(),
-      String.class
-    );
-
-  private static final QParameterNamed01<String> KS_PASSWORD =
-    new QParameterNamed01<>(
-      "--key-store-password",
-      List.of(),
-      new QConstant(
-        "The keystore password."),
-      Optional.empty(),
-      String.class
-    );
-
-  private static final QParameterNamed01<Path> KS_PATH =
-    new QParameterNamed01<>(
-      "--key-store-path",
-      List.of(),
-      new QConstant(
-        "The keystore path."),
+        "The TLS keystore."),
       Optional.empty(),
       Path.class
     );
 
-  private static final QParameterNamed01<String> TS_TYPE =
+  private static final QParameterNamed01<String> TLS_KEYSTORE_PROVIDER =
     new QParameterNamed01<>(
-      "--trust-store-type",
+      "--tls-keystore-provider",
       List.of(),
       new QConstant(
-        "The truststore type."),
+        "The TLS keystore provider."),
       Optional.empty(),
       String.class
     );
 
-  private static final QParameterNamed01<String> TS_PROVIDER =
+  private static final QParameterNamed01<String> TLS_KEYSTORE_TYPE =
     new QParameterNamed01<>(
-      "--trust-store-provider",
+      "--tls-keystore-type",
       List.of(),
       new QConstant(
-        "The truststore provider."),
+        "The TLS keystore type."),
       Optional.empty(),
       String.class
     );
 
-  private static final QParameterNamed01<String> TS_PASSWORD =
+  private static final QParameterNamed01<String> TLS_KEYSTORE_PASSWORD =
     new QParameterNamed01<>(
-      "--trust-store-password",
+      "--tls-keystore-password",
       List.of(),
       new QConstant(
-        "The truststore password."),
-      Optional.empty(),
+        "The TLS keystore password."),
+      Optional.of("changeit"),
       String.class
     );
 
-  private static final QParameterNamed01<Path> TS_PATH =
+  private static final QParameterNamed01<Path> TLS_TRUSTSTORE_FILE =
     new QParameterNamed01<>(
-      "--trust-store-path",
+      "--tls-truststore",
       List.of(),
       new QConstant(
-        "The truststore path."),
+        "The TLS truststore."),
       Optional.empty(),
       Path.class
+    );
+
+  private static final QParameterNamed01<String> TLS_TRUSTSTORE_TYPE =
+    new QParameterNamed01<>(
+      "--tls-truststore-type",
+      List.of(),
+      new QConstant(
+        "The TLS truststore type."),
+      Optional.empty(),
+      String.class
+    );
+
+  private static final QParameterNamed01<String> TLS_TRUSTSTORE_PASSWORD =
+    new QParameterNamed01<>(
+      "--tls-truststore-password",
+      List.of(),
+      new QConstant(
+        "The TLS truststore password."),
+      Optional.of("changeit"),
+      String.class
+    );
+
+  private static final QParameterNamed01<String> TLS_TRUSTSTORE_PROVIDER =
+    new QParameterNamed01<>(
+      "--tls-truststore-provider",
+      List.of(),
+      new QConstant(
+        "The TLS truststore provider."),
+      Optional.empty(),
+      String.class
     );
 
   /**
@@ -177,16 +179,16 @@ public final class NPAShellCmdServerSetTLS
   public List<QParameterNamedType<?>> onListNamedParameters()
   {
     return List.of(
-      ENABLED,
       ID,
-      KS_PASSWORD,
-      KS_PATH,
-      KS_PROVIDER,
-      KS_TYPE,
-      TS_PASSWORD,
-      TS_PATH,
-      TS_PROVIDER,
-      TS_TYPE
+      TLS,
+      TLS_KEYSTORE_FILE,
+      TLS_KEYSTORE_PASSWORD,
+      TLS_KEYSTORE_PROVIDER,
+      TLS_KEYSTORE_TYPE,
+      TLS_TRUSTSTORE_FILE,
+      TLS_TRUSTSTORE_PASSWORD,
+      TLS_TRUSTSTORE_PROVIDER,
+      TLS_TRUSTSTORE_TYPE
     );
   }
 
@@ -197,6 +199,8 @@ public final class NPAShellCmdServerSetTLS
   {
     final var id =
       context.parameterValue(ID);
+    final var tls =
+      context.parameterValue(TLS);
 
     final var existing =
       this.client()
@@ -204,37 +208,47 @@ public final class NPAShellCmdServerSetTLS
         .results()
         .orElseThrow(() -> this.errorServerNonexistent(id));
 
-    final NPAgentServerDescription update;
-    if (context.parameterValue(ENABLED).booleanValue()) {
-      update = new NPAgentServerDescription(
+    final var tlsConfig =
+      switch (tls) {
+        case TLS_DISABLED -> {
+          yield TLS_DISABLED;
+        }
+
+        case TLS_ENABLED_CLIENT_ANONYMOUS -> {
+          yield new NPTLSEnabledClientAnonymous();
+        }
+
+        case TLS_ENABLED_EXPLICIT -> {
+          final var keyStoreConfiguration =
+            new NPTLSStoreConfiguration(
+              context.parameterValueRequireNow(TLS_KEYSTORE_TYPE),
+              context.parameterValueRequireNow(TLS_KEYSTORE_PROVIDER),
+              context.parameterValueRequireNow(TLS_KEYSTORE_PASSWORD),
+              context.parameterValueRequireNow(TLS_KEYSTORE_FILE)
+            );
+          final var trustStoreConfiguration =
+            new NPTLSStoreConfiguration(
+              context.parameterValueRequireNow(TLS_TRUSTSTORE_TYPE),
+              context.parameterValueRequireNow(TLS_TRUSTSTORE_PROVIDER),
+              context.parameterValueRequireNow(TLS_TRUSTSTORE_PASSWORD),
+              context.parameterValueRequireNow(TLS_TRUSTSTORE_FILE)
+            );
+
+          yield new NPTLSEnabledExplicit(
+            keyStoreConfiguration,
+            trustStoreConfiguration
+          );
+        }
+      };
+
+    final NPAgentServerDescription update =
+      new NPAgentServerDescription(
         existing.id(),
         existing.hostname(),
         existing.port(),
-        new NPTLSEnabledExplicit(
-          new NPTLSStoreConfiguration(
-            context.parameterValueRequireNow(KS_TYPE),
-            context.parameterValueRequireNow(KS_PROVIDER),
-            context.parameterValueRequireNow(KS_PASSWORD),
-            context.parameterValueRequireNow(KS_PATH)
-          ),
-          new NPTLSStoreConfiguration(
-            context.parameterValueRequireNow(TS_TYPE),
-            context.parameterValueRequireNow(TS_PROVIDER),
-            context.parameterValueRequireNow(TS_PASSWORD),
-            context.parameterValueRequireNow(TS_PATH)
-          )
-        ),
+        tlsConfig,
         existing.messageSizeLimit()
       );
-    } else {
-      update = new NPAgentServerDescription(
-        existing.id(),
-        existing.hostname(),
-        existing.port(),
-        NPTLSDisabled.TLS_DISABLED,
-        existing.messageSizeLimit()
-      );
-    }
 
     return new NPACCommandServerPut(UUID.randomUUID(), update);
   }

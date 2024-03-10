@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.agent.shell.internal;
 
+import com.io7m.northpike.model.NPStandardServicePorts;
 import com.io7m.quarrel.core.QCommandContextType;
 import com.io7m.quarrel.core.QCommandMetadata;
 import com.io7m.quarrel.core.QCommandStatus;
@@ -38,11 +39,11 @@ public final class NPAShellCmdLogin extends NPAShellCmdAbstractC
 {
   private static final QParameterNamed1<String> SERVER =
     new QParameterNamed1<>(
-      "--agent",
+      "--hostname",
       List.of(),
       new QConstant(
         "The agent hostname."),
-      Optional.empty(),
+      Optional.of("localhost"),
       String.class
     );
 
@@ -51,8 +52,8 @@ public final class NPAShellCmdLogin extends NPAShellCmdAbstractC
       "--port",
       List.of(),
       new QConstant(
-        "The server port."),
-      Optional.empty(),
+        "The agent port."),
+      Optional.of(Integer.valueOf(NPStandardServicePorts.agentShellPort())),
       Integer.class
     );
 
@@ -109,10 +110,7 @@ public final class NPAShellCmdLogin extends NPAShellCmdAbstractC
 
     this.client()
       .login(
-        InetSocketAddress.createUnresolved(
-          server,
-          port.intValue()
-        ),
+        InetSocketAddress.createUnresolved(server, port.intValue()),
         accessKey
     );
 

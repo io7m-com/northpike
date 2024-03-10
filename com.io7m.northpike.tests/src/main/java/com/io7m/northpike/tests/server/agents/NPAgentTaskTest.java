@@ -27,6 +27,7 @@ import com.io7m.northpike.clock.NPClock;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeSearchType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
@@ -47,6 +48,7 @@ import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPStoredException;
+import com.io7m.northpike.model.NPTimeRange;
 import com.io7m.northpike.model.NPToolExecutionEvaluated;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
@@ -61,6 +63,7 @@ import com.io7m.northpike.model.agents.NPAgentKeyPairEd448Type;
 import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.northpike.model.agents.NPAgentKeyPublicEd448Type;
 import com.io7m.northpike.model.agents.NPAgentLoginChallengeCompletion;
+import com.io7m.northpike.model.agents.NPAgentLoginChallengeSearchParameters;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentExecution;
@@ -98,7 +101,7 @@ import com.io7m.northpike.server.internal.agents.NPAgentTask;
 import com.io7m.northpike.server.internal.agents.NPAgentWorkItemAccepted;
 import com.io7m.northpike.server.internal.agents.NPAgentWorkItemStatusChanged;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
-import com.io7m.northpike.server.internal.events.NPEventService;
+import com.io7m.northpike.telemetry.api.NPEventService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
@@ -114,8 +117,6 @@ import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.verona.core.Version;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
-import org.apache.commons.io.input.QueueInputStream;
-import org.apache.commons.io.output.QueueOutputStream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -126,8 +127,6 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -975,6 +974,47 @@ public final class NPAgentTaskTest
 
     final var error = this.receive(NPAResponseError.class);
     assertEquals(errorApiMisuse(), error.errorCode());
+  }
+
+  /**
+   * Multiple login attempts with the same key should only result in
+   * a single login challenge being reused.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentChallengesReused()
+    throws Exception
+  {
+    this.task = NPAgentTask.create(this.services, this.socket);
+    this.executor.execute(this.task);
+    this.receiveNPI(NPIProtocolsAvailable.class);
+    this.receiveNPI(NPIProtocol.class);
+
+    final var cmd0 = new NPACommandCLogin(randomUUID(), KEY_0);
+    this.send(cmd0);
+
+    final var r0 =
+      this.receive(NPAResponseLoginChallenge.class);
+
+    final var cmd1 = new NPACommandCLogin(randomUUID(), KEY_0);
+    this.send(cmd1);
+
+    final var r1 =
+      this.receive(NPAResponseLoginChallenge.class);
+
+    try (var transaction = this.connection.openTransaction()) {
+      final var items =
+        transaction.queries(LoginChallengeSearchType.class)
+          .execute(new NPAgentLoginChallengeSearchParameters(
+            NPTimeRange.largest(),
+            1000L))
+          .pageCurrent(transaction)
+          .items();
+
+      assertEquals(1, items.size());
+    }
   }
 
   private void authenticate()

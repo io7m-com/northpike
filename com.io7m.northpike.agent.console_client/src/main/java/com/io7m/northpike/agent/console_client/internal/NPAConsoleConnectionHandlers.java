@@ -38,6 +38,7 @@ import com.io7m.northpike.strings.NPStrings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.List;
 import java.util.Locale;
@@ -87,9 +88,15 @@ public final class NPAConsoleConnectionHandlers
         configuration.address();
 
       try {
+        final var socketAddressResolved =
+          new InetSocketAddress(
+            socketAddress.getHostName(),
+            socketAddress.getPort()
+          );
+
         socket.setTcpNoDelay(true);
         socket.setPerformancePreferences(1, 2, 0);
-        socket.connect(socketAddress, 10);
+        socket.connect(socketAddressResolved, 10);
         return negotiateVersion(configuration.configuration(), socket);
       } catch (final IOException | NPProtocolException e) {
         socket.close();

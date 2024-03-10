@@ -18,6 +18,7 @@ package com.io7m.northpike.agent.database.sqlite;
 
 import com.io7m.anethum.api.ParsingException;
 import com.io7m.jmulticlose.core.CloseableCollection;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseCreate;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseException;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseFactoryType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseSetup;
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteDataSource;
 import org.sqlite.SQLiteErrorCode;
+import org.sqlite.SQLiteOpenMode;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -227,6 +229,12 @@ public final class NPASDatabases implements NPAgentDatabaseFactoryType
         final var config = new SQLiteConfig();
         config.setApplicationId(0x50494b45);
         config.enforceForeignKeys(true);
+
+        if (setup.configuration().create() == NPAgentDatabaseCreate.CREATE_DATABASE) {
+          config.setOpenMode(SQLiteOpenMode.CREATE);
+        } else {
+          config.resetOpenMode(SQLiteOpenMode.CREATE);
+        }
 
         final var dataSource = new SQLiteDataSource(config);
         dataSource.setUrl(url.toString());

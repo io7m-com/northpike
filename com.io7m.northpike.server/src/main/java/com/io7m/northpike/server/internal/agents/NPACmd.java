@@ -22,6 +22,8 @@ import com.io7m.northpike.protocol.agent.NPACommandC2SType;
 import com.io7m.northpike.protocol.agent.NPACommandType;
 import com.io7m.northpike.protocol.agent.NPAMessageType;
 import com.io7m.northpike.protocol.agent.NPAResponseType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +40,9 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_PROTOCOL;
 @SuppressWarnings({"rawtypes"})
 public final class NPACmd
 {
+  private static final Logger LOG =
+    LoggerFactory.getLogger(NPACmd.class);
+
   private final Map<Class, NPAgentCommandExecutorType> executors;
 
   private NPACmd(
@@ -95,6 +100,7 @@ public final class NPACmd
       }
     }
 
+    LOG.debug("Received unexpected message from client: {}", message);
     throw context.fail(ERROR_PROTOCOL, errorProtocol());
   }
 

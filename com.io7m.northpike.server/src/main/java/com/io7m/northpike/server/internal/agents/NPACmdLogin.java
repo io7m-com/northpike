@@ -18,12 +18,15 @@
 package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.northpike.clock.NPClockServiceType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeGetForKeyType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengePutType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.agents.NPAgentLoginChallenge;
 import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
 import com.io7m.northpike.protocol.agent.NPACommandCLogin;
 import com.io7m.northpike.protocol.agent.NPAResponseLoginChallenge;
+
+import java.util.Optional;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
@@ -62,18 +65,25 @@ public final class NPACmdLogin
      * Create a login challenge. Note that the challenge is created even if
      * the agent does not exist; the administrator can use the information in
      * the challenge record to create a new agent description in the database.
+     * We avoid creating multiple login challenges for the same public key.
      */
 
-    final var challenge =
-      new NPAgentLoginChallengeRecord(
-        clock.now(),
-        context.sourceAddress(),
-        command.key(),
-        NPAgentLoginChallenge.generate()
-      );
-
+    final NPAgentLoginChallengeRecord challenge;
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
+        final var existingChallenge =
+          transaction.queries(LoginChallengeGetForKeyType.class)
+            .execute(command.key());
+
+        challenge = existingChallenge.orElseGet(() -> {
+          return new NPAgentLoginChallengeRecord(
+            clock.now(),
+            context.sourceAddress(),
+            command.key(),
+            NPAgentLoginChallenge.generate()
+          );
+        });
+
         transaction.queries(LoginChallengePutType.class).execute(challenge);
         transaction.commit();
       }

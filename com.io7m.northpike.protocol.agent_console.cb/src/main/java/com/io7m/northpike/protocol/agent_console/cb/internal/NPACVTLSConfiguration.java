@@ -49,14 +49,14 @@ public enum NPACVTLSConfiguration
       }
 
       case final NPTLSEnabledExplicit e -> {
-        yield new NPAC1TLSConfiguration.NPAC1TLSEnabled(
+        yield new NPAC1TLSConfiguration.NPAC1TLSEnabledExplicit(
           TLS_STORE.convertToWire(e.keyStore()),
           TLS_STORE.convertToWire(e.trustStore())
         );
       }
 
       case final NPTLSEnabledClientAnonymous d -> {
-        throw new UnsupportedOperationException();
+        yield new NPAC1TLSConfiguration.NPAC1TLSEnabledClientAnonymous();
       }
     };
   }
@@ -66,15 +66,19 @@ public enum NPACVTLSConfiguration
     final NPAC1TLSConfiguration message)
   {
     return switch (message) {
-
-      case final NPAC1TLSConfiguration.NPAC1TLSDisabled d -> {
+      case final NPAC1TLSConfiguration.NPAC1TLSDisabled ignored -> {
         yield NPTLSDisabled.TLS_DISABLED;
       }
-      case final NPAC1TLSConfiguration.NPAC1TLSEnabled e -> {
+
+      case final NPAC1TLSConfiguration.NPAC1TLSEnabledExplicit e -> {
         yield new NPTLSEnabledExplicit(
           TLS_STORE.convertFromWire(e.fieldKeyStore()),
           TLS_STORE.convertFromWire(e.fieldTrustStore())
         );
+      }
+
+      case final NPAC1TLSConfiguration.NPAC1TLSEnabledClientAnonymous ignored -> {
+        yield new NPTLSEnabledClientAnonymous();
       }
     };
   }

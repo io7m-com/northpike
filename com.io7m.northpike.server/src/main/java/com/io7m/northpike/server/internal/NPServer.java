@@ -42,7 +42,7 @@ import com.io7m.northpike.server.internal.assignments.NPAssignmentService;
 import com.io7m.northpike.server.internal.assignments.NPAssignmentServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationService;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
-import com.io7m.northpike.server.internal.events.NPEventService;
+import com.io7m.northpike.telemetry.api.NPEventService;
 import com.io7m.northpike.server.internal.idstore.NPIdstoreClients;
 import com.io7m.northpike.server.internal.idstore.NPIdstoreClientsType;
 import com.io7m.northpike.server.internal.maintenance.NPMaintenanceService;

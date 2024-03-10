@@ -38,6 +38,8 @@ module com.io7m.northpike.agent.main
   requires com.io7m.anethum.api;
   requires com.io7m.anethum.slf4j;
   requires com.io7m.quarrel.core;
+  requires com.io7m.quarrel.ext.logback;
+  requires jul.to.slf4j;
   requires org.slf4j;
 
   uses NPTelemetryServiceFactoryType;

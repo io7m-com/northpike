@@ -28,6 +28,7 @@
   <xi:include href="toolexec.xml"/>
   <xi:include href="plan.xml"/>
   <xi:include href="user-shell.xml"/>
+  <xi:include href="agent-shell.xml"/>
   <xi:include href="api-user.xml"/>
   <xi:include href="api-agent.xml"/>
   <xi:include href="api-agent-console.xml"/>

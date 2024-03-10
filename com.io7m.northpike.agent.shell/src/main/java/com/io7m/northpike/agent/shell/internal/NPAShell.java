@@ -185,7 +185,7 @@ public final class NPAShell implements NPAShellType
 
     try {
       line = this.reader.readLine(
-        "[northpike]$ ",
+        "[northpike-agent]$ ",
         null,
         (MaskingCallback) null,
         null);
