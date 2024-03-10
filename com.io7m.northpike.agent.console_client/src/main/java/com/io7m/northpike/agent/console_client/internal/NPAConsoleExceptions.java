@@ -21,6 +21,7 @@ import com.io7m.northpike.agent.console_client.api.NPAConsoleClientException;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.protocol.api.NPProtocolException;
+import com.io7m.northpike.strings.NPStringConstants;
 import com.io7m.northpike.strings.NPStrings;
 
 import java.io.IOException;
@@ -113,6 +114,17 @@ final class NPAConsoleExceptions
       e.errorCode(),
       e.attributes(),
       e.remediatingAction()
+    );
+  }
+
+  public static NPAConsoleClientException errorNotConnected(
+    final NPStrings strings)
+  {
+    return new NPAConsoleClientException(
+      strings.format(NPStringConstants.ERROR_NOT_CONNECTED),
+      NPStandardErrorCodes.errorNotLoggedIn(),
+      Map.of(),
+      Optional.empty()
     );
   }
 }

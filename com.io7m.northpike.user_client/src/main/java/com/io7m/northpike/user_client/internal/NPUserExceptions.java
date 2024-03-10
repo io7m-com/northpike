@@ -20,6 +20,7 @@ package com.io7m.northpike.user_client.internal;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.protocol.api.NPProtocolException;
+import com.io7m.northpike.strings.NPStringConstants;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.user_client.api.NPUserClientException;
 
@@ -113,6 +114,17 @@ final class NPUserExceptions
       e.errorCode(),
       e.attributes(),
       e.remediatingAction()
+    );
+  }
+
+  public static NPUserClientException errorNotConnected(
+    final NPStrings strings)
+  {
+    return new NPUserClientException(
+      strings.format(NPStringConstants.ERROR_NOT_CONNECTED),
+      NPStandardErrorCodes.errorNotLoggedIn(),
+      Map.of(),
+      Optional.empty()
     );
   }
 }

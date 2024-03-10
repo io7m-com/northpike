@@ -106,6 +106,12 @@ public final class NPUserClient implements NPUserClientType
     final NPUCommandType<R> command)
     throws NPUserClientException, InterruptedException
   {
+    if (!this.isConnected()) {
+      throw NPUserExceptions.errorNotConnected(
+        this.configuration.strings()
+      );
+    }
+
     try {
       final var r = this.connection.ask(command);
       return switch (r) {
@@ -124,6 +130,11 @@ public final class NPUserClient implements NPUserClientType
     } catch (final IOException e) {
       throw NPUserExceptions.errorIO(this.configuration.strings(), e);
     }
+  }
+
+  private boolean isConnected()
+  {
+    return this.connection != null && !this.connection.isClosed();
   }
 
   @Override

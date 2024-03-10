@@ -100,6 +100,12 @@ public final class NPAConsoleClient implements NPAConsoleClientType
     final NPACCommandType<R> command)
     throws NPAConsoleClientException, InterruptedException
   {
+    if (!this.isConnected()) {
+      throw NPAConsoleExceptions.errorNotConnected(
+        this.configuration.strings()
+      );
+    }
+
     try {
       final var r = this.connection.ask(command);
       return switch (r) {
@@ -118,6 +124,11 @@ public final class NPAConsoleClient implements NPAConsoleClientType
     } catch (final IOException e) {
       throw NPAConsoleExceptions.errorIO(this.configuration.strings(), e);
     }
+  }
+
+  private boolean isConnected()
+  {
+    return this.connection != null && !this.connection.isClosed();
   }
 
   @Override
