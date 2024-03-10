@@ -22,6 +22,9 @@
       If you wish to interact with an existing server from the command-line, proceed to
       the <Link target="11820a41-7dcd-41d0-acf0-ee5696fe4788">shell installation</Link> section.
     </Paragraph>
+    <Paragraph>
+      Additionally, there is an informal <Link target="63fdd8ed-b53b-4d4e-b0b1-89ba8d52fbe8">setup tutorial</Link>.
+    </Paragraph>
   </Section>
 
   <xi:include href="install-server.xml"/>

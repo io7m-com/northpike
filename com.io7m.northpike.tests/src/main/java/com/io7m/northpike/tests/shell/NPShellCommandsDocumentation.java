@@ -60,6 +60,7 @@ public final class NPShellCommandsDocumentation
     final var configuration =
       new NPShellConfiguration(
         Locale.ROOT,
+        tempFile.getParent(),
         new NPUserClients(),
         NPStrings.create(Locale.ROOT),
         Optional.empty(),

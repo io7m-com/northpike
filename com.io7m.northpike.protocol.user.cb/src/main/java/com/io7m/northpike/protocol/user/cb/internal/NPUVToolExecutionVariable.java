@@ -24,11 +24,11 @@ import com.io7m.cedarbridge.runtime.convenience.CBSets;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1ToolExecutionVariable;
-import com.io7m.northpike.toolexec.program.api.NPTPVariableType;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableBoolean;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableInteger;
 import com.io7m.northpike.toolexec.program.api.NPTPVariableString;
 import com.io7m.northpike.toolexec.program.api.NPTPVariableStringSet;
-import com.io7m.northpike.toolexec.program.api.NPTPVariableInteger;
-import com.io7m.northpike.toolexec.program.api.NPTPVariableBoolean;
+import com.io7m.northpike.toolexec.program.api.NPTPVariableType;
 
 import java.math.BigInteger;
 

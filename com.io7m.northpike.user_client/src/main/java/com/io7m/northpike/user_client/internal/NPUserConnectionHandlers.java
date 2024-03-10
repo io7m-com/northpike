@@ -24,7 +24,9 @@ import com.io7m.genevan.core.GenProtocolSolved;
 import com.io7m.genevan.core.GenProtocolSolver;
 import com.io7m.genevan.core.GenProtocolVersion;
 import com.io7m.northpike.model.NPStandardErrorCodes;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSDisabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledClientAnonymous;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.intro.NPIError;
 import com.io7m.northpike.protocol.intro.NPIMessageType;
@@ -105,7 +107,9 @@ public final class NPUserConnectionHandlers
         throw e;
       }
     } catch (final IOException e) {
-      throw NPUserExceptions.errorIO(configuration.configuration().strings(), e);
+      throw NPUserExceptions.errorIO(
+        configuration.configuration().strings(),
+        e);
     } catch (final NPProtocolException e) {
       throw NPUserExceptions.errorProtocol(e);
     }
@@ -116,17 +120,31 @@ public final class NPUserConnectionHandlers
     throws NPUserClientException
   {
     try {
-      if (configuration.tls() instanceof final NPTLSEnabled enabled) {
-        return NPTLSContext.create(
-            "User",
-            enabled.keyStore(),
-            enabled.trustStore()
-          ).context()
-          .getSocketFactory()
-          .createSocket();
-      }
+      return switch (configuration.tls()) {
+        case final NPTLSDisabled ignored -> {
+          yield new Socket();
+        }
 
-      return new Socket();
+        case final NPTLSEnabledExplicit enabledExplicit -> {
+          yield NPTLSContext.create(
+              "User",
+              Optional.of(enabledExplicit.keyStore()),
+              Optional.of(enabledExplicit.trustStore())
+            ).context()
+            .getSocketFactory()
+            .createSocket();
+        }
+
+        case final NPTLSEnabledClientAnonymous enabledClientAnonymous -> {
+          yield NPTLSContext.create(
+              "User",
+              Optional.empty(),
+              Optional.empty()
+            ).context()
+            .getSocketFactory()
+            .createSocket();
+        }
+      };
     } catch (final IOException e) {
       throw NPUserExceptions.errorIO(
         configuration.configuration().strings(), e);

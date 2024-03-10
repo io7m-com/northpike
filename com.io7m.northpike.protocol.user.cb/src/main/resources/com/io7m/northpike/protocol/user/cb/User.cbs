@@ -30,6 +30,13 @@
   ]
 ]
 
+[record NPU1PGPKeySummary
+  [field userId cb:String]
+  [field fingerprint cb:String]
+  [field timeCreated ct:OffsetDateTime]
+  [field timeExpires [cb:Option ct:OffsetDateTime]]
+]
+
 [variant NPU1ComparisonExact
   [parameter T]
   [case Anything]
@@ -1343,7 +1350,7 @@
   [documentation correlationId "The message correlation ID"]
   [field correlationId cb:UUID]
   [documentation results "The results"]
-  [field results [NPU1Page cb:String]]
+  [field results [NPU1Page NPU1PGPKeySummary]]
 ]
 
 [documentation NPU1ResponseAuditSearch "A response to NPU1CommandAuditSearchBegin."]

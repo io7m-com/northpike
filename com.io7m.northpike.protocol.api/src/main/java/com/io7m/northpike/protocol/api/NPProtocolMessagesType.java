@@ -18,6 +18,7 @@
 package com.io7m.northpike.protocol.api;
 
 import com.io7m.northpike.strings.NPStrings;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,19 +77,22 @@ public interface NPProtocolMessagesType<T extends NPProtocolMessageType>
     final InputStream stream)
     throws NPProtocolException, IOException
   {
-    final byte[] size;
+    final byte[] size = new byte[4];
+    final int sizeLength;
+
     try {
-      size = stream.readNBytes(4);
-    } catch (IOException e) {
+      sizeLength = IOUtils.read(stream, size);
+    } catch (final IOException e) {
       throw new NPProtocolException(
         strings.format(ERROR_IO),
+        e,
         errorIo(),
         Map.of(),
         Optional.empty()
       );
     }
 
-    if (size.length < 4) {
+    if (sizeLength < 4) {
       throw new NPProtocolException(
         strings.format(ERROR_READ_SHORT),
         errorIo(),
@@ -99,8 +103,9 @@ public interface NPProtocolMessagesType<T extends NPProtocolMessageType>
 
     final var sizeBuffer = ByteBuffer.wrap(size);
     sizeBuffer.order(ByteOrder.BIG_ENDIAN);
-    final var length = sizeBuffer.getInt(0);
-    if (length > sizeLimit) {
+
+    final var messageLength = sizeBuffer.getInt(0);
+    if (messageLength > sizeLimit) {
       throw new NPProtocolException(
         strings.format(ERROR_SIZE_LIMIT_EXCEEDED),
         errorProtocol(),
@@ -108,7 +113,7 @@ public interface NPProtocolMessagesType<T extends NPProtocolMessageType>
         Optional.empty()
       );
     }
-    return this.parse(stream.readNBytes(length));
+    return this.parse(IOUtils.readFully(stream, messageLength));
   }
 
   /**

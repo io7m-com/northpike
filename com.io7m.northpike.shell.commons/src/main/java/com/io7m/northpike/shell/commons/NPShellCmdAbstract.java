@@ -19,6 +19,7 @@ package com.io7m.northpike.shell.commons;
 
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.preferences.api.NPPreferencesServiceType;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.quarrel.core.QCommandMetadata;
@@ -111,6 +112,12 @@ public abstract class NPShellCmdAbstract
       Map.copyOf(this.attributes),
       Optional.empty()
     );
+  }
+
+  protected final NPPreferencesServiceType preferences()
+  {
+    return this.services()
+      .requireService(NPPreferencesServiceType.class);
   }
 
   @Override

@@ -48,6 +48,8 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.plans.compiler;
   requires com.io7m.northpike.plans.parsers;
   requires com.io7m.northpike.plans;
+  requires com.io7m.northpike.preferences.api;
+  requires com.io7m.northpike.preferences.basic;
   requires com.io7m.northpike.protocol.agent.cb;
   requires com.io7m.northpike.protocol.agent;
   requires com.io7m.northpike.protocol.agent_console.cb;
@@ -115,6 +117,7 @@ open module com.io7m.northpike.tests
   requires java.net.http;
   requires java.sql;
   requires java.xml;
+  requires jul.to.slf4j;
   requires net.bytebuddy.agent;
   requires net.bytebuddy;
   requires net.jqwik.api;

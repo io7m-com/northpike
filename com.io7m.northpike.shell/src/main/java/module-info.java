@@ -25,6 +25,8 @@ module com.io7m.northpike.shell
 
   requires com.io7m.northpike.keys;
   requires com.io7m.northpike.model;
+  requires com.io7m.northpike.preferences.api;
+  requires com.io7m.northpike.preferences.basic;
   requires com.io7m.northpike.protocol.user;
   requires com.io7m.northpike.shell.commons;
   requires com.io7m.northpike.strings;

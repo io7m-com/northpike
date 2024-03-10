@@ -18,6 +18,7 @@
 package com.io7m.northpike.protocol.user;
 
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPPublicKeySummary;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -33,8 +34,8 @@ import java.util.UUID;
 public record NPUResponsePublicKeySearch(
   UUID messageID,
   UUID correlationID,
-  NPPage<String> results)
-  implements NPUResponsePagedType<String>
+  NPPage<NPPublicKeySummary> results)
+  implements NPUResponsePagedType<NPPublicKeySummary>
 {
   /**
    * A repository retrieval.

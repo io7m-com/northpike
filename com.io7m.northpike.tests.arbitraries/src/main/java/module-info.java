@@ -14,6 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.northpike.tests.arbitraries.NPArbPublicKey;
 import net.jqwik.api.providers.ArbitraryProvider;
 
 open module com.io7m.northpike.tests.arbitraries
@@ -35,8 +36,6 @@ open module com.io7m.northpike.tests.arbitraries
   uses ArbitraryProvider;
 
   provides ArbitraryProvider with
-    com.io7m.northpike.tests.arbitraries.toolexec.NPArbTEVariable,
-    com.io7m.northpike.tests.arbitraries.NPArbSStructuredError,
     com.io7m.northpike.tests.arbitraries.NPArbAgentDescription,
     com.io7m.northpike.tests.arbitraries.NPArbAgentGetResult,
     com.io7m.northpike.tests.arbitraries.NPArbAgentID,
@@ -48,6 +47,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbAgentLoginChallenge,
     com.io7m.northpike.tests.arbitraries.NPArbAgentLoginChallengeRecord,
     com.io7m.northpike.tests.arbitraries.NPArbAgentLoginChallengeSearchParameters,
+    com.io7m.northpike.tests.arbitraries.NPArbAgentPublicKey,
     com.io7m.northpike.tests.arbitraries.NPArbAgentResourceName,
     com.io7m.northpike.tests.arbitraries.NPArbAgentSearchParameters,
     com.io7m.northpike.tests.arbitraries.NPArbAgentServerDescription,
@@ -99,6 +99,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbRepositorySummary,
     com.io7m.northpike.tests.arbitraries.NPArbRoleSet,
     com.io7m.northpike.tests.arbitraries.NPArbSCMProviderDescription,
+    com.io7m.northpike.tests.arbitraries.NPArbSStructuredError,
     com.io7m.northpike.tests.arbitraries.NPArbStoredException,
     com.io7m.northpike.tests.arbitraries.NPArbStoredStackTraceElement,
     com.io7m.northpike.tests.arbitraries.NPArbSubject,
@@ -176,7 +177,6 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIMessage,
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIProtocol,
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIProtocolsAvailable,
-    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLoginChallengeAgentCreate,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelDelete,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelGet,
@@ -184,6 +184,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelSearchBegin,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelSearchNext,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelSearchPrevious,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLoginChallengeAgentCreate,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLoginChallengeDelete,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLoginChallengeSearchBegin,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLoginChallengeSearchNext,
@@ -276,7 +277,8 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseToolExecutionDescriptionSearch,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseToolExecutionDescriptionValidate,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseUserSearch,
-    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseUsersConnected
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseUsersConnected,
+    com.io7m.northpike.tests.arbitraries.toolexec.NPArbTEVariable
     ;
 
   exports com.io7m.northpike.tests.arbitraries;

@@ -461,7 +461,7 @@
       <Paragraph>
         Each agent is uniquely identified by a <Term type="term">public keypair</Term>. When an agent is created in
         an <Term type="term">agent host</Term>, a new
-        <LinkExternal target="https://en.wikipedia.org/wiki/EdDSA">Ed25519</LinkExternal>
+        <LinkExternal target="https://en.wikipedia.org/wiki/EdDSA">Ed448</LinkExternal>
         keypair is generated, and the public half of this keypair can then be communicated out-of-band to the
         administrator of the relevant <Term type="package">northpike</Term> server. This keypair is used to authenticate
         the agent to the server whenever the agent connects.

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<c:Configuration xmlns:c="urn:com.io7m.northpike.server.configuration:1"
+                 xmlns:t="urn:com.io7m.northpike.tls:1">
+
+  <c:AgentService ListenAddress="[::]"
+                  ListenPort="20048"
+                  MaximumCommandSizeOctets="1000000">
+    <t:TLSEnabled>
+      <t:KeyStore Type="CANONMILL"
+                  Provider="CANONMILL"
+                  Password="changeit"
+                  File="/northpike/certificates/keystore.xml"/>
+      <t:TrustStore Type="JKS"
+                    Provider="SUN"
+                    Password="changeit"
+                    File="/opt/java/openjdk/lib/security/cacerts"/>
+    </t:TLSEnabled>
+  </c:AgentService>
+
+  <c:ArchiveService ListenAddress="[::]"
+                    ListenPort="20049"
+                    AdvertiseURI="https://northpike.example.com:20049/">
+    <t:TLSEnabled>
+      <t:KeyStore Type="CANONMILL"
+                  Provider="CANONMILL"
+                  Password="changeit"
+                  File="/northpike/certificates/keystore.xml"/>
+      <t:TrustStore Type="JKS"
+                    Provider="SUN"
+                    Password="changeit"
+                    File="/opt/java/openjdk/lib/security/cacerts"/>
+    </t:TLSEnabled>
+  </c:ArchiveService>
+
+  <c:Database Kind="POSTGRESQL"
+              OwnerRoleName="northpike_install"
+              OwnerRolePassword="2d28cffd837cc32b7828733d0f89898e"
+              WorkerRolePassword="2d28cffd837cc32b7828733d0f89898e"
+              Address="db.example.com"
+              Port="5432"
+              Name="northpike"
+              Create="true"
+              Upgrade="true"
+              Language="english"/>
+
+  <c:Directories RepositoryDirectory="/northpike/data/repositories"
+                 ArchiveDirectory="/northpike/data/archives"/>
+
+  <c:IdStore BaseURI="https://idstore.example.com:50000"
+             PasswordResetURI="https://idstore.example.com:50001/reset"/>
+
+  <c:Maintenance ArchiveMaximumAge="PT24H"
+                 AgentLoginRecordsMaximumAge="PT2000H"
+                 AssignmentExecutionsMaximumAge="PT72H"/>
+
+  <c:OpenTelemetry LogicalServiceName="northpike">
+    <c:Logs Endpoint="http://logs.telemetry.example.com:4317"
+            Protocol="GRPC"/>
+    <c:Metrics Endpoint="http://metrics.telemetry.example.com:4317"
+               Protocol="GRPC"/>
+    <c:Traces Endpoint="http://traces.telemetry.example.com:4317"
+              Protocol="GRPC"/>
+  </c:OpenTelemetry>
+
+  <c:UserService ListenAddress="[::]"
+                 ListenPort="20050"
+                 MaximumCommandSizeOctets="1000000">
+    <t:TLSEnabled>
+      <t:KeyStore Type="CANONMILL"
+                  Provider="CANONMILL"
+                  Password="changeit"
+                  File="/northpike/certificates/keystore.xml"/>
+      <t:TrustStore Type="JKS"
+                    Provider="SUN"
+                    Password="changeit"
+                    File="/opt/java/openjdk/lib/security/cacerts"/>
+    </t:TLSEnabled>
+  </c:UserService>
+
+</c:Configuration>

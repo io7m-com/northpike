@@ -23,8 +23,10 @@ import com.io7m.northpike.agent.database.sqlite.internal.NPASQueryProviderType.S
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
+import com.io7m.northpike.model.tls.NPTLSConfigurationKind;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledClientAnonymous;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import org.jooq.DSLContext;
 
@@ -111,10 +113,17 @@ public final class NPASServerGet
     throws IOException
   {
     final var tls =
-      switch (record.<Integer>get(SERVERS.S_TLS).intValue()) {
-        case 0 -> NPTLSDisabled.TLS_DISABLED;
-        default -> {
-          yield new NPTLSEnabled(
+      switch (NPTLSConfigurationKind.valueOf(record.get(SERVERS.S_TLS))) {
+        case NPTLSConfigurationKind.TLS_DISABLED -> {
+          yield NPTLSDisabled.TLS_DISABLED;
+        }
+
+        case NPTLSConfigurationKind.TLS_ENABLED_CLIENT_ANONYMOUS -> {
+          yield new NPTLSEnabledClientAnonymous();
+        }
+
+        case NPTLSConfigurationKind.TLS_ENABLED_EXPLICIT -> {
+          yield new NPTLSEnabledExplicit(
             parseStore(record.get(SERVERS.S_TLS_KEYSTORE)),
             parseStore(record.get(SERVERS.S_TLS_TRUSTSTORE))
           );

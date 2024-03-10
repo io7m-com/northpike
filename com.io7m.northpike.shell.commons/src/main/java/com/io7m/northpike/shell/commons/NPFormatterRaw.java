@@ -22,6 +22,7 @@ import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPPublicKey;
+import com.io7m.northpike.model.NPPublicKeySummary;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
@@ -47,7 +48,9 @@ import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanSummary;
 import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledClientAnonymous;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
+import com.io7m.northpike.preferences.api.NPPreferenceServerBookmark;
 import org.jline.terminal.Terminal;
 
 import java.io.PrintWriter;
@@ -156,12 +159,12 @@ public final class NPFormatterRaw implements NPFormatterType
 
   @Override
   public void formatPublicKeySummaries(
-    final NPPage<NPPublicKey> page)
+    final NPPage<NPPublicKeySummary> page)
   {
     final var out = this.terminal.writer();
     formatPage(page, out);
 
-    out.println("# Fingerprint | Time Created | Time Expires | User IDs");
+    out.println("# Fingerprint | Time Created | Time Expires | User ID");
 
     for (final var item : page.items()) {
       out.printf(
@@ -171,7 +174,7 @@ public final class NPFormatterRaw implements NPFormatterType
         item.timeExpires()
           .map(OffsetDateTime::toString)
           .orElse("Never"),
-        item.userIDs()
+        item.userID()
       );
     }
     out.flush();
@@ -573,7 +576,8 @@ public final class NPFormatterRaw implements NPFormatterType
       case final NPTLSDisabled d -> {
         out.printf("TLS: %s%n", d);
       }
-      case final NPTLSEnabled e -> {
+
+      case final NPTLSEnabledExplicit e -> {
         out.print("TLS Key Store Type: ");
         out.println(e.keyStore().storeType());
         out.print("TLS Key Store Provider: ");
@@ -591,6 +595,10 @@ public final class NPFormatterRaw implements NPFormatterType
         out.println(e.trustStore().storePath());
         out.print("TLS Trust Store Password: ");
         out.println(e.trustStore().storePassword());
+      }
+
+      case final NPTLSEnabledClientAnonymous clientAnonymous -> {
+        out.printf("TLS: %s%n", clientAnonymous);
       }
     }
 
@@ -615,6 +623,22 @@ public final class NPFormatterRaw implements NPFormatterType
       );
     }
     out.flush();
+  }
+
+  @Override
+  public void formatBookmarks(
+    final List<NPPreferenceServerBookmark> bookmarks)
+  {
+    final PrintWriter w = this.terminal.writer();
+
+    for (final var bookmark : bookmarks) {
+      w.printf(
+        "%-32s %s:%s%n",
+        bookmark.name(),
+        bookmark.host(),
+        Integer.valueOf(bookmark.port())
+      );
+    }
   }
 
   static String formatSchedule(

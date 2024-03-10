@@ -15,9 +15,9 @@
     <Paragraph>
       The configuration file must consist of a single top-level
       <Term type="expression">Configuration</Term>
-      element in the <Term type="expression">urn:com.io7m.northpike.server.configuration:1</Term> namespace.
-      In modern IDEs, simply creating a file containing this element will immediately fill in all the other
-      required child elements.
+      element in the <Term type="expression">urn:com.io7m.northpike.server.configuration:1</Term> namespace. In modern
+      IDEs, simply creating a file containing this element will immediately fill in all the other required child
+      elements.
     </Paragraph>
   </Subsection>
 
@@ -36,7 +36,8 @@
     </FormalItem>
   </Subsection>
 
-  <Subsection title="AgentService">
+  <Subsection title="AgentService"
+              id="016622c2-97b9-4292-9eff-a61743c60ee3">
     <Subsection title="Description">
       <Paragraph>
         The <Term type="expression">AgentService</Term> section of the configuration file configures the main
@@ -45,16 +46,14 @@
       <Paragraph>
         The
         <Term type="expression">ListenAddress</Term>
-        and <Term type="expression">ListenPort</Term> attributes specify the address and port to which to the
-        service will bind.
+        and <Term type="expression">ListenPort</Term> attributes specify the address and port to which to the service
+        will bind. See the <Link target="040f2f85-0c04-4684-bf49-e5065f800139">standard ports</Link> section for
+        recommended port numbers.
       </Paragraph>
       <Paragraph>
         The
         <Term type="expression">MaximumCommandSizeOctets</Term>
         attribute specifies the maximum size in octets of commands that will be accepted by the service.
-      </Paragraph>
-      <Paragraph>
-        By convention, the agent service should listen on TCP port <Term type="constant">20048</Term>.
       </Paragraph>
       <Paragraph>
         The <Term type="expression">AgentService</Term> element must contain either a
@@ -81,7 +80,8 @@
     </Subsection>
   </Subsection>
 
-  <Subsection title="ArchiveService">
+  <Subsection title="ArchiveService"
+              id="00a30eb0-dc4a-424f-9ce4-72b4c4a38dd7">
     <Subsection title="Description">
       <Paragraph>
         The <Term type="expression">ArchiveService</Term> section of the configuration file configures the main
@@ -90,8 +90,9 @@
       <Paragraph>
         The
         <Term type="expression">ListenAddress</Term>
-        and <Term type="expression">ListenPort</Term> attributes specify the address and port to which to the
-        service will bind.
+        and <Term type="expression">ListenPort</Term> attributes specify the address and port to which to the service
+        will bind. See the <Link target="040f2f85-0c04-4684-bf49-e5065f800139">standard ports</Link> section for
+        recommended port numbers.
       </Paragraph>
       <Paragraph>
         The
@@ -102,9 +103,6 @@
         The
         <Term type="expression">MaximumCommandSizeOctets</Term>
         attribute specifies the maximum size in octets of commands that will be accepted by the service.
-      </Paragraph>
-      <Paragraph>
-        By convention, the archive service should listen on TCP port <Term type="constant">20049</Term>.
       </Paragraph>
       <Paragraph>
         The <Term type="expression">ArchiveService</Term> element must contain either a
@@ -195,17 +193,16 @@
 
   <Subsection title="Directories">
     <Paragraph>
-      The <Term type="expression">Directories</Term> section of the configuration file configures the paths
-      that will be used to store volatile data that, for whatever reason, cannot be stored in the database.
+      The <Term type="expression">Directories</Term> section of the configuration file configures the paths that will be
+      used to store volatile data that, for whatever reason, cannot be stored in the database.
     </Paragraph>
     <Paragraph>
-      The <Term type="expression">RepositoryDirectory</Term> attribute specifies the base directory that will
-      be used to store cloned <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">repositories</Link>.
+      The <Term type="expression">RepositoryDirectory</Term> attribute specifies the base directory that will be used to
+      store cloned <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">repositories</Link>.
     </Paragraph>
     <Paragraph>
-      The <Term type="expression">ArchiveDirectory</Term> attribute specifies the base directory that will
-      be used to store archives of <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">commits</Link> to be
-      downloaded by agents.
+      The <Term type="expression">ArchiveDirectory</Term> attribute specifies the base directory that will be used to
+      store archives of <Link target="679205fa-85e3-437c-a84d-0b691b6291dc">commits</Link> to be downloaded by agents.
     </Paragraph>
   </Subsection>
 
@@ -213,19 +210,21 @@
     <Subsection title="Overview">
       <Paragraph>
         The <Term type="expression">Idstore</Term> section of the configuration file configures the external
-        <LinkExternal target="https://www.io7m.com/software/idstore">idstore</LinkExternal> server.
+        <LinkExternal target="https://www.io7m.com/software/idstore">idstore</LinkExternal>
+        server.
       </Paragraph>
     </Subsection>
     <Subsection title="Description">
       <Paragraph>
-        The <Term type="expression">BaseURI</Term> attribute specifies the base URI of the User API of the
-        external <Term type="package">idstore</Term> server. This server is used to authenticate users whenever
-        they try to log in to the <Term type="package">northpike</Term> server.
+        The <Term type="expression">BaseURI</Term> attribute specifies the base URI of the User API of the external
+        <Term type="package">idstore</Term> server. This server is used to authenticate users whenever they try to
+        log in to the <Term type="package">northpike</Term> server.
       </Paragraph>
       <Paragraph>
-        The <Term type="expression">PasswordResetURI</Term> attribute specifies the URI to which users should
-        be redirected if they want to reset their passwords. This is the URI of the User View service on the external
-        <Term type="package">idstore</Term> server.
+        The <Term type="expression">PasswordResetURI</Term> attribute specifies the URI to which users should be
+        redirected if they want to reset their passwords. This is the URI of the User View service on the external
+        <Term type="package">idstore</Term>
+        server.
       </Paragraph>
     </Subsection>
     <Subsection title="Example">
@@ -252,30 +251,29 @@
       <Paragraph>
         The <Term type="expression">TLSReloadInterval</Term> attribute specifies how frequently the server will reload
         the TLS certificates for the HTTP services; the server will reload certificates every time this interval
-        elapses. The attribute must be
-        formatted as an
+        elapses. The attribute must be formatted as an
         <LinkExternal target="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601 duration string</LinkExternal>.
       </Paragraph>
     </Subsection>
     <Subsection title="ArchiveMaximumAge">
       <Paragraph>
-        The <Term type="expression">ArchiveMaximumAge</Term> attribute specifies how frequently the maximum duration
-        for which archives of commits will be stored; any archives older than this age will be deleted when the
-        maintenance service executes.
+        The <Term type="expression">ArchiveMaximumAge</Term> attribute specifies how frequently the maximum duration for
+        which archives of commits will be stored; any archives older than this age will be deleted when the maintenance
+        service executes.
       </Paragraph>
     </Subsection>
     <Subsection title="AgentLoginRecordsMaximumAge">
       <Paragraph>
-        The <Term type="expression">AgentLoginRecordsMaximumAge</Term> attribute specifies how long records of
-        agent login operations will be kept; any records that have existed for longer than this duration will be
-        deleted when the maintenance service executes.
+        The <Term type="expression">AgentLoginRecordsMaximumAge</Term> attribute specifies how long records of agent
+        login operations will be kept; any records that have existed for longer than this duration will be deleted when
+        the maintenance service executes.
       </Paragraph>
     </Subsection>
     <Subsection title="AssignmentExecutionsMaximumAge">
       <Paragraph>
         The <Term type="expression">AssignmentExecutionsMaximumAge</Term> attribute specifies how long records of
-        assignment executions will be kept; any execution records that have existed for longer than this duration
-        will be deleted when the maintenance service executes.
+        assignment executions will be kept; any execution records that have existed for longer than this duration will
+        be deleted when the maintenance service executes.
       </Paragraph>
     </Subsection>
     <Subsection title="Example">
@@ -360,7 +358,8 @@
     </Subsection>
   </Subsection>
 
-  <Subsection title="UserService">
+  <Subsection title="UserService"
+              id="321ae2e0-7f2c-47cc-ac4c-2ecbf7033b19">
     <Subsection title="Description">
       <Paragraph>
         The <Term type="expression">UserService</Term> section of the configuration file configures the main
@@ -369,16 +368,14 @@
       <Paragraph>
         The
         <Term type="expression">ListenAddress</Term>
-        and <Term type="expression">ListenPort</Term> attributes specify the address and port to which to the
-        service will bind.
+        and <Term type="expression">ListenPort</Term> attributes specify the address and port to which to the service
+        will bind. See the <Link target="040f2f85-0c04-4684-bf49-e5065f800139">standard ports</Link> section for
+        recommended port numbers.
       </Paragraph>
       <Paragraph>
         The
         <Term type="expression">MaximumCommandSizeOctets</Term>
         attribute specifies the maximum size in octets of commands that will be accepted by the service.
-      </Paragraph>
-      <Paragraph>
-        By convention, the agent service should listen on TCP port <Term type="constant">20048</Term>.
       </Paragraph>
       <Paragraph>
         The <Term type="expression">UserService</Term> element must contain either a
@@ -403,6 +400,58 @@
         </Verbatim>
       </FormalItem>
     </Subsection>
+  </Subsection>
+
+  <Subsection title="Standard Ports"
+              id="040f2f85-0c04-4684-bf49-e5065f800139">
+    <Paragraph>
+      Services are encouraged to use the following ports:
+    </Paragraph>
+    <FormalItem title="Ports">
+      <Table>
+        <Columns>
+          <Column>Protocol</Column>
+          <Column>Port</Column>
+          <Column>Description</Column>
+        </Columns>
+        <Row>
+          <Cell>TCP</Cell>
+          <Cell>20048</Cell>
+          <Cell>The <Link target="016622c2-97b9-4292-9eff-a61743c60ee3">agent service</Link> without TLS.
+          </Cell>
+        </Row>
+        <Row>
+          <Cell>TCP</Cell>
+          <Cell>21048</Cell>
+          <Cell>The <Link target="016622c2-97b9-4292-9eff-a61743c60ee3">agent service</Link> with TLS.
+          </Cell>
+        </Row>
+        <Row>
+          <Cell>TCP</Cell>
+          <Cell>20049</Cell>
+          <Cell>The <Link target="00a30eb0-dc4a-424f-9ce4-72b4c4a38dd7">archive service</Link> without TLS.
+          </Cell>
+        </Row>
+        <Row>
+          <Cell>TCP</Cell>
+          <Cell>21049</Cell>
+          <Cell>The <Link target="00a30eb0-dc4a-424f-9ce4-72b4c4a38dd7">archive service</Link> with TLS.
+          </Cell>
+        </Row>
+        <Row>
+          <Cell>TCP</Cell>
+          <Cell>20050</Cell>
+          <Cell>The <Link target="321ae2e0-7f2c-47cc-ac4c-2ecbf7033b19">user service</Link> without TLS.
+          </Cell>
+        </Row>
+        <Row>
+          <Cell>TCP</Cell>
+          <Cell>21050</Cell>
+          <Cell>The <Link target="321ae2e0-7f2c-47cc-ac4c-2ecbf7033b19">user service</Link> with TLS.
+          </Cell>
+        </Row>
+      </Table>
+    </FormalItem>
   </Subsection>
 
   <Subsection title="Schema"

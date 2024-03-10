@@ -25,16 +25,19 @@
   font-size:   80%;
 }
 
+.address,
 .command,
 .constant,
 .expression,
 .file,
 .function,
-.package,
+.group,
 .language,
+.package,
 .parameter,
 .statement,
 .type,
+.user,
 .variable
 {
   font-family: monospace;

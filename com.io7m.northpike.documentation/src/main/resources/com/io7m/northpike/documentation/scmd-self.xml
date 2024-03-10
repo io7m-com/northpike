@@ -10,12 +10,15 @@
     <Paragraph>
       The 
       <Term type="command">self</Term>
-       command... 
+       command shows the ID of the logged in user.
     </Paragraph>
   </Subsection>
   <Subsection title="Examples">
     <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
+      <Verbatim><![CDATA[
+[northpike]$ self
+f71154c9-f7ac-472c-88fe-0c367f679a7a
+]]></Verbatim>
     </FormalItem>
   </Subsection>
 </Section>

@@ -17,15 +17,22 @@
 package com.io7m.northpike.shell.internal;
 
 import com.io7m.idstore.model.IdName;
+import com.io7m.northpike.model.NPStandardServicePorts;
+import com.io7m.northpike.model.tls.NPTLSConfigurationKind;
+import com.io7m.northpike.model.tls.NPTLSEnabledClientAnonymous;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
+import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import com.io7m.quarrel.core.QCommandContextType;
 import com.io7m.quarrel.core.QCommandMetadata;
 import com.io7m.quarrel.core.QCommandStatus;
+import com.io7m.quarrel.core.QParameterNamed01;
 import com.io7m.quarrel.core.QParameterNamed1;
 import com.io7m.quarrel.core.QParameterNamedType;
 import com.io7m.quarrel.core.QStringType.QConstant;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 
 import java.net.InetSocketAddress;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +61,7 @@ public final class NPShellCmdLogin extends NPShellCmdAbstractU
       List.of(),
       new QConstant(
         "The server port."),
-      Optional.empty(),
+      Optional.of(Integer.valueOf(NPStandardServicePorts.userServicePort())),
       Integer.class
     );
 
@@ -74,6 +81,96 @@ public final class NPShellCmdLogin extends NPShellCmdAbstractU
       List.of(),
       new QConstant(
         "The password."),
+      Optional.empty(),
+      String.class
+    );
+
+  private static final QParameterNamed1<NPTLSConfigurationKind> TLS =
+    new QParameterNamed1<>(
+      "--tls",
+      List.of(),
+      new QConstant(
+        "Set the TLS type."),
+      Optional.of(NPTLSConfigurationKind.TLS_DISABLED),
+      NPTLSConfigurationKind.class
+    );
+
+  private static final QParameterNamed01<Path> TLS_KEYSTORE_FILE =
+    new QParameterNamed01<>(
+      "--tls-keystore",
+      List.of(),
+      new QConstant(
+        "The TLS keystore."),
+      Optional.empty(),
+      Path.class
+    );
+
+  private static final QParameterNamed01<String> TLS_KEYSTORE_PROVIDER =
+    new QParameterNamed01<>(
+      "--tls-keystore-provider",
+      List.of(),
+      new QConstant(
+        "The TLS keystore provider."),
+      Optional.empty(),
+      String.class
+    );
+
+  private static final QParameterNamed01<String> TLS_KEYSTORE_TYPE =
+    new QParameterNamed01<>(
+      "--tls-keystore-type",
+      List.of(),
+      new QConstant(
+        "The TLS keystore type."),
+      Optional.empty(),
+      String.class
+    );
+
+  private static final QParameterNamed01<String> TLS_KEYSTORE_PASSWORD =
+    new QParameterNamed01<>(
+      "--tls-keystore-password",
+      List.of(),
+      new QConstant(
+        "The TLS keystore password."),
+      Optional.of("changeit"),
+      String.class
+    );
+
+  private static final QParameterNamed01<Path> TLS_TRUSTSTORE_FILE =
+    new QParameterNamed01<>(
+      "--tls-truststore",
+      List.of(),
+      new QConstant(
+        "The TLS truststore."),
+      Optional.empty(),
+      Path.class
+    );
+
+  private static final QParameterNamed01<String> TLS_TRUSTSTORE_TYPE =
+    new QParameterNamed01<>(
+      "--tls-truststore-type",
+      List.of(),
+      new QConstant(
+        "The TLS truststore type."),
+      Optional.empty(),
+      String.class
+    );
+
+  private static final QParameterNamed01<String> TLS_TRUSTSTORE_PASSWORD =
+    new QParameterNamed01<>(
+      "--tls-truststore-password",
+      List.of(),
+      new QConstant(
+        "The TLS truststore password."),
+      Optional.of("changeit"),
+      String.class
+    );
+
+  private static final QParameterNamed01<String> TLS_TRUSTSTORE_PROVIDER =
+    new QParameterNamed01<>(
+      "--tls-truststore-provider",
+      List.of(),
+      new QConstant(
+        "The TLS truststore provider."),
       Optional.empty(),
       String.class
     );
@@ -101,10 +198,19 @@ public final class NPShellCmdLogin extends NPShellCmdAbstractU
   public List<QParameterNamedType<?>> onListNamedParameters()
   {
     return List.of(
-      SERVER,
+      PASSWORD,
       PORT,
-      USERNAME,
-      PASSWORD
+      SERVER,
+      TLS,
+      TLS_KEYSTORE_FILE,
+      TLS_KEYSTORE_PASSWORD,
+      TLS_KEYSTORE_PROVIDER,
+      TLS_KEYSTORE_TYPE,
+      TLS_TRUSTSTORE_FILE,
+      TLS_TRUSTSTORE_PASSWORD,
+      TLS_TRUSTSTORE_PROVIDER,
+      TLS_TRUSTSTORE_TYPE,
+      USERNAME
     );
   }
 
@@ -121,17 +227,49 @@ public final class NPShellCmdLogin extends NPShellCmdAbstractU
       context.parameterValue(USERNAME);
     final var password =
       context.parameterValue(PASSWORD);
+    final var tls =
+      context.parameterValue(TLS);
+
+    final var tlsConfig =
+      switch (tls) {
+        case TLS_DISABLED -> {
+          yield TLS_DISABLED;
+        }
+
+        case TLS_ENABLED_CLIENT_ANONYMOUS -> {
+          yield new NPTLSEnabledClientAnonymous();
+        }
+
+        case TLS_ENABLED_EXPLICIT -> {
+          final var keyStoreConfiguration =
+            new NPTLSStoreConfiguration(
+              context.parameterValueRequireNow(TLS_KEYSTORE_TYPE),
+              context.parameterValueRequireNow(TLS_KEYSTORE_PROVIDER),
+              context.parameterValueRequireNow(TLS_KEYSTORE_PASSWORD),
+              context.parameterValueRequireNow(TLS_KEYSTORE_FILE)
+            );
+          final var trustStoreConfiguration =
+            new NPTLSStoreConfiguration(
+              context.parameterValueRequireNow(TLS_TRUSTSTORE_TYPE),
+              context.parameterValueRequireNow(TLS_TRUSTSTORE_PROVIDER),
+              context.parameterValueRequireNow(TLS_TRUSTSTORE_PASSWORD),
+              context.parameterValueRequireNow(TLS_TRUSTSTORE_FILE)
+            );
+
+          yield new NPTLSEnabledExplicit(
+            keyStoreConfiguration,
+            trustStoreConfiguration
+          );
+        }
+      };
 
     this.client()
       .login(
-        InetSocketAddress.createUnresolved(
-          server,
-          port.intValue()
-        ),
-        TLS_DISABLED,
+        InetSocketAddress.createUnresolved(server, port.intValue()),
+        tlsConfig,
         new IdName(userName),
         password
-    );
+      );
 
     return SUCCESS;
   }

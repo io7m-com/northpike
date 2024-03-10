@@ -20,7 +20,7 @@ package com.io7m.northpike.tests.arbitraries;
 
 import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
@@ -40,7 +40,7 @@ public final class NPArbTLSConfiguration
           Combinators.combine(
             Arbitraries.defaultFor(NPTLSStoreConfiguration.class),
             Arbitraries.defaultFor(NPTLSStoreConfiguration.class)
-          ).as(NPTLSEnabled::new)
+          ).as(NPTLSEnabledExplicit::new)
         );
       }
     );

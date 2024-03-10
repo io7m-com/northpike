@@ -18,6 +18,8 @@ package com.io7m.northpike.shell;
 
 
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.preferences.api.NPPreferencesServiceType;
+import com.io7m.northpike.preferences.basic.NPPreferencesService;
 import com.io7m.northpike.shell.commons.NPShellCmdType;
 import com.io7m.northpike.shell.commons.NPShellOptions;
 import com.io7m.northpike.shell.commons.NPShellTerminalHolder;
@@ -50,6 +52,10 @@ import com.io7m.northpike.shell.internal.NPShellCmdAssignmentSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdAuditSearchBegin;
 import com.io7m.northpike.shell.internal.NPShellCmdAuditSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdAuditSearchPrevious;
+import com.io7m.northpike.shell.internal.NPShellCmdBookmarkList;
+import com.io7m.northpike.shell.internal.NPShellCmdBookmarkLogin;
+import com.io7m.northpike.shell.internal.NPShellCmdBookmarkPut;
+import com.io7m.northpike.shell.internal.NPShellCmdBookmarkRemove;
 import com.io7m.northpike.shell.internal.NPShellCmdHelp;
 import com.io7m.northpike.shell.internal.NPShellCmdLogin;
 import com.io7m.northpike.shell.internal.NPShellCmdLogout;
@@ -102,8 +108,12 @@ import org.jline.terminal.TerminalBuilder;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorIo;
 
 /**
  * The basic shell.
@@ -159,6 +169,24 @@ public final class NPShells implements NPShellFactoryType
     services.register(
       NPStrings.class, configuration.strings());
 
+    try {
+      services.register(
+        NPPreferencesServiceType.class,
+        NPPreferencesService.openOrDefault(
+          configuration.configurationDirectory()
+            .resolve("preferences.xml")
+        )
+      );
+    } catch (final IOException e) {
+      throw new NPException(
+        e.getMessage(),
+        e,
+        errorIo(),
+        Map.of(),
+        Optional.empty()
+      );
+    }
+
     final List<NPShellCmdType> commands =
       List.of(
         new NPShellCmdAgentGet(services),
@@ -189,6 +217,10 @@ public final class NPShells implements NPShellFactoryType
         new NPShellCmdAuditSearchBegin(services),
         new NPShellCmdAuditSearchNext(services),
         new NPShellCmdAuditSearchPrevious(services),
+        new NPShellCmdBookmarkList(services),
+        new NPShellCmdBookmarkLogin(services),
+        new NPShellCmdBookmarkPut(services),
+        new NPShellCmdBookmarkRemove(services),
         new NPShellCmdHelp(services),
         new NPShellCmdLogin(services),
         new NPShellCmdLogout(services),

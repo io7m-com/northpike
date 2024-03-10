@@ -23,6 +23,7 @@ import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.io7m.northpike.telemetry.api.NPTelemetryServiceType.recordSpanException;
@@ -68,8 +69,23 @@ public final class NPTLSContextService
     final var newContext =
       NPTLSContext.create(
         user,
-        keyStoreConfiguration,
-        trustStoreConfiguration
+        Optional.of(keyStoreConfiguration),
+        Optional.of(trustStoreConfiguration)
+      );
+    this.contexts.add(newContext);
+    return newContext;
+  }
+
+  @Override
+  public NPTLSContext createClientAnonymous(
+    final String user)
+    throws GeneralSecurityException, IOException
+  {
+    final var newContext =
+      NPTLSContext.create(
+        user,
+        Optional.empty(),
+        Optional.empty()
       );
     this.contexts.add(newContext);
     return newContext;

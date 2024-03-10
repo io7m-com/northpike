@@ -21,7 +21,7 @@ import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerPut;
@@ -210,7 +210,7 @@ public final class NPAShellCmdServerSetTLS
         existing.id(),
         existing.hostname(),
         existing.port(),
-        new NPTLSEnabled(
+        new NPTLSEnabledExplicit(
           new NPTLSStoreConfiguration(
             context.parameterValueRequireNow(KS_TYPE),
             context.parameterValueRequireNow(KS_PROVIDER),

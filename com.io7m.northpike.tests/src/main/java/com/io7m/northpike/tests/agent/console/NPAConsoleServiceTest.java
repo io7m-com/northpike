@@ -58,10 +58,12 @@ import com.io7m.repetoir.core.RPServiceDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
@@ -69,11 +71,13 @@ import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Timeout(value = 5L, unit = TimeUnit.SECONDS)
 public final class NPAConsoleServiceTest
 {
   private static final Logger LOG =
@@ -160,9 +164,12 @@ public final class NPAConsoleServiceTest
 
   @AfterEach
   public void tearDown()
-    throws Exception
   {
-    this.services.close();
+    try {
+      this.services.close();
+    } catch (final IOException e) {
+      // Not a problem
+    }
   }
 
   @Test

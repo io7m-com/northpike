@@ -47,6 +47,18 @@ public interface NPTLSContextServiceType
     throws GeneralSecurityException, IOException;
 
   /**
+   * Create a TLS context in anonymous client mode.
+   *
+   * @param user The user of this context (such as "AgentService", "ArchiveService", etc)
+   *
+   * @return A TLS context
+   */
+
+  NPTLSContext createClientAnonymous(
+    String user)
+    throws GeneralSecurityException, IOException;
+
+  /**
    * Reload all TLS contexts. Primarily used to reload short-lived certificates
    * issued using the ACME protocol.
    */

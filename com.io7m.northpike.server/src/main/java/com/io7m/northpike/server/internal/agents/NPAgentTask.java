@@ -228,24 +228,17 @@ public final class NPAgentTask
     final InternalCommandType command)
     throws InterruptedException, NPException, IOException
   {
-    if (command instanceof LatencyCheck) {
-      this.processCommandLatencyCheck();
-      return;
+    switch (command) {
+      case final LatencyCheck ignored -> {
+        this.processCommandLatencyCheck();
+      }
+      case final WorkItemOffered workItem -> {
+        this.processCommandWorkItemOffered(workItem);
+      }
+      case final WorkItemSent workItem -> {
+        this.processCommandWorkItemSent(workItem);
+      }
     }
-
-    if (command instanceof final WorkItemOffered workItem) {
-      this.processCommandWorkItemOffered(workItem);
-      return;
-    }
-
-    if (command instanceof final WorkItemSent workItem) {
-      this.processCommandWorkItemSent(workItem);
-      return;
-    }
-
-    throw new IllegalStateException(
-      "Unrecognized command: %s".formatted(command.getClass())
-    );
   }
 
   private void processCommandWorkItemOffered(
@@ -370,7 +363,9 @@ public final class NPAgentTask
         this.attributes.put(this.strings.format(AGENT_ID), agent.toString());
       });
 
-    this.connection.send(NPACmd.create().execute(this, message));
+    final var commandHandler = NPACmd.create();
+    LOG.debug("Execute: {}", message.getClass().getSimpleName());
+    this.connection.send(commandHandler.execute(this, message));
   }
 
   @Override

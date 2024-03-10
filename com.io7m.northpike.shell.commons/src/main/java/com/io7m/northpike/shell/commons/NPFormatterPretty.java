@@ -23,6 +23,7 @@ import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPPublicKey;
+import com.io7m.northpike.model.NPPublicKeySummary;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
@@ -45,7 +46,11 @@ import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanSummary;
 import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledClientAnonymous;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
+import com.io7m.northpike.preferences.api.NPPreferenceServerBookmark;
+import com.io7m.northpike.preferences.api.NPPreferenceServerCredentialsType;
+import com.io7m.northpike.preferences.api.NPPreferenceServerUsernamePassword;
 import com.io7m.tabla.core.TTableRendererType;
 import com.io7m.tabla.core.TTableType;
 import com.io7m.tabla.core.TTableWidthConstraintRange;
@@ -244,7 +249,7 @@ public final class NPFormatterPretty implements NPFormatterType
 
   @Override
   public void formatPublicKeySummaries(
-    final NPPage<NPPublicKey> page)
+    final NPPage<NPPublicKeySummary> page)
     throws Exception
   {
     final var out = this.terminal.writer();
@@ -256,7 +261,7 @@ public final class NPFormatterPretty implements NPFormatterType
         .declareColumn("Fingerprint", atLeastContentOrHeader())
         .declareColumn("Time Created", atLeastContentOrHeader())
         .declareColumn("Time Expires", atLeastContentOrHeader())
-        .declareColumn("User IDs", atLeastContentOrHeader());
+        .declareColumn("User ID", atLeastContentOrHeader());
 
     for (final var item : page.items()) {
       builder.addRow()
@@ -270,7 +275,7 @@ public final class NPFormatterPretty implements NPFormatterType
         )
         .addCell(
           StringUtils.abbreviate(
-            String.join(", ", item.userIDs()), 30
+            String.join(", ", item.userID()), 30
           )
         );
     }
@@ -851,15 +856,16 @@ public final class NPFormatterPretty implements NPFormatterType
         .declareColumn("Value", atLeastContentOrHeader());
 
     switch (tls) {
-      case final NPTLSDisabled d -> {
+      case final NPTLSDisabled ignored -> {
         builder.addRow()
-          .addCell("Enabled")
-          .addCell("false");
+          .addCell("Type")
+          .addCell("Disabled");
       }
-      case final NPTLSEnabled e -> {
+
+      case final NPTLSEnabledExplicit e -> {
         builder.addRow()
-          .addCell("Enabled")
-          .addCell("true");
+          .addCell("Type")
+          .addCell("Enabled (Explicit)");
         builder.addRow()
           .addCell("Key Store Type")
           .addCell(e.keyStore().storeType());
@@ -885,6 +891,12 @@ public final class NPFormatterPretty implements NPFormatterType
         builder.addRow()
           .addCell("Trust Store Password")
           .addCell(e.trustStore().storePassword());
+      }
+
+      case final NPTLSEnabledClientAnonymous ignored -> {
+        builder.addRow()
+          .addCell("Type")
+          .addCell("Enabled (Anonymous)");
       }
     }
 
@@ -916,6 +928,44 @@ public final class NPFormatterPretty implements NPFormatterType
     }
 
     this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatBookmarks(
+    final List<NPPreferenceServerBookmark> bookmarks)
+    throws Exception
+  {
+    if (bookmarks.isEmpty()) {
+      return;
+    }
+
+    final var tableBuilder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(5))
+        .declareColumn("Name", atLeastContentOrHeader())
+        .declareColumn("Host", atLeastContentOrHeader())
+        .declareColumn("Port", atLeastContentOrHeader())
+        .declareColumn("TLS", atLeastContentOrHeader())
+        .declareColumn("User", atLeastContentOrHeader());
+
+    for (final var bookmark : bookmarks) {
+      tableBuilder.addRow()
+        .addCell(bookmark.name())
+        .addCell(bookmark.host())
+        .addCell(Integer.toString(bookmark.port()))
+        .addCell(bookmark.tlsConfiguration().kind().name())
+        .addCell(userOf(bookmark.credentials()));
+    }
+
+    this.renderTable(tableBuilder.build());
+  }
+
+  private static String userOf(
+    final NPPreferenceServerCredentialsType credentials)
+  {
+    return switch (credentials) {
+      case final NPPreferenceServerUsernamePassword u -> u.username();
+    };
   }
 
   private static void formatPage(

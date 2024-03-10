@@ -114,6 +114,8 @@ import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.verona.core.Version;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
+import org.apache.commons.io.input.QueueInputStream;
+import org.apache.commons.io.output.QueueOutputStream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -121,7 +123,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -151,9 +157,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
 @ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
-@Timeout(30L)
+@Timeout(10L)
 public final class NPAgentTaskTest
 {
+  private static final Logger LOG =
+    LoggerFactory.getLogger(NPAgentTaskTest.class);
+
   private static final NPIMessages NPI_MESSAGES =
     new NPIMessages();
   private static final NPA1Messages NPA1_MESSAGES =
@@ -183,10 +192,6 @@ public final class NPAgentTaskTest
   private NPMetricsServiceType metrics;
   private NPStrings strings;
   private NPTelemetryNoOp telemetry;
-  private PipedInputStream socketInputOnClientSide;
-  private PipedInputStream socketInputOnServerSide;
-  private PipedOutputStream socketOutputOnClientSide;
-  private PipedOutputStream socketOutputOnServerSide;
   private RPServiceDirectory services;
   private NPFakeSocket socket;
   private NPRepositoryDescription repository;
@@ -198,6 +203,10 @@ public final class NPAgentTaskTest
   private NPAgentWorkItem agentWorkItem0;
   private NPAgentDescription agent1;
   private NPAssignmentExecutionStateType assignmentExecution;
+  private PipedInputStream socketInputOnServerSide;
+  private PipedOutputStream socketOutputOnServerSide;
+  private PipedInputStream socketInputOnClientSide;
+  private PipedOutputStream socketOutputOnClientSide;
 
   @BeforeAll
   public static void setupOnce(
@@ -234,7 +243,12 @@ public final class NPAgentTaskTest
     this.transaction.setOwner(new NPAuditUserOrAgentType.User(user.id()));
 
     this.executor =
-      Executors.newCachedThreadPool();
+      Executors.newCachedThreadPool(r -> {
+        final var thread = new Thread(r);
+        thread.setName("AgentTaskTestThread-" + thread.threadId());
+        thread.setDaemon(true);
+        return thread;
+      });
 
     this.services =
       new RPServiceDirectory();
@@ -418,6 +432,11 @@ public final class NPAgentTaskTest
       .execute(this.workItem0);
 
     this.transaction.commit();
+
+    /*
+     * Socket output on server side |-> socket input on client side.
+     * Socket output on client side |-> socket input on server side.
+     */
 
     this.socketInputOnServerSide =
       new PipedInputStream();
@@ -765,6 +784,7 @@ public final class NPAgentTaskTest
    */
 
   @Test
+  @Timeout(20L)
   public void testAgentTaskStatus0()
     throws Exception
   {
@@ -828,6 +848,7 @@ public final class NPAgentTaskTest
    */
 
   @Test
+  @Timeout(20L)
   public void testAgentTaskStatus1()
     throws Exception
   {
@@ -907,21 +928,23 @@ public final class NPAgentTaskTest
       true
     ));
 
-    Thread.sleep(1_000L);
-
     /*
      * Verify that the server thinks that Agent 0 accepted the work.
      */
 
-    try (var t = this.connection.openTransaction()) {
-      final var workItem =
-        t.queries(NPDatabaseQueriesAssignmentsType.WorkItemGetType.class)
-          .execute(this.workItem0.identifier())
-          .orElseThrow();
+    while (true) {
+      try (var t = this.connection.openTransaction()) {
+        final var workItem =
+          t.queries(NPDatabaseQueriesAssignmentsType.WorkItemGetType.class)
+            .execute(this.workItem0.identifier())
+            .orElseThrow();
 
-      assertEquals(this.agentWorkItem0.identifier(), workItem.identifier());
-      assertEquals(WORK_ITEM_ACCEPTED, workItem.status());
-      assertEquals(Optional.of(this.agent0.id()), workItem.selectedAgent());
+        if (workItem.status() == WORK_ITEM_ACCEPTED) {
+          assertEquals(this.agentWorkItem0.identifier(), workItem.identifier());
+          assertEquals(Optional.of(this.agent0.id()), workItem.selectedAgent());
+          break;
+        }
+      }
     }
 
     /*
@@ -982,40 +1005,38 @@ public final class NPAgentTaskTest
       new NPACommandCEnvironmentInfo(randomUUID(), Map.of(), Map.of());
     this.send(cmd2);
     this.receive(NPAResponseOK.class);
+
+    LOG.debug("Authenticated!");
   }
 
   private <M extends NPAMessageType> M receive(
     final Class<M> clazz)
     throws Exception
   {
-    while (this.socketInputOnClientSide.available() < 4) {
-      Thread.sleep(1L);
-    }
-
-    return clazz.cast(
+    final var m =
       NPA1_MESSAGES.readLengthPrefixed(
         this.strings,
         LIMIT,
         this.socketInputOnClientSide
-      )
-    );
+      );
+
+    LOG.debug("receive: {}", m);
+    return clazz.cast(m);
   }
 
   private <M extends NPIMessageType> M receiveNPI(
     final Class<M> clazz)
     throws Exception
   {
-    while (this.socketInputOnClientSide.available() < 4) {
-      Thread.sleep(1L);
-    }
-
-    return clazz.cast(
+    final var m =
       NPI_MESSAGES.readLengthPrefixed(
         this.strings,
         LIMIT,
         this.socketInputOnClientSide
-      )
-    );
+      );
+
+    LOG.debug("receiveNPI: {}", m);
+    return clazz.cast(m);
   }
 
   private void send(

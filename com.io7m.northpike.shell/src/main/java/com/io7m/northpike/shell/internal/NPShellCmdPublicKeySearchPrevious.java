@@ -16,9 +16,6 @@
 
 package com.io7m.northpike.shell.internal;
 
-import com.io7m.northpike.keys.NPPublicKeys;
-import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPValidityException;
 import com.io7m.northpike.protocol.user.NPUCommandPublicKeySearchPrevious;
 import com.io7m.northpike.protocol.user.NPUResponsePublicKeySearch;
 import com.io7m.quarrel.core.QCommandContextType;
@@ -78,16 +75,6 @@ public final class NPShellCmdPublicKeySearchPrevious
     final NPUResponsePublicKeySearch response)
     throws Exception
   {
-    final var parsedPage =
-      response.results()
-        .map(x -> {
-          try {
-            return NPPublicKeys.decodeString(x).get(0);
-          } catch (final NPException e) {
-            throw new NPValidityException(e.getMessage(), e);
-          }
-        });
-
-    this.formatter().formatPublicKeySummaries(parsedPage);
+    this.formatter().formatPublicKeySummaries(response.results());
   }
 }

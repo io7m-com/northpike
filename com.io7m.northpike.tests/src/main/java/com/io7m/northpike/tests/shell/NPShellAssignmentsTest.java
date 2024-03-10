@@ -42,11 +42,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.AtLeast;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Locale;
@@ -80,7 +82,8 @@ public final class NPShellAssignmentsTest
   private CountDownLatch latchStartup;
 
   @BeforeEach
-  public void setup()
+  public void setup(
+    final @TempDir Path directory)
     throws Exception
   {
     this.userClients =
@@ -108,6 +111,7 @@ public final class NPShellAssignmentsTest
     this.shellConfiguration =
       new NPShellConfiguration(
         Locale.ROOT,
+        directory,
         this.userClients,
         NPStrings.create(Locale.ROOT),
         Optional.of(this.terminal),

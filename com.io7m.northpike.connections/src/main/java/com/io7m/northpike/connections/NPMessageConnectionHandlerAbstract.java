@@ -26,9 +26,11 @@ import com.io7m.northpike.strings.NPStrings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.net.Socket;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * An abstract connection handler.
@@ -46,6 +48,8 @@ public abstract class NPMessageConnectionHandlerAbstract<M extends NPProtocolMes
   private final Socket socket;
   private final InputStream input;
   private final CloseableCollectionType<IOException> resources;
+  private final Thread readerThread;
+  private final ConcurrentLinkedQueue<M> inbox;
 
   protected NPMessageConnectionHandlerAbstract(
     final NPProtocolMessagesType<M> inMessages,
@@ -69,11 +73,37 @@ public abstract class NPMessageConnectionHandlerAbstract<M extends NPProtocolMes
         Objects.requireNonNull(inSocket, "inCloseable"));
     this.input =
       this.resources.add(
-        Objects.requireNonNull(inInputStream, "inOutput"));
+        Objects.requireNonNull(inInputStream, "inInput"));
     this.output =
       this.resources.add(
-        Objects.requireNonNull(inOutputStream, "inInput"));
+        Objects.requireNonNull(inOutputStream, "inOutput"));
 
+    this.inbox =
+      new ConcurrentLinkedQueue<>();
+    this.readerThread =
+      Thread.startVirtualThread(this::readLoop);
+  }
+
+  private void readLoop()
+  {
+    while (true) {
+      try {
+        this.inbox.add(
+          this.messages.readLengthPrefixed(
+            this.strings,
+            this.messageSizeLimit,
+            this.input
+          )
+        );
+      } catch (final Throwable e) {
+        try {
+          this.close();
+          return;
+        } catch (final IOException ex) {
+          throw new UncheckedIOException(ex);
+        }
+      }
+    }
   }
 
   protected final NPStrings strings()
@@ -104,19 +134,7 @@ public abstract class NPMessageConnectionHandlerAbstract<M extends NPProtocolMes
 
   @Override
   public final Optional<M> receive()
-    throws NPException, IOException
   {
-    final var available = this.input.available();
-    if (available <= 4) {
-      return Optional.empty();
-    }
-
-    return Optional.of(
-      this.messages.readLengthPrefixed(
-        this.strings,
-        this.messageSizeLimit,
-        this.input
-      )
-    );
+    return Optional.ofNullable(this.inbox.poll());
   }
 }

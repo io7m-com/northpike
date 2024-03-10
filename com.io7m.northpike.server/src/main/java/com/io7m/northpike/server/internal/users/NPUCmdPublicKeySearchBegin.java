@@ -69,7 +69,7 @@ public final class NPUCmdPublicKeySearchBegin
 
         final var page =
           paged.pageCurrent(transaction)
-            .map(NPPublicKey::encodedForm);
+            .map(NPPublicKey::summary);
 
         return new NPUResponsePublicKeySearch(
           UUID.randomUUID(),

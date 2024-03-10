@@ -27,5 +27,17 @@ public enum NPTLSDisabled implements NPTLSConfigurationType
    * TLS is disabled.
    */
 
-  TLS_DISABLED
+  TLS_DISABLED;
+
+  @Override
+  public String toString()
+  {
+    return "[Disabled]";
+  }
+
+  @Override
+  public NPTLSConfigurationKind kind()
+  {
+    return NPTLSConfigurationKind.TLS_DISABLED;
+  }
 }

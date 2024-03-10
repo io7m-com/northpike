@@ -103,7 +103,8 @@ public final class NPShellRepositoriesTest
   private CountDownLatch latchStartup;
 
   @BeforeEach
-  public void setup()
+  public void setup(
+    final @TempDir Path directory)
     throws Exception
   {
     this.userClients =
@@ -131,6 +132,7 @@ public final class NPShellRepositoriesTest
     this.shellConfiguration =
       new NPShellConfiguration(
         Locale.ROOT,
+        directory,
         this.userClients,
         NPStrings.create(Locale.ROOT),
         Optional.of(this.terminal),
@@ -319,9 +321,9 @@ public final class NPShellRepositoriesTest
         UUID.randomUUID(),
         new NPPage<>(
           List.of(
-            publicKey.encodedForm(),
-            publicKey.encodedForm(),
-            publicKey.encodedForm()
+            publicKey.summary(),
+            publicKey.summary(),
+            publicKey.summary()
           ),
           1,
           1,

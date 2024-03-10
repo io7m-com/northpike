@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="efdda8e2-5315-486b-98a5-782c2e68a04a"
+         title="Tutorial">
+
+  <Subsection title="Overview">
+    <Paragraph>
+      This section of the documentation provides an informal tutorial describing how to set up a
+      <Term type="package">northpike</Term>
+      server along with an agent to execute work. We'll assume that the server will be running on a UNIX-like platform,
+      so the setup commands will be phrased as Bourne shell invocations. We'll be setting up a
+      <Term type="package">northpike</Term>
+      server at <Term type="address">northpike.example.com</Term>, and we'll pretend that
+      <Term type="address">northpike.example.com</Term>
+      has the IPv4 address
+      <Term type="address">100.100.100.100</Term>
+      and IPv6 address
+      <Term type="address">cafe:babe::1</Term>. Substitute your own domain, host names, and IP addresses as necessary!
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Server"
+              id="656d335d-211e-4979-bbaa-91ce9ad5ed8a">
+    <Subsection title="Database">
+      <Paragraph>
+        The first step required is to set up a working database. The <Term type="package">northpike</Term> server uses
+        <LinkExternal target="https://www.postgresql.org">PostgreSQL</LinkExternal>
+        as the database in which it stores all persistent state. Assuming that a database has been set up and is
+        listening on
+        <Term type="address">db.example.com</Term>, an
+        <Link target="e6639080-328c-4695-a2a0-e155d0c39e0b">owner</Link>
+        should be configured with a strong password. We connect to the database as the superuser and run the following
+        <Term type="command">psql</Term>
+        commands:
+      </Paragraph>
+      <FormalItem title="Owner Role">
+        <Verbatim><![CDATA[
+postgres=> CREATE ROLE northpike_install WITH PASSWORD 'f1c0fbbf52f9f9e3684cbac3d405d6d64cc9229a42a7a2484fc878af2d1605eb';
+postgres=> ALTER ROLE northpike_install WITH LOGIN;
+postgres=> ALTER ROLE northpike_install WITH CREATEROLE;
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        Then, a database should be created, owned by the owner role:
+      </Paragraph>
+      <FormalItem title="Database Creation">
+        <Verbatim><![CDATA[
+postgres=> CREATE DATABASE northpike WITH OWNER northpike_install;
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        The <Term type="package">northpike</Term> server will automatically create any other database roles it needs
+        when it starts up. We'll assume the use of the password
+        <Term type="constant">2d28cffd837cc32b7828733d0f89898e</Term>
+        for the other roles; you should pick stronger passwords in production.
+      </Paragraph>
+    </Subsection>
+
+    <Subsection title="Idstore">
+      <Paragraph>
+        The <Term type="package">northpike</Term> server uses
+        <LinkExternal target="https://www.io7m.com/software/idstore">idstore</LinkExternal>
+        to handle authentication and user management. Rather than duplicate the installation documentation for
+        <Term type="package">idstore</Term>
+        here, we'll assume there's a running
+        <Term type="package">idstore</Term>
+        server at <Term type="address">idstore.example.com</Term>.
+      </Paragraph>
+      <Paragraph id="c6897721-eab0-447b-845c-eb85d92f5c19">
+        We'll assume there's a user called <Term type="expression">grouch</Term> declared in the
+        <Term type="package">idstore</Term>
+        server with user ID
+        <Term type="constant">f71154c9-f7ac-472c-88fe-0c367f679a7a</Term>. The
+        <Term type="expression">grouch</Term>
+        user will be configured to be the administrator of the <Term type="package">northpike</Term> server. For the
+        sake of example, the <Term type="expression">grouch</Term>'s password is
+        <Term type="constant">ilovetrash</Term>.
+      </Paragraph>
+    </Subsection>
+
+    <Subsection title="Podman/OCI">
+      <Subsection title="Overview">
+        <Paragraph>
+          The recommended way to run the <Term type="package">northpike</Term> server is via the provided
+          <Link target="459da445-e973-4100-a163-5c3198773796">OCI</Link>
+          image under
+          <LinkExternal target="https://podman.io/">Podman</LinkExternal>. The
+          <Term type="package">northpike</Term>
+          server does not require elevated privileges of any kind, and the OCI image can be run as any user.
+        </Paragraph>
+      </Subsection>
+
+      <Subsection title="System Users">
+        <Paragraph>
+          We'll assume that the host system has a user named <Term type="user">_northpike</Term> with a primary group of
+          <Term type="group">_northpike</Term>. This is the user that will be used to run the OCI image. The commands
+          required to create system users are UNIX-system specific, so the exact commands aren't covered here. Defer to
+          the system administration documentation for your particular platform.
+        </Paragraph>
+      </Subsection>
+
+      <Subsection title="Directories">
+        <Paragraph>
+          The OCI image for the <Term type="package">northpike</Term> server is completely immutable and stateless.
+          Containers using the image therefore need to have a few external volumes mounted in order to read
+          configuration information and to store any persistent state that exists outside the database. We'll assume
+          that we have these directories existing on the host system:
+        </Paragraph>
+        <FormalItem title="Directories">
+          <ListUnordered>
+            <Item>
+              <Term type="file">/storage/northpike/etc</Term>
+              - A directory that will hold the configuration file for the server.
+            </Item>
+            <Item>
+              <Term type="file">/storage/northpike/data</Term>
+              - A directory that will hold temporary data created by the server.
+            </Item>
+            <Item>
+              A directory that holds
+              <Link target="61f9a518-82b3-4a5d-93f7-0ec571ff0579">TLS</Link>
+              certificates.
+            </Item>
+          </ListUnordered>
+        </FormalItem>
+      </Subsection>
+
+      <Subsection title="TLS"
+                  id="61f9a518-82b3-4a5d-93f7-0ec571ff0579">
+        <Paragraph>
+          The <Term type="package">northpike</Term> server has strong support for
+          <LinkExternal target="https://en.wikipedia.org/wiki/Transport_Layer_Security">TLS</LinkExternal>, including
+          automatic certificate rotation to directly support the use of the
+          <LinkExternal target="https://en.wikipedia.org/wiki/Automatic_Certificate_Management_Environment">ACME
+          </LinkExternal>
+          protocol. Using TLS is strongly recommended, but this section can be skipped if you want to defer setting up
+          TLS for the purposes of experimentation.
+        </Paragraph>
+        <Paragraph>
+          We'll assume that TLS certificates are being written into a directory on the host system by an ACME client
+          such as
+          <LinkExternal target="https://www.io7m.com/software/certusine">certusine</LinkExternal>. For this example,
+          we'll assume that the directory on the host system is <Term type="file">/storage/certificates</Term>, and that
+          there is, for example, a file
+          <Term type="file">/storage/certificates/full_chain.pem</Term>
+          that contains the full certificate chain for the server.
+        </Paragraph>
+        <Paragraph>
+          The <Term type="package">northpike</Term> server supports a custom keystore and truststore implementation
+          called <LinkExternal target="https://www.io7m.com/software/canonmill">Canonmill</LinkExternal> that allows for
+          the proper reloading of certificates. It is possible to use standard Java JKS keystores, but we'll use
+          Canonmill here for ease of administration. We need to create a Canonmill keystore configuration file at
+          <Term type="file">/northpike/certificates/keystore.xml</Term>
+          with the following contents:
+        </Paragraph>
+        <FormalItem title="Keystore Config">
+          <Verbatim><![CDATA[
+<?xml version="1.0" encoding="UTF-8" ?>
+<Keystore xmlns="urn:com.io7m.canonmill.keystore:1"
+          BaseDirectory="/northpike/certificates">
+  <Key         Name="northpike.example.com" File="private.key"/>
+  <Certificate Name="northpike.example.com" File="full_chain.pem"/>
+</Keystore>
+]]></Verbatim>
+        </FormalItem>
+        <Paragraph>
+          With this keystore configuration, when the server creates the various listening sockets for the services it
+          exposes on
+          <Term type="address">northpike.example.com</Term>, it will use the private key at
+          <Term type="file">/northpike/certificates/private.key</Term>. Accordingly, clients connecting to the sockets
+          will be served certificates from
+          <Term type="file">/northpike/certificates/full_chain.pem</Term>. The server will periodically reload these
+          files, so an ACME client can safely replace them at any time and the server will switch to the new
+          certificates after a short delay.
+        </Paragraph>
+      </Subsection>
+
+      <Subsection title="Telemetry"
+                  id="8fa003b6-d2e8-4a45-af75-0f2ae3c74f3a">
+        <Paragraph>
+          The <Term type="package">northpike</Term> server is heavily instrumented with
+          <LinkExternal target="https://opentelemetry.io">OpenTelemetry</LinkExternal>. Setting up a server to receive
+          OpenTelemetry data is far outside the scope of this documentation. If you don't want to use telemetry, this
+          section can be skipped. For production use, we currently recommend the
+          <LinkExternal target="https://grafana.com/">Grafana</LinkExternal>
+          servers;
+          <LinkExternal target="https://grafana.com/oss/mimir/">Mimir</LinkExternal>
+          for metrics,
+          <LinkExternal target="https://grafana.com/docs/loki/latest/">Loki</LinkExternal>
+          for logs, and
+          <LinkExternal target="https://grafana.com/docs/tempo/latest/">Tempo</LinkExternal>
+          for traces.
+        </Paragraph>
+        <Paragraph>
+          We'll assume that the following OpenTelemetry collectors are already running:
+        </Paragraph>
+        <FormalItem title="Telemetry Services">
+          <ListUnordered>
+            <Item>
+              A server that can collect <Term type="term">logs</Term> at
+              <Term type="address">http://logs.telemetry.example.com:4317</Term>.
+            </Item>
+            <Item>
+              A server that can collect <Term type="term">metrics</Term> at
+              <Term type="address">http://metrics.telemetry.example.com:4317</Term>.
+            </Item>
+            <Item>
+              A server that can collect <Term type="term">traces</Term> at
+              <Term type="address">http://traces.telemetry.example.com:4317</Term>.
+            </Item>
+          </ListUnordered>
+        </FormalItem>
+        <Paragraph>
+          It is not required that all three be present: If you only want to collect metrics, for example, then only the
+          metrics server is necessary.
+        </Paragraph>
+      </Subsection>
+
+      <Subsection title="Configuration File">
+        <Paragraph>
+          We now place all of the above information into the server configuration file. It is recommended that the
+          configuration file be edited in an IDE such as
+          <LinkExternal target="https://www.jetbrains.com/idea/">IDEA</LinkExternal>, as this will (in combination with
+          the published <Link target="bf9d263d-a279-41bd-bfdf-78f7c3fbf7a9">configuration schema</Link>) provide instant
+          validation of the configuration file, and extensive autocompletion support.
+        </Paragraph>
+        <Paragraph>
+          We create a file at <Term type="file">/storage/northpike/etc/config.xml</Term> with the following content:
+        </Paragraph>
+        <FormalItem title="Configuration File">
+          <Verbatim>
+            <xi:include href="tutorial-file.xml"
+                        parse="text"/>
+          </Verbatim>
+        </FormalItem>
+        <Paragraph>
+          Note that we use the <Link target="040f2f85-0c04-4684-bf49-e5065f800139">standard ports</Link> for TLS. If you
+          skipped the section on TLS, you should use the non-TLS standard ports.
+        </Paragraph>
+      </Subsection>
+
+      <Subsection title="Server Startup">
+        <Paragraph>
+          Given all of the items above, we can finally start the server with the given
+          <Term type="command">podman</Term>
+          command:
+        </Paragraph>
+        <FormalItem title="Startup">
+          <Verbatim><![CDATA[
+/usr/bin/podman \
+  run \
+  --name northpike01 \
+  --read-only \
+  --rm \
+  --replace \
+  --volume '/storage/northpike/etc:/northpike/etc:Z,ro' \
+  --volume '/storage/northpike/data:/northpike/data:Z,rw' \
+  --volume '/storage/certificates:/northpike/certificates:z,ro' \
+  --network='slirp4netns:outbound_addr6=cafe:babe::1,outbound_addr=100.100.100.100' \
+  --publish '100.100.100.100:21048:21048/tcp' \
+  --publish '100.100.100.100:21049:21049/tcp' \
+  --publish '100.100.100.100:21050:21050/tcp' \
+  --publish '[cafe:babe::1]:21048:21048/tcp' \
+  --publish '[cafe:babe::1]:21049:21049/tcp' \
+  --publish '[cafe:babe::1]:21050:21050/tcp' \
+  quay.io/io7mcom/northpike:0.0.2-SNAPSHOT \
+  run --verbose trace --configuration /northpike/etc/config.xml
+]]></Verbatim>
+        </FormalItem>
+      </Subsection>
+
+      <Subsection title="Server Admin">
+        <Paragraph>
+          At this point, the server is running, but no interaction is possible with it as there are no users defined on
+          the server that have any roles (such as the
+          <Term type="expression">login</Term>
+          role that allows a user to log in), and no defined agents.
+        </Paragraph>
+        <Paragraph>
+          As <Link target="c6897721-eab0-447b-845c-eb85d92f5c19">mentioned earlier</Link>, we need to set the user with
+          ID
+          <Term type="constant">f71154c9-f7ac-472c-88fe-0c367f679a7a</Term>
+          as the server adminstrator. We can use the following invocation to run the
+          <Link target="1720443b-3f44-485b-b5c0-d0268d418785">set-admin</Link>
+          command:
+        </Paragraph>
+        <FormalItem title="Startup">
+          <Verbatim><![CDATA[
+/usr/bin/podman \
+  run \
+  --read-only \
+  --volume '/storage/northpike/etc:/northpike/etc:Z,ro' \
+  --volume '/storage/northpike/data:/northpike/data:Z,rw' \
+  --volume '/storage/certificates:/northpike/certificates:z,ro' \
+  quay.io/io7mcom/northpike:0.0.2-SNAPSHOT \
+  set-admin --configuration /northpike/etc/config.xml --user-id f71154c9-f7ac-472c-88fe-0c367f679a7a --user-name grouch
+]]></Verbatim>
+        </FormalItem>
+        <Paragraph>
+          The command will configure the admin user and then immediately exit.
+        </Paragraph>
+      </Subsection>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Shell"
+              id="a6fa04cb-ccee-4c71-89f2-9b05345cef5f">
+    <Subsection title="Overview">
+      <Paragraph>
+        With the <Link target="656d335d-211e-4979-bbaa-91ce9ad5ed8a">server</Link> now configured and running, we can
+        use the <Link target="ee76b065-9857-469c-9aca-02f0f0d58a07">user shell</Link> to log into the server and
+        configure it further. We'll indicate all commands that are executed in the shell by showing them with a
+        <Term type="expression">[northpike]$</Term>
+        prefix.
+      </Paragraph>
+    </Subsection>
+
+    <Subsection title="Logging In">
+      <Paragraph>
+        It's possible to use the <Link target="7d69608f-4375-3727-993b-819e07c3e63d">login</Link> command to log in to
+        the server, but it's likely preferable to use the various
+        <Link target="01a85d22-da3c-4f18-ba11-d6e700345e4e">bookmark</Link>
+        commands to define a configuration once and use it repeatedly, rather than having to repeat the login parameters
+        over and over.
+      </Paragraph>
+      <Paragraph>
+        Defining a bookmark is straightforward (note that we use
+        <Link target="72cddf8d-32d7-44a9-b3d6-08eb9162a140">ALT+ENTER</Link>
+        to break the command up into several lines for readability):
+      </Paragraph>
+      <FormalItem title="Bookmark Creation">
+        <Verbatim><![CDATA[
+[northpike]$ bookmark-put
+--name tutorial
+--hostname northpike.example.com
+--port 21050
+--tls TLS_ENABLED_CLIENT_ANONYMOUS
+--user grouch
+--password ilovetrash
+
+[northpike]$ bookmark-list
+┌───────────┬───────────────────────┬───────┬──────────────────────────────┬─────────────────────────┐
+│ Name      │ Host                  │ Port  │ TLS                          │ User                    │
+├───────────┼───────────────────────┼───────┼──────────────────────────────┼─────────────────────────┤
+│ tutorial  │ northpike.example.com │ 21050 │ TLS_ENABLED_CLIENT_ANONYMOUS │ grouch                  │
+└───────────┴───────────────────────┴───────┴──────────────────────────────┴─────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        We can now log in using the named bookmark:
+      </Paragraph>
+      <FormalItem title="Bookmark Login">
+        <Verbatim><![CDATA[
+[northpike]$ bookmark-login --name tutorial
+
+[northpike]$ self
+f71154c9-f7ac-472c-88fe-0c367f679a7a
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        If everything succeeds, the command says nothing. The
+        <Link target="c3752e3b-b9d5-3994-8dad-5d45248697ae">self</Link>
+        command shows the ID of the currently logged-in user.
+      </Paragraph>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Setting Up Agents">
+    <Subsection title="Overview">
+      <Paragraph>
+        By itself, the <Term type="package">northpike</Term> server isn't particularly useful; it merely coordinates
+        work. The actual work is performed by <Link target="935b5ed1-1fbb-4d8b-9930-c5a3e79c7afd">agents</Link>.
+        We'll need to set up an agent and connect it to the server.
+      </Paragraph>
+    </Subsection>
+  </Subsection>
+
+  <Subsection title="Setting Up Work">
+    <Subsection title="Repositories">
+      <Paragraph>
+        In order to do useful work such as building code, we'll need to tell the server how to actually get that code.
+        We'll add the <LinkExternal target="https://www.github.com/io7m/abstand">abstand</LinkExternal> repository to the
+        server as it's a fairly small and self-contained project that builds quickly. We'll use the
+        <Link target="29a0885f-9292-3820-8089-fabed0903981">repository-put</Link>
+        command to define the repository:
+      </Paragraph>
+      <FormalItem title="Repository Creation">
+        <Verbatim><![CDATA[
+[northpike]$ repository-put
+--id 591ec9f7-5afb-4416-8258-22f388be40ff
+--provider com.io7m.northpike.repository.jgit
+--uri https://www.github.com/io7m/abstand
+
+[northpike]$ repository-search-begin
+ Page 1 of 1, offset 0
+┌──────────────────────────────────────┬────────────────────────────────────┬─────────────────────────────────────────┐
+│ ID                                   │ Provider                           │ URI                                     │
+├──────────────────────────────────────┼────────────────────────────────────┼─────────────────────────────────────────┤
+│ 591ec9f7-5afb-4416-8258-22f388be40ff │ com.io7m.northpike.repository.jgit │ https://www.github.com/io7m/abstand     │
+└──────────────────────────────────────┴────────────────────────────────────┴─────────────────────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        The <Term type="package">abstand</Term> repository contains commits that are
+        <LinkExternal target="https://en.wikipedia.org/wiki/Pretty_Good_Privacy">PGP</LinkExternal> signed. It would
+        therefore be a good idea to set the signing policy of the repository to require that only commits signed
+        by specific keys are allowed to be used by the <Term type="package">northpike</Term> server. At the time
+        of writing, all the commits in the <Term type="package">abstand</Term> repository are signed with
+        the PGP key that has the fingerprint
+        <Term type="expression">E362 BB4F 16A9 981D E781 2F6E 10E4 AAD0 B00D 6CDD</Term>. This key can be found
+        on the <LinkExternal
+        target="https://keyserver.ubuntu.com/pks/lookup?search=E362BB4F16A9981DE7812F6E10E4AAD0B00D6CDD&amp;op=index">public keyservers</LinkExternal>.
+      </Paragraph>
+      <Paragraph>
+        We download the key to a file, and then import it using the shell:
+      </Paragraph>
+      <FormalItem title="Key Download">
+        <Verbatim><![CDATA[
+$ wget -O E362BB4F16A9981DE7812F6E10E4AAD0B00D6CDD.asc 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xe362bb4f16a9981de7812f6e10e4aad0b00d6cdd'
+
+$ file E362BB4F16A9981DE7812F6E10E4AAD0B00D6CDD.asc
+E362BB4F16A9981DE7812F6E10E4AAD0B00D6CDD.asc: PGP public key block
+]]></Verbatim>
+      </FormalItem>
+      <FormalItem title="Key Upload">
+        <Verbatim><![CDATA[
+[northpike]$ public-key-put --file E362BB4F16A9981DE7812F6E10E4AAD0B00D6CDD.asc
+
+[northpike]$ public-key-search-begin
+ Page 1 of 1, offset 0
+┌─────────────────────────────────────────────────┬──────────────────────┬──────────────────────┬────────────────────────────────┐
+│ Fingerprint                                     │ Time Created         │ Time Expires         │ User ID                        │
+├─────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼────────────────────────────────┤
+│ e362bb4f16a9981de7812f6e10e4aad0b00d6cdd        │ 2024-01-01T16:15:22Z │ 2025-01-01T12:00:18Z │ Mark Raynsford (2024 person... │
+└─────────────────────────────────────────────────┴──────────────────────┴──────────────────────┴────────────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        We then assign the public key to the repository. Repositories may have any number of keys assigned.
+      </Paragraph>
+      <FormalItem title="Key Assignment">
+        <Verbatim><![CDATA[
+[northpike]$ repository-public-key-assign
+--repository 591ec9f7-5afb-4416-8258-22f388be40ff
+--key e362bb4f16a9981de7812f6e10e4aad0b00d6cdd
+
+[northpike]$ repository-public-keys-assigned --repository 591ec9f7-5afb-4416-8258-22f388be40ff
+┌─────────────────────────────────────────────────┬──────────────────────────────────────────┐
+│ Attribute                                       │ Value                                    │
+├─────────────────────────────────────────────────┼──────────────────────────────────────────┤
+│ Fingerprint                                     │ e362bb4f16a9981de7812f6e10e4aad0b00d6cdd │
+└─────────────────────────────────────────────────┴──────────────────────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        We then update the repository's <Link target="a8871c5e-98ca-48e8-b577-afad7b94848c">signature policy</Link>
+        to specify that only commits that have been signed with the exact keys assigned to the repository are allowed
+        to be processed. The <Term type="constant">REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS</Term> policy will cause
+        the server to refuse to process any commits that are not signed with one of the public keys that have been
+        assigned to the repository.
+      </Paragraph>
+      <FormalItem title="Signature Policy">
+        <Verbatim><![CDATA[
+[northpike]$ repository-public-key-assign
+--repository 591ec9f7-5afb-4416-8258-22f388be40ff
+--key e362bb4f16a9981de7812f6e10e4aad0b00d6cdd
+--signing-policy REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS
+]]></Verbatim>
+      </FormalItem>
+    </Subsection>
+  </Subsection>
+
+  <Footnote id="a927fac5-f2e2-4f62-a61b-3f97597b80e7">
+    This section of the documentation should be considered as purely informative and not normative; should there be
+    inconsistencies between commands or semantics described here, and commands or semantics as described in the rest of
+    the documentation, the rest of the documentation should take precedence.
+  </Footnote>
+
+</Section>

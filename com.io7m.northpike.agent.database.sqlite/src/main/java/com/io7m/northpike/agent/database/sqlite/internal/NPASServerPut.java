@@ -25,7 +25,8 @@ import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledClientAnonymous;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import org.jooq.DSLContext;
 
@@ -94,7 +95,7 @@ public final class NPASServerPut
             Integer.valueOf(server.port()))
           .set(
             SERVERS.S_TLS,
-            Integer.valueOf(tlsEnabled(server.tls())))
+            tlsEnabled(server.tls()))
           .set(
             SERVERS.S_TLS_KEYSTORE,
             tlsKeystore(server.tls()))
@@ -116,7 +117,7 @@ public final class NPASServerPut
             Integer.valueOf(server.port()))
           .set(
             SERVERS.S_TLS,
-            Integer.valueOf(tlsEnabled(server.tls())))
+            tlsEnabled(server.tls()))
           .set(
             SERVERS.S_TLS_KEYSTORE,
             tlsKeystore(server.tls()))
@@ -146,8 +147,9 @@ public final class NPASServerPut
     throws IOException
   {
     return switch (tls) {
-      case final NPTLSDisabled d -> null;
-      case final NPTLSEnabled e -> store(e.trustStore());
+      case final NPTLSDisabled ignored -> null;
+      case final NPTLSEnabledExplicit e -> store(e.trustStore());
+      case final NPTLSEnabledClientAnonymous ignored -> null;
     };
   }
 
@@ -157,7 +159,8 @@ public final class NPASServerPut
   {
     return switch (tls) {
       case final NPTLSDisabled d -> null;
-      case final NPTLSEnabled e -> store(e.keyStore());
+      case final NPTLSEnabledExplicit e -> store(e.keyStore());
+      case final NPTLSEnabledClientAnonymous ignored -> null;
     };
   }
 
@@ -177,12 +180,9 @@ public final class NPASServerPut
     }
   }
 
-  private static int tlsEnabled(
+  private static String tlsEnabled(
     final NPTLSConfigurationType tls)
   {
-    return switch (tls) {
-      case final NPTLSDisabled d -> 0;
-      case final NPTLSEnabled e -> 1;
-    };
+    return tls.kind().name();
   }
 }

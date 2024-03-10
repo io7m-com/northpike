@@ -14,33 +14,14 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
-package com.io7m.northpike.model.tls;
-
-import java.util.Objects;
+package com.io7m.northpike.preferences.api;
 
 /**
- * TLS is enabled.
- *
- * @param keyStore   The key store
- * @param trustStore The trust store
+ * The base type of server credentials.
  */
 
-public record NPTLSEnabled(
-  NPTLSStoreConfiguration keyStore,
-  NPTLSStoreConfiguration trustStore)
-  implements NPTLSConfigurationType
+public sealed interface NPPreferenceServerCredentialsType
+  permits NPPreferenceServerUsernamePassword
 {
-  /**
-   * TLS is enabled.
-   *
-   * @param keyStore   The key store
-   * @param trustStore The trust store
-   */
 
-  public NPTLSEnabled
-  {
-    Objects.requireNonNull(keyStore, "keyStore");
-    Objects.requireNonNull(trustStore, "trustStore");
-  }
 }

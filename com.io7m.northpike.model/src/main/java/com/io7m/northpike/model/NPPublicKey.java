@@ -86,4 +86,18 @@ public record NPPublicKey(
     }
     return false;
   }
+
+  /**
+   * @return A summary of this key
+   */
+
+  public NPPublicKeySummary summary()
+  {
+    return new NPPublicKeySummary(
+      this.userIDs.iterator().next(),
+      this.fingerprint,
+      this.timeCreated,
+      this.timeExpires
+    );
+  }
 }

@@ -17,8 +17,6 @@
 
 package com.io7m.northpike.protocol.user.cb.internal;
 
-import com.io7m.cedarbridge.runtime.api.CBCore;
-import com.io7m.cedarbridge.runtime.api.CBString;
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.cedarbridge.runtime.convenience.CBLists;
 import com.io7m.northpike.model.NPPage;
@@ -29,6 +27,7 @@ import com.io7m.northpike.protocol.user.cb.NPU1ResponsePublicKeySearch;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
 import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned64;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVPGPKeySummary.PGP_KEY_SUMMARY;
 
 /**
  * A validator.
@@ -53,7 +52,7 @@ public enum NPUVResponsePublicKeySearch
       new NPU1Page<>(
         CBLists.ofCollection(
           message.results().items(),
-          CBCore::string
+          PGP_KEY_SUMMARY::convertToWire
         ),
         unsigned32(message.results().pageIndex()),
         unsigned32(message.results().pageCount()),
@@ -72,7 +71,7 @@ public enum NPUVResponsePublicKeySearch
       new NPPage<>(
         CBLists.toList(
           message.fieldResults().fieldItems(),
-          CBString::value
+          PGP_KEY_SUMMARY::convertFromWire
         ),
         (int) message.fieldResults().fieldPageIndex().value(),
         (int) message.fieldResults().fieldPageCount().value(),

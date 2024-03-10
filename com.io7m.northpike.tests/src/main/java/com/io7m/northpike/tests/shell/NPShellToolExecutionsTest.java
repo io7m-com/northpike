@@ -87,7 +87,8 @@ public final class NPShellToolExecutionsTest
   private CountDownLatch latchStartup;
 
   @BeforeEach
-  public void setup()
+  public void setup(
+    final @TempDir Path directory)
     throws Exception
   {
     this.userClients =
@@ -115,6 +116,7 @@ public final class NPShellToolExecutionsTest
     this.shellConfiguration =
       new NPShellConfiguration(
         Locale.ROOT,
+        directory,
         this.userClients,
         NPStrings.create(Locale.ROOT),
         Optional.of(this.terminal),

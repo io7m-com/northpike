@@ -22,7 +22,11 @@ package com.io7m.northpike.model.tls;
  */
 
 public sealed interface NPTLSConfigurationType
-  permits NPTLSDisabled, NPTLSEnabled
+  permits NPTLSDisabled, NPTLSEnabledType
 {
+  /**
+   * @return The configuration kind
+   */
 
+  NPTLSConfigurationKind kind();
 }

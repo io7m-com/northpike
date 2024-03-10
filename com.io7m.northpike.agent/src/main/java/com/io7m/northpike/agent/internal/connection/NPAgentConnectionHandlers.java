@@ -29,7 +29,8 @@ import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledClientAnonymous;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.protocol.agent.cb.NPA1Messages;
 import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.intro.NPIError;
@@ -107,21 +108,29 @@ public final class NPAgentConnectionHandlers
     LOG.info(
       "Connect {} (TLS {})",
       socketAddress,
-      Boolean.valueOf(server.tls() instanceof NPTLSEnabled)
+      server.tls()
     );
 
     try {
       final var socket =
         switch (server.tls()) {
-          case final NPTLSDisabled disabled -> {
+          case final NPTLSDisabled ignored -> {
             yield SOCKETS.createSocket();
           }
-          case final NPTLSEnabled enabled -> {
+
+          case final NPTLSEnabledExplicit enabled -> {
             yield tlsContexts.create(
                 "Agent",
                 enabled.keyStore(),
                 enabled.trustStore()
               ).context()
+              .getSocketFactory()
+              .createSocket();
+          }
+
+          case final NPTLSEnabledClientAnonymous ignored -> {
+            yield tlsContexts.createClientAnonymous("Agent")
+              .context()
               .getSocketFactory()
               .createSocket();
           }

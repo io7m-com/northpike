@@ -21,8 +21,10 @@ import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,6 +32,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Functions to create custom SSL contexts.
@@ -41,34 +44,38 @@ public final class NPTLSContext
     LoggerFactory.getLogger(NPTLSContext.class);
 
   private final String user;
-  private final NPTLSStoreConfiguration keyStoreConfiguration;
-  private final KeyStore keyStore;
-  private final NPTLSStoreConfiguration trustStoreConfiguration;
-  private final KeyStore trustStore;
+  private final Optional<KeyStoreConfigured> keyStoreConfigured;
+  private final Optional<TrustStoreConfigured> trustStoreConfigured;
   private final SSLContext context;
 
   private NPTLSContext(
     final String inUser,
-    final NPTLSStoreConfiguration inKeyStoreConfiguration,
-    final KeyStore inKeyStore,
-    final NPTLSStoreConfiguration inTrustStoreConfiguration,
-    final KeyStore inTrustStore,
+    final Optional<KeyStoreConfigured> inKeyStoreConfigured,
+    final Optional<TrustStoreConfigured> inTrustStoreConfigured,
     final SSLContext inContext)
   {
     this.user =
       Objects.requireNonNull(inUser, "user");
-    this.keyStoreConfiguration =
-      Objects.requireNonNull(inKeyStoreConfiguration, "keyStoreConfiguration");
-    this.keyStore =
-      Objects.requireNonNull(inKeyStore, "keyStore");
-    this.trustStoreConfiguration =
-      Objects.requireNonNull(
-        inTrustStoreConfiguration,
-        "trustStoreConfiguration");
-    this.trustStore =
-      Objects.requireNonNull(inTrustStore, "trustStore");
+    this.keyStoreConfigured =
+      Objects.requireNonNull(inKeyStoreConfigured, "inKeyStoreConfigured");
+    this.trustStoreConfigured =
+      Objects.requireNonNull(inTrustStoreConfigured, "inTrustStoreConfigured");
     this.context =
       Objects.requireNonNull(inContext, "context");
+  }
+
+  private record KeyStoreConfigured(
+    KeyStore store,
+    NPTLSStoreConfiguration configuration)
+  {
+
+  }
+
+  private record TrustStoreConfigured(
+    KeyStore store,
+    NPTLSStoreConfiguration configuration)
+  {
+
   }
 
   /**
@@ -86,78 +93,98 @@ public final class NPTLSContext
 
   public static NPTLSContext create(
     final String user,
-    final NPTLSStoreConfiguration keyStoreConfiguration,
-    final NPTLSStoreConfiguration trustStoreConfiguration)
+    final Optional<NPTLSStoreConfiguration> keyStoreConfiguration,
+    final Optional<NPTLSStoreConfiguration> trustStoreConfiguration)
     throws IOException, GeneralSecurityException
   {
     Objects.requireNonNull(user, "user");
     Objects.requireNonNull(keyStoreConfiguration, "keyStoreConfiguration");
     Objects.requireNonNull(trustStoreConfiguration, "trustStoreConfiguration");
 
-    LOG.info(
-      "KeyStore [{}] {} (Provider {}, Type {})",
-      user,
-      keyStoreConfiguration.storePath(),
-      keyStoreConfiguration.storeProvider(),
-      keyStoreConfiguration.storeType()
-    );
-
-    LOG.info(
-      "TrustStore [{}] {} (Provider {}, Type {})",
-      user,
-      trustStoreConfiguration.storePath(),
-      trustStoreConfiguration.storeProvider(),
-      trustStoreConfiguration.storeType()
-    );
-
-    final var keyStore =
-      KeyStore.getInstance(
-        keyStoreConfiguration.storeType(),
-        keyStoreConfiguration.storeProvider()
+    if (keyStoreConfiguration.isPresent()) {
+      final var c = keyStoreConfiguration.get();
+      LOG.info(
+        "KeyStore [{}] {} (Provider {}, Type {})",
+        user,
+        c.storePath(),
+        c.storeProvider(),
+        c.storeType()
       );
-
-    final var keyStorePassChars =
-      keyStoreConfiguration.storePassword()
-        .toCharArray();
-
-    try (var stream =
-           Files.newInputStream(keyStoreConfiguration.storePath())) {
-      keyStore.load(stream, keyStorePassChars);
     }
 
-    final var trustStore =
-      KeyStore.getInstance(
-        trustStoreConfiguration.storeType(),
-        trustStoreConfiguration.storeProvider()
+    if (trustStoreConfiguration.isPresent()) {
+      final var c = trustStoreConfiguration.get();
+      LOG.info(
+        "TrustStore [{}] {} (Provider {}, Type {})",
+        user,
+        c.storePath(),
+        c.storeProvider(),
+        c.storeType()
       );
-
-    final var trustStorePassChars =
-      trustStoreConfiguration.storePassword().toCharArray();
-
-    try (var stream = Files.newInputStream(trustStoreConfiguration.storePath())) {
-      trustStore.load(stream, trustStorePassChars);
     }
 
-    final var keyManagerFactory =
-      createKeyManagerFactory(keyStore, keyStorePassChars);
-    final var trustManagerFactory =
-      createTrustManagerFactory(trustStore);
+    final KeyManager[] keyManagers;
+    final Optional<KeyStoreConfigured> keyStoreConfigured;
+    if (keyStoreConfiguration.isPresent()) {
+      final var c = keyStoreConfiguration.get();
+
+      final var keyStore =
+        KeyStore.getInstance(c.storeType(), c.storeProvider());
+      final var keyStorePassChars =
+        c.storePassword().toCharArray();
+
+      try (var stream = Files.newInputStream(c.storePath())) {
+        keyStore.load(stream, keyStorePassChars);
+      }
+
+      final var keyManagerFactory =
+        createKeyManagerFactory(keyStore, keyStorePassChars);
+
+      keyManagers = keyManagerFactory.getKeyManagers();
+      keyStoreConfigured = Optional.of(new KeyStoreConfigured(keyStore, c));
+    } else {
+      keyManagers = null;
+      keyStoreConfigured = Optional.empty();
+    }
+
+    final TrustManager[] trustManagers;
+    final Optional<TrustStoreConfigured> trustStoreConfigured;
+    if (trustStoreConfiguration.isPresent()) {
+      final var c = trustStoreConfiguration.get();
+
+      final var trustStore =
+        KeyStore.getInstance(c.storeType(), c.storeProvider());
+      final var trustStorePassChars =
+        c.storePassword().toCharArray();
+
+      try (var stream = Files.newInputStream(c.storePath())) {
+        trustStore.load(stream, trustStorePassChars);
+      }
+
+      final var trustManagerFactory =
+        createTrustManagerFactory(trustStore);
+
+      trustManagers = trustManagerFactory.getTrustManagers();
+      trustStoreConfigured =
+        Optional.of(new TrustStoreConfigured(trustStore, c));
+    } else {
+      trustManagers = null;
+      trustStoreConfigured = Optional.empty();
+    }
 
     final var context =
       SSLContext.getInstance("TLSv1.3");
 
     context.init(
-      keyManagerFactory.getKeyManagers(),
-      trustManagerFactory.getTrustManagers(),
+      keyManagers,
+      trustManagers,
       SecureRandom.getInstanceStrong()
     );
 
     return new NPTLSContext(
       user,
-      keyStoreConfiguration,
-      keyStore,
-      trustStoreConfiguration,
-      trustStore,
+      keyStoreConfigured,
+      trustStoreConfigured,
       context
     );
   }
@@ -195,43 +222,62 @@ public final class NPTLSContext
   public void reload()
     throws IOException, GeneralSecurityException
   {
-    LOG.info(
-      "KeyStore [{}] {} reloading",
-      this.user,
-      this.keyStoreConfiguration.storePath()
-    );
+    final KeyManager[] keyManagers;
+    if (this.keyStoreConfigured.isPresent()) {
+      final var configured = this.keyStoreConfigured.get();
 
-    final var keyStorePassChars =
-      this.keyStoreConfiguration.storePassword()
-        .toCharArray();
+      LOG.info(
+        "KeyStore [{}] {} reloading",
+        this.user,
+        configured.configuration.storePath()
+      );
 
-    try (var stream =
-           Files.newInputStream(this.keyStoreConfiguration.storePath())) {
-      this.keyStore.load(stream, keyStorePassChars);
+      final var keyStorePassChars =
+        configured.configuration.storePassword()
+          .toCharArray();
+
+      try (var stream =
+             Files.newInputStream(configured.configuration.storePath())) {
+        configured.store.load(stream, keyStorePassChars);
+      }
+
+      final var keyManagerFactory =
+        createKeyManagerFactory(configured.store, keyStorePassChars);
+
+      keyManagers = keyManagerFactory.getKeyManagers();
+    } else {
+      keyManagers = null;
     }
 
-    LOG.info(
-      "TrustStore [{}] {} reloading",
-      this.user,
-      this.keyStoreConfiguration.storePath()
-    );
+    final TrustManager[] trustManagers;
+    if (this.trustStoreConfigured.isPresent()) {
+      final var configured = this.trustStoreConfigured.get();
 
-    final var trustStorePassChars =
-      this.trustStoreConfiguration.storePassword().toCharArray();
+      LOG.info(
+        "TrustStore [{}] {} reloading",
+        this.user,
+        configured.configuration.storePath()
+      );
 
-    try (var stream =
-           Files.newInputStream(this.trustStoreConfiguration.storePath())) {
-      this.trustStore.load(stream, trustStorePassChars);
+      final var trustStorePassChars =
+        configured.configuration.storePassword().toCharArray();
+
+      try (var stream =
+             Files.newInputStream(configured.configuration.storePath())) {
+        configured.store.load(stream, trustStorePassChars);
+      }
+
+      final var trustManagerFactory =
+        createTrustManagerFactory(configured.store);
+
+      trustManagers = trustManagerFactory.getTrustManagers();
+    } else {
+      trustManagers = null;
     }
-
-    final var keyManagerFactory =
-      createKeyManagerFactory(this.keyStore, keyStorePassChars);
-    final var trustManagerFactory =
-      createTrustManagerFactory(this.trustStore);
 
     this.context.init(
-      keyManagerFactory.getKeyManagers(),
-      trustManagerFactory.getTrustManagers(),
+      keyManagers,
+      trustManagers,
       SecureRandom.getInstanceStrong()
     );
   }

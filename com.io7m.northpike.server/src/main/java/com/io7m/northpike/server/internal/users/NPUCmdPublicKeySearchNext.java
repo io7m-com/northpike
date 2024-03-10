@@ -72,7 +72,7 @@ public final class NPUCmdPublicKeySearchNext
         return new NPUResponsePublicKeySearch(
           UUID.randomUUID(),
           command.messageID(),
-          paged.pageNext(transaction).map(NPPublicKey::encodedForm)
+          paged.pageNext(transaction).map(NPPublicKey::summary)
         );
       }
     }

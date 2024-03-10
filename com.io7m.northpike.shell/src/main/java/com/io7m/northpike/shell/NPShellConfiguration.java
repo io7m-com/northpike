@@ -20,6 +20,7 @@ import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.user_client.api.NPUserClientFactoryType;
 import org.jline.terminal.Terminal;
 
+import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,15 +28,17 @@ import java.util.Optional;
 /**
  * The shell configuration.
  *
- * @param locale           The locale
- * @param userClients      The user clients
- * @param terminal         The terminal
- * @param strings          The strings
- * @param messageSizeLimit The message size limit
+ * @param locale                 The locale
+ * @param configurationDirectory The configuration directory
+ * @param userClients            The user clients
+ * @param terminal               The terminal
+ * @param strings                The strings
+ * @param messageSizeLimit       The message size limit
  */
 
 public record NPShellConfiguration(
   Locale locale,
+  Path configurationDirectory,
   NPUserClientFactoryType userClients,
   NPStrings strings,
   Optional<Terminal> terminal,
@@ -44,16 +47,18 @@ public record NPShellConfiguration(
   /**
    * The shell configuration.
    *
-   * @param locale           The locale
-   * @param userClients      The user clients
-   * @param terminal         The terminal
-   * @param strings          The strings
-   * @param messageSizeLimit The message size limit
+   * @param locale                 The locale
+   * @param configurationDirectory The configuration directory
+   * @param userClients            The user clients
+   * @param terminal               The terminal
+   * @param strings                The strings
+   * @param messageSizeLimit       The message size limit
    */
 
   public NPShellConfiguration
   {
     Objects.requireNonNull(locale, "locale");
+    Objects.requireNonNull(configurationDirectory, "configurationDirectory");
     Objects.requireNonNull(userClients, "userClients");
     Objects.requireNonNull(terminal, "terminal");
     Objects.requireNonNull(strings, "strings");

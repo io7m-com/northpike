@@ -28,6 +28,7 @@ module com.io7m.northpike.connections
   requires com.io7m.northpike.strings;
 
   requires com.io7m.jmulticlose.core;
+  requires org.slf4j;
 
   exports com.io7m.northpike.connections;
 }

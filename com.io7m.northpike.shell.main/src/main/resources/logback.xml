@@ -2,6 +2,7 @@
 
 <configuration xmlns="http://ch.qos.logback/xml/ns/logback"
                debug="false">
+
   <appender name="STDERR"
             class="ch.qos.logback.core.ConsoleAppender">
     <encoder>

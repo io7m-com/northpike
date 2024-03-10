@@ -36,6 +36,7 @@ import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanName;
 import com.io7m.northpike.model.security.NPRoleSet;
+import com.io7m.northpike.model.tls.NPTLSConfigurationKind;
 import com.io7m.quarrel.core.QValueConverterDirectory;
 import com.io7m.quarrel.core.QValueConverterDirectoryType;
 
@@ -101,6 +102,9 @@ public final class NPShellValueConverters
       .with(
         NPRoleSet.class,
         new NPRoleSetConverter())
+      .with(
+        NPTLSConfigurationKind.class,
+        new NPTLSConfigurationKindConverter())
       .with(
         NPAgentLabelSet.class,
         new NPAgentLabelSetConverter());

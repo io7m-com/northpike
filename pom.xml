@@ -45,6 +45,8 @@
     <module>com.io7m.northpike.plans.compiler</module>
     <module>com.io7m.northpike.plans.parsers</module>
     <module>com.io7m.northpike.plans</module>
+    <module>com.io7m.northpike.preferences.api</module>
+    <module>com.io7m.northpike.preferences.basic</module>
     <module>com.io7m.northpike.protocol.agent.cb</module>
     <module>com.io7m.northpike.protocol.agent</module>
     <module>com.io7m.northpike.protocol.agent_console.cb</module>
@@ -308,6 +310,16 @@
         <groupId>com.io7m.streamtime</groupId>
         <artifactId>com.io7m.streamtime.core</artifactId>
         <version>${com.io7m.streamtime.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jade</groupId>
+        <artifactId>com.io7m.jade.api</artifactId>
+        <version>${com.io7m.jade.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jade</groupId>
+        <artifactId>com.io7m.jade.vanilla</artifactId>
+        <version>${com.io7m.jade.version}</version>
       </dependency>
 
       <!-- Agent container execution. -->

@@ -26,5 +26,7 @@ module com.io7m.northpike.protocol.api
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.strings;
 
+  requires org.apache.commons.io;
+
   exports com.io7m.northpike.protocol.api;
 }

@@ -64,8 +64,7 @@ public interface NPMessageConnectionType<M, R extends M>
     throws NPException, InterruptedException, IOException;
 
   /**
-   * Retrieve a message if one is available. The method will block until
-   * the underlying network transport indicates that a message is available.
+   * Retrieve a message if one is available.
    *
    * @return The message, if any
    *

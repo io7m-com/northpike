@@ -18,7 +18,8 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.model.tls.NPTLSDisabled;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledClientAnonymous;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.api.NPServerUserConfiguration;
 import com.io7m.northpike.server.internal.NPServerExceptions;
@@ -69,10 +70,11 @@ public final class NPUserServerSocketService
     Objects.requireNonNull(configuration, "configuration");
 
     return switch (configuration.tls()) {
-      case final NPTLSDisabled disabled -> {
+      case final NPTLSDisabled ignored -> {
         yield new NPUserServerSocketService(ServerSocketFactory.getDefault());
       }
-      case final NPTLSEnabled enabled -> {
+
+      case final NPTLSEnabledExplicit enabled -> {
         final NPTLSContext tlsContext;
         try {
           tlsContext = tlsService.create(
@@ -88,6 +90,11 @@ public final class NPUserServerSocketService
         yield new NPUserServerSocketService(
           tlsContext.context().getServerSocketFactory()
         );
+      }
+
+      case final NPTLSEnabledClientAnonymous ignored -> {
+        throw new IllegalStateException(
+          "Server sockets must use explicit TLS configurations.");
       }
     };
   }

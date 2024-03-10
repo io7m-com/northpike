@@ -18,6 +18,8 @@
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPPublicKey;
+import com.io7m.northpike.model.NPPublicKeySummary;
 import com.io7m.northpike.protocol.user.NPUResponsePublicKeySearch;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
@@ -43,10 +45,12 @@ public final class NPArbUResponsePublicKeySearch
     );
   }
 
-  private static Arbitrary<NPPage<String>> page()
+  private static Arbitrary<NPPage<NPPublicKeySummary>> page()
   {
     return Combinators.combine(
-      Arbitraries.strings().list(),
+      Arbitraries.defaultFor(NPPublicKey.class)
+        .map(NPPublicKey::summary)
+        .list(),
       Arbitraries.integers(),
       Arbitraries.integers(),
       Arbitraries.longs()

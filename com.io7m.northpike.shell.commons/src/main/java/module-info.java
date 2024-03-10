@@ -25,6 +25,7 @@ module com.io7m.northpike.shell.commons
 
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.agent.workexec.api;
+  requires com.io7m.northpike.preferences.api;
 
   requires com.io7m.quarrel.core;
   requires com.io7m.tabla.core;

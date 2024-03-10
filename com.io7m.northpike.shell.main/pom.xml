@@ -46,8 +46,21 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.jade</groupId>
+      <artifactId>com.io7m.jade.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jade</groupId>
+      <artifactId>com.io7m.jade.vanilla</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
     </dependency>
 
     <dependency>

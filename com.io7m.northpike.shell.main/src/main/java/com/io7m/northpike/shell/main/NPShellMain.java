@@ -17,10 +17,13 @@
 
 package com.io7m.northpike.shell.main;
 
+import com.io7m.jade.api.ApplicationDirectories;
+import com.io7m.jade.api.ApplicationDirectoryConfiguration;
 import com.io7m.northpike.shell.NPShellConfiguration;
 import com.io7m.northpike.shell.NPShells;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.user_client.NPUserClients;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -65,9 +68,26 @@ public final class NPShellMain
     final String[] args)
     throws Exception
   {
+    System.setProperty("org.jooq.no-tips", "true");
+    System.setProperty("org.jooq.no-logo", "true");
+
+    SLF4JBridgeHandler.removeHandlersForRootLogger();
+    SLF4JBridgeHandler.install();
+
+    final var directoryConfiguration =
+      ApplicationDirectoryConfiguration.builder()
+        .setApplicationName("com.io7m.northpike.shell")
+        .setOverridePropertyName("com.io7m.northpike.override")
+        .setPortablePropertyName("com.io7m.northpike.portable")
+        .build();
+
+    final var applicationConfiguration =
+      ApplicationDirectories.get(directoryConfiguration);
+
     final var configuration =
       new NPShellConfiguration(
         Locale.getDefault(),
+        applicationConfiguration.configurationDirectory(),
         new NPUserClients(),
         NPStrings.create(Locale.getDefault()),
         Optional.empty(),

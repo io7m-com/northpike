@@ -19,7 +19,8 @@ package com.io7m.northpike.protocol.agent_console.cb.internal;
 
 import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledClientAnonymous;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.protocol.agent_console.cb.NPAC1TLSConfiguration;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 
@@ -46,11 +47,16 @@ public enum NPACVTLSConfiguration
       case final NPTLSDisabled d -> {
         yield new NPAC1TLSConfiguration.NPAC1TLSDisabled();
       }
-      case final NPTLSEnabled e -> {
+
+      case final NPTLSEnabledExplicit e -> {
         yield new NPAC1TLSConfiguration.NPAC1TLSEnabled(
           TLS_STORE.convertToWire(e.keyStore()),
           TLS_STORE.convertToWire(e.trustStore())
         );
+      }
+
+      case final NPTLSEnabledClientAnonymous d -> {
+        throw new UnsupportedOperationException();
       }
     };
   }
@@ -65,7 +71,7 @@ public enum NPACVTLSConfiguration
         yield NPTLSDisabled.TLS_DISABLED;
       }
       case final NPAC1TLSConfiguration.NPAC1TLSEnabled e -> {
-        yield new NPTLSEnabled(
+        yield new NPTLSEnabledExplicit(
           TLS_STORE.convertFromWire(e.fieldKeyStore()),
           TLS_STORE.convertFromWire(e.fieldTrustStore())
         );

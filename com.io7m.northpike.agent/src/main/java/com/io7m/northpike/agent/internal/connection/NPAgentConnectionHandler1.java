@@ -53,5 +53,4 @@ public final class NPAgentConnectionHandler1
       inOutputStream
     );
   }
-
 }

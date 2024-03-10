@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Section xmlns:xi="http://www.w3.org/2001/XInclude" id="24e4a7a5-1de6-3204-86d1-44910584bf10" title="bookmark-login" xmlns="urn:com.io7m.structural:8:0">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="command">bookmark-login</Term>
+       - Log in using a bookmark.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The 
+      <Term type="command">bookmark-login</Term>
+       command... 
+    </Paragraph>
+  </Subsection>
+  <xi:include href="scmd-bookmark-login-parameters.xml"/>
+  <Subsection title="Examples">
+    <FormalItem title="Example" type="example">
+      <Verbatim>...</Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>
+

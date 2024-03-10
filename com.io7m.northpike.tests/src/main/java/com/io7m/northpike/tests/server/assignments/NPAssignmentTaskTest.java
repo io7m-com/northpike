@@ -109,6 +109,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 
+@Timeout(value = 10L, unit = TimeUnit.SECONDS)
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
 @ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
 public final class NPAssignmentTaskTest

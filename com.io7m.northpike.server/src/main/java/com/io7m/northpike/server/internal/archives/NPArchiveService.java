@@ -22,7 +22,7 @@ import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPArchiveLinks;
 import com.io7m.northpike.model.NPToken;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerResources;
@@ -216,7 +216,7 @@ public final class NPArchiveService implements NPArchiveServiceType
     final var webServerBuilder =
       WebServerConfig.builder();
 
-    if (httpConfig.tls() instanceof final NPTLSEnabled enabled) {
+    if (httpConfig.tls() instanceof final NPTLSEnabledExplicit enabled) {
       final var tlsContext =
         this.tlsService.create(
           "Archive",

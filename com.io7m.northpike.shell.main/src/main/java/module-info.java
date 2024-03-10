@@ -27,5 +27,9 @@ module com.io7m.northpike.shell.main
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.user_client;
 
+  requires com.io7m.jade.api;
+  requires com.io7m.jade.vanilla;
+  requires jul.to.slf4j;
+
   exports com.io7m.northpike.shell.main;
 }

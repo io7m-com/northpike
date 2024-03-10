@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.server.agents;
 
 import com.io7m.northpike.model.tls.NPTLSDisabled;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
 import com.io7m.northpike.server.internal.agents.NPAgentServerSocketService;
@@ -96,7 +96,7 @@ public final class NPAgentServerSocketServiceTest
         new NPServerAgentConfiguration(
           InetAddress.getLocalHost(),
           50000,
-          new NPTLSEnabled(
+          new NPTLSEnabledExplicit(
             new NPTLSStoreConfiguration(
               "JKS",
               "SUN",

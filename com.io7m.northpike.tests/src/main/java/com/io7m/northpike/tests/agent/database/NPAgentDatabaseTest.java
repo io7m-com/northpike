@@ -42,7 +42,7 @@ import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
@@ -268,7 +268,7 @@ public final class NPAgentDatabaseTest
           new NPAgentServerID(UUID.randomUUID()),
           "h%d.example.com".formatted(Integer.valueOf(index)),
           index,
-          new NPTLSEnabled(
+          new NPTLSEnabledExplicit(
             new NPTLSStoreConfiguration(
               "CANONMILL",
               "CANONMILL",

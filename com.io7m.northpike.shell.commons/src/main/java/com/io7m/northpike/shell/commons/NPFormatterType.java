@@ -21,6 +21,7 @@ import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPPublicKey;
+import com.io7m.northpike.model.NPPublicKeySummary;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
@@ -42,6 +43,7 @@ import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanSummary;
 import com.io7m.northpike.model.tls.NPTLSConfigurationType;
+import com.io7m.northpike.preferences.api.NPPreferenceServerBookmark;
 
 import java.util.List;
 import java.util.Optional;
@@ -109,7 +111,7 @@ public interface NPFormatterType
    * @throws Exception On errors
    */
 
-  void formatPublicKeySummaries(NPPage<NPPublicKey> page)
+  void formatPublicKeySummaries(NPPage<NPPublicKeySummary> page)
     throws Exception;
 
   /**
@@ -389,5 +391,17 @@ public interface NPFormatterType
 
   void formatAgentLoginChallenges(
     NPPage<NPAgentLoginChallengeRecord> page)
+    throws Exception;
+
+  /**
+   * Format a list of bookmarks.
+   *
+   * @param bookmarks The bookmarks
+   *
+   * @throws Exception On errors
+   */
+
+  void formatBookmarks(
+    List<NPPreferenceServerBookmark> bookmarks)
     throws Exception;
 }

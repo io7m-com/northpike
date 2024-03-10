@@ -17,24 +17,29 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
+import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPPublicKey;
 import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
 import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Combinators;
 
-public final class NPArbPublicKey extends NPArbAbstract<NPAgentKeyPublicType>
+import java.time.OffsetDateTime;
+
+public final class NPArbPublicKey extends NPArbAbstract<NPPublicKey>
 {
   public NPArbPublicKey()
   {
     super(
-      NPAgentKeyPublicType.class,
+      NPPublicKey.class,
       () -> {
-        return Arbitraries.oneOf(
-          Arbitraries.create(() -> {
-            return new NPAgentKeyPairFactoryEd448()
-              .generateKeyPair()
-              .publicKey();
-          })
-        );
+        return Combinators.combine(
+          Arbitraries.strings().set().ofMinSize(1),
+          Arbitraries.defaultFor(NPFingerprint.class),
+          Arbitraries.defaultFor(OffsetDateTime.class),
+          Arbitraries.defaultFor(OffsetDateTime.class).optional(),
+          Arbitraries.strings().withChars("abcdef1234567890")
+        ).as(NPPublicKey::new);
       }
     );
   }

@@ -34,7 +34,7 @@ CREATE TABLE servers (
   s_id                  TEXT    NOT NULL,
   s_remote_address      TEXT    NOT NULL,
   s_port                INTEGER NOT NULL,
-  s_tls                 INTEGER NOT NULL,
+  s_tls                 TEXT    NOT NULL,
   s_tls_keystore        TEXT,
   s_tls_truststore      TEXT,
 
@@ -47,9 +47,11 @@ CREATE TABLE servers (
 
   CONSTRAINT servers_tls_correct CHECK (
     CASE s_tls
-      WHEN 0 THEN
+      WHEN 'TLS_DISABLED' THEN
         ((s_tls_keystore IS NULL) AND (s_tls_truststore IS NULL))
-      WHEN 1 THEN
+      WHEN 'TLS_ENABLED_CLIENT_ANONYMOUS' THEN
+        ((s_tls_keystore IS NULL) AND (s_tls_truststore IS NULL))
+      WHEN 'TLS_ENABLED_EXPLICIT' THEN
         ((s_tls_keystore IS NOT NULL) AND (s_tls_truststore IS NOT NULL))
       ELSE
         0

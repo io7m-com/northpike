@@ -32,7 +32,7 @@ import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
 import com.io7m.northpike.model.agents.NPAgentServerSummary;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
-import com.io7m.northpike.model.tls.NPTLSEnabled;
+import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentServerAssign;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerGet;
@@ -475,7 +475,7 @@ public final class NPAShellBasicTest
             new NPAgentServerID(UUID.randomUUID()),
             "s1.example.com",
             20000,
-            new NPTLSEnabled(
+            new NPTLSEnabledExplicit(
               new NPTLSStoreConfiguration(
                 "CANONMILL",
                 "CANONMILL",

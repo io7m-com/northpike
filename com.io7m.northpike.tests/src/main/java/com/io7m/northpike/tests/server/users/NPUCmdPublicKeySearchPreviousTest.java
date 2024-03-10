@@ -271,8 +271,8 @@ public final class NPUCmdPublicKeySearchPreviousTest
         0L
       );
 
-    final var pageEncoded =
-      pageMain.map(NPPublicKey::encodedForm);
+    final var pageSummaries =
+      pageMain.map(NPPublicKey::summary);
 
     final var paged =
       Mockito.mock(NPPublicKeysPagedType.class);
@@ -285,6 +285,6 @@ public final class NPUCmdPublicKeySearchPreviousTest
 
     final var r = handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
-    assertEquals(pageEncoded, r.results());
+    assertEquals(pageSummaries, r.results());
   }
 }
