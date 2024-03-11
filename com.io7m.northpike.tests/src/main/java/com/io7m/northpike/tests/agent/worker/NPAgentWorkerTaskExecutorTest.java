@@ -37,6 +37,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.verification.AtLeast;
 import org.mockito.internal.verification.Times;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,7 @@ import static com.io7m.northpike.model.NPCleanImmediately.CLEAN_IMMEDIATELY;
 import static com.io7m.northpike.model.NPFailureFail.FAIL;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 public final class NPAgentWorkerTaskExecutorTest
 {
@@ -193,6 +195,8 @@ public final class NPAgentWorkerTaskExecutorTest
 
     Mockito.verify(this.worker, new Times(1))
       .workStarted(this.workItem0);
+    Mockito.verify(this.worker, new AtLeast(1))
+      .workUpdated(eq(this.workItem0), any());
     Mockito.verify(this.worker, new Times(1))
       .workUpdated(this.workItem0, this.event0);
     Mockito.verify(this.worker, new Times(1))
@@ -233,6 +237,8 @@ public final class NPAgentWorkerTaskExecutorTest
 
     Mockito.verify(this.worker, new Times(1))
       .workStarted(this.workItem0);
+    Mockito.verify(this.worker, new AtLeast(1))
+      .workUpdated(eq(this.workItem0), any());
     Mockito.verify(this.worker, new Times(1))
       .workUpdated(this.workItem0, this.event0);
     Mockito.verify(this.worker, new Times(1))
@@ -271,7 +277,7 @@ public final class NPAgentWorkerTaskExecutorTest
 
     Mockito.verify(this.worker, new Times(1))
       .workStarted(this.workItem0);
-    Mockito.verify(this.worker, new Times(0))
+    Mockito.verify(this.worker, new Times(1))
       .workUpdated(any(), any());
     Mockito.verify(this.worker, new Times(1))
       .workCompleted(this.workItem0, FAILURE);

@@ -185,7 +185,7 @@ public final class NPIdstoreFixture
           TimeUnit.SECONDS
         );
 
-    Assertions.assertEquals(0, r);
+    Assertions.assertEquals(0, r, "Database creation succeeded");
 
     final var serverContainer =
       supervisor.start(

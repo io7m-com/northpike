@@ -555,7 +555,7 @@ public final class NPAssignmentTaskTest
         try {
           offerAcceptLatch.await(5L, TimeUnit.SECONDS);
         } catch (final InterruptedException e) {
-          Thread.currentThread().interrupt();
+          throw new IllegalStateException(e);
         }
 
         final var events =
@@ -577,7 +577,7 @@ public final class NPAssignmentTaskTest
         try {
           sendLatch.await(5L, TimeUnit.SECONDS);
         } catch (final InterruptedException e) {
-          Thread.currentThread().interrupt();
+          throw new IllegalStateException(e);
         }
 
         final var events =
@@ -701,7 +701,7 @@ public final class NPAssignmentTaskTest
         try {
           offerAcceptLatch.await(5L, TimeUnit.SECONDS);
         } catch (final InterruptedException e) {
-          Thread.currentThread().interrupt();
+          throw new IllegalStateException(e);
         }
 
         final var events =
@@ -723,7 +723,7 @@ public final class NPAssignmentTaskTest
         try {
           sendLatch.await(5L, TimeUnit.SECONDS);
         } catch (final InterruptedException e) {
-          Thread.currentThread().interrupt();
+          throw new IllegalStateException(e);
         }
 
         final var events =
@@ -1209,7 +1209,7 @@ public final class NPAssignmentTaskTest
           try {
             item = itemQueue.poll(1L, TimeUnit.SECONDS);
           } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
           }
 
           if (item == null) {

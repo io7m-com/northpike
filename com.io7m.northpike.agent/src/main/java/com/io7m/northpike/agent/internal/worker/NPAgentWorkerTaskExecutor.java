@@ -32,7 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -234,15 +237,18 @@ public final class NPAgentWorkerTaskExecutor implements NPAgentTaskType,
             workItem,
             execution,
             Thread.startVirtualThread(() -> {
-              MDC.put("WorkExecutionID", workItem.identifier().toString());
-              LOG.debug("Starting execution.");
-              this.worker.workStarted(workItem);
+              try {
+                MDC.put("WorkExecutionID", workItem.identifier().toString());
+                LOG.debug("Starting execution.");
+                this.worker.workStarted(workItem);
+                this.worker.workUpdated(workItem, eventStarted());
 
-              try (execution) {
-                this.worker.workCompleted(workItem, execution.execute());
-              } catch (final Throwable e) {
-                LOG.warn("Execution raised exception: ", e);
-                this.worker.workCompleted(workItem, FAILURE);
+                try (execution) {
+                  this.worker.workCompleted(workItem, execution.execute());
+                } catch (final Throwable e) {
+                  LOG.warn("Execution raised exception: ", e);
+                  this.worker.workCompleted(workItem, FAILURE);
+                }
               } finally {
                 LOG.debug("Finished execution.");
                 this.executing.set(false);
@@ -259,5 +265,16 @@ public final class NPAgentWorkerTaskExecutor implements NPAgentTaskType,
       }
     }
     return false;
+  }
+
+  private static NPAWorkEvent eventStarted()
+  {
+    return new NPAWorkEvent(
+      NPAWorkEvent.Severity.INFO,
+      OffsetDateTime.now(),
+      "Started...",
+      Map.of(),
+      Optional.empty()
+    );
   }
 }
