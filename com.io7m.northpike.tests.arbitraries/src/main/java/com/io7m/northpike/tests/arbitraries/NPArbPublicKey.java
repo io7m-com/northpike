@@ -19,8 +19,6 @@ package com.io7m.northpike.tests.arbitraries;
 
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPublicKey;
-import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
-import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 

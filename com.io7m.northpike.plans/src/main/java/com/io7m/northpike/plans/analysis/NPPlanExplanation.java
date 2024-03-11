@@ -17,9 +17,9 @@
 
 package com.io7m.northpike.plans.analysis;
 
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentLabelName;
-import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType.Anything;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsEqualTo;

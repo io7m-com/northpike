@@ -20,8 +20,6 @@ package com.io7m.northpike.tests.arbitraries.core;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 
 public final class NPArbDuration extends NPArbAbstract<Duration>

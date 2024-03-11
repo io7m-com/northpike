@@ -18,7 +18,6 @@
 package com.io7m.northpike.tests.toolexec.js;
 
 import com.io7m.northpike.toolexec.api.NPTException;
-import com.io7m.northpike.toolexec.js.NPTJSLanguageProvider;
 import com.io7m.northpike.toolexec.program.api.NPTPContextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 

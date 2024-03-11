@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.user;
 
-import com.io7m.northpike.model.agents.NPAgentLabel;
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.agents.NPAgentLabel;
 import com.io7m.northpike.protocol.user.NPUResponseAgentLabelSearch;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;

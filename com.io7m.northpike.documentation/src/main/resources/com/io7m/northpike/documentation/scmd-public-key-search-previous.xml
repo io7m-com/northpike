@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Section xmlns:xi="http://www.w3.org/2001/XInclude" id="9460ba0f-20e3-3cd7-a6d8-f58364be1bf5" title="public-key-search-previous" xmlns="urn:com.io7m.structural:8:0">
+<Section id="9460ba0f-20e3-3cd7-a6d8-f58364be1bf5"
+         title="public-key-search-previous"
+         xmlns="urn:com.io7m.structural:8:0">
   <Subsection title="Name">
     <Paragraph>
       <Term type="command">public-key-search-previous</Term>

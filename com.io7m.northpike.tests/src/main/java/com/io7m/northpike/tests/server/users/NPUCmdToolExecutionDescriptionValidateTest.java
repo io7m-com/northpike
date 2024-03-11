@@ -42,12 +42,10 @@ import com.io7m.northpike.toolexec.api.NPTEvaluationResult;
 import com.io7m.northpike.toolexec.api.NPTEvaluationServiceType;
 import com.io7m.northpike.toolexec.api.NPTException;
 import com.io7m.repetoir.core.RPServiceDirectory;
-import com.io7m.seltzer.api.SStructuredError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;

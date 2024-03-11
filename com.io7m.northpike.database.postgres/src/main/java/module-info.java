@@ -16,7 +16,6 @@
 
 import com.io7m.northpike.database.api.NPDatabaseFactoryType;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
-import com.io7m.northpike.database.postgres.internal.NPDBQAgentLoginChallengeGetForKey;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType;
 
 /**

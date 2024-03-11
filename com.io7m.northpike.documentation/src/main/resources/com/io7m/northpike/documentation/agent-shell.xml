@@ -2,8 +2,7 @@
 
 <Section id="c3b99531-ff6d-49d0-9105-ae5effd06ae6"
          title="Agent Shell"
-         xmlns="urn:com.io7m.structural:8:0"
-         xmlns:xi="http://www.w3.org/2001/XInclude">
+         xmlns="urn:com.io7m.structural:8:0">
 
   <Section title="Usage">
     <Subsection title="Overview">

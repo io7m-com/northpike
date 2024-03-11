@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<c:Configuration xmlns:c="urn:com.io7m.northpike.agent.configuration:1"
-                 xmlns:t="urn:com.io7m.northpike.tls:1">
+<c:Configuration xmlns:c="urn:com.io7m.northpike.agent.configuration:1">
 
   <c:Console Address="localhost"
              Port="20051"

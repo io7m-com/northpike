@@ -20,7 +20,6 @@ package com.io7m.northpike.tests.arbitraries.core;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public final class NPArbBigInteger extends NPArbAbstract<BigInteger>

@@ -14,7 +14,6 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-import com.io7m.northpike.tests.arbitraries.NPArbPublicKey;
 import net.jqwik.api.providers.ArbitraryProvider;
 
 open module com.io7m.northpike.tests.arbitraries

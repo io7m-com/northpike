@@ -19,11 +19,8 @@ package com.io7m.northpike.tests.arbitraries.core;
 
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Combinators;
 
-import java.math.BigInteger;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 
 public final class NPArbInetAddress extends NPArbAbstract<InetAddress>
 {

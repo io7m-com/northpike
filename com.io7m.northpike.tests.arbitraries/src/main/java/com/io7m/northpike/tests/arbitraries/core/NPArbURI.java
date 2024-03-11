@@ -20,7 +20,6 @@ package com.io7m.northpike.tests.arbitraries.core;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 
-import java.net.InetAddress;
 import java.net.URI;
 
 public final class NPArbURI extends NPArbAbstract<URI>

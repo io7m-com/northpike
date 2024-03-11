@@ -23,10 +23,10 @@ import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.database.postgres.internal.enums.WorkItemStatusT;
-import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import org.jooq.DSLContext;
 

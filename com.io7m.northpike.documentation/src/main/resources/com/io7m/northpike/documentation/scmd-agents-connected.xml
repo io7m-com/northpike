@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Section xmlns:xi="http://www.w3.org/2001/XInclude" id="92ce2fc4-98ab-3ecc-aabd-463c32793b94" title="agents-connected" xmlns="urn:com.io7m.structural:8:0">
+<Section id="92ce2fc4-98ab-3ecc-aabd-463c32793b94"
+         title="agents-connected"
+         xmlns="urn:com.io7m.structural:8:0">
   <Subsection title="Name">
     <Paragraph>
       <Term type="command">agents-connected</Term>

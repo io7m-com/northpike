@@ -26,8 +26,6 @@ import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
 import com.io7m.northpike.protocol.agent.NPACommandCLogin;
 import com.io7m.northpike.protocol.agent.NPAResponseLoginChallenge;
 
-import java.util.Optional;
-
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
 

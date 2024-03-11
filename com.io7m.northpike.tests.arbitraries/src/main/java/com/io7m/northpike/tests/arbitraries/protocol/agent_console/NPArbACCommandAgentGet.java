@@ -18,7 +18,6 @@
 package com.io7m.northpike.tests.arbitraries.protocol.agent_console;
 
 import com.io7m.northpike.model.agents.NPAgentLocalName;
-import com.io7m.northpike.protocol.agent_console.NPACCommandAgentDelete;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentGet;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;

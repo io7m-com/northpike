@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Section xmlns:xi="http://www.w3.org/2001/XInclude" id="0a495a51-2b6e-3ccf-ad1b-4ce2f4e4aaa2" title="agent-work-items" xmlns="urn:com.io7m.structural:8:0">
+<Section id="0a495a51-2b6e-3ccf-ad1b-4ce2f4e4aaa2"
+         title="agent-work-items"
+         xmlns="urn:com.io7m.structural:8:0">
   <Subsection title="Name">
     <Paragraph>
       <Term type="command">agent-work-items</Term>

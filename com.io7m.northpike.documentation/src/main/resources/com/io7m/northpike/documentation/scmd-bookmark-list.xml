@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Section xmlns:xi="http://www.w3.org/2001/XInclude" id="76b499e9-a290-3713-8adc-3aa4ce4b8465" title="bookmark-list" xmlns="urn:com.io7m.structural:8:0">
+<Section id="76b499e9-a290-3713-8adc-3aa4ce4b8465"
+         title="bookmark-list"
+         xmlns="urn:com.io7m.structural:8:0">
   <Subsection title="Name">
     <Paragraph>
       <Term type="command">bookmark-list</Term>

@@ -20,7 +20,6 @@ package com.io7m.northpike.tests.arbitraries.core;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 

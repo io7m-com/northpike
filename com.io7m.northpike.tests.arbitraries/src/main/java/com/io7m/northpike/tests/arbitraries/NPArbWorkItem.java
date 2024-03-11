@@ -17,10 +17,10 @@
 
 package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.agents.NPAgentID;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 
