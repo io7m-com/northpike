@@ -64,11 +64,17 @@
       <artifactId>com.io7m.northpike.tools.maven</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
-      <groupId>com.io7m.lanark</groupId>
-      <artifactId>com.io7m.lanark.core</artifactId>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.shell.commons</artifactId>
+      <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.agent.locks</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>

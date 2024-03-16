@@ -17,7 +17,7 @@
       has the IPv4 address
       <Term type="address">100.100.100.100</Term>
       and IPv6 address
-      <Term type="address">cafe:babe::1</Term>. Substitute your own domain, host names, and IP addresses as necessary!
+      <Term type="address">cafe:cafe::1</Term>. Substitute your own domain, host names, and IP addresses as necessary!
     </Paragraph>
   </Subsection>
 
@@ -258,13 +258,13 @@ postgres=> CREATE DATABASE northpike WITH OWNER northpike_install;
   --volume '/storage/northpike/etc:/northpike/etc:Z,ro' \
   --volume '/storage/northpike/data:/northpike/data:Z,rw' \
   --volume '/storage/certificates:/northpike/certificates:z,ro' \
-  --network='slirp4netns:outbound_addr6=cafe:babe::1,outbound_addr=100.100.100.100' \
+  --network='slirp4netns:outbound_addr6=cafe:cafe::1,outbound_addr=100.100.100.100' \
   --publish '100.100.100.100:21048:21048/tcp' \
   --publish '100.100.100.100:21049:21049/tcp' \
   --publish '100.100.100.100:21050:21050/tcp' \
-  --publish '[cafe:babe::1]:21048:21048/tcp' \
-  --publish '[cafe:babe::1]:21049:21049/tcp' \
-  --publish '[cafe:babe::1]:21050:21050/tcp' \
+  --publish '[cafe:cafe::1]:21048:21048/tcp' \
+  --publish '[cafe:cafe::1]:21049:21049/tcp' \
+  --publish '[cafe:cafe::1]:21050:21050/tcp' \
   quay.io/io7mcom/northpike:0.0.2-SNAPSHOT \
   run --verbose trace --configuration /northpike/etc/config.xml
 ]]></Verbatim>
@@ -414,8 +414,10 @@ agent-machine# df -h
         <Verbatim><![CDATA[
 agent-machine# mkdir /northpike/databases
 agent-machine# mkdir /northpike/workspaces
+agent-machine# mkdir /northpike/temporary
 agent-machine# chown -R _northpike-agent:_northpike-agent /northpike/databases
 agent-machine# chown -R _northpike-agent:_northpike-agent /northpike/workspaces
+agent-machine# chown -R _northpike-agent:_northpike-agent /northpike/temporary
 ]]></Verbatim>
       </FormalItem>
     </Subsection>
@@ -507,11 +509,11 @@ agent-machine$ /opt/northpike-agent/bin/northpike-agent shell
 [northpike-agent]$ agent-create --name main
 
 [northpike-agent]$ agent-list
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Name                                                                                                │
-├─────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ main                                                                                                │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌─────────┬──────────────┬────────────────────────────────────────────────────┐
+│ Agent   │ Health       │ Status                                             │
+├─────────┼──────────────┼────────────────────────────────────────────────────┤
+│ main    │ UNHEALTHY    │ No server configured. No work executor configured. │
+└─────────┴──────────────┴────────────────────────────────────────────────────┘
 
 [northpike-agent]$ agent-get --name main
 ┌──────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -521,7 +523,7 @@ agent-machine$ /opt/northpike-agent/bin/northpike-agent shell
 ├──────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Public Key Algorithm │ Ed448                                                                                                                │
 ├──────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Public Key           │ 0000b1c6e7c1cc4daa8b66d8b2d375043e735cd953616358a15bd0b6b87cf6909c04ec3923e4bb7c2530ce0ccdeb28b3a7b3c00afd1de7a9a4f8 │
+│ Public Key           │ 0000b26b71a2b52c3a43e5476e690b655b5a9546567bae526e22cc34242b0541386b7a1891d3516739f9447a395d4deb23c8a0bef3fdefaeabbf │
 └──────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ]]></Verbatim>
       </FormalItem>
@@ -591,7 +593,21 @@ TLS
 ]]></Verbatim>
       </FormalItem>
       <Paragraph>
-        At this point, the agent will start repeatedly trying to connect to the server. We can use the
+        At this point, the agent will start repeatedly trying to connect to the server, but the server has no
+        defined agents and therefore the authentication process will fail:
+      </Paragraph>
+      <FormalItem title="Authentication">
+        <Verbatim><![CDATA[
+[northpike-agent]$ agent-list
+┌──────────────────────────┬──────────────┬─────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Agent                    │ Health       │ Status                                                                                          │
+├──────────────────────────┼──────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ main                     │ UNHEALTHY    │ Failed connection to northpike.example.com: Authentication failed. No work executor configured. │
+└──────────────────────────┴──────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        We can use the
         <Link target="66d120fd-a08f-3c76-b440-1049fe86a593">agent-login-challenge-search-begin</Link>
         command to list the current login challenges:
       </Paragraph>
@@ -601,7 +617,7 @@ TLS
 ┌─────────────────────────────────────┬──────────────────────────────────────┬───────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Time                                │ ID                                   │ Source            │ Key                                                                                                                  │
 ├─────────────────────────────────────┼──────────────────────────────────────┼───────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ 2024-03-10T21:44:24Z                │ 528b2fdb-c644-4b3e-a4ca-ed4f31c5ab4d │ /10.0.2.100:46088 │ 0000b1c6e7c1cc4daa8b66d8b2d375043e735cd953616358a15bd0b6b87cf6909c04ec3923e4bb7c2530ce0ccdeb28b3a7b3c00afd1de7a9a4f8 │
+│ 2024-03-10T21:44:24Z                │ 528b2fdb-c644-4b3e-a4ca-ed4f31c5ab4d │ /10.0.2.100:46088 │ 0000b26b71a2b52c3a43e5476e690b655b5a9546567bae526e22cc34242b0541386b7a1891d3516739f9447a395d4deb23c8a0bef3fdefaeabbf │
 └─────────────────────────────────────┴──────────────────────────────────────┴───────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ]]></Verbatim>
       </FormalItem>
@@ -616,7 +632,7 @@ TLS
         <Verbatim><![CDATA[
 [northpike]$ agent-login-challenge-agent-create
 --challenge-id 528b2fdb-c644-4b3e-a4ca-ed4f31c5ab4d
---agent-id fc1a2389-7c30-46b2-b5f2-3c9e0e3e0d6d
+--agent-id a80de192-d860-4501-8a41-47d4abf958e8
 --agent-name linuxbuilds01
 
 [northpike]$ agent-search-begin
@@ -624,7 +640,7 @@ TLS
 ┌─────────────────────────────────────────────────────────────────────────────┬───────────────┐
 │ ID                                                                          │ Name          │
 ├─────────────────────────────────────────────────────────────────────────────┼───────────────┤
-│ fc1a2389-7c30-46b2-b5f2-3c9e0e3e0d6d                                        │ linuxbuilds01 │
+│ a80de192-d860-4501-8a41-47d4abf958e8                                        │ linuxbuilds01 │
 └─────────────────────────────────────────────────────────────────────────────┴───────────────┘
 ]]></Verbatim>
       </FormalItem>
@@ -637,10 +653,83 @@ TLS
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
 │ ID                                                                                      │
 ├─────────────────────────────────────────────────────────────────────────────────────────┤
-│ fc1a2389-7c30-46b2-b5f2-3c9e0e3e0d6d                                                    │
+│ a80de192-d860-4501-8a41-47d4abf958e8                                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────┘
 ]]></Verbatim>
       </FormalItem>
+      <Paragraph>
+        In the agent shell, the agent is shown as being connected:
+      </Paragraph>
+      <FormalItem title="Agent Shell Connected">
+        <Verbatim><![CDATA[
+[northpike-agent]$ agent-list
+┌─────────────────────────────────┬──────────────┬───────────────────────────────────────────────────────────────────────────────────────────┐
+│ Agent                           │ Health       │ Status                                                                                    │
+├─────────────────────────────────┼──────────────┼───────────────────────────────────────────────────────────────────────────────────────────┤
+│ main                            │ UNHEALTHY    │ Connected to northpike.example.com (Latency PT0.009468775S). No work executor configured. │
+└─────────────────────────────────┴──────────────┴───────────────────────────────────────────────────────────────────────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        The agent is still listed as <Term type="constant">UNHEALTHY</Term> as we have not configured a
+        <Link target="35f12f1c-5edc-4724-8a50-d330c3defb92">work executor</Link> for the agent. Configuring
+        a work executor is the next step.
+      </Paragraph>
+    </Subsection>
+
+    <Subsection title="Work Executors">
+      <Paragraph>
+        An agent has at most one <Link target="35f12f1c-5edc-4724-8a50-d330c3defb92">work executor</Link>. Our
+        current agent is marked as <Term type="constant">UNHEALTHY</Term> because we haven't configured a work
+        executor. The supported types of work executors can be listed:
+      </Paragraph>
+      <FormalItem title="Supported Executors">
+        <Verbatim><![CDATA[
+[northpike-agent]$ work-executors-supported
+┌──────────────────────────────────────────────────────┬─────────────────────────────────────┐
+│ Name                                                 │ Description                         │
+├──────────────────────────────────────────────────────┼─────────────────────────────────────┤
+│ workexec.podman                                      │ Podman containerized work executor. │
+├──────────────────────────────────────────────────────┼─────────────────────────────────────┤
+│ workexec.local                                       │ Local work executor.                │
+└──────────────────────────────────────────────────────┴─────────────────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        The <Term type="constant">workexec.local</Term> executor is a simple executor that runs tools directly
+        on the host system without any kind of containerization. It's the simplest option for executing work, but
+        it doesn't provide any kind of isolation between tasks running on the same host system
+        <LinkFootnote target="e1be95e9-5f0f-434f-8ad7-427712797888"/>. The
+        <Term type="constant">workexec.podman</Term> executor is a
+        <LinkExternal target="https://podman.io/">Podman</LinkExternal>-based executor that executes build tasks
+        inside isolated container instances. The <Term type="constant">workexec.podman</Term> executor therefore
+        gives much stronger isolation between build tasks running on the same system, but may not be suitable for
+        some types of tasks. For example, if the test suite of a particular project requires creating containers,
+        then it is much harder to configure this to work correctly (if it is possible at all) when the test suite
+        is already running inside a container.
+      </Paragraph>
+      <Paragraph>
+        For this tutorial, we'll add a simple local executor:
+      </Paragraph>
+      <FormalItem title="Local Executor">
+        <Verbatim><![CDATA[
+[northpike-agent]$ agent-work-executor-put
+--agent main
+--type workexec.local
+--work-directory /northpike/workspaces
+--temporary-directory /northpike/temporary
+
+[northpike-agent]$ agent-list
+┌───────┬──────────────┬──────────────────────────────────────────────────────────────────────────────────────┐
+│ Agent │ Health       │ Status                                                                               │
+├───────┼──────────────┼──────────────────────────────────────────────────────────────────────────────────────┤
+│ main  │ HEALTHY      │ Connected to northpike.example.com (Latency PT0.002096614S). Work executor is ready. │
+└───────┴──────────────┴──────────────────────────────────────────────────────────────────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        Our agent is now fully configured and ready to accept work.
+      </Paragraph>
     </Subsection>
   </Subsection>
 
@@ -744,6 +833,11 @@ E362BB4F16A9981DE7812F6E10E4AAD0B00D6CDD.asc: PGP public key block
     This section of the documentation should be considered as purely informative and not normative; should there be
     inconsistencies between commands or semantics described here, and commands or semantics as described in the rest of
     the documentation, the rest of the documentation should take precedence.
+  </Footnote>
+
+  <Footnote id="e1be95e9-5f0f-434f-8ad7-427712797888">
+    Isolation between build tasks on a machine is required for compliance with
+    <LinkExternal target="https://slsa.dev/spec/v1.0/levels#build-l3">SLSA L3</LinkExternal>.
   </Footnote>
 
 </Section>

@@ -19,6 +19,7 @@ package com.io7m.northpike.shell.commons;
 
 import com.io7m.medrina.api.MRoleName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorSummary;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
@@ -40,6 +41,7 @@ import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
 import com.io7m.northpike.model.agents.NPAgentServerSummary;
+import com.io7m.northpike.model.agents.NPAgentStatus;
 import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
@@ -51,6 +53,7 @@ import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.preferences.api.NPPreferenceServerBookmark;
 import com.io7m.northpike.preferences.api.NPPreferenceServerCredentialsType;
 import com.io7m.northpike.preferences.api.NPPreferenceServerUsernamePassword;
+import com.io7m.tabla.core.TColumnWidthConstraint;
 import com.io7m.tabla.core.TTableRendererType;
 import com.io7m.tabla.core.TTableType;
 import com.io7m.tabla.core.TTableWidthConstraintRange;
@@ -61,9 +64,11 @@ import org.jline.terminal.Terminal;
 import java.io.PrintWriter;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import static com.io7m.northpike.shell.commons.NPFormatterRaw.formatSchedule;
@@ -958,6 +963,98 @@ public final class NPFormatterPretty implements NPFormatterType
     }
 
     this.renderTable(tableBuilder.build());
+  }
+
+  @Override
+  public void formatAgentStatuses(
+    final Map<NPAgentLocalName, NPAgentStatus> status)
+    throws Exception
+  {
+    if (status.isEmpty()) {
+      return;
+    }
+
+    final var tableBuilder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(3))
+        .declareColumn("Agent", atLeastContentOrHeader())
+        .declareColumn("Health", TColumnWidthConstraint.exactWidth(12))
+        .declareColumn("Status", atLeastContentOrHeader());
+
+    final var sorted = new TreeMap<>(status);
+    for (final var entry : sorted.entrySet()) {
+      final var name = entry.getKey();
+      final var statusValue = entry.getValue();
+      tableBuilder.addRow()
+        .addCell(name.toString())
+        .addCell(statusValue.health().name())
+        .addCell(statusValue.description());
+    }
+
+    this.renderTable(tableBuilder.build());
+  }
+
+  @Override
+  public void formatWorkExecutorSummaries(
+    final List<NPAWorkExecutorSummary> summaries)
+    throws Exception
+  {
+    if (summaries.isEmpty()) {
+      return;
+    }
+
+    final var tableBuilder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(2))
+        .declareColumn("Name", atLeastContentOrHeader())
+        .declareColumn("Description", atLeastContentOrHeader());
+
+    for (final var summary : summaries) {
+      tableBuilder.addRow()
+        .addCell(summary.name().toString())
+        .addCell(summary.description());
+    }
+
+    this.renderTable(tableBuilder.build());
+  }
+
+  @Override
+  public void formatWorkExecutorSummary(
+    final NPAWorkExecutorSummary summary)
+    throws Exception
+  {
+    {
+      final var builder =
+        Tabla.builder()
+          .setWidthConstraint(this.softTableWidth(2))
+          .declareColumn("Attribute", atLeastContentOrHeader())
+          .declareColumn("Value", atLeastContentOrHeader());
+
+      builder.addRow()
+        .addCell("Name")
+        .addCell(summary.name().toString());
+
+      builder.addRow()
+        .addCell("Description")
+        .addCell(summary.description());
+
+      this.renderTable(builder.build());
+    }
+
+    if (summary.properties().isEmpty()) {
+      return;
+    }
+
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(1))
+        .declareColumn("Property", atLeastContentOrHeader());
+
+    for (final var property : summary.properties()) {
+      builder.addRow().addCell(property.toString());
+    }
+
+    this.renderTable(builder.build());
   }
 
   private static String userOf(

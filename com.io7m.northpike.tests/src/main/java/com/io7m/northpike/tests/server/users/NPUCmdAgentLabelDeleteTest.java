@@ -197,9 +197,9 @@ public final class NPUCmdAgentLabelDeleteTest
       .thenReturn(user);
 
     final var labelDelete =
-      Mockito.mock(NPDatabaseQueriesAgentsType.LabelDeleteType.class);
+      Mockito.mock(NPDatabaseQueriesAgentsType.AgentLabelDeleteType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.LabelDeleteType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentLabelDeleteType.class))
       .thenReturn(labelDelete);
 
     final var r = handler.execute(this.context, command);

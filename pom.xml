@@ -27,7 +27,9 @@
     <module>com.io7m.northpike.agent.console_client</module>
     <module>com.io7m.northpike.agent.database.api</module>
     <module>com.io7m.northpike.agent.database.sqlite</module>
+    <module>com.io7m.northpike.agent.locks</module>
     <module>com.io7m.northpike.agent.main</module>
+    <module>com.io7m.northpike.agent.metrics</module>
     <module>com.io7m.northpike.agent.shell</module>
     <module>com.io7m.northpike.agent.workexec.api</module>
     <module>com.io7m.northpike.agent.workexec.local</module>
@@ -249,7 +251,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.25.0</version>
+        <version>1.26.1</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.hibiscus</groupId>

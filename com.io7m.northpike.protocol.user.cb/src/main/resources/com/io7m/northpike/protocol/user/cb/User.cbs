@@ -871,6 +871,14 @@
   [field agent cb:UUID]
 ]
 
+[documentation NPU1CommandAgentDelete "Delete an agent."]
+[record NPU1CommandAgentDelete
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation agent "The agent ID"]
+  [field agent cb:UUID]
+]
+
 [documentation NPU1CommandAgentSearchBegin "Start searching agents."]
 [record NPU1CommandAgentSearchBegin
   [documentation messageId "The message ID"]
@@ -1427,6 +1435,7 @@
 [protocol NPU
   [version 1
     [types-added
+      NPU1CommandAgentDelete
       NPU1CommandAgentGet
       NPU1CommandAgentLabelDelete
       NPU1CommandAgentLabelGet

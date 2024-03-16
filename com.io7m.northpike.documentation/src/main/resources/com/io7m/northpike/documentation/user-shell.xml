@@ -522,9 +522,31 @@ User ID: c5574d46-7413-43c8-b6db-31001c382ca3
         </FormalItem>
       </Subsection>
     </Subsection>
+
+    <Subsection title="Confirmed Commands" id="99f8cacf-3535-4425-a060-14c8fa7061b3">
+      <Paragraph>
+        Some commands may have destructive effects and require confirmation before allowing the user to perform
+        some operation that cannot be undone. Confirmed commands will print a warning message and ask the user
+        to type a confirmation before proceeding:
+      </Paragraph>
+      <FormalItem title="Confirmation Example">
+        <Verbatim><![CDATA[
+[northpike]$ agent-delete  --id bbb05afd-07e8-4dad-a86e-79ed0dbf5487
+Confirmation required; this is a destructive operation that cannot be undone.
+
+To confirm this operation, please enter:
+
+  agent-delete-confirm f44c6550-0850-42a2-a324-bc5294029c3e
+
+[northpike]$ agent-delete-confirm f44c6550-0850-42a2-a324-bc5294029c3e
+]]></Verbatim>
+      </FormalItem>
+    </Subsection>
   </Section>
 
   <Section title="Shell Command Reference">
+    <xi:include href="scmd-agent-delete.xml"/>
+    <xi:include href="scmd-agent-delete-confirm.xml"/>
     <xi:include href="scmd-agent-get.xml"/>
     <xi:include href="scmd-agent-label-assign.xml"/>
     <xi:include href="scmd-agent-label-delete.xml"/>
@@ -561,6 +583,7 @@ User ID: c5574d46-7413-43c8-b6db-31001c382ca3
     <xi:include href="scmd-login.xml"/>
     <xi:include href="scmd-logout.xml"/>
     <xi:include href="scmd-plan-delete.xml"/>
+    <xi:include href="scmd-plan-delete-confirm.xml"/>
     <xi:include href="scmd-plan-get.xml"/>
     <xi:include href="scmd-plan-put.xml"/>
     <xi:include href="scmd-plan-search-begin.xml"/>

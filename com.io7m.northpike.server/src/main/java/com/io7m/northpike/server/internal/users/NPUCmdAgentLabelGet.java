@@ -59,7 +59,7 @@ public final class NPUCmdAgentLabelGet
       try (var transaction = connection.openTransaction()) {
         return NPUResponseAgentLabelGet.createCorrelated(
           command,
-          transaction.queries(NPDatabaseQueriesAgentsType.LabelGetType.class)
+          transaction.queries(NPDatabaseQueriesAgentsType.AgentLabelGetType.class)
             .execute(command.name())
         );
       }

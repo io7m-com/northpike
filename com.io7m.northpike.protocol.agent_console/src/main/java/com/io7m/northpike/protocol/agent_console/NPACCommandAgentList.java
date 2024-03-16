@@ -17,40 +17,28 @@
 
 package com.io7m.northpike.protocol.agent_console;
 
-import com.io7m.northpike.model.NPPageSizes;
-import com.io7m.northpike.model.agents.NPAgentLocalName;
-
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
  * List agents.
  *
  * @param messageID The ID of this message
- * @param offset    The starting offset agent name
- * @param limit     The number of agents to return
  */
 
 public record NPACCommandAgentList(
-  UUID messageID,
-  Optional<NPAgentLocalName> offset,
-  long limit)
+  UUID messageID)
   implements NPACCommandType<NPACResponseAgentList>
 {
   /**
    * List agents.
    *
    * @param messageID The ID of this message
-   * @param offset    The starting offset agent name
-   * @param limit     The number of agents to return
    */
 
   public NPACCommandAgentList
   {
     Objects.requireNonNull(messageID, "messageID");
-    Objects.requireNonNull(offset, "offset");
-    limit = NPPageSizes.clampPageSize(limit);
   }
 
   @Override

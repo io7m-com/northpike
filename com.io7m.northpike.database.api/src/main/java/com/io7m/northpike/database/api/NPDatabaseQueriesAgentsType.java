@@ -26,6 +26,7 @@ import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
 import com.io7m.northpike.model.agents.NPAgentLoginChallengeSearchParameters;
 import com.io7m.northpike.model.agents.NPAgentSearchParameters;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -41,7 +42,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    * Update the given agent.
    */
 
-  non-sealed interface PutType
+  non-sealed interface AgentPutType
     extends NPDatabaseQueryType<NPAgentDescription, NPDatabaseUnit>,
     NPDatabaseQueriesAgentsType
   {
@@ -52,7 +53,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    * Delete an agent.
    */
 
-  non-sealed interface DeleteType
+  non-sealed interface AgentDeleteType
     extends NPDatabaseQueryType<NPAgentID, NPDatabaseUnit>,
     NPDatabaseQueriesAgentsType
   {
@@ -63,29 +64,67 @@ public sealed interface NPDatabaseQueriesAgentsType
    * Retrieve an agent.
    */
 
-  non-sealed interface GetType
-    extends NPDatabaseQueryType<NPAgentID, Optional<NPAgentDescription>>,
+  non-sealed interface AgentGetType
+    extends NPDatabaseQueryType<AgentGetType.Parameters, Optional<NPAgentDescription>>,
     NPDatabaseQueriesAgentsType
   {
+    /**
+     * The parameters.
+     *
+     * @param agentID        The agent ID
+     * @param includeDeleted Whether to include deleted agents
+     */
 
+    record Parameters(
+      NPAgentID agentID,
+      boolean includeDeleted)
+    {
+      /**
+       * The parameters.
+       */
+
+      public Parameters
+      {
+        Objects.requireNonNull(agentID, "agentID");
+      }
+    }
   }
 
   /**
    * Retrieve an agent by public key.
    */
 
-  non-sealed interface GetByKeyType
-    extends NPDatabaseQueryType<NPAgentKeyPublicType, Optional<NPAgentDescription>>,
+  non-sealed interface AgentGetByKeyType
+    extends NPDatabaseQueryType<AgentGetByKeyType.Parameters, Optional<NPAgentDescription>>,
     NPDatabaseQueriesAgentsType
   {
+    /**
+     * The parameters.
+     *
+     * @param agentKey       The agent key
+     * @param includeDeleted Whether to include deleted agents
+     */
 
+    record Parameters(
+      NPAgentKeyPublicType agentKey,
+      boolean includeDeleted)
+    {
+      /**
+       * The parameters.
+       */
+
+      public Parameters
+      {
+        Objects.requireNonNull(agentKey, "agentKey");
+      }
+    }
   }
 
   /**
    * List agents.
    */
 
-  non-sealed interface ListType
+  non-sealed interface AgentListType
     extends NPDatabaseQueryType<NPAgentSearchParameters, NPAgentPagedType>,
     NPDatabaseQueriesAgentsType
   {
@@ -96,7 +135,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    * Update the given agent label.
    */
 
-  non-sealed interface LabelPutType
+  non-sealed interface AgentLabelPutType
     extends NPDatabaseQueryType<NPAgentLabel, NPDatabaseUnit>,
     NPDatabaseQueriesAgentsType
   {
@@ -107,7 +146,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    * Retrieve an agent label.
    */
 
-  non-sealed interface LabelGetType
+  non-sealed interface AgentLabelGetType
     extends NPDatabaseQueryType<NPAgentLabelName, Optional<NPAgentLabel>>,
     NPDatabaseQueriesAgentsType
   {
@@ -118,7 +157,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    * Search for agent labels.
    */
 
-  non-sealed interface LabelSearchType
+  non-sealed interface AgentLabelSearchType
     extends NPDatabaseQueryType<NPAgentLabelSearchParameters, NPAgentLabelsPagedType>,
     NPDatabaseQueriesAgentsType
   {
@@ -129,7 +168,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    * Delete an agent label.
    */
 
-  non-sealed interface LabelDeleteType
+  non-sealed interface AgentLabelDeleteType
     extends NPDatabaseQueryType<Set<NPAgentLabelName>, NPDatabaseUnit>,
     NPDatabaseQueriesAgentsType
   {
@@ -140,7 +179,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    * Create/update a login challenge.
    */
 
-  non-sealed interface LoginChallengePutType
+  non-sealed interface AgentLoginChallengePutType
     extends NPDatabaseQueryType<NPAgentLoginChallengeRecord, NPDatabaseUnit>,
     NPDatabaseQueriesAgentsType
   {
@@ -151,7 +190,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    * Retrieve a login challenge.
    */
 
-  non-sealed interface LoginChallengeGetForKeyType
+  non-sealed interface AgentLoginChallengeGetForKeyType
     extends NPDatabaseQueryType<NPAgentKeyPublicType, Optional<NPAgentLoginChallengeRecord>>,
     NPDatabaseQueriesAgentsType
   {
@@ -162,7 +201,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    * Retrieve a login challenge.
    */
 
-  non-sealed interface LoginChallengeGetType
+  non-sealed interface AgentLoginChallengeGetType
     extends NPDatabaseQueryType<UUID, Optional<NPAgentLoginChallengeRecord>>,
     NPDatabaseQueriesAgentsType
   {
@@ -173,7 +212,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    * Create/update a login challenge.
    */
 
-  non-sealed interface LoginChallengeDeleteType
+  non-sealed interface AgentLoginChallengeDeleteType
     extends NPDatabaseQueryType<UUID, NPDatabaseUnit>,
     NPDatabaseQueriesAgentsType
   {
@@ -184,7 +223,7 @@ public sealed interface NPDatabaseQueriesAgentsType
    * Search for login challenges.
    */
 
-  non-sealed interface LoginChallengeSearchType
+  non-sealed interface AgentLoginChallengeSearchType
     extends NPDatabaseQueryType<NPAgentLoginChallengeSearchParameters, NPAgentLoginChallengePagedType>,
     NPDatabaseQueriesAgentsType
   {

@@ -64,6 +64,7 @@ public enum NPUVAgentSearchParameters
     return new NPAgentSearchParameters(
       SET_VALIDATOR.convertFromWire(message.fieldMatchLabels())
         .map(NPAgentLabelName::of),
+      false,
       message.fieldPageSize().value()
     );
   }

@@ -17,12 +17,14 @@
 
 package com.io7m.northpike.agent.workexec.podman.internal;
 
+import com.io7m.northpike.agent.locks.NPAgentResourceLockServiceType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorContainerImage;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
+import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
@@ -61,8 +63,10 @@ public final class NPWorkExecutorPodman implements NPAWorkExecutorType
     LoggerFactory.getLogger(NPWorkExecutorPodman.class);
 
   private final NPStrings strings;
+  private final NPAgentResourceLockServiceType locks;
   private final NPAWorkExecutorConfiguration configuration;
   private final PodmanExecutableType podman;
+  private final NPAgentLocalName agentName;
   private final NPAWorkExecutorContainerImage containerImage;
   private final Path workExecPath;
   private final AtomicBoolean closed;
@@ -73,25 +77,33 @@ public final class NPWorkExecutorPodman implements NPAWorkExecutorType
    * An executor that executes work items inside Podman containers.
    *
    * @param inStrings        The string resources
+   * @param inLocks          The resource lock service
    * @param inConfiguration  The configuration
    * @param inPodman         The podman executable
+   * @param inAgentName      The agent name
    * @param inContainerImage The container image used for work items
    * @param inWorkExecPath   The path to the workexec distribution
    */
 
   public NPWorkExecutorPodman(
     final NPStrings inStrings,
+    final NPAgentResourceLockServiceType inLocks,
     final NPAWorkExecutorConfiguration inConfiguration,
     final PodmanExecutableType inPodman,
+    final NPAgentLocalName inAgentName,
     final NPAWorkExecutorContainerImage inContainerImage,
     final Path inWorkExecPath)
   {
     this.strings =
       Objects.requireNonNull(inStrings, "inStrings");
+    this.locks =
+      Objects.requireNonNull(inLocks, "locks");
     this.configuration =
       Objects.requireNonNull(inConfiguration, "configuration");
     this.podman =
       Objects.requireNonNull(inPodman, "podman");
+    this.agentName =
+      Objects.requireNonNull(inAgentName, "inAgentName");
     this.containerImage =
       Objects.requireNonNull(inContainerImage, "containerImage");
     this.workExecPath =
@@ -248,7 +260,9 @@ public final class NPWorkExecutorPodman implements NPAWorkExecutorType
   {
     return new NPWorkExecutionPodman(
       this.strings,
+      this.locks,
       this.configuration,
+      this.agentName,
       this.podman,
       this.podmanImage,
       this.workExecVolume,

@@ -26,6 +26,7 @@ import com.io7m.jdownload.core.JDownloadRequests;
 import com.io7m.jdownload.core.JDownloadSucceeded;
 import com.io7m.jmulticlose.core.CloseableCollection;
 import com.io7m.jmulticlose.core.CloseableCollectionType;
+import com.io7m.northpike.agent.locks.NPAgentResourceLockServiceType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionType;
@@ -35,6 +36,7 @@ import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.NPStoredException;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.strings.NPStringConstants;
 import com.io7m.northpike.strings.NPStrings;
@@ -64,6 +66,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.io7m.northpike.agent.workexec.api.NPAWorkEvent.Severity.ERROR;
@@ -75,7 +78,9 @@ import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_EXTERNAL_PROGRAM_FAILED;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_IO;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
+import static com.io7m.northpike.strings.NPStringConstants.ERROR_RESOURCE_LOCK_TIMED_OUT;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_TOOL_NOT_SUPPORTED;
+import static com.io7m.northpike.strings.NPStringConstants.RESOURCE_NUMBERED;
 
 /**
  * A work item being executed on the local machine.
@@ -85,7 +90,9 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
 {
   private final CloseableCollectionType<NPException> resources;
   private final NPStrings strings;
+  private final NPAgentResourceLockServiceType locks;
   private final Set<NPToolFactoryType> toolsSupported;
+  private final NPAgentLocalName agentName;
   private final NPAWorkExecutorConfiguration configuration;
   private final NPAgentWorkItem workItem;
   private final AtomicBoolean closed;
@@ -100,7 +107,9 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
     final RPServiceDirectoryType inServices,
     final CloseableCollectionType<NPException> inResources,
     final NPStrings inStrings,
+    final NPAgentResourceLockServiceType inLocks,
     final Set<NPToolFactoryType> inToolsSupported,
+    final NPAgentLocalName inAgentName,
     final NPAWorkExecutorConfiguration inConfiguration,
     final NPAgentWorkItem inWorkItem)
   {
@@ -110,8 +119,12 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
       Objects.requireNonNull(inResources, "resources");
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
+    this.locks =
+      Objects.requireNonNull(inLocks, "locks");
     this.toolsSupported =
       Objects.requireNonNull(inToolsSupported, "toolsSupported");
+    this.agentName =
+      Objects.requireNonNull(inAgentName, "agentName");
     this.configuration =
       Objects.requireNonNull(inConfiguration, "configuration");
     this.workItem =
@@ -151,6 +164,7 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
    * Create a new execution.
    *
    * @param services      The service directory
+   * @param agentName     The agent that owns this execution
    * @param configuration The configuration
    * @param workItem      The work item
    *
@@ -160,10 +174,19 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
   public static NPAWorkExecutionType create(
     final RPServiceDirectoryType services,
     final NPAWorkExecutorConfiguration configuration,
+    final NPAgentLocalName agentName,
     final NPAgentWorkItem workItem)
   {
+    Objects.requireNonNull(services, "services");
+    Objects.requireNonNull(configuration, "configuration");
+    Objects.requireNonNull(agentName, "agentName");
+    Objects.requireNonNull(workItem, "workItem");
+
     final var strings =
       services.requireService(NPStrings.class);
+    final var locks =
+      services.requireService(NPAgentResourceLockServiceType.class);
+
     final var toolsSupported =
       new HashSet<NPToolFactoryType>(
         services.optionalServices(NPToolFactoryType.class)
@@ -183,7 +206,9 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
       services,
       resources,
       strings,
+      locks,
       toolsSupported,
+      agentName,
       configuration,
       workItem
     );
@@ -220,6 +245,16 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
         this.workItem.identifier().assignmentExecutionId(),
         this.workItem.identifier().planElementName())
     );
+
+    int index = 0;
+    for (final var entry : this.workItem.lockResources()) {
+      this.setAttribute(
+        this.strings.format(RESOURCE_NUMBERED, Integer.valueOf(index)),
+        entry.toString()
+      );
+      ++index;
+    }
+
     this.setAttribute("LocalTime", OffsetDateTime.now());
     this.info("Starting execution of work item.");
   }
@@ -310,8 +345,9 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
   private void onDownloadInProgress(
     final STTransferStatistics transfer)
   {
-    this.setAttribute("Progress",
-                      Double.valueOf(transfer.percentNormalized().orElse(0.0)));
+    this.setAttribute(
+      "Progress",
+      Double.valueOf(transfer.percentNormalized().orElse(0.0)));
 
     this.events.submit(
       new NPAWorkEvent(
@@ -342,16 +378,35 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
       throw this.errorNoSuchToolReference();
     }
 
-    final var result =
-      tool.execute(
-        this.workspace.sourceDirectory(),
-        execution.environment(),
-        execution.command()
-      );
+    try (var ignored = this.locks.lockWithDefaultTimeout(
+      this.agentName,
+      this.workItem.lockResources()
+    )) {
+      final var result =
+        tool.execute(
+          this.workspace.sourceDirectory(),
+          execution.environment(),
+          execution.command()
+        );
 
-    if (result.exitCode() != 0) {
-      throw this.errorToolExecutionFailed();
+      if (result.exitCode() != 0) {
+        throw this.errorToolExecutionFailed();
+      }
+    } catch (final TimeoutException e) {
+      throw this.errorLockTimedOut(e);
     }
+  }
+
+  private NPException errorLockTimedOut(
+    final TimeoutException e)
+  {
+    return new NPException(
+      this.strings.format(ERROR_RESOURCE_LOCK_TIMED_OUT),
+      e,
+      NPStandardErrorCodes.errorResourceLockTimedOut(),
+      Map.copyOf(this.taskAttributes),
+      Optional.empty()
+    );
   }
 
   private NPException errorArchiveDownloadFailed()
@@ -465,7 +520,9 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
         new NPAWorkEvent(
           ERROR,
           OffsetDateTime.now(),
-          Objects.requireNonNullElse(e.getMessage(), e.getClass().getCanonicalName()),
+          Objects.requireNonNullElse(
+            e.getMessage(),
+            e.getClass().getCanonicalName()),
           this.taskAttributes,
           Optional.of(NPStoredException.ofException(e))
         )

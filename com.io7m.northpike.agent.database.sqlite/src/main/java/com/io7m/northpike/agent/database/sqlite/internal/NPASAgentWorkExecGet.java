@@ -17,10 +17,10 @@
 
 package com.io7m.northpike.agent.database.sqlite.internal;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseException;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType;
 import com.io7m.northpike.agent.database.sqlite.internal.NPASQueryProviderType.Service;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorContainerImage;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
@@ -108,7 +108,7 @@ public final class NPASAgentWorkExecGet
         NPAWorkExecutorConfiguration.builder();
 
       builder.setExecutorType(
-        new RDottedName(properties.getProperty("Type"))
+        NPAWorkExecName.of(properties.getProperty("Type"))
       );
       builder.setTemporaryDirectory(Paths.get(
         properties.getProperty("TemporaryDirectory")

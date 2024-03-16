@@ -17,9 +17,12 @@
 
 package com.io7m.northpike.agent.workexec.main.internal;
 
+import com.io7m.northpike.agent.locks.NPAgentResourceLockService;
+import com.io7m.northpike.agent.locks.NPAgentResourceLockServiceType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.local.NPWorkExecutorsLocal;
+import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tools.api.NPToolFactoryType;
@@ -112,6 +115,15 @@ public final class NPWECmdExecute implements QCommandType,
       Path.class
     );
 
+  private static final QParameterNamed1<NPAgentLocalName> AGENT =
+    new QParameterNamed1<>(
+      "--agent",
+      List.of(),
+      new QStringType.QConstant("The agent name."),
+      Optional.empty(),
+      NPAgentLocalName.class
+    );
+
   private NPWELogFormat logFormat = NPWELogFormat.TEXT;
   private NPWELoggerType logger;
 
@@ -132,6 +144,7 @@ public final class NPWECmdExecute implements QCommandType,
   public List<QParameterNamedType<?>> onListNamedParameters()
   {
     return List.of(
+      AGENT,
       LOG_FORMAT,
       LOG_OUTPUT,
       TMP_DIRECTORY,
@@ -173,6 +186,8 @@ public final class NPWECmdExecute implements QCommandType,
       context.parameterValue(WORK_DIRECTORY);
     final var tmpDirectory =
       context.parameterValue(TMP_DIRECTORY);
+    final var agentName =
+      context.parameterValue(AGENT);
 
     final var strings =
       NPStrings.create(Locale.getDefault());
@@ -181,6 +196,11 @@ public final class NPWECmdExecute implements QCommandType,
 
     final var services = new RPServiceDirectory();
     services.register(NPStrings.class, strings);
+    services.register(
+      NPAgentResourceLockServiceType.class,
+      NPAgentResourceLockService.create()
+    );
+
     loadToolFactories(services);
 
     final var executors =
@@ -194,7 +214,7 @@ public final class NPWECmdExecute implements QCommandType,
         .build();
 
     final var executor =
-      executors.createExecutor(services, configuration);
+      executors.createExecutor(services, agentName, configuration);
 
     try (var execution = executor.createExecution(workItem)) {
       execution.events().subscribe(this);

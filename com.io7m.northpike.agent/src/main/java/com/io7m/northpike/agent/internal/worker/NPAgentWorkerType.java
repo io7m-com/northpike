@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.agent.internal.worker;
 
+import com.io7m.northpike.agent.internal.status.NPAgentWorkerStatus;
 import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
@@ -90,5 +91,5 @@ public interface NPAgentWorkerType extends AutoCloseable
    * @return The current agent status
    */
 
-  String status();
+  NPAgentWorkerStatus status();
 }

@@ -17,8 +17,10 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentPutType;
+import com.io7m.northpike.model.NPAuditUserOrAgentType.User;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.security.NPSecAction;
@@ -61,13 +63,13 @@ public final class NPUCmdAgentPut
 
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
+        transaction.setOwner(new User(user.userId()));
 
         final var givenAgent =
           command.agent();
         final var existing =
-          transaction.queries(NPDatabaseQueriesAgentsType.GetType.class)
-            .execute(givenAgent.id());
+          transaction.queries(AgentGetType.class)
+            .execute(new Parameters(givenAgent.id(), false));
 
         /*
          * The environment variables and system properties are
@@ -97,8 +99,7 @@ public final class NPUCmdAgentPut
           );
         }
 
-        transaction.queries(NPDatabaseQueriesAgentsType.PutType.class)
-          .execute(savedAgent);
+        transaction.queries(AgentPutType.class).execute(savedAgent);
         transaction.commit();
       }
     }

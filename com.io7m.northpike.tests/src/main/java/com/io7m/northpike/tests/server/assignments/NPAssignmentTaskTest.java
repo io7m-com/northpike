@@ -483,7 +483,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -629,7 +629,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -777,7 +777,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -862,7 +862,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -947,7 +947,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -1039,7 +1039,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -1130,7 +1130,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -1274,7 +1274,7 @@ public final class NPAssignmentTaskTest
     final var agent =
       NPAgentID.of(UUID.randomUUID().toString());
 
-    transaction.queries(NPDatabaseQueriesAgentsType.PutType.class)
+    transaction.queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -1328,7 +1328,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     transaction
-      .queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -1391,7 +1391,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     transaction
-      .queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -1437,7 +1437,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     transaction
-      .queries(NPDatabaseQueriesAgentsType.PutType.class)
+      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",

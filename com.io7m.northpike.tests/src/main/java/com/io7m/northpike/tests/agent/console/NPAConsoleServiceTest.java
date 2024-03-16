@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.tests.agent.console;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.api.NPAgentConsoleConfiguration;
 import com.io7m.northpike.agent.console_client.NPAConsoleClients;
 import com.io7m.northpike.agent.console_client.api.NPAConsoleClientConfiguration;
@@ -30,6 +29,9 @@ import com.io7m.northpike.agent.database.api.NPAgentDatabaseUpgrade;
 import com.io7m.northpike.agent.database.sqlite.NPASDatabases;
 import com.io7m.northpike.agent.internal.console.NPAConsoleService;
 import com.io7m.northpike.agent.internal.console.NPAConsoleServiceType;
+import com.io7m.northpike.agent.internal.supervisor.NPAgentSupervisor;
+import com.io7m.northpike.agent.internal.supervisor.NPAgentSupervisorType;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
@@ -42,12 +44,11 @@ import com.io7m.northpike.protocol.agent_console.NPACCommandAgentDelete;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentList;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentServerAssign;
+import com.io7m.northpike.protocol.agent_console.NPACCommandAgentWorkExecPut;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerDelete;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerList;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerPut;
-import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecGet;
-import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecPut;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventService;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
@@ -76,6 +77,7 @@ import java.util.concurrent.TimeUnit;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Timeout(value = 5L, unit = TimeUnit.SECONDS)
 public final class NPAConsoleServiceTest
@@ -92,6 +94,7 @@ public final class NPAConsoleServiceTest
   private InetSocketAddress address;
   private NPAgentDatabaseType database;
   private NPEventInterceptingService events;
+  private NPAgentSupervisorType supervisor;
 
   @BeforeEach
   public void setup(
@@ -135,6 +138,11 @@ public final class NPAConsoleServiceTest
     this.services.register(
       NPTelemetryServiceType.class,
       NPTelemetryNoOp.noop());
+
+    this.supervisor =
+      NPAgentSupervisor.create(this.services);
+    this.services.register(
+      NPAgentSupervisorType.class, this.supervisor);
 
     this.address =
       new InetSocketAddress(
@@ -187,9 +195,7 @@ public final class NPAConsoleServiceTest
     this.client.login(this.address, "access");
 
     final var name = NPAgentLocalName.of("a");
-    this.client.execute(
-      new NPACCommandAgentCreate(randomUUID(), name)
-    );
+    this.client.execute(new NPACCommandAgentCreate(randomUUID(), name));
 
     final var get0 =
       this.client.execute(new NPACCommandAgentGet(randomUUID(), name));
@@ -197,11 +203,9 @@ public final class NPAConsoleServiceTest
     assertEquals(name, get0.results().orElseThrow().name());
 
     final var list =
-      this.client.execute(
-        new NPACCommandAgentList(randomUUID(), Optional.empty(), 10L)
-      );
+      this.client.execute(new NPACCommandAgentList(randomUUID()));
 
-    assertEquals(name, list.results().get(0));
+    assertTrue(list.results().containsKey(name));
 
     this.client.execute(new NPACCommandAgentDelete(randomUUID(), name));
 
@@ -267,10 +271,10 @@ public final class NPAConsoleServiceTest
       NPAWorkExecutorConfiguration.builder()
         .setWorkDirectory(Paths.get("a"))
         .setTemporaryDirectory(Paths.get("b"))
-        .setExecutorType(new RDottedName("t"))
+        .setExecutorType(NPAWorkExecName.of("t"))
         .build();
 
-    this.client.execute(new NPACCommandWorkExecPut(
+    this.client.execute(new NPACCommandAgentWorkExecPut(
       randomUUID(),
       name,
       Optional.of(workExec)
@@ -278,12 +282,12 @@ public final class NPAConsoleServiceTest
 
     {
       final var r =
-        this.client.execute(new NPACCommandWorkExecGet(randomUUID(), name));
+        this.client.execute(new NPACCommandAgentGet(randomUUID(), name));
 
-      assertEquals(Optional.of(workExec), r.results());
+      assertEquals(Optional.of(workExec), r.results().orElseThrow().workExecutor());
     }
 
-    this.client.execute(new NPACCommandWorkExecPut(
+    this.client.execute(new NPACCommandAgentWorkExecPut(
       randomUUID(),
       name,
       Optional.empty()
@@ -291,9 +295,9 @@ public final class NPAConsoleServiceTest
 
     {
       final var r =
-        this.client.execute(new NPACCommandWorkExecGet(randomUUID(), name));
+        this.client.execute(new NPACCommandAgentGet(randomUUID(), name));
 
-      assertEquals(Optional.empty(), r.results());
+      assertEquals(Optional.empty(), r.results().orElseThrow().workExecutor());
     }
   }
 

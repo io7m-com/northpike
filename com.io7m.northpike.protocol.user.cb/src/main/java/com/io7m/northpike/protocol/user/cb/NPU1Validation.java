@@ -19,6 +19,7 @@ package com.io7m.northpike.protocol.user.cb;
 
 import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
+import com.io7m.northpike.protocol.user.NPUCommandAgentDelete;
 import com.io7m.northpike.protocol.user.NPUCommandAgentGet;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelDelete;
 import com.io7m.northpike.protocol.user.NPUCommandAgentLabelGet;
@@ -125,6 +126,7 @@ import com.io7m.northpike.protocol.user.NPUResponseUserRolesGet;
 import com.io7m.northpike.protocol.user.NPUResponseUserSearch;
 import com.io7m.northpike.protocol.user.NPUResponseUsersConnected;
 
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentDelete.COMMAND_AGENT_DELETE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentGet.COMMAND_AGENT_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLabelDelete.COMMAND_AGENT_LABEL_DELETE;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAgentLabelGet.COMMAND_AGENT_LABEL_GET;
@@ -419,6 +421,8 @@ public final class NPU1Validation
         COMMAND_PLAN_DELETE.convertToWire(c);
       case final NPUCommandAgentPut c ->
         COMMAND_AGENT_PUT.convertToWire(c);
+      case final NPUCommandAgentDelete c ->
+        COMMAND_AGENT_DELETE.convertToWire(c);
       case final NPUCommandAgentGet c ->
         COMMAND_AGENT_GET.convertToWire(c);
       case final NPUCommandAgentsConnected c ->
@@ -570,6 +574,8 @@ public final class NPU1Validation
         COMMAND_AGENT_PUT.convertFromWire(c);
       case final NPU1CommandAgentGet c ->
         COMMAND_AGENT_GET.convertFromWire(c);
+      case final NPU1CommandAgentDelete c ->
+        COMMAND_AGENT_DELETE.convertFromWire(c);
       case final NPU1CommandAgentsConnected c ->
         COMMAND_AGENTS_CONNECTED.convertFromWire(c);
       case final NPU1CommandAgentWorkItems c ->

@@ -17,7 +17,8 @@
 
 package com.io7m.northpike.agent.workexec.podman;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.agent.locks.NPAgentResourceLockServiceType;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorFactoryType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorPropertyType;
@@ -25,6 +26,7 @@ import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorType;
 import com.io7m.northpike.agent.workexec.podman.internal.NPWorkExecutorPodman;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStandardErrorCodes;
+import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 import com.io7m.tavella.api.PodmanExecutableConfiguration;
@@ -52,8 +54,8 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_NO_WORKEXEC_REM
 public final class NPWorkExecutorsPodman
   implements NPAWorkExecutorFactoryType
 {
-  private static final RDottedName NAME =
-    new RDottedName("workexec.podman");
+  private static final NPAWorkExecName NAME =
+    NPAWorkExecName.of("workexec.podman");
 
   private final PodmanExecutableFactoryType executables;
   private final NPStrings strings;
@@ -111,7 +113,7 @@ public final class NPWorkExecutorsPodman
   }
 
   @Override
-  public RDottedName name()
+  public NPAWorkExecName name()
   {
     return NAME;
   }
@@ -138,11 +140,16 @@ public final class NPWorkExecutorsPodman
   @Override
   public NPAWorkExecutorType createExecutor(
     final RPServiceDirectoryType services,
+    final NPAgentLocalName agentName,
     final NPAWorkExecutorConfiguration configuration)
     throws NPException
   {
     Objects.requireNonNull(services, "services");
+    Objects.requireNonNull(agentName, "agentName");
     Objects.requireNonNull(configuration, "configuration");
+
+    final var locks =
+      services.requireService(NPAgentResourceLockServiceType.class);
 
     final var imageOpt = configuration.containerImage();
     if (imageOpt.isEmpty()) {
@@ -172,8 +179,10 @@ public final class NPWorkExecutorsPodman
 
     return new NPWorkExecutorPodman(
       this.strings,
+      locks,
       configuration,
       executable,
+      agentName,
       imageOpt.get(),
       workExecOpt.get()
     );
@@ -203,5 +212,12 @@ public final class NPWorkExecutorsPodman
   public String description()
   {
     return "Podman containerized work executor.";
+  }
+
+  @Override
+  public String toString()
+  {
+    return "[NPWorkExecutorsPodman 0x%s]"
+      .formatted(Integer.toUnsignedString(this.hashCode(), 16));
   }
 }

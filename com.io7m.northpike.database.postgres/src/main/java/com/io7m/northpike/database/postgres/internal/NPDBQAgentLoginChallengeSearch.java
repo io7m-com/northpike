@@ -23,7 +23,7 @@ import com.io7m.jqpage.core.JQKeysetRandomAccessPaginationParameters;
 import com.io7m.jqpage.core.JQSelectDistinct;
 import com.io7m.northpike.database.api.NPAgentLoginChallengePagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeSearchType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPPage;
@@ -52,14 +52,14 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_ST
 
 public final class NPDBQAgentLoginChallengeSearch
   extends NPDBQAbstract<NPAgentLoginChallengeSearchParameters, NPAgentLoginChallengePagedType>
-  implements LoginChallengeSearchType
+  implements AgentLoginChallengeSearchType
 {
   private static final Service<
     NPAgentLoginChallengeSearchParameters,
     NPAgentLoginChallengePagedType,
-    LoginChallengeSearchType> SERVICE =
+    AgentLoginChallengeSearchType> SERVICE =
     new Service<>(
-      LoginChallengeSearchType.class,
+      AgentLoginChallengeSearchType.class,
       NPDBQAgentLoginChallengeSearch::new);
 
   private static final NPAgentKeyPairFactoryEd448Type ED448_KEYS =

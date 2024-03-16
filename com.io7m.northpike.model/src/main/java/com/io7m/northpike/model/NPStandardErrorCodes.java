@@ -544,5 +544,18 @@ public final class NPStandardErrorCodes
   {
     return ERROR_TOOL_EXECUTION_FAILED;
   }
+
+  private static final NPErrorCode ERROR_RESOURCE_LOCK_TIMED_OUT =
+    new NPErrorCode("error-resource-lock-timed-out");
+
+  /**
+   * Timed out waiting for a lock on one or more resources.
+   *
+   * @return The error code
+   */
+  public static NPErrorCode errorResourceLockTimedOut()
+  {
+    return ERROR_RESOURCE_LOCK_TIMED_OUT;
+  }
 }
 

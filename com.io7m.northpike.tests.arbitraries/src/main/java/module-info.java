@@ -14,6 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.northpike.tests.arbitraries.NPArbWorkExecContainerImage;
 import net.jqwik.api.providers.ArbitraryProvider;
 
 open module com.io7m.northpike.tests.arbitraries
@@ -52,6 +53,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbAgentServerDescription,
     com.io7m.northpike.tests.arbitraries.NPArbAgentServerID,
     com.io7m.northpike.tests.arbitraries.NPArbAgentServerSummary,
+    com.io7m.northpike.tests.arbitraries.NPArbAgentStatus,
     com.io7m.northpike.tests.arbitraries.NPArbAgentSummary,
     com.io7m.northpike.tests.arbitraries.NPArbAgentWorkItem,
     com.io7m.northpike.tests.arbitraries.NPArbArchiveLinks,
@@ -119,7 +121,11 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbUserConnected,
     com.io7m.northpike.tests.arbitraries.NPArbUserSearchParameters,
     com.io7m.northpike.tests.arbitraries.NPArbVersion,
+    com.io7m.northpike.tests.arbitraries.NPArbWorkExecContainerImage,
+    com.io7m.northpike.tests.arbitraries.NPArbWorkExecName,
+    com.io7m.northpike.tests.arbitraries.NPArbWorkExecSummary,
     com.io7m.northpike.tests.arbitraries.NPArbWorkExecutorConfiguration,
+    com.io7m.northpike.tests.arbitraries.NPArbWorkExecutorProperty,
     com.io7m.northpike.tests.arbitraries.NPArbWorkItem,
     com.io7m.northpike.tests.arbitraries.NPArbWorkItemIdentifier,
     com.io7m.northpike.tests.arbitraries.core.NPArbBigDecimal,
@@ -154,7 +160,6 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandAgentGet,
     com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandAgentList,
     com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandAgentServerAssign,
-    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandAgentStatus,
     com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandDisconnect,
     com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandLogin,
     com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACCommandServerDelete,
@@ -166,16 +171,17 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACMessage,
     com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseAgent,
     com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseAgentList,
-    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseAgentStatus,
     com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseError,
     com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseOK,
     com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseServer,
     com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseServerList,
-    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseWorkExec,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseWorkExecGet,
+    com.io7m.northpike.tests.arbitraries.protocol.agent_console.NPArbACResponseWorkExecSupported,
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIError,
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIMessage,
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIProtocol,
     com.io7m.northpike.tests.arbitraries.protocol.intro.NPArbIProtocolsAvailable,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentDelete,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelDelete,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandAgentLabelGet,

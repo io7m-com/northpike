@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.tests.agent.console;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseConnectionType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentGetType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentServerGetType;
@@ -25,6 +24,7 @@ import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.Ag
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseTransactionType;
 import com.io7m.northpike.agent.internal.console.NPACCmdAgentGet;
 import com.io7m.northpike.agent.internal.console.NPACCommandContextType;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
@@ -212,7 +212,7 @@ public final class NPACCmdAgentGetTest
       new NPAgentServerID(UUID.randomUUID());
     final var workExec =
       NPAWorkExecutorConfiguration.builder()
-        .setExecutorType(new RDottedName("a"))
+        .setExecutorType(NPAWorkExecName.of("a"))
         .setWorkDirectory(Paths.get("a"))
         .setTemporaryDirectory(Paths.get("b"))
         .build();

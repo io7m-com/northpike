@@ -20,8 +20,8 @@ package com.io7m.northpike.tests.server.agents;
 import com.io7m.northpike.clock.NPClock;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeDeleteType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeGetType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
@@ -65,8 +65,8 @@ public final class NPACmdLoginCompleteTest
   private NPClock clockService;
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
-  private LoginChallengeGetType challengeGet;
-  private LoginChallengeDeleteType challengeDelete;
+  private AgentLoginChallengeGetType challengeGet;
+  private AgentLoginChallengeDeleteType challengeDelete;
 
   @BeforeEach
   public void setup()
@@ -85,9 +85,9 @@ public final class NPACmdLoginCompleteTest
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
     this.challengeGet =
-      Mockito.mock(LoginChallengeGetType.class);
+      Mockito.mock(AgentLoginChallengeGetType.class);
     this.challengeDelete =
-      Mockito.mock(LoginChallengeDeleteType.class);
+      Mockito.mock(AgentLoginChallengeDeleteType.class);
 
     this.services.register(NPClockServiceType.class, this.clockService);
 
@@ -99,9 +99,9 @@ public final class NPACmdLoginCompleteTest
       .thenReturn("www.example.com");
     Mockito.when(this.context.databaseConnection())
       .thenReturn(this.connection);
-    Mockito.when(this.transaction.queries(LoginChallengeGetType.class))
+    Mockito.when(this.transaction.queries(AgentLoginChallengeGetType.class))
       .thenReturn(this.challengeGet);
-    Mockito.when(this.transaction.queries(LoginChallengeDeleteType.class))
+    Mockito.when(this.transaction.queries(AgentLoginChallengeDeleteType.class))
       .thenReturn(this.challengeDelete);
 
     Mockito.doAnswer(invocationOnMock -> {

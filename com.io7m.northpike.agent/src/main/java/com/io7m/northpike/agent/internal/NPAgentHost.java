@@ -30,6 +30,8 @@ import com.io7m.northpike.agent.internal.console.NPAConsoleService;
 import com.io7m.northpike.agent.internal.console.NPAConsoleServiceType;
 import com.io7m.northpike.agent.internal.supervisor.NPAgentSupervisor;
 import com.io7m.northpike.agent.internal.supervisor.NPAgentSupervisorType;
+import com.io7m.northpike.agent.metrics.NPAgentMetricsService;
+import com.io7m.northpike.agent.metrics.NPAgentMetricsServiceType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorFactoryType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
@@ -211,11 +213,15 @@ public final class NPAgentHost implements NPAgentHostType
       services.register(NPAWorkExecutorFactoryType.class, workExec);
     }
 
-    services.register(NPTelemetryServiceType.class, this.telemetry);
-    services.register(NPAgentDatabaseType.class, this.database);
     services.register(
-      NPEventServiceType.class,
-      NPEventService.create(this.telemetry)
+      NPTelemetryServiceType.class, this.telemetry);
+    services.register(
+      NPAgentMetricsServiceType.class,
+      new NPAgentMetricsService(this.telemetry));
+    services.register(
+      NPAgentDatabaseType.class, this.database);
+    services.register(
+      NPEventServiceType.class, NPEventService.create(this.telemetry)
     );
 
     final var tls =

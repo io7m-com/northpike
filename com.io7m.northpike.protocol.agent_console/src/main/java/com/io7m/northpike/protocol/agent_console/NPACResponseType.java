@@ -26,12 +26,12 @@ public sealed interface NPACResponseType
   extends NPACMessageType
   permits NPACResponseAgent,
   NPACResponseAgentList,
-  NPACResponseAgentStatus,
   NPACResponseError,
   NPACResponseOK,
   NPACResponseServer,
   NPACResponseServerList,
-  NPACResponseWorkExec
+  NPACResponseWorkExecGet,
+  NPACResponseWorkExecSupported
 {
   /**
    * @return The ID of the message to which this message correlates

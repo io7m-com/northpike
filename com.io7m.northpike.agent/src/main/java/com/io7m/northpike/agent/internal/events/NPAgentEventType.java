@@ -28,7 +28,9 @@ import com.io7m.northpike.telemetry.api.NPEventType;
 public sealed interface NPAgentEventType
   extends NPEventType
   permits NPAgentDeleted,
+  NPAgentServerAssigned,
   NPAgentServerDeleted,
+  NPAgentServerUnassigned,
   NPAgentServerUpdated,
   NPAgentUpdated,
   NPAgentWorkerConnectionStarted,

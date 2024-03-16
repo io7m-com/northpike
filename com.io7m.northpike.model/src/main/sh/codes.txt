@@ -38,3 +38,4 @@ UNSUPPORTED|unsupported|An operation was unsupported.
 USER_NONEXISTENT|user-nonexistent|An attempt was made to reference a user that does not exist.
 WRONG_ALGORITHM|wrong-algorithm|The wrong algorithm ID was encountered.
 TOOL_EXECUTION_FAILED|tool-execution-failed|The tool execution failed.
+RESOURCE_LOCK_TIMED_OUT|resource-lock-timed-out|Timed out waiting for a lock on one or more resources.

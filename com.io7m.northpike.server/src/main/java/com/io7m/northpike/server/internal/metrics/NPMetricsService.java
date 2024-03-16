@@ -20,9 +20,16 @@ package com.io7m.northpike.server.internal.metrics;
 import com.io7m.jmulticlose.core.CloseableCollection;
 import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.jmulticlose.core.ClosingResourceFailedException;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.metrics.ObservableLongMeasurement;
 
+import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static io.opentelemetry.api.common.AttributeKey.stringKey;
 
 /**
  * The metrics service.
@@ -31,10 +38,19 @@ import java.util.Objects;
 public final class NPMetricsService implements NPMetricsServiceType
 {
   private final CloseableCollectionType<ClosingResourceFailedException> resources;
+  private final boolean isNoOp;
   private volatile int assignmentsEnqueued;
   private volatile int agentsConnected;
   private volatile int usersConnected;
   private volatile int assignmentsExecuting;
+  private final ConcurrentLinkedQueue<AgentLatencyMeasurement> agentLatencyMeasurements;
+
+  private record AgentLatencyMeasurement(
+    NPAgentID agent,
+    long nanos)
+  {
+
+  }
 
   /**
    * The metrics service.
@@ -46,6 +62,11 @@ public final class NPMetricsService implements NPMetricsServiceType
     final NPTelemetryServiceType telemetry)
   {
     Objects.requireNonNull(telemetry, "telemetry");
+
+    this.isNoOp =
+      telemetry.isNoOp();
+    this.agentLatencyMeasurements =
+      new ConcurrentLinkedQueue<>();
 
     this.resources =
       CloseableCollection.create();
@@ -104,6 +125,26 @@ public final class NPMetricsService implements NPMetricsServiceType
           measurement.record(Integer.toUnsignedLong(this.assignmentsEnqueued));
         })
     );
+
+    this.resources.add(
+      telemetry.meter()
+        .gaugeBuilder("northpike_agent_latency")
+        .setDescription("The latency for a given agent.")
+        .ofLongs()
+        .buildWithCallback(this::consumeAgentLatencyMeasurements)
+    );
+  }
+
+  private void consumeAgentLatencyMeasurements(
+    final ObservableLongMeasurement measurement)
+  {
+    while (!this.agentLatencyMeasurements.isEmpty()) {
+      final var latency = this.agentLatencyMeasurements.poll();
+      measurement.record(
+        latency.nanos,
+        Attributes.of(stringKey("agent"), latency.agent.toString())
+      );
+    }
   }
 
   @Override
@@ -152,5 +193,19 @@ public final class NPMetricsService implements NPMetricsServiceType
     final int count)
   {
     this.assignmentsEnqueued = count;
+  }
+
+  @Override
+  public void setAgentLatency(
+    final NPAgentID agentId,
+    final Duration duration)
+  {
+    if (this.isNoOp) {
+      return;
+    }
+
+    this.agentLatencyMeasurements.add(
+      new AgentLatencyMeasurement(agentId, duration.toNanos())
+    );
   }
 }

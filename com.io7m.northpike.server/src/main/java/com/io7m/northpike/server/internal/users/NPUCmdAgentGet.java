@@ -18,6 +18,7 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType.Parameters;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
@@ -57,11 +58,12 @@ public final class NPUCmdAgentGet
 
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
-        return NPUResponseAgentGet.createCorrelated(
-          command,
-          transaction.queries(NPDatabaseQueriesAgentsType.GetType.class)
-            .execute(command.agent())
-        );
+        final var query =
+          transaction.queries(NPDatabaseQueriesAgentsType.AgentGetType.class);
+        final var agent =
+          query.execute(new Parameters(command.agent(), false));
+
+        return NPUResponseAgentGet.createCorrelated(command, agent);
       }
     }
   }

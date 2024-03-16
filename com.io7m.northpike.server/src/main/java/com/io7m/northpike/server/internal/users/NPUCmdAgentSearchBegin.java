@@ -61,7 +61,7 @@ public final class NPUCmdAgentSearchBegin
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         final var paged =
-          transaction.queries(NPDatabaseQueriesAgentsType.ListType.class)
+          transaction.queries(NPDatabaseQueriesAgentsType.AgentListType.class)
             .execute(command.parameters());
 
         context.setProperty(NPAgentPagedType.class, paged);

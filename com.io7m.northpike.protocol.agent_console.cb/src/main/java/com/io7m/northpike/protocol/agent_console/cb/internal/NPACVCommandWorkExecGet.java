@@ -18,7 +18,7 @@
 package com.io7m.northpike.protocol.agent_console.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
-import com.io7m.northpike.model.agents.NPAgentLocalName;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecGet;
 import com.io7m.northpike.protocol.agent_console.cb.NPAC1CommandWorkExecGet;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
@@ -54,7 +54,7 @@ public enum NPACVCommandWorkExecGet
   {
     return new NPACCommandWorkExecGet(
       message.fieldMessageId().value(),
-      NPAgentLocalName.of(message.fieldAgent().value())
+      NPAWorkExecName.of(message.fieldName().value())
     );
   }
 }

@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.database.postgres.internal;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeGetForKeyType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeGetForKeyType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.agents.NPAgentKeyPairEd448Type;
@@ -37,14 +37,14 @@ import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LOGIN_C
 
 public final class NPDBQAgentLoginChallengeGetForKey
   extends NPDBQAbstract<NPAgentKeyPublicType, Optional<NPAgentLoginChallengeRecord>>
-  implements LoginChallengeGetForKeyType
+  implements AgentLoginChallengeGetForKeyType
 {
   private static final Service<
     NPAgentKeyPublicType,
     Optional<NPAgentLoginChallengeRecord>,
-    LoginChallengeGetForKeyType> SERVICE =
+    AgentLoginChallengeGetForKeyType> SERVICE =
     new Service<>(
-      LoginChallengeGetForKeyType.class,
+      AgentLoginChallengeGetForKeyType.class,
       NPDBQAgentLoginChallengeGetForKey::new);
 
   /**

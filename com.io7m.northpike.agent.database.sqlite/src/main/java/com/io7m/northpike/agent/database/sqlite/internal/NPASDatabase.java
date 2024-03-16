@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sqlite.SQLiteDataSource;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.OffsetDateTime;
@@ -241,8 +242,13 @@ public final class NPASDatabase implements NPAgentDatabaseType
       span.addEvent("RequestConnection");
       final var conn = this.dataSource.getConnection();
       span.addEvent("ObtainedConnection");
+      span.addEvent("RequestWALMode");
+      setWALMode(conn);
+      span.addEvent("ObtainedWALMode");
+
       final var timeNow = OffsetDateTime.now();
       conn.setAutoCommit(false);
+
       return new NPASConnection(this, conn, timeNow, span);
     } catch (final SQLException e) {
       span.recordException(e);
@@ -255,6 +261,15 @@ public final class NPASDatabase implements NPAgentDatabaseType
         Map.of(),
         Optional.empty()
       );
+    }
+  }
+
+  private static void setWALMode(
+    final Connection connection)
+    throws SQLException
+  {
+    try (var st = connection.createStatement()) {
+      st.execute("PRAGMA journal_mode=WAL;");
     }
   }
 

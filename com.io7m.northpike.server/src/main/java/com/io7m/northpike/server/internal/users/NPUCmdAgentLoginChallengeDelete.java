@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeDeleteType;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
@@ -61,7 +61,7 @@ public final class NPUCmdAgentLoginChallengeDelete
         transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
 
         for (final var id : command.loginChallenges()) {
-          transaction.queries(LoginChallengeDeleteType.class)
+          transaction.queries(AgentLoginChallengeDeleteType.class)
             .execute(id);
         }
 

@@ -59,7 +59,7 @@ public final class NPUCmdAgentLabelPut
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
-        transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class)
+        transaction.queries(NPDatabaseQueriesAgentsType.AgentLabelPutType.class)
           .execute(command.label());
         transaction.commit();
       }

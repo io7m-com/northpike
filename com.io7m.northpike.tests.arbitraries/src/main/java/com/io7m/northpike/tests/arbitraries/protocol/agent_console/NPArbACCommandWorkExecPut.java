@@ -19,25 +19,25 @@ package com.io7m.northpike.tests.arbitraries.protocol.agent_console;
 
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
-import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecPut;
+import com.io7m.northpike.protocol.agent_console.NPACCommandAgentWorkExecPut;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 
 import java.util.UUID;
 
-public final class NPArbACCommandWorkExecPut extends NPArbAbstract<NPACCommandWorkExecPut>
+public final class NPArbACCommandWorkExecPut extends NPArbAbstract<NPACCommandAgentWorkExecPut>
 {
   public NPArbACCommandWorkExecPut()
   {
     super(
-      NPACCommandWorkExecPut.class,
+      NPACCommandAgentWorkExecPut.class,
       () -> {
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
           Arbitraries.defaultFor(NPAgentLocalName.class),
           Arbitraries.defaultFor(NPAWorkExecutorConfiguration.class).optional()
-        ).as(NPACCommandWorkExecPut::new);
+        ).as(NPACCommandAgentWorkExecPut::new);
       }
     );
   }

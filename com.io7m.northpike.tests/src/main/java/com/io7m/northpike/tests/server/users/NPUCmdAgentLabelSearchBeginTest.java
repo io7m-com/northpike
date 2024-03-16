@@ -242,9 +242,9 @@ public final class NPUCmdAgentLabelSearchBeginTest
       );
 
     final var list =
-      Mockito.mock(NPDatabaseQueriesAgentsType.LabelSearchType.class);
+      Mockito.mock(NPDatabaseQueriesAgentsType.AgentLabelSearchType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.LabelSearchType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentLabelSearchType.class))
       .thenReturn(list);
 
     final var paged =
@@ -263,7 +263,7 @@ public final class NPUCmdAgentLabelSearchBeginTest
     Mockito.verify(this.context, new Times(1))
       .setProperty(NPAgentLabelsPagedType.class, paged);
     Mockito.verify(this.transaction, new Times(1))
-      .queries(NPDatabaseQueriesAgentsType.LabelSearchType.class);
+      .queries(NPDatabaseQueriesAgentsType.AgentLabelSearchType.class);
     Mockito.verify(this.transaction, new Times(1))
       .close();
     Mockito.verifyNoMoreInteractions(this.transaction);

@@ -34,10 +34,10 @@ import static com.io7m.northpike.strings.NPStringConstants.AGENT_LABEL;
 
 public final class NPDBQAgentLabelGet
   extends NPDBQAbstract<NPAgentLabelName, Optional<NPAgentLabel>>
-  implements NPDatabaseQueriesAgentsType.LabelGetType
+  implements NPDatabaseQueriesAgentsType.AgentLabelGetType
 {
-  private static final Service<NPAgentLabelName, Optional<NPAgentLabel>, LabelGetType> SERVICE =
-    new Service<>(LabelGetType.class, NPDBQAgentLabelGet::new);
+  private static final Service<NPAgentLabelName, Optional<NPAgentLabel>, AgentLabelGetType> SERVICE =
+    new Service<>(AgentLabelGetType.class, NPDBQAgentLabelGet::new);
 
   /**
    * Construct a query.

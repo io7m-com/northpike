@@ -18,6 +18,7 @@
 package com.io7m.northpike.tests.arbitraries.protocol.agent_console;
 
 import com.io7m.northpike.model.agents.NPAgentLocalName;
+import com.io7m.northpike.model.agents.NPAgentStatus;
 import com.io7m.northpike.protocol.agent_console.NPACResponseAgentList;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
@@ -35,7 +36,10 @@ public final class NPArbACResponseAgentList extends NPArbAbstract<NPACResponseAg
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
           Arbitraries.create(UUID::randomUUID),
-          Arbitraries.defaultFor(NPAgentLocalName.class).list()
+          Arbitraries.maps(
+            Arbitraries.defaultFor(NPAgentLocalName.class),
+            Arbitraries.defaultFor(NPAgentStatus.class)
+          )
         ).as(NPACResponseAgentList::new);
       }
     );

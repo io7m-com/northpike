@@ -16,7 +16,10 @@
 
 package com.io7m.northpike.server.internal.metrics;
 
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.repetoir.core.RPServiceType;
+
+import java.time.Duration;
 
 /**
  * The interface exposed by the metrics service.
@@ -55,4 +58,15 @@ public interface NPMetricsServiceType extends AutoCloseable, RPServiceType
    */
 
   void setAssignmentsQueueSize(int count);
+
+  /**
+   * Report that the given agent is connected with the given latency.
+   *
+   * @param agentId  The agent ID
+   * @param duration The latency
+   */
+
+  void setAgentLatency(
+    NPAgentID agentId,
+    Duration duration);
 }

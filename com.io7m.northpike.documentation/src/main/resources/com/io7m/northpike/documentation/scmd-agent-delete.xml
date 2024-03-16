@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Section xmlns:xi="http://www.w3.org/2001/XInclude" id="a1783ac4-e471-3ab5-8c86-91d04dc9ebc7" title="agent-delete" xmlns="urn:com.io7m.structural:8:0">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="command">agent-delete</Term>
+       - Delete an agent.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The 
+      <Term type="command">agent-delete</Term>
+       command attempts to delete an agent.
+    </Paragraph>
+    <Paragraph>
+      The command is a <Link target="99f8cacf-3535-4425-a060-14c8fa7061b3">confirmed command</Link>.
+    </Paragraph>
+  </Subsection>
+  <xi:include href="scmd-agent-delete-parameters.xml"/>
+  <Subsection title="Examples">
+    <FormalItem title="Example" type="example">
+      <Verbatim><![CDATA[
+[northpike]$ agent-delete  --id bbb05afd-07e8-4dad-a86e-79ed0dbf5487
+Confirmation required; this is a destructive operation that cannot be undone.
+
+To confirm this operation, please enter:
+
+  agent-delete-confirm f44c6550-0850-42a2-a324-bc5294029c3e
+
+[northpike]$ agent-delete-confirm f44c6550-0850-42a2-a324-bc5294029c3e
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>
+

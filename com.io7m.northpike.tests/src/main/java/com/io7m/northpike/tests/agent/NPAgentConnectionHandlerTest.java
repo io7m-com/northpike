@@ -17,9 +17,9 @@
 
 package com.io7m.northpike.tests.agent;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.api.NPAgentConfiguration;
 import com.io7m.northpike.agent.api.NPAgentException;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
@@ -114,7 +114,7 @@ public final class NPAgentConnectionHandlerTest
         NPAWorkExecutorConfiguration.builder()
           .setWorkDirectory(dirWork)
           .setTemporaryDirectory(dirTemp)
-          .setExecutorType(new RDottedName("workexec.local"))
+          .setExecutorType(NPAWorkExecName.of("workexec.local"))
           .build(),
         new NPAgentServerDescription(
           new NPAgentServerID(UUID.randomUUID()),

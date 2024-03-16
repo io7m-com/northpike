@@ -61,7 +61,7 @@ public final class NPUCmdAgentLabelSearchBegin
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         final var paged =
-          transaction.queries(NPDatabaseQueriesAgentsType.LabelSearchType.class)
+          transaction.queries(NPDatabaseQueriesAgentsType.AgentLabelSearchType.class)
             .execute(command.parameters());
 
         context.setProperty(NPAgentLabelsPagedType.class, paged);

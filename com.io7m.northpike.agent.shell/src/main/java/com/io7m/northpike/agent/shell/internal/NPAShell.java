@@ -33,7 +33,7 @@ import com.io7m.quarrel.core.QErrorFormatting;
 import com.io7m.quarrel.core.QException;
 import com.io7m.quarrel.core.QLocalization;
 import com.io7m.quarrel.core.QLocalizationType;
-import com.io7m.repetoir.core.RPServiceDirectoryType;
+import com.io7m.repetoir.core.RPServiceDirectoryWritableType;
 import com.io7m.seltzer.api.SStructuredErrorType;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
@@ -67,7 +67,7 @@ public final class NPAShell implements NPAShellType
   private final SortedMap<String, NPShellCmdType> commandsNamed;
   private final SortedMap<String, QCommandOrGroupType> commandsView;
   private final Terminal terminal;
-  private final RPServiceDirectoryType services;
+  private final RPServiceDirectoryWritableType services;
   private volatile QCommandStatus status;
 
   /**
@@ -81,7 +81,7 @@ public final class NPAShell implements NPAShellType
    */
 
   public NPAShell(
-    final RPServiceDirectoryType inServices,
+    final RPServiceDirectoryWritableType inServices,
     final Terminal inTerminal,
     final PrintWriter inWriter,
     final Map<String, NPShellCmdType> inCommandsNamed,
@@ -126,6 +126,12 @@ public final class NPAShell implements NPAShellType
     throws Exception
   {
     this.resources.close();
+  }
+
+  @Override
+  public RPServiceDirectoryWritableType services()
+  {
+    return this.services;
   }
 
   @Override

@@ -17,10 +17,10 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.GetType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeDeleteType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeGetType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.PutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentPutType;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.agents.NPAgentDescription;
@@ -90,22 +90,27 @@ public final class NPUCmdAgentLoginChallengeAgentCreate
       try (var transaction = connection.openTransaction()) {
         transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
 
+        /*
+         * We want to include deleted agents so that we don't try to create
+         * a "new" agent with the same ID.
+         */
+
         final var existingAgent =
-          transaction.queries(GetType.class)
-            .execute(command.agent());
+          transaction.queries(AgentGetType.class)
+            .execute(new AgentGetType.Parameters(command.agent(), true));
 
         if (existingAgent.isPresent()) {
           throw errorAgentAlreadyExists(context, command.agent());
         }
 
         final var existingChallenge =
-          transaction.queries(LoginChallengeGetType.class)
+          transaction.queries(AgentLoginChallengeGetType.class)
             .execute(command.loginChallenge())
             .orElseThrow(() -> {
               return errorNoSuchChallenge(context, command.loginChallenge());
             });
 
-        transaction.queries(PutType.class)
+        transaction.queries(AgentPutType.class)
           .execute(new NPAgentDescription(
             command.agent(),
             command.name(),
@@ -115,7 +120,7 @@ public final class NPUCmdAgentLoginChallengeAgentCreate
             Map.of()
           ));
 
-        transaction.queries(LoginChallengeDeleteType.class)
+        transaction.queries(AgentLoginChallengeDeleteType.class)
           .execute(command.loginChallenge());
 
         transaction.commit();

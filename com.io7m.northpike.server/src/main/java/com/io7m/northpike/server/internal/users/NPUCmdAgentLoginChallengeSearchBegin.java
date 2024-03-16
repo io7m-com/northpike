@@ -18,7 +18,7 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.database.api.NPAgentLoginChallengePagedType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeSearchType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
@@ -62,7 +62,7 @@ public final class NPUCmdAgentLoginChallengeSearchBegin
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         final var paged =
-          transaction.queries(LoginChallengeSearchType.class)
+          transaction.queries(AgentLoginChallengeSearchType.class)
             .execute(command.parameters());
 
         context.setProperty(NPAgentLoginChallengePagedType.class, paged);

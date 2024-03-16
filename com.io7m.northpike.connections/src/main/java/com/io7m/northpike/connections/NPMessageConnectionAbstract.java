@@ -20,10 +20,11 @@ package com.io7m.northpike.connections;
 import com.io7m.northpike.model.NPException;
 
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * An abstract implementation of the message connection interface.
@@ -36,7 +37,7 @@ public abstract class NPMessageConnectionAbstract<M, R extends M>
   implements NPMessageConnectionType<M, R>
 {
   private final NPMessageConnectionHandlerType<M> handler;
-  private final LinkedList<M> received;
+  private final LinkedBlockingQueue<M> received;
 
   protected NPMessageConnectionAbstract(
     final NPMessageConnectionHandlerType<M> inHandler)
@@ -44,7 +45,7 @@ public abstract class NPMessageConnectionAbstract<M, R extends M>
     this.handler =
       Objects.requireNonNull(inHandler, "handler");
     this.received =
-      new LinkedList<>();
+      new LinkedBlockingQueue<>();
   }
 
   /**
@@ -115,9 +116,13 @@ public abstract class NPMessageConnectionAbstract<M, R extends M>
   public final Optional<M> read()
     throws NPException, IOException
   {
-    final var m = this.received.poll();
-    if (m != null) {
-      return Optional.of(m);
+    try {
+      final var m = this.received.poll(10L, TimeUnit.MILLISECONDS);
+      if (m != null) {
+        return Optional.of(m);
+      }
+    } catch (final InterruptedException e) {
+      return this.handler.receive();
     }
     return this.handler.receive();
   }

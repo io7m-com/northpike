@@ -207,9 +207,9 @@ public final class NPUCmdAgentLabelPutTest
       .thenReturn(user);
 
     final var labelPut =
-      Mockito.mock(NPDatabaseQueriesAgentsType.LabelPutType.class);
+      Mockito.mock(NPDatabaseQueriesAgentsType.AgentLabelPutType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentLabelPutType.class))
       .thenReturn(labelPut);
 
     final var r = handler.execute(this.context, command);

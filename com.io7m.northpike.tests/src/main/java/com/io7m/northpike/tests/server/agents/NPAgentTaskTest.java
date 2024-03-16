@@ -27,7 +27,7 @@ import com.io7m.northpike.clock.NPClock;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeSearchType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
@@ -285,6 +285,8 @@ public final class NPAgentTaskTest
       NPTelemetryServiceType.class, this.telemetry);
     this.services.register(
       NPClockServiceType.class, new NPClock(new NPFakeClock()));
+    this.services.register(
+      NPMetricsServiceType.class, this.metrics);
 
     this.agent0 =
       new NPAgentDescription(
@@ -311,10 +313,10 @@ public final class NPAgentTaskTest
     this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class)
       .execute(new NPUser(user.id(), user.idName(), new MSubject(Set.of())));
 
-    this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class)
+    this.transaction.queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
       .execute(this.agent0);
 
-    this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class)
+    this.transaction.queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
       .execute(this.agent1);
 
     this.repository =
@@ -1006,7 +1008,7 @@ public final class NPAgentTaskTest
 
     try (var transaction = this.connection.openTransaction()) {
       final var items =
-        transaction.queries(LoginChallengeSearchType.class)
+        transaction.queries(AgentLoginChallengeSearchType.class)
           .execute(new NPAgentLoginChallengeSearchParameters(
             NPTimeRange.largest(),
             1000L))

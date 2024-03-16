@@ -17,15 +17,10 @@
 
 package com.io7m.northpike.protocol.agent_console.cb.internal;
 
-import com.io7m.cedarbridge.runtime.api.CBOptionType;
 import com.io7m.cedarbridge.runtime.api.CBUUID;
-import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentList;
 import com.io7m.northpike.protocol.agent_console.cb.NPAC1CommandAgentList;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
-
-import static com.io7m.cedarbridge.runtime.api.CBCore.string;
-import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
 
 /**
  * A validator.
@@ -45,12 +40,7 @@ public enum NPACVCommandAgentList
     final NPACCommandAgentList message)
   {
     return new NPAC1CommandAgentList(
-      new CBUUID(message.messageID()),
-      CBOptionType.fromOptional(
-        message.offset()
-          .map(x -> string(x.toString()))
-      ),
-      unsigned32(message.limit())
+      new CBUUID(message.messageID())
     );
   }
 
@@ -59,11 +49,7 @@ public enum NPACVCommandAgentList
     final NPAC1CommandAgentList message)
   {
     return new NPACCommandAgentList(
-      message.fieldMessageId().value(),
-      message.fieldOffset()
-        .asOptional()
-        .map(x -> NPAgentLocalName.of(x.value())),
-      message.fieldLimit().value()
+      message.fieldMessageId().value()
     );
   }
 }

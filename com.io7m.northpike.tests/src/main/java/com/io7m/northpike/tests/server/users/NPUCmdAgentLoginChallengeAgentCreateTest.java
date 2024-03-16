@@ -20,10 +20,10 @@ package com.io7m.northpike.tests.server.users;
 import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.GetType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeDeleteType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeGetType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.PutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentPutType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
@@ -241,11 +241,14 @@ public final class NPUCmdAgentLoginChallengeAgentCreateTest
       .thenReturn(user);
 
     final var agentGet =
-      Mockito.mock(GetType.class);
-    Mockito.when(this.transaction.queries(GetType.class))
+      Mockito.mock(AgentGetType.class);
+    Mockito.when(this.transaction.queries(AgentGetType.class))
       .thenReturn(agentGet);
 
-    Mockito.when(agentGet.execute(eq(command.agent())))
+    final var parameters =
+      new AgentGetType.Parameters(command.agent(), true);
+
+    Mockito.when(agentGet.execute(eq(parameters)))
       .thenReturn(Optional.of(
         new NPAgentDescription(
           command.agent(),
@@ -301,24 +304,27 @@ public final class NPUCmdAgentLoginChallengeAgentCreateTest
       .thenReturn(user);
 
     final var agentGet =
-      Mockito.mock(GetType.class);
+      Mockito.mock(AgentGetType.class);
     final var loginChallengeGet =
-      Mockito.mock(LoginChallengeGetType.class);
+      Mockito.mock(AgentLoginChallengeGetType.class);
     final var agentPut =
-      Mockito.mock(PutType.class);
+      Mockito.mock(AgentPutType.class);
     final var loginChallengeDelete =
-      Mockito.mock(LoginChallengeDeleteType.class);
+      Mockito.mock(AgentLoginChallengeDeleteType.class);
 
-    Mockito.when(this.transaction.queries(PutType.class))
+    Mockito.when(this.transaction.queries(AgentPutType.class))
       .thenReturn(agentPut);
-    Mockito.when(this.transaction.queries(LoginChallengeDeleteType.class))
+    Mockito.when(this.transaction.queries(AgentLoginChallengeDeleteType.class))
       .thenReturn(loginChallengeDelete);
-    Mockito.when(this.transaction.queries(GetType.class))
+    Mockito.when(this.transaction.queries(AgentGetType.class))
       .thenReturn(agentGet);
-    Mockito.when(this.transaction.queries(LoginChallengeGetType.class))
+    Mockito.when(this.transaction.queries(AgentLoginChallengeGetType.class))
       .thenReturn(loginChallengeGet);
 
-    Mockito.when(agentGet.execute(eq(command.agent())))
+    final var parameters =
+      new AgentGetType.Parameters(command.agent(), true);
+
+    Mockito.when(agentGet.execute(eq(parameters)))
       .thenReturn(Optional.empty());
 
     Mockito.when(loginChallengeGet.execute(eq(command.loginChallenge())))
@@ -368,24 +374,27 @@ public final class NPUCmdAgentLoginChallengeAgentCreateTest
       .thenReturn(user);
 
     final var agentGet =
-      Mockito.mock(GetType.class);
+      Mockito.mock(AgentGetType.class);
     final var loginChallengeGet =
-      Mockito.mock(LoginChallengeGetType.class);
+      Mockito.mock(AgentLoginChallengeGetType.class);
     final var agentPut =
-      Mockito.mock(PutType.class);
+      Mockito.mock(AgentPutType.class);
     final var loginChallengeDelete =
-      Mockito.mock(LoginChallengeDeleteType.class);
+      Mockito.mock(AgentLoginChallengeDeleteType.class);
 
-    Mockito.when(this.transaction.queries(PutType.class))
+    Mockito.when(this.transaction.queries(AgentPutType.class))
       .thenReturn(agentPut);
-    Mockito.when(this.transaction.queries(LoginChallengeDeleteType.class))
+    Mockito.when(this.transaction.queries(AgentLoginChallengeDeleteType.class))
       .thenReturn(loginChallengeDelete);
-    Mockito.when(this.transaction.queries(GetType.class))
+    Mockito.when(this.transaction.queries(AgentGetType.class))
       .thenReturn(agentGet);
-    Mockito.when(this.transaction.queries(LoginChallengeGetType.class))
+    Mockito.when(this.transaction.queries(AgentLoginChallengeGetType.class))
       .thenReturn(loginChallengeGet);
 
-    Mockito.when(agentGet.execute(eq(command.agent())))
+    final var parameters =
+      new AgentGetType.Parameters(command.agent(), true);
+
+    Mockito.when(agentGet.execute(eq(parameters)))
       .thenReturn(Optional.empty());
 
     Mockito.when(loginChallengeGet.execute(eq(command.loginChallenge())))

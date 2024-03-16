@@ -26,6 +26,11 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.agent.locks</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.model</artifactId>
       <version>${project.version}</version>
     </dependency>

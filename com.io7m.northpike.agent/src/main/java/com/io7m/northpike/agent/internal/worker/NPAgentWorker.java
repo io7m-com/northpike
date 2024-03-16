@@ -25,7 +25,9 @@ import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesServersType.S
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseType;
 import com.io7m.northpike.agent.internal.events.NPAgentDeleted;
 import com.io7m.northpike.agent.internal.events.NPAgentEventType;
+import com.io7m.northpike.agent.internal.events.NPAgentServerAssigned;
 import com.io7m.northpike.agent.internal.events.NPAgentServerDeleted;
+import com.io7m.northpike.agent.internal.events.NPAgentServerUnassigned;
 import com.io7m.northpike.agent.internal.events.NPAgentServerUpdated;
 import com.io7m.northpike.agent.internal.events.NPAgentUpdated;
 import com.io7m.northpike.agent.internal.events.NPAgentWorkerConnectionStarted;
@@ -34,6 +36,11 @@ import com.io7m.northpike.agent.internal.events.NPAgentWorkerExecutorStarted;
 import com.io7m.northpike.agent.internal.events.NPAgentWorkerExecutorStopped;
 import com.io7m.northpike.agent.internal.events.NPAgentWorkerStarted;
 import com.io7m.northpike.agent.internal.events.NPAgentWorkerStopped;
+import com.io7m.northpike.agent.internal.status.NPAgentConnectionStatusType;
+import com.io7m.northpike.agent.internal.status.NPAgentConnectionStatusUnconfigured;
+import com.io7m.northpike.agent.internal.status.NPAgentWorkExecutorStatusType;
+import com.io7m.northpike.agent.internal.status.NPAgentWorkExecutorStatusUnconfigured;
+import com.io7m.northpike.agent.internal.status.NPAgentWorkerStatus;
 import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
@@ -43,7 +50,6 @@ import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
-import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPEventType;
@@ -59,13 +65,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorUnsupported;
-import static com.io7m.northpike.strings.NPStringConstants.AGENT_STATUS_EXECUTING_WORK;
-import static com.io7m.northpike.strings.NPStringConstants.AGENT_STATUS_NOT_CONFIGURED_SERVER;
-import static com.io7m.northpike.strings.NPStringConstants.AGENT_STATUS_NOT_CONFIGURED_WORKEXEC;
-import static com.io7m.northpike.strings.NPStringConstants.AGENT_STATUS_READY;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_NO_WORKEXEC_AVAILABLE;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_NO_WORKEXEC_AVAILABLE_REMEDIATE;
 import static com.io7m.northpike.strings.NPStringConstants.WORK_EXECUTOR;
@@ -89,7 +90,6 @@ public final class NPAgentWorker
   private final List<? extends NPAWorkExecutorFactoryType> workExecs;
   private final NPAgentLocalName agentName;
   private final AtomicBoolean closed;
-  private final AtomicReference<String> status;
   private volatile Thread threadMain;
   private volatile NPAgentWorkerTaskMessaging connectionTask;
   private volatile Thread connectionTaskThread;
@@ -124,34 +124,24 @@ public final class NPAgentWorker
       new AtomicBoolean(false);
     this.serverLatest =
       Optional.empty();
-
-    this.status = new AtomicReference<>();
-    this.setStatusIdle();
   }
 
-  private void setStatusIdle()
+  private static NPAgentWorkExecutorStatusType statusUpdateWorkExecutor(
+    final NPAgentWorkerTaskExecutor execTask)
   {
-    final var execTask =
-      this.workExecTask;
-    final var connTask =
-      this.connectionTask;
-
     if (execTask != null) {
-      if (connTask != null) {
-        this.setStatus(AGENT_STATUS_READY);
-      } else {
-        this.setStatus(AGENT_STATUS_NOT_CONFIGURED_SERVER);
-      }
-    } else {
-      this.setStatus(AGENT_STATUS_NOT_CONFIGURED_WORKEXEC);
+      return execTask.status();
     }
+    return new NPAgentWorkExecutorStatusUnconfigured();
   }
 
-  private void setStatus(
-    final NPStringConstantType constant,
-    final Object... args)
+  private static NPAgentConnectionStatusType statusUpdateConnection(
+    final NPAgentWorkerTaskMessaging connTask)
   {
-    this.status.set(this.strings.format(constant, args));
+    if (connTask != null) {
+      return connTask.status();
+    }
+    return new NPAgentConnectionStatusUnconfigured();
   }
 
   /**
@@ -236,8 +226,6 @@ public final class NPAgentWorker
     final NPAgentWorkItem workItem)
   {
     Objects.requireNonNull(workItem, "workItem");
-
-    this.setStatus(AGENT_STATUS_EXECUTING_WORK, workItem.identifier());
   }
 
   @Override
@@ -247,8 +235,6 @@ public final class NPAgentWorker
   {
     Objects.requireNonNull(workItem, "workItem");
     Objects.requireNonNull(result, "result");
-
-    this.setStatusIdle();
 
     final var t = this.connectionTask;
     if (t != null) {
@@ -264,8 +250,6 @@ public final class NPAgentWorker
     Objects.requireNonNull(workItem, "workItem");
     Objects.requireNonNull(item, "item");
 
-    this.setStatus(AGENT_STATUS_EXECUTING_WORK);
-
     final var t = this.connectionTask;
     if (t != null) {
       t.workUpdated(workItem.identifier(), item);
@@ -273,9 +257,17 @@ public final class NPAgentWorker
   }
 
   @Override
-  public String status()
+  public NPAgentWorkerStatus status()
   {
-    return this.status.get();
+    final var execTask =
+      this.workExecTask;
+    final var connTask =
+      this.connectionTask;
+
+    return new NPAgentWorkerStatus(
+      statusUpdateConnection(connTask),
+      statusUpdateWorkExecutor(execTask)
+    );
   }
 
   @Override
@@ -382,23 +374,28 @@ public final class NPAgentWorker
 
   private void connectionStop()
   {
-    final var task = this.connectionTask;
-    if (task != null) {
-      try {
-        task.close();
-        this.events.emit(new NPAgentWorkerConnectionStopped(this.agentName));
-      } catch (final NPAgentException e) {
-        LOG.debug("Failed to close connection task: ", e);
+    try {
+      final var task = this.connectionTask;
+      if (task != null) {
+        try {
+          task.close();
+          this.events.emit(new NPAgentWorkerConnectionStopped(this.agentName));
+        } catch (final NPAgentException e) {
+          LOG.debug("Failed to close connection task: ", e);
+        }
       }
-    }
 
-    final var taskThread = this.connectionTaskThread;
-    if (taskThread != null) {
-      try {
-        taskThread.join();
-      } catch (final InterruptedException e) {
-        Thread.currentThread().interrupt();
+      final var taskThread = this.connectionTaskThread;
+      if (taskThread != null) {
+        try {
+          taskThread.join();
+        } catch (final InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
       }
+    } finally {
+      this.connectionTaskThread = null;
+      this.connectionTask = null;
     }
   }
 
@@ -438,7 +435,7 @@ public final class NPAgentWorker
                 .filter(f -> Objects.equals(f.name(), workConfig.type()))
                 .findFirst()
                 .orElseThrow(() -> this.errorNoSuitableExecutor(workConfig))
-                .createExecutor(this.services, workConfig);
+                .createExecutor(this.services, this.agentName, workConfig);
 
             this.workExecTask =
               NPAgentWorkerTaskExecutor.open(this, workExecutor);
@@ -483,7 +480,7 @@ public final class NPAgentWorker
       this.strings.format(ERROR_NO_WORKEXEC_AVAILABLE),
       errorUnsupported(),
       Map.ofEntries(
-        entry(this.strings.format(WORK_EXECUTOR), workConfig.type().value())
+        entry(this.strings.format(WORK_EXECUTOR), workConfig.type().toString())
       ),
       Optional.of(
         this.strings.format(ERROR_NO_WORKEXEC_AVAILABLE_REMEDIATE)
@@ -573,6 +570,28 @@ public final class NPAgentWorker
       case final NPAgentWorkerExecutorStarted ignored -> {
         // Ignored
       }
+      case final NPAgentServerAssigned serverAssigned -> {
+        this.onAgentEventServerAssigned(serverAssigned);
+      }
+      case final NPAgentServerUnassigned serverUnassigned -> {
+        this.onAgentEventServerUnassigned(serverUnassigned);
+      }
+    }
+  }
+
+  private void onAgentEventServerUnassigned(
+    final NPAgentServerUnassigned serverUnassigned)
+  {
+    if (Objects.equals(this.agentName, serverUnassigned.agentName())) {
+      this.connectionRestart();
+    }
+  }
+
+  private void onAgentEventServerAssigned(
+    final NPAgentServerAssigned serverAssigned)
+  {
+    if (Objects.equals(this.agentName, serverAssigned.agentName())) {
+      this.connectionRestart();
     }
   }
 

@@ -17,14 +17,15 @@
 package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.GetByKeyType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetByKeyType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.agents.NPAgentID;
-import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
 import com.io7m.northpike.model.agents.NPAgentLabel;
 import com.io7m.northpike.model.agents.NPAgentLabelName;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,11 +43,11 @@ import static com.io7m.northpike.database.postgres.internal.tables.Agents.AGENTS
  */
 
 public final class NPDBQAgentGetByKey
-  extends NPDBQAbstract<NPAgentKeyPublicType, Optional<NPAgentDescription>>
-  implements GetByKeyType
+  extends NPDBQAbstract<AgentGetByKeyType.Parameters, Optional<NPAgentDescription>>
+  implements AgentGetByKeyType
 {
-  private static final Service<NPAgentKeyPublicType, Optional<NPAgentDescription>, GetByKeyType> SERVICE =
-    new Service<>(GetByKeyType.class, NPDBQAgentGetByKey::new);
+  private static final Service<AgentGetByKeyType.Parameters, Optional<NPAgentDescription>, AgentGetByKeyType> SERVICE =
+    new Service<>(AgentGetByKeyType.class, NPDBQAgentGetByKey::new);
 
   /**
    * Construct a query.
@@ -72,9 +73,16 @@ public final class NPDBQAgentGetByKey
   @Override
   protected Optional<NPAgentDescription> onExecute(
     final DSLContext context,
-    final NPAgentKeyPublicType key)
+    final AgentGetByKeyType.Parameters parameters)
     throws NPDatabaseException
   {
+    final Condition deletedCondition;
+    if (parameters.includeDeleted()) {
+      deletedCondition = DSL.trueCondition();
+    } else {
+      deletedCondition = AGENTS.A_DELETED.eq(Boolean.FALSE);
+    }
+
     final var query =
       context.select(
           AGENTS.A_ID,
@@ -91,8 +99,8 @@ public final class NPDBQAgentGetByKey
         .leftOuterJoin(AGENT_LABEL_DEFINITIONS)
         .on(AGENT_LABEL_DEFINITIONS.ALD_ID.eq(AGENT_LABELS.AL_LABEL))
         .where(
-          AGENTS.A_PUBLIC_KEY_DATA.eq(key.asText())
-            .and(AGENTS.A_DELETED.eq(Boolean.FALSE))
+          AGENTS.A_PUBLIC_KEY_DATA.eq(parameters.agentKey().asText())
+            .and(deletedCondition)
         );
 
     recordQuery(query);
@@ -138,7 +146,7 @@ public final class NPDBQAgentGetByKey
       new NPAgentDescription(
         new NPAgentID(id),
         name,
-        key,
+        parameters.agentKey(),
         Map.copyOf(environment),
         Map.copyOf(properties),
         Map.copyOf(labels)

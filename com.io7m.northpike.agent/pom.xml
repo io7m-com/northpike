@@ -26,6 +26,11 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.agent.metrics</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.northpike.model</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -106,10 +111,6 @@
     <dependency>
       <groupId>com.io7m.repetoir</groupId>
       <artifactId>com.io7m.repetoir.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.lanark</groupId>
-      <artifactId>com.io7m.lanark.core</artifactId>
     </dependency>
     <dependency>
       <groupId>com.io7m.genevan</groupId>

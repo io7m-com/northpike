@@ -20,14 +20,16 @@ package com.io7m.northpike.server.internal.assignments;
 import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.GetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyIsAssignedType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.GetExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPArchive;
@@ -78,6 +80,8 @@ import com.io7m.northpike.plans.evaluation.NPPlanEvaluationStatusType.StatusSucc
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationType;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationUpdateType;
 import com.io7m.northpike.plans.evaluation.NPPlanEvaluationUpdateType.AgentAcceptedTask;
+import com.io7m.northpike.plans.evaluation.NPPlanEvaluationUpdateType.AgentReportedTaskFailure;
+import com.io7m.northpike.plans.evaluation.NPPlanEvaluationUpdateType.AgentReportedTaskSuccess;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
 import com.io7m.northpike.plans.preparation.NPPlanPreparation;
 import com.io7m.northpike.plans.preparation.NPPlanPreparationType;
@@ -109,7 +113,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Flow;
+import java.util.concurrent.Flow.Subscriber;
+import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -137,7 +142,7 @@ import static com.io7m.northpike.telemetry.api.NPTelemetryServiceType.recordSpan
  */
 
 public final class NPAssignmentTask
-  implements Runnable, CloseableType, Flow.Subscriber<NPEventType>
+  implements Runnable, CloseableType, Subscriber<NPEventType>
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(NPAssignmentTask.class);
@@ -475,7 +480,7 @@ public final class NPAssignmentTask
         final var planGet =
           transaction.queries(NPDatabaseQueriesPlansType.GetType.class);
         final var toolGet =
-          transaction.queries(NPDatabaseQueriesToolsType.GetExecutionDescriptionType.class);
+          transaction.queries(GetExecutionDescriptionType.class);
 
         final var planOpt =
           planGet.execute(new NPDatabaseQueriesPlansType.GetType.Parameters(
@@ -839,11 +844,11 @@ public final class NPAssignmentTask
       try (var transaction =
              connection.openTransaction()) {
         final var agentGet =
-          transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
+          transaction.queries(AgentGetType.class);
 
         for (final var agentId : agentIds) {
           final var agentOpt =
-            agentGet.execute(agentId);
+            agentGet.execute(new Parameters(agentId, false));
           if (agentOpt.isEmpty()) {
             continue;
           }
@@ -1080,7 +1085,7 @@ public final class NPAssignmentTask
         this.assignmentRequest.commit()
       );
 
-    return transaction.queries(NPDatabaseQueriesRepositoriesType.CommitGetType.class)
+    return transaction.queries(CommitGetType.class)
       .execute(commitID)
       .orElseThrow(this::errorNonexistentCommit);
   }
@@ -1089,7 +1094,7 @@ public final class NPAssignmentTask
     final NPDatabaseTransactionType transaction)
     throws NPDatabaseException, NPServerException
   {
-    return transaction.queries(NPDatabaseQueriesAssignmentsType.GetType.class)
+    return transaction.queries(GetType.class)
       .execute(this.assignmentRequest.assignment())
       .orElseThrow(this::errorNonexistentAssignment);
   }
@@ -1127,7 +1132,7 @@ public final class NPAssignmentTask
 
   @Override
   public void onSubscribe(
-    final Flow.Subscription subscription)
+    final Subscription subscription)
   {
     subscription.request(Long.MAX_VALUE);
   }
@@ -1185,7 +1190,7 @@ public final class NPAssignmentTask
         );
 
         this.planUpdates.add(
-          new NPPlanEvaluationUpdateType.AgentReportedTaskSuccess(
+          new AgentReportedTaskSuccess(
             new NPPlanElementName(event.identifier().planElementName()),
             event.agentID()
           )
@@ -1200,7 +1205,7 @@ public final class NPAssignmentTask
         );
 
         this.planUpdates.add(
-          new NPPlanEvaluationUpdateType.AgentReportedTaskFailure(
+          new AgentReportedTaskFailure(
             new NPPlanElementName(event.identifier().planElementName()),
             event.agentID()
           )
@@ -1213,7 +1218,7 @@ public final class NPAssignmentTask
     final NPAgentWorkItemAccepted event)
   {
     this.planUpdates.add(
-      new NPPlanEvaluationUpdateType.AgentAcceptedTask(
+      new AgentAcceptedTask(
         new NPPlanElementName(event.identifier().planElementName()),
         event.agentID()
       )

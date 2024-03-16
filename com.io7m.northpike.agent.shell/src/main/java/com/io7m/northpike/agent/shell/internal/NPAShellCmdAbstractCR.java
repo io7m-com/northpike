@@ -79,9 +79,10 @@ public abstract class NPAShellCmdAbstractCR<
     final QCommandContextType context)
     throws Exception
   {
+    final var command =
+      this.onCreateCommand(context);
     final var r =
-      this.client()
-        .execute(this.onCreateCommand(context));
+      this.client().execute(command);
 
     this.onFormatResponse(context, this.responseClass.cast(r));
     return SUCCESS;

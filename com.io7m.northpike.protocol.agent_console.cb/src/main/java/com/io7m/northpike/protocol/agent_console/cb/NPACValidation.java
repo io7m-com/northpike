@@ -22,7 +22,7 @@ import com.io7m.northpike.protocol.agent_console.NPACCommandAgentDelete;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentList;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentServerAssign;
-import com.io7m.northpike.protocol.agent_console.NPACCommandAgentStatusGet;
+import com.io7m.northpike.protocol.agent_console.NPACCommandAgentWorkExecPut;
 import com.io7m.northpike.protocol.agent_console.NPACCommandDisconnect;
 import com.io7m.northpike.protocol.agent_console.NPACCommandLogin;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerDelete;
@@ -31,18 +31,18 @@ import com.io7m.northpike.protocol.agent_console.NPACCommandServerList;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerPut;
 import com.io7m.northpike.protocol.agent_console.NPACCommandType;
 import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecGet;
-import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecPut;
+import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecSupported;
 import com.io7m.northpike.protocol.agent_console.NPACEventType;
 import com.io7m.northpike.protocol.agent_console.NPACMessageType;
 import com.io7m.northpike.protocol.agent_console.NPACResponseAgent;
 import com.io7m.northpike.protocol.agent_console.NPACResponseAgentList;
-import com.io7m.northpike.protocol.agent_console.NPACResponseAgentStatus;
 import com.io7m.northpike.protocol.agent_console.NPACResponseError;
 import com.io7m.northpike.protocol.agent_console.NPACResponseOK;
 import com.io7m.northpike.protocol.agent_console.NPACResponseServer;
 import com.io7m.northpike.protocol.agent_console.NPACResponseServerList;
 import com.io7m.northpike.protocol.agent_console.NPACResponseType;
-import com.io7m.northpike.protocol.agent_console.NPACResponseWorkExec;
+import com.io7m.northpike.protocol.agent_console.NPACResponseWorkExecGet;
+import com.io7m.northpike.protocol.agent_console.NPACResponseWorkExecSupported;
 import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 
@@ -51,7 +51,7 @@ import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommand
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandAgentGet.COMMAND_AGENT_GET;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandAgentList.COMMAND_AGENT_LIST;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandAgentServerAssign.COMMAND_AGENT_SERVER_ASSIGN;
-import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandAgentStatus.COMMAND_AGENT_STATUS;
+import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandAgentWorkExecPut.COMMAND_AGENT_WORK_EXEC_PUT;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandDisconnect.COMMAND_DISCONNECT;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandLogin.COMMAND_LOGIN;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandServerDelete.COMMAND_SERVER_DELETE;
@@ -59,16 +59,15 @@ import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommand
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandServerList.COMMAND_SERVER_LIST;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandServerPut.COMMAND_SERVER_PUT;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandWorkExecGet.COMMAND_WORK_EXEC_GET;
-import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandWorkExecPut.COMMAND_WORK_EXEC_PUT;
+import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVCommandWorkExecSupported.COMMAND_WORK_EXEC_SUPPORTED;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseAgent.RESPONSE_AGENT;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseAgentList.RESPONSE_AGENT_LIST;
-import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseAgentStatus.RESPONSE_AGENT_STATUS;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseError.RESPONSE_ERROR;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseOK.RESPONSE_OK;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseServer.RESPONSE_SERVER;
 import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseServerList.RESPONSE_SERVER_LIST;
-import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseWorkExec.RESPONSE_WORK_EXEC;
-
+import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseWorkExecGet.RESPONSE_WORK_EXEC_GET;
+import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVResponseWorkExecSupported.RESPONSE_WORK_EXEC_SUPPORTED;
 
 /**
  * Functions to translate between the core command set and the Console
@@ -117,8 +116,8 @@ public final class NPACValidation
           case final NPACCommandWorkExecGet c -> {
             yield COMMAND_WORK_EXEC_GET.convertToWire(c);
           }
-          case final NPACCommandWorkExecPut c -> {
-            yield COMMAND_WORK_EXEC_PUT.convertToWire(c);
+          case final NPACCommandAgentWorkExecPut c -> {
+            yield COMMAND_AGENT_WORK_EXEC_PUT.convertToWire(c);
           }
           case final NPACCommandAgentDelete c -> {
             yield COMMAND_AGENT_DELETE.convertToWire(c);
@@ -135,8 +134,8 @@ public final class NPACValidation
           case final NPACCommandAgentServerAssign c -> {
             yield COMMAND_AGENT_SERVER_ASSIGN.convertToWire(c);
           }
-          case final NPACCommandAgentStatusGet c -> {
-            yield COMMAND_AGENT_STATUS.convertToWire(c);
+          case final NPACCommandWorkExecSupported c -> {
+            yield COMMAND_WORK_EXEC_SUPPORTED.convertToWire(c);
           }
         };
       }
@@ -157,17 +156,17 @@ public final class NPACValidation
           case final NPACResponseServerList r -> {
             yield RESPONSE_SERVER_LIST.convertToWire(r);
           }
-          case final NPACResponseWorkExec r -> {
-            yield RESPONSE_WORK_EXEC.convertToWire(r);
-          }
           case final NPACResponseAgent r -> {
             yield RESPONSE_AGENT.convertToWire(r);
           }
           case final NPACResponseAgentList r -> {
             yield RESPONSE_AGENT_LIST.convertToWire(r);
           }
-          case final NPACResponseAgentStatus r -> {
-            yield RESPONSE_AGENT_STATUS.convertToWire(r);
+          case final NPACResponseWorkExecGet r -> {
+            yield RESPONSE_WORK_EXEC_GET.convertToWire(r);
+          }
+          case final NPACResponseWorkExecSupported r -> {
+            yield RESPONSE_WORK_EXEC_SUPPORTED.convertToWire(r);
           }
         };
       }
@@ -215,12 +214,6 @@ public final class NPACValidation
           case final NPAC1CommandWorkExecGet m -> {
             yield COMMAND_WORK_EXEC_GET.convertFromWire(m);
           }
-          case final NPAC1CommandWorkExecPut m -> {
-            yield COMMAND_WORK_EXEC_PUT.convertFromWire(m);
-          }
-          case final NPAC1ResponseWorkExec m -> {
-            yield RESPONSE_WORK_EXEC.convertFromWire(m);
-          }
           case final NPAC1CommandAgentCreate m -> {
             yield COMMAND_AGENT_CREATE.convertFromWire(m);
           }
@@ -242,11 +235,17 @@ public final class NPACValidation
           case final NPAC1CommandAgentServerAssign m -> {
             yield COMMAND_AGENT_SERVER_ASSIGN.convertFromWire(m);
           }
-          case final NPAC1CommandAgentStatus m -> {
-            yield COMMAND_AGENT_STATUS.convertFromWire(m);
+          case final NPAC1CommandAgentWorkExecPut m -> {
+            yield COMMAND_AGENT_WORK_EXEC_PUT.convertFromWire(m);
           }
-          case final NPAC1ResponseAgentStatus m -> {
-            yield RESPONSE_AGENT_STATUS.convertFromWire(m);
+          case final NPAC1CommandWorkExecSupported m -> {
+            yield COMMAND_WORK_EXEC_SUPPORTED.convertFromWire(m);
+          }
+          case final NPAC1ResponseWorkExecGet m -> {
+            yield RESPONSE_WORK_EXEC_GET.convertFromWire(m);
+          }
+          case final NPAC1ResponseWorkExecSupported m -> {
+            yield RESPONSE_WORK_EXEC_SUPPORTED.convertFromWire(m);
           }
         };
       }

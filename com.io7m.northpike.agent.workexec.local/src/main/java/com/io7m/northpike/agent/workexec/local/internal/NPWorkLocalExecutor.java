@@ -20,6 +20,7 @@ package com.io7m.northpike.agent.workexec.local.internal;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorType;
+import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 public final class NPWorkLocalExecutor implements NPAWorkExecutorType
 {
   private final RPServiceDirectoryType services;
+  private final NPAgentLocalName agent;
   private final NPAWorkExecutorConfiguration configuration;
   private final AtomicBoolean closed;
 
@@ -42,15 +44,19 @@ public final class NPWorkLocalExecutor implements NPAWorkExecutorType
    * An executor that executes work on the local system.
    *
    * @param inServices      The service directory
+   * @param inAgent         The agent that owns this executor
    * @param inConfiguration The configuration
    */
 
   public NPWorkLocalExecutor(
     final RPServiceDirectoryType inServices,
+    final NPAgentLocalName inAgent,
     final NPAWorkExecutorConfiguration inConfiguration)
   {
     this.services =
       Objects.requireNonNull(inServices, "services");
+    this.agent =
+      Objects.requireNonNull(inAgent, "inAgent");
     this.configuration =
       Objects.requireNonNull(inConfiguration, "configuration");
     this.closed =
@@ -80,6 +86,7 @@ public final class NPWorkLocalExecutor implements NPAWorkExecutorType
     return NPWorkLocalExecution.create(
       this.services,
       this.configuration,
+      this.agent,
       workItem
     );
   }

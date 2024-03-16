@@ -37,6 +37,7 @@ import com.io7m.northpike.protocol.user.NPUResponsePlanValidate;
 import com.io7m.northpike.shell.NPShellConfiguration;
 import com.io7m.northpike.shell.NPShellType;
 import com.io7m.northpike.shell.NPShells;
+import com.io7m.northpike.shell.commons.NPShellConfirmationServiceType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.user_client.api.NPUserClientFactoryType;
 import com.io7m.northpike.user_client.api.NPUserClientType;
@@ -48,6 +49,7 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.AtLeast;
+import org.mockito.internal.verification.Times;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -399,25 +401,75 @@ public final class NPShellPlansTest
   }
 
   @Test
-  public void testPlanDelete()
+  public void testPlanDeleteConfirm0()
     throws Exception
   {
-    Mockito.when(
-      this.userClient.execute(isA(NPUCommandPlanDelete.class))
-    ).thenReturn(new NPUResponseOK(
-      UUID.randomUUID(),
-      UUID.randomUUID()
-    ));
+    final var confirmations =
+      this.shell.services()
+        .requireService(NPShellConfirmationServiceType.class);
+
+    final var confirmationId =
+      UUID.randomUUID();
+
+    confirmations.setNextConfirmationId(confirmationId);
 
     final var w = this.terminal.sendInputToTerminalWriter();
     w.println("set --terminate-on-errors true");
+
     w.print("plan-delete ");
     w.print("  --name com.io7m.example ");
     w.print("  --version 3 ");
     w.println();
 
-    w.println("set --formatter RAW");
+    w.print("plan-delete-confirm ");
+    w.print(confirmationId);
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandPlanDelete.class));
+  }
+
+  @Test
+  public void testPlanDeleteConfirm1()
+    throws Exception
+  {
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
     w.print("plan-delete ");
+    w.print("  --name com.io7m.example ");
+    w.print("  --version 3 ");
+    w.println();
+
+    w.print("plan-delete-confirm ");
+    w.print(UUID.fromString("00000000-0000-0000-0000-000000000000"));
+    w.println();
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(1, this.exitCode);
+
+    Mockito.verify(this.userClient, new Times(0))
+      .execute(isA(NPUCommandPlanDelete.class));
+  }
+
+  @Test
+  public void testPlanDeleteConfirm2()
+    throws Exception
+  {
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.print("plan-delete ");
+    w.print("  --ask-for-confirmation false");
     w.print("  --name com.io7m.example ");
     w.print("  --version 3 ");
     w.println();
@@ -428,7 +480,7 @@ public final class NPShellPlansTest
     this.waitForShell();
     assertEquals(0, this.exitCode);
 
-    Mockito.verify(this.userClient, new AtLeast(2))
+    Mockito.verify(this.userClient, new AtLeast(1))
       .execute(isA(NPUCommandPlanDelete.class));
   }
 }

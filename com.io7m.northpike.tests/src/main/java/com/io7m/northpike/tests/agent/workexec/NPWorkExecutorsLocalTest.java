@@ -18,7 +18,10 @@
 package com.io7m.northpike.tests.agent.workexec;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.agent.locks.NPAgentResourceLockService;
+import com.io7m.northpike.agent.locks.NPAgentResourceLockServiceType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.local.NPWorkExecutorsLocal;
 import com.io7m.northpike.model.NPArchiveLinks;
@@ -29,6 +32,7 @@ import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.strings.NPStrings;
@@ -75,10 +79,20 @@ public final class NPWorkExecutorsLocalTest
   {
     this.strings = NPStrings.create(Locale.ROOT);
     this.services = new RPServiceDirectory();
-    this.services.register(NPStrings.class, this.strings);
-    this.services.register(NPToolFactoryType.class, new NPTMFactory3());
-    this.executors = new NPWorkExecutorsLocal();
+    this.services.register(
+      NPStrings.class,
+      this.strings
+    );
+    this.services.register(
+      NPToolFactoryType.class,
+      new NPTMFactory3()
+    );
+    this.services.register(
+      NPAgentResourceLockServiceType.class,
+      NPAgentResourceLockService.create()
+    );
 
+    this.executors = new NPWorkExecutorsLocal();
     this.server = QWebServers.createServer(20000);
   }
 
@@ -99,10 +113,11 @@ public final class NPWorkExecutorsLocalTest
 
     try (var executor = this.executors.createExecutor(
       this.services,
+      NPAgentLocalName.of("agent"),
       NPAWorkExecutorConfiguration.builder()
         .setWorkDirectory(workDirectory)
         .setTemporaryDirectory(tmpDirectory)
-        .setExecutorType(new RDottedName("workexec.local"))
+        .setExecutorType(NPAWorkExecName.of("workexec.local"))
         .build()
     )) {
       final var env = executor.environment();
@@ -159,10 +174,11 @@ public final class NPWorkExecutorsLocalTest
 
     try (var executor = this.executors.createExecutor(
       this.services,
+      NPAgentLocalName.of("agent"),
       NPAWorkExecutorConfiguration.builder()
         .setWorkDirectory(workDirectory)
         .setTemporaryDirectory(tmpDirectory)
-        .setExecutorType(new RDottedName("workexec.local"))
+        .setExecutorType(NPAWorkExecName.of("workexec.local"))
         .build()
     )) {
       try (var execution = executor.createExecution(workItem)) {

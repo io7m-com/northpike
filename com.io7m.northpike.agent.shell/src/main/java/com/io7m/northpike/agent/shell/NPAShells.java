@@ -22,22 +22,31 @@ import com.io7m.northpike.agent.console_client.api.NPAConsoleClientType;
 import com.io7m.northpike.agent.shell.internal.NPAShell;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdAgentCreate;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdAgentDelete;
+import com.io7m.northpike.agent.shell.internal.NPAShellCmdAgentDeleteConfirm;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdAgentGet;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdAgentList;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdAgentServerAssign;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdAgentServerUnassign;
+import com.io7m.northpike.agent.shell.internal.NPAShellCmdAgentWorkExecPut;
+import com.io7m.northpike.agent.shell.internal.NPAShellCmdAgentWorkExecRemove;
+import com.io7m.northpike.agent.shell.internal.NPAShellCmdAgentWorkExecRemoveConfirm;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdHelp;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdLogin;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdLogout;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdServerDelete;
+import com.io7m.northpike.agent.shell.internal.NPAShellCmdServerDeleteConfirm;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdServerGet;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdServerList;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdServerPut;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdServerSetTLS;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdSet;
 import com.io7m.northpike.agent.shell.internal.NPAShellCmdVersion;
+import com.io7m.northpike.agent.shell.internal.NPAShellCmdWorkExecGet;
+import com.io7m.northpike.agent.shell.internal.NPAShellCmdWorkExecSupported;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.shell.commons.NPShellCmdType;
+import com.io7m.northpike.shell.commons.NPShellConfirmationService;
+import com.io7m.northpike.shell.commons.NPShellConfirmationServiceType;
 import com.io7m.northpike.shell.commons.NPShellOptions;
 import com.io7m.northpike.shell.commons.NPShellTerminalHolder;
 import com.io7m.northpike.strings.NPStrings;
@@ -108,25 +117,36 @@ public final class NPAShells implements NPAShellFactoryType
       NPShellTerminalHolder.class, new NPShellTerminalHolder(terminal));
     services.register(
       NPStrings.class, configuration.strings());
+    services.register(
+      NPShellConfirmationServiceType.class,
+      new NPShellConfirmationService()
+    );
 
     final List<NPShellCmdType> commands =
       List.of(
         new NPAShellCmdAgentCreate(services),
         new NPAShellCmdAgentDelete(services),
+        new NPAShellCmdAgentDeleteConfirm(services),
         new NPAShellCmdAgentGet(services),
         new NPAShellCmdAgentList(services),
         new NPAShellCmdAgentServerAssign(services),
         new NPAShellCmdAgentServerUnassign(services),
+        new NPAShellCmdAgentWorkExecPut(services),
+        new NPAShellCmdAgentWorkExecRemove(services),
+        new NPAShellCmdAgentWorkExecRemoveConfirm(services),
         new NPAShellCmdHelp(services),
         new NPAShellCmdLogin(services),
         new NPAShellCmdLogout(services),
         new NPAShellCmdServerDelete(services),
+        new NPAShellCmdServerDeleteConfirm(services),
         new NPAShellCmdServerGet(services),
         new NPAShellCmdServerList(services),
         new NPAShellCmdServerPut(services),
         new NPAShellCmdServerSetTLS(services),
         new NPAShellCmdSet(services),
-        new NPAShellCmdVersion(services)
+        new NPAShellCmdVersion(services),
+        new NPAShellCmdWorkExecGet(services),
+        new NPAShellCmdWorkExecSupported(services)
       );
 
     final var commandsNamed =

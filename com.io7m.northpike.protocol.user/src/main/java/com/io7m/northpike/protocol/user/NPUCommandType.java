@@ -25,7 +25,8 @@ package com.io7m.northpike.protocol.user;
 
 public sealed interface NPUCommandType<R extends NPUResponseType>
   extends NPUMessageType
-  permits NPUCommandAgentGet,
+  permits NPUCommandAgentDelete,
+  NPUCommandAgentGet,
   NPUCommandAgentLabelDelete,
   NPUCommandAgentLabelGet,
   NPUCommandAgentLabelPut,

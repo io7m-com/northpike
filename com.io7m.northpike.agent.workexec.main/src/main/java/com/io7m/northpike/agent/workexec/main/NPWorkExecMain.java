@@ -20,6 +20,7 @@ package com.io7m.northpike.agent.workexec.main;
 import com.io7m.northpike.agent.workexec.main.internal.NPWECmdEnvironment;
 import com.io7m.northpike.agent.workexec.main.internal.NPWECmdExecute;
 import com.io7m.northpike.agent.workexec.main.internal.NPWECmdProperties;
+import com.io7m.northpike.shell.commons.NPShellValueConverters;
 import com.io7m.quarrel.core.QApplication;
 import com.io7m.quarrel.core.QApplicationMetadata;
 import com.io7m.quarrel.core.QApplicationType;
@@ -69,6 +70,7 @@ public final class NPWorkExecMain implements Runnable
       );
 
     final var builder = QApplication.builder(metadata);
+    builder.setValueConverters(NPShellValueConverters.get());
     builder.addCommand(new NPWECmdEnvironment());
     builder.addCommand(new NPWECmdExecute());
     builder.addCommand(new NPWECmdProperties());

@@ -24,6 +24,7 @@ module com.io7m.northpike.agent.shell
   requires static org.osgi.annotation.bundle;
 
   requires com.io7m.northpike.agent.console_client.api;
+  requires com.io7m.northpike.agent.workexec.api;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.protocol.agent_console;
   requires com.io7m.northpike.shell.commons;

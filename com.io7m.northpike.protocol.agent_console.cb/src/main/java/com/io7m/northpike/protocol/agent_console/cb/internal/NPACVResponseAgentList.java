@@ -17,13 +17,15 @@
 package com.io7m.northpike.protocol.agent_console.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
-import com.io7m.cedarbridge.runtime.convenience.CBLists;
+import com.io7m.cedarbridge.runtime.convenience.CBMaps;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.protocol.agent_console.NPACResponseAgentList;
 import com.io7m.northpike.protocol.agent_console.cb.NPAC1ResponseAgentList;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.string;
+import static com.io7m.northpike.protocol.agent_console.cb.internal.NPACVAgentStatus.AGENT_STATUS;
 
 /**
  * A validator.
@@ -45,9 +47,10 @@ public enum NPACVResponseAgentList
     return new NPAC1ResponseAgentList(
       new CBUUID(message.messageID()),
       new CBUUID(message.correlationID()),
-      CBLists.ofCollection(
+      CBMaps.ofMap(
         message.results(),
-        x -> string(x.toString())
+        x -> string(x.toString()),
+        AGENT_STATUS::convertToWire
       )
     );
   }
@@ -55,13 +58,15 @@ public enum NPACVResponseAgentList
   @Override
   public NPACResponseAgentList convertFromWire(
     final NPAC1ResponseAgentList message)
+    throws NPProtocolException
   {
     return new NPACResponseAgentList(
       message.fieldMessageId().value(),
       message.fieldCorrelationId().value(),
-      CBLists.toList(
+      CBMaps.toMap(
         message.fieldResults(),
-        x -> NPAgentLocalName.of(x.value())
+        x -> NPAgentLocalName.of(x.value()),
+        AGENT_STATUS::convertFromWire
       )
     );
   }

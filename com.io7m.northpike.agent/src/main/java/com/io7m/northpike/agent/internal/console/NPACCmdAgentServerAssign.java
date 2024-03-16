@@ -21,6 +21,9 @@ package com.io7m.northpike.agent.internal.console;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentServerAssignType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentServerAssignType.Parameters;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentServerUnassignType;
+import com.io7m.northpike.agent.internal.events.NPAgentServerAssigned;
+import com.io7m.northpike.agent.internal.events.NPAgentServerUnassigned;
+import com.io7m.northpike.agent.internal.events.NPAgentUpdated;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentServerAssign;
@@ -54,15 +57,24 @@ public final class NPACCmdAgentServerAssign
       try (var transaction = connection.openTransaction()) {
 
         final var serverOpt = command.server();
+        final var agentName = command.name();
         if (serverOpt.isPresent()) {
           transaction.queries(AgentServerAssignType.class)
-            .execute(new Parameters(command.name(), serverOpt.get()));
+            .execute(new Parameters(agentName, serverOpt.get()));
         } else {
           transaction.queries(AgentServerUnassignType.class)
-            .execute(command.name());
+            .execute(agentName);
         }
 
         transaction.commit();
+
+        if (serverOpt.isPresent()) {
+          final var server = serverOpt.get();
+          context.publishEvent(new NPAgentServerAssigned(agentName, server));
+        } else {
+          context.publishEvent(new NPAgentServerUnassigned(agentName));
+        }
+        context.publishEvent(new NPAgentUpdated(agentName));
         return NPACResponseOK.createCorrelated(command);
       }
     }

@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.agent.internal.supervisor;
 
+import com.io7m.northpike.agent.internal.status.NPAgentWorkerStatus;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.repetoir.core.RPServiceType;
 
@@ -33,5 +34,5 @@ public interface NPAgentSupervisorType
    * @return The current set of agent status values
    */
 
-  Map<NPAgentLocalName, String> agentStatuses();
+  Map<NPAgentLocalName, NPAgentWorkerStatus> agentStatuses();
 }

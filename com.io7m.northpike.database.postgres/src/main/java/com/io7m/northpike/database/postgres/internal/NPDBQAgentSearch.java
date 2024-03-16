@@ -24,7 +24,7 @@ import com.io7m.jqpage.core.JQOrder;
 import com.io7m.jqpage.core.JQSelectDistinct;
 import com.io7m.northpike.database.api.NPAgentPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.ListType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentListType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.agents.NPAgentID;
@@ -32,6 +32,7 @@ import com.io7m.northpike.model.agents.NPAgentLabelName;
 import com.io7m.northpike.model.agents.NPAgentSearchParameters;
 import com.io7m.northpike.model.agents.NPAgentSummary;
 import io.opentelemetry.api.trace.Span;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
@@ -48,10 +49,10 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_ST
 
 public final class NPDBQAgentSearch
   extends NPDBQAbstract<NPAgentSearchParameters, NPAgentPagedType>
-  implements ListType
+  implements AgentListType
 {
-  private static final Service<NPAgentSearchParameters, NPAgentPagedType, ListType> SERVICE =
-    new Service<>(ListType.class, NPDBQAgentSearch::new);
+  private static final Service<NPAgentSearchParameters, NPAgentPagedType, AgentListType> SERVICE =
+    new Service<>(AgentListType.class, NPDBQAgentSearch::new);
 
   /**
    * Construct a query.
@@ -77,8 +78,12 @@ public final class NPDBQAgentSearch
         AGENT_LABEL_SEARCH.ALS_LABELS
       );
 
-    final var deletedCondition =
-      DSL.condition(AGENT_LABEL_SEARCH.A_DELETED.eq(Boolean.FALSE));
+    final Condition deletedCondition;
+    if (parameters.includeDeleted()) {
+      deletedCondition = DSL.trueCondition();
+    } else {
+      deletedCondition = AGENT_LABEL_SEARCH.A_DELETED.eq(Boolean.FALSE);
+    }
 
     final var allConditions =
       DSL.and(labelCondition, deletedCondition);

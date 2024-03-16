@@ -21,7 +21,10 @@ import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetByKeyType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetByKeyType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentPutType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
@@ -48,6 +51,7 @@ import com.io7m.northpike.protocol.agent.NPAResponseWorkSent;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerExceptions;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
+import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
@@ -94,6 +98,7 @@ public final class NPAgentTask
   private final NPDatabaseType database;
   private final NPEventServiceType events;
   private final NPTelemetryServiceType telemetry;
+  private final NPMetricsServiceType metrics;
   private final ConcurrentLinkedQueue<InternalCommandType> enqueuedCommands;
   private final HashMap<String, String> attributes;
   private final RPServiceDirectoryType services;
@@ -108,7 +113,8 @@ public final class NPAgentTask
     final NPClockServiceType inClock,
     final NPDatabaseType inDatabase,
     final NPEventServiceType inEvents,
-    final NPTelemetryServiceType inTelemetry)
+    final NPTelemetryServiceType inTelemetry,
+    final NPMetricsServiceType inMetrics)
   {
     this.connection =
       Objects.requireNonNull(inConnection, "connection");
@@ -124,6 +130,8 @@ public final class NPAgentTask
       Objects.requireNonNull(inEvents, "events");
     this.telemetry =
       Objects.requireNonNull(inTelemetry, "telemetry");
+    this.metrics =
+      Objects.requireNonNull(inMetrics, "metrics");
     this.enqueuedCommands =
       new ConcurrentLinkedQueue<>();
     this.attributes =
@@ -159,6 +167,8 @@ public final class NPAgentTask
       services.requireService(NPTelemetryServiceType.class);
     final var clock =
       services.requireService(NPClockServiceType.class);
+    final var metrics =
+      services.requireService(NPMetricsServiceType.class);
 
     final var sizeLimit =
       configuration.configuration()
@@ -173,7 +183,8 @@ public final class NPAgentTask
         clock,
         database,
         events,
-        telemetry
+        telemetry,
+        metrics
       );
     } catch (final NPException | IOException e) {
       try {
@@ -318,6 +329,7 @@ public final class NPAgentTask
         Duration.between(command.timeCurrent(), timeNow);
 
       LOG.debug("Latency: RTT {}", duration);
+      this.metrics.setAgentLatency(this.agentId, duration);
     }
   }
 
@@ -486,9 +498,8 @@ public final class NPAgentTask
   {
     try (var dbConn = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
       try (var transaction = dbConn.openTransaction()) {
-        final var get =
-          transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
-        return get.execute(id);
+        final var get = transaction.queries(AgentGetType.class);
+        return get.execute(new AgentGetType.Parameters(id, false));
       }
     }
   }
@@ -500,9 +511,8 @@ public final class NPAgentTask
   {
     try (var dbConn = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
       try (var transaction = dbConn.openTransaction()) {
-        final var get =
-          transaction.queries(NPDatabaseQueriesAgentsType.GetByKeyType.class);
-        return get.execute(key);
+        final var get = transaction.queries(AgentGetByKeyType.class);
+        return get.execute(new Parameters(key, false));
       }
     }
   }
@@ -516,8 +526,7 @@ public final class NPAgentTask
       try (var transaction = dbConn.openTransaction()) {
         transaction.setOwner(new NPAuditUserOrAgentType.Agent(this.agentId));
 
-        final var put =
-          transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+        final var put = transaction.queries(AgentPutType.class);
         put.execute(agent);
         transaction.commit();
       }

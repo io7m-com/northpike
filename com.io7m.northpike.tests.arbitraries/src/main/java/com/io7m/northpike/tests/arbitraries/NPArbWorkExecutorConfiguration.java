@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.arbitraries;
 
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
@@ -36,7 +36,7 @@ public final class NPArbWorkExecutorConfiguration
         return Combinators.combine(
           Arbitraries.create(() -> Paths.get("a")),
           Arbitraries.create(() -> Paths.get("b")),
-          Arbitraries.defaultFor(RDottedName.class)
+          Arbitraries.defaultFor(NPAWorkExecName.class)
         ).as((d0, d1, t) -> {
           return NPAWorkExecutorConfiguration.builder()
             .setTemporaryDirectory(d0)

@@ -17,12 +17,13 @@
 
 package com.io7m.northpike.agent.workexec.local;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorFactoryType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorPropertyType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorType;
 import com.io7m.northpike.agent.workexec.local.internal.NPWorkLocalExecutor;
+import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 
 import java.util.Objects;
@@ -37,8 +38,8 @@ import static com.io7m.northpike.agent.workexec.api.NPAWorkExecutorPropertyStand
 public final class NPWorkExecutorsLocal
   implements NPAWorkExecutorFactoryType
 {
-  private static final RDottedName NAME =
-    new RDottedName("workexec.local");
+  private static final NPAWorkExecName NAME =
+    NPAWorkExecName.of("workexec.local");
 
   /**
    * A work executor that executes work on the host system directly.
@@ -50,7 +51,7 @@ public final class NPWorkExecutorsLocal
   }
 
   @Override
-  public RDottedName name()
+  public NPAWorkExecName name()
   {
     return NAME;
   }
@@ -70,17 +71,26 @@ public final class NPWorkExecutorsLocal
   @Override
   public NPAWorkExecutorType createExecutor(
     final RPServiceDirectoryType services,
+    final NPAgentLocalName agentName,
     final NPAWorkExecutorConfiguration configuration)
   {
     Objects.requireNonNull(services, "services");
+    Objects.requireNonNull(agentName, "agentName");
     Objects.requireNonNull(configuration, "configuration");
 
-    return new NPWorkLocalExecutor(services, configuration);
+    return new NPWorkLocalExecutor(services, agentName, configuration);
   }
 
   @Override
   public String description()
   {
     return "Local work executor.";
+  }
+
+  @Override
+  public String toString()
+  {
+    return "[NPWorkExecutorsLocal 0x%s]"
+      .formatted(Integer.toUnsignedString(this.hashCode(), 16));
   }
 }

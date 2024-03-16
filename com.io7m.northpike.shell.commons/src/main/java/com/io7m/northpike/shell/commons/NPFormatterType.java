@@ -17,6 +17,7 @@
 package com.io7m.northpike.shell.commons;
 
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorSummary;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
@@ -38,6 +39,7 @@ import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
 import com.io7m.northpike.model.agents.NPAgentServerSummary;
+import com.io7m.northpike.model.agents.NPAgentStatus;
 import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
@@ -46,6 +48,7 @@ import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.preferences.api.NPPreferenceServerBookmark;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -403,5 +406,41 @@ public interface NPFormatterType
 
   void formatBookmarks(
     List<NPPreferenceServerBookmark> bookmarks)
+    throws Exception;
+
+  /**
+   * Format agent status values.
+   *
+   * @param status The status
+   *
+   * @throws Exception On errors
+   */
+
+  void formatAgentStatuses(
+    Map<NPAgentLocalName, NPAgentStatus> status)
+    throws Exception;
+
+  /**
+   * Format work executor summaries.
+   *
+   * @param summaries The summaries
+   *
+   * @throws Exception On errors
+   */
+
+  void formatWorkExecutorSummaries(
+    List<NPAWorkExecutorSummary> summaries)
+    throws Exception;
+
+  /**
+   * Format work executor summaries.
+   *
+   * @param summary The summary
+   *
+   * @throws Exception On errors
+   */
+
+  void formatWorkExecutorSummary(
+    NPAWorkExecutorSummary summary)
     throws Exception;
 }

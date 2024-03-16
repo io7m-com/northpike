@@ -197,9 +197,9 @@ public final class NPUCmdAgentGetTest
       .thenReturn(userId);
 
     final var agentGet =
-      Mockito.mock(NPDatabaseQueriesAgentsType.GetType.class);
+      Mockito.mock(NPDatabaseQueriesAgentsType.AgentGetType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentGetType.class))
       .thenReturn(agentGet);
 
     Mockito.when(agentGet.execute(any()))
@@ -240,9 +240,9 @@ public final class NPUCmdAgentGetTest
       .thenReturn(userId);
 
     final var agentGet =
-      Mockito.mock(NPDatabaseQueriesAgentsType.GetType.class);
+      Mockito.mock(NPDatabaseQueriesAgentsType.AgentGetType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentGetType.class))
       .thenReturn(agentGet);
 
     final var agent =

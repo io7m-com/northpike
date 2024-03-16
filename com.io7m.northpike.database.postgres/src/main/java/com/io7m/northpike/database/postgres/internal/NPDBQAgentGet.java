@@ -17,16 +17,16 @@
 package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.GetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.agents.NPAgentDescription;
-import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentKeyPairEd448Type;
 import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
 import com.io7m.northpike.model.agents.NPAgentLabel;
 import com.io7m.northpike.model.agents.NPAgentLabelName;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.Field;
@@ -48,11 +48,11 @@ import static com.io7m.northpike.database.postgres.internal.tables.Agents.AGENTS
  */
 
 public final class NPDBQAgentGet
-  extends NPDBQAbstract<NPAgentID, Optional<NPAgentDescription>>
-  implements GetType
+  extends NPDBQAbstract<AgentGetType.Parameters, Optional<NPAgentDescription>>
+  implements AgentGetType
 {
-  private static final Service<NPAgentID, Optional<NPAgentDescription>, GetType> SERVICE =
-    new Service<>(GetType.class, NPDBQAgentGet::new);
+  private static final Service<AgentGetType.Parameters, Optional<NPAgentDescription>, AgentGetType> SERVICE =
+    new Service<>(AgentGetType.class, NPDBQAgentGet::new);
 
   private static final DataType<Hstore> A_DATA_TYPE =
     SQLDataType.OTHER.asConvertedDataType(new HstoreBinding());
@@ -87,9 +87,16 @@ public final class NPDBQAgentGet
   @Override
   protected Optional<NPAgentDescription> onExecute(
     final DSLContext context,
-    final NPAgentID id)
+    final AgentGetType.Parameters parameters)
     throws NPDatabaseException
   {
+    final Condition deletedCondition;
+    if (parameters.includeDeleted()) {
+      deletedCondition = DSL.trueCondition();
+    } else {
+      deletedCondition = AGENTS.A_DELETED.eq(Boolean.FALSE);
+    }
+
     final var query =
       context.select(
           AGENTS.A_ID,
@@ -106,8 +113,8 @@ public final class NPDBQAgentGet
         .leftOuterJoin(AGENT_LABEL_DEFINITIONS)
         .on(AGENT_LABEL_DEFINITIONS.ALD_ID.eq(AGENT_LABELS.AL_LABEL))
         .where(
-          AGENTS.A_ID.eq(id.value())
-            .and(AGENTS.A_DELETED.eq(Boolean.FALSE))
+          AGENTS.A_ID.eq(parameters.agentID().value())
+            .and(deletedCondition)
         );
 
     recordQuery(query);
@@ -151,7 +158,7 @@ public final class NPDBQAgentGet
 
     return Optional.of(
       new NPAgentDescription(
-        id,
+        parameters.agentID(),
         name,
         key,
         Map.copyOf(environment),

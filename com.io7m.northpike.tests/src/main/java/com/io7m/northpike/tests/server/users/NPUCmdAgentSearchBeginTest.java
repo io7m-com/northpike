@@ -126,7 +126,7 @@ public final class NPUCmdAgentSearchBeginTest
     final var command =
       new NPUCommandAgentSearchBegin(
         UUID.randomUUID(),
-        new NPAgentSearchParameters(new NPComparisonSetType.Anything<>(), 1000L)
+        new NPAgentSearchParameters(new NPComparisonSetType.Anything<>(), false, 1000L)
       );
 
     final var ex =
@@ -156,7 +156,7 @@ public final class NPUCmdAgentSearchBeginTest
     final var command =
       new NPUCommandAgentSearchBegin(
         UUID.randomUUID(),
-        new NPAgentSearchParameters(new NPComparisonSetType.Anything<>(),1000L)
+        new NPAgentSearchParameters(new NPComparisonSetType.Anything<>(),false, 1000L)
       );
 
     final var userId =
@@ -196,7 +196,7 @@ public final class NPUCmdAgentSearchBeginTest
     final var command =
       new NPUCommandAgentSearchBegin(
         UUID.randomUUID(),
-        new NPAgentSearchParameters(new NPComparisonSetType.Anything<>(),1000L)
+        new NPAgentSearchParameters(new NPComparisonSetType.Anything<>(),false, 1000L)
       );
 
     final var userId =
@@ -258,9 +258,9 @@ public final class NPUCmdAgentSearchBeginTest
       );
 
     final var list =
-      Mockito.mock(NPDatabaseQueriesAgentsType.ListType.class);
+      Mockito.mock(NPDatabaseQueriesAgentsType.AgentListType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.ListType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentListType.class))
       .thenReturn(list);
 
     final var paged =
@@ -279,7 +279,7 @@ public final class NPUCmdAgentSearchBeginTest
     Mockito.verify(this.context, new Times(1))
       .setProperty(NPAgentPagedType.class, paged);
     Mockito.verify(this.transaction, new Times(1))
-      .queries(NPDatabaseQueriesAgentsType.ListType.class);
+      .queries(NPDatabaseQueriesAgentsType.AgentListType.class);
     Mockito.verify(this.transaction, new Times(1))
       .close();
     Mockito.verifyNoMoreInteractions(this.transaction);

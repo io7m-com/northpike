@@ -21,7 +21,7 @@ import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPAgentLoginChallengePagedType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeSearchType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
@@ -260,9 +260,9 @@ public final class NPUCmdAgentLoginChallengeSearchBeginTest
       );
 
     final var list =
-      Mockito.mock(LoginChallengeSearchType.class);
+      Mockito.mock(AgentLoginChallengeSearchType.class);
 
-    Mockito.when(this.transaction.queries(LoginChallengeSearchType.class))
+    Mockito.when(this.transaction.queries(AgentLoginChallengeSearchType.class))
       .thenReturn(list);
 
     final var paged =
@@ -281,7 +281,7 @@ public final class NPUCmdAgentLoginChallengeSearchBeginTest
     Mockito.verify(this.context, new Times(1))
       .setProperty(NPAgentLoginChallengePagedType.class, paged);
     Mockito.verify(this.transaction, new Times(1))
-      .queries(LoginChallengeSearchType.class);
+      .queries(AgentLoginChallengeSearchType.class);
     Mockito.verify(this.transaction, new Times(1))
       .close();
     Mockito.verifyNoMoreInteractions(this.transaction);

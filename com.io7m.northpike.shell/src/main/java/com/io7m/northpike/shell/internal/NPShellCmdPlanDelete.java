@@ -19,7 +19,9 @@ package com.io7m.northpike.shell.internal;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanName;
 import com.io7m.northpike.protocol.user.NPUCommandPlanDelete;
-import com.io7m.northpike.protocol.user.NPUResponseOK;
+import com.io7m.northpike.shell.commons.NPShellCmdAbstractConfirmationRequired;
+import com.io7m.northpike.shell.commons.NPShellConfirmationRequest;
+import com.io7m.northpike.user_client.api.NPUserClientType;
 import com.io7m.quarrel.core.QCommandContextType;
 import com.io7m.quarrel.core.QCommandMetadata;
 import com.io7m.quarrel.core.QParameterNamed1;
@@ -37,7 +39,7 @@ import java.util.UUID;
  */
 
 public final class NPShellCmdPlanDelete
-  extends NPShellCmdAbstractCR<NPUCommandPlanDelete, NPUResponseOK>
+  extends NPShellCmdAbstractConfirmationRequired
 {
   private static final QParameterNamed1<NPPlanName> PLAN_NAME =
     new QParameterNamed1<>(
@@ -72,14 +74,12 @@ public final class NPShellCmdPlanDelete
         "plan-delete",
         new QConstant("Delete plans."),
         Optional.empty()
-      ),
-      NPUCommandPlanDelete.class,
-      NPUResponseOK.class
+      )
     );
   }
 
   @Override
-  public List<QParameterNamedType<?>> onListNamedParameters()
+  public List<QParameterNamedType<?>> onListNamedParametersConfirmed()
   {
     return List.of(
       PLAN_NAME,
@@ -88,26 +88,27 @@ public final class NPShellCmdPlanDelete
   }
 
   @Override
-  protected NPUCommandPlanDelete onCreateCommand(
+  protected NPShellConfirmationRequest onRequireConfirmation(
     final QCommandContextType context)
   {
-    return new NPUCommandPlanDelete(
-      UUID.randomUUID(),
-      Set.of(
-        new NPPlanIdentifier(
-          context.parameterValue(PLAN_NAME),
-          context.parameterValue(PLAN_VERSION).longValue()
-        )
-      )
+    return new NPShellConfirmationRequest(
+      "plan-delete-confirm",
+      () -> {
+        final var client =
+          this.services().requireService(NPUserClientType.class);
+
+        client.execute(
+          new NPUCommandPlanDelete(
+            UUID.randomUUID(),
+            Set.of(
+              new NPPlanIdentifier(
+                context.parameterValue(PLAN_NAME),
+                context.parameterValue(PLAN_VERSION).longValue()
+              )
+            )
+          )
+        );
+      }
     );
-  }
-
-  @Override
-  protected void onFormatResponse(
-    final QCommandContextType context,
-    final NPUResponseOK response)
-    throws Exception
-  {
-
   }
 }

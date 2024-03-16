@@ -17,31 +17,40 @@
 
 package com.io7m.northpike.tests.agent.shell;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.console_client.api.NPAConsoleClientException;
 import com.io7m.northpike.agent.console_client.api.NPAConsoleClientFactoryType;
 import com.io7m.northpike.agent.console_client.api.NPAConsoleClientType;
 import com.io7m.northpike.agent.shell.NPAShellConfiguration;
 import com.io7m.northpike.agent.shell.NPAShellType;
 import com.io7m.northpike.agent.shell.NPAShells;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorContainerImage;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorPropertyStandard;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorSummary;
 import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
 import com.io7m.northpike.model.agents.NPAgentServerSummary;
+import com.io7m.northpike.model.agents.NPAgentStatus;
+import com.io7m.northpike.model.agents.NPAgentStatusHealth;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
 import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentServerAssign;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerPut;
+import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecGet;
+import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecSupported;
 import com.io7m.northpike.protocol.agent_console.NPACResponseAgent;
 import com.io7m.northpike.protocol.agent_console.NPACResponseAgentList;
 import com.io7m.northpike.protocol.agent_console.NPACResponseOK;
 import com.io7m.northpike.protocol.agent_console.NPACResponseServer;
 import com.io7m.northpike.protocol.agent_console.NPACResponseServerList;
+import com.io7m.northpike.protocol.agent_console.NPACResponseWorkExecGet;
+import com.io7m.northpike.protocol.agent_console.NPACResponseWorkExecSupported;
+import com.io7m.northpike.shell.commons.NPShellConfirmationServiceType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tests.shell.NPFakeTerminal;
 import org.junit.jupiter.api.AfterEach;
@@ -60,6 +69,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -301,9 +311,18 @@ public final class NPAShellBasicTest
         UUID.randomUUID()
       ));
 
+    final var nextId = UUID.randomUUID();
+
+    final var confirmations =
+      this.shell.services()
+        .requireService(NPShellConfirmationServiceType.class);
+
+    confirmations.setNextConfirmationId(nextId);
+
     final var w = this.terminal.sendInputToTerminalWriter();
     w.println("set --terminate-on-errors true");
     w.println("agent-delete --name a");
+    w.printf("agent-delete-confirm %s%n", nextId);
     w.flush();
     w.close();
 
@@ -331,7 +350,7 @@ public final class NPAShellBasicTest
             Optional.of(new NPAgentServerID(UUID.randomUUID())),
             Optional.of(
               NPAWorkExecutorConfiguration.builder()
-                .setExecutorType(new RDottedName("workexec.local"))
+                .setExecutorType(NPAWorkExecName.of("workexec.local"))
                 .setWorkDirectory(Paths.get("/tmp/x"))
                 .setTemporaryDirectory(Paths.get("/tmp/t"))
                 .setContainerImage(new NPAWorkExecutorContainerImage(
@@ -370,10 +389,19 @@ public final class NPAShellBasicTest
       .thenReturn(new NPACResponseAgentList(
         UUID.randomUUID(),
         UUID.randomUUID(),
-        List.of(
-          NPAgentLocalName.of("a"),
-          NPAgentLocalName.of("b"),
-          NPAgentLocalName.of("c")
+        Map.ofEntries(
+          Map.entry(
+            NPAgentLocalName.of("a"),
+            new NPAgentStatus(NPAgentStatusHealth.HEALTHY, "OK")
+          ),
+          Map.entry(
+            NPAgentLocalName.of("b"),
+            new NPAgentStatus(NPAgentStatusHealth.UNHEALTHY, "Maybe...")
+          ),
+          Map.entry(
+            NPAgentLocalName.of("c"),
+            new NPAgentStatus(NPAgentStatusHealth.UNHEALTHY, "Bad!")
+          )
         )
       ));
 
@@ -381,10 +409,8 @@ public final class NPAShellBasicTest
     w.println("set --terminate-on-errors true");
     w.println("set --formatter PRETTY");
     w.println("agent-list");
-    w.println("agent-list --offset a --limit 10");
     w.println("set --formatter RAW");
     w.println("agent-list");
-    w.println("agent-list --offset a --limit 10");
     w.flush();
     w.close();
 
@@ -449,9 +475,18 @@ public final class NPAShellBasicTest
         UUID.randomUUID()
       ));
 
+    final var nextId = UUID.randomUUID();
+
+    final var confirmations =
+      this.shell.services()
+        .requireService(NPShellConfirmationServiceType.class);
+
+    confirmations.setNextConfirmationId(nextId);
+
     final var w = this.terminal.sendInputToTerminalWriter();
     w.println("set --terminate-on-errors true");
     w.println("server-delete --server a753a5cb-e50d-4dcf-952c-27cb1898c66b");
+    w.printf("server-delete-confirm %s%n", nextId);
     w.flush();
     w.close();
 
@@ -553,7 +588,8 @@ public final class NPAShellBasicTest
         UUID.randomUUID(),
         Optional.of(
           new NPAgentServerDescription(
-            new NPAgentServerID(UUID.fromString("a753a5cb-e50d-4dcf-952c-27cb1898c66b")),
+            new NPAgentServerID(UUID.fromString(
+              "a753a5cb-e50d-4dcf-952c-27cb1898c66b")),
             "s2.example.com",
             50000,
             NPTLSDisabled.TLS_DISABLED,
@@ -594,7 +630,8 @@ public final class NPAShellBasicTest
         UUID.randomUUID(),
         Optional.of(
           new NPAgentServerDescription(
-            new NPAgentServerID(UUID.fromString("a753a5cb-e50d-4dcf-952c-27cb1898c66b")),
+            new NPAgentServerID(UUID.fromString(
+              "a753a5cb-e50d-4dcf-952c-27cb1898c66b")),
             "s2.example.com",
             50000,
             NPTLSDisabled.TLS_DISABLED,
@@ -641,7 +678,8 @@ public final class NPAShellBasicTest
         UUID.randomUUID(),
         Optional.of(
           new NPAgentServerDescription(
-            new NPAgentServerID(UUID.fromString("a753a5cb-e50d-4dcf-952c-27cb1898c66b")),
+            new NPAgentServerID(UUID.fromString(
+              "a753a5cb-e50d-4dcf-952c-27cb1898c66b")),
             "s2.example.com",
             50000,
             NPTLSDisabled.TLS_DISABLED,
@@ -680,7 +718,8 @@ public final class NPAShellBasicTest
         UUID.randomUUID(),
         Optional.of(
           new NPAgentServerDescription(
-            new NPAgentServerID(UUID.fromString("a753a5cb-e50d-4dcf-952c-27cb1898c66b")),
+            new NPAgentServerID(UUID.fromString(
+              "a753a5cb-e50d-4dcf-952c-27cb1898c66b")),
             "s2.example.com",
             50000,
             NPTLSDisabled.TLS_DISABLED,
@@ -748,6 +787,140 @@ public final class NPAShellBasicTest
 
     Mockito.verify(this.consoleClient, new Times(1))
       .execute(isA(NPACCommandAgentServerAssign.class));
+    Mockito.verify(this.consoleClient, new Times(1))
+      .close();
+  }
+
+  @Test
+  public void testShellWorkExecSupported0()
+    throws Exception
+  {
+    Mockito.when(this.consoleClient.execute(isA(NPACCommandWorkExecSupported.class)))
+      .thenReturn(new NPACResponseWorkExecSupported(
+        UUID.randomUUID(),
+        UUID.randomUUID(),
+        List.of(
+          new NPAWorkExecutorSummary(
+            NPAWorkExecName.of("local"),
+            "A local thing.",
+            Set.of()
+          ),
+          new NPAWorkExecutorSummary(
+            NPAWorkExecName.of("remote"),
+            "A remote thing.",
+            Set.of()
+          )
+        )
+      ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+    w.print("work-executors-supported ");
+    w.println();
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.consoleClient, new Times(1))
+      .execute(isA(NPACCommandWorkExecSupported.class));
+    Mockito.verify(this.consoleClient, new Times(1))
+      .close();
+  }
+
+  @Test
+  public void testShellWorkExecGet0()
+    throws Exception
+  {
+    Mockito.when(this.consoleClient.execute(isA(NPACCommandWorkExecGet.class)))
+      .thenReturn(new NPACResponseWorkExecGet(
+        UUID.randomUUID(),
+        UUID.randomUUID(),
+        Optional.of(
+          new NPAWorkExecutorSummary(
+            NPAWorkExecName.of("local"),
+            "A local thing.",
+            Set.of(
+              NPAWorkExecutorPropertyStandard.PROPERTY_CONTAINERIZED,
+              NPAWorkExecutorPropertyStandard.PROPERTY_LOCAL
+            )
+          )
+        )
+      ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+    w.print("work-executor-get --name workexec.local ");
+    w.println();
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.consoleClient, new Times(1))
+      .execute(isA(NPACCommandWorkExecGet.class));
+    Mockito.verify(this.consoleClient, new Times(1))
+      .close();
+  }
+
+  @Test
+  public void testShellWorkExecGet1()
+    throws Exception
+  {
+    Mockito.when(this.consoleClient.execute(isA(NPACCommandWorkExecGet.class)))
+      .thenReturn(new NPACResponseWorkExecGet(
+        UUID.randomUUID(),
+        UUID.randomUUID(),
+        Optional.empty()
+      ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+    w.print("work-executor-get --name nonexistent ");
+    w.println();
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.consoleClient, new Times(1))
+      .execute(isA(NPACCommandWorkExecGet.class));
+    Mockito.verify(this.consoleClient, new Times(1))
+      .close();
+  }
+
+  @Test
+  public void testShellWorkExecGet2()
+    throws Exception
+  {
+    Mockito.when(this.consoleClient.execute(isA(NPACCommandWorkExecGet.class)))
+      .thenReturn(new NPACResponseWorkExecGet(
+        UUID.randomUUID(),
+        UUID.randomUUID(),
+        Optional.of(
+          new NPAWorkExecutorSummary(
+            NPAWorkExecName.of("local"),
+            "A local thing.",
+            Set.of()
+          )
+        )
+      ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+    w.print("work-executor-get --name workexec.local ");
+    w.println();
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.consoleClient, new Times(1))
+      .execute(isA(NPACCommandWorkExecGet.class));
     Mockito.verify(this.consoleClient, new Times(1))
       .close();
   }

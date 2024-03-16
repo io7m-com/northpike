@@ -20,8 +20,8 @@ package com.io7m.northpike.tests.server.agents;
 import com.io7m.northpike.clock.NPClock;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeGetForKeyType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengePutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeGetForKeyType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengePutType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
@@ -60,8 +60,8 @@ public final class NPACmdLoginTest
   private NPClock clockService;
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
-  private LoginChallengePutType challengePut;
-  private LoginChallengeGetForKeyType challengeGetForKey;
+  private AgentLoginChallengePutType challengePut;
+  private AgentLoginChallengeGetForKeyType challengeGetForKey;
 
   @BeforeEach
   public void setup()
@@ -80,9 +80,9 @@ public final class NPACmdLoginTest
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
     this.challengePut =
-      Mockito.mock(LoginChallengePutType.class);
+      Mockito.mock(AgentLoginChallengePutType.class);
     this.challengeGetForKey =
-      Mockito.mock(LoginChallengeGetForKeyType.class);
+      Mockito.mock(AgentLoginChallengeGetForKeyType.class);
 
     this.services.register(NPClockServiceType.class, this.clockService);
 
@@ -94,9 +94,9 @@ public final class NPACmdLoginTest
       .thenReturn("www.example.com");
     Mockito.when(this.context.databaseConnection())
       .thenReturn(this.connection);
-    Mockito.when(this.transaction.queries(LoginChallengePutType.class))
+    Mockito.when(this.transaction.queries(AgentLoginChallengePutType.class))
       .thenReturn(this.challengePut);
-    Mockito.when(this.transaction.queries(LoginChallengeGetForKeyType.class))
+    Mockito.when(this.transaction.queries(AgentLoginChallengeGetForKeyType.class))
       .thenReturn(this.challengeGetForKey);
 
     Mockito.when(this.challengeGetForKey.execute(any()))

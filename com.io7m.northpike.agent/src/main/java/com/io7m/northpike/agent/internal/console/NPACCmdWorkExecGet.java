@@ -18,11 +18,13 @@
 package com.io7m.northpike.agent.internal.console;
 
 
-import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentWorkExecGetType;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorFactoryType;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.protocol.agent_console.NPACCommandAgentWorkExecPut;
 import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecGet;
-import com.io7m.northpike.protocol.agent_console.NPACResponseWorkExec;
+import com.io7m.northpike.protocol.agent_console.NPACResponseWorkExecGet;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -30,10 +32,10 @@ import java.util.UUID;
  */
 
 public final class NPACCmdWorkExecGet
-  extends NPACCmdAbstract<NPACResponseWorkExec, NPACCommandWorkExecGet>
+  extends NPACCmdAbstract<NPACResponseWorkExecGet, NPACCommandWorkExecGet>
 {
   /**
-   * @see NPACCommandWorkExecGet
+   * @see NPACCommandAgentWorkExecPut
    */
 
   public NPACCmdWorkExecGet()
@@ -42,22 +44,28 @@ public final class NPACCmdWorkExecGet
   }
 
   @Override
-  public NPACResponseWorkExec execute(
+  public NPACResponseWorkExecGet execute(
     final NPACCommandContextType context,
     final NPACCommandWorkExecGet command)
     throws NPException
   {
     context.onAuthenticationRequire();
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        return new NPACResponseWorkExec(
-          UUID.randomUUID(),
-          command.messageID(),
-          transaction.queries(AgentWorkExecGetType.class)
-            .execute(command.name())
-        );
-      }
-    }
+    final var services =
+      context.services();
+    final var workExecutors =
+      services.optionalServices(NPAWorkExecutorFactoryType.class);
+
+    final var summary =
+      workExecutors.stream()
+        .filter(p -> Objects.equals(p.name(), command.name()))
+        .findFirst()
+        .map(NPAWorkExecutorFactoryType::summary);
+
+    return new NPACResponseWorkExecGet(
+      UUID.randomUUID(),
+      command.messageID(),
+      summary
+    );
   }
 }

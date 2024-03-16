@@ -84,6 +84,8 @@ public final class NPASDatabases implements NPAgentDatabaseFactoryType
     final Connection connection)
     throws SQLException
   {
+    setWALMode(connection);
+
     final String statementText;
     if (Objects.equals(version, BigInteger.ZERO)) {
       statementText = "insert into schema_version (version_application_id, version_number) values (?, ?)";
@@ -110,6 +112,8 @@ public final class NPASDatabases implements NPAgentDatabaseFactoryType
     Objects.requireNonNull(connection, "connection");
 
     try {
+      setWALMode(connection);
+
       final var statementText =
         "SELECT version_application_id, version_number FROM schema_version";
       LOG.debug("execute: {}", statementText);
@@ -143,6 +147,15 @@ public final class NPASDatabases implements NPAgentDatabaseFactoryType
         return Optional.empty();
       }
       throw e;
+    }
+  }
+
+  private static void setWALMode(
+    final Connection connection)
+    throws SQLException
+  {
+    try (var st = connection.createStatement()) {
+      st.execute("PRAGMA journal_mode=WAL;");
     }
   }
 

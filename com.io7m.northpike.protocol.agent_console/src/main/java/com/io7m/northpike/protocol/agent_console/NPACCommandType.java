@@ -24,12 +24,13 @@ package com.io7m.northpike.protocol.agent_console;
  */
 
 public sealed interface NPACCommandType<R extends NPACResponseType>
-  extends NPACMessageType permits NPACCommandAgentCreate,
+  extends NPACMessageType
+  permits NPACCommandAgentCreate,
   NPACCommandAgentDelete,
   NPACCommandAgentGet,
   NPACCommandAgentList,
   NPACCommandAgentServerAssign,
-  NPACCommandAgentStatusGet,
+  NPACCommandAgentWorkExecPut,
   NPACCommandDisconnect,
   NPACCommandLogin,
   NPACCommandServerDelete,
@@ -37,7 +38,7 @@ public sealed interface NPACCommandType<R extends NPACResponseType>
   NPACCommandServerList,
   NPACCommandServerPut,
   NPACCommandWorkExecGet,
-  NPACCommandWorkExecPut
+  NPACCommandWorkExecSupported
 {
   /**
    * @return The response class

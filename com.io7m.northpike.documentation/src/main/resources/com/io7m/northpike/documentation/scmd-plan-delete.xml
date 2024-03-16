@@ -10,14 +10,25 @@
     <Paragraph>
       The 
       <Term type="command">plan-delete</Term>
-       command... 
+       command attempts to delete a plan.
+    </Paragraph>
+    <Paragraph>
+      The command is a <Link target="99f8cacf-3535-4425-a060-14c8fa7061b3">confirmed command</Link>.
     </Paragraph>
   </Subsection>
   <xi:include href="scmd-plan-delete-parameters.xml"/>
   <Subsection title="Examples">
     <FormalItem title="Example" type="example">
-      <Verbatim>...</Verbatim>
+      <Verbatim><![CDATA[
+[northpike]$ plan-delete --name com.io7m.example
+Confirmation required; this is a destructive operation that cannot be undone.
+
+To confirm this operation, please enter:
+
+  plan-delete-confirm f44c6550-0850-42a2-a324-bc5294029c3e
+
+[northpike]$ plan-delete-confirm f44c6550-0850-42a2-a324-bc5294029c3e
+]]></Verbatim>
     </FormalItem>
   </Subsection>
 </Section>
-

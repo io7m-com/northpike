@@ -24,7 +24,7 @@ package com.io7m.northpike.agent.workexec.api;
  */
 
 public sealed interface NPAWorkExecutorPropertyType
-  permits NPAWorkExecutorPropertyCustomType,
+  permits NPAWorkExecutorPropertyCustom,
   NPAWorkExecutorPropertyStandard
 {
 

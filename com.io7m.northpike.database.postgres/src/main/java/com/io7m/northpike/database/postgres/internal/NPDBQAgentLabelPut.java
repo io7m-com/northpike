@@ -35,10 +35,10 @@ import static java.util.Map.entry;
 
 public final class NPDBQAgentLabelPut
   extends NPDBQAbstract<NPAgentLabel, NPDatabaseUnit>
-  implements NPDatabaseQueriesAgentsType.LabelPutType
+  implements NPDatabaseQueriesAgentsType.AgentLabelPutType
 {
-  private static final Service<NPAgentLabel, NPDatabaseUnit, LabelPutType> SERVICE =
-    new Service<>(LabelPutType.class, NPDBQAgentLabelPut::new);
+  private static final Service<NPAgentLabel, NPDatabaseUnit, AgentLabelPutType> SERVICE =
+    new Service<>(AgentLabelPutType.class, NPDBQAgentLabelPut::new);
 
   /**
    * Construct a query.

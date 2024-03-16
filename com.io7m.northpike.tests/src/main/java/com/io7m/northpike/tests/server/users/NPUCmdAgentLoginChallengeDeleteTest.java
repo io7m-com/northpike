@@ -20,7 +20,7 @@ package com.io7m.northpike.tests.server.users;
 import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeDeleteType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
@@ -196,9 +196,9 @@ public final class NPUCmdAgentLoginChallengeDeleteTest
       .thenReturn(user);
 
     final var labelDelete =
-      Mockito.mock(LoginChallengeDeleteType.class);
+      Mockito.mock(AgentLoginChallengeDeleteType.class);
 
-    Mockito.when(this.transaction.queries(LoginChallengeDeleteType.class))
+    Mockito.when(this.transaction.queries(AgentLoginChallengeDeleteType.class))
       .thenReturn(labelDelete);
 
     final var r = handler.execute(this.context, command);

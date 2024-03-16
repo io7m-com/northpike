@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.agent.workexec.api;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 import com.io7m.repetoir.core.RPServiceType;
 
@@ -38,7 +38,7 @@ public interface NPAWorkExecutorFactoryType
    * @return The name of the work executor
    */
 
-  RDottedName name();
+  NPAWorkExecName name();
 
   /**
    * A read-only view of the properties exposed by the work executor.
@@ -47,6 +47,19 @@ public interface NPAWorkExecutorFactoryType
    */
 
   Set<NPAWorkExecutorPropertyType> properties();
+
+  /**
+   * @return A summary of the work executor
+   */
+
+  default NPAWorkExecutorSummary summary()
+  {
+    return new NPAWorkExecutorSummary(
+      this.name(),
+      this.description(),
+      this.properties()
+    );
+  }
 
   /**
    * @return {@code true} if the executor is supported on the current system
@@ -61,6 +74,7 @@ public interface NPAWorkExecutorFactoryType
    * Create an executor.
    *
    * @param services      The service directory
+   * @param agentName     The name of the agent that owns this executor
    * @param configuration The configuration
    *
    * @return An executor
@@ -70,6 +84,7 @@ public interface NPAWorkExecutorFactoryType
 
   NPAWorkExecutorType createExecutor(
     RPServiceDirectoryType services,
+    NPAgentLocalName agentName,
     NPAWorkExecutorConfiguration configuration)
     throws NPException;
 }

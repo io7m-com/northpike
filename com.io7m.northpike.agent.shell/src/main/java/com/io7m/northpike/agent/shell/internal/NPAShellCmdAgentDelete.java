@@ -16,9 +16,11 @@
 
 package com.io7m.northpike.agent.shell.internal;
 
+import com.io7m.northpike.agent.console_client.api.NPAConsoleClientType;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentDelete;
-import com.io7m.northpike.protocol.agent_console.NPACResponseOK;
+import com.io7m.northpike.shell.commons.NPShellCmdAbstractConfirmationRequired;
+import com.io7m.northpike.shell.commons.NPShellConfirmationRequest;
 import com.io7m.quarrel.core.QCommandContextType;
 import com.io7m.quarrel.core.QCommandMetadata;
 import com.io7m.quarrel.core.QParameterNamed1;
@@ -26,6 +28,7 @@ import com.io7m.quarrel.core.QParameterNamedType;
 import com.io7m.quarrel.core.QStringType.QConstant;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,7 +38,7 @@ import java.util.UUID;
  */
 
 public final class NPAShellCmdAgentDelete
-  extends NPAShellCmdAbstractCR<NPACCommandAgentDelete, NPACResponseOK>
+  extends NPShellCmdAbstractConfirmationRequired
 {
   private static final QParameterNamed1<NPAgentLocalName> NAME =
     new QParameterNamed1<>(
@@ -62,34 +65,33 @@ public final class NPAShellCmdAgentDelete
         "agent-delete",
         new QConstant("Delete an agent."),
         Optional.empty()
-      ),
-      NPACCommandAgentDelete.class,
-      NPACResponseOK.class
+      )
     );
   }
 
   @Override
-  public List<QParameterNamedType<?>> onListNamedParameters()
+  protected Collection<? extends QParameterNamedType<?>> onListNamedParametersConfirmed()
   {
     return List.of(NAME);
   }
 
   @Override
-  protected NPACCommandAgentDelete onCreateCommand(
+  protected NPShellConfirmationRequest onRequireConfirmation(
     final QCommandContextType context)
   {
-    return new NPACCommandAgentDelete(
-      UUID.randomUUID(),
-      context.parameterValue(NAME)
+    return new NPShellConfirmationRequest(
+      "agent-delete-confirm",
+      () -> {
+        final var services =
+          this.services();
+        final var client =
+          services.requireService(NPAConsoleClientType.class);
+
+        client.execute(new NPACCommandAgentDelete(
+          UUID.randomUUID(),
+          context.parameterValue(NAME)
+        ));
+      }
     );
-  }
-
-  @Override
-  protected void onFormatResponse(
-    final QCommandContextType context,
-    final NPACResponseOK response)
-    throws Exception
-  {
-
   }
 }

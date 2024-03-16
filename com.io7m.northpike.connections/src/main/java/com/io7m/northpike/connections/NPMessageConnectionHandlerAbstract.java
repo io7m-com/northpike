@@ -28,9 +28,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.Socket;
+import java.nio.channels.ClosedChannelException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * An abstract connection handler.
@@ -49,7 +51,7 @@ public abstract class NPMessageConnectionHandlerAbstract<M extends NPProtocolMes
   private final InputStream input;
   private final CloseableCollectionType<IOException> resources;
   private final Thread readerThread;
-  private final ConcurrentLinkedQueue<M> inbox;
+  private final LinkedBlockingQueue<M> inbox;
 
   protected NPMessageConnectionHandlerAbstract(
     final NPProtocolMessagesType<M> inMessages,
@@ -79,7 +81,7 @@ public abstract class NPMessageConnectionHandlerAbstract<M extends NPProtocolMes
         Objects.requireNonNull(inOutputStream, "inOutput"));
 
     this.inbox =
-      new ConcurrentLinkedQueue<>();
+      new LinkedBlockingQueue<>();
     this.readerThread =
       Thread.startVirtualThread(this::readLoop);
   }
@@ -134,7 +136,19 @@ public abstract class NPMessageConnectionHandlerAbstract<M extends NPProtocolMes
 
   @Override
   public final Optional<M> receive()
+    throws IOException
   {
-    return Optional.ofNullable(this.inbox.poll());
+    try {
+      if (this.isClosed()) {
+        throw new ClosedChannelException();
+      }
+
+      return Optional.ofNullable(
+        this.inbox.poll(1L, TimeUnit.MILLISECONDS)
+      );
+    } catch (final InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return Optional.empty();
+    }
   }
 }

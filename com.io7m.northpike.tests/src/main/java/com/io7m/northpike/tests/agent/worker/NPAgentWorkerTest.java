@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.tests.agent.worker;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseConfiguration;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseCreate;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentPutType;
@@ -34,6 +33,7 @@ import com.io7m.northpike.agent.internal.events.NPAgentWorkerConnectionStopped;
 import com.io7m.northpike.agent.internal.events.NPAgentWorkerExecutorStarted;
 import com.io7m.northpike.agent.internal.events.NPAgentWorkerExecutorStopped;
 import com.io7m.northpike.agent.internal.worker.NPAgentWorker;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorFactoryType;
 import com.io7m.northpike.agent.workexec.local.NPWorkExecutorsLocal;
@@ -250,7 +250,7 @@ public final class NPAgentWorkerTest
             NPAgentLocalName.of("a"),
             Optional.of(
               NPAWorkExecutorConfiguration.builder()
-                .setExecutorType(new RDottedName("workexec.local"))
+                .setExecutorType(NPAWorkExecName.of("workexec.local"))
                 .setTemporaryDirectory(directory.resolve("tmp"))
                 .setWorkDirectory(directory.resolve("work"))
                 .build()

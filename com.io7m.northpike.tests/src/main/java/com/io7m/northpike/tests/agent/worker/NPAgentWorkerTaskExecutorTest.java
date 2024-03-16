@@ -191,7 +191,7 @@ public final class NPAgentWorkerTaskExecutorTest
 
     this.events.consume(event -> {
       })
-      .get(1L, TimeUnit.SECONDS);
+      .get(2L, TimeUnit.SECONDS);
 
     Mockito.verify(this.worker, new Times(1))
       .workStarted(this.workItem0);

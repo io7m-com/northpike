@@ -30,6 +30,7 @@ module com.io7m.northpike.agent
 
   requires com.io7m.northpike.agent.api;
   requires com.io7m.northpike.agent.database.api;
+  requires com.io7m.northpike.agent.metrics;
   requires com.io7m.northpike.agent.workexec.api;
   requires com.io7m.northpike.connections;
   requires com.io7m.northpike.model;
@@ -60,14 +61,14 @@ module com.io7m.northpike.agent
     com.io7m.northpike.agent.internal.console.NPACCmdAgentGet,
     com.io7m.northpike.agent.internal.console.NPACCmdAgentList,
     com.io7m.northpike.agent.internal.console.NPACCmdAgentServerAssign,
-    com.io7m.northpike.agent.internal.console.NPACCmdAgentStatus,
+    com.io7m.northpike.agent.internal.console.NPACCmdAgentWorkExecPut,
     com.io7m.northpike.agent.internal.console.NPACCmdLogin,
     com.io7m.northpike.agent.internal.console.NPACCmdServerDelete,
     com.io7m.northpike.agent.internal.console.NPACCmdServerGet,
     com.io7m.northpike.agent.internal.console.NPACCmdServerList,
     com.io7m.northpike.agent.internal.console.NPACCmdServerPut,
     com.io7m.northpike.agent.internal.console.NPACCmdWorkExecGet,
-    com.io7m.northpike.agent.internal.console.NPACCmdWorkExecPut
+    com.io7m.northpike.agent.internal.console.NPACCmdWorkExecSupported
     ;
 
   exports com.io7m.northpike.agent;
@@ -83,5 +84,7 @@ module com.io7m.northpike.agent
   exports com.io7m.northpike.agent.internal.supervisor
     to com.io7m.northpike.tests;
   exports com.io7m.northpike.agent.internal.events
+    to com.io7m.northpike.tests;
+  exports com.io7m.northpike.agent.internal.status
     to com.io7m.northpike.tests;
 }

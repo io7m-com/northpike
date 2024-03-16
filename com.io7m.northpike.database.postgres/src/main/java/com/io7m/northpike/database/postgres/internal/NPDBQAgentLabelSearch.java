@@ -23,7 +23,7 @@ import com.io7m.jqpage.core.JQKeysetRandomAccessPaginationParameters;
 import com.io7m.jqpage.core.JQSelectDistinct;
 import com.io7m.northpike.database.api.NPAgentLabelsPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LabelSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLabelSearchType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.agents.NPAgentLabel;
@@ -47,13 +47,13 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_ST
 
 public final class NPDBQAgentLabelSearch
   extends NPDBQAbstract<NPAgentLabelSearchParameters, NPAgentLabelsPagedType>
-  implements LabelSearchType
+  implements AgentLabelSearchType
 {
   private static final Service<
     NPAgentLabelSearchParameters,
     NPAgentLabelsPagedType,
-    LabelSearchType> SERVICE =
-    new Service<>(LabelSearchType.class, NPDBQAgentLabelSearch::new);
+    AgentLabelSearchType> SERVICE =
+    new Service<>(AgentLabelSearchType.class, NPDBQAgentLabelSearch::new);
 
   /**
    * Construct a query.

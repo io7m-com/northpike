@@ -33,6 +33,7 @@ public final class NPArbAgentSearchParameters
       () -> {
         return Combinators.combine(
           NPArbComparisons.set(Arbitraries.defaultFor(NPAgentLabelName.class)),
+          Arbitraries.create(() -> Boolean.FALSE),
           Arbitraries.longs()
         ).as(NPAgentSearchParameters::new);
       }

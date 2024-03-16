@@ -44,10 +44,10 @@ import static java.lang.Boolean.FALSE;
 
 public final class NPDBQAgentPut
   extends NPDBQAbstract<NPAgentDescription, NPDatabaseUnit>
-  implements NPDatabaseQueriesAgentsType.PutType
+  implements NPDatabaseQueriesAgentsType.AgentPutType
 {
-  private static final Service<NPAgentDescription, NPDatabaseUnit, PutType> SERVICE =
-    new Service<>(PutType.class, NPDBQAgentPut::new);
+  private static final Service<NPAgentDescription, NPDatabaseUnit, AgentPutType> SERVICE =
+    new Service<>(AgentPutType.class, NPDBQAgentPut::new);
 
   /**
    * Construct a query.

@@ -23,6 +23,10 @@ import com.io7m.northpike.agent.internal.NPAgentResources;
 import com.io7m.northpike.agent.internal.NPAgentTaskType;
 import com.io7m.northpike.agent.internal.connection.NPAgentConnection;
 import com.io7m.northpike.agent.internal.connection.NPAgentConnectionType;
+import com.io7m.northpike.agent.internal.status.NPAgentConnectionStatusConnected;
+import com.io7m.northpike.agent.internal.status.NPAgentConnectionStatusConnecting;
+import com.io7m.northpike.agent.internal.status.NPAgentConnectionStatusConnectionFailed;
+import com.io7m.northpike.agent.internal.status.NPAgentConnectionStatusType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult;
 import com.io7m.northpike.model.NPException;
@@ -51,9 +55,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.UUID.randomUUID;
 
@@ -73,6 +79,7 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
   private final NPStrings strings;
   private final CloseableCollectionType<NPAgentException> resources;
   private final NPAgentServerDescription configuration;
+  private final AtomicReference<NPAgentConnectionStatusType> status;
   private NPAgentConnectionType connection;
   private volatile NPACommandCEnvironmentInfo environment;
 
@@ -98,6 +105,10 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
       Objects.requireNonNull(inConfiguration, "configuration");
     this.closed =
       new AtomicBoolean(false);
+    this.status =
+      new AtomicReference<>(
+        new NPAgentConnectionStatusConnecting(this.configuration.hostname())
+      );
   }
 
   /**
@@ -233,12 +244,22 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
   {
     LOG.debug("Responding to latency check.");
 
+    final var timeNow =
+      OffsetDateTime.now();
+    final var timeThen =
+      c.timeCurrent();
+
+    this.status.set(new NPAgentConnectionStatusConnected(
+      this.configuration.hostname(),
+      Duration.between(timeThen, timeNow)
+    ));
+
     this.connection.send(
       new NPAResponseLatencyCheck(
         randomUUID(),
         c.messageID(),
-        c.timeCurrent(),
-        OffsetDateTime.now()
+        timeThen,
+        timeNow
       )
     );
   }
@@ -263,6 +284,10 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
 
     while (!this.isClosed()) {
       try {
+        this.status.set(
+          new NPAgentConnectionStatusConnecting(this.configuration.hostname())
+        );
+
         this.connection =
           NPAgentConnection.open(
             this.strings,
@@ -276,10 +301,23 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
           this.connection.ask(env);
         }
 
+        this.status.set(
+          new NPAgentConnectionStatusConnected(
+            this.configuration.hostname(),
+            Duration.ZERO
+          )
+        );
+
         while (!this.isClosed()) {
           this.runHandleMessages();
         }
       } catch (final IOException | NPException e) {
+        this.status.set(
+          new NPAgentConnectionStatusConnectionFailed(
+            this.configuration.hostname(),
+            Objects.requireNonNullElse(e.getMessage(), e.getClass().getName())
+          )
+        );
         LOG.error("", e);
         pauseBriefly();
       } catch (final InterruptedException e) {
@@ -400,5 +438,14 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
     } catch (final Exception e) {
       LOG.debug("Failed to send work update: ", e);
     }
+  }
+
+  /**
+   * @return The current connection status
+   */
+
+  public NPAgentConnectionStatusType status()
+  {
+    return this.status.get();
   }
 }

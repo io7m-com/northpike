@@ -220,15 +220,15 @@ public final class NPUCmdAgentPutTest
       .thenReturn(user);
 
     final var put =
-      Mockito.mock(NPDatabaseQueriesAgentsType.PutType.class);
+      Mockito.mock(NPDatabaseQueriesAgentsType.AgentPutType.class);
     final var get =
-      Mockito.mock(NPDatabaseQueriesAgentsType.GetType.class);
+      Mockito.mock(NPDatabaseQueriesAgentsType.AgentGetType.class);
 
     Mockito.when(get.execute(any()))
       .thenReturn(Optional.of(command.agent()));
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentPutType.class))
       .thenReturn(put);
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentGetType.class))
       .thenReturn(get);
 
     final var r = handler.execute(this.context, command);

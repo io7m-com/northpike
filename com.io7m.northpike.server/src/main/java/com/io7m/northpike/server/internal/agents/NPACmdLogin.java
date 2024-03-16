@@ -18,8 +18,8 @@
 package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.northpike.clock.NPClockServiceType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeGetForKeyType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengePutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeGetForKeyType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengePutType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.agents.NPAgentLoginChallenge;
 import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
@@ -70,7 +70,7 @@ public final class NPACmdLogin
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         final var existingChallenge =
-          transaction.queries(LoginChallengeGetForKeyType.class)
+          transaction.queries(AgentLoginChallengeGetForKeyType.class)
             .execute(command.key());
 
         challenge = existingChallenge.orElseGet(() -> {
@@ -82,7 +82,7 @@ public final class NPACmdLogin
           );
         });
 
-        transaction.queries(LoginChallengePutType.class).execute(challenge);
+        transaction.queries(AgentLoginChallengePutType.class).execute(challenge);
         transaction.commit();
       }
     }

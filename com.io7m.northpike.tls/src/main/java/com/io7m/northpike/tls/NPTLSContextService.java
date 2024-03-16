@@ -126,6 +126,13 @@ public final class NPTLSContextService
   }
 
   @Override
+  public String toString()
+  {
+    return "[NPTLSContextService 0x%s]"
+      .formatted(Integer.toUnsignedString(this.hashCode(), 16));
+  }
+
+  @Override
   public String description()
   {
     return "The TLS context service.";

@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.database.postgres.internal;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengePutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengePutType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
@@ -32,10 +32,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LOGIN_C
 
 public final class NPDBQAgentLoginChallengePut
   extends NPDBQAbstract<NPAgentLoginChallengeRecord, NPDatabaseUnit>
-  implements LoginChallengePutType
+  implements AgentLoginChallengePutType
 {
-  private static final Service<NPAgentLoginChallengeRecord, NPDatabaseUnit, LoginChallengePutType> SERVICE =
-    new Service<>(LoginChallengePutType.class, NPDBQAgentLoginChallengePut::new);
+  private static final Service<NPAgentLoginChallengeRecord, NPDatabaseUnit, AgentLoginChallengePutType> SERVICE =
+    new Service<>(AgentLoginChallengePutType.class, NPDBQAgentLoginChallengePut::new);
 
   /**
    * Construct a query.

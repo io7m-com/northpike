@@ -28,6 +28,7 @@ import com.io7m.jbssio.vanilla.BSSReaders;
 import com.io7m.jbssio.vanilla.BSSWriters;
 import com.io7m.jmulticlose.core.CloseableCollection;
 import com.io7m.jmulticlose.core.CloseableCollectionType;
+import com.io7m.northpike.agent.locks.NPAgentResourceLockServiceType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionType;
@@ -40,6 +41,7 @@ import com.io7m.northpike.agent.workexec.local.cb.ProtocolNWEv1Type;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPStoredException;
+import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.protocol.agent.NPACommandSWorkSent;
 import com.io7m.northpike.protocol.agent.cb.NPA1Messages;
@@ -115,10 +117,14 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
   private final PodmanVolumeMount workItemVolume;
   private final PodmanVolumeMount workVolume;
   private final SubmissionPublisher<NPAWorkEvent> events;
+  private final NPAgentResourceLockServiceType locks;
+  private final NPAgentLocalName agentName;
 
   NPWorkExecutionPodman(
     final NPStrings inStrings,
+    final NPAgentResourceLockServiceType inLocks,
     final NPAWorkExecutorConfiguration inConfiguration,
+    final NPAgentLocalName inAgentName,
     final PodmanExecutableType inPodman,
     final PodmanImage inPodmanImage,
     final PodmanVolumeMount inWorkExecVolume,
@@ -126,6 +132,8 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
   {
     Objects.requireNonNull(inConfiguration, "configuration");
 
+    this.agentName =
+      Objects.requireNonNull(inAgentName, "agentName");
     this.podman =
       Objects.requireNonNull(inPodman, "podman");
     this.podmanImage =
@@ -136,6 +144,8 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
       Objects.requireNonNull(inWorkItem, "workItem");
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
+    this.locks =
+      Objects.requireNonNull(inLocks, "locks");
 
     this.tmpWorkItemFile =
       inConfiguration.temporaryDirectory()
@@ -277,49 +287,56 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
         runBuilder.addEnvironmentVariable(entry.getKey(), entry.getValue());
       }
 
-      final var process =
-        runBuilder.addEnvironmentVariable(
-            "NORTHPIKE_WORKEXEC_HOME",
-            "/northpike-workexec")
-          .addEnvironmentVariable("HOSTNAME", "northpike")
-          .addVolume(this.workExecVolume)
-          .addVolume(this.workVolume)
-          .addVolume(this.workItemVolume)
-          .addTmpFS(this.tmpRootVolume)
-          .addTmpFS(this.tmpHomeVolume)
-          .addTmpFS(this.tmpTmpVolume)
-          .addArgument("/northpike-workexec/bin/northpike-workexec")
-          .addArgument("execute")
-          .addArgument("--work-item")
-          .addArgument(this.workItemVolume.containerPath())
-          .addArgument("--work-directory")
-          .addArgument(this.workVolume.containerPath())
-          .addArgument("--temporary-directory")
-          .addArgument(this.tmpTmpVolume.containerPath())
-          .addArgument("--log-format")
-          .addArgument("BINARY")
-          .build()
-          .start();
+      try (var ignored = this.locks.lockWithDefaultTimeout(
+        this.agentName,
+        this.workItem.lockResources()
+      )) {
+        final var process =
+          runBuilder.addEnvironmentVariable(
+              "NORTHPIKE_WORKEXEC_HOME",
+              "/northpike-workexec")
+            .addEnvironmentVariable("HOSTNAME", "northpike")
+            .addVolume(this.workExecVolume)
+            .addVolume(this.workVolume)
+            .addVolume(this.workItemVolume)
+            .addTmpFS(this.tmpRootVolume)
+            .addTmpFS(this.tmpHomeVolume)
+            .addTmpFS(this.tmpTmpVolume)
+            .addArgument("/northpike-workexec/bin/northpike-workexec")
+            .addArgument("execute")
+            .addArgument("--agent")
+            .addArgument(this.agentName.toString())
+            .addArgument("--work-item")
+            .addArgument(this.workItemVolume.containerPath())
+            .addArgument("--work-directory")
+            .addArgument(this.workVolume.containerPath())
+            .addArgument("--temporary-directory")
+            .addArgument(this.tmpTmpVolume.containerPath())
+            .addArgument("--log-format")
+            .addArgument("BINARY")
+            .build()
+            .start();
 
-      this.resources.add(process::destroyForcibly);
+        this.resources.add(process::destroyForcibly);
 
-      final var outThread =
-        Thread.ofVirtual()
-          .start(() -> this.transformOutputEvents(process.getInputStream()));
+        final var outThread =
+          Thread.ofVirtual()
+            .start(() -> this.transformOutputEvents(process.getInputStream()));
 
-      final var errThread =
-        Thread.ofVirtual()
-          .start(() -> transformErrorEvents(process.getErrorStream()));
+        final var errThread =
+          Thread.ofVirtual()
+            .start(() -> transformErrorEvents(process.getErrorStream()));
 
-      process.waitFor();
-      outThread.join();
-      errThread.join();
+        process.waitFor();
+        outThread.join();
+        errThread.join();
 
-      if (process.exitValue() != 0) {
-        return FAILURE;
+        if (process.exitValue() != 0) {
+          return FAILURE;
+        }
+
+        return SUCCESS;
       }
-
-      return SUCCESS;
     } catch (final NPException e) {
       this.events.submit(new NPAWorkEvent(
         ERROR,

@@ -78,6 +78,14 @@
     Check that objects being deleted are not still referenced by other objects. Check that any object references being
     added refer to objects that actually exist.
   </entry>
+  <entry key="error_resource_lock_timed_out">
+    Timed out waiting for a lock on one or more resources.
+  </entry>
+
+  <entry key="column">Column</entry>
+  <entry key="container_image">Container Image</entry>
+  <entry key="container_registry">Container Registry</entry>
+  <entry key="container_tag">Container Tag</entry>
   <entry key="expected">Expected</entry>
   <entry key="file">File</entry>
   <entry key="format">Format</entry>
@@ -90,41 +98,38 @@
   <entry key="installing">Installing {0}</entry>
   <entry key="key">Key</entry>
   <entry key="limit">Limit</entry>
+  <entry key="line">Line</entry>
   <entry key="location_numbered">Location {0}</entry>
+  <entry key="login_challenge">Login Challenge</entry>
   <entry key="offset">Offset</entry>
+  <entry key="parameter">Parameter</entry>
   <entry key="plan">Plan</entry>
   <entry key="plan_version">Plan Version</entry>
+  <entry key="program">Program</entry>
   <entry key="public_key">Public Key</entry>
   <entry key="pull">Pull</entry>
-  <entry key="program">Program</entry>
   <entry key="received">Received</entry>
   <entry key="repository">Repository</entry>
+  <entry key="resource_numbered">Resource [{0}]</entry>
   <entry key="scm_provider">SCM Provider</entry>
+  <entry key="server">Server</entry>
   <entry key="source">Source</entry>
   <entry key="suggest_compilation_failed">Use the validation API to check data before submitting it.</entry>
   <entry key="target">Target</entry>
   <entry key="task">Task</entry>
-  <entry key="tool_name">Tool</entry>
-  <entry key="tool_version">Tool Version</entry>
   <entry key="tool_execution">Tool Execution</entry>
   <entry key="tool_execution_format">Tool Execution Format</entry>
   <entry key="tool_execution_version">Tool Execution Version</entry>
+  <entry key="tool_name">Tool</entry>
   <entry key="tool_reference">Tool Reference</entry>
+  <entry key="tool_version">Tool Version</entry>
+  <entry key="type">Type</entry>
   <entry key="uri">URI</entry>
   <entry key="user">User</entry>
   <entry key="user_id">User ID</entry>
   <entry key="verify">Verify</entry>
   <entry key="version">Version</entry>
-  <entry key="container_image">Container Image</entry>
-  <entry key="container_tag">Container Tag</entry>
-  <entry key="container_registry">Container Registry</entry>
   <entry key="work_executor">Work Executor</entry>
-  <entry key="parameter">Parameter</entry>
-  <entry key="type">Type</entry>
-  <entry key="server">Server</entry>
-  <entry key="login_challenge">Login Challenge</entry>
-  <entry key="line">Line</entry>
-  <entry key="column">Column</entry>
 
   <entry key="type_check_undefined_variable">Undefined variable.</entry>
   <entry key="type_check_expression">An expression did not have the expected type.</entry>
@@ -191,10 +196,14 @@
   <!-- Agents -->
   <!--        -->
 
-  <entry key="agent_status_not_configured_server">No server configured.</entry>
-  <entry key="agent_status_not_configured_workexec">No work executor configured.</entry>
-  <entry key="agent_status_ready">Ready.</entry>
-  <entry key="agent_status_executing_work">Executing work item {0}.</entry>
+  <entry key="agent_status_connection_connected">Connected to {0} (Latency {1})</entry>
+  <entry key="agent_status_connection_connecting">Connecting to {0}…</entry>
+  <entry key="agent_status_connection_failed">Failed connection to {0}: {1}</entry>
+  <entry key="agent_status_connection_unconfigured">No server configured</entry>
+
+  <entry key="agent_status_workexec_unconfigured">No work executor configured</entry>
+  <entry key="agent_status_workexec_ready">Work executor is ready</entry>
+  <entry key="agent_status_workexec_executing">Executing work item {0}</entry>
 
   <!--            -->
   <!-- Toolexec/J -->
@@ -208,5 +217,13 @@
     No available provider supports toolexec programs of the given format.
   </entry>
   <entry key="toolexec_provider_indexed">Provider [{0}]</entry>
+
+  <!--       -->
+  <!-- Shell -->
+  <!--       -->
+
+  <entry key="shell_confirmation_required">Confirmation required; this is a destructive operation that cannot be undone.</entry>
+  <entry key="shell_confirmation_required_answer">To confirm this operation, please enter:</entry>
+  <entry key="shell_confirmation_missing">No confirmation exists with the given ID.</entry>
 
 </properties>

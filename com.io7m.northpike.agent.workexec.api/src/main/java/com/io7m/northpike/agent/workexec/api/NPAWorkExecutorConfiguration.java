@@ -17,8 +17,6 @@
 
 package com.io7m.northpike.agent.workexec.api;
 
-import com.io7m.lanark.core.RDottedName;
-
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,14 +27,14 @@ import java.util.Optional;
 
 public final class NPAWorkExecutorConfiguration
 {
-  private final RDottedName type;
+  private final NPAWorkExecName type;
   private final Optional<NPAWorkExecutorContainerImage> containerImage;
   private final Path workDirectory;
   private final Optional<Path> workExecDistributionDirectory;
   private final Path temporaryDirectory;
 
   private NPAWorkExecutorConfiguration(
-    final RDottedName inType,
+    final NPAWorkExecName inType,
     final Optional<NPAWorkExecutorContainerImage> inContainerImage,
     final Path inWorkspaceDirectory,
     final Path inTmpDirectory,
@@ -61,7 +59,7 @@ public final class NPAWorkExecutorConfiguration
    * @return The executor type
    */
 
-  public RDottedName type()
+  public NPAWorkExecName type()
   {
     return this.type;
   }
@@ -150,7 +148,7 @@ public final class NPAWorkExecutorConfiguration
 
   public static final class Builder
   {
-    private RDottedName type;
+    private NPAWorkExecName type;
     private Optional<Path> workExecDistributionDirectory;
     private Optional<NPAWorkExecutorContainerImage> containerImage;
     private Path workDirectory;
@@ -173,7 +171,7 @@ public final class NPAWorkExecutorConfiguration
      */
 
     public Builder setExecutorType(
-      final RDottedName t)
+      final NPAWorkExecName t)
     {
       this.type = Objects.requireNonNull(t, "t");
       return this;

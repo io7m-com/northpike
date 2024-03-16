@@ -17,26 +17,22 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.agent_console;
 
-import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentList;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Combinators;
 
 import java.util.UUID;
 
-public final class NPArbACCommandAgentList extends NPArbAbstract<NPACCommandAgentList>
+public final class NPArbACCommandAgentList
+  extends NPArbAbstract<NPACCommandAgentList>
 {
   public NPArbACCommandAgentList()
   {
     super(
       NPACCommandAgentList.class,
       () -> {
-        return Combinators.combine(
-          Arbitraries.create(UUID::randomUUID),
-          Arbitraries.defaultFor(NPAgentLocalName.class).optional(),
-          Arbitraries.integers().between(1, 500)
-        ).as(NPACCommandAgentList::new);
+        return Arbitraries.create(UUID::randomUUID)
+          .map(NPACCommandAgentList::new);
       }
     );
   }

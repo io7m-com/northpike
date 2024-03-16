@@ -59,7 +59,7 @@ public final class NPUCmdAgentLabelDelete
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
-        transaction.queries(NPDatabaseQueriesAgentsType.LabelDeleteType.class)
+        transaction.queries(NPDatabaseQueriesAgentsType.AgentLabelDeleteType.class)
           .execute(command.labels());
 
         transaction.commit();

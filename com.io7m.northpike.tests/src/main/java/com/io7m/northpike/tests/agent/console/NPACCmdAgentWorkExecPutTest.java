@@ -17,17 +17,17 @@
 
 package com.io7m.northpike.tests.agent.console;
 
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseConnectionType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentWorkExecPutType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseTransactionType;
-import com.io7m.northpike.agent.internal.console.NPACCmdWorkExecPut;
+import com.io7m.northpike.agent.internal.console.NPACCmdAgentWorkExecPut;
 import com.io7m.northpike.agent.internal.console.NPACCommandContextType;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
-import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecPut;
+import com.io7m.northpike.protocol.agent_console.NPACCommandAgentWorkExecPut;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.repetoir.core.RPServiceDirectory;
@@ -110,7 +110,7 @@ public final class NPACCmdAgentWorkExecPutTest
   public void testFailure0()
     throws Exception
   {
-    final var handler = new NPACCmdWorkExecPut();
+    final var handler = new NPACCmdAgentWorkExecPut();
 
     Mockito.doThrow(new NPException(
       ERROR_AUTHENTICATION.name(),
@@ -121,13 +121,13 @@ public final class NPACCmdAgentWorkExecPutTest
 
     final var workExec =
       NPAWorkExecutorConfiguration.builder()
-        .setExecutorType(new RDottedName("x"))
+        .setExecutorType(NPAWorkExecName.of("x"))
         .setWorkDirectory(Paths.get("a"))
         .setTemporaryDirectory(Paths.get("b"))
         .build();
     
     final var command =
-      new NPACCommandWorkExecPut(
+      new NPACCommandAgentWorkExecPut(
         UUID.randomUUID(),
         NPAgentLocalName.of("z"),
         Optional.of(workExec)
@@ -152,17 +152,17 @@ public final class NPACCmdAgentWorkExecPutTest
   public void testSuccess0()
     throws Exception
   {
-    final var handler = new NPACCmdWorkExecPut();
+    final var handler = new NPACCmdAgentWorkExecPut();
 
     final var workExec =
       NPAWorkExecutorConfiguration.builder()
-        .setExecutorType(new RDottedName("x"))
+        .setExecutorType(NPAWorkExecName.of("x"))
         .setWorkDirectory(Paths.get("a"))
         .setTemporaryDirectory(Paths.get("b"))
         .build();
 
     final var command =
-      new NPACCommandWorkExecPut(
+      new NPACCommandAgentWorkExecPut(
         UUID.randomUUID(),
         NPAgentLocalName.of("z"),
         Optional.of(workExec)

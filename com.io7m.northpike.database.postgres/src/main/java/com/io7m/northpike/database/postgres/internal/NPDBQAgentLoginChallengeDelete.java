@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.database.postgres.internal;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeDeleteType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import org.jooq.DSLContext;
@@ -33,11 +33,11 @@ import static com.io7m.northpike.database.postgres.internal.Tables.AGENT_LOGIN_C
 
 public final class NPDBQAgentLoginChallengeDelete
   extends NPDBQAbstract<UUID, NPDatabaseUnit>
-  implements LoginChallengeDeleteType
+  implements AgentLoginChallengeDeleteType
 {
-  private static final Service<UUID, NPDatabaseUnit, LoginChallengeDeleteType> SERVICE =
+  private static final Service<UUID, NPDatabaseUnit, AgentLoginChallengeDeleteType> SERVICE =
     new Service<>(
-      LoginChallengeDeleteType.class,
+      AgentLoginChallengeDeleteType.class,
       NPDBQAgentLoginChallengeDelete::new);
 
   /**

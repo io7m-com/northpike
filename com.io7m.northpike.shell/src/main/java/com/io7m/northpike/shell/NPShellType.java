@@ -17,6 +17,7 @@
 package com.io7m.northpike.shell;
 
 import com.io7m.quarrel.core.QCommandType;
+import com.io7m.repetoir.core.RPServiceDirectoryWritableType;
 
 import java.util.Collection;
 
@@ -26,6 +27,12 @@ import java.util.Collection;
 
 public interface NPShellType extends AutoCloseable
 {
+  /**
+   * @return The shell service directory
+   */
+
+  RPServiceDirectoryWritableType services();
+
   /**
    * @return The set of commands exposed by the shell
    */

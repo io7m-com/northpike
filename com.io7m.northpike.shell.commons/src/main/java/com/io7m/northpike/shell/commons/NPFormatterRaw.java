@@ -18,6 +18,7 @@
 package com.io7m.northpike.shell.commons;
 
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorSummary;
 import com.io7m.northpike.model.NPAuditEvent;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPage;
@@ -39,6 +40,7 @@ import com.io7m.northpike.model.agents.NPAgentLoginChallengeRecord;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
 import com.io7m.northpike.model.agents.NPAgentServerSummary;
+import com.io7m.northpike.model.agents.NPAgentStatus;
 import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleHourlyHashed;
@@ -56,9 +58,11 @@ import org.jline.terminal.Terminal;
 import java.io.PrintWriter;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -638,6 +642,58 @@ public final class NPFormatterRaw implements NPFormatterType
         bookmark.host(),
         Integer.valueOf(bookmark.port())
       );
+    }
+  }
+
+  @Override
+  public void formatAgentStatuses(
+    final Map<NPAgentLocalName, NPAgentStatus> status)
+  {
+    final PrintWriter w = this.terminal.writer();
+
+    final var sorted = new TreeMap<>(status);
+    for (final var entry : sorted.entrySet()) {
+      final var name = entry.getKey();
+      final var statusValue = entry.getValue();
+      w.printf(
+        "%-32s %s %s%n",
+        name,
+        statusValue.health(),
+        statusValue.description()
+      );
+    }
+  }
+
+  @Override
+  public void formatWorkExecutorSummaries(
+    final List<NPAWorkExecutorSummary> summaries)
+  {
+    final PrintWriter w = this.terminal.writer();
+
+    w.println("# Name | Description");
+    for (final var s : summaries) {
+      w.print(s.name());
+      w.print(" ");
+      w.print(s.description());
+      w.println();
+    }
+  }
+
+  @Override
+  public void formatWorkExecutorSummary(
+    final NPAWorkExecutorSummary summary)
+  {
+    final PrintWriter w = this.terminal.writer();
+
+    w.print("Name: ");
+    w.println(summary.name());
+
+    w.println("Description: ");
+    w.println(summary.description());
+
+    for (final var prop : summary.properties()) {
+      w.print("Property: ");
+      w.println(prop);
     }
   }
 

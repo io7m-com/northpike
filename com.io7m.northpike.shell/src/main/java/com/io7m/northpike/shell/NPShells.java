@@ -21,9 +21,13 @@ import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.preferences.api.NPPreferencesServiceType;
 import com.io7m.northpike.preferences.basic.NPPreferencesService;
 import com.io7m.northpike.shell.commons.NPShellCmdType;
+import com.io7m.northpike.shell.commons.NPShellConfirmationService;
+import com.io7m.northpike.shell.commons.NPShellConfirmationServiceType;
 import com.io7m.northpike.shell.commons.NPShellOptions;
 import com.io7m.northpike.shell.commons.NPShellTerminalHolder;
 import com.io7m.northpike.shell.internal.NPShell;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentDelete;
+import com.io7m.northpike.shell.internal.NPShellCmdAgentDeleteConfirm;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentGet;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelAssign;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentLabelDelete;
@@ -60,6 +64,7 @@ import com.io7m.northpike.shell.internal.NPShellCmdHelp;
 import com.io7m.northpike.shell.internal.NPShellCmdLogin;
 import com.io7m.northpike.shell.internal.NPShellCmdLogout;
 import com.io7m.northpike.shell.internal.NPShellCmdPlanDelete;
+import com.io7m.northpike.shell.internal.NPShellCmdPlanDeleteConfirm;
 import com.io7m.northpike.shell.internal.NPShellCmdPlanGet;
 import com.io7m.northpike.shell.internal.NPShellCmdPlanPut;
 import com.io7m.northpike.shell.internal.NPShellCmdPlanSearchBegin;
@@ -168,6 +173,10 @@ public final class NPShells implements NPShellFactoryType
       NPShellTerminalHolder.class, new NPShellTerminalHolder(terminal));
     services.register(
       NPStrings.class, configuration.strings());
+    services.register(
+      NPShellConfirmationServiceType.class,
+      new NPShellConfirmationService()
+    );
 
     try {
       services.register(
@@ -189,6 +198,8 @@ public final class NPShells implements NPShellFactoryType
 
     final List<NPShellCmdType> commands =
       List.of(
+        new NPShellCmdAgentDelete(services),
+        new NPShellCmdAgentDeleteConfirm(services),
         new NPShellCmdAgentGet(services),
         new NPShellCmdAgentLabelAssign(services),
         new NPShellCmdAgentLabelDelete(services),
@@ -225,6 +236,7 @@ public final class NPShells implements NPShellFactoryType
         new NPShellCmdLogin(services),
         new NPShellCmdLogout(services),
         new NPShellCmdPlanDelete(services),
+        new NPShellCmdPlanDeleteConfirm(services),
         new NPShellCmdPlanGet(services),
         new NPShellCmdPlanPut(services),
         new NPShellCmdPlanSearchBegin(services),

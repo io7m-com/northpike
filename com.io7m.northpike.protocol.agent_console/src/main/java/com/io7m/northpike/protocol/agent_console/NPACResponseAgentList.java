@@ -18,8 +18,9 @@
 package com.io7m.northpike.protocol.agent_console;
 
 import com.io7m.northpike.model.agents.NPAgentLocalName;
+import com.io7m.northpike.model.agents.NPAgentStatus;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -34,7 +35,7 @@ import java.util.UUID;
 public record NPACResponseAgentList(
   UUID messageID,
   UUID correlationID,
-  List<NPAgentLocalName> results)
+  Map<NPAgentLocalName, NPAgentStatus> results)
   implements NPACResponseType
 {
   /**

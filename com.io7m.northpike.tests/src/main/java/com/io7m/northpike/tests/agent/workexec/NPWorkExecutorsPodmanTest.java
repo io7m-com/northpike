@@ -18,7 +18,10 @@
 package com.io7m.northpike.tests.agent.workexec;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.agent.locks.NPAgentResourceLockService;
+import com.io7m.northpike.agent.locks.NPAgentResourceLockServiceType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorContainerImage;
 import com.io7m.northpike.agent.workexec.podman.NPWorkExecutorsPodman;
@@ -30,6 +33,7 @@ import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.tools.maven.NPTMFactory3;
@@ -85,6 +89,11 @@ public final class NPWorkExecutorsPodmanTest
     this.events =
       new LinkedBlockingQueue<>();
 
+    this.services.register(
+      NPAgentResourceLockServiceType.class,
+      NPAgentResourceLockService.create()
+    );
+
     final var publicIp =
       QWebServerAddresses.findPublicIP();
 
@@ -112,6 +121,7 @@ public final class NPWorkExecutorsPodmanTest
     try (var executor =
            this.executors.createExecutor(
              this.services,
+             NPAgentLocalName.of("agent"),
              standardConfiguration(workDirectory, tmpDirectory))) {
       final var env = executor.environment();
       assertEquals("northpike", env.get("HOSTNAME"));
@@ -130,6 +140,7 @@ public final class NPWorkExecutorsPodmanTest
     try (var executor =
            this.executors.createExecutor(
              this.services,
+             NPAgentLocalName.of("agent"),
              standardConfiguration(workDirectory, tmpDirectory))) {
       final var env = executor.systemProperties();
       assertEquals("65.0", env.get("java.class.version"));
@@ -156,6 +167,7 @@ public final class NPWorkExecutorsPodmanTest
     try (var executor =
            this.executors.createExecutor(
              this.services,
+             NPAgentLocalName.of("agent"),
              standardConfiguration(workDirectory, tmpDirectory))) {
 
       final var workItem =
@@ -224,6 +236,7 @@ public final class NPWorkExecutorsPodmanTest
     try (var executor =
            this.executors.createExecutor(
              this.services,
+             NPAgentLocalName.of("agent"),
              standardConfiguration(workDirectory, tmpDirectory))) {
 
       final var toolReference =
@@ -273,7 +286,7 @@ public final class NPWorkExecutorsPodmanTest
       .setWorkDirectory(workDirectory)
       .setTemporaryDirectory(tmpDirectory)
       .setWorkExecDistributionDirectory(WORKEXEC_DISTRIBUTION)
-      .setExecutorType(new RDottedName("workexec.podman"))
+      .setExecutorType(NPAWorkExecName.of("workexec.podman"))
       .setContainerImage(new NPAWorkExecutorContainerImage(
         "docker.io",
         "eclipse-temurin",

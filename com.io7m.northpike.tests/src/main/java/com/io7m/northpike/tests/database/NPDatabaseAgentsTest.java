@@ -22,9 +22,20 @@ import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengePutType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetByKeyType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLabelDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLabelGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLabelPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLabelSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentListType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengePutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentPutType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPStandardErrorCodes;
@@ -42,6 +53,7 @@ import com.io7m.northpike.model.agents.NPAgentLoginChallengeSearchParameters;
 import com.io7m.northpike.model.agents.NPAgentSearchParameters;
 import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType.IsSimilarTo;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType.Anything;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsEqualTo;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsSubsetOf;
@@ -128,13 +140,13 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
+      this.transaction.queries(AgentGetType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(AgentPutType.class);
     final var labelPut =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+      this.transaction.queries(AgentLabelPutType.class);
     final var labelGet =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelGetType.class);
+      this.transaction.queries(AgentLabelGetType.class);
 
     final var labels =
       Arbitraries.defaultFor(NPAgentLabel.class)
@@ -167,7 +179,10 @@ public final class NPDatabaseAgentsTest
       );
 
     put.execute(agent);
-    assertEquals(agent, get.execute(agent.id()).orElseThrow());
+
+    final var getParameters =
+      new Parameters(agent.id(), false);
+    assertEquals(agent, get.execute(getParameters).orElseThrow());
   }
 
   /**
@@ -181,13 +196,13 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
+      this.transaction.queries(AgentGetType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(AgentPutType.class);
     final var labelPut =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+      this.transaction.queries(AgentLabelPutType.class);
     final var labelGet =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelGetType.class);
+      this.transaction.queries(AgentLabelGetType.class);
 
     final var labels =
       Arbitraries.defaultFor(NPAgentLabel.class)
@@ -219,7 +234,11 @@ public final class NPDatabaseAgentsTest
       );
 
     put.execute(agent);
-    assertEquals(agent, get.execute(agent.id()).orElseThrow());
+
+    final var getParameters =
+      new Parameters(agent.id(), false);
+
+    assertEquals(agent, get.execute(getParameters).orElseThrow());
   }
 
   /**
@@ -233,11 +252,14 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
+      this.transaction.queries(AgentGetType.class);
+
+    final var getParameters =
+      new Parameters(new NPAgentID(UUID.randomUUID()), false);
 
     assertEquals(
       Optional.empty(),
-      get.execute(new NPAgentID(UUID.randomUUID()))
+      get.execute(getParameters)
     );
   }
 
@@ -252,11 +274,11 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(AgentPutType.class);
     final var labelPut =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+      this.transaction.queries(AgentLabelPutType.class);
     final var list =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.ListType.class);
+      this.transaction.queries(AgentListType.class);
 
     final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index <= 9; ++index) {
@@ -273,7 +295,7 @@ public final class NPDatabaseAgentsTest
 
     {
       final var page =
-        list.execute(new NPAgentSearchParameters(new Anything<>(), 1000L));
+        list.execute(new NPAgentSearchParameters(new Anything<>(), false,1000L));
 
       final var page0 =
         page.pageCurrent(this.transaction);
@@ -307,11 +329,11 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(AgentPutType.class);
     final var labelPut =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+      this.transaction.queries(AgentLabelPutType.class);
     final var list =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.ListType.class);
+      this.transaction.queries(AgentListType.class);
 
     final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index <= 9; ++index) {
@@ -333,7 +355,7 @@ public final class NPDatabaseAgentsTest
       final var page =
         list.execute(
           new NPAgentSearchParameters(
-            new IsEqualTo<>(Set.of(label0)), 1000L)
+            new IsEqualTo<>(Set.of(label0)), false,1000L)
         );
 
       final var page0 =
@@ -372,11 +394,11 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(AgentPutType.class);
     final var labelPut =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+      this.transaction.queries(AgentLabelPutType.class);
     final var list =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.ListType.class);
+      this.transaction.queries(AgentListType.class);
 
     final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index <= 9; ++index) {
@@ -401,6 +423,7 @@ public final class NPDatabaseAgentsTest
         list.execute(
           new NPAgentSearchParameters(
             new IsSubsetOf<>(Set.of(label0, label3)),
+            false,
             1000L)
         );
 
@@ -451,11 +474,11 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(AgentPutType.class);
     final var labelPut =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+      this.transaction.queries(AgentLabelPutType.class);
     final var list =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.ListType.class);
+      this.transaction.queries(AgentListType.class);
 
     final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index <= 9; ++index) {
@@ -480,6 +503,7 @@ public final class NPDatabaseAgentsTest
         list.execute(
           new NPAgentSearchParameters(
             new IsSupersetOf<>(Set.of(label0, label3)),
+            false,
             1000L)
         );
 
@@ -521,13 +545,13 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var delete =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.DeleteType.class);
+      this.transaction.queries(AgentDeleteType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(AgentPutType.class);
     final var labelPut =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+      this.transaction.queries(AgentLabelPutType.class);
     final var list =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.ListType.class);
+      this.transaction.queries(AgentListType.class);
 
     final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index <= 9; ++index) {
@@ -558,6 +582,7 @@ public final class NPDatabaseAgentsTest
       final var page =
         list.execute(new NPAgentSearchParameters(
           new Anything<>(),
+          false,
           1000L)
         );
 
@@ -573,9 +598,68 @@ public final class NPDatabaseAgentsTest
     }
   }
 
+  /**
+   * Deleted agents can appear in searches.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAgentSearchDeleted1()
+    throws Exception
+  {
+    final var delete =
+      this.transaction.queries(AgentDeleteType.class);
+    final var put =
+      this.transaction.queries(AgentPutType.class);
+    final var labelPut =
+      this.transaction.queries(AgentLabelPutType.class);
+    final var list =
+      this.transaction.queries(AgentListType.class);
+
+    final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
+    for (int index = 0; index <= 9; ++index) {
+      final var label = new NPAgentLabel(
+        NPAgentLabelName.of("label%d".formatted(Integer.valueOf(index))),
+        "Label %d".formatted(Integer.valueOf(index))
+      );
+      labelPut.execute(label);
+      labelsByName.put(label.name(), label);
+    }
+
+    final Map<NPAgentID, NPAgentDescription> agents =
+      generateLabelledAgents(put, labelsByName);
+
+    final var deleted =
+      new HashSet<NPAgentID>();
+
+    int index = 0;
+    for (final var agent : agents.values()) {
+      if (index % 2 == 0) {
+        delete.execute(agent.id());
+        deleted.add(agent.id());
+      }
+      ++index;
+    }
+
+    {
+      final var page =
+        list.execute(new NPAgentSearchParameters(
+          new Anything<>(),
+          true,
+          1000L)
+        );
+
+      final var page0 =
+        page.pageCurrent(this.transaction);
+
+      assertEquals(900, page0.items().size());
+      assertEquals(1, page0.pageIndex());
+    }
+  }
 
   private static Map<NPAgentID, NPAgentDescription> generateLabelledAgents(
-    final NPDatabaseQueriesAgentsType.PutType put,
+    final AgentPutType put,
     final HashMap<NPAgentLabelName, NPAgentLabel> labelsByName)
     throws NPDatabaseException
   {
@@ -618,9 +702,9 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.GetByKeyType.class);
+      this.transaction.queries(AgentGetByKeyType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(AgentPutType.class);
 
     final var key =
       Arbitraries.defaultFor(NPAgentKeyPublicType.class)
@@ -639,7 +723,10 @@ public final class NPDatabaseAgentsTest
     put.execute(agent);
     this.transaction.commit();
 
-    assertEquals(agent, get.execute(key).orElseThrow());
+    final var getParameters =
+      new AgentGetByKeyType.Parameters(key, false);
+
+    assertEquals(agent, get.execute(getParameters).orElseThrow());
   }
 
   /**
@@ -653,9 +740,9 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
+      this.transaction.queries(AgentGetType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(AgentPutType.class);
 
     final var agent =
       new NPAgentDescription(
@@ -671,7 +758,10 @@ public final class NPDatabaseAgentsTest
     put.execute(agent);
     this.transaction.commit();
 
-    assertEquals(agent, get.execute(agent.id()).orElseThrow());
+    final var getParameters =
+      new Parameters(agent.id(), false);
+
+    assertEquals(agent, get.execute(getParameters).orElseThrow());
   }
 
   /**
@@ -685,11 +775,11 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
+      this.transaction.queries(AgentGetType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(AgentPutType.class);
     final var delete =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.DeleteType.class);
+      this.transaction.queries(AgentDeleteType.class);
 
     final var agent =
       new NPAgentDescription(
@@ -705,8 +795,14 @@ public final class NPDatabaseAgentsTest
     put.execute(agent);
     this.transaction.commit();
 
+    final var getParameters =
+      new Parameters(agent.id(), false);
+    final var getParametersWithDeleted =
+      new Parameters(agent.id(), true);
+
     delete.execute(agent.id());
-    assertEquals(Optional.empty(), get.execute(agent.id()));
+    assertEquals(Optional.empty(), get.execute(getParameters));
+    assertEquals(Optional.of(agent), get.execute(getParametersWithDeleted));
   }
 
   /**
@@ -720,11 +816,11 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.GetByKeyType.class);
+      this.transaction.queries(AgentGetByKeyType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(AgentPutType.class);
     final var delete =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.DeleteType.class);
+      this.transaction.queries(AgentDeleteType.class);
 
     final NPAgentKeyPublicType key =
       Arbitraries.defaultFor(NPAgentKeyPublicType.class)
@@ -759,7 +855,7 @@ public final class NPDatabaseAgentsTest
     delete.execute(agent0.id());
     put.execute(agent1);
 
-    assertEquals(agent1, get.execute(key).orElseThrow());
+    assertEquals(agent1, get.execute(new AgentGetByKeyType.Parameters(key, true)).orElseThrow());
   }
 
   /**
@@ -773,9 +869,9 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var labelPut =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+      this.transaction.queries(AgentLabelPutType.class);
     final var labelSearch =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelSearchType.class);
+      this.transaction.queries(AgentLabelSearchType.class);
 
     final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index < 1000; ++index) {
@@ -790,7 +886,7 @@ public final class NPDatabaseAgentsTest
     final var paged =
       labelSearch.execute(
         new NPAgentLabelSearchParameters(
-          new NPComparisonFuzzyType.IsSimilarTo<>("abacus3"),
+          new IsSimilarTo<>("abacus3"),
           new NPComparisonFuzzyType.Anything<>(),
           1000L
         )
@@ -830,9 +926,9 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var labelPut =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+      this.transaction.queries(AgentLabelPutType.class);
     final var labelSearch =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelSearchType.class);
+      this.transaction.queries(AgentLabelSearchType.class);
 
     final var labelsByName = new HashMap<NPAgentLabelName, NPAgentLabel>();
     for (int index = 0; index < 1000; ++index) {
@@ -848,7 +944,7 @@ public final class NPDatabaseAgentsTest
       labelSearch.execute(
         new NPAgentLabelSearchParameters(
           new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonFuzzyType.IsSimilarTo<>("abacus"),
+          new IsSimilarTo<>("abacus"),
           1000L
         )
       );
@@ -881,13 +977,13 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.GetType.class);
+      this.transaction.queries(AgentGetType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(AgentPutType.class);
     final var labelPut =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelPutType.class);
+      this.transaction.queries(AgentLabelPutType.class);
     final var labelDelete =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LabelDeleteType.class);
+      this.transaction.queries(AgentLabelDeleteType.class);
 
     final var labels =
       Arbitraries.defaultFor(NPAgentLabel.class)
@@ -931,7 +1027,10 @@ public final class NPDatabaseAgentsTest
         Map.of()
       );
 
-    assertEquals(agent1, get.execute(agent0.id()).orElseThrow());
+    final var getParameters =
+      new Parameters(agent0.id(), false);
+
+    assertEquals(agent1, get.execute(getParameters).orElseThrow());
   }
 
   /**
@@ -945,11 +1044,11 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LoginChallengeGetType.class);
+      this.transaction.queries(AgentLoginChallengeGetType.class);
     final var put =
-      this.transaction.queries(LoginChallengePutType.class);
+      this.transaction.queries(AgentLoginChallengePutType.class);
     final var delete =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.LoginChallengeDeleteType.class);
+      this.transaction.queries(AgentLoginChallengeDeleteType.class);
 
     final var record0 =
       new NPAgentLoginChallengeRecord(
@@ -981,9 +1080,9 @@ public final class NPDatabaseAgentsTest
     throws Exception
   {
     final var put =
-      this.transaction.queries(LoginChallengePutType.class);
+      this.transaction.queries(AgentLoginChallengePutType.class);
     final var search =
-      this.transaction.queries(LoginChallengeSearchType.class);
+      this.transaction.queries(AgentLoginChallengeSearchType.class);
 
     final var record0 =
       new NPAgentLoginChallengeRecord(

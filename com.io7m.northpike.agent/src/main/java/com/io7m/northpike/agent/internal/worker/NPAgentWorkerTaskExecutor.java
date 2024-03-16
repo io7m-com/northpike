@@ -21,6 +21,9 @@ import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.agent.api.NPAgentException;
 import com.io7m.northpike.agent.internal.NPAgentResources;
 import com.io7m.northpike.agent.internal.NPAgentTaskType;
+import com.io7m.northpike.agent.internal.status.NPAgentWorkExecutorStatusExecuting;
+import com.io7m.northpike.agent.internal.status.NPAgentWorkExecutorStatusIdle;
+import com.io7m.northpike.agent.internal.status.NPAgentWorkExecutorStatusType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorType;
@@ -106,6 +109,19 @@ public final class NPAgentWorkerTaskExecutor implements NPAgentTaskType,
   public void onComplete()
   {
 
+  }
+
+  /**
+   * @return The current work executor status
+   */
+
+  public NPAgentWorkExecutorStatusType status()
+  {
+    final var s = this.executionState;
+    if (s != null) {
+      return new NPAgentWorkExecutorStatusExecuting(s.workItem.identifier());
+    }
+    return new NPAgentWorkExecutorStatusIdle();
   }
 
   private record ExecutingState(

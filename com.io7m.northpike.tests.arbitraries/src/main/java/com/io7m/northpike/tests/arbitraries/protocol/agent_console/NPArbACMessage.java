@@ -22,7 +22,7 @@ import com.io7m.northpike.protocol.agent_console.NPACCommandAgentDelete;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentList;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentServerAssign;
-import com.io7m.northpike.protocol.agent_console.NPACCommandAgentStatusGet;
+import com.io7m.northpike.protocol.agent_console.NPACCommandAgentWorkExecPut;
 import com.io7m.northpike.protocol.agent_console.NPACCommandDisconnect;
 import com.io7m.northpike.protocol.agent_console.NPACCommandLogin;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerDelete;
@@ -30,16 +30,15 @@ import com.io7m.northpike.protocol.agent_console.NPACCommandServerGet;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerList;
 import com.io7m.northpike.protocol.agent_console.NPACCommandServerPut;
 import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecGet;
-import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecPut;
 import com.io7m.northpike.protocol.agent_console.NPACMessageType;
 import com.io7m.northpike.protocol.agent_console.NPACResponseAgent;
 import com.io7m.northpike.protocol.agent_console.NPACResponseAgentList;
-import com.io7m.northpike.protocol.agent_console.NPACResponseAgentStatus;
 import com.io7m.northpike.protocol.agent_console.NPACResponseError;
 import com.io7m.northpike.protocol.agent_console.NPACResponseOK;
 import com.io7m.northpike.protocol.agent_console.NPACResponseServer;
 import com.io7m.northpike.protocol.agent_console.NPACResponseServerList;
-import com.io7m.northpike.protocol.agent_console.NPACResponseWorkExec;
+import com.io7m.northpike.protocol.agent_console.NPACResponseWorkExecGet;
+import com.io7m.northpike.protocol.agent_console.NPACResponseWorkExecSupported;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
 
@@ -60,7 +59,7 @@ public final class NPArbACMessage extends NPArbAbstract<NPACMessageType>
               NPACCommandAgentGet.class,
               NPACCommandAgentList.class,
               NPACCommandAgentServerAssign.class,
-              NPACCommandAgentStatusGet.class,
+              NPACCommandAgentWorkExecPut.class,
               NPACCommandDisconnect.class,
               NPACCommandLogin.class,
               NPACCommandServerDelete.class,
@@ -68,15 +67,14 @@ public final class NPArbACMessage extends NPArbAbstract<NPACMessageType>
               NPACCommandServerList.class,
               NPACCommandServerPut.class,
               NPACCommandWorkExecGet.class,
-              NPACCommandWorkExecPut.class,
               NPACResponseAgent.class,
               NPACResponseAgentList.class,
-              NPACResponseAgentStatus.class,
               NPACResponseError.class,
               NPACResponseOK.class,
               NPACResponseServer.class,
               NPACResponseServerList.class,
-              NPACResponseWorkExec.class
+              NPACResponseWorkExecGet.class,
+              NPACResponseWorkExecSupported.class
             ).map(Arbitraries::defaultFor)
             .collect(Collectors.toUnmodifiableList())
         );

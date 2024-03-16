@@ -16,13 +16,10 @@
 
 package com.io7m.northpike.agent.shell.internal;
 
-import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentList;
 import com.io7m.northpike.protocol.agent_console.NPACResponseAgentList;
 import com.io7m.quarrel.core.QCommandContextType;
 import com.io7m.quarrel.core.QCommandMetadata;
-import com.io7m.quarrel.core.QParameterNamed01;
-import com.io7m.quarrel.core.QParameterNamed1;
 import com.io7m.quarrel.core.QParameterNamedType;
 import com.io7m.quarrel.core.QStringType.QConstant;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
@@ -38,26 +35,6 @@ import java.util.UUID;
 public final class NPAShellCmdAgentList
   extends NPAShellCmdAbstractCR<NPACCommandAgentList, NPACResponseAgentList>
 {
-  private static final QParameterNamed01<NPAgentLocalName> OFFSET =
-    new QParameterNamed01<>(
-      "--offset",
-      List.of(),
-      new QConstant(
-        "The starting agent offset."),
-      Optional.empty(),
-      NPAgentLocalName.class
-    );
-
-  private static final QParameterNamed1<Integer> LIMIT =
-    new QParameterNamed1<>(
-      "--limit",
-      List.of(),
-      new QConstant(
-        "Limit the number of returned results."),
-      Optional.of(Integer.valueOf(10)),
-      Integer.class
-    );
-
   /**
    * Construct a command.
    *
@@ -71,7 +48,7 @@ public final class NPAShellCmdAgentList
       inServices,
       new QCommandMetadata(
         "agent-list",
-        new QConstant("List agents."),
+        new QConstant("List agents along with their status."),
         Optional.empty()
       ),
       NPACCommandAgentList.class,
@@ -83,8 +60,7 @@ public final class NPAShellCmdAgentList
   public List<QParameterNamedType<?>> onListNamedParameters()
   {
     return List.of(
-      OFFSET,
-      LIMIT
+
     );
   }
 
@@ -92,11 +68,7 @@ public final class NPAShellCmdAgentList
   protected NPACCommandAgentList onCreateCommand(
     final QCommandContextType context)
   {
-    return new NPACCommandAgentList(
-      UUID.randomUUID(),
-      context.parameterValue(OFFSET),
-      context.<Integer>parameterValue(LIMIT).longValue()
-    );
+    return new NPACCommandAgentList(UUID.randomUUID());
   }
 
   @Override
@@ -105,6 +77,6 @@ public final class NPAShellCmdAgentList
     final NPACResponseAgentList response)
     throws Exception
   {
-    this.formatter().formatAgentNames(response.results());
+    this.formatter().formatAgentStatuses(response.results());
   }
 }

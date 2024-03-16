@@ -19,7 +19,7 @@ package com.io7m.northpike.protocol.agent_console.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBOptionType;
 import com.io7m.cedarbridge.runtime.api.CBString;
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.protocol.agent_console.cb.NPAC1WorkExecutorConfiguration;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
@@ -67,9 +67,7 @@ public enum NPACVWorkExecutor
     final NPAC1WorkExecutorConfiguration message)
   {
     final var builder = NPAWorkExecutorConfiguration.builder();
-    builder.setExecutorType(
-      new RDottedName(message.fieldType().value())
-    );
+    builder.setExecutorType(NPAWorkExecName.of(message.fieldType().value()));
 
     message.fieldContainerImage()
       .asOptional()

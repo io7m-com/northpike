@@ -174,6 +174,7 @@ public final class NPShellCmdAgentSearchBegin
     final var parameters =
       new NPAgentSearchParameters(
         labelsMatch,
+        false,
         context.parameterValue(LIMIT)
           .longValue()
       );

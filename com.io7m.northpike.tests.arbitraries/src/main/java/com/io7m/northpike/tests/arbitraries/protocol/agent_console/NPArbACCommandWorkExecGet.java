@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.tests.arbitraries.protocol.agent_console;
 
-import com.io7m.northpike.model.agents.NPAgentLocalName;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.protocol.agent_console.NPACCommandWorkExecGet;
 import com.io7m.northpike.tests.arbitraries.NPArbAbstract;
 import net.jqwik.api.Arbitraries;
@@ -34,7 +34,7 @@ public final class NPArbACCommandWorkExecGet extends NPArbAbstract<NPACCommandWo
       () -> {
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
-          Arbitraries.defaultFor(NPAgentLocalName.class)
+          Arbitraries.defaultFor(NPAWorkExecName.class)
         ).as(NPACCommandWorkExecGet::new);
       }
     );

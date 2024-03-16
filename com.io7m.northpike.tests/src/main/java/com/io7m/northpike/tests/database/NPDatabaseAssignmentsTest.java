@@ -443,7 +443,7 @@ public final class NPDatabaseAssignmentsTest
     throws Exception
   {
     final var agentPut =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesAgentsType.AgentPutType.class);
 
     final var put =
       this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
@@ -1514,7 +1514,7 @@ public final class NPDatabaseAssignmentsTest
     throws Exception
   {
     final var agentPut =
-      this.transaction.queries(NPDatabaseQueriesAgentsType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesAgentsType.AgentPutType.class);
     final var put =
       this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
     final var execGet =

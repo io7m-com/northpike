@@ -20,11 +20,19 @@ package com.io7m.northpike.tests.agent.console;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseConnectionType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentListType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseTransactionType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseType;
 import com.io7m.northpike.agent.internal.console.NPACCmdAgentList;
 import com.io7m.northpike.agent.internal.console.NPACCommandContextType;
+import com.io7m.northpike.agent.internal.status.NPAgentConnectionStatusConnected;
+import com.io7m.northpike.agent.internal.status.NPAgentConnectionStatusUnconfigured;
+import com.io7m.northpike.agent.internal.status.NPAgentWorkExecutorStatusIdle;
+import com.io7m.northpike.agent.internal.status.NPAgentWorkExecutorStatusUnconfigured;
+import com.io7m.northpike.agent.internal.status.NPAgentWorkerStatus;
+import com.io7m.northpike.agent.internal.supervisor.NPAgentSupervisorType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
+import com.io7m.northpike.model.agents.NPAgentStatus;
 import com.io7m.northpike.protocol.agent_console.NPACCommandAgentList;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
@@ -32,8 +40,8 @@ import com.io7m.repetoir.core.RPServiceDirectory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.verification.Times;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -41,7 +49,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
+import static com.io7m.northpike.model.agents.NPAgentStatusHealth.HEALTHY;
+import static com.io7m.northpike.model.agents.NPAgentStatusHealth.UNHEALTHY;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
+import static java.util.Map.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,10 +64,11 @@ import static org.mockito.ArgumentMatchers.any;
 public final class NPACCmdAgentListTest
 {
   private NPACCommandContextType context;
-  private NPAgentDatabaseConnectionType connection;
-  private NPAgentDatabaseTransactionType transaction;
   private RPServiceDirectory services;
   private NPStrings strings;
+  private NPAgentDatabaseType database;
+  private NPAgentDatabaseTransactionType transaction;
+  private NPAgentDatabaseConnectionType connection;
 
   @BeforeEach
   public void setup()
@@ -64,23 +76,26 @@ public final class NPACCmdAgentListTest
   {
     this.context =
       Mockito.mock(NPACCommandContextType.class);
-
-    this.strings = NPStrings.create(Locale.ROOT);
-    this.services = new RPServiceDirectory();
-    this.services.register(NPStrings.class, this.strings);
-
-    this.connection =
-      Mockito.mock(NPAgentDatabaseConnectionType.class);
+    this.strings =
+      NPStrings.create(Locale.ROOT);
+    this.database =
+      Mockito.mock(NPAgentDatabaseType.class);
     this.transaction =
       Mockito.mock(NPAgentDatabaseTransactionType.class);
+    this.connection =
+      Mockito.mock(NPAgentDatabaseConnectionType.class);
 
-    Mockito.when(this.context.databaseConnection())
+    Mockito.when(this.database.openConnection())
       .thenReturn(this.connection);
     Mockito.when(this.connection.openTransaction())
       .thenReturn(this.transaction);
 
+    this.services = new RPServiceDirectory();
+    this.services.register(NPStrings.class, this.strings);
+    this.services.register(NPAgentDatabaseType.class, this.database);
+
     Mockito.when(this.context.services())
-        .thenReturn(this.services);
+      .thenReturn(this.services);
 
     Mockito.doAnswer(invocationOnMock -> {
       final var message =
@@ -118,9 +133,7 @@ public final class NPACCmdAgentListTest
 
     final var command =
       new NPACCommandAgentList(
-        UUID.randomUUID(),
-        Optional.empty(),
-        1000L
+        UUID.randomUUID()
       );
 
     final var ex =
@@ -146,31 +159,80 @@ public final class NPACCmdAgentListTest
 
     final var command =
       new NPACCommandAgentList(
-        UUID.randomUUID(),
-        Optional.of(NPAgentLocalName.of("a")),
-        250L
+        UUID.randomUUID()
       );
 
-    final var agentList =
+    final var supervisor =
+      Mockito.mock(NPAgentSupervisorType.class);
+
+    this.services.register(NPAgentSupervisorType.class, supervisor);
+
+    final var query =
       Mockito.mock(AgentListType.class);
-
     Mockito.when(this.transaction.queries(AgentListType.class))
-      .thenReturn(agentList);
+      .thenReturn(query);
+    Mockito.when(query.execute(any()))
+      .thenReturn(List.of(NPAgentLocalName.of("d")));
 
-    Mockito.when(agentList.execute(any()))
-      .thenReturn(List.of(
-        NPAgentLocalName.of("b"),
-        NPAgentLocalName.of("c"),
-        NPAgentLocalName.of("d")
-      ));
+    final Map<NPAgentLocalName, NPAgentStatus> results =
+      Map.ofEntries(
+        entry(
+          NPAgentLocalName.of("a"),
+          new NPAgentStatus(
+            HEALTHY,
+            "Connected to example.com (Latency PT0S). Work executor is ready.")
+        ),
+        entry(
+          NPAgentLocalName.of("b"),
+          new NPAgentStatus(
+            UNHEALTHY,
+            "No server configured. Work executor is ready.")
+        ),
+        entry(
+          NPAgentLocalName.of("c"),
+          new NPAgentStatus(
+            UNHEALTHY,
+            "Connected to example.com (Latency PT0S). No work executor configured.")
+        ),
+        entry(
+          NPAgentLocalName.of("d"),
+          new NPAgentStatus(
+            UNHEALTHY,
+            "No server configured. No work executor configured.")
+        )
+      );
+
+    final Map<NPAgentLocalName, NPAgentWorkerStatus> supervisorResults =
+      Map.ofEntries(
+        entry(
+          NPAgentLocalName.of("a"),
+          new NPAgentWorkerStatus(
+            new NPAgentConnectionStatusConnected("example.com", Duration.ZERO),
+            new NPAgentWorkExecutorStatusIdle()
+          )
+        ),
+        entry(
+          NPAgentLocalName.of("b"),
+          new NPAgentWorkerStatus(
+            new NPAgentConnectionStatusUnconfigured(),
+            new NPAgentWorkExecutorStatusIdle()
+          )
+        ),
+        entry(
+          NPAgentLocalName.of("c"),
+          new NPAgentWorkerStatus(
+            new NPAgentConnectionStatusConnected("example.com", Duration.ZERO),
+            new NPAgentWorkExecutorStatusUnconfigured()
+          )
+        )
+      );
+
+
+    Mockito.when(supervisor.agentStatuses())
+      .thenReturn(supervisorResults);
 
     final var r = handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
-
-    Mockito.verify(agentList, new Times(1))
-      .execute(new AgentListType.Parameters(
-        Optional.of(NPAgentLocalName.of("a")),
-        250L
-      ));
+    assertEquals(results, r.results());
   }
 }

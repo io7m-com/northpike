@@ -85,6 +85,25 @@
   [field workExec  [cb:Option NPAC1WorkExecutorConfiguration]]
 ]
 
+[documentation NPAC1AgentStatusHealth "An agent status health value."]
+[variant NPAC1AgentStatusHealth
+  [case Healthy]
+  [case Unhealthy]
+]
+
+[documentation NPAC1AgentStatus "An agent status."]
+[record NPAC1AgentStatus
+  [field health      NPAC1AgentStatusHealth]
+  [field description cb:String]
+]
+
+[documentation NPAC1WorkExecutorSummary "A work executor description."]
+[record NPAC1WorkExecutorSummary
+  [field name        cb:String]
+  [field description cb:String]
+  [field properties  [cb:List cb:String]]
+]
+
 ;
 ; Commands
 ;
@@ -137,16 +156,8 @@
   [field server NPAC1AgentServerDescription]
 ]
 
-[documentation NPAC1CommandWorkExecGet "A request to get a work executor."]
-[record NPAC1CommandWorkExecGet
-  [documentation messageId "The message ID"]
-  [field messageId cb:UUID]
-  [documentation agent "The agent name."]
-  [field agent cb:String]
-]
-
-[documentation NPAC1CommandWorkExecPut "A request to update a work executor."]
-[record NPAC1CommandWorkExecPut
+[documentation NPAC1CommandAgentWorkExecPut "A request to update a work executor."]
+[record NPAC1CommandAgentWorkExecPut
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
   [documentation agent "The agent name."]
@@ -183,10 +194,6 @@
 [record NPAC1CommandAgentList
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
-  [documentation offset "The starting offset"]
-  [field offset [cb:Option cb:String]]
-  [documentation limit "The limit on the number of results returned"]
-  [field limit cb:IntegerUnsigned32]
 ]
 
 [documentation NPAC1CommandAgentServerAssign "A request to assign/unassign a server."]
@@ -199,10 +206,18 @@
   [field server [cb:Option cb:UUID]]
 ]
 
-[documentation NPAC1CommandAgentStatus "A request to get agent status values."]
-[record NPAC1CommandAgentStatus
+[documentation NPAC1CommandWorkExecSupported "A request to list work executors."]
+[record NPAC1CommandWorkExecSupported
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
+]
+
+[documentation NPAC1CommandWorkExecGet "A request to get a work executor."]
+[record NPAC1CommandWorkExecGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation name "The work executor type."]
+  [field name cb:String]
 ]
 
 ;
@@ -253,16 +268,6 @@
   [field results [cb:List NPAC1AgentServerSummary]]
 ]
 
-[documentation NPAC1ResponseWorkExec "A work exec response."]
-[record NPAC1ResponseWorkExec
-  [documentation messageId "The message ID"]
-  [field messageId cb:UUID]
-  [documentation correlationId "The message correlation ID"]
-  [field correlationId cb:UUID]
-  [documentation workExec "The result."]
-  [field workExec [cb:Option NPAC1WorkExecutorConfiguration]]
-]
-
 [documentation NPAC1ResponseAgent "An agent response."]
 [record NPAC1ResponseAgent
   [documentation messageId "The message ID"]
@@ -280,17 +285,27 @@
   [documentation correlationId "The message correlation ID"]
   [field correlationId cb:UUID]
   [documentation results "The result."]
-  [field results [cb:List cb:String]]
+  [field results [cb:Map cb:String NPAC1AgentStatus]]
 ]
 
-[documentation NPAC1ResponseAgentStatus "An agent status response."]
-[record NPAC1ResponseAgentStatus
+[documentation NPAC1ResponseWorkExecSupported "A list of supported work executors."]
+[record NPAC1ResponseWorkExecSupported
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
   [documentation correlationId "The message correlation ID"]
   [field correlationId cb:UUID]
-  [documentation status "The status values."]
-  [field status [cb:Map cb:String cb:String]]
+  [documentation results "The results."]
+  [field results [cb:List NPAC1WorkExecutorSummary]]
+]
+
+[documentation NPAC1ResponseWorkExecGet "A supported work executor."]
+[record NPAC1ResponseWorkExecGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation result "The results."]
+  [field result [cb:Option NPAC1WorkExecutorSummary]]
 ]
 
 [documentation NPAC "The Agent Console protocol."]
@@ -302,7 +317,7 @@
       NPAC1CommandAgentGet
       NPAC1CommandAgentList
       NPAC1CommandAgentServerAssign
-      NPAC1CommandAgentStatus
+      NPAC1CommandAgentWorkExecPut
       NPAC1CommandDisconnect
       NPAC1CommandLogin
       NPAC1CommandServerDelete
@@ -310,15 +325,15 @@
       NPAC1CommandServerList
       NPAC1CommandServerPut
       NPAC1CommandWorkExecGet
-      NPAC1CommandWorkExecPut
+      NPAC1CommandWorkExecSupported
       NPAC1ResponseAgent
       NPAC1ResponseAgentList
-      NPAC1ResponseAgentStatus
       NPAC1ResponseError
       NPAC1ResponseOK
       NPAC1ResponseServer
       NPAC1ResponseServerList
-      NPAC1ResponseWorkExec
+      NPAC1ResponseWorkExecGet
+      NPAC1ResponseWorkExecSupported
     ]
   ]
 ]

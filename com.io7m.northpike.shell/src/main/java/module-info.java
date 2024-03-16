@@ -40,4 +40,5 @@ module com.io7m.northpike.shell
   requires org.jline;
 
   exports com.io7m.northpike.shell;
+  exports com.io7m.northpike.shell.internal to com.io7m.northpike.tests;
 }

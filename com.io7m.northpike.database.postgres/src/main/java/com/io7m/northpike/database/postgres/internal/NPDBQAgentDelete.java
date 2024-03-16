@@ -17,7 +17,7 @@
 package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.DeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentDeleteType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.agents.NPAgentID;
@@ -32,10 +32,10 @@ import static java.util.Map.entry;
 
 public final class NPDBQAgentDelete
   extends NPDBQAbstract<NPAgentID, NPDatabaseUnit>
-  implements DeleteType
+  implements AgentDeleteType
 {
-  private static final Service<NPAgentID, NPDatabaseUnit, DeleteType> SERVICE =
-    new Service<>(DeleteType.class, NPDBQAgentDelete::new);
+  private static final Service<NPAgentID, NPDatabaseUnit, AgentDeleteType> SERVICE =
+    new Service<>(AgentDeleteType.class, NPDBQAgentDelete::new);
 
   /**
    * Construct a query.

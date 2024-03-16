@@ -26,20 +26,23 @@ import java.util.Objects;
 /**
  * The parameters required to list agents.
  *
- * @param matchLabels The expression against which to match agent labels
- * @param pageSize    The page size
+ * @param matchLabels    The expression against which to match agent labels
+ * @param includeDeleted Whether to include deleted agents
+ * @param pageSize       The page size
  */
 
 public record NPAgentSearchParameters(
   NPComparisonSetType<NPAgentLabelName> matchLabels,
+  boolean includeDeleted,
   long pageSize)
   implements NPSearchParametersType
 {
   /**
    * The parameters required to list agents.
    *
-   * @param matchLabels The expression against which to match agent labels
-   * @param pageSize    The page size
+   * @param matchLabels    The expression against which to match agent labels
+   * @param includeDeleted Whether to include deleted agents
+   * @param pageSize       The page size
    */
 
   public NPAgentSearchParameters

@@ -34,7 +34,9 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.agent.console_client;
   requires com.io7m.northpike.agent.database.api;
   requires com.io7m.northpike.agent.database.sqlite;
+  requires com.io7m.northpike.agent.locks;
   requires com.io7m.northpike.agent.main;
+  requires com.io7m.northpike.agent.metrics;
   requires com.io7m.northpike.agent.workexec.api;
   requires com.io7m.northpike.agent.workexec.local;
   requires com.io7m.northpike.agent.workexec.main;

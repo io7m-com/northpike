@@ -196,9 +196,9 @@ public final class NPUCmdAgentLabelGetTest
       .thenReturn(userId);
 
     final var labelGet =
-      Mockito.mock(NPDatabaseQueriesAgentsType.LabelGetType.class);
+      Mockito.mock(NPDatabaseQueriesAgentsType.AgentLabelGetType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.LabelGetType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentLabelGetType.class))
       .thenReturn(labelGet);
 
     Mockito.when(labelGet.execute(any()))
@@ -239,9 +239,9 @@ public final class NPUCmdAgentLabelGetTest
       .thenReturn(userId);
 
     final var labelGet =
-      Mockito.mock(NPDatabaseQueriesAgentsType.LabelGetType.class);
+      Mockito.mock(NPDatabaseQueriesAgentsType.AgentLabelGetType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.LabelGetType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentLabelGetType.class))
       .thenReturn(labelGet);
 
     final var label =

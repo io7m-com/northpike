@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.server.internal.agents;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeDeleteType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.LoginChallengeGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeGetType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPSignedData;
 import com.io7m.northpike.model.agents.NPAgentDescription;
@@ -71,7 +71,7 @@ public final class NPACmdLoginComplete
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         final var record =
-          transaction.queries(LoginChallengeGetType.class)
+          transaction.queries(AgentLoginChallengeGetType.class)
             .execute(completion.id())
             .orElseThrow(() -> {
               context.onAuthenticationFailed(
@@ -116,7 +116,7 @@ public final class NPACmdLoginComplete
           throw context.fail(ERROR_AUTHENTICATION, errorAuthentication());
         }
 
-        transaction.queries(LoginChallengeDeleteType.class)
+        transaction.queries(AgentLoginChallengeDeleteType.class)
           .execute(completion.id());
         transaction.commit();
       }

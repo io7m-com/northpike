@@ -23,11 +23,13 @@ module com.io7m.northpike.agent.workexec.main
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
+  requires com.io7m.northpike.agent.locks;
   requires com.io7m.northpike.agent.workexec.api;
   requires com.io7m.northpike.agent.workexec.local;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.protocol.agent.cb;
   requires com.io7m.northpike.protocol.agent;
+  requires com.io7m.northpike.shell.commons;
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.tools.api;
 

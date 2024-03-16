@@ -79,6 +79,7 @@ module com.io7m.northpike.server
     ;
 
   provides NPUserCommandExecutorType with
+    com.io7m.northpike.server.internal.users.NPUCmdAgentDelete,
     com.io7m.northpike.server.internal.users.NPUCmdAgentGet,
     com.io7m.northpike.server.internal.users.NPUCmdAgentLabelDelete,
     com.io7m.northpike.server.internal.users.NPUCmdAgentLabelGet,

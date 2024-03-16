@@ -38,10 +38,10 @@ import static java.util.Map.entry;
 
 public final class NPDBQAgentLabelDelete
   extends NPDBQAbstract<Set<NPAgentLabelName>, NPDatabaseUnit>
-  implements NPDatabaseQueriesAgentsType.LabelDeleteType
+  implements NPDatabaseQueriesAgentsType.AgentLabelDeleteType
 {
-  private static final Service<Set<NPAgentLabelName>, NPDatabaseUnit, LabelDeleteType> SERVICE =
-    new Service<>(LabelDeleteType.class, NPDBQAgentLabelDelete::new);
+  private static final Service<Set<NPAgentLabelName>, NPDatabaseUnit, AgentLabelDeleteType> SERVICE =
+    new Service<>(AgentLabelDeleteType.class, NPDBQAgentLabelDelete::new);
 
   /**
    * Construct a query.

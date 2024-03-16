@@ -17,28 +17,28 @@
 
 package com.io7m.northpike.protocol.agent_console;
 
-import com.io7m.northpike.model.agents.NPAgentLocalName;
+import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 
 import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Update work executors.
+ * Get a supported work executor.
  *
  * @param messageID The ID of this message
- * @param name      The agent name
+ * @param name      The name
  */
 
 public record NPACCommandWorkExecGet(
   UUID messageID,
-  NPAgentLocalName name)
-  implements NPACCommandType<NPACResponseWorkExec>
+  NPAWorkExecName name)
+  implements NPACCommandType<NPACResponseWorkExecGet>
 {
   /**
-   * Update work executors.
+   * Get a supported work executor.
    *
    * @param messageID The ID of this message
-   * @param name      The agent name
+   * @param name      The name
    */
 
   public NPACCommandWorkExecGet
@@ -48,8 +48,8 @@ public record NPACCommandWorkExecGet(
   }
 
   @Override
-  public Class<NPACResponseWorkExec> responseClass()
+  public Class<NPACResponseWorkExecGet> responseClass()
   {
-    return NPACResponseWorkExec.class;
+    return NPACResponseWorkExecGet.class;
   }
 }

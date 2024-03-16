@@ -26,7 +26,9 @@ import com.io7m.northpike.agent.database.api.NPAgentDatabaseType;
 import com.io7m.northpike.agent.internal.NPAgentResources;
 import com.io7m.northpike.agent.internal.events.NPAgentDeleted;
 import com.io7m.northpike.agent.internal.events.NPAgentEventType;
+import com.io7m.northpike.agent.internal.events.NPAgentServerAssigned;
 import com.io7m.northpike.agent.internal.events.NPAgentServerDeleted;
+import com.io7m.northpike.agent.internal.events.NPAgentServerUnassigned;
 import com.io7m.northpike.agent.internal.events.NPAgentServerUpdated;
 import com.io7m.northpike.agent.internal.events.NPAgentUpdated;
 import com.io7m.northpike.agent.internal.events.NPAgentWorkerConnectionStarted;
@@ -35,6 +37,7 @@ import com.io7m.northpike.agent.internal.events.NPAgentWorkerExecutorStarted;
 import com.io7m.northpike.agent.internal.events.NPAgentWorkerExecutorStopped;
 import com.io7m.northpike.agent.internal.events.NPAgentWorkerStarted;
 import com.io7m.northpike.agent.internal.events.NPAgentWorkerStopped;
+import com.io7m.northpike.agent.internal.status.NPAgentWorkerStatus;
 import com.io7m.northpike.agent.internal.worker.NPAgentWorker;
 import com.io7m.northpike.agent.internal.worker.NPAgentWorkerType;
 import com.io7m.northpike.model.NPException;
@@ -213,13 +216,37 @@ public final class NPAgentSupervisor
       case final NPAgentWorkerExecutorStopped ignored -> {
         // Ignored
       }
+      case final NPAgentServerAssigned serverAssigned -> {
+        this.onAgentEventServerAssigned(serverAssigned);
+      }
+      case final NPAgentServerUnassigned serverUnassigned -> {
+        this.onAgentEventServerUnassigned(serverUnassigned);
+      }
+    }
+  }
+
+  private void onAgentEventServerAssigned(
+    final NPAgentServerAssigned event)
+  {
+    final var agentName = event.agentName();
+    if (!this.workers.containsKey(agentName)) {
+      this.workerStart(agentName);
+    }
+  }
+
+  private void onAgentEventServerUnassigned(
+    final NPAgentServerUnassigned event)
+  {
+    final var agentName = event.agentName();
+    if (!this.workers.containsKey(agentName)) {
+      this.workerStart(agentName);
     }
   }
 
   private void onAgentEventAgentUpdated(
-    final NPAgentUpdated agentUpdated)
+    final NPAgentUpdated event)
   {
-    final var agentName = agentUpdated.agentName();
+    final var agentName = event.agentName();
     if (!this.workers.containsKey(agentName)) {
       this.workerStart(agentName);
     }
@@ -264,10 +291,10 @@ public final class NPAgentSupervisor
   }
 
   @Override
-  public Map<NPAgentLocalName, String> agentStatuses()
+  public Map<NPAgentLocalName, NPAgentWorkerStatus> agentStatuses()
   {
     final var results =
-      new HashMap<NPAgentLocalName, String>(this.workers.size());
+      new HashMap<NPAgentLocalName, NPAgentWorkerStatus>(this.workers.size());
     final var workersNow =
       List.copyOf(this.workers.values());
 
