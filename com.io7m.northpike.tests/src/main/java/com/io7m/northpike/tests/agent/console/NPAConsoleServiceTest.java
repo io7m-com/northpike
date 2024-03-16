@@ -55,6 +55,7 @@ import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tests.NPEventInterceptingService;
+import com.io7m.percentpass.extension.MinimumPassing;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -301,7 +302,7 @@ public final class NPAConsoleServiceTest
     }
   }
 
-  @Test
+  @MinimumPassing(passMinimum = 1, executionCount = 3)
   public void testAgentServerAssignNonexistent()
     throws Exception
   {
