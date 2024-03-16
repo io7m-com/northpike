@@ -16,6 +16,7 @@
 
 import com.io7m.northpike.plans.compiler.NPPlanCompilerFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
+import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryFactoryType;
 import com.io7m.northpike.server.internal.agents.NPAgentCommandExecutorType;
 import com.io7m.northpike.server.internal.users.NPUserCommandExecutorType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
@@ -64,6 +65,7 @@ module com.io7m.northpike.server
   uses NPAgentCommandExecutorType;
   uses NPPlanCompilerFactoryType;
   uses NPPlanParserFactoryType;
+  uses NPSCMRepositoryFactoryType;
   uses NPTelemetryServiceFactoryType;
   uses NPUserCommandExecutorType;
 

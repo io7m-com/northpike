@@ -29,6 +29,7 @@ import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
+import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryFactoryType;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.api.NPServerType;
@@ -235,6 +236,10 @@ public final class NPServer implements NPServerType
 
     services.register(NPTelemetryServiceType.class, this.telemetry);
     services.register(NPDatabaseType.class, newDatabase);
+
+    for (final var reposFactory : ServiceLoader.load(NPSCMRepositoryFactoryType.class)) {
+      services.register(NPSCMRepositoryFactoryType.class, reposFactory);
+    }
 
     final var metrics = new NPMetricsService(this.telemetry);
     services.register(NPMetricsServiceType.class, metrics);
