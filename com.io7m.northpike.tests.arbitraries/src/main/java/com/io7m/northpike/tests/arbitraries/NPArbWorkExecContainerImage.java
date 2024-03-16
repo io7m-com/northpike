@@ -18,8 +18,6 @@
 package com.io7m.northpike.tests.arbitraries;
 
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorContainerImage;
-import com.io7m.northpike.model.agents.NPAgentStatus;
-import com.io7m.northpike.model.agents.NPAgentStatusHealth;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 

@@ -18,7 +18,6 @@
 package com.io7m.northpike.shell.commons;
 
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorContainerImage;
-import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.quarrel.core.QValueConverterType;
 
 import java.util.Optional;
