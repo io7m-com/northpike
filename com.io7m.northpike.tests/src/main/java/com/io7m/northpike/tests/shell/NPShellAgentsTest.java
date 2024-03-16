@@ -967,11 +967,11 @@ public final class NPShellAgentsTest
 
     w.print("agent-delete ");
     w.print(" --id bbb05afd-07e8-4dad-a86e-79ed0dbf5487 ");
-    w.println();
+    w.print('\n');
 
     w.print("agent-delete-confirm ");
     w.print(UUID.fromString("00000000-0000-0000-0000-000000000000"));
-    w.println();
+    w.print('\n');
 
     w.flush();
     w.close();

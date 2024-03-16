@@ -116,7 +116,7 @@ public final class NPPreferencesService implements NPPreferencesServiceType
             PosixFilePermission.OWNER_WRITE
           )
         );
-      } catch (final IOException e) {
+      } catch (final IOException | UnsupportedOperationException e) {
         // Nothing we can do about this.
       }
       new NPPreferencesStorer(stream, this.preferences).store();

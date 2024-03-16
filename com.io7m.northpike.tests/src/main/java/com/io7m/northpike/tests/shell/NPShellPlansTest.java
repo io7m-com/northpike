@@ -445,11 +445,11 @@ public final class NPShellPlansTest
     w.print("plan-delete ");
     w.print("  --name com.io7m.example ");
     w.print("  --version 3 ");
-    w.println();
+    w.print('\n');
+    w.flush();
 
-    w.print("plan-delete-confirm ");
-    w.print(UUID.fromString("00000000-0000-0000-0000-000000000000"));
-    w.println();
+    w.print("plan-delete-confirm 00000000-0000-0000-0000-000000000000");
+    w.print('\n');
 
     w.flush();
     w.close();
