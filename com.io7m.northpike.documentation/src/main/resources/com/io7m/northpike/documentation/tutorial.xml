@@ -535,15 +535,16 @@ agent-machine$ /opt/northpike-agent/bin/northpike-agent shell
         that have defined servers will maintain persistent connections to the server. Right now, the agent doesn't know
         about our server, and the server doesn't know about any agents. We introduce the two to each other by first
         telling the agent about the server. The agent will attempt to connect to the server, but the server will not
-        allow the agent to log in (because the server has no agents defined). The server will, however, store a 
-        <Term type="term">login challenge</Term> for the agent. We can look at the current list of 
-        <Term type="term">login challenges</Term> on the server,
-        select the one that came from the agent we defined, and then use a single command to automatically create an
-        agent definition on the server.
+        allow the agent to log in (because the server has no agents defined). The server will, however, store a
+        <Term type="term">login challenge</Term>
+        for the agent. We can look at the current list of
+        <Term type="term">login challenges</Term>
+        on the server, select the one that came from the agent we defined, and then use a single command to
+        automatically create an agent definition on the server.
       </Paragraph>
       <Paragraph>
-        The first step is define a server. Servers within an agent host are uniquely identified by UUID values, so
-        we pick an arbitrary unused UUID. We also specify that the agent should connect to the server using TLS.
+        The first step is to define a server. Servers within an agent host are uniquely identified by UUID values, so we
+        pick an arbitrary unused UUID. We also specify that the agent should connect to the server using TLS.
       </Paragraph>
       <FormalItem title="Server Definition">
         <Verbatim><![CDATA[
@@ -593,8 +594,8 @@ TLS
 ]]></Verbatim>
       </FormalItem>
       <Paragraph>
-        At this point, the agent will start repeatedly trying to connect to the server, but the server has no
-        defined agents and therefore the authentication process will fail:
+        At this point, the agent will start repeatedly trying to connect to the server, but the server has no defined
+        agents and therefore the authentication process will fail:
       </Paragraph>
       <FormalItem title="Authentication">
         <Verbatim><![CDATA[
@@ -622,11 +623,12 @@ TLS
 ]]></Verbatim>
       </FormalItem>
       <Paragraph>
-        We can instruct the server to define a new agent based on this login challenge. The next time
-        the agent connects, it will sign the login challenge (proving that it owns the private key associated
-        with the published public key), and the server will permit the login. We're required to provide an
-        unused UUID value to identify the agent, and to provide a helpful name for organizational purposes. We'll
-        use the name <Term type="constant">linuxbuilds01</Term> for our agent.
+        We can instruct the server to define a new agent based on this login challenge. The next time the agent
+        connects, it will sign the login challenge (proving that it owns the private key associated with the published
+        public key), and the server will permit the login. We're required to provide an unused UUID value to identify
+        the agent, and to provide a helpful name for organizational purposes. We'll use the name <Term type="constant">
+        linuxbuilds01
+      </Term> for our agent.
       </Paragraph>
       <FormalItem title="Agent Creation">
         <Verbatim><![CDATA[
@@ -672,16 +674,16 @@ TLS
       </FormalItem>
       <Paragraph>
         The agent is still listed as <Term type="constant">UNHEALTHY</Term> as we have not configured a
-        <Link target="35f12f1c-5edc-4724-8a50-d330c3defb92">work executor</Link> for the agent. Configuring
-        a work executor is the next step.
+        <Link target="35f12f1c-5edc-4724-8a50-d330c3defb92">work executor</Link>
+        for the agent. Configuring a work executor is the next step.
       </Paragraph>
     </Subsection>
 
     <Subsection title="Work Executors">
       <Paragraph>
-        An agent has at most one <Link target="35f12f1c-5edc-4724-8a50-d330c3defb92">work executor</Link>. Our
-        current agent is marked as <Term type="constant">UNHEALTHY</Term> because we haven't configured a work
-        executor. The supported types of work executors can be listed:
+        An agent has at most one <Link target="35f12f1c-5edc-4724-8a50-d330c3defb92">work executor</Link>. Our current
+        agent is marked as <Term type="constant">UNHEALTHY</Term> because we haven't configured a work executor. The
+        supported types of work executors can be listed:
       </Paragraph>
       <FormalItem title="Supported Executors">
         <Verbatim><![CDATA[
@@ -696,17 +698,18 @@ TLS
 ]]></Verbatim>
       </FormalItem>
       <Paragraph>
-        The <Term type="constant">workexec.local</Term> executor is a simple executor that runs tools directly
-        on the host system without any kind of containerization. It's the simplest option for executing work, but
-        it doesn't provide any kind of isolation between tasks running on the same host system
+        The <Term type="constant">workexec.local</Term> executor is a simple executor that runs tools directly on the
+        host system without any kind of containerization. It's the simplest option for executing work, but it doesn't
+        provide any kind of isolation between tasks running on the same host system
         <LinkFootnote target="e1be95e9-5f0f-434f-8ad7-427712797888"/>. The
-        <Term type="constant">workexec.podman</Term> executor is a
-        <LinkExternal target="https://podman.io/">Podman</LinkExternal>-based executor that executes build tasks
-        inside isolated container instances. The <Term type="constant">workexec.podman</Term> executor therefore
-        gives much stronger isolation between build tasks running on the same system, but may not be suitable for
-        some types of tasks. For example, if the test suite of a particular project requires creating containers,
-        then it is much harder to configure this to work correctly (if it is possible at all) when the test suite
-        is already running inside a container.
+        <Term type="constant">workexec.podman</Term>
+        executor is a
+        <LinkExternal target="https://podman.io/">Podman</LinkExternal>-based executor that executes build tasks inside
+        isolated container instances. The <Term type="constant">workexec.podman</Term> executor therefore gives much
+        stronger isolation between build tasks running on the same system, but may not be suitable for some types of
+        tasks. For example, if the test suite of a particular project requires creating containers, then it is much
+        harder to configure this to work correctly (if it is possible at all) when the test suite is already running
+        inside a container.
       </Paragraph>
       <Paragraph>
         For this tutorial, we'll add a simple local executor:
@@ -738,9 +741,27 @@ TLS
       <Paragraph>
         In order to do useful work such as building code, we'll need to tell the server how to actually get that code.
         We'll add the <LinkExternal target="https://www.github.com/io7m/abstand">abstand</LinkExternal> repository to
-        the server as it's a fairly small and self-contained project that builds quickly. We'll use the
+        the server as it's a fairly small and self-contained project that builds quickly. The repository is a
+        <LinkExternal target="https://www.git-scm.com">Git</LinkExternal>
+        repository, so we'll need to use an appropriate <Term type="term">SCM provider</Term> to access the repository.
+        The
+        <Link target="2bd6b7d1-85b7-3a84-9445-ce9fe89e7068">scm-providers-supported</Link>
+        command lists the available providers:
+      </Paragraph>
+      <FormalItem title="Repository Creation">
+        <Verbatim><![CDATA[
+[northpike]$ scm-providers-supported
+┌────────────────────────────────────┬───────────────────────────┬────────────────────────────────────┐
+│ Name                               │ URI                       │ Description                        │
+├────────────────────────────────────┼───────────────────────────┼────────────────────────────────────┤
+│ com.io7m.northpike.repository.jgit │ https://eclipse.dev/jgit/ │ Eclipse JGit for Git repositories. │
+└────────────────────────────────────┴───────────────────────────┴────────────────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        We'll use the
         <Link target="29a0885f-9292-3820-8089-fabed0903981">repository-put</Link>
-        command to define the repository:
+        command to define the repository using the right SCM provider:
       </Paragraph>
       <FormalItem title="Repository Creation">
         <Verbatim><![CDATA[
@@ -826,6 +847,56 @@ E362BB4F16A9981DE7812F6E10E4AAD0B00D6CDD.asc: PGP public key block
 --signing-policy REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS
 ]]></Verbatim>
       </FormalItem>
+      <Paragraph>
+        We can summarize all the changes we've made so far:
+      </Paragraph>
+      <FormalItem title="Repository Display">
+        <Verbatim><![CDATA[
+[northpike]$ repository-get --id 591ec9f7-5afb-4416-8258-22f388be40ff
+┌───────────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Attribute                                     │ Value                                     │
+├───────────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Repository ID                                 │ 591ec9f7-5afb-4416-8258-22f388be40ff      │
+├───────────────────────────────────────────────┼───────────────────────────────────────────┤
+│ SCM Provider                                  │ com.io7m.northpike.repository.jgit        │
+├───────────────────────────────────────────────┼───────────────────────────────────────────┤
+│ URI                                           │ https://www.github.com/io7m/abstand       │
+├───────────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Credentials                                   │ CREDENTIALS_NONE                          │
+├───────────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Signing Policy                                │ REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS │
+└───────────────────────────────────────────────┴───────────────────────────────────────────┘
+
+[northpike]$ repository-public-keys-assigned --repository 591ec9f7-5afb-4416-8258-22f388be40ff
+┌────────────────────────────────────────────────┬──────────────────────────────────────────┐
+│ Attribute                                      │ Value                                    │
+├────────────────────────────────────────────────┼──────────────────────────────────────────┤
+│ Fingerprint                                    │ e362bb4f16a9981de7812f6e10e4aad0b00d6cdd │
+└────────────────────────────────────────────────┴──────────────────────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        When it comes to performing tasks, a repository defines the <Term type="term">where</Term> and
+        the <Term type="term">what</Term> for the task. We now need to define the
+        <Term type="term">when</Term>, the <Term type="term">how</Term>, and the <Term type="term">who</Term>.
+        The <Term type="term">how</Term> and the <Term type="term">who</Term> are specified by
+        <Link target="d9765a57-e6f1-47bf-bd53-50cbfcb186ba">plans</Link>, while the
+        <Term type="term">when</Term> is given by
+        <Link target="b8fb5b8f-a181-4de4-bec9-b4bd98bf7354">assignments</Link>. Assignments
+        depend upon plans, so we'll handle the plan first.
+      </Paragraph>
+    </Subsection>
+
+    <Subsection title="Plans" id="d9765a57-e6f1-47bf-bd53-50cbfcb186ba">
+      <Paragraph>
+        Plans...
+      </Paragraph>
+    </Subsection>
+
+    <Subsection title="Assignments" id="b8fb5b8f-a181-4de4-bec9-b4bd98bf7354">
+      <Paragraph>
+        Plans...
+      </Paragraph>
     </Subsection>
   </Subsection>
 
