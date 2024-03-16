@@ -302,7 +302,7 @@ public final class NPAConsoleServiceTest
     }
   }
 
-  @MinimumPassing(passMinimum = 1, executionCount = 3)
+  @MinimumPassing(passMinimum = 2, executionCount = 5)
   public void testAgentServerAssignNonexistent()
     throws Exception
   {
