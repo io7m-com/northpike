@@ -18,31 +18,37 @@
 package com.io7m.northpike.protocol.user;
 
 import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPToolSummary;
+
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- * The type of responses that contain paged results.
+ * A tool search.
  *
- * @param <T> The type of results
+ * @param messageID     The message ID
+ * @param correlationID The command that prompted this response
+ * @param results       The results
  */
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentLoginChallengeSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch,
-  NPUResponseToolSearch,
-  NPUResponseUserSearch
+public record NPUResponseToolSearch(
+  UUID messageID,
+  UUID correlationID,
+  NPPage<NPToolSummary> results)
+  implements NPUResponsePagedType<NPToolSummary>
 {
   /**
-   * @return The current results
+   * A tool search.
+   *
+   * @param messageID     The message ID
+   * @param correlationID The command that prompted this response
+   * @param results       The results
    */
 
-  NPPage<T> results();
+  public NPUResponseToolSearch
+  {
+    Objects.requireNonNull(messageID, "messageID");
+    Objects.requireNonNull(correlationID, "correlationID");
+    Objects.requireNonNull(results, "results");
+  }
 }

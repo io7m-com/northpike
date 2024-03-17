@@ -94,6 +94,9 @@ import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearc
 import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionValidate;
+import com.io7m.northpike.shell.internal.NPShellCmdToolSearchBegin;
+import com.io7m.northpike.shell.internal.NPShellCmdToolSearchNext;
+import com.io7m.northpike.shell.internal.NPShellCmdToolSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdUserSearchBegin;
 import com.io7m.northpike.shell.internal.NPShellCmdUserSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdUserSearchPrevious;
@@ -266,6 +269,9 @@ public final class NPShells implements NPShellFactoryType
         new NPShellCmdToolExecutionDescriptionSearchNext(services),
         new NPShellCmdToolExecutionDescriptionSearchPrevious(services),
         new NPShellCmdToolExecutionDescriptionValidate(services),
+        new NPShellCmdToolSearchBegin(services),
+        new NPShellCmdToolSearchNext(services),
+        new NPShellCmdToolSearchPrevious(services),
         new NPShellCmdUserSearchBegin(services),
         new NPShellCmdUserSearchNext(services),
         new NPShellCmdUserSearchPrevious(services),

@@ -20,6 +20,7 @@ import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryFactoryType;
 import com.io7m.northpike.server.internal.agents.NPAgentCommandExecutorType;
 import com.io7m.northpike.server.internal.users.NPUserCommandExecutorType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
+import com.io7m.northpike.tools.api.NPToolFactoryType;
 
 /**
  * Continuous integration (Server)
@@ -48,6 +49,7 @@ module com.io7m.northpike.server
   requires com.io7m.northpike.tls;
   requires com.io7m.northpike.toolexec.api;
   requires com.io7m.northpike.toolexec.program.api;
+  requires com.io7m.northpike.tools.api;
 
   requires com.io7m.anethum.api;
   requires com.io7m.anethum.slf4j;
@@ -67,6 +69,7 @@ module com.io7m.northpike.server
   uses NPPlanParserFactoryType;
   uses NPSCMRepositoryFactoryType;
   uses NPTelemetryServiceFactoryType;
+  uses NPToolFactoryType;
   uses NPUserCommandExecutorType;
 
   provides NPAgentCommandExecutorType with
@@ -148,6 +151,9 @@ module com.io7m.northpike.server
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchNext,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchPrevious,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionValidate,
+    com.io7m.northpike.server.internal.users.NPUCmdToolSearchBegin,
+    com.io7m.northpike.server.internal.users.NPUCmdToolSearchNext,
+    com.io7m.northpike.server.internal.users.NPUCmdToolSearchPrevious,
     com.io7m.northpike.server.internal.users.NPUCmdUserSearchBegin,
     com.io7m.northpike.server.internal.users.NPUCmdUserSearchNext,
     com.io7m.northpike.server.internal.users.NPUCmdUserSearchPrevious,

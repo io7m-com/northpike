@@ -16,13 +16,17 @@
 
 package com.io7m.northpike.tools.api;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPToolName;
+import com.io7m.northpike.model.NPToolSummary;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 import com.io7m.repetoir.core.RPServiceType;
 import com.io7m.verona.core.Version;
 import com.io7m.verona.core.VersionRange;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A factory of tools.
@@ -31,6 +35,18 @@ import java.nio.file.Path;
 public interface NPToolFactoryType
   extends RPServiceType
 {
+  /**
+   * @return A summary of the tool
+   */
+
+  default NPToolSummary summary()
+  {
+    return new NPToolSummary(
+      this.toolName(),
+      this.description()
+    );
+  }
+
   /**
    * @return The tool name
    */
@@ -71,4 +87,10 @@ public interface NPToolFactoryType
     return requiredName.equals(this.toolName())
            && this.toolVersions().contains(version);
   }
+
+  /**
+   * @return The default executions provided by the tool
+   */
+
+  Map<RDottedName, List<String>> defaultExecutions();
 }

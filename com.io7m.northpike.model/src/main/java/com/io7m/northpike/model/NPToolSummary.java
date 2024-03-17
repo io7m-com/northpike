@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -15,34 +15,31 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.model;
 
-import com.io7m.northpike.model.NPPage;
+import java.util.Objects;
 
 /**
- * The type of responses that contain paged results.
+ * A tool summary.
  *
- * @param <T> The type of results
+ * @param name        The tool name
+ * @param description The tool description
  */
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentLoginChallengeSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch,
-  NPUResponseToolSearch,
-  NPUResponseUserSearch
+public record NPToolSummary(
+  NPToolName name,
+  String description)
 {
   /**
-   * @return The current results
+   * A tool summary.
+   *
+   * @param name        The tool name
+   * @param description The tool description
    */
 
-  NPPage<T> results();
+  public NPToolSummary
+  {
+    Objects.requireNonNull(name, "name");
+    Objects.requireNonNull(description, "description");
+  }
 }

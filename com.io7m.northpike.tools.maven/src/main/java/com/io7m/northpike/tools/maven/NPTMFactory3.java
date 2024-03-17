@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.tools.maven;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tools.api.NPToolFactoryType;
@@ -27,6 +28,9 @@ import com.io7m.verona.core.Version;
 import com.io7m.verona.core.VersionRange;
 
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A tool factory for Maven 3.*.
@@ -44,6 +48,27 @@ public final class NPTMFactory3 implements NPToolFactoryType
       Version.of(4, 0, 0),
       false
     );
+
+  private static final Map<RDottedName, List<String>> DEFAULT_EXECUTIONS;
+
+  static {
+    final var m = new HashMap<RDottedName, List<String>>();
+
+    m.put(
+      new RDottedName("clean-verify"),
+      List.of("-C", "-e", "-U", "clean", "verify")
+    );
+    m.put(
+      new RDottedName("clean-verify-site"),
+      List.of("-C", "-e", "-U", "clean", "verify", "site")
+    );
+    m.put(
+      new RDottedName("deploy"),
+      List.of("-C", "-e", "-U", "deploy")
+    );
+
+    DEFAULT_EXECUTIONS = Map.copyOf(m);
+  }
 
   /**
    * A tool factory for Maven 3.*.
@@ -80,10 +105,17 @@ public final class NPTMFactory3 implements NPToolFactoryType
     final Path directory)
   {
     return new NPTM3(
+      this,
       services.requireService(NPStrings.class),
       version,
       directory
     );
+  }
+
+  @Override
+  public Map<RDottedName, List<String>> defaultExecutions()
+  {
+    return Map.copyOf(DEFAULT_EXECUTIONS);
   }
 
   @Override

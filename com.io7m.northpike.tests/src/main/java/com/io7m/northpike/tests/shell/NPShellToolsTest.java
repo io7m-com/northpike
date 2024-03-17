@@ -24,16 +24,21 @@ import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
+import com.io7m.northpike.model.NPToolSummary;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionGet;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionPut;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
+import com.io7m.northpike.protocol.user.NPUCommandToolSearchBegin;
+import com.io7m.northpike.protocol.user.NPUCommandToolSearchNext;
+import com.io7m.northpike.protocol.user.NPUCommandToolSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionGet;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionSearch;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionValidate;
+import com.io7m.northpike.protocol.user.NPUResponseToolSearch;
 import com.io7m.northpike.shell.NPShellConfiguration;
 import com.io7m.northpike.shell.NPShellType;
 import com.io7m.northpike.shell.NPShells;
@@ -70,10 +75,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 
 @Timeout(30L)
-public final class NPShellToolExecutionsTest
+public final class NPShellToolsTest
 {
   private static final Logger LOG =
-    LoggerFactory.getLogger(NPShellToolExecutionsTest.class);
+    LoggerFactory.getLogger(NPShellToolsTest.class);
 
   private NPShells shells;
   private NPUserClientFactoryType userClients;
@@ -391,5 +396,81 @@ public final class NPShellToolExecutionsTest
       .execute(isA(NPUCommandToolExecutionDescriptionSearchNext.class));
     Mockito.verify(this.userClient, new AtLeast(4))
       .execute(isA(NPUCommandToolExecutionDescriptionSearchPrevious.class));
+  }
+
+  @Test
+  public void testToolSearch()
+    throws Exception
+  {
+    final var page =
+      new NPPage<>(
+        List.of(
+          new NPToolSummary(
+            NPToolName.of("com.io7m.tool"),
+            "Tool 1"
+          ),
+          new NPToolSummary(
+            NPToolName.of("com.io7m.tool"),
+            "Tool 2"
+          ),
+          new NPToolSummary(
+            NPToolName.of("com.io7m.tool"),
+            "Tool 3"
+          )
+        ),
+        1,
+        1,
+        0L
+      );
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandToolSearchBegin.class))
+    ).thenReturn(new NPUResponseToolSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandToolSearchNext.class))
+    ).thenReturn(new NPUResponseToolSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandToolSearchPrevious.class))
+    ).thenReturn(new NPUResponseToolSearch(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      page
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+
+    w.println("tool-search-begin");
+    w.println("tool-search-next");
+    w.println("tool-search-previous");
+
+    w.println("set --formatter RAW");
+
+    w.println("tool-search-begin");
+    w.println("tool-search-next");
+    w.println("tool-search-previous");
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandToolSearchBegin.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandToolSearchNext.class));
+    Mockito.verify(this.userClient, new AtLeast(2))
+      .execute(isA(NPUCommandToolSearchPrevious.class));
   }
 }

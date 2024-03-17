@@ -232,6 +232,12 @@
   [field pageSize cb:IntegerUnsigned32]
 ]
 
+[documentation NPU1ToolSearchParameters "The tool search parameters."]
+[record NPU1ToolSearchParameters
+  [documentation pageSize "The page size."]
+  [field pageSize cb:IntegerUnsigned32]
+]
+
 [documentation NPU1PlanIdentifier "A plan identifier."]
 [record NPU1PlanIdentifier
   [documentation name "The name."]
@@ -545,6 +551,14 @@
   [field challenge NPU1AgentLoginChallenge]
 ]
 
+[documentation NPU1ToolSummary "A tool summary."]
+[record NPU1ToolSummary
+  [documentation name "The name."]
+  [field name cb:String]
+  [documentation description "The tool description."]
+  [field description cb:String]
+]
+
 ;
 ; Commands
 ;
@@ -746,7 +760,7 @@
 ]
 
 ;
-; Tool executions
+; Tool executions and tools
 ;
 
 [documentation NPU1CommandToolExecutionDescriptionPut "Create or update a tool execution description."]
@@ -791,6 +805,26 @@
 
 [documentation NPU1CommandToolExecutionDescriptionSearchPrevious "Continue searching tool execution descriptions."]
 [record NPU1CommandToolExecutionDescriptionSearchPrevious
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandToolSearchBegin "Start searching tools."]
+[record NPU1CommandToolSearchBegin
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation parameters "The search parameters."]
+  [field parameters NPU1ToolSearchParameters]
+]
+
+[documentation NPU1CommandToolSearchNext "Continue searching tools."]
+[record NPU1CommandToolSearchNext
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+]
+
+[documentation NPU1CommandToolSearchPrevious "Continue searching tools."]
+[record NPU1CommandToolSearchPrevious
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
 ]
@@ -1241,6 +1275,16 @@
   [field results [NPU1Page NPU1ToolExecutionDescriptionSummary]]
 ]
 
+[documentation NPU1ResponseToolSearch "A response to NPU1CommandToolSearchBegin."]
+[record NPU1ResponseToolSearch
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation results "The results"]
+  [field results [NPU1Page NPU1ToolSummary]]
+]
+
 [documentation NPU1ResponsePlanValidate "A response to NPU1CommandPlanValidate."]
 [record NPU1ResponsePlanValidate
   [documentation messageId "The message ID"]
@@ -1499,6 +1543,9 @@
       NPU1CommandToolExecutionDescriptionSearchNext
       NPU1CommandToolExecutionDescriptionSearchPrevious
       NPU1CommandToolExecutionDescriptionValidate
+      NPU1CommandToolSearchBegin
+      NPU1CommandToolSearchNext
+      NPU1CommandToolSearchPrevious
       NPU1CommandUserRolesAssign
       NPU1CommandUserRolesGet
       NPU1CommandUserRolesRevoke
@@ -1533,6 +1580,7 @@
       NPU1ResponseToolExecutionDescriptionGet
       NPU1ResponseToolExecutionDescriptionSearch
       NPU1ResponseToolExecutionDescriptionValidate
+      NPU1ResponseToolSearch
       NPU1ResponseUserRolesGet
       NPU1ResponseUserSearch
       NPU1ResponseUsersConnected

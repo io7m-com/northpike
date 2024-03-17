@@ -68,6 +68,7 @@ import com.io7m.northpike.tls.NPTLSContextService;
 import com.io7m.northpike.tls.NPTLSContextServiceType;
 import com.io7m.northpike.toolexec.api.NPTEvaluationService;
 import com.io7m.northpike.toolexec.api.NPTEvaluationServiceType;
+import com.io7m.northpike.tools.api.NPToolFactoryType;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 import io.opentelemetry.api.trace.SpanKind;
@@ -239,6 +240,10 @@ public final class NPServer implements NPServerType
 
     for (final var reposFactory : ServiceLoader.load(NPSCMRepositoryFactoryType.class)) {
       services.register(NPSCMRepositoryFactoryType.class, reposFactory);
+    }
+
+    for (final var toolFactory : ServiceLoader.load(NPToolFactoryType.class)) {
+      services.register(NPToolFactoryType.class, toolFactory);
     }
 
     final var metrics = new NPMetricsService(this.telemetry);

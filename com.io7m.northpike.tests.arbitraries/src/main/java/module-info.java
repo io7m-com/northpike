@@ -14,6 +14,8 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.northpike.tests.arbitraries.NPArbToolSearchParameters;
+import com.io7m.northpike.tests.arbitraries.NPArbToolSummary;
 import net.jqwik.api.providers.ArbitraryProvider;
 
 open module com.io7m.northpike.tests.arbitraries
@@ -116,6 +118,8 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbToolName,
     com.io7m.northpike.tests.arbitraries.NPArbToolReference,
     com.io7m.northpike.tests.arbitraries.NPArbToolReferenceName,
+    com.io7m.northpike.tests.arbitraries.NPArbToolSearchParameters,
+    com.io7m.northpike.tests.arbitraries.NPArbToolSummary,
     com.io7m.northpike.tests.arbitraries.NPArbUser,
     com.io7m.northpike.tests.arbitraries.NPArbUserConnected,
     com.io7m.northpike.tests.arbitraries.NPArbUserSearchParameters,
@@ -247,6 +251,9 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandToolExecutionDescriptionSearchNext,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandToolExecutionDescriptionSearchPrevious,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandToolExecutionDescriptionValidate,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandToolSearchBegin,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandToolSearchNext,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandToolSearchPrevious,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandUserSearchBegin,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandUserSearchNext,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandUserSearchPrevious,
@@ -280,6 +287,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseToolExecutionDescriptionGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseToolExecutionDescriptionSearch,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseToolExecutionDescriptionValidate,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseToolSearch,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseUserSearch,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseUsersConnected,
     com.io7m.northpike.tests.arbitraries.toolexec.NPArbTEVariable

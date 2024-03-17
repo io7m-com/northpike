@@ -15,34 +15,21 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
+package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPPage;
+import com.io7m.northpike.model.NPToolSearchParameters;
+import net.jqwik.api.Arbitraries;
 
-/**
- * The type of responses that contain paged results.
- *
- * @param <T> The type of results
- */
-
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentLoginChallengeSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch,
-  NPUResponseToolSearch,
-  NPUResponseUserSearch
+public final class NPArbToolSearchParameters
+  extends NPArbAbstract<NPToolSearchParameters>
 {
-  /**
-   * @return The current results
-   */
-
-  NPPage<T> results();
+  public NPArbToolSearchParameters()
+  {
+    super(
+      NPToolSearchParameters.class,
+      () -> {
+        return Arbitraries.longs().map(NPToolSearchParameters::new);
+      }
+    );
+  }
 }

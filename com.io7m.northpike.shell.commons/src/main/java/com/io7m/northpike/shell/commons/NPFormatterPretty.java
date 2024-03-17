@@ -30,6 +30,7 @@ import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
+import com.io7m.northpike.model.NPToolSummary;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.agents.NPAgentDescription;
@@ -1052,6 +1053,29 @@ public final class NPFormatterPretty implements NPFormatterType
 
     for (final var property : summary.properties()) {
       builder.addRow().addCell(property.toString());
+    }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatTools(
+    final NPPage<NPToolSummary> page)
+    throws Exception
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(2))
+        .declareColumn("Name", atLeastContentOrHeader())
+        .declareColumn("Description", atLeastContentOrHeader());
+
+    for (final var item : page.items()) {
+      builder.addRow()
+        .addCell(item.name().toString())
+        .addCell(item.description());
     }
 
     this.renderTable(builder.build());

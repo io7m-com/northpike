@@ -29,6 +29,7 @@ import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
+import com.io7m.northpike.model.NPToolSummary;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.agents.NPAgentDescription;
@@ -695,6 +696,25 @@ public final class NPFormatterRaw implements NPFormatterType
       w.print("Property: ");
       w.println(prop);
     }
+  }
+
+  @Override
+  public void formatTools(
+    final NPPage<NPToolSummary> page)
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    out.println("# Name | Description");
+
+    for (final var item : page.items()) {
+      out.printf(
+        "%s | %s%n",
+        item.name(),
+        item.description()
+      );
+    }
+    out.flush();
   }
 
   static String formatSchedule(

@@ -31,6 +31,12 @@ import java.util.concurrent.Flow;
 public interface NPToolType extends AutoCloseable
 {
   /**
+   * @return The factory that produced the tool
+   */
+
+  NPToolFactoryType factory();
+
+  /**
    * @return A stream of events published by the tool
    */
 
@@ -103,5 +109,8 @@ public interface NPToolType extends AutoCloseable
    * @return The default executions provided by the tool
    */
 
-  Map<RDottedName, List<String>> defaultExecutions();
+  default Map<RDottedName, List<String>> defaultExecutions()
+  {
+    return this.factory().defaultExecutions();
+  }
 }

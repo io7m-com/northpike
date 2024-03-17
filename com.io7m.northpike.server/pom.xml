@@ -134,6 +134,11 @@
       <artifactId>com.io7m.northpike.plans.compiler</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.northpike.tools.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>io.opentelemetry</groupId>

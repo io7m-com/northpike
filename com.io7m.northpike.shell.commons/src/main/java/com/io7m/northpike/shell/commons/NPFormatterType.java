@@ -28,6 +28,7 @@ import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
+import com.io7m.northpike.model.NPToolSummary;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.agents.NPAgentDescription;
@@ -442,5 +443,17 @@ public interface NPFormatterType
 
   void formatWorkExecutorSummary(
     NPAWorkExecutorSummary summary)
+    throws Exception;
+
+  /**
+   * Format tool summaries.
+   *
+   * @param summaries The summaries
+   *
+   * @throws Exception On errors
+   */
+
+  void formatTools(
+    NPPage<NPToolSummary> summaries)
     throws Exception;
 }

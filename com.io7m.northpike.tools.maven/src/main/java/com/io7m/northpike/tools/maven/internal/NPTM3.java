@@ -22,12 +22,12 @@ import com.io7m.jdownload.core.JDownloadRequestType;
 import com.io7m.jdownload.core.JDownloadRequests;
 import com.io7m.jdownload.core.JDownloadSucceeded;
 import com.io7m.jmulticlose.core.CloseableCollectionType;
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.strings.NPStringConstantApplied;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tools.api.NPToolEventType;
 import com.io7m.northpike.tools.api.NPToolException;
+import com.io7m.northpike.tools.api.NPToolFactoryType;
 import com.io7m.northpike.tools.api.NPToolProcessOutput;
 import com.io7m.northpike.tools.api.NPToolProgramResult;
 import com.io7m.northpike.tools.api.NPToolTaskCompletedFailure;
@@ -40,6 +40,7 @@ import com.io7m.northpike.tools.common.NPToolExceptions;
 import com.io7m.northpike.tools.common.NPToolExecutions;
 import com.io7m.northpike.tools.common.NPToolHTTPClients;
 import com.io7m.northpike.tools.common.NPToolResources;
+import com.io7m.northpike.tools.maven.NPTMFactory3;
 import com.io7m.streamtime.core.STTransferStatistics;
 import com.io7m.verona.core.Version;
 import org.apache.commons.lang3.SystemUtils;
@@ -52,7 +53,6 @@ import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,8 +71,6 @@ public final class NPTM3 implements NPToolType
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(NPTM3.class);
-
-  private static final Map<RDottedName, List<String>> DEFAULT_EXECUTIONS;
 
   private static final String DEFAULT_HOST =
     "repo1.maven.org";
@@ -93,26 +91,9 @@ public final class NPTM3 implements NPToolType
   private static final String CHECKSUM_FILE_TMP_NAME =
     "apache-maven-%s-bin.tar.gz.sha512.tmp";
 
-  static {
-    final var m = new HashMap<RDottedName, List<String>>();
-
-    m.put(
-      new RDottedName("clean-verify"),
-      List.of("-C", "-e", "-U", "clean", "verify")
-    );
-    m.put(
-      new RDottedName("clean-verify-site"),
-      List.of("-C", "-e", "-U", "clean", "verify", "site")
-    );
-    m.put(
-      new RDottedName("deploy"),
-      List.of("-C", "-e", "-U", "deploy")
-    );
-
-    DEFAULT_EXECUTIONS = Map.copyOf(m);
-  }
 
   private final SubmissionPublisher<NPToolEventType> events;
+  private final NPTMFactory3 factory;
   private final NPStrings strings;
   private final Version version;
   private final Path directory;
@@ -125,16 +106,20 @@ public final class NPTM3 implements NPToolType
   /**
    * A Maven 3.* tool.
    *
+   * @param inFactory   The factory
    * @param inStrings   The string resources
    * @param inVersion   The version
    * @param inDirectory The installation directory
    */
 
   public NPTM3(
+    final NPTMFactory3 inFactory,
     final NPStrings inStrings,
     final Version inVersion,
     final Path inDirectory)
   {
+    this.factory =
+      Objects.requireNonNull(inFactory, "factory");
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
     this.version =
@@ -157,6 +142,12 @@ public final class NPTM3 implements NPToolType
   public String toString()
   {
     return String.format("[Tool org.apache.maven %s]", this.version);
+  }
+
+  @Override
+  public NPToolFactoryType factory()
+  {
+    return this.factory;
   }
 
   @Override
@@ -314,12 +305,6 @@ public final class NPTM3 implements NPToolType
     final boolean b)
   {
     this.https = b;
-  }
-
-  @Override
-  public Map<RDottedName, List<String>> defaultExecutions()
-  {
-    return DEFAULT_EXECUTIONS;
   }
 
   @Override

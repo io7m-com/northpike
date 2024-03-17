@@ -15,34 +15,26 @@
  */
 
 
-package com.io7m.northpike.protocol.user;
-
-import com.io7m.northpike.model.NPPage;
+package com.io7m.northpike.model;
 
 /**
- * The type of responses that contain paged results.
+ * The parameters required to list tools.
  *
- * @param <T> The type of results
+ * @param pageSize          The page size
  */
 
-public sealed interface NPUResponsePagedType<T>
-  extends NPUResponseType
-  permits NPUResponseAgentLabelSearch,
-  NPUResponseAgentLoginChallengeSearch,
-  NPUResponseAgentSearch,
-  NPUResponseAssignmentExecutionSearch,
-  NPUResponseAssignmentSearch,
-  NPUResponseAuditSearch,
-  NPUResponsePlanSearch,
-  NPUResponsePublicKeySearch,
-  NPUResponseRepositorySearch,
-  NPUResponseToolExecutionDescriptionSearch,
-  NPUResponseToolSearch,
-  NPUResponseUserSearch
+public record NPToolSearchParameters(
+  long pageSize)
+  implements NPSearchParametersType
 {
   /**
-   * @return The current results
+   * The parameters required to list tools.
+   *
+   * @param pageSize          The page size
    */
 
-  NPPage<T> results();
+  public NPToolSearchParameters
+  {
+    pageSize = NPPageSizes.clampPageSize(pageSize);
+  }
 }

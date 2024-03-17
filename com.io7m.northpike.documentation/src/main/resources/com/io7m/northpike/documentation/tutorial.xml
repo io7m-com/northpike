@@ -876,24 +876,58 @@ E362BB4F16A9981DE7812F6E10E4AAD0B00D6CDD.asc: PGP public key block
 ]]></Verbatim>
       </FormalItem>
       <Paragraph>
-        When it comes to performing tasks, a repository defines the <Term type="term">where</Term> and
-        the <Term type="term">what</Term> for the task. We now need to define the
-        <Term type="term">when</Term>, the <Term type="term">how</Term>, and the <Term type="term">who</Term>.
-        The <Term type="term">how</Term> and the <Term type="term">who</Term> are specified by
+        When it comes to performing tasks, a repository defines the <Term type="term">where</Term> and the
+        <Term type="term">what</Term>
+        for the task. We now need to define the
+        <Term type="term">when</Term>, the <Term type="term">how</Term>, and the <Term type="term">who</Term>. The
+        <Term type="term">how</Term>
+        and the <Term type="term">who</Term> are specified by
         <Link target="d9765a57-e6f1-47bf-bd53-50cbfcb186ba">plans</Link>, while the
-        <Term type="term">when</Term> is given by
-        <Link target="b8fb5b8f-a181-4de4-bec9-b4bd98bf7354">assignments</Link>. Assignments
-        depend upon plans, so we'll handle the plan first.
+        <Term type="term">when</Term>
+        is given by
+        <Link target="b8fb5b8f-a181-4de4-bec9-b4bd98bf7354">assignments</Link>. Assignments depend upon plans, so we'll
+        handle the plan first.
       </Paragraph>
     </Subsection>
 
-    <Subsection title="Plans" id="d9765a57-e6f1-47bf-bd53-50cbfcb186ba">
+    <Subsection title="Plans"
+                id="d9765a57-e6f1-47bf-bd53-50cbfcb186ba">
       <Paragraph>
-        Plans...
+        <Link target="7b6d8296-cba1-448b-96e0-10e89b61bec0">Plans</Link>
+        describe the series of tasks that have to be performed in order to achieve a desired goal. In our case, we have
+        a fairly simple goal: Build the
+        <LinkExternal target="https://www.github.com/io7m/abstand">abstand</LinkExternal>
+        project and run its test suite.
       </Paragraph>
+      <Paragraph>
+        In order to do this, we'll have to write a <Term type="term">plan</Term>. The plan will contain a single task
+        that simply executes the build tool used for <Term type="package">abstand</Term>. The
+        <Term type="package">abstand</Term>
+        project uses the
+        <LinkExternal target="https://maven.apache.org/">Apache Maven</LinkExternal>
+        build system, so we'll need to work out which
+        <Term type="package">northpike</Term>
+        <Link target="fc06253c-8194-4a04-8d65-7bc2de2e7ea9">tool</Link>
+        provides Apache Maven support. At the time of writing, this is fairly easy as
+        <Term type="package">northpike</Term>
+        only provides support for a tiny handful of tools. Apache Maven is, in fact, the only tool available on the
+        server used to write this tutorial:
+      </Paragraph>
+      <FormalItem title="Tool Search">
+        <Verbatim><![CDATA[
+[northpike]$ tool-search-previous
+ Page 1 of 1, offset 0
+┌───────────────────────────────────┬───────────────────────────────────────────────────────┐
+│ Name                              │ Description                                           │
+├───────────────────────────────────┼───────────────────────────────────────────────────────┤
+│ org.apache.maven                  │ Tool service for org.apache.maven (Apache Maven 3.*). │
+└───────────────────────────────────┴───────────────────────────────────────────────────────┘
+]]></Verbatim>
+      </FormalItem>
     </Subsection>
 
-    <Subsection title="Assignments" id="b8fb5b8f-a181-4de4-bec9-b4bd98bf7354">
+    <Subsection title="Assignments"
+                id="b8fb5b8f-a181-4de4-bec9-b4bd98bf7354">
       <Paragraph>
         Plans...
       </Paragraph>
