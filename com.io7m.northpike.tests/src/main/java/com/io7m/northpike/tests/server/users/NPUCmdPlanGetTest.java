@@ -65,7 +65,7 @@ public final class NPUCmdPlanGetTest
         NPPlanName.of("com.io7m.plan"),
         1L
       ),
-      NPPlanFormats.xml1(),
+      NPPlanFormats.xml1().name(),
       """
         <?xml version="1.0" encoding="UTF-8" ?>
         <P:Plan xmlns:P="urn:com.io7m.northpike.plans:1" Name="com.io7m.build" Version="1">
@@ -213,9 +213,9 @@ public final class NPUCmdPlanGetTest
       .thenReturn(userId);
 
     final var planGet =
-      Mockito.mock(NPDatabaseQueriesPlansType.GetUnparsedType.class);
+      Mockito.mock(NPDatabaseQueriesPlansType.PlanGetUnparsedType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesPlansType.GetUnparsedType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesPlansType.PlanGetUnparsedType.class))
       .thenReturn(planGet);
 
     Mockito.when(planGet.execute(any()))
@@ -256,9 +256,9 @@ public final class NPUCmdPlanGetTest
       .thenReturn(userId);
 
     final var planGet =
-      Mockito.mock(NPDatabaseQueriesPlansType.GetUnparsedType.class);
+      Mockito.mock(NPDatabaseQueriesPlansType.PlanGetUnparsedType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesPlansType.GetUnparsedType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesPlansType.PlanGetUnparsedType.class))
       .thenReturn(planGet);
 
     Mockito.when(planGet.execute(any()))

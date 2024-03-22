@@ -18,8 +18,8 @@
 package com.io7m.northpike.plans.parsers;
 
 import com.io7m.anethum.api.ParseStatus;
-import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPPreserveLexical;
+import com.io7m.northpike.model.plans.NPPlanFormatDescription;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -62,7 +62,7 @@ public final class NPPlanParsers implements NPPlanParserFactoryType
   }
 
   @Override
-  public Set<NPFormatName> formats()
+  public Set<NPPlanFormatDescription> formats()
   {
     return NPPlanFormats.formats();
   }

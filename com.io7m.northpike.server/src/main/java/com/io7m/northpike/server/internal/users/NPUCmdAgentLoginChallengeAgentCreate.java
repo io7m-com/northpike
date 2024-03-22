@@ -21,7 +21,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeDeleteType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentPutType;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.agents.NPAgentID;
@@ -88,7 +88,7 @@ public final class NPUCmdAgentLoginChallengeAgentCreate
 
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
+        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
 
         /*
          * We want to include deleted agents so that we don't try to create

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<Plan xmlns="urn:com.io7m.northpike.plans:1"
+      Name="com.northpike.tutorial"
+      Description="An example plan."
+      Version="1">
+
+  <Timeouts AgentSelection="PT15M"
+            TaskExecution="PT10M"/>
+
+  <Tools>
+    <Tool ReferenceName="maven"
+          ToolName="org.apache.maven"
+          ToolVersion="3.9.1"/>
+  </Tools>
+
+  <Task Name="build"
+        Description="Build the project and run tests.">
+    <CleanPolicyImmediately/>
+    <ToolExecution ReferenceName="maven"
+                   ExecutionName="clean-verify"
+                   ExecutionVersion="0"/>
+  </Task>
+
+</Plan>

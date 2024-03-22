@@ -18,7 +18,7 @@
 package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.DeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanDeleteType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import org.jooq.DSLContext;
@@ -36,10 +36,10 @@ import static java.util.Map.entry;
 
 public final class NPDBQPlanDelete
   extends NPDBQAbstract<NPPlanIdentifier, NPDatabaseUnit>
-  implements DeleteType
+  implements PlanDeleteType
 {
-  private static final NPDBQueryProviderType.Service<NPPlanIdentifier, NPDatabaseUnit, DeleteType> SERVICE =
-    new NPDBQueryProviderType.Service<>(DeleteType.class, NPDBQPlanDelete::new);
+  private static final NPDBQueryProviderType.Service<NPPlanIdentifier, NPDatabaseUnit, PlanDeleteType> SERVICE =
+    new NPDBQueryProviderType.Service<>(PlanDeleteType.class, NPDBQPlanDelete::new);
 
   /**
    * Construct a query.

@@ -68,6 +68,7 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.io7m.northpike.agent.workexec.api.NPAWorkEvent.Severity.ERROR;
 import static com.io7m.northpike.agent.workexec.api.NPAWorkEvent.Severity.INFO;
@@ -101,6 +102,7 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
   private final HashMap<NPToolReferenceName, NPToolType> tools;
   private final HashMap<String, String> taskAttributes;
   private final NPToolArchives toolArchives;
+  private final AtomicLong eventIndex;
   private NPWorkspace workspace;
 
   private NPWorkLocalExecution(
@@ -133,6 +135,9 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
       new SubmissionPublisher<>();
 
     this.resources.add(this.events);
+
+    this.eventIndex =
+      new AtomicLong(1L);
 
     this.tools =
       new HashMap<>();
@@ -321,6 +326,7 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
               new NPAWorkEvent(
                 ERROR,
                 OffsetDateTime.now(),
+                this.nextEventIndex(),
                 Objects.requireNonNullElse(
                   io.exception().getMessage(),
                   this.strings.format(ERROR_IO)
@@ -342,6 +348,11 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
     }
   }
 
+  private long nextEventIndex()
+  {
+    return this.eventIndex.getAndIncrement();
+  }
+
   private void onDownloadInProgress(
     final STTransferStatistics transfer)
   {
@@ -353,6 +364,7 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
       new NPAWorkEvent(
         INFO,
         OffsetDateTime.now(),
+        this.nextEventIndex(),
         "Downloading archive...",
         this.taskAttributes,
         Optional.empty()
@@ -479,6 +491,7 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
         new NPAWorkEvent(
           INFO,
           OffsetDateTime.now(),
+          this.nextEventIndex(),
           format.formatted(arguments),
           this.taskAttributes,
           Optional.empty()
@@ -498,6 +511,7 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
         new NPAWorkEvent(
           ERROR,
           OffsetDateTime.now(),
+          this.nextEventIndex(),
           format.formatted(arguments),
           this.taskAttributes,
           Optional.empty()
@@ -520,6 +534,7 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
         new NPAWorkEvent(
           ERROR,
           OffsetDateTime.now(),
+          this.nextEventIndex(),
           Objects.requireNonNullElse(
             e.getMessage(),
             e.getClass().getCanonicalName()),
@@ -611,6 +626,7 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
             this.events.submit(new NPAWorkEvent(
               ERROR,
               OffsetDateTime.now(),
+              this.nextEventIndex(),
               failure.exception().getMessage(),
               this.taskAttributes,
               Optional.of(NPStoredException.ofException(failure.exception()))
@@ -621,6 +637,7 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
             this.events.submit(new NPAWorkEvent(
               INFO,
               OffsetDateTime.now(),
+              this.nextEventIndex(),
               "Task completed successfully.",
               this.taskAttributes,
               Optional.empty()
@@ -631,6 +648,7 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
             this.events.submit(new NPAWorkEvent(
               INFO,
               OffsetDateTime.now(),
+              this.nextEventIndex(),
               "Task in progress (%.2f)".formatted(
                 Double.valueOf(progress.progress() * 100.0)
               ),
@@ -648,6 +666,7 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
             this.events.submit(new NPAWorkEvent(
               INFO,
               OffsetDateTime.now(),
+              this.nextEventIndex(),
               "Task started.",
               this.taskAttributes,
               Optional.empty()
@@ -663,6 +682,7 @@ public final class NPWorkLocalExecution implements NPAWorkExecutionType
         this.events.submit(new NPAWorkEvent(
           INFO,
           OffsetDateTime.now(),
+          this.nextEventIndex(),
           output.text(),
           this.taskAttributes,
           Optional.empty()

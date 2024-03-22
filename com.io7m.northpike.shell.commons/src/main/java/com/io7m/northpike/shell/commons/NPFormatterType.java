@@ -26,6 +26,7 @@ import com.io7m.northpike.model.NPPublicKeySummary;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPToolDescription;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPToolSummary;
@@ -44,6 +45,7 @@ import com.io7m.northpike.model.agents.NPAgentStatus;
 import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
+import com.io7m.northpike.model.plans.NPPlanFormatDescription;
 import com.io7m.northpike.model.plans.NPPlanSummary;
 import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.preferences.api.NPPreferenceServerBookmark;
@@ -455,5 +457,29 @@ public interface NPFormatterType
 
   void formatTools(
     NPPage<NPToolSummary> summaries)
+    throws Exception;
+
+  /**
+   * Format tool descriptions.
+   *
+   * @param toolDescription The description
+   *
+   * @throws Exception On errors
+   */
+
+  void formatTool(
+    NPToolDescription toolDescription)
+    throws Exception;
+
+  /**
+   * Format plan formats.
+   *
+   * @param formats The formats
+   *
+   * @throws Exception On errors
+   */
+
+  void formatPlanFormats(
+    Set<NPPlanFormatDescription> formats)
     throws Exception;
 }

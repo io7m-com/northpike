@@ -16,10 +16,12 @@
 
 import com.io7m.northpike.plans.compiler.NPPlanCompilerFactoryType;
 import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
+import com.io7m.northpike.plans.parsers.NPPlanSerializerFactoryType;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryFactoryType;
 import com.io7m.northpike.server.internal.agents.NPAgentCommandExecutorType;
 import com.io7m.northpike.server.internal.users.NPUserCommandExecutorType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
+import com.io7m.northpike.toolexec.api.NPTEvaluationLanguageProviderType;
 import com.io7m.northpike.tools.api.NPToolFactoryType;
 
 /**
@@ -28,6 +30,8 @@ import com.io7m.northpike.tools.api.NPToolFactoryType;
 
 module com.io7m.northpike.server
 {
+  requires static org.osgi.annotation.versioning;
+
   requires com.io7m.northpike.clock;
   requires com.io7m.northpike.connections;
   requires com.io7m.northpike.database.api;
@@ -48,6 +52,7 @@ module com.io7m.northpike.server
   requires com.io7m.northpike.telemetry.api;
   requires com.io7m.northpike.tls;
   requires com.io7m.northpike.toolexec.api;
+  requires com.io7m.northpike.toolexec.lines;
   requires com.io7m.northpike.toolexec.program.api;
   requires com.io7m.northpike.tools.api;
 
@@ -67,7 +72,9 @@ module com.io7m.northpike.server
   uses NPAgentCommandExecutorType;
   uses NPPlanCompilerFactoryType;
   uses NPPlanParserFactoryType;
+  uses NPPlanSerializerFactoryType;
   uses NPSCMRepositoryFactoryType;
+  uses NPTEvaluationLanguageProviderType;
   uses NPTelemetryServiceFactoryType;
   uses NPToolFactoryType;
   uses NPUserCommandExecutorType;
@@ -120,6 +127,7 @@ module com.io7m.northpike.server
     com.io7m.northpike.server.internal.users.NPUCmdDisconnect,
     com.io7m.northpike.server.internal.users.NPUCmdLogin,
     com.io7m.northpike.server.internal.users.NPUCmdPlanDelete,
+    com.io7m.northpike.server.internal.users.NPUCmdPlanFormatsSupported,
     com.io7m.northpike.server.internal.users.NPUCmdPlanGet,
     com.io7m.northpike.server.internal.users.NPUCmdPlanPut,
     com.io7m.northpike.server.internal.users.NPUCmdPlanSearchBegin,
@@ -151,6 +159,7 @@ module com.io7m.northpike.server
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchNext,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionSearchPrevious,
     com.io7m.northpike.server.internal.users.NPUCmdToolExecutionDescriptionValidate,
+    com.io7m.northpike.server.internal.users.NPUCmdToolGet,
     com.io7m.northpike.server.internal.users.NPUCmdToolSearchBegin,
     com.io7m.northpike.server.internal.users.NPUCmdToolSearchNext,
     com.io7m.northpike.server.internal.users.NPUCmdToolSearchPrevious,

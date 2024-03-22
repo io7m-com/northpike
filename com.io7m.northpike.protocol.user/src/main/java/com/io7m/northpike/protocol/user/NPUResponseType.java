@@ -34,6 +34,7 @@ public sealed interface NPUResponseType
   NPUResponseError,
   NPUResponseOK,
   NPUResponsePagedType,
+  NPUResponsePlanFormatsSupported,
   NPUResponsePlanGet,
   NPUResponsePlanValidate,
   NPUResponsePublicKeyGet,
@@ -43,6 +44,7 @@ public sealed interface NPUResponseType
   NPUResponseSelf,
   NPUResponseToolExecutionDescriptionGet,
   NPUResponseToolExecutionDescriptionValidate,
+  NPUResponseToolGet,
   NPUResponseUserRolesGet,
   NPUResponseUsersConnected
 {

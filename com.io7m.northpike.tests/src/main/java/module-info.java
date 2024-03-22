@@ -14,6 +14,15 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.northpike.plans.compiler.NPPlanCompilerFactoryType;
+import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
+import com.io7m.northpike.plans.parsers.NPPlanSerializerFactoryType;
+import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryFactoryType;
+import com.io7m.northpike.server.internal.agents.NPAgentCommandExecutorType;
+import com.io7m.northpike.server.internal.users.NPUserCommandExecutorType;
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
+import com.io7m.northpike.toolexec.api.NPTEvaluationLanguageProviderType;
+import com.io7m.northpike.tools.api.NPToolFactoryType;
 import net.jqwik.api.providers.ArbitraryProvider;
 
 /**
@@ -26,7 +35,15 @@ open module com.io7m.northpike.tests
   requires static org.osgi.annotation.bundle;
 
   uses ArbitraryProvider;
-  uses com.io7m.northpike.tools.api.NPToolFactoryType;
+  uses NPAgentCommandExecutorType;
+  uses NPPlanCompilerFactoryType;
+  uses NPPlanParserFactoryType;
+  uses NPPlanSerializerFactoryType;
+  uses NPSCMRepositoryFactoryType;
+  uses NPTEvaluationLanguageProviderType;
+  uses NPTelemetryServiceFactoryType;
+  uses NPToolFactoryType;
+  uses NPUserCommandExecutorType;
 
   requires com.io7m.northpike.agent.api;
   requires com.io7m.northpike.agent.configuration;
@@ -65,6 +82,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.northpike.scm_repository.spi;
   requires com.io7m.northpike.server.api;
   requires com.io7m.northpike.server.configuration;
+  requires com.io7m.northpike.server.main;
   requires com.io7m.northpike.server;
   requires com.io7m.northpike.shell.commons;
   requires com.io7m.northpike.shell;

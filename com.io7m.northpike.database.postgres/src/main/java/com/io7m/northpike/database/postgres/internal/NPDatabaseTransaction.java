@@ -21,7 +21,7 @@ import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesType;
 import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.strings.NPStringConstantType;
 import io.opentelemetry.api.trace.Span;
@@ -46,7 +46,7 @@ final class NPDatabaseTransaction
 {
   private final NPDatabaseConnection connection;
   private final Span transactionSpan;
-  private NPAuditUserOrAgentType owner;
+  private NPAuditOwnerType owner;
 
   NPDatabaseTransaction(
     final NPDatabaseConnection inConnection,
@@ -215,13 +215,13 @@ final class NPDatabaseTransaction
 
   @Override
   public void setOwner(
-    final NPAuditUserOrAgentType newOwner)
+    final NPAuditOwnerType newOwner)
   {
     this.owner = Objects.requireNonNull(newOwner, "owner");
   }
 
   @Override
-  public NPAuditUserOrAgentType owner()
+  public NPAuditOwnerType owner()
   {
     if (this.owner == null) {
       throw new IllegalStateException("No owner ID has been set.");

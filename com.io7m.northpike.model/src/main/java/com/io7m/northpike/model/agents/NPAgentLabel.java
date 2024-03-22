@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.model.agents;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 /**
@@ -29,6 +30,7 @@ import java.util.Objects;
 public record NPAgentLabel(
   NPAgentLabelName name,
   String description)
+  implements Comparable<NPAgentLabel>
 {
   /**
    * A label on an agent.
@@ -41,5 +43,14 @@ public record NPAgentLabel(
   {
     Objects.requireNonNull(name, "name");
     Objects.requireNonNull(description, "description");
+  }
+
+  @Override
+  public int compareTo(
+    final NPAgentLabel other)
+  {
+    return Comparator.comparing(NPAgentLabel::name)
+      .thenComparing(NPAgentLabel::description)
+      .compare(this, other);
   }
 }

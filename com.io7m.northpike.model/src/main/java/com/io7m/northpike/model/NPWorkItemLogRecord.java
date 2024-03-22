@@ -26,6 +26,8 @@ import java.util.Optional;
  * A log record produced when executing a work item.
  *
  * @param workItem   The work item
+ * @param type       The event type
+ * @param eventIndex The index of the event within the work
  * @param timestamp  The timestamp
  * @param attributes The attributes
  * @param message    The message
@@ -35,6 +37,8 @@ import java.util.Optional;
 public record NPWorkItemLogRecord(
   NPWorkItemIdentifier workItem,
   OffsetDateTime timestamp,
+  long eventIndex,
+  String type,
   Map<String, String> attributes,
   String message,
   Optional<NPStoredException> exception)
@@ -43,6 +47,8 @@ public record NPWorkItemLogRecord(
    * A log record produced when executing a work item.
    *
    * @param workItem   The work item
+   * @param type       The event type
+   * @param eventIndex The index of the event within the work
    * @param timestamp  The timestamp
    * @param attributes The attributes
    * @param message    The message
@@ -53,6 +59,7 @@ public record NPWorkItemLogRecord(
   {
     Objects.requireNonNull(workItem, "workItem");
     Objects.requireNonNull(timestamp, "timestamp");
+    Objects.requireNonNull(type, "type");
     Objects.requireNonNull(attributes, "attributes");
     Objects.requireNonNull(message, "message");
     Objects.requireNonNull(exception, "exception");

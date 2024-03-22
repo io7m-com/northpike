@@ -17,7 +17,8 @@
 
 package com.io7m.northpike.tools.maven;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPToolDescription;
+import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.tools.api.NPToolFactoryType;
@@ -41,6 +42,9 @@ public final class NPTMFactory3 implements NPToolFactoryType
   private static final NPToolName PACKAGE_NAME =
     NPToolName.of("org.apache.maven");
 
+  private static final String DESCRIPTION_FORMATTED =
+    "Tool service for %s (Apache Maven 3.*).".formatted(PACKAGE_NAME);
+
   private static final VersionRange PACKAGE_VERSIONS =
     new VersionRange(
       Version.of(3, 9, 1),
@@ -49,25 +53,34 @@ public final class NPTMFactory3 implements NPToolFactoryType
       false
     );
 
-  private static final Map<RDottedName, List<String>> DEFAULT_EXECUTIONS;
+  private static final Map<NPToolExecutionName, List<String>> DEFAULT_EXECUTIONS;
+  private static final NPToolDescription DESCRIPTION;
 
   static {
-    final var m = new HashMap<RDottedName, List<String>>();
+    final var m =
+      new HashMap<NPToolExecutionName, List<String>>();
 
     m.put(
-      new RDottedName("clean-verify"),
+      NPToolExecutionName.of("clean-verify"),
       List.of("-C", "-e", "-U", "clean", "verify")
     );
     m.put(
-      new RDottedName("clean-verify-site"),
+      NPToolExecutionName.of("clean-verify-site"),
       List.of("-C", "-e", "-U", "clean", "verify", "site")
     );
     m.put(
-      new RDottedName("deploy"),
+      NPToolExecutionName.of("deploy"),
       List.of("-C", "-e", "-U", "deploy")
     );
 
     DEFAULT_EXECUTIONS = Map.copyOf(m);
+
+    DESCRIPTION = new NPToolDescription(
+      PACKAGE_NAME,
+      DESCRIPTION_FORMATTED,
+      PACKAGE_VERSIONS,
+      DEFAULT_EXECUTIONS
+    );
   }
 
   /**
@@ -87,15 +100,9 @@ public final class NPTMFactory3 implements NPToolFactoryType
   }
 
   @Override
-  public NPToolName toolName()
+  public NPToolDescription toolDescription()
   {
-    return PACKAGE_NAME;
-  }
-
-  @Override
-  public VersionRange toolVersions()
-  {
-    return PACKAGE_VERSIONS;
+    return DESCRIPTION;
   }
 
   @Override
@@ -113,14 +120,8 @@ public final class NPTMFactory3 implements NPToolFactoryType
   }
 
   @Override
-  public Map<RDottedName, List<String>> defaultExecutions()
-  {
-    return Map.copyOf(DEFAULT_EXECUTIONS);
-  }
-
-  @Override
   public String description()
   {
-    return "Tool service for %s (Apache Maven 3.*).".formatted(PACKAGE_NAME);
+    return DESCRIPTION_FORMATTED;
   }
 }

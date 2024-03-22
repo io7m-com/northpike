@@ -19,8 +19,8 @@ package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.anethum.api.SerializationException;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanPutType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import org.jooq.DSLContext;
 import org.jooq.Query;
@@ -44,10 +44,10 @@ import static java.util.Map.entry;
 
 public final class NPDBQPlanPut
   extends NPDBQAbstract<Parameters, NPDatabaseUnit>
-  implements PutType
+  implements PlanPutType
 {
-  private static final NPDBQueryProviderType.Service<Parameters, NPDatabaseUnit, PutType> SERVICE =
-    new NPDBQueryProviderType.Service<>(PutType.class, NPDBQPlanPut::new);
+  private static final NPDBQueryProviderType.Service<Parameters, NPDatabaseUnit, PlanPutType> SERVICE =
+    new NPDBQueryProviderType.Service<>(PlanPutType.class, NPDBQPlanPut::new);
 
   /**
    * Construct a query.
@@ -92,7 +92,7 @@ public final class NPDBQPlanPut
           .set(PLANS.P_DATA, data)
           .set(PLANS.P_DESCRIPTION, plan.description())
           .set(PLANS.P_ENCODING, charsetName)
-          .set(PLANS.P_FORMAT, serializer.format().toString())
+          .set(PLANS.P_FORMAT, serializer.format().name().toString())
           .set(PLANS.P_NAME, identifier.name().toString())
           .set(PLANS.P_VERSION, Long.valueOf(identifier.version()))
           .onConflictOnConstraint(DSL.name("plans_name_version_unique"))
@@ -100,7 +100,7 @@ public final class NPDBQPlanPut
           .set(PLANS.P_DATA, data)
           .set(PLANS.P_DESCRIPTION, plan.description())
           .set(PLANS.P_ENCODING, charsetName)
-          .set(PLANS.P_FORMAT, serializer.format().toString())
+          .set(PLANS.P_FORMAT, serializer.format().name().toString())
       );
 
       final var planId =

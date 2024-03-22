@@ -207,6 +207,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
      * The log parameters.
      *
      * @param execution  The assignment execution
+     * @param index      The message index
      * @param type       The message type (such as "EXCEPTION")
      * @param message    The message
      * @param attributes The message attributes
@@ -215,6 +216,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
 
     record Parameters(
       NPAssignmentExecutionID execution,
+      long index,
       String type,
       String message,
       Map<String, String> attributes,

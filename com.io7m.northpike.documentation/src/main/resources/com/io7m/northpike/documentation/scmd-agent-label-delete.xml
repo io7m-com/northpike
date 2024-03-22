@@ -10,7 +10,7 @@
     <Paragraph>
       The 
       <Term type="command">agent-label-delete</Term>
-       command delete labels.
+       command deletes labels from agents.
     </Paragraph>
   </Subsection>
   <xi:include href="scmd-agent-label-delete-parameters.xml"/>

@@ -53,10 +53,10 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_ST
 
 public final class NPDBQPlanSearch
   extends NPDBQAbstract<NPPlanSearchParameters, NPPlansPagedType>
-  implements NPDatabaseQueriesPlansType.SearchType
+  implements NPDatabaseQueriesPlansType.PlanSearchType
 {
-  private static final Service<NPPlanSearchParameters, NPPlansPagedType, SearchType> SERVICE =
-    new Service<>(SearchType.class, NPDBQPlanSearch::new);
+  private static final Service<NPPlanSearchParameters, NPPlansPagedType, PlanSearchType> SERVICE =
+    new Service<>(PlanSearchType.class, NPDBQPlanSearch::new);
 
   /**
    * Construct a query.

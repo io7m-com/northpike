@@ -76,6 +76,7 @@
     <module>com.io7m.northpike.tls</module>
     <module>com.io7m.northpike.toolexec.api</module>
     <module>com.io7m.northpike.toolexec.js</module>
+    <module>com.io7m.northpike.toolexec.lines</module>
     <module>com.io7m.northpike.toolexec.program.api</module>
     <module>com.io7m.northpike.tools.api</module>
     <module>com.io7m.northpike.tools.common</module>

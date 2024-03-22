@@ -55,6 +55,7 @@ import com.io7m.northpike.protocol.user.NPUCommandAuditSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
 import com.io7m.northpike.protocol.user.NPUCommandLogin;
 import com.io7m.northpike.protocol.user.NPUCommandPlanDelete;
+import com.io7m.northpike.protocol.user.NPUCommandPlanFormatsSupported;
 import com.io7m.northpike.protocol.user.NPUCommandPlanGet;
 import com.io7m.northpike.protocol.user.NPUCommandPlanPut;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchBegin;
@@ -83,6 +84,7 @@ import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearch
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
+import com.io7m.northpike.protocol.user.NPUCommandToolGet;
 import com.io7m.northpike.protocol.user.NPUCommandToolSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandToolSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandToolSearchPrevious;
@@ -111,6 +113,7 @@ import com.io7m.northpike.protocol.user.NPUResponseAuditSearch;
 import com.io7m.northpike.protocol.user.NPUResponseError;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponsePagedType;
+import com.io7m.northpike.protocol.user.NPUResponsePlanFormatsSupported;
 import com.io7m.northpike.protocol.user.NPUResponsePlanGet;
 import com.io7m.northpike.protocol.user.NPUResponsePlanSearch;
 import com.io7m.northpike.protocol.user.NPUResponsePlanValidate;
@@ -124,6 +127,7 @@ import com.io7m.northpike.protocol.user.NPUResponseSelf;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionGet;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionSearch;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionValidate;
+import com.io7m.northpike.protocol.user.NPUResponseToolGet;
 import com.io7m.northpike.protocol.user.NPUResponseToolSearch;
 import com.io7m.northpike.protocol.user.NPUResponseType;
 import com.io7m.northpike.protocol.user.NPUResponseUserRolesGet;
@@ -166,6 +170,7 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandAuditSearc
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandDisconnect.COMMAND_DISCONNECT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandLogin.COMMAND_LOGIN;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanDelete.COMMAND_PLAN_DELETE;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanFormatsSupported.COMMAND_PLAN_FORMATS_SUPPORTED;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanGet.COMMAND_PLAN_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanPut.COMMAND_PLAN_PUT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandPlanSearchBegin.COMMAND_PLAN_SEARCH_BEGIN;
@@ -194,6 +199,7 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolExecut
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolExecutionDescriptionSearchNext.COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_NEXT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolExecutionDescriptionSearchPrevious.COMMAND_TOOL_EXECUTION_DESCRIPTION_SEARCH_PREVIOUS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolExecutionDescriptionValidate.COMMAND_TOOL_EXECUTION_DESCRIPTION_VALIDATE;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolGet.COMMAND_TOOL_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolSearchBegin.COMMAND_TOOL_SEARCH_BEGIN;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolSearchNext.COMMAND_TOOL_SEARCH_NEXT;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVCommandToolSearchPrevious.COMMAND_TOOL_SEARCH_PREVIOUS;
@@ -218,6 +224,7 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAssignmen
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseAuditSearch.RESPONSE_AUDIT_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseError.RESPONSE_ERROR;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseOK.RESPONSE_OK;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponsePlanFormatsSupported.RESPONSE_PLAN_FORMATS_SUPPORTED;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponsePlanGet.RESPONSE_PLAN_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponsePlanSearch.RESPONSE_PLAN_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponsePlanValidate.RESPONSE_PLAN_VALIDATE;
@@ -231,6 +238,7 @@ import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseSelf.RESP
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseToolExecutionDescriptionGet.RESPONSE_TOOL_EXECUTION_DESCRIPTION_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseToolExecutionDescriptionSearch.RESPONSE_TOOL_EXECUTION_DESCRIPTION_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseToolExecutionDescriptionValidate.RESPONSE_TOOL_EXECUTION_DESCRIPTION_VALIDATE;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseToolGet.RESPONSE_TOOL_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseToolSearch.RESPONSE_TOOL_SEARCH;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseUserRolesGet.RESPONSE_USER_ROLES_GET;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVResponseUserSearch.RESPONSE_USER_SEARCH;
@@ -343,6 +351,10 @@ public final class NPU1Validation
             RESPONSE_TOOL_SEARCH.convertToWire(r);
         };
       }
+      case final NPUResponseToolGet r ->
+        RESPONSE_TOOL_GET.convertToWire(r);
+      case final NPUResponsePlanFormatsSupported r ->
+        RESPONSE_PLAN_FORMATS_SUPPORTED.convertToWire(r);
     };
   }
 
@@ -499,6 +511,10 @@ public final class NPU1Validation
         COMMAND_TOOL_SEARCH_NEXT.convertToWire(c);
       case final NPUCommandToolSearchPrevious c ->
         COMMAND_TOOL_SEARCH_PREVIOUS.convertToWire(c);
+      case final NPUCommandToolGet c ->
+        COMMAND_TOOL_GET.convertToWire(c);
+      case final NPUCommandPlanFormatsSupported c ->
+        COMMAND_PLAN_FORMATS_SUPPORTED.convertToWire(c);
     };
   }
 
@@ -718,6 +734,14 @@ public final class NPU1Validation
         COMMAND_TOOL_SEARCH_PREVIOUS.convertFromWire(c);
       case final NPU1ResponseToolSearch c ->
         RESPONSE_TOOL_SEARCH.convertFromWire(c);
+      case final NPU1CommandToolGet c ->
+        COMMAND_TOOL_GET.convertFromWire(c);
+      case final NPU1ResponseToolGet r ->
+        RESPONSE_TOOL_GET.convertFromWire(r);
+      case final NPU1CommandPlanFormatsSupported r ->
+        COMMAND_PLAN_FORMATS_SUPPORTED.convertFromWire(r);
+      case final NPU1ResponsePlanFormatsSupported c ->
+        RESPONSE_PLAN_FORMATS_SUPPORTED.convertFromWire(c);
     };
   }
 }

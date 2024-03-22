@@ -16,6 +16,7 @@
 
 package com.io7m.northpike.tests.agent.database;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseConfiguration;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseConnectionType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseCreate;
@@ -26,6 +27,11 @@ import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.Ag
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentServerAssignType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentServerGetType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentServerUnassignType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAssignmentLogsType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAssignmentLogsType.AssignmentLogDeleteType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAssignmentLogsType.AssignmentLogGetType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAssignmentLogsType.AssignmentLogListType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAssignmentLogsType.AssignmentLogPutType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesServersType.ServerDeleteType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesServersType.ServerGetType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesServersType.ServerListType;
@@ -36,11 +42,16 @@ import com.io7m.northpike.agent.database.api.NPAgentDatabaseTransactionType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseUpgrade;
 import com.io7m.northpike.agent.database.sqlite.NPASDatabases;
+import com.io7m.northpike.model.NPStoredException;
+import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.NPWorkItemLogRecord;
+import com.io7m.northpike.model.NPWorkItemLogRecordOnAgent;
 import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
 import com.io7m.northpike.model.agents.NPAgentLocalDescription;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentServerID;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
 import com.io7m.northpike.model.tls.NPTLSEnabledExplicit;
 import com.io7m.northpike.model.tls.NPTLSStoreConfiguration;
@@ -56,9 +67,12 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -317,5 +331,112 @@ public final class NPAgentDatabaseTest
         .map(NPAgentServerDescription::summary)
         .toList()
     );
+  }
+
+  @Test
+  public void testAssignmentExecutionLogs()
+    throws Exception
+  {
+    final var agentPut =
+      this.transaction.queries(AgentPutType.class);
+
+    final var x =
+      new NPAgentLocalDescription(
+        NPAgentLocalName.of("x"),
+        new NPAgentKeyPairFactoryEd448().generateKeyPair()
+      );
+
+    agentPut.execute(x);
+    this.transaction.commit();
+
+    final var logPut =
+      this.transaction.queries(AssignmentLogPutType.class);
+    final var logGet =
+      this.transaction.queries(AssignmentLogGetType.class);
+    final var logDelete =
+      this.transaction.queries(AssignmentLogDeleteType.class);
+    final var logList =
+      this.transaction.queries(AssignmentLogListType.class);
+
+    final var work =
+      new ArrayList<NPWorkItemLogRecordOnAgent>();
+
+    final var identifier =
+      new NPWorkItemIdentifier(
+        NPAssignmentExecutionID.of("efe4e9f9-b056-40f4-918d-d1a06ef36d8a"),
+        new RDottedName("task")
+      );
+
+    for (int index = 1; index <= 1000; ++index) {
+      work.add(
+        new NPWorkItemLogRecordOnAgent(
+          x.name(),
+          new NPWorkItemLogRecord(
+            identifier,
+            OffsetDateTime.now(),
+            (long) index,
+            "Exception",
+            Map.ofEntries(
+              Map.entry("Index", Integer.toUnsignedString(index))
+            ),
+            "Output %d".formatted(Integer.valueOf(index)),
+            Optional.of(
+              new NPStoredException(
+                "java.io.IOException",
+                "I/O error",
+                Map.of(),
+                Optional.empty(),
+                List.of(),
+                List.of()
+              )
+            )
+          )
+        )
+      );
+    }
+
+    for (final var item : work) {
+      logPut.execute(item);
+    }
+
+    this.transaction.commit();
+
+    final var saved = logList.execute(
+      new AssignmentLogListType.Parameters(
+        x.name(),
+        0L,
+        2000L
+      )
+    );
+
+    assertEquals(work, saved);
+
+    for (final var item : work) {
+      assertEquals(
+        item,
+        logGet.execute(
+          new AssignmentLogGetType.Parameters(
+            item.logRecord().workItem(),
+            item.logRecord().eventIndex()
+          )
+        ).orElseThrow()
+      );
+
+      logDelete.execute(new AssignmentLogDeleteType.Parameters(
+        x.name(),
+        item.logRecord().workItem(),
+        item.logRecord().eventIndex()
+      ));
+
+      assertEquals(
+        Optional.empty(),
+        logGet.execute(
+          new AssignmentLogGetType.Parameters(
+            item.logRecord().workItem(),
+            item.logRecord().eventIndex()
+          )
+        )
+      );
+    }
   }
 }

@@ -57,4 +57,10 @@ public final class NPTJSLanguageProvider
   {
     return new NPTJs(program, variables);
   }
+
+  @Override
+  public String description()
+  {
+    return "JavaScript evaluation provider.";
+  }
 }

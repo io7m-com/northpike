@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -15,54 +15,41 @@
  */
 
 
-package com.io7m.northpike.model;
+package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.NPToolName;
 
 import java.util.Objects;
 import java.util.UUID;
 
 /**
- * A user or an agent ID.
+ * Get a tool.
+ *
+ * @param messageID  The message ID
+ * @param name The tool name
  */
 
-public sealed interface NPAuditUserOrAgentType
+public record NPUCommandToolGet(
+  UUID messageID,
+  NPToolName name)
+  implements NPUCommandType<NPUResponseToolGet>
 {
   /**
-   * A user ID.
+   * Get a tool.
    *
-   * @param id The ID
+   * @param messageID  The message ID
+   * @param name The tool name
    */
 
-  record User(UUID id)
-    implements NPAuditUserOrAgentType
+  public NPUCommandToolGet
   {
-    /**
-     * A user ID.
-     */
-
-    public User
-    {
-      Objects.requireNonNull(id, "id");
-    }
+    Objects.requireNonNull(messageID, "messageID");
+    Objects.requireNonNull(name, "name");
   }
 
-  /**
-   * An agent ID.
-   *
-   * @param id The ID
-   */
-
-  record Agent(NPAgentID id)
-    implements NPAuditUserOrAgentType
+  @Override
+  public Class<NPUResponseToolGet> responseClass()
   {
-    /**
-     * An agent ID.
-     */
-
-    public Agent
-    {
-      Objects.requireNonNull(id, "id");
-    }
+    return NPUResponseToolGet.class;
   }
 }

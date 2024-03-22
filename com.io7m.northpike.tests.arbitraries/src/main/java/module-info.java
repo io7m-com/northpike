@@ -14,8 +14,6 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-import com.io7m.northpike.tests.arbitraries.NPArbToolSearchParameters;
-import com.io7m.northpike.tests.arbitraries.NPArbToolSummary;
 import net.jqwik.api.providers.ArbitraryProvider;
 
 open module com.io7m.northpike.tests.arbitraries
@@ -37,6 +35,8 @@ open module com.io7m.northpike.tests.arbitraries
   uses ArbitraryProvider;
 
   provides ArbitraryProvider with
+    com.io7m.northpike.tests.arbitraries.NPArbPlanFormatDescription,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponsePlanFormatsSupported,
     com.io7m.northpike.tests.arbitraries.NPArbAgentDescription,
     com.io7m.northpike.tests.arbitraries.NPArbAgentGetResult,
     com.io7m.northpike.tests.arbitraries.NPArbAgentID,
@@ -108,6 +108,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbTLSConfiguration,
     com.io7m.northpike.tests.arbitraries.NPArbTLSStoreConfiguration,
     com.io7m.northpike.tests.arbitraries.NPArbTimeRange,
+    com.io7m.northpike.tests.arbitraries.NPArbToolDescription,
     com.io7m.northpike.tests.arbitraries.NPArbToolExecutionDescription,
     com.io7m.northpike.tests.arbitraries.NPArbToolExecutionDescriptionSearchParameters,
     com.io7m.northpike.tests.arbitraries.NPArbToolExecutionDescriptionSummary,
@@ -124,6 +125,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.NPArbUserConnected,
     com.io7m.northpike.tests.arbitraries.NPArbUserSearchParameters,
     com.io7m.northpike.tests.arbitraries.NPArbVersion,
+    com.io7m.northpike.tests.arbitraries.NPArbVersionRange,
     com.io7m.northpike.tests.arbitraries.NPArbWorkExecContainerImage,
     com.io7m.northpike.tests.arbitraries.NPArbWorkExecName,
     com.io7m.northpike.tests.arbitraries.NPArbWorkExecSummary,
@@ -220,6 +222,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandDisconnect,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandLogin,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanDelete,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanFormatsSupported,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanPut,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandPlanSearchBegin,
@@ -251,6 +254,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandToolExecutionDescriptionSearchNext,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandToolExecutionDescriptionSearchPrevious,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandToolExecutionDescriptionValidate,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandToolGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandToolSearchBegin,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandToolSearchNext,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUCommandToolSearchPrevious,
@@ -287,6 +291,7 @@ open module com.io7m.northpike.tests.arbitraries
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseToolExecutionDescriptionGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseToolExecutionDescriptionSearch,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseToolExecutionDescriptionValidate,
+    com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseToolGet,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseToolSearch,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseUserSearch,
     com.io7m.northpike.tests.arbitraries.protocol.user.NPArbUResponseUsersConnected,

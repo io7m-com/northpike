@@ -39,6 +39,8 @@ public final class NPArbACommandCWorkItemOutput
         return Combinators.combine(
           Arbitraries.create(UUID::randomUUID),
           Arbitraries.defaultFor(OffsetDateTime.class),
+          Arbitraries.longs(),
+          Arbitraries.strings().alpha(),
           Arbitraries.defaultFor(NPWorkItemIdentifier.class),
           Arbitraries.maps(
             Arbitraries.defaultFor(RDottedName.class)

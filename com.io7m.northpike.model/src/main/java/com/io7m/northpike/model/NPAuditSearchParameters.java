@@ -32,7 +32,7 @@ import java.util.Optional;
  */
 
 public record NPAuditSearchParameters(
-  Optional<NPAuditUserOrAgentType> owner,
+  Optional<NPAuditOwnerType> owner,
   NPComparisonExactType<String> type,
   NPTimeRange timeRange,
   long pageSize)

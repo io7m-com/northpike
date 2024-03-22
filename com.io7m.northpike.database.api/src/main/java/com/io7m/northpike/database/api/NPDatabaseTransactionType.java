@@ -16,7 +16,7 @@
 
 package com.io7m.northpike.database.api;
 
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 
 /**
  * A database transaction. If the transaction is closed, it is automatically
@@ -68,11 +68,11 @@ public interface NPDatabaseTransactionType extends AutoCloseable
    */
 
   void setOwner(
-    NPAuditUserOrAgentType newOwner);
+    NPAuditOwnerType newOwner);
 
   /**
    * @return The transaction's owner ID
    */
 
-  NPAuditUserOrAgentType owner();
+  NPAuditOwnerType owner();
 }

@@ -18,7 +18,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueryType;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.strings.NPStringConstantType;
 import com.io7m.northpike.strings.NPStrings;
@@ -62,7 +62,7 @@ abstract class NPDBQAbstract<P, R>
     return this.transaction;
   }
 
-  protected NPAuditUserOrAgentType requireOwner()
+  protected NPAuditOwnerType requireOwner()
   {
     return this.transaction.owner();
   }

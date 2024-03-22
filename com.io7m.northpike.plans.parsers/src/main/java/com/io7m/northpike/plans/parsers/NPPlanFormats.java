@@ -18,6 +18,7 @@
 package com.io7m.northpike.plans.parsers;
 
 import com.io7m.northpike.model.NPFormatName;
+import com.io7m.northpike.model.plans.NPPlanFormatDescription;
 
 import java.util.Set;
 
@@ -27,8 +28,11 @@ import java.util.Set;
 
 public final class NPPlanFormats
 {
-  private static final NPFormatName XML_V1 =
-    NPFormatName.of("com.io7m.northpike.plans.parsers.v1");
+  private static final NPPlanFormatDescription XML_V1 =
+    new NPPlanFormatDescription(
+      NPFormatName.of("com.io7m.northpike.plans.parsers.v1"),
+      "The v1 XML Plan format."
+    );
 
   private NPPlanFormats()
   {
@@ -39,7 +43,7 @@ public final class NPPlanFormats
    * @return The XML v1 format
    */
 
-  public static NPFormatName xml1()
+  public static NPPlanFormatDescription xml1()
   {
     return XML_V1;
   }
@@ -48,7 +52,7 @@ public final class NPPlanFormats
    * @return The supported formats
    */
 
-  public static Set<NPFormatName> formats()
+  public static Set<NPPlanFormatDescription> formats()
   {
     return Set.of(xml1());
   }

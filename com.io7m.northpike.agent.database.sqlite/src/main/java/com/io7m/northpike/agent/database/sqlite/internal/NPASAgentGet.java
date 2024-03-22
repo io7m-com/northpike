@@ -63,28 +63,6 @@ public final class NPASAgentGet
     return () -> SERVICE;
   }
 
-  @Override
-  protected Optional<NPAgentLocalDescription> onExecute(
-    final DSLContext context,
-    final NPAgentLocalName agent)
-    throws NPAgentDatabaseException
-  {
-    final var result =
-      context.select(
-          AGENTS.A_NAME,
-          AGENTS.A_KEY_PRIVATE,
-          AGENTS.A_KEY_ALGO,
-          AGENTS.A_KEY_PUBLIC
-        ).from(AGENTS)
-        .where(AGENTS.A_NAME.eq(agent.toString()))
-        .fetchOptional();
-
-    if (result.isPresent()) {
-      return Optional.of(mapRecord(result.get()));
-    }
-    return Optional.empty();
-  }
-
   private static NPAgentLocalDescription mapRecord(
     final org.jooq.Record record)
     throws NPAgentDatabaseException
@@ -122,5 +100,27 @@ public final class NPASAgentGet
       NPAgentLocalName.of(record.get(AGENTS.A_NAME)),
       keyPair
     );
+  }
+
+  @Override
+  protected Optional<NPAgentLocalDescription> onExecute(
+    final DSLContext context,
+    final NPAgentLocalName agent)
+    throws NPAgentDatabaseException
+  {
+    final var result =
+      context.select(
+          AGENTS.A_NAME,
+          AGENTS.A_KEY_PRIVATE,
+          AGENTS.A_KEY_ALGO,
+          AGENTS.A_KEY_PUBLIC
+        ).from(AGENTS)
+        .where(AGENTS.A_NAME.eq(agent.toString()))
+        .fetchOptional();
+
+    if (result.isPresent()) {
+      return Optional.of(mapRecord(result.get()));
+    }
+    return Optional.empty();
   }
 }

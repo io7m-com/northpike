@@ -22,7 +22,7 @@ import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPRepositoryID;
@@ -226,7 +226,7 @@ public final class NPUCmdAssignmentPutTest
     assertEquals(r.correlationID(), command.messageID());
 
     Mockito.verify(this.transaction, new Times(1))
-      .setOwner(new NPAuditUserOrAgentType.User(user.userId()));
+      .setOwner(new NPAuditOwnerType.User(user.userId()));
     Mockito.verify(this.transaction, new Times(1))
       .commit();
   }

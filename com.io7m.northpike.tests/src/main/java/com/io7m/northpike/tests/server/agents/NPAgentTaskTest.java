@@ -37,7 +37,7 @@ import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
 import com.io7m.northpike.model.NPArchiveLinks;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitGraph;
@@ -239,7 +239,7 @@ public final class NPAgentTaskTest
       closeables.addPerTestResource(this.connection.openTransaction());
 
     final var user = NPFixtures.idstore(containers).userWithLogin();
-    this.transaction.setOwner(new NPAuditUserOrAgentType.User(user.id()));
+    this.transaction.setOwner(new NPAuditOwnerType.User(user.id()));
 
     this.executor =
       Executors.newCachedThreadPool(r -> {
@@ -363,8 +363,8 @@ public final class NPAgentTaskTest
       NPPlans.builder(this.strings, NPPlanName.of("some.plan"), 1L)
         .build();
 
-    this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class)
-      .execute(new NPDatabaseQueriesPlansType.PutType.Parameters(
+    this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class)
+      .execute(new NPDatabaseQueriesPlansType.PlanPutType.Parameters(
         this.plan,
         new NPPlanSerializers()
       ));
@@ -819,6 +819,8 @@ public final class NPAgentTaskTest
     this.send(new NPACommandCWorkItemOutput(
       randomUUID(),
       OffsetDateTime.now(),
+      23L,
+      "INFO",
       work.workItem().identifier(),
       Map.of("a", "x", "b", "y"),
       "OK!",
@@ -883,6 +885,8 @@ public final class NPAgentTaskTest
     this.send(new NPACommandCWorkItemOutput(
       randomUUID(),
       OffsetDateTime.now(),
+      23L,
+      "INFO",
       work.workItem().identifier(),
       Map.of("a", "x", "b", "y"),
       "OK!",

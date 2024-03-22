@@ -24,8 +24,8 @@ import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAuditType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPAuditEvent;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPAuditSearchParameters;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPPage;
@@ -231,21 +231,21 @@ public final class NPUCmdAuditSearchBeginTest
           new NPAuditEvent(
             0L,
             OffsetDateTime.now().withNano(0).plusSeconds(1L),
-            new NPAuditUserOrAgentType.User(UUID.randomUUID()),
+            new NPAuditOwnerType.User(UUID.randomUUID()),
             "T",
             Map.of()
           ),
           new NPAuditEvent(
             1L,
             OffsetDateTime.now().withNano(0).plusSeconds(2L),
-            new NPAuditUserOrAgentType.User(UUID.randomUUID()),
+            new NPAuditOwnerType.User(UUID.randomUUID()),
             "U",
             Map.of()
           ),
           new NPAuditEvent(
             2L,
             OffsetDateTime.now().withNano(0).plusSeconds(3L),
-            new NPAuditUserOrAgentType.User(UUID.randomUUID()),
+            new NPAuditOwnerType.User(UUID.randomUUID()),
             "V",
             Map.of()
           )

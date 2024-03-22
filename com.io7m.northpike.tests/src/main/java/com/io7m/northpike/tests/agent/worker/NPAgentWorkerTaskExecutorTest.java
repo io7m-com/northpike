@@ -137,6 +137,7 @@ public final class NPAgentWorkerTaskExecutorTest
       new NPAWorkEvent(
         NPAWorkEvent.Severity.INFO,
         OffsetDateTime.now(),
+        1L,
         "Event 0",
         Map.of(),
         Optional.empty()
@@ -145,6 +146,7 @@ public final class NPAgentWorkerTaskExecutorTest
       new NPAWorkEvent(
         NPAWorkEvent.Severity.INFO,
         OffsetDateTime.now(),
+        2L,
         "Event 1",
         Map.of(),
         Optional.empty()
@@ -153,6 +155,7 @@ public final class NPAgentWorkerTaskExecutorTest
       new NPAWorkEvent(
         NPAWorkEvent.Severity.INFO,
         OffsetDateTime.now(),
+        3L,
         "Event 2",
         Map.of(),
         Optional.empty()

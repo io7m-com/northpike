@@ -19,6 +19,7 @@ package com.io7m.northpike.toolexec.api;
 
 import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.toolexec.program.api.NPTPVariableType;
+import com.io7m.repetoir.core.RPServiceType;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ import java.util.List;
  */
 
 public interface NPTEvaluationLanguageProviderType
+  extends RPServiceType
 {
   /**
    * @return The name of the evaluation language supported

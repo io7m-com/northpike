@@ -18,10 +18,15 @@
 package com.io7m.northpike.agent.internal.worker;
 
 import com.io7m.northpike.agent.api.NPAgentException;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseException;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentGetType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentServerGetType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentWorkExecGetType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAssignmentLogsType.AssignmentLogDeleteType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAssignmentLogsType.AssignmentLogListType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAssignmentLogsType.AssignmentLogPutType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesServersType.ServerGetType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseTransactionType;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseType;
 import com.io7m.northpike.agent.internal.events.NPAgentDeleted;
 import com.io7m.northpike.agent.internal.events.NPAgentEventType;
@@ -47,18 +52,24 @@ import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorFactoryType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.NPWorkItemLogRecord;
+import com.io7m.northpike.model.NPWorkItemLogRecordOnAgent;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPEventType;
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tls.NPTLSContextServiceType;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -90,6 +101,7 @@ public final class NPAgentWorker
   private final List<? extends NPAWorkExecutorFactoryType> workExecs;
   private final NPAgentLocalName agentName;
   private final AtomicBoolean closed;
+  private final NPTelemetryServiceType telemetry;
   private volatile Thread threadMain;
   private volatile NPAgentWorkerTaskMessaging connectionTask;
   private volatile Thread connectionTaskThread;
@@ -101,6 +113,7 @@ public final class NPAgentWorker
     final RPServiceDirectoryType inServices,
     final NPEventServiceType inEvents,
     final NPAgentDatabaseType inDatabase,
+    final NPTelemetryServiceType inTelemetry,
     final NPStrings inStrings,
     final NPTLSContextServiceType inTlsContexts,
     final List<? extends NPAWorkExecutorFactoryType> inWorkExecs,
@@ -108,6 +121,8 @@ public final class NPAgentWorker
   {
     this.services =
       Objects.requireNonNull(inServices, "services");
+    this.telemetry =
+      Objects.requireNonNull(inTelemetry, "inTelemetry");
     this.events =
       Objects.requireNonNull(inEvents, "events");
     this.database =
@@ -161,6 +176,8 @@ public final class NPAgentWorker
       services.requireService(NPEventServiceType.class);
     final var database =
       services.requireService(NPAgentDatabaseType.class);
+    final var telemetry =
+      services.requireService(NPTelemetryServiceType.class);
     final var strings =
       services.requireService(NPStrings.class);
     final var tlsContexts =
@@ -173,6 +190,7 @@ public final class NPAgentWorker
         services,
         events,
         database,
+        telemetry,
         strings,
         tlsContexts,
         workExecs,
@@ -250,9 +268,63 @@ public final class NPAgentWorker
     Objects.requireNonNull(workItem, "workItem");
     Objects.requireNonNull(item, "item");
 
-    final var t = this.connectionTask;
-    if (t != null) {
-      t.workUpdated(workItem.identifier(), item);
+    try {
+      this.workEventDatabaseSave(workItem, item);
+
+      final var t = this.connectionTask;
+      if (t != null) {
+        t.workUpdated(workItem.identifier(), item);
+        this.workEventDatabaseDelete(workItem, item);
+      }
+    } catch (final Exception e) {
+      LOG.error("Failed to save/send work update: ", e);
+    }
+  }
+
+  private void workEventDatabaseSave(
+    final NPAgentWorkItem workItem,
+    final NPAWorkEvent item)
+    throws NPAgentDatabaseException
+  {
+    try (var c = this.database.openConnection()) {
+      try (var t = c.openTransaction()) {
+        final var q = t.queries(AssignmentLogPutType.class);
+        q.execute(
+          new NPWorkItemLogRecordOnAgent(
+            this.agentName,
+            new NPWorkItemLogRecord(
+              workItem.identifier(),
+              item.time(),
+              item.index(),
+              item.severity().name(),
+              item.attributes(),
+              item.message(),
+              item.exception()
+            )
+          )
+        );
+        t.commit();
+      }
+    }
+  }
+
+  private void workEventDatabaseDelete(
+    final NPAgentWorkItem workItem,
+    final NPAWorkEvent item)
+    throws NPAgentDatabaseException
+  {
+    try (var c = this.database.openConnection()) {
+      try (var t = c.openTransaction()) {
+        final var q = t.queries(AssignmentLogDeleteType.class);
+        q.execute(
+          new AssignmentLogDeleteType.Parameters(
+            this.agentName,
+            workItem.identifier(),
+            item.index()
+          )
+        );
+        t.commit();
+      }
     }
   }
 
@@ -559,7 +631,7 @@ public final class NPAgentWorker
         // Handled by the supervisor.
       }
       case final NPAgentWorkerConnectionStarted ignored -> {
-        // Handled by the supervisor.
+        this.onAgentEventConnectionStarted();
       }
       case final NPAgentWorkerConnectionStopped ignored -> {
         // Handled by the supervisor.
@@ -577,6 +649,85 @@ public final class NPAgentWorker
         this.onAgentEventServerUnassigned(serverUnassigned);
       }
     }
+  }
+
+  private void onAgentEventConnectionStarted()
+  {
+    Thread.startVirtualThread(() -> {
+      final var span =
+        this.telemetry.tracer()
+          .spanBuilder("SendOldWorkItemRecords")
+          .setSpanKind(SpanKind.INTERNAL)
+          .startSpan();
+
+      try (var ignored = span.makeCurrent()) {
+        this.sendOldWorkItemRecords();
+      } catch (final Exception e) {
+        NPTelemetryServiceType.recordSpanException(e);
+        LOG.error("Exception: ", e);
+      } finally {
+        span.end();
+      }
+    });
+  }
+
+  private void sendOldWorkItemRecords()
+    throws IOException, InterruptedException, NPException
+  {
+    var offset = 0L;
+
+    try (var connection = this.database.openConnection()) {
+      try (var transaction = connection.openTransaction()) {
+        final var span = Span.current();
+        span.addEvent("FetchRecord");
+
+        final var latestEvents =
+          transaction.queries(AssignmentLogListType.class)
+            .execute(new AssignmentLogListType.Parameters(
+              this.agentName,
+              offset,
+              100L
+            ));
+
+        span.addEvent("SendRecords");
+        for (final var event : latestEvents) {
+          final var t = this.connectionTask;
+          if (t != null) {
+            this.sendAndDeleteOldLogRecord(event, span, t, transaction);
+            ++offset;
+          }
+        }
+      }
+    }
+  }
+
+  private void sendAndDeleteOldLogRecord(
+    final NPWorkItemLogRecordOnAgent event,
+    final Span span,
+    final NPAgentWorkerTaskMessaging messageTask,
+    final NPAgentDatabaseTransactionType transaction)
+    throws IOException, InterruptedException, NPException
+  {
+    final var logRecord = event.logRecord();
+    span.addEvent("SendRecord");
+
+    messageTask.workUpdated(
+      logRecord.workItem(),
+      logRecord
+    );
+
+    span.addEvent("DeleteRecord");
+    transaction.queries(AssignmentLogDeleteType.class)
+      .execute(
+        new AssignmentLogDeleteType.Parameters(
+          this.agentName,
+          logRecord.workItem(),
+          logRecord.eventIndex()
+        )
+      );
+
+    span.addEvent("DeleteRecordCommit");
+    transaction.commit();
   }
 
   private void onAgentEventServerUnassigned(

@@ -26,7 +26,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetByKey
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentPutType;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPWorkItem;
@@ -524,7 +524,7 @@ public final class NPAgentTask
   {
     try (var dbConn = this.database.openConnection(NORTHPIKE)) {
       try (var transaction = dbConn.openTransaction()) {
-        transaction.setOwner(new NPAuditUserOrAgentType.Agent(this.agentId));
+        transaction.setOwner(new NPAuditOwnerType.Agent(this.agentId));
 
         final var put = transaction.queries(AgentPutType.class);
         put.execute(agent);

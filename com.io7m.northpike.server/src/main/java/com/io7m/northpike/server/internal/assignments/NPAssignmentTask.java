@@ -117,6 +117,7 @@ import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
@@ -147,6 +148,7 @@ public final class NPAssignmentTask
   private static final Logger LOG =
     LoggerFactory.getLogger(NPAssignmentTask.class);
 
+  private final AtomicLong eventIndex;
   private NPArchive archive;
   private NPAssignment assignment;
   private NPAssignmentExecution assignmentExecution;
@@ -212,6 +214,9 @@ public final class NPAssignmentTask
       Objects.requireNonNull(inRequest, "request");
     this.executionId =
       Objects.requireNonNull(inExecutionId, "inExecutionId");
+
+    this.eventIndex =
+      new AtomicLong(Long.MIN_VALUE);
 
     this.executionState =
       new NPAssignmentExecutionStateRequested(
@@ -463,6 +468,7 @@ public final class NPAssignmentTask
         NPAssignmentLogging.recordException(
           transaction,
           this.executionId,
+          this.eventIndexNext(),
           e
         );
         transaction.commit();
@@ -478,12 +484,12 @@ public final class NPAssignmentTask
     try (var connection = this.database.openConnection(NORTHPIKE)) {
       try (var transaction = connection.openTransaction()) {
         final var planGet =
-          transaction.queries(NPDatabaseQueriesPlansType.GetType.class);
+          transaction.queries(NPDatabaseQueriesPlansType.PlanGetType.class);
         final var toolGet =
           transaction.queries(GetExecutionDescriptionType.class);
 
         final var planOpt =
-          planGet.execute(new NPDatabaseQueriesPlansType.GetType.Parameters(
+          planGet.execute(new NPDatabaseQueriesPlansType.PlanGetType.Parameters(
             this.assignment.plan(),
             this.planParsers
           ));
@@ -542,7 +548,12 @@ public final class NPAssignmentTask
 
     try (var connection = this.database.openConnection(NORTHPIKE)) {
       try (var transaction = connection.openTransaction()) {
-        recordInfoText(transaction, this.executionId, formatted);
+        recordInfoText(
+          transaction,
+          this.executionId,
+          this.eventIndexNext(),
+          formatted
+        );
       }
     } catch (final NPDatabaseException e) {
       recordSpanException(e);
@@ -558,11 +569,21 @@ public final class NPAssignmentTask
 
     try (var connection = this.database.openConnection(NORTHPIKE)) {
       try (var transaction = connection.openTransaction()) {
-        recordErrorText(transaction, this.executionId, formatted);
+        recordErrorText(
+          transaction,
+          this.executionId,
+          this.eventIndexNext(),
+          formatted
+        );
       }
     } catch (final NPDatabaseException e) {
       recordSpanException(e);
     }
+  }
+
+  private long eventIndexNext()
+  {
+    return this.eventIndex.getAndIncrement();
   }
 
   private NPServerException errorNonexistentRepository()

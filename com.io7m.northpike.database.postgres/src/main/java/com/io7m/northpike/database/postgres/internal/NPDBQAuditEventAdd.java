@@ -21,7 +21,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAuditType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPAuditEvent;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import org.jooq.DSLContext;
 import org.jooq.Query;
 import org.jooq.postgres.extensions.types.Hstore;
@@ -60,31 +60,36 @@ public final class NPDBQAuditEventAdd
     final DSLContext context,
     final NPAuditEvent parameters)
   {
-    final var set =
+    final var insertOp =
       context.insertInto(AUDIT)
         .set(AUDIT.AU_TYPE, parameters.type())
         .set(AUDIT.AU_TIME, parameters.time())
         .set(AU_DATA, Hstore.valueOf(parameters.data()));
 
-    final var owner = parameters.owner();
-    if (owner instanceof final NPAuditUserOrAgentType.User user) {
-      return set.set(AUDIT.AU_USER, user.id())
-        .set(AUDIT.AU_AGENT, (UUID) null);
-    }
-
-    if (owner instanceof final NPAuditUserOrAgentType.Agent agent) {
-      return set.set(AUDIT.AU_USER, (UUID) null)
-        .set(AUDIT.AU_AGENT, agent.id().value());
-    }
-
-    throw new IllegalStateException();
+    return switch (parameters.owner()) {
+      case final NPAuditOwnerType.User user -> {
+        yield insertOp.set(AUDIT.AU_USER, user.id())
+          .set(AUDIT.AU_SERVER, Boolean.FALSE)
+          .set(AUDIT.AU_AGENT, (UUID) null);
+      }
+      case final NPAuditOwnerType.Agent agent -> {
+        yield insertOp.set(AUDIT.AU_USER, (UUID) null)
+          .set(AUDIT.AU_SERVER, Boolean.FALSE)
+          .set(AUDIT.AU_AGENT, agent.id().value());
+      }
+      case final NPAuditOwnerType.Server ignored -> {
+        yield insertOp.set(AUDIT.AU_USER, (UUID) null)
+          .set(AUDIT.AU_SERVER, Boolean.TRUE)
+          .set(AUDIT.AU_AGENT, (UUID) null);
+      }
+    };
   }
 
   @SafeVarargs
   static Query auditEvent(
     final DSLContext context,
     final OffsetDateTime time,
-    final NPAuditUserOrAgentType user,
+    final NPAuditOwnerType user,
     final String type,
     final Map.Entry<String, String>... entries)
   {

@@ -17,10 +17,10 @@
 package com.io7m.northpike.shell.internal;
 
 import com.io7m.idstore.model.IdTimeRange;
+import com.io7m.northpike.model.NPAuditOwnerType;
+import com.io7m.northpike.model.NPAuditOwnerType.Agent;
+import com.io7m.northpike.model.NPAuditOwnerType.User;
 import com.io7m.northpike.model.NPAuditSearchParameters;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
-import com.io7m.northpike.model.NPAuditUserOrAgentType.Agent;
-import com.io7m.northpike.model.NPAuditUserOrAgentType.User;
 import com.io7m.northpike.model.NPTimeRange;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.comparisons.NPComparisonExactType;
@@ -155,7 +155,7 @@ public final class NPShellCmdAuditSearchBegin
 
     final var owner =
       user.map(User::new)
-        .map(x -> (NPAuditUserOrAgentType) x)
+        .map(x -> (NPAuditOwnerType) x)
         .or(() -> agent.map(x -> new Agent(new NPAgentID(x))));
 
     final var typeEquals =

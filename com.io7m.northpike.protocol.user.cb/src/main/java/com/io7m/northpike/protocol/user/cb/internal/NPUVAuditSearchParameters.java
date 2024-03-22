@@ -25,9 +25,9 @@ import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.cb.NPU1AuditSearchParameters;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned32;
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVAuditOwner.AUDIT_OWNER;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVStrings.STRINGS;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVTimeRange.TIME_RANGE;
-import static com.io7m.northpike.protocol.user.cb.internal.NPUVUserOrAgent.USER_OR_AGENT;
 
 /**
  * A validator.
@@ -51,7 +51,7 @@ public enum NPUVAuditSearchParameters
     throws NPProtocolException
   {
     return new NPU1AuditSearchParameters(
-      CBOptionType.fromOptional(message.owner().map(USER_OR_AGENT::convertToWire)),
+      CBOptionType.fromOptional(message.owner().map(AUDIT_OWNER::convertToWire)),
       EXACT_VALIDATOR.convertToWire(message.type()),
       TIME_RANGE.convertToWire(message.timeRange()),
       unsigned32(message.pageSize())
@@ -64,7 +64,7 @@ public enum NPUVAuditSearchParameters
     throws NPProtocolException
   {
     return new NPAuditSearchParameters(
-      message.fieldOwner().asOptional().map(USER_OR_AGENT::convertFromWire),
+      message.fieldOwner().asOptional().map(AUDIT_OWNER::convertFromWire),
       EXACT_VALIDATOR.convertFromWire(message.fieldType()),
       TIME_RANGE.convertFromWire(message.fieldTimeRange()),
       message.fieldPageSize().value()

@@ -65,6 +65,7 @@ import com.io7m.northpike.shell.internal.NPShellCmdLogin;
 import com.io7m.northpike.shell.internal.NPShellCmdLogout;
 import com.io7m.northpike.shell.internal.NPShellCmdPlanDelete;
 import com.io7m.northpike.shell.internal.NPShellCmdPlanDeleteConfirm;
+import com.io7m.northpike.shell.internal.NPShellCmdPlanFormatsSupported;
 import com.io7m.northpike.shell.internal.NPShellCmdPlanGet;
 import com.io7m.northpike.shell.internal.NPShellCmdPlanPut;
 import com.io7m.northpike.shell.internal.NPShellCmdPlanSearchBegin;
@@ -94,6 +95,7 @@ import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearc
 import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdToolExecutionDescriptionValidate;
+import com.io7m.northpike.shell.internal.NPShellCmdToolGet;
 import com.io7m.northpike.shell.internal.NPShellCmdToolSearchBegin;
 import com.io7m.northpike.shell.internal.NPShellCmdToolSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdToolSearchPrevious;
@@ -240,6 +242,7 @@ public final class NPShells implements NPShellFactoryType
         new NPShellCmdLogout(services),
         new NPShellCmdPlanDelete(services),
         new NPShellCmdPlanDeleteConfirm(services),
+        new NPShellCmdPlanFormatsSupported(services),
         new NPShellCmdPlanGet(services),
         new NPShellCmdPlanPut(services),
         new NPShellCmdPlanSearchBegin(services),
@@ -269,6 +272,7 @@ public final class NPShells implements NPShellFactoryType
         new NPShellCmdToolExecutionDescriptionSearchNext(services),
         new NPShellCmdToolExecutionDescriptionSearchPrevious(services),
         new NPShellCmdToolExecutionDescriptionValidate(services),
+        new NPShellCmdToolGet(services),
         new NPShellCmdToolSearchBegin(services),
         new NPShellCmdToolSearchNext(services),
         new NPShellCmdToolSearchPrevious(services),

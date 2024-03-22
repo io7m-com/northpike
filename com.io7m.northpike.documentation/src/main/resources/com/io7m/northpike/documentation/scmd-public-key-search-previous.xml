@@ -14,6 +14,10 @@
       <Term type="command">public-key-search-previous</Term>
        command... 
     </Paragraph>
+    <Paragraph>
+      The command can only be used after the associated <Link target="2d5fdac7-c7de-3d14-ae27-b27858e88317">begin</Link>
+      command.
+    </Paragraph>
   </Subsection>
   <Subsection title="Examples">
     <FormalItem title="Example" type="example">

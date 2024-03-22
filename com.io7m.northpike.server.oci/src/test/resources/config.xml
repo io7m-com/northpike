@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<c:Configuration xmlns:c="urn:com.io7m.northpike.server.configuration:1"
+                 xmlns:t="urn:com.io7m.northpike.tls:1">
+
+  <c:AgentService ListenAddress="localhost"
+                  ListenPort="20048"
+                  MaximumCommandSizeOctets="1000000">
+    <t:TLSDisabled/>
+  </c:AgentService>
+
+  <c:ArchiveService ListenAddress="localhost"
+                    ListenPort="20049"
+                    AdvertiseURI="http://10.2.4.1:20049/">
+    <t:TLSDisabled/>
+  </c:ArchiveService>
+
+  <c:Database Kind="POSTGRESQL"
+              OwnerRoleName="unused"
+              OwnerRolePassword="unused"
+              WorkerRolePassword="unused"
+              Address="unused"
+              Port="5432"
+              Name="unused"
+              Create="true"
+              Upgrade="true"
+              Language="english"/>
+
+  <c:Directories RepositoryDirectory="/tmp/repos"
+                 ArchiveDirectory="/tmp/archive"/>
+
+  <c:IdStore BaseURI="https://unused.com:50000"
+             PasswordResetURI="https://unused.com:50001/reset"/>
+
+  <c:Maintenance ArchiveMaximumAge="PT24H"
+                 AgentLoginRecordsMaximumAge="PT2000H"
+                 AssignmentExecutionsMaximumAge="PT72H"/>
+
+  <c:UserService ListenAddress="localhost"
+                 ListenPort="20050"
+                 MaximumCommandSizeOctets="1000000">
+    <t:TLSDisabled/>
+  </c:UserService>
+
+</c:Configuration>

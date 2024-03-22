@@ -17,8 +17,8 @@
 
 package com.io7m.northpike.plans.parsers;
 
-import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPPreserveLexical;
+import com.io7m.northpike.model.plans.NPPlanFormatDescription;
 
 import java.io.OutputStream;
 import java.net.URI;
@@ -41,7 +41,7 @@ public final class NPPlanSerializers
   }
 
   @Override
-  public Set<NPFormatName> formats()
+  public Set<NPPlanFormatDescription> formats()
   {
     return NPPlanFormats.formats();
   }

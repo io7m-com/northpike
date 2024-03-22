@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.arbitraries;
 
 import com.io7m.northpike.model.NPAuditEvent;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
 
@@ -34,7 +34,7 @@ public final class NPArbAuditEvent extends NPArbAbstract<NPAuditEvent>
         Combinators.combine(
           Arbitraries.longs(),
           Arbitraries.defaultFor(OffsetDateTime.class),
-          Arbitraries.defaultFor(NPAuditUserOrAgentType.class),
+          Arbitraries.defaultFor(NPAuditOwnerType.class),
           Arbitraries.strings().alpha(),
           Arbitraries.maps(
             Arbitraries.strings().alpha(),

@@ -141,9 +141,14 @@
                   <executable>podman</executable>
                   <arguments>
                     <argument>run</argument>
+                    <argument>--volume</argument>
+                    <argument>${project.basedir}/src/test/resources:/northpike/etc:ro</argument>
                     <argument>--rm</argument>
+                    <argument>--read-only</argument>
                     <argument>quay.io/io7mcom/northpike:${project.version}</argument>
-                    <argument>help</argument>
+                    <argument>self-check</argument>
+                    <argument>--configuration</argument>
+                    <argument>/northpike/etc/config.xml</argument>
                   </arguments>
                 </configuration>
               </execution>

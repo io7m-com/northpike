@@ -26,6 +26,7 @@ import com.io7m.northpike.protocol.agent.cb.NPA1CommandCWorkItemOutput;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 
 import static com.io7m.cedarbridge.runtime.api.CBCore.string;
+import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned64;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVException.EXCEPTION;
 import static com.io7m.northpike.protocol.agent.cb.internal.NPAVWorkItemIdentifier.WORK_ITEM_IDENTIFIER;
 
@@ -49,6 +50,8 @@ public enum NPAVCommandCWorkItemOutput
     return new NPA1CommandCWorkItemOutput(
       new CBUUID(message.messageID()),
       new CBOffsetDateTime(message.timestamp()),
+      unsigned64(message.eventIndex()),
+      string(message.eventType()),
       WORK_ITEM_IDENTIFIER.convertToWire(message.identifier()),
       CBMaps.ofMapString(message.attributes()),
       string(message.message()),
@@ -66,6 +69,8 @@ public enum NPAVCommandCWorkItemOutput
     return new NPACommandCWorkItemOutput(
       message.fieldMessageId().value(),
       message.fieldTimestamp().value(),
+      message.fieldIndex().value(),
+      message.fieldType().value(),
       WORK_ITEM_IDENTIFIER.convertFromWire(message.fieldWorkItem()),
       CBMaps.toMapString(message.fieldAttributes()),
       message.fieldOutput().value(),

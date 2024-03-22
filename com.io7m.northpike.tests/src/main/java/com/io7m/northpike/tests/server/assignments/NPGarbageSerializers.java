@@ -18,8 +18,8 @@
 package com.io7m.northpike.tests.server.assignments;
 
 import com.io7m.anethum.api.SerializationException;
-import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPPreserveLexical;
+import com.io7m.northpike.model.plans.NPPlanFormatDescription;
 import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.parsers.NPPlanParsers;
 import com.io7m.northpike.plans.parsers.NPPlanSerializerFactoryType;
@@ -42,7 +42,7 @@ public final class NPGarbageSerializers
   }
 
   @Override
-  public Set<NPFormatName> formats()
+  public Set<NPPlanFormatDescription> formats()
   {
     return new NPPlanParsers().formats();
   }
@@ -73,7 +73,7 @@ public final class NPGarbageSerializers
     }
 
     @Override
-    public NPFormatName format()
+    public NPPlanFormatDescription format()
     {
       return new NPPlanParsers()
         .formats()

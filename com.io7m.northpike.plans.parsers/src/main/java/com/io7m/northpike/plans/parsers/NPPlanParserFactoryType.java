@@ -21,8 +21,10 @@ import com.io7m.anethum.api.ParserFactoryType;
 import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPPreserveLexical;
 import com.io7m.northpike.model.plans.NPPlanDescription;
+import com.io7m.northpike.model.plans.NPPlanFormatDescription;
 import com.io7m.repetoir.core.RPServiceType;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -37,5 +39,19 @@ public interface NPPlanParserFactoryType
    * @return The supported formats
    */
 
-  Set<NPFormatName> formats();
+  Set<NPPlanFormatDescription> formats();
+
+  /**
+   * @param format The format
+   *
+   * @return {@code true} if the given format is in the supported formats
+   */
+
+  default boolean supports(
+    final NPFormatName format)
+  {
+    return this.formats()
+      .stream()
+      .anyMatch(p -> Objects.equals(p.name(), format));
+  }
 }

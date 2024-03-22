@@ -14,6 +14,10 @@
       <Term type="command">assignment-search-next</Term>
        command... 
     </Paragraph>
+    <Paragraph>
+      The command can only be used after the associated <Link target="b43a3a09-84d7-3749-aa76-6e29923c5e43">begin</Link>
+      command.
+    </Paragraph>
   </Subsection>
   <Subsection title="Examples">
     <FormalItem title="Example" type="example">

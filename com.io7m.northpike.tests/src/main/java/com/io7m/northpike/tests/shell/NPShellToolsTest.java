@@ -31,6 +31,7 @@ import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearch
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandToolExecutionDescriptionValidate;
+import com.io7m.northpike.protocol.user.NPUCommandToolGet;
 import com.io7m.northpike.protocol.user.NPUCommandToolSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandToolSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandToolSearchPrevious;
@@ -38,11 +39,13 @@ import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionGet;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionSearch;
 import com.io7m.northpike.protocol.user.NPUResponseToolExecutionDescriptionValidate;
+import com.io7m.northpike.protocol.user.NPUResponseToolGet;
 import com.io7m.northpike.protocol.user.NPUResponseToolSearch;
 import com.io7m.northpike.shell.NPShellConfiguration;
 import com.io7m.northpike.shell.NPShellType;
 import com.io7m.northpike.shell.NPShells;
 import com.io7m.northpike.strings.NPStrings;
+import com.io7m.northpike.tools.maven.NPTMFactory3;
 import com.io7m.northpike.user_client.api.NPUserClientFactoryType;
 import com.io7m.northpike.user_client.api.NPUserClientType;
 import com.io7m.seltzer.api.SStructuredError;
@@ -472,5 +475,35 @@ public final class NPShellToolsTest
       .execute(isA(NPUCommandToolSearchNext.class));
     Mockito.verify(this.userClient, new AtLeast(2))
       .execute(isA(NPUCommandToolSearchPrevious.class));
+  }
+
+  @Test
+  public void testToolGet()
+    throws Exception
+  {
+    final var factory = new NPTMFactory3();
+
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandToolGet.class))
+    ).thenReturn(new NPUResponseToolGet(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      Optional.ofNullable(factory.toolDescription())
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+    w.println("tool-get --name org.apache.maven");
+    w.println("set --formatter RAW");
+    w.println("tool-get --name org.apache.maven");
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandToolGet.class));
   }
 }

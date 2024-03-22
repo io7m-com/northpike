@@ -20,7 +20,7 @@ package com.io7m.northpike.server.internal.users;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentPutType;
-import com.io7m.northpike.model.NPAuditUserOrAgentType.User;
+import com.io7m.northpike.model.NPAuditOwnerType.User;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.security.NPSecAction;

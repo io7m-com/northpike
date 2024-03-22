@@ -93,7 +93,7 @@ public final class NPPlanCompilers implements NPPlanCompilerFactoryType
 
       final var parsersSupportingFormat =
         parsersAvailable.stream()
-          .filter(p -> p.formats().contains(format))
+          .filter(p -> p.supports(format))
           .toList();
 
       if (parsersSupportingFormat.isEmpty()) {

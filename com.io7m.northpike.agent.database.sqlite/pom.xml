@@ -46,6 +46,30 @@
     </dependency>
 
     <dependency>
+      <groupId>com.io7m.lanark</groupId>
+      <artifactId>com.io7m.lanark.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.cedarbridge</groupId>
+      <artifactId>com.io7m.cedarbridge.runtime.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.cedarbridge</groupId>
+      <artifactId>com.io7m.cedarbridge.runtime.bssio</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.cedarbridge</groupId>
+      <artifactId>com.io7m.cedarbridge.runtime.convenience</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jbssio</groupId>
+      <artifactId>com.io7m.jbssio.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jbssio</groupId>
+      <artifactId>com.io7m.jbssio.vanilla</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.io7m.anethum</groupId>
       <artifactId>com.io7m.anethum.api</artifactId>
     </dependency>
@@ -101,6 +125,31 @@
 
   <build>
     <plugins>
+      <!-- Generate Cedarbridge types. -->
+      <plugin>
+        <groupId>com.io7m.cedarbridge</groupId>
+        <artifactId>com.io7m.cedarbridge.maven_plugin</artifactId>
+        <version>${com.io7m.cedarbridge.version}</version>
+        <executions>
+          <execution>
+            <id>generate-cedarbridge-code</id>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <outputDirectory>${project.build.directory}/generated-sources/cedarbridge</outputDirectory>
+              <languageName>Java 17+</languageName>
+              <files>
+                <file>
+                  ${project.basedir}/src/main/resources/com/io7m/northpike/database/sqlite/internal/Database.cbs
+                </file>
+              </files>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
@@ -190,6 +239,18 @@
             <configuration>
               <sources>
                 <source>${project.build.directory}/generated-sources/jooq</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>add-cedarbridge</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/generated-sources/cedarbridge</source>
               </sources>
             </configuration>
           </execution>

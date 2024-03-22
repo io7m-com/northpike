@@ -25,10 +25,13 @@ import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseTelemetry;
 import com.io7m.northpike.database.api.NPDatabaseType;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
+import com.io7m.northpike.plans.compiler.NPPlanCompilerFactoryType;
+import com.io7m.northpike.plans.parsers.NPPlanParserFactoryType;
+import com.io7m.northpike.plans.parsers.NPPlanSerializerFactoryType;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryFactoryType;
 import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
@@ -43,6 +46,7 @@ import com.io7m.northpike.server.internal.assignments.NPAssignmentService;
 import com.io7m.northpike.server.internal.assignments.NPAssignmentServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationService;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
+import com.io7m.northpike.server.internal.fake_database.NPDatabaseFake;
 import com.io7m.northpike.server.internal.idstore.NPIdstoreClients;
 import com.io7m.northpike.server.internal.idstore.NPIdstoreClientsType;
 import com.io7m.northpike.server.internal.maintenance.NPMaintenanceService;
@@ -54,6 +58,8 @@ import com.io7m.northpike.server.internal.schedule.NPSchedulingService;
 import com.io7m.northpike.server.internal.schedule.NPSchedulingServiceType;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
+import com.io7m.northpike.server.internal.tools.NPToolService;
+import com.io7m.northpike.server.internal.tools.NPToolServiceType;
 import com.io7m.northpike.server.internal.users.NPUserServerSocketService;
 import com.io7m.northpike.server.internal.users.NPUserServerSocketServiceType;
 import com.io7m.northpike.server.internal.users.NPUserService;
@@ -66,17 +72,21 @@ import com.io7m.northpike.telemetry.api.NPTelemetryServiceFactoryType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tls.NPTLSContextService;
 import com.io7m.northpike.tls.NPTLSContextServiceType;
+import com.io7m.northpike.toolexec.api.NPTEvaluationLanguageProviderType;
 import com.io7m.northpike.toolexec.api.NPTEvaluationService;
 import com.io7m.northpike.toolexec.api.NPTEvaluationServiceType;
 import com.io7m.northpike.tools.api.NPToolFactoryType;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
+import com.io7m.repetoir.core.RPServiceType;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -139,7 +149,7 @@ public final class NPServer implements NPServerType
             .startSpan();
 
         try (var ignored = startupSpan.makeCurrent()) {
-          this.startInSpan();
+          this.startInSpan(false);
         } finally {
           startupSpan.end();
         }
@@ -150,7 +160,8 @@ public final class NPServer implements NPServerType
     }
   }
 
-  private void startInSpan()
+  private void startInSpan(
+    final boolean selfCheck)
     throws NPServerException
   {
     try {
@@ -162,7 +173,7 @@ public final class NPServer implements NPServerType
         );
 
       this.database =
-        this.resources.add(this.createDatabase(dbTelemetry));
+        this.resources.add(this.createDatabase(dbTelemetry, selfCheck));
       final var services =
         this.resources.add(this.createServiceDirectory(this.database));
 
@@ -174,13 +185,20 @@ public final class NPServer implements NPServerType
         services.requireService(NPRepositoryServiceType.class);
       final var archive =
         services.requireService(NPArchiveServiceType.class);
+      final var tools =
+        services.requireService(NPToolServiceType.class);
+
+      if (selfCheck) {
+        return;
+      }
 
       final var all =
         CompletableFuture.allOf(
           agents.start(),
           archive.start(),
           repository.start(),
-          users.start()
+          users.start(),
+          tools.start()
         );
 
       all.get(60L, TimeUnit.SECONDS);
@@ -238,12 +256,19 @@ public final class NPServer implements NPServerType
     services.register(NPTelemetryServiceType.class, this.telemetry);
     services.register(NPDatabaseType.class, newDatabase);
 
-    for (final var reposFactory : ServiceLoader.load(NPSCMRepositoryFactoryType.class)) {
-      services.register(NPSCMRepositoryFactoryType.class, reposFactory);
-    }
+    final var serviceClasses = new ArrayList<Class<? extends RPServiceType>>();
+    serviceClasses.add(NPSCMRepositoryFactoryType.class);
+    serviceClasses.add(NPToolFactoryType.class);
+    serviceClasses.add(NPPlanParserFactoryType.class);
+    serviceClasses.add(NPPlanCompilerFactoryType.class);
+    serviceClasses.add(NPPlanSerializerFactoryType.class);
+    serviceClasses.add(NPTEvaluationLanguageProviderType.class);
 
-    for (final var toolFactory : ServiceLoader.load(NPToolFactoryType.class)) {
-      services.register(NPToolFactoryType.class, toolFactory);
+    for (final var clazz : serviceClasses) {
+      for (final var provider : ServiceLoader.load(clazz)) {
+        services.register(clazz, cast(provider));
+      }
+      services.requireService(clazz);
     }
 
     final var metrics = new NPMetricsService(this.telemetry);
@@ -262,16 +287,27 @@ public final class NPServer implements NPServerType
     final var tls = NPTLSContextService.create(this.telemetry);
     services.register(NPTLSContextServiceType.class, tls);
 
-    services.register(
-      NPTEvaluationServiceType.class,
-      NPTEvaluationService.createFromServiceLoader(strings)
-    );
-
     final var archive = NPArchiveService.create(services);
     services.register(NPArchiveServiceType.class, archive);
 
     final var repository = NPRepositoryService.create(services);
     services.register(NPRepositoryServiceType.class, repository);
+
+    final var eval =
+      NPTEvaluationService.create(
+        strings,
+        List.copyOf(
+          services.optionalServices(NPTEvaluationLanguageProviderType.class)
+        )
+      );
+    services.register(NPTEvaluationServiceType.class, eval);
+
+    final var tools = NPToolService.create(
+      this.telemetry,
+      this.database,
+      services.optionalServices(NPToolFactoryType.class)
+    );
+    services.register(NPToolServiceType.class, tools);
 
     final var maintenance =
       NPMaintenanceService.create(
@@ -332,10 +368,22 @@ public final class NPServer implements NPServerType
     return services;
   }
 
+  @SuppressWarnings("unchecked")
+  private static <T extends RPServiceType> T cast(
+    final RPServiceType provider)
+  {
+    return (T) provider;
+  }
+
   private NPDatabaseType createDatabase(
-    final NPDatabaseTelemetry dbTelemetry)
+    final NPDatabaseTelemetry dbTelemetry,
+    final boolean selfCheck)
     throws NPDatabaseException
   {
+    if (selfCheck) {
+      return new NPDatabaseFake();
+    }
+
     return this.configuration.databases()
       .open(
         this.configuration.databaseConfiguration(),
@@ -400,12 +448,7 @@ public final class NPServer implements NPServerType
       this.configuration.databaseConfiguration()
         .withoutUpgradeOrCreate();
 
-    try (var newDatabase =
-           this.configuration.databases()
-             .open(dbConfiguration, dbTelemetry, event -> {
-
-             })) {
-
+    try (var newDatabase = this.createDatabase(dbTelemetry, false)) {
       final var span =
         newTelemetry.tracer()
           .spanBuilder("SetUserAsAdmin")
@@ -444,7 +487,7 @@ public final class NPServer implements NPServerType
         final var put =
           transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
 
-        transaction.setOwner(new NPAuditUserOrAgentType.User(adminId));
+        transaction.setOwner(new NPAuditOwnerType.User(adminId));
         put.execute(
           new NPUser(
             adminId,
@@ -477,6 +520,35 @@ public final class NPServer implements NPServerType
     if (this.running.compareAndSet(true, false)) {
       LOG.debug("Shutting down server.");
       this.resources.close();
+    }
+  }
+
+  @Override
+  public void selfCheck()
+    throws NPServerException
+  {
+    try {
+      if (this.running.compareAndSet(false, true)) {
+        this.resources = NPServerResources.createResources();
+        this.telemetry = this.createTelemetry();
+
+        final var startupSpan =
+          this.telemetry.tracer()
+            .spanBuilder("NPServer.start")
+            .setSpanKind(SpanKind.INTERNAL)
+            .startSpan();
+
+        try (var ignored = startupSpan.makeCurrent()) {
+          this.startInSpan(true);
+        } finally {
+          startupSpan.end();
+        }
+      }
+    } catch (final Throwable e) {
+      this.close();
+      throw e;
+    } finally {
+      this.close();
     }
   }
 

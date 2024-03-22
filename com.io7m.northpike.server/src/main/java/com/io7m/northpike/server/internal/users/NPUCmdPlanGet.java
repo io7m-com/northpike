@@ -60,7 +60,7 @@ public final class NPUCmdPlanGet
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         final var description =
-          transaction.queries(NPDatabaseQueriesPlansType.GetUnparsedType.class)
+          transaction.queries(NPDatabaseQueriesPlansType.PlanGetUnparsedType.class)
             .execute(command.plan());
 
         return new NPUResponsePlanGet(

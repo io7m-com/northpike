@@ -170,7 +170,7 @@ public final class NPDatabaseAssignmentsTest
       this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
 
     final var planPut =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class);
     final var reposPut =
       this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
     final var scmPut =
@@ -198,7 +198,7 @@ public final class NPDatabaseAssignmentsTest
       NPPlans.builder(NPStrings.create(Locale.ROOT), "x", 1L)
         .build();
     planPut.execute(
-      new NPDatabaseQueriesPlansType.PutType.Parameters(
+      new NPDatabaseQueriesPlansType.PlanPutType.Parameters(
         plan, new NPPlanSerializers())
     );
 
@@ -255,7 +255,7 @@ public final class NPDatabaseAssignmentsTest
         ExecutionPutType.class);
 
     final var planPut =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class);
     final var reposPut =
       this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
     final var scmPut =
@@ -306,7 +306,7 @@ public final class NPDatabaseAssignmentsTest
       NPPlans.builder(NPStrings.create(Locale.ROOT), "x", 1L)
         .build();
     planPut.execute(
-      new NPDatabaseQueriesPlansType.PutType.Parameters(
+      new NPDatabaseQueriesPlansType.PlanPutType.Parameters(
         plan,
         new NPPlanSerializers())
     );
@@ -452,7 +452,7 @@ public final class NPDatabaseAssignmentsTest
       this.transaction.queries(ExecutionPutType.class);
 
     final var planPut =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class);
     final var reposPut =
       this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
     final var scmPut =
@@ -513,7 +513,7 @@ public final class NPDatabaseAssignmentsTest
       NPPlans.builder(NPStrings.create(Locale.ROOT), "x", 1L)
         .build();
     planPut.execute(
-      new NPDatabaseQueriesPlansType.PutType.Parameters(
+      new NPDatabaseQueriesPlansType.PlanPutType.Parameters(
         plan,
         new NPPlanSerializers())
     );
@@ -862,6 +862,7 @@ public final class NPDatabaseAssignmentsTest
     this.transaction.queries(ExecutionLogAddType.class)
       .execute(new ExecutionLogAddType.Parameters(
         execution.id(),
+        23L,
         "INFO",
         "Some text.",
         Map.ofEntries(
@@ -1398,7 +1399,7 @@ public final class NPDatabaseAssignmentsTest
     final var put =
       this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
     final var planPut =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class);
     final var reposPut =
       this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
     final var commitPut =
@@ -1457,15 +1458,15 @@ public final class NPDatabaseAssignmentsTest
         .build();
 
     planPut.execute(
-      new NPDatabaseQueriesPlansType.PutType.Parameters(
+      new NPDatabaseQueriesPlansType.PlanPutType.Parameters(
         plan0, new NPPlanSerializers())
     );
     planPut.execute(
-      new NPDatabaseQueriesPlansType.PutType.Parameters(
+      new NPDatabaseQueriesPlansType.PlanPutType.Parameters(
         plan1, new NPPlanSerializers())
     );
     planPut.execute(
-      new NPDatabaseQueriesPlansType.PutType.Parameters(
+      new NPDatabaseQueriesPlansType.PlanPutType.Parameters(
         plan2, new NPPlanSerializers())
     );
 
@@ -1526,7 +1527,7 @@ public final class NPDatabaseAssignmentsTest
     final var execDelete =
       this.transaction.queries(ExecutionDeleteType.class);
     final var planPut =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class);
     final var reposPut =
       this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
     final var scmPut =
@@ -1584,7 +1585,7 @@ public final class NPDatabaseAssignmentsTest
       NPPlans.builder(NPStrings.create(Locale.ROOT), "x", 1L)
         .build();
     planPut.execute(
-      new NPDatabaseQueriesPlansType.PutType.Parameters(
+      new NPDatabaseQueriesPlansType.PlanPutType.Parameters(
         plan,
         new NPPlanSerializers())
     );
@@ -1639,6 +1640,8 @@ public final class NPDatabaseAssignmentsTest
         workLogAdd.execute(new NPWorkItemLogRecord(
           workItem.identifier(),
           OffsetDateTime.now(),
+          (long) index,
+          "Thing",
           Map.of("a", "x", "b", "y"),
           "Line %d".formatted(Integer.valueOf(index)),
           Optional.of(NPStoredException.ofException(new IOException()))
@@ -1649,6 +1652,7 @@ public final class NPDatabaseAssignmentsTest
     for (int index = 0; index < 100; ++index) {
       execLogAdd.execute(new ExecutionLogAddType.Parameters(
         execution.id(),
+        index,
         "TEST",
         "Line " + index,
         Map.ofEntries(

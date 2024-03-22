@@ -49,10 +49,6 @@
       <artifactId>com.io7m.verona.core</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.io7m.lanark</groupId>
-      <artifactId>com.io7m.lanark.core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.io7m.jmulticlose</groupId>
       <artifactId>com.io7m.jmulticlose.core</artifactId>
     </dependency>

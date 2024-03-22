@@ -68,23 +68,6 @@ public final class NPASAgentWorkExecGet
     return () -> SERVICE;
   }
 
-  @Override
-  protected Optional<NPAWorkExecutorConfiguration> onExecute(
-    final DSLContext context,
-    final NPAgentLocalName name)
-    throws NPAgentDatabaseException
-  {
-    this.setAttribute(AGENT, name.toString());
-
-    final var query =
-      context.select(AGENTS.A_WORKEXEC)
-        .from(AGENTS)
-        .where(AGENTS.A_NAME.eq(name.toString()));
-
-    recordQuery(query);
-    return mapRecordOpt(query.fetchOptional());
-  }
-
   private static Optional<NPAWorkExecutorConfiguration> mapRecordOpt(
     final Optional<Record1<String>> opt)
   {
@@ -139,5 +122,22 @@ public final class NPASAgentWorkExecGet
     } catch (final IOException e) {
       throw new IllegalStateException(e);
     }
+  }
+
+  @Override
+  protected Optional<NPAWorkExecutorConfiguration> onExecute(
+    final DSLContext context,
+    final NPAgentLocalName name)
+    throws NPAgentDatabaseException
+  {
+    this.setAttribute(AGENT, name.toString());
+
+    final var query =
+      context.select(AGENTS.A_WORKEXEC)
+        .from(AGENTS)
+        .where(AGENTS.A_NAME.eq(name.toString()));
+
+    recordQuery(query);
+    return mapRecordOpt(query.fetchOptional());
   }
 }

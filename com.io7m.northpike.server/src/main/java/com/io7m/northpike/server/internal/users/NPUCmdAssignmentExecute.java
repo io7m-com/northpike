@@ -20,7 +20,7 @@ package com.io7m.northpike.server.internal.users;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAuditType;
 import com.io7m.northpike.model.NPAuditEvent;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionRequest;
@@ -59,7 +59,7 @@ public final class NPUCmdAssignmentExecute
   {
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
-        final var owner = new NPAuditUserOrAgentType.User(user.userId());
+        final var owner = new NPAuditOwnerType.User(user.userId());
         transaction.setOwner(owner);
         transaction.queries(NPDatabaseQueriesAuditType.EventAddType.class)
           .execute(new NPAuditEvent(

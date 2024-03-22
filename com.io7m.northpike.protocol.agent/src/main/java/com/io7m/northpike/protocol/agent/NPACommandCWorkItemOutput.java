@@ -31,7 +31,9 @@ import java.util.UUID;
  *
  * @param messageID  The ID of this message
  * @param timestamp  The time the output was produced
- * @param identifier The identifier
+ * @param eventIndex The index of the log output line
+ * @param eventType The event type
+ * @param identifier The work item identifier
  * @param attributes The message attributes
  * @param message    The line of output
  * @param exception  The exception, if any
@@ -40,6 +42,8 @@ import java.util.UUID;
 public record NPACommandCWorkItemOutput(
   UUID messageID,
   OffsetDateTime timestamp,
+  long eventIndex,
+  String eventType,
   NPWorkItemIdentifier identifier,
   Map<String, String> attributes,
   String message,
@@ -51,7 +55,9 @@ public record NPACommandCWorkItemOutput(
    *
    * @param messageID  The ID of this message
    * @param timestamp  The time the output was produced
-   * @param identifier The identifier
+   * @param eventIndex The index of the log output line
+   * @param eventType The event type
+   * @param identifier The work item identifier
    * @param attributes The message attributes
    * @param message    The line of output
    * @param exception  The exception, if any
@@ -61,6 +67,7 @@ public record NPACommandCWorkItemOutput(
   {
     Objects.requireNonNull(messageID, "messageID");
     Objects.requireNonNull(identifier, "identifier");
+    Objects.requireNonNull(eventType, "eventType");
     Objects.requireNonNull(attributes, "attributes");
     Objects.requireNonNull(message, "message");
     Objects.requireNonNull(exception, "exception");

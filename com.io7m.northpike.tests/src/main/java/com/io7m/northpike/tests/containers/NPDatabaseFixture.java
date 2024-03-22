@@ -28,7 +28,7 @@ import com.io7m.northpike.database.api.NPDatabaseTelemetry;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.api.NPDatabaseUpgrade;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.strings.NPStrings;
 import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
@@ -171,7 +171,7 @@ public final class NPDatabaseFixture
     );
   }
 
-  public NPAuditUserOrAgentType.User userSetup(
+  public NPAuditOwnerType.User userSetup(
     final IdUser user)
     throws Exception
   {
@@ -185,7 +185,7 @@ public final class NPDatabaseFixture
               new MSubject(Set.of())
             ));
           transaction.commit();
-          return new NPAuditUserOrAgentType.User(user.id());
+          return new NPAuditOwnerType.User(user.id());
         }
       }
     }

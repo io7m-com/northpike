@@ -73,6 +73,50 @@ public final class NPASServerPut
     return () -> SERVICE;
   }
 
+  private static String tlsTruststore(
+    final NPTLSConfigurationType tls)
+    throws IOException
+  {
+    return switch (tls) {
+      case NPTLSDisabled ignored -> null;
+      case NPTLSEnabledExplicit e -> store(e.trustStore());
+      case NPTLSEnabledClientAnonymous ignored -> null;
+    };
+  }
+
+  private static String tlsKeystore(
+    final NPTLSConfigurationType tls)
+    throws IOException
+  {
+    return switch (tls) {
+      case NPTLSDisabled d -> null;
+      case NPTLSEnabledExplicit e -> store(e.keyStore());
+      case NPTLSEnabledClientAnonymous ignored -> null;
+    };
+  }
+
+  private static String store(
+    final NPTLSStoreConfiguration configuration)
+    throws IOException
+  {
+    try (var writer = new StringWriter()) {
+      final var props = new Properties();
+      props.setProperty("storeType", configuration.storeType());
+      props.setProperty("storeProvider", configuration.storeProvider());
+      props.setProperty("storePassword", configuration.storePassword());
+      props.setProperty("storePath", configuration.storePath().toString());
+      props.store(writer, "");
+      writer.flush();
+      return writer.toString();
+    }
+  }
+
+  private static String tlsEnabled(
+    final NPTLSConfigurationType tls)
+  {
+    return tls.kind().name();
+  }
+
   @Override
   protected NPAgentDatabaseUnit onExecute(
     final DSLContext context,
@@ -140,49 +184,5 @@ public final class NPASServerPut
         Optional.empty()
       );
     }
-  }
-
-  private static String tlsTruststore(
-    final NPTLSConfigurationType tls)
-    throws IOException
-  {
-    return switch (tls) {
-      case final NPTLSDisabled ignored -> null;
-      case final NPTLSEnabledExplicit e -> store(e.trustStore());
-      case final NPTLSEnabledClientAnonymous ignored -> null;
-    };
-  }
-
-  private static String tlsKeystore(
-    final NPTLSConfigurationType tls)
-    throws IOException
-  {
-    return switch (tls) {
-      case final NPTLSDisabled d -> null;
-      case final NPTLSEnabledExplicit e -> store(e.keyStore());
-      case final NPTLSEnabledClientAnonymous ignored -> null;
-    };
-  }
-
-  private static String store(
-    final NPTLSStoreConfiguration configuration)
-    throws IOException
-  {
-    try (var writer = new StringWriter()) {
-      final var props = new Properties();
-      props.setProperty("storeType", configuration.storeType());
-      props.setProperty("storeProvider", configuration.storeProvider());
-      props.setProperty("storePassword", configuration.storePassword());
-      props.setProperty("storePath", configuration.storePath().toString());
-      props.store(writer, "");
-      writer.flush();
-      return writer.toString();
-    }
-  }
-
-  private static String tlsEnabled(
-    final NPTLSConfigurationType tls)
-  {
-    return tls.kind().name();
   }
 }

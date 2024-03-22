@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Section xmlns:xi="http://www.w3.org/2001/XInclude" id="c9be1879-711c-35c0-adba-c92abc6da016" title="tool-get" xmlns="urn:com.io7m.structural:8:0">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="command">tool-get</Term>
+       - Retrieve a tool.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The 
+      <Term type="command">tool-get</Term>
+       command retrieves a tool.
+    </Paragraph>
+  </Subsection>
+  <xi:include href="scmd-tool-get-parameters.xml"/>
+  <Subsection title="Examples">
+    <FormalItem title="Example" type="example">
+      <Verbatim><![CDATA[
+[northpike]$ tool-get --name org.apache.maven
+┌─────────────────────┬───────────────────────────────────────────────────────┐
+│ Attribute           │ Value                                                 │
+├─────────────────────┼───────────────────────────────────────────────────────┤
+│ Name                │ org.apache.maven                                      │
+├─────────────────────┼───────────────────────────────────────────────────────┤
+│ Description         │ Tool service for org.apache.maven (Apache Maven 3.*). │
+├─────────────────────┼───────────────────────────────────────────────────────┤
+│ Versions Supported  │ [3.9.1, 4.0.0)                                        │
+└─────────────────────┴───────────────────────────────────────────────────────┘
+Tool Executions
+┌─────────────────────────────────────────┬───────────────────────────────────┐
+│ Name                                    │ Arguments                         │
+├─────────────────────────────────────────┼───────────────────────────────────┤
+│ clean-verify-site                       │ [-C, -e, -U, clean, verify, site] │
+├─────────────────────────────────────────┼───────────────────────────────────┤
+│ clean-verify                            │ [-C, -e, -U, clean, verify]       │
+├─────────────────────────────────────────┼───────────────────────────────────┤
+│ deploy                                  │ [-C, -e, -U, deploy]              │
+└─────────────────────────────────────────┴───────────────────────────────────┘
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>
+

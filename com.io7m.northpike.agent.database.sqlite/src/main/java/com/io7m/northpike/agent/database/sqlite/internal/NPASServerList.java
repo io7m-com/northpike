@@ -63,6 +63,15 @@ public final class NPASServerList
     return () -> SERVICE;
   }
 
+  private static NPAgentServerSummary mapRecord(
+    final org.jooq.Record r)
+  {
+    return new NPAgentServerSummary(
+      NPAgentServerID.of(r.get(SERVERS.S_ID)),
+      r.get(SERVERS.S_REMOTE_ADDRESS)
+    );
+  }
+
   @Override
   protected List<NPAgentServerSummary> onExecute(
     final DSLContext context,
@@ -86,14 +95,5 @@ public final class NPASServerList
       .stream()
       .map(NPASServerList::mapRecord)
       .toList();
-  }
-
-  private static NPAgentServerSummary mapRecord(
-    final org.jooq.Record r)
-  {
-    return new NPAgentServerSummary(
-      NPAgentServerID.of(r.get(SERVERS.S_ID)),
-      r.get(SERVERS.S_REMOTE_ADDRESS)
-    );
   }
 }

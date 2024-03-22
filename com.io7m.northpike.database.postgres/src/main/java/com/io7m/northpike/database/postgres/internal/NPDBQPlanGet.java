@@ -19,8 +19,8 @@ package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.anethum.api.ParsingException;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.GetType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.GetType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanGetType.Parameters;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.plans.NPPlanDescription;
 import org.jooq.DSLContext;
@@ -29,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_FORMAT_UNSUPPORTED;
@@ -40,10 +41,10 @@ import static com.io7m.northpike.strings.NPStringConstants.FORMAT;
 
 public final class NPDBQPlanGet
   extends NPDBQAbstract<Parameters, Optional<NPPlanDescription>>
-  implements GetType
+  implements PlanGetType
 {
-  private static final NPDBQueryProviderType.Service<Parameters, Optional<NPPlanDescription>, GetType> SERVICE =
-    new NPDBQueryProviderType.Service<>(GetType.class, NPDBQPlanGet::new);
+  private static final NPDBQueryProviderType.Service<Parameters, Optional<NPPlanDescription>, PlanGetType> SERVICE =
+    new NPDBQueryProviderType.Service<>(PlanGetType.class, NPDBQPlanGet::new);
 
   /**
    * Construct a query.
@@ -75,22 +76,24 @@ public final class NPDBQPlanGet
 
     final var transaction = this.transaction();
     for (final var parsers : parameters.parsers()) {
-      if (parsers.formats().contains(text.format())) {
-        final var bytes =
-          text.text().getBytes(StandardCharsets.UTF_8);
+      for (final var format : parsers.formats()) {
+        if (Objects.equals(format.name(), text.format())) {
+          final var bytes =
+            text.text().getBytes(StandardCharsets.UTF_8);
 
-        try (var stream = new ByteArrayInputStream(bytes)) {
-          final var plan =
-            parsers.parse(URI.create("urn:input"), stream);
-          return Optional.of(plan);
-        } catch (final IOException e) {
-          throw NPDatabaseExceptions.ofIOError(
-            transaction,
-            this.attributes(),
-            e
-          );
-        } catch (final ParsingException e) {
-          throw NPDatabaseExceptions.ofParseError(this.attributes(), e);
+          try (var stream = new ByteArrayInputStream(bytes)) {
+            final var plan =
+              parsers.parse(URI.create("urn:input"), stream);
+            return Optional.of(plan);
+          } catch (final IOException e) {
+            throw NPDatabaseExceptions.ofIOError(
+              transaction,
+              this.attributes(),
+              e
+            );
+          } catch (final ParsingException e) {
+            throw NPDatabaseExceptions.ofParseError(this.attributes(), e);
+          }
         }
       }
     }

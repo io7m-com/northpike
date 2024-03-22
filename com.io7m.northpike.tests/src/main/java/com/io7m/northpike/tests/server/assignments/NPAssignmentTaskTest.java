@@ -1265,8 +1265,8 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(ALLOW_UNSIGNED_COMMITS, plan);
 
     final var transaction = ASSIGNMENT_FIXTURE.transaction();
-    transaction.queries(NPDatabaseQueriesPlansType.PutType.class)
-      .execute(new NPDatabaseQueriesPlansType.PutType.Parameters(
+    transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class)
+      .execute(new NPDatabaseQueriesPlansType.PlanPutType.Parameters(
         plan,
         new NPGarbageSerializers()
       ));

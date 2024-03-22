@@ -595,8 +595,8 @@ CREATE TABLE tool_execution_descriptions (
   ted_description_search TSVECTOR NOT NULL
     GENERATED ALWAYS AS (to_tsvector(%1$S, ted_description)) STORED,
 
-  CONSTRAINT tool_execution_descriptions_name_version_unique
-    UNIQUE (ted_name, ted_version),
+  CONSTRAINT tool_execution_descriptions_name_version_tool_unique
+    UNIQUE (ted_name, ted_version, ted_tool_name),
   -- [jooq ignore stop]
 
   CONSTRAINT tool_execution_descriptions_version_valid
@@ -944,6 +944,7 @@ CREATE TABLE assignment_executions (
 CREATE TABLE assignment_execution_logs (
   ael_id           UUID                     NOT NULL,
   ael_time         TIMESTAMP WITH TIME ZONE NOT NULL,
+  ael_index        BIGINT                   NOT NULL,
   ael_type         TEXT                     NOT NULL,
   ael_message      TEXT                     NOT NULL,
 
@@ -963,6 +964,9 @@ CREATE TABLE assignment_execution_logs (
         't'::boolean
     END
   ),
+
+  CONSTRAINT assignment_execution_logs_primary_key
+    PRIMARY KEY (ael_id, ael_index),
 
   CONSTRAINT assignment_executions_logs_exists
     FOREIGN KEY (ael_id)
@@ -1169,6 +1173,7 @@ CREATE TABLE repository_keys (
 CREATE TABLE audit (
   au_id      BIGINT                   NOT NULL GENERATED ALWAYS AS IDENTITY,
   au_time    TIMESTAMP WITH TIME ZONE NOT NULL,
+  au_server  BOOLEAN                  NOT NULL,
   au_user    UUID,
   au_agent   UUID,
   au_type    TEXT                     NOT NULL,
@@ -1180,10 +1185,11 @@ CREATE TABLE audit (
   CONSTRAINT audit_primary_key
     PRIMARY KEY (au_id),
 
-  CONSTRAINT audit_user_or_agent
+  CONSTRAINT audit_user_or_agent_or_server
     CHECK (
-         ((au_user IS NOT NULL) AND (au_agent IS     NULL))
-      OR ((au_user IS     NULL) AND (au_agent IS NOT NULL))
+         ((    au_server) AND (au_user IS     NULL) AND (au_agent IS     NULL))
+      OR ((NOT au_server) AND (au_user IS NOT NULL) AND (au_agent IS     NULL))
+      OR ((NOT au_server) AND (au_user IS     NULL) AND (au_agent IS NOT NULL))
     ),
 
   CONSTRAINT audit_agent_exists

@@ -22,7 +22,6 @@ import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPToolName;
-import com.io7m.northpike.model.NPToolSearchParameters;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.security.NPSecRole;

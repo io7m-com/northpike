@@ -48,6 +48,7 @@ import com.io7m.northpike.telemetry.api.NPEventService;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPEventType;
 import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tests.NPEventInterceptingService;
 import com.io7m.northpike.tls.NPTLSContextService;
 import com.io7m.northpike.tls.NPTLSContextServiceType;
@@ -127,6 +128,10 @@ public final class NPAgentWorkerTest
     this.services.register(
       NPAWorkExecutorFactoryType.class,
       new NPWorkExecutorsLocal()
+    );
+    this.services.register(
+      NPTelemetryServiceType.class,
+      NPTelemetryNoOp.noop()
     );
   }
 

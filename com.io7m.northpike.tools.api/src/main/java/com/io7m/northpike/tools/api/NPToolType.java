@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.tools.api;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPToolExecutionName;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -109,7 +109,7 @@ public interface NPToolType extends AutoCloseable
    * @return The default executions provided by the tool
    */
 
-  default Map<RDottedName, List<String>> defaultExecutions()
+  default Map<NPToolExecutionName, List<String>> defaultExecutions()
   {
     return this.factory().defaultExecutions();
   }

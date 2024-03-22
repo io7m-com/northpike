@@ -32,7 +32,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
@@ -146,7 +146,7 @@ public final class NPRepositoryServiceTest
       closeables.addPerTestResource(this.connection.openTransaction());
 
     final var user = NPFixtures.idstore(containers).userWithLogin();
-    this.transaction.setOwner(new NPAuditUserOrAgentType.User(user.id()));
+    this.transaction.setOwner(new NPAuditOwnerType.User(user.id()));
     this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class)
       .execute(new NPUser(user.id(), user.idName(), new MSubject(Set.of())));
 

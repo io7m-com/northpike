@@ -29,6 +29,7 @@ import java.util.Optional;
  *
  * @param severity   The severity of event
  * @param time       The time
+ * @param index      The index of the event
  * @param message    The message
  * @param attributes The event attributes
  * @param exception  The exception, if any
@@ -37,6 +38,7 @@ import java.util.Optional;
 public record NPAWorkEvent(
   Severity severity,
   OffsetDateTime time,
+  long index,
   String message,
   Map<String, String> attributes,
   Optional<NPStoredException> exception)
@@ -46,6 +48,7 @@ public record NPAWorkEvent(
    *
    * @param severity   The severity of event
    * @param time       The time
+   * @param index      The index of the event
    * @param message    The message
    * @param attributes The event attributes
    * @param exception  The exception, if any

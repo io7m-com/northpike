@@ -172,7 +172,7 @@ public final class NPDatabaseExceptions
         .orElse("");
 
     return switch (column.toUpperCase(Locale.ROOT)) {
-      case "R_PROVIDER", "AE_COMMIT" -> {
+      case "R_PROVIDER", "AE_COMMIT", "PTE_TOOLEXEC" -> {
         yield new NPDatabaseException(
           transaction.localize(ERROR_NONEXISTENT),
           e,

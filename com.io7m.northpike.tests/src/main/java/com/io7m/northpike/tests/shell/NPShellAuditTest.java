@@ -18,7 +18,7 @@
 package com.io7m.northpike.tests.shell;
 
 import com.io7m.northpike.model.NPAuditEvent;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchBegin;
 import com.io7m.northpike.protocol.user.NPUCommandAuditSearchNext;
@@ -162,21 +162,21 @@ public final class NPShellAuditTest
             new NPAuditEvent(
               0L,
               OffsetDateTime.now(),
-              new NPAuditUserOrAgentType.User(UUID.randomUUID()),
+              new NPAuditOwnerType.User(UUID.randomUUID()),
               "TYPE_1",
               Map.of()
             ),
             new NPAuditEvent(
               1L,
               OffsetDateTime.now(),
-              new NPAuditUserOrAgentType.User(UUID.randomUUID()),
+              new NPAuditOwnerType.User(UUID.randomUUID()),
               "TYPE_1",
               Map.of()
             ),
             new NPAuditEvent(
               2L,
               OffsetDateTime.now(),
-              new NPAuditUserOrAgentType.User(UUID.randomUUID()),
+              new NPAuditOwnerType.User(UUID.randomUUID()),
               "TYPE_1",
               Map.of()
             )

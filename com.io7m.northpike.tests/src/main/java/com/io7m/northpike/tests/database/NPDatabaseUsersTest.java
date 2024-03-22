@@ -30,7 +30,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
-import com.io7m.northpike.model.NPAuditUserOrAgentType.User;
+import com.io7m.northpike.model.NPAuditOwnerType.User;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPUserSearchParameters;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;

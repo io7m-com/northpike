@@ -35,6 +35,7 @@ import com.io7m.northpike.telemetry.api.NPEventService;
 import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPEventType;
 import com.io7m.northpike.telemetry.api.NPTelemetryNoOp;
+import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import com.io7m.northpike.tests.NPEventInterceptingService;
 import com.io7m.northpike.tls.NPTLSContextService;
 import com.io7m.northpike.tls.NPTLSContextServiceType;
@@ -107,6 +108,10 @@ public final class NPAgentSupervisorTest
       NPEventServiceType.class, this.events);
     this.services.register(
       NPAgentDatabaseType.class, this.database);
+    this.services.register(
+      NPTelemetryServiceType.class,
+      NPTelemetryNoOp.noop()
+    );
   }
 
   @AfterEach

@@ -22,7 +22,7 @@ import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
@@ -197,16 +197,16 @@ public final class NPUCmdPlanDeleteTest
       .thenReturn(user);
 
     final var keyDelete =
-      Mockito.mock(NPDatabaseQueriesPlansType.DeleteType.class);
+      Mockito.mock(NPDatabaseQueriesPlansType.PlanDeleteType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesPlansType.DeleteType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesPlansType.PlanDeleteType.class))
       .thenReturn(keyDelete);
 
     final var r = handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
 
     Mockito.verify(this.transaction, new Times(1))
-      .setOwner(new NPAuditUserOrAgentType.User(user.userId()));
+      .setOwner(new NPAuditOwnerType.User(user.userId()));
     Mockito.verify(this.transaction, new Times(1))
       .commit();
   }

@@ -28,6 +28,7 @@ import com.io7m.northpike.model.NPPublicKeySummary;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPToolDescription;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPToolSummary;
@@ -46,6 +47,7 @@ import com.io7m.northpike.model.agents.NPAgentStatus;
 import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
+import com.io7m.northpike.model.plans.NPPlanFormatDescription;
 import com.io7m.northpike.model.plans.NPPlanSummary;
 import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
@@ -64,6 +66,7 @@ import org.jline.terminal.Terminal;
 
 import java.io.PrintWriter;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -409,7 +412,14 @@ public final class NPFormatterPretty implements NPFormatterType
           .setWidthConstraint(this.softTableWidth(1))
           .declareColumn("Name", any());
 
-      for (final var name : agent.labels().values()) {
+      final var values =
+        agent.labels()
+          .values()
+          .stream()
+          .sorted()
+          .toList();
+
+      for (final var name : values) {
         builder.addRow()
           .addCell(name.name().toString());
       }
@@ -422,11 +432,18 @@ public final class NPFormatterPretty implements NPFormatterType
 
       final var builder =
         Tabla.builder()
-          .setWidthConstraint(this.softTableWidth(1))
+          .setWidthConstraint(this.softTableWidth(2))
           .declareColumn("Name", atLeastContentOrHeader())
           .declareColumn("Value", atLeastContentOrHeader());
 
-      for (final var entry : agent.systemProperties().entrySet()) {
+      final var sortedEntries =
+        agent.systemProperties()
+          .entrySet()
+          .stream()
+          .sorted(Map.Entry.comparingByKey())
+          .toList();
+
+      for (final var entry : sortedEntries) {
         builder.addRow()
           .addCell(entry.getKey())
           .addCell(entry.getValue());
@@ -440,11 +457,18 @@ public final class NPFormatterPretty implements NPFormatterType
 
       final var builder =
         Tabla.builder()
-          .setWidthConstraint(this.softTableWidth(1))
+          .setWidthConstraint(this.softTableWidth(2))
           .declareColumn("Name", atLeastContentOrHeader())
           .declareColumn("Value", atLeastContentOrHeader());
 
-      for (final var entry : agent.environmentVariables().entrySet()) {
+      final var sortedEntries =
+        agent.systemProperties()
+          .entrySet()
+          .stream()
+          .sorted(Map.Entry.comparingByKey())
+          .toList();
+
+      for (final var entry : sortedEntries) {
         builder.addRow()
           .addCell(entry.getKey())
           .addCell(entry.getValue());
@@ -1076,6 +1100,80 @@ public final class NPFormatterPretty implements NPFormatterType
       builder.addRow()
         .addCell(item.name().toString())
         .addCell(item.description());
+    }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatTool(
+    final NPToolDescription toolDescription)
+    throws Exception
+  {
+    {
+      final var builder =
+        Tabla.builder()
+          .setWidthConstraint(this.softTableWidth(2))
+          .declareColumn("Attribute", atLeastContentOrHeader())
+          .declareColumn("Value", atLeastContentOrHeader());
+
+      builder.addRow()
+        .addCell("Name")
+        .addCell(toolDescription.name().toString());
+
+      builder.addRow()
+        .addCell("Description")
+        .addCell(toolDescription.description());
+
+      builder.addRow()
+        .addCell("Versions Supported")
+        .addCell(toolDescription.versions().toString());
+
+      this.renderTable(builder.build());
+    }
+
+    if (toolDescription.defaultExecutions().isEmpty()) {
+      return;
+    }
+
+    final var out = this.terminal.writer();
+    out.println("Tool Executions");
+
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(2))
+        .declareColumn("Name", atLeastContentOrHeader())
+        .declareColumn("Arguments", atLeastContentOrHeader());
+
+    for (final var entry : toolDescription.defaultExecutions().entrySet()) {
+      builder.addRow()
+        .addCell(entry.getKey().toString())
+        .addCell(entry.getValue().toString());
+    }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatPlanFormats(
+    final Set<NPPlanFormatDescription> formats)
+    throws Exception
+  {
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(2))
+        .declareColumn("Name", atLeastContentOrHeader())
+        .declareColumn("Description", atLeastContentOrHeader());
+
+    final var sorted =
+      formats.stream()
+        .sorted(Comparator.comparing(NPPlanFormatDescription::name))
+        .toList();
+
+    for (final var format : sorted) {
+      builder.addRow()
+        .addCell(format.name().toString())
+        .addCell(format.description());
     }
 
     this.renderTable(builder.build());

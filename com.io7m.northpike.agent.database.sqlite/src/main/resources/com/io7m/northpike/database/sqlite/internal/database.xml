@@ -115,5 +115,34 @@ STRICT
 CREATE UNIQUE INDEX agent_servers_unique ON agent_servers (as_agent)
 -- [jooq ignore stop]
 ]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE assignment_execution_logs (
+  ael_agent                 INTEGER NOT NULL,
+  ael_work_item_assignment  TEXT    NOT NULL,
+  ael_work_item_task        TEXT    NOT NULL,
+  ael_time                  TEXT    NOT NULL,
+  ael_index                 INTEGER NOT NULL,
+  ael_type                  TEXT    NOT NULL,
+  ael_message               TEXT    NOT NULL,
+  ael_attributes            BLOB    NOT NULL,
+  ael_exception_format      TEXT,
+  ael_exception_version     INTEGER,
+  ael_exception_data        BLOB
+
+  -- [jooq ignore start]
+  ,
+  CONSTRAINT assignment_execution_logs_primary_key
+    PRIMARY KEY (ael_work_item_assignment, ael_work_item_task, ael_index),
+
+  CONSTRAINT assignment_execution_logs_agent_exists
+    FOREIGN KEY (ael_agent)
+      REFERENCES agents (a_id)
+  -- [jooq ignore stop]
+)
+-- [jooq ignore start]
+STRICT
+-- [jooq ignore stop]
+]]></Statement>
   </Schema>
 </Schemas>

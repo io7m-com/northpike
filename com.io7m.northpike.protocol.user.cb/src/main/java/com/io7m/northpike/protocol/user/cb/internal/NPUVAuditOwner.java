@@ -18,55 +18,57 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
-import com.io7m.northpike.protocol.user.cb.NPU1UserOrAgentID;
+import com.io7m.northpike.protocol.user.cb.NPU1AuditOwner;
 
 /**
  * A validator.
  */
 
-public enum NPUVUserOrAgent
+public enum NPUVAuditOwner
   implements NPProtocolMessageValidatorType<
-  NPAuditUserOrAgentType,
-  NPU1UserOrAgentID>
+  NPAuditOwnerType,
+  NPU1AuditOwner>
 {
   /**
    * A validator.
    */
 
-  USER_OR_AGENT;
+  AUDIT_OWNER;
 
   @Override
-  public NPU1UserOrAgentID convertToWire(
-    final NPAuditUserOrAgentType message)
+  public NPU1AuditOwner convertToWire(
+    final NPAuditOwnerType message)
   {
-    if (message instanceof final NPAuditUserOrAgentType.User user) {
-      return new NPU1UserOrAgentID.User(new CBUUID(user.id()));
-    }
-    if (message instanceof final NPAuditUserOrAgentType.Agent agent) {
-      return new NPU1UserOrAgentID.Agent(new CBUUID(agent.id().value()));
-    }
-    throw new IllegalStateException(
-      "Unrecognized message: %s".formatted(message)
-    );
+    return switch (message) {
+      case final NPAuditOwnerType.User user -> {
+        yield new NPU1AuditOwner.User(new CBUUID(user.id()));
+      }
+      case final NPAuditOwnerType.Agent agent -> {
+        yield new NPU1AuditOwner.Agent(new CBUUID(agent.id().value()));
+      }
+      case final NPAuditOwnerType.Server ignored -> {
+        yield new NPU1AuditOwner.Server();
+      }
+    };
   }
 
   @Override
-  public NPAuditUserOrAgentType convertFromWire(
-    final NPU1UserOrAgentID message)
+  public NPAuditOwnerType convertFromWire(
+    final NPU1AuditOwner message)
   {
-    if (message instanceof final NPU1UserOrAgentID.User user) {
-      return new NPAuditUserOrAgentType.User(user.fieldId().value());
-    }
-    if (message instanceof final NPU1UserOrAgentID.Agent agent) {
-      return new NPAuditUserOrAgentType.Agent(
-        new NPAgentID(agent.fieldId().value())
-      );
-    }
-    throw new IllegalStateException(
-      "Unrecognized message: %s".formatted(message)
-    );
+    return switch (message) {
+      case final NPU1AuditOwner.User user -> {
+        yield new NPAuditOwnerType.User(user.fieldId().value());
+      }
+      case final NPU1AuditOwner.Agent agent -> {
+        yield new NPAuditOwnerType.Agent(new NPAgentID(agent.fieldId().value()));
+      }
+      case final NPU1AuditOwner.Server server -> {
+        yield new NPAuditOwnerType.Server();
+      }
+    };
   }
 }

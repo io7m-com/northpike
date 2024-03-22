@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Section id="f0bca247-28b0-3763-82c9-9c0a06906aff"
+         title="plan-formats-supported"
+         xmlns="urn:com.io7m.structural:8:0">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="command">plan-formats-supported</Term>
+       - List the supported plan formats.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The 
+      <Term type="command">plan-formats-supported</Term>
+       command lists the supported <Link target="7b6d8296-cba1-448b-96e0-10e89b61bec0">plan</Link> languages.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Examples">
+    <FormalItem title="Example" type="example">
+      <Verbatim><![CDATA[
+[northpike]$ plan-formats-supported
+┌───────────────────────────────────────────────────┬─────────────────────────┐
+│ Name                                              │ Description             │
+├───────────────────────────────────────────────────┼─────────────────────────┤
+│ com.io7m.northpike.plans.parsers.v1               │ The v1 XML Plan format. │
+└───────────────────────────────────────────────────┴─────────────────────────┘
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+</Section>
+

@@ -34,7 +34,7 @@ import java.util.Objects;
 public record NPAuditEvent(
   long id,
   OffsetDateTime time,
-  NPAuditUserOrAgentType owner,
+  NPAuditOwnerType owner,
   String type,
   Map<String, String> data)
 {

@@ -23,7 +23,7 @@ import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanPutType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.DeleteExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.GetExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
@@ -370,7 +370,7 @@ public final class NPDatabaseToolsTest
     throws Exception
   {
     final var planPut =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class);
     final var put =
       this.transaction.queries(PutExecutionDescriptionType.class);
     final var delete =

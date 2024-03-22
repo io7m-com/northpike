@@ -61,7 +61,7 @@ public final class NPUCmdPlanSearchBegin
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         final var paged =
-          transaction.queries(NPDatabaseQueriesPlansType.SearchType.class)
+          transaction.queries(NPDatabaseQueriesPlansType.PlanSearchType.class)
             .execute(command.parameters());
 
         context.setProperty(NPPlansPagedType.class, paged);

@@ -15,6 +15,7 @@
  */
 
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseFactoryType;
+import com.io7m.northpike.agent.database.sqlite.internal.NPASAssignmentLogList;
 import com.io7m.northpike.agent.database.sqlite.internal.NPASQueryProviderType;
 
 /**
@@ -27,10 +28,14 @@ module com.io7m.northpike.agent.database.sqlite
   requires static org.osgi.annotation.versioning;
 
   requires com.io7m.northpike.agent.database.api;
+  requires com.io7m.northpike.agent.workexec.api;
   requires com.io7m.northpike.model;
   requires com.io7m.northpike.strings;
   requires com.io7m.northpike.telemetry.api;
 
+  requires com.io7m.cedarbridge.runtime.api;
+  requires com.io7m.cedarbridge.runtime.bssio;
+  requires com.io7m.cedarbridge.runtime.convenience;
   requires com.io7m.jmulticlose.core;
   requires com.io7m.trasco.api;
   requires com.io7m.trasco.vanilla;
@@ -40,7 +45,7 @@ module com.io7m.northpike.agent.database.sqlite
   requires org.jooq;
   requires org.slf4j;
   requires org.xerial.sqlitejdbc;
-  requires com.io7m.northpike.agent.workexec.api;
+  requires com.io7m.jbssio.vanilla;
 
   uses NPASQueryProviderType;
 
@@ -57,6 +62,10 @@ module com.io7m.northpike.agent.database.sqlite
     com.io7m.northpike.agent.database.sqlite.internal.NPASAgentServerUnassign,
     com.io7m.northpike.agent.database.sqlite.internal.NPASAgentWorkExecGet,
     com.io7m.northpike.agent.database.sqlite.internal.NPASAgentWorkExecPut,
+    com.io7m.northpike.agent.database.sqlite.internal.NPASAssignmentLogDelete,
+    com.io7m.northpike.agent.database.sqlite.internal.NPASAssignmentLogGet,
+    com.io7m.northpike.agent.database.sqlite.internal.NPASAssignmentLogList,
+    com.io7m.northpike.agent.database.sqlite.internal.NPASAssignmentLogPut,
     com.io7m.northpike.agent.database.sqlite.internal.NPASServerDelete,
     com.io7m.northpike.agent.database.sqlite.internal.NPASServerGet,
     com.io7m.northpike.agent.database.sqlite.internal.NPASServerList,

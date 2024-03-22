@@ -19,7 +19,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.GetUnparsedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanGetUnparsedType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
@@ -38,10 +38,10 @@ import static com.io7m.northpike.database.postgres.internal.tables.Plans.PLANS;
 
 public final class NPDBQPlanGetRaw
   extends NPDBQAbstract<NPPlanIdentifier, Optional<NPPlanDescriptionUnparsed>>
-  implements GetUnparsedType
+  implements PlanGetUnparsedType
 {
-  private static final Service<NPPlanIdentifier, Optional<NPPlanDescriptionUnparsed>, GetUnparsedType> SERVICE =
-    new Service<>(GetUnparsedType.class, NPDBQPlanGetRaw::new);
+  private static final Service<NPPlanIdentifier, Optional<NPPlanDescriptionUnparsed>, PlanGetUnparsedType> SERVICE =
+    new Service<>(PlanGetUnparsedType.class, NPDBQPlanGetRaw::new);
 
   /**
    * Construct a query.

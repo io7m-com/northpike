@@ -27,6 +27,7 @@ import com.io7m.northpike.model.NPPublicKeySummary;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositorySummary;
 import com.io7m.northpike.model.NPSCMProviderDescription;
+import com.io7m.northpike.model.NPToolDescription;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPToolSummary;
@@ -48,6 +49,7 @@ import com.io7m.northpike.model.assignments.NPAssignmentScheduleHourlyHashed;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleType;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
+import com.io7m.northpike.model.plans.NPPlanFormatDescription;
 import com.io7m.northpike.model.plans.NPPlanSummary;
 import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.model.tls.NPTLSDisabled;
@@ -58,6 +60,7 @@ import org.jline.terminal.Terminal;
 
 import java.io.PrintWriter;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -712,6 +715,51 @@ public final class NPFormatterRaw implements NPFormatterType
         "%s | %s%n",
         item.name(),
         item.description()
+      );
+    }
+    out.flush();
+  }
+
+  @Override
+  public void formatTool(
+    final NPToolDescription toolDescription)
+  {
+    final var out = this.terminal.writer();
+
+    out.println("Name: " + toolDescription.name());
+    out.println("Description: " + toolDescription.description());
+    out.println("Versions Supported: " + toolDescription.versions());
+
+    if (!toolDescription.defaultExecutions().isEmpty()) {
+      out.println("# Tool Executions");
+
+      for (final var entry : toolDescription.defaultExecutions().entrySet()) {
+        out.print(entry.getKey());
+        out.print(": ");
+        out.println(entry.getValue());
+      }
+    }
+
+    out.flush();
+  }
+
+  @Override
+  public void formatPlanFormats(
+    final Set<NPPlanFormatDescription> formats)
+  {
+    final var out = this.terminal.writer();
+    out.println("# Name | Description");
+
+    final var sorted =
+      formats.stream()
+        .sorted(Comparator.comparing(NPPlanFormatDescription::name))
+        .toList();
+
+    for (final var format : sorted) {
+      out.printf(
+        "%s | %s%n",
+        format.name().value(),
+        format.description()
       );
     }
     out.flush();

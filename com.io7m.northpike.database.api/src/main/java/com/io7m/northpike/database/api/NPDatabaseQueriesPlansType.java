@@ -40,8 +40,8 @@ public sealed interface NPDatabaseQueriesPlansType
    * Update the given plan.
    */
 
-  non-sealed interface PutType
-    extends NPDatabaseQueryType<PutType.Parameters, NPDatabaseUnit>,
+  non-sealed interface PlanPutType
+    extends NPDatabaseQueryType<PlanPutType.Parameters, NPDatabaseUnit>,
     NPDatabaseQueriesPlansType
   {
     /**
@@ -71,8 +71,8 @@ public sealed interface NPDatabaseQueriesPlansType
    * Retrieve a plan.
    */
 
-  non-sealed interface GetType
-    extends NPDatabaseQueryType<GetType.Parameters, Optional<NPPlanDescription>>,
+  non-sealed interface PlanGetType
+    extends NPDatabaseQueryType<PlanGetType.Parameters, Optional<NPPlanDescription>>,
     NPDatabaseQueriesPlansType
   {
     /**
@@ -102,7 +102,7 @@ public sealed interface NPDatabaseQueriesPlansType
    * Retrieve the raw text of a plan.
    */
 
-  non-sealed interface GetUnparsedType
+  non-sealed interface PlanGetUnparsedType
     extends NPDatabaseQueryType<NPPlanIdentifier, Optional<NPPlanDescriptionUnparsed>>,
     NPDatabaseQueriesPlansType
   {
@@ -113,7 +113,7 @@ public sealed interface NPDatabaseQueriesPlansType
    * Search for plans.
    */
 
-  non-sealed interface SearchType
+  non-sealed interface PlanSearchType
     extends NPDatabaseQueryType<NPPlanSearchParameters, NPPlansPagedType>,
     NPDatabaseQueriesPlansType
   {
@@ -124,7 +124,7 @@ public sealed interface NPDatabaseQueriesPlansType
    * Delete a plan.
    */
 
-  non-sealed interface DeleteType
+  non-sealed interface PlanDeleteType
     extends NPDatabaseQueryType<NPPlanIdentifier, NPDatabaseUnit>,
     NPDatabaseQueriesPlansType
   {

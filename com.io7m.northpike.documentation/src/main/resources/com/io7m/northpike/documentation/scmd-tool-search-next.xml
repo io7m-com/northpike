@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Section id="4bab3ff2-5b8c-31b6-930d-768e560b28e7"
+         title="tool-search-next"
+         xmlns="urn:com.io7m.structural:8:0">
+  <Subsection title="Name">
+    <Paragraph>
+      <Term type="command">tool-search-next</Term>
+       - Go to the next page of tools.
+    </Paragraph>
+  </Subsection>
+  <Subsection title="Description">
+    <Paragraph>
+      The 
+      <Term type="command">tool-search-next</Term>
+       command goes to the next page of tool search results.
+    </Paragraph>
+    <Paragraph>
+      The command can only be used after the associated <Link target="c22a977a-ca95-3bb9-8f7e-a6d1cb73fad5">begin</Link>
+      command.
+    </Paragraph>
+  </Subsection>
+</Section>
+

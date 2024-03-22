@@ -20,7 +20,7 @@ import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MRoleName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.security.NPSecRole;
@@ -59,7 +59,7 @@ public final class NPUCmdRolesAssign
   {
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditUserOrAgentType.User(user.userId()));
+        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
 
         final var put =
           transaction.queries(NPDatabaseQueriesUsersType.PutType.class);

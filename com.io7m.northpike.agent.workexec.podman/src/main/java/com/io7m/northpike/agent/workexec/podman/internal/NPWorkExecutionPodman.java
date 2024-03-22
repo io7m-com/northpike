@@ -79,6 +79,7 @@ import java.util.UUID;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.io7m.northpike.agent.workexec.api.NPAWorkEvent.Severity.ERROR;
 import static com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult.FAILURE;
@@ -119,6 +120,7 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
   private final SubmissionPublisher<NPAWorkEvent> events;
   private final NPAgentResourceLockServiceType locks;
   private final NPAgentLocalName agentName;
+  private final AtomicLong eventIndex;
 
   NPWorkExecutionPodman(
     final NPStrings inStrings,
@@ -147,10 +149,12 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
     this.locks =
       Objects.requireNonNull(inLocks, "locks");
 
+    this.eventIndex =
+      new AtomicLong(1L);
+
     this.tmpWorkItemFile =
       inConfiguration.temporaryDirectory()
         .resolve(workItemFileName(inWorkItem));
-
 
     this.workItemVolume =
       new PodmanVolumeMount(
@@ -236,6 +240,11 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
       this.resources.add(new SubmissionPublisher<>());
     this.closed =
       new AtomicBoolean(false);
+  }
+
+  private long nextEventIndex()
+  {
+    return this.eventIndex.getAndIncrement();
   }
 
   private static String workItemHashName(
@@ -341,6 +350,7 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
       this.events.submit(new NPAWorkEvent(
         ERROR,
         OffsetDateTime.now(),
+        this.nextEventIndex(),
         Objects.requireNonNullElse(
           e.getMessage(),
           e.getClass().getCanonicalName()
@@ -353,6 +363,7 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
       this.events.submit(new NPAWorkEvent(
         ERROR,
         OffsetDateTime.now(),
+        this.nextEventIndex(),
         Objects.requireNonNullElse(
           e.getMessage(),
           e.getClass().getCanonicalName()
@@ -453,6 +464,7 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
       this.events.submit(new NPAWorkEvent(
         ERROR,
         OffsetDateTime.now(),
+        this.nextEventIndex(),
         Objects.requireNonNullElse(
           e.getMessage(),
           e.getClass().getCanonicalName()
@@ -485,7 +497,7 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
             );
 
           this.events.submit(
-            transformMessage(inputDeserializer.deserialize(inputContext))
+            this.transformMessage(inputDeserializer.deserialize(inputContext))
           );
         }
       } catch (final EOFException e) {
@@ -495,34 +507,21 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
     }
   }
 
-  private static BSSReaderSequentialType createBoundedReader(
-    final InputStream stream,
-    final long size)
-    throws IOException
-  {
-    return READERS.createReaderFromStreamBounded(
-      URI.create("stdin"),
-      stream,
-      "root",
-      size
-    );
-  }
-
-  private static NPAWorkEvent transformMessage(
+  private NPAWorkEvent transformMessage(
     final ProtocolNWEType message)
   {
     return switch (message) {
       case final ProtocolNWEv1Type v1 -> {
         yield switch (v1) {
           case final NWEOutput out -> {
-            yield transformOutputV1(out);
+            yield this.transformOutputV1(out);
           }
         };
       }
     };
   }
 
-  private static NPAWorkEvent transformOutputV1(
+  private NPAWorkEvent transformOutputV1(
     final NWEOutput out)
   {
     final var exception =
@@ -533,6 +532,7 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
     return new NPAWorkEvent(
       exception.map(e -> ERROR).orElse(NPAWorkEvent.Severity.INFO),
       out.fieldTimestamp().value(),
+      this.nextEventIndex(),
       out.fieldOutput().value(),
       CBMaps.toMapString(out.fieldAttributes()),
       out.fieldException()

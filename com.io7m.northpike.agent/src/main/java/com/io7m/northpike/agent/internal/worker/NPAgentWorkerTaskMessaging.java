@@ -31,6 +31,7 @@ import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.NPWorkItemLogRecord;
 import com.io7m.northpike.model.agents.NPAgentKeyPairType;
 import com.io7m.northpike.model.agents.NPAgentServerDescription;
 import com.io7m.northpike.protocol.agent.NPACommandC2SType;
@@ -308,9 +309,16 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
           )
         );
 
-        while (!this.isClosed()) {
+        while (!this.isClosed() && !this.connection.isClosed()) {
           this.runHandleMessages();
         }
+
+        this.status.set(
+          new NPAgentConnectionStatusConnectionFailed(
+            this.configuration.hostname(),
+            "Connection closed."
+          )
+        );
       } catch (final IOException | NPException e) {
         this.status.set(
           new NPAgentConnectionStatusConnectionFailed(
@@ -389,20 +397,27 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
    *
    * @param identifier The work item identifier
    * @param item       The work status
+   *
+   * @throws IOException          On I/O errors
+   * @throws InterruptedException On interruption
+   * @throws NPException          On errors
    */
 
   public void workUpdated(
     final NPWorkItemIdentifier identifier,
     final NPAWorkEvent item)
+    throws IOException, InterruptedException, NPException
   {
     Objects.requireNonNull(identifier, "identifier");
     Objects.requireNonNull(item, "item");
 
     try {
-      this.connection.send(
+      this.connection.ask(
         new NPACommandCWorkItemOutput(
           randomUUID(),
           item.time(),
+          item.index(),
+          item.severity().name(),
           identifier,
           item.attributes(),
           item.message(),
@@ -411,6 +426,45 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
       );
     } catch (final Exception e) {
       LOG.debug("Failed to send work update: ", e);
+      throw e;
+    }
+  }
+
+  /**
+   * The status of a work was updated.
+   *
+   * @param identifier The work item identifier
+   * @param item       The work status
+   *
+   * @throws IOException          On I/O errors
+   * @throws InterruptedException On interruption
+   * @throws NPException          On errors
+   */
+
+  public void workUpdated(
+    final NPWorkItemIdentifier identifier,
+    final NPWorkItemLogRecord item)
+    throws IOException, InterruptedException, NPException
+  {
+    Objects.requireNonNull(identifier, "identifier");
+    Objects.requireNonNull(item, "item");
+
+    try {
+      this.connection.ask(
+        new NPACommandCWorkItemOutput(
+          randomUUID(),
+          item.timestamp(),
+          item.eventIndex(),
+          item.type(),
+          identifier,
+          item.attributes(),
+          item.message(),
+          item.exception()
+        )
+      );
+    } catch (final Exception e) {
+      LOG.debug("Failed to send work update: ", e);
+      throw e;
     }
   }
 

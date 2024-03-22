@@ -127,6 +127,8 @@ public final class NPACmdWorkItemOutputTest
       new NPACommandCWorkItemOutput(
         UUID.randomUUID(),
         OffsetDateTime.now(),
+        23L,
+        "INFO",
         new NPWorkItemIdentifier(
           new NPAssignmentExecutionID(UUID.randomUUID()),
           new RDottedName("some.task")
@@ -177,6 +179,8 @@ public final class NPACmdWorkItemOutputTest
       new NPACommandCWorkItemOutput(
         UUID.randomUUID(),
         OffsetDateTime.now(),
+        23L,
+        "INFO",
         new NPWorkItemIdentifier(
           new NPAssignmentExecutionID(UUID.randomUUID()),
           new RDottedName("some.task")
@@ -238,6 +242,8 @@ public final class NPACmdWorkItemOutputTest
       new NPACommandCWorkItemOutput(
         UUID.randomUUID(),
         OffsetDateTime.now(),
+        23L,
+        "INFO",
         new NPWorkItemIdentifier(
           new NPAssignmentExecutionID(UUID.randomUUID()),
           new RDottedName("some.task")
@@ -285,6 +291,8 @@ public final class NPACmdWorkItemOutputTest
       new NPACommandCWorkItemOutput(
         UUID.randomUUID(),
         time,
+        23L,
+        "INFO",
         identifier,
         Map.of("a", "x", "b", "y"),
         "A line.",
@@ -323,6 +331,8 @@ public final class NPACmdWorkItemOutputTest
         new NPWorkItemLogRecord(
           identifier,
           time,
+          23L,
+          "INFO",
           Map.of("a", "x", "b", "y"),
           "A line.",
           exception

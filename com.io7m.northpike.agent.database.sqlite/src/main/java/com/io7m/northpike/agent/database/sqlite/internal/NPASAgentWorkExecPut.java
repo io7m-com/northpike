@@ -18,7 +18,8 @@
 package com.io7m.northpike.agent.database.sqlite.internal;
 
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseException;
-import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentWorkExecPutType;
+import com.io7m.northpike.agent.database.api.NPAgentDatabaseQueriesAgentsType.AgentWorkExecPutType.Parameters;
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseUnit;
 import com.io7m.northpike.agent.database.sqlite.internal.NPASQueryProviderType.Service;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorConfiguration;
@@ -40,8 +41,8 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
  */
 
 public final class NPASAgentWorkExecPut
-  extends NPASQAbstract<NPAgentDatabaseQueriesAgentsType.AgentWorkExecPutType.Parameters, NPAgentDatabaseUnit>
-  implements NPAgentDatabaseQueriesAgentsType.AgentWorkExecPutType
+  extends NPASQAbstract<Parameters, NPAgentDatabaseUnit>
+  implements AgentWorkExecPutType
 {
   private static final Service<Parameters, NPAgentDatabaseUnit, AgentWorkExecPutType> SERVICE =
     new Service<>(AgentWorkExecPutType.class, NPASAgentWorkExecPut::new);
@@ -65,33 +66,6 @@ public final class NPASAgentWorkExecPut
   public static NPASQueryProviderType provider()
   {
     return () -> SERVICE;
-  }
-
-  @Override
-  protected NPAgentDatabaseUnit onExecute(
-    final DSLContext context,
-    final Parameters parameters)
-    throws NPAgentDatabaseException
-  {
-    this.setAttribute(AGENT, parameters.agent().toString());
-
-    final var query =
-      context.update(AGENTS)
-        .set(AGENTS.A_WORKEXEC, workExecToText(parameters.workExecutor()))
-        .where(AGENTS.A_NAME.eq(parameters.agent().toString()));
-
-    recordQuery(query);
-
-    final var r = query.execute();
-    if (r == 0) {
-      throw new NPAgentDatabaseException(
-        this.local(ERROR_NONEXISTENT),
-        NPStandardErrorCodes.errorNonexistent(),
-        this.attributes(),
-        Optional.empty()
-      );
-    }
-    return UNIT;
   }
 
   private static String workExecToText(
@@ -141,5 +115,32 @@ public final class NPASAgentWorkExecPut
     } catch (final IOException e) {
       throw new IllegalStateException(e);
     }
+  }
+
+  @Override
+  protected NPAgentDatabaseUnit onExecute(
+    final DSLContext context,
+    final Parameters parameters)
+    throws NPAgentDatabaseException
+  {
+    this.setAttribute(AGENT, parameters.agent().toString());
+
+    final var query =
+      context.update(AGENTS)
+        .set(AGENTS.A_WORKEXEC, workExecToText(parameters.workExecutor()))
+        .where(AGENTS.A_NAME.eq(parameters.agent().toString()));
+
+    recordQuery(query);
+
+    final var r = query.execute();
+    if (r == 0) {
+      throw new NPAgentDatabaseException(
+        this.local(ERROR_NONEXISTENT),
+        NPStandardErrorCodes.errorNonexistent(),
+        this.attributes(),
+        Optional.empty()
+      );
+    }
+    return UNIT;
   }
 }

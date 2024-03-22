@@ -18,8 +18,8 @@
 package com.io7m.northpike.tests.arbitraries;
 
 
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPAuditSearchParameters;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
 import com.io7m.northpike.model.NPTimeRange;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Combinators;
@@ -33,7 +33,7 @@ public final class NPArbAuditSearchParameters
       NPAuditSearchParameters.class,
       () -> {
         return Combinators.combine(
-          Arbitraries.defaultFor(NPAuditUserOrAgentType.class).optional(),
+          Arbitraries.defaultFor(NPAuditOwnerType.class).optional(),
           NPArbComparisons.exact(Arbitraries.strings().alpha()),
           Arbitraries.defaultFor(NPTimeRange.class),
           Arbitraries.longs()

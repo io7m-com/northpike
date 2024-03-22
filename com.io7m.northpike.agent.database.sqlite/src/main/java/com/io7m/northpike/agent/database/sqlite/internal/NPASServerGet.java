@@ -72,42 +72,6 @@ public final class NPASServerGet
     return () -> SERVICE;
   }
 
-  @Override
-  protected Optional<NPAgentServerDescription> onExecute(
-    final DSLContext context,
-    final NPAgentServerID server)
-    throws NPAgentDatabaseException
-  {
-    final var result =
-      context.select(
-          SERVERS.S_ID,
-          SERVERS.S_REMOTE_ADDRESS,
-          SERVERS.S_PORT,
-          SERVERS.S_TLS,
-          SERVERS.S_TLS_KEYSTORE,
-          SERVERS.S_TLS_TRUSTSTORE,
-          SERVERS.S_MESSAGE_SIZE_LIMIT
-        ).from(SERVERS)
-        .where(SERVERS.S_ID.eq(server.toString()))
-        .fetchOptional();
-
-    if (result.isEmpty()) {
-      return Optional.empty();
-    }
-
-    try {
-      return Optional.of(mapRecord(result.get()));
-    } catch (final IOException e) {
-      throw new NPAgentDatabaseException(
-        requireNonNullElse(e.getMessage(), e.getClass().getCanonicalName()),
-        e,
-        NPStandardErrorCodes.errorIo(),
-        Map.of(),
-        Optional.empty()
-      );
-    }
-  }
-
   private static NPAgentServerDescription mapRecord(
     final org.jooq.Record record)
     throws IOException
@@ -151,6 +115,42 @@ public final class NPASServerGet
         props.getProperty("storeProvider"),
         props.getProperty("storePassword"),
         Path.of(props.getProperty("storePath"))
+      );
+    }
+  }
+
+  @Override
+  protected Optional<NPAgentServerDescription> onExecute(
+    final DSLContext context,
+    final NPAgentServerID server)
+    throws NPAgentDatabaseException
+  {
+    final var result =
+      context.select(
+          SERVERS.S_ID,
+          SERVERS.S_REMOTE_ADDRESS,
+          SERVERS.S_PORT,
+          SERVERS.S_TLS,
+          SERVERS.S_TLS_KEYSTORE,
+          SERVERS.S_TLS_TRUSTSTORE,
+          SERVERS.S_MESSAGE_SIZE_LIMIT
+        ).from(SERVERS)
+        .where(SERVERS.S_ID.eq(server.toString()))
+        .fetchOptional();
+
+    if (result.isEmpty()) {
+      return Optional.empty();
+    }
+
+    try {
+      return Optional.of(mapRecord(result.get()));
+    } catch (final IOException e) {
+      throw new NPAgentDatabaseException(
+        requireNonNullElse(e.getMessage(), e.getClass().getCanonicalName()),
+        e,
+        NPStandardErrorCodes.errorIo(),
+        Map.of(),
+        Optional.empty()
       );
     }
   }

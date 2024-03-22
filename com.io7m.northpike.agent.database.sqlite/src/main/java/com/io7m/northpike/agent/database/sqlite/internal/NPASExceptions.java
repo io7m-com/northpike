@@ -59,7 +59,7 @@ public final class NPASExceptions
 
     final var result =
       switch (e) {
-        case final IntegrityConstraintViolationException ie -> {
+        case IntegrityConstraintViolationException ie -> {
           yield handleDatabaseIntegrityException(transaction, ie, attributes);
         }
         default -> {

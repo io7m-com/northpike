@@ -16,7 +16,8 @@
 
 package com.io7m.northpike.tools.api;
 
-import com.io7m.lanark.core.RDottedName;
+import com.io7m.northpike.model.NPToolDescription;
+import com.io7m.northpike.model.NPToolExecutionName;
 import com.io7m.northpike.model.NPToolName;
 import com.io7m.northpike.model.NPToolSummary;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
@@ -41,23 +42,33 @@ public interface NPToolFactoryType
 
   default NPToolSummary summary()
   {
-    return new NPToolSummary(
-      this.toolName(),
-      this.description()
-    );
+    return this.toolDescription().summary();
   }
+
+  /**
+   * @return The tool description
+   */
+
+  NPToolDescription toolDescription();
+
 
   /**
    * @return The tool name
    */
 
-  NPToolName toolName();
+  default NPToolName toolName()
+  {
+    return this.toolDescription().name();
+  }
 
   /**
    * @return The tool version
    */
 
-  VersionRange toolVersions();
+  default VersionRange toolVersions()
+  {
+    return this.toolDescription().versions();
+  }
 
   /**
    * @param services  The service directory
@@ -92,5 +103,8 @@ public interface NPToolFactoryType
    * @return The default executions provided by the tool
    */
 
-  Map<RDottedName, List<String>> defaultExecutions();
+  default Map<NPToolExecutionName, List<String>> defaultExecutions()
+  {
+    return this.toolDescription().defaultExecutions();
+  }
 }

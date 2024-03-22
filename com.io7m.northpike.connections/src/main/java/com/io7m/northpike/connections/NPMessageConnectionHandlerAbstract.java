@@ -19,6 +19,7 @@ package com.io7m.northpike.connections;
 import com.io7m.jmulticlose.core.CloseableCollection;
 import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.protocol.api.NPProtocolException;
 import com.io7m.northpike.protocol.api.NPProtocolMessageType;
 import com.io7m.northpike.protocol.api.NPProtocolMessagesType;
 import com.io7m.northpike.strings.NPStrings;
@@ -118,7 +119,12 @@ public abstract class NPMessageConnectionHandlerAbstract<M extends NPProtocolMes
     final M message)
     throws NPException, IOException
   {
-    this.messages.writeLengthPrefixed(this.output, message);
+    try {
+      this.messages.writeLengthPrefixed(this.output, message);
+    } catch (final NPProtocolException | IOException e) {
+      this.close();
+      throw e;
+    }
   }
 
   @Override

@@ -7,6 +7,20 @@
     <database>
       <name>org.jooq.meta.extensions.ddl.DDLDatabase</name>
 
+      <forcedTypes>
+        <!-- Map an INTEGER type field to long in Java -->
+        <forcedType>
+          <name>BIGINT</name>
+          <expression>ASSIGNMENT_EXECUTION_LOGS\.AEL_INDEX</expression>
+          <types>INTEGER</types>
+        </forcedType>
+        <forcedType>
+          <name>BIGINT</name>
+          <expression>ASSIGNMENT_EXECUTION_LOGS\.AEL_INDEX</expression>
+          <types>INTEGER</types>
+        </forcedType>
+      </forcedTypes>
+
       <properties>
 
         <!-- Specify the location of your SQL script.

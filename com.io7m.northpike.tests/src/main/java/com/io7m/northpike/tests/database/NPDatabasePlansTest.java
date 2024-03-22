@@ -25,9 +25,13 @@ import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PutType.Parameters;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanGetUnparsedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanPutType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
@@ -46,7 +50,15 @@ import com.io7m.northpike.model.assignments.NPAssignment;
 import com.io7m.northpike.model.assignments.NPAssignmentName;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
 import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType.Anything;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType.IsNotSimilarTo;
+import com.io7m.northpike.model.comparisons.NPComparisonFuzzyType.IsSimilarTo;
 import com.io7m.northpike.model.comparisons.NPComparisonSetType;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsEqualTo;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsNotEqualTo;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsOverlapping;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsSubsetOf;
+import com.io7m.northpike.model.comparisons.NPComparisonSetType.IsSupersetOf;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanSearchParameters;
@@ -81,6 +93,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorPlanStillReferenced;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -110,7 +123,7 @@ public final class NPDatabasePlansTest
   }
 
   private static List<NPPlanType> createPlans(
-    final NPDatabaseQueriesPlansType.PutType put)
+    final PlanPutType put)
     throws NPPlanException, NPDatabaseException
   {
     final var strings =
@@ -190,11 +203,11 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesPlansType.GetType.class);
+      this.transaction.queries(PlanGetType.class);
     final var getRaw =
-      this.transaction.queries(NPDatabaseQueriesPlansType.GetUnparsedType.class);
+      this.transaction.queries(PlanGetUnparsedType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var strings =
       NPStrings.create(Locale.ROOT);
@@ -212,7 +225,7 @@ public final class NPDatabasePlansTest
     final var planAfter =
       NPPlans.toPlan(
         get.execute(
-          new NPDatabaseQueriesPlansType.GetType.Parameters(
+          new PlanGetType.Parameters(
             plan.identifier(),
             Set.of(new NPPlanParsers()))
         ).orElseThrow(),
@@ -238,11 +251,11 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesPlansType.GetType.class);
+      this.transaction.queries(PlanGetType.class);
     final var getRaw =
-      this.transaction.queries(NPDatabaseQueriesPlansType.GetUnparsedType.class);
+      this.transaction.queries(PlanGetUnparsedType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var strings =
       NPStrings.create(Locale.ROOT);
@@ -277,11 +290,11 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesPlansType.GetType.class);
+      this.transaction.queries(PlanGetType.class);
     final var getRaw =
-      this.transaction.queries(NPDatabaseQueriesPlansType.GetUnparsedType.class);
+      this.transaction.queries(PlanGetUnparsedType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var strings =
       NPStrings.create(Locale.ROOT);
@@ -301,7 +314,7 @@ public final class NPDatabasePlansTest
     final var ex =
       assertThrows(NPDatabaseException.class, () -> {
         get.execute(
-          new NPDatabaseQueriesPlansType.GetType.Parameters(
+          new PlanGetType.Parameters(
             plan.identifier(),
             Set.of(this.failingParsers))
         );
@@ -324,11 +337,11 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesPlansType.GetType.class);
+      this.transaction.queries(PlanGetType.class);
     final var getRaw =
-      this.transaction.queries(NPDatabaseQueriesPlansType.GetUnparsedType.class);
+      this.transaction.queries(PlanGetUnparsedType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var strings =
       NPStrings.create(Locale.ROOT);
@@ -348,7 +361,7 @@ public final class NPDatabasePlansTest
     final var ex =
       assertThrows(NPDatabaseException.class, () -> {
         get.execute(
-          new NPDatabaseQueriesPlansType.GetType.Parameters(
+          new PlanGetType.Parameters(
             plan.identifier(),
             Set.of(this.failingParsers))
         );
@@ -369,14 +382,14 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesPlansType.GetType.class);
+      this.transaction.queries(PlanGetType.class);
     final var getRaw =
-      this.transaction.queries(NPDatabaseQueriesPlansType.GetUnparsedType.class);
+      this.transaction.queries(PlanGetUnparsedType.class);
 
     assertEquals(
       Optional.empty(),
       get.execute(
-        new NPDatabaseQueriesPlansType.GetType.Parameters(
+        new PlanGetType.Parameters(
           NPPlanIdentifier.of("x", 23L),
           Set.of(new NPPlanParsers())
         )
@@ -402,9 +415,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var plans =
       createPlans(put);
@@ -414,8 +427,8 @@ public final class NPDatabasePlansTest
     final var r =
       search.execute(
         new NPPlanSearchParameters(
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonFuzzyType.Anything<>(),
+          new Anything<>(),
+          new Anything<>(),
           new NPComparisonSetType.Anything<>(),
           1000L
         )
@@ -443,9 +456,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var plans =
       createPlans(put);
@@ -455,8 +468,8 @@ public final class NPDatabasePlansTest
     final var r =
       search.execute(
         new NPPlanSearchParameters(
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonFuzzyType.IsSimilarTo<>("marimba"),
+          new Anything<>(),
+          new IsSimilarTo<>("marimba"),
           new NPComparisonSetType.Anything<>(),
           1000L
         )
@@ -482,9 +495,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var plans =
       createPlans(put);
@@ -494,8 +507,8 @@ public final class NPDatabasePlansTest
     final var r =
       search.execute(
         new NPPlanSearchParameters(
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonFuzzyType.IsNotSimilarTo<>("marimba"),
+          new Anything<>(),
+          new IsNotSimilarTo<>("marimba"),
           new NPComparisonSetType.Anything<>(),
           1000L
         )
@@ -522,9 +535,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var plans =
       createPlans(put);
@@ -534,7 +547,7 @@ public final class NPDatabasePlansTest
     final var r =
       search.execute(
         new NPPlanSearchParameters(
-          new NPComparisonFuzzyType.Anything<>(),
+          new Anything<>(),
           new NPComparisonFuzzyType.IsEqualTo<>("Marimba"),
           new NPComparisonSetType.Anything<>(),
           1000L
@@ -561,9 +574,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var plans =
       createPlans(put);
@@ -573,7 +586,7 @@ public final class NPDatabasePlansTest
     final var r =
       search.execute(
         new NPPlanSearchParameters(
-          new NPComparisonFuzzyType.Anything<>(),
+          new Anything<>(),
           new NPComparisonFuzzyType.IsNotEqualTo<>("Marimba"),
           new NPComparisonSetType.Anything<>(),
           1000L
@@ -601,9 +614,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var plans =
       createPlans(put);
@@ -613,8 +626,8 @@ public final class NPDatabasePlansTest
     final var r =
       search.execute(
         new NPPlanSearchParameters(
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonFuzzyType.Anything<>(),
+          new Anything<>(),
+          new Anything<>(),
           new NPComparisonSetType.Anything<>(),
           1000L
         )
@@ -642,9 +655,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var plans =
       createPlans(put);
@@ -654,8 +667,8 @@ public final class NPDatabasePlansTest
     final var r =
       search.execute(
         new NPPlanSearchParameters(
-          new NPComparisonFuzzyType.IsSimilarTo<>("p"),
-          new NPComparisonFuzzyType.Anything<>(),
+          new IsSimilarTo<>("p"),
+          new Anything<>(),
           new NPComparisonSetType.Anything<>(),
           1000L
         )
@@ -681,9 +694,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var plans =
       createPlans(put);
@@ -693,8 +706,8 @@ public final class NPDatabasePlansTest
     final var r =
       search.execute(
         new NPPlanSearchParameters(
-          new NPComparisonFuzzyType.IsNotSimilarTo<>("io7m"),
-          new NPComparisonFuzzyType.Anything<>(),
+          new IsNotSimilarTo<>("io7m"),
+          new Anything<>(),
           new NPComparisonSetType.Anything<>(),
           1000L
         )
@@ -720,9 +733,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var plans =
       createPlans(put);
@@ -733,7 +746,7 @@ public final class NPDatabasePlansTest
       search.execute(
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.IsEqualTo<>("com.io7m.r"),
-          new NPComparisonFuzzyType.Anything<>(),
+          new Anything<>(),
           new NPComparisonSetType.Anything<>(),
           1000L
         )
@@ -759,9 +772,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
 
     final var plans =
       createPlans(put);
@@ -772,7 +785,7 @@ public final class NPDatabasePlansTest
       search.execute(
         new NPPlanSearchParameters(
           new NPComparisonFuzzyType.IsNotEqualTo<>("com.io7m.q"),
-          new NPComparisonFuzzyType.Anything<>(),
+          new Anything<>(),
           new NPComparisonSetType.Anything<>(),
           1000L
         )
@@ -799,11 +812,11 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
     final var delete =
-      this.transaction.queries(NPDatabaseQueriesPlansType.DeleteType.class);
+      this.transaction.queries(PlanDeleteType.class);
     final var get =
-      this.transaction.queries(NPDatabaseQueriesPlansType.GetUnparsedType.class);
+      this.transaction.queries(PlanGetUnparsedType.class);
 
     final var strings =
       NPStrings.create(Locale.ROOT);
@@ -838,15 +851,15 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
     final var delete =
-      this.transaction.queries(NPDatabaseQueriesPlansType.DeleteType.class);
+      this.transaction.queries(PlanDeleteType.class);
     final var get =
-      this.transaction.queries(NPDatabaseQueriesPlansType.GetUnparsedType.class);
+      this.transaction.queries(PlanGetUnparsedType.class);
     final var assignPut =
       this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
     final var reposPut =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(PutType.class);
 
     final var strings =
       NPStrings.create(Locale.ROOT);
@@ -894,9 +907,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
     final var toolPut =
       this.transaction.queries(PutExecutionDescriptionType.class);
 
@@ -908,9 +921,9 @@ public final class NPDatabasePlansTest
     final var r =
       search.execute(
         new NPPlanSearchParameters(
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonSetType.IsEqualTo<>(
+          new Anything<>(),
+          new Anything<>(),
+          new IsEqualTo<>(
             Set.of(
               new NPToolExecutionIdentifier(
                 NPToolExecutionName.of("com.io7m.example"),
@@ -951,9 +964,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
     final var toolPut =
       this.transaction.queries(PutExecutionDescriptionType.class);
 
@@ -965,9 +978,9 @@ public final class NPDatabasePlansTest
     final var r =
       search.execute(
         new NPPlanSearchParameters(
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonSetType.IsSupersetOf<>(
+          new Anything<>(),
+          new Anything<>(),
+          new IsSupersetOf<>(
             Set.of(
               new NPToolExecutionIdentifier(
                 NPToolExecutionName.of("com.io7m.example"),
@@ -1008,9 +1021,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
     final var toolPut =
       this.transaction.queries(PutExecutionDescriptionType.class);
 
@@ -1022,9 +1035,9 @@ public final class NPDatabasePlansTest
     final var r =
       search.execute(
         new NPPlanSearchParameters(
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonSetType.IsSubsetOf<>(
+          new Anything<>(),
+          new Anything<>(),
+          new IsSubsetOf<>(
             Set.of(
               new NPToolExecutionIdentifier(
                 NPToolExecutionName.of("com.io7m.example"),
@@ -1067,9 +1080,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
     final var toolPut =
       this.transaction.queries(PutExecutionDescriptionType.class);
 
@@ -1081,9 +1094,9 @@ public final class NPDatabasePlansTest
     final var r =
       search.execute(
         new NPPlanSearchParameters(
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonSetType.IsNotEqualTo<>(
+          new Anything<>(),
+          new Anything<>(),
+          new IsNotEqualTo<>(
             Set.of(
               new NPToolExecutionIdentifier(
                 NPToolExecutionName.of("com.io7m.example"),
@@ -1125,9 +1138,9 @@ public final class NPDatabasePlansTest
     throws Exception
   {
     final var search =
-      this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class);
+      this.transaction.queries(PlanSearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class);
+      this.transaction.queries(PlanPutType.class);
     final var toolPut =
       this.transaction.queries(PutExecutionDescriptionType.class);
 
@@ -1139,9 +1152,9 @@ public final class NPDatabasePlansTest
     final var r =
       search.execute(
         new NPPlanSearchParameters(
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonFuzzyType.Anything<>(),
-          new NPComparisonSetType.IsOverlapping<>(
+          new Anything<>(),
+          new Anything<>(),
+          new IsOverlapping<>(
             Set.of(
               new NPToolExecutionIdentifier(
                 NPToolExecutionName.of("com.io7m.example"),
@@ -1165,7 +1178,7 @@ public final class NPDatabasePlansTest
   }
 
   private static List<NPPlanType> createPlansWithMultipleTools(
-    final NPDatabaseQueriesPlansType.PutType put,
+    final PlanPutType put,
     final PutExecutionDescriptionType toolPut)
     throws NPDatabaseException, NPPlanException
   {
@@ -1321,5 +1334,47 @@ public final class NPDatabasePlansTest
     }
 
     return plans;
+  }
+
+  /**
+   * Plan integrity issues are correctly signalled.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testPlanCreateIntegrity0()
+    throws Exception
+  {
+    final var put =
+      this.transaction.queries(PlanPutType.class);
+
+    final var strings =
+      NPStrings.create(Locale.ROOT);
+
+    final var planBuilder =
+      NPPlans.builder(strings, "com.io7m.p", 1L)
+        .addToolReference(new NPToolReference(
+          NPToolReferenceName.of("maven"),
+          NPToolName.of("org.apache.maven"),
+          Version.of(3, 9, 1)
+        ));
+
+    planBuilder.addTask("build")
+      .setToolExecution(new NPPlanToolExecution(
+        NPToolReferenceName.of("maven"),
+        NPToolExecutionIdentifier.of("clean", 0L),
+        Set.of()
+      ));
+
+    final var plan =
+      planBuilder.build();
+
+    final var ex =
+      assertThrows(NPDatabaseException.class, () -> {
+        put.execute(new Parameters(plan, new NPPlanSerializers()));
+      });
+
+    assertEquals(errorNonexistent(), ex.errorCode());
   }
 }

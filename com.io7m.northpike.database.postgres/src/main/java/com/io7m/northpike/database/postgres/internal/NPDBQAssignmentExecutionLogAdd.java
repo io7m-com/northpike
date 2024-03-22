@@ -89,12 +89,14 @@ public final class NPDBQAssignmentExecutionLogAdd
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_ID, parameters.execution().value())
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_MESSAGE, parameters.message())
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_TIME, time)
+      .set(ASSIGNMENT_EXECUTION_LOGS.AEL_INDEX, parameters.index())
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_TYPE, parameters.type())
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_EXCEPTION_DATA,
            serializeExceptionOptional(parameters.exception()))
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_EXCEPTION_FORMAT, "CEDARBRIDGE")
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_EXCEPTION_VERSION, Integer.valueOf(1))
       .set(attributesField, Hstore.valueOf(parameters.attributes()))
+      .onDuplicateKeyIgnore()
       .execute();
 
     return UNIT;

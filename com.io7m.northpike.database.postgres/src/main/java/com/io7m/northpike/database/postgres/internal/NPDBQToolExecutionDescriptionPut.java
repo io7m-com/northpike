@@ -75,7 +75,7 @@ public final class NPDBQToolExecutionDescriptionPut
       .set(TOOL_EXECUTION_DESCRIPTIONS.TED_TOOL_NAME, d.tool().toString())
       .set(TOOL_EXECUTION_DESCRIPTIONS.TED_VERSION, Long.valueOf(id.version()))
       .onConflictOnConstraint(
-        DSL.name("tool_execution_descriptions_name_version_unique"))
+        DSL.name("tool_execution_descriptions_name_version_tool_unique"))
       .doUpdate()
       .set(TOOL_EXECUTION_DESCRIPTIONS.TED_DESCRIPTION, d.description())
       .set(TOOL_EXECUTION_DESCRIPTIONS.TED_FORMAT, d.format().toString())
@@ -86,6 +86,7 @@ public final class NPDBQToolExecutionDescriptionPut
     this.auditEventPut(
       context,
       "TOOL_EXECUTION_PUT",
+      entry("TOOL_NAME", d.tool().toString()),
       entry("TOOL_EXECUTION_NAME", id.name().toString()),
       entry("TOOL_EXECUTION_VERSION", Long.toUnsignedString(id.version()))
     );

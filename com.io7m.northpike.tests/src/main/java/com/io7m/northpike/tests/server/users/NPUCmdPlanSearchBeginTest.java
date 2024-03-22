@@ -268,9 +268,9 @@ public final class NPUCmdPlanSearchBeginTest
       );
 
     final var list =
-      Mockito.mock(NPDatabaseQueriesPlansType.SearchType.class);
+      Mockito.mock(NPDatabaseQueriesPlansType.PlanSearchType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesPlansType.SearchType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesPlansType.PlanSearchType.class))
       .thenReturn(list);
 
     final var paged =
@@ -289,7 +289,7 @@ public final class NPUCmdPlanSearchBeginTest
     Mockito.verify(this.context, new Times(1))
       .setProperty(NPPlansPagedType.class, paged);
     Mockito.verify(this.transaction, new Times(1))
-      .queries(NPDatabaseQueriesPlansType.SearchType.class);
+      .queries(NPDatabaseQueriesPlansType.PlanSearchType.class);
     Mockito.verify(this.transaction, new Times(1))
       .close();
     Mockito.verifyNoMoreInteractions(this.transaction);

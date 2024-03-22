@@ -65,6 +65,7 @@ public final class NPWELoggerBinaryTest
       new NPAWorkEvent(
         ERROR,
         time,
+        23L,
         "A",
         Map.ofEntries(
           Map.entry("a", "x"),

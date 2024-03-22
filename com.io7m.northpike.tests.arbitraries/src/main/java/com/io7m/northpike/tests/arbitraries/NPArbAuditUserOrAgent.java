@@ -18,25 +18,25 @@
 package com.io7m.northpike.tests.arbitraries;
 
 
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.agents.NPAgentID;
 import net.jqwik.api.Arbitraries;
 
 import java.util.UUID;
 
 public final class NPArbAuditUserOrAgent
-  extends NPArbAbstract<NPAuditUserOrAgentType>
+  extends NPArbAbstract<NPAuditOwnerType>
 {
   public NPArbAuditUserOrAgent()
   {
     super(
-      NPAuditUserOrAgentType.class,
+      NPAuditOwnerType.class,
       () -> {
         return Arbitraries.oneOf(
           Arbitraries.create(UUID::randomUUID)
-            .map(NPAuditUserOrAgentType.User::new),
+            .map(NPAuditOwnerType.User::new),
           Arbitraries.defaultFor(NPAgentID.class)
-            .map(NPAuditUserOrAgentType.Agent::new)
+            .map(NPAuditOwnerType.Agent::new)
         );
       }
     );

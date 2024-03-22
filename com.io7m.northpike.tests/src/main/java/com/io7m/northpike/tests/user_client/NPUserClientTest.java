@@ -582,10 +582,7 @@ public final class NPUserClientTest
           )
         );
 
-      assertEquals(
-        description.summary(),
-        r.results().items().get(0)
-      );
+      assertTrue(r.results().items().contains(description.summary()));
 
       this.userClient.execute(
         new NPUCommandToolExecutionDescriptionSearchNext(randomUUID())

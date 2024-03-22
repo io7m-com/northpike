@@ -21,6 +21,22 @@
 [import com.io7m.cedarbridge cb]
 [import com.io7m.cedarbridge.time ct]
 
+[documentation NPU1Version "A version."]
+[record NPU1Version
+  [field major      cb:IntegerUnsigned32]
+  [field minor      cb:IntegerUnsigned32]
+  [field patch      cb:IntegerUnsigned32]
+  [field qualifier [cb:Option cb:String]]
+]
+
+[documentation NPU1VersionRange "A version range."]
+[record NPU1VersionRange
+  [field lower          NPU1Version]
+  [field lowerInclusive cb:Boolean]
+  [field upper          NPU1Version]
+  [field upperInclusive cb:Boolean]
+]
+
 [documentation NPU1PublicKey "A public key."]
 [variant NPU1PublicKey
   [documentation Ed448 "An Ed448 key."]
@@ -61,6 +77,14 @@
   [case IsSubsetOf    [field value [cb:List T]]]
   [case IsSupersetOf  [field value [cb:List T]]]
   [case IsOverlapping [field value [cb:List T]]]
+]
+
+[documentation NPU1PlanFormat "A plan format."]
+[record NPU1PlanFormat
+  [documentation name "The format name."]
+  [field name cb:String]
+  [documentation description "A description of the format."]
+  [field description cb:String]
 ]
 
 [documentation NPU1SCMProvider "An SCM provider."]
@@ -459,10 +483,11 @@
   [field status NPU1WorkItemStatus]
 ]
 
-[documentation NPU1UserOrAgentID "A user ID or agent ID."]
-[variant NPU1UserOrAgentID
+[documentation NPU1AuditOwner "The owner of an audit event."]
+[variant NPU1AuditOwner
   [case User  [field id cb:UUID]]
   [case Agent [field id cb:UUID]]
+  [case Server]
 ]
 
 [documentation NPU1TimeRange "An inclusive time range."]
@@ -474,7 +499,7 @@
 [documentation NPU1AuditSearchParameters "The audit search parameters."]
 [record NPU1AuditSearchParameters
   [documentation owner "Limit to events with the given owner."]
-  [field owner [cb:Option NPU1UserOrAgentID]]
+  [field owner [cb:Option NPU1AuditOwner]]
   [documentation type "Limit to events with the given type."]
   [field type [NPU1ComparisonExact cb:String]]
   [documentation timeRange "Limit to events in the given time range."]
@@ -490,7 +515,7 @@
   [documentation time "The event time."]
   [field time ct:OffsetDateTime]
   [documentation owner "The event owner."]
-  [field owner NPU1UserOrAgentID]
+  [field owner NPU1AuditOwner]
   [documentation type "The event type."]
   [field type cb:String]
   [documentation data "The event data."]
@@ -557,6 +582,18 @@
   [field name cb:String]
   [documentation description "The tool description."]
   [field description cb:String]
+]
+
+[documentation NPU1Tool "A tool description."]
+[record NPU1Tool
+  [documentation name "The name."]
+  [field name cb:String]
+  [documentation description "The tool description."]
+  [field description cb:String]
+  [documentation versions "The supported versions."]
+  [field versions NPU1VersionRange]
+  [documentation executions "The default provided tool executions."]
+  [field executions [cb:Map cb:String [cb:List cb:String]]]
 ]
 
 ;
@@ -829,6 +866,14 @@
   [field messageId cb:UUID]
 ]
 
+[documentation NPU1CommandToolGet "Get a tool description."]
+[record NPU1CommandToolGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation name "The tool name"]
+  [field name cb:String]
+]
+
 ;
 ; Plans
 ;
@@ -883,6 +928,12 @@
   [field messageId cb:UUID]
   [documentation plans "The plans"]
   [field plans [cb:List NPU1PlanIdentifier]]
+]
+
+[documentation NPU1CommandPlanFormatsSupported "List the supported plan formats."]
+[record NPU1CommandPlanFormatsSupported
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
 ]
 
 ;
@@ -1285,6 +1336,16 @@
   [field results [NPU1Page NPU1ToolSummary]]
 ]
 
+[documentation NPU1ResponseToolGet "A response to NPU1CommandToolGet."]
+[record NPU1ResponseToolGet
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation description "The description."]
+  [field description [cb:Option NPU1Tool]]
+]
+
 [documentation NPU1ResponsePlanValidate "A response to NPU1CommandPlanValidate."]
 [record NPU1ResponsePlanValidate
   [documentation messageId "The message ID"]
@@ -1475,6 +1536,16 @@
   [field results [NPU1Page NPU1AgentLoginChallengeRecord]]
 ]
 
+[documentation NPU1ResponsePlanFormatsSupported "A response to NPU1ResponsePlanFormatsSupported."]
+[record NPU1ResponsePlanFormatsSupported
+  [documentation messageId "The message ID"]
+  [field messageId cb:UUID]
+  [documentation correlationId "The message correlation ID"]
+  [field correlationId cb:UUID]
+  [documentation formats "The formats."]
+  [field formats [cb:List NPU1PlanFormat]]
+]
+
 [documentation NPU "The User protocol."]
 [protocol NPU
   [version 1
@@ -1515,6 +1586,7 @@
       NPU1CommandDisconnect
       NPU1CommandLogin
       NPU1CommandPlanDelete
+      NPU1CommandPlanFormatsSupported
       NPU1CommandPlanGet
       NPU1CommandPlanPut
       NPU1CommandPlanSearchBegin
@@ -1543,6 +1615,7 @@
       NPU1CommandToolExecutionDescriptionSearchNext
       NPU1CommandToolExecutionDescriptionSearchPrevious
       NPU1CommandToolExecutionDescriptionValidate
+      NPU1CommandToolGet
       NPU1CommandToolSearchBegin
       NPU1CommandToolSearchNext
       NPU1CommandToolSearchPrevious
@@ -1567,6 +1640,7 @@
       NPU1ResponseAuditSearch
       NPU1ResponseError
       NPU1ResponseOK
+      NPU1ResponsePlanFormatsSupported
       NPU1ResponsePlanGet
       NPU1ResponsePlanSearch
       NPU1ResponsePlanValidate
@@ -1580,6 +1654,7 @@
       NPU1ResponseToolExecutionDescriptionGet
       NPU1ResponseToolExecutionDescriptionSearch
       NPU1ResponseToolExecutionDescriptionValidate
+      NPU1ResponseToolGet
       NPU1ResponseToolSearch
       NPU1ResponseUserRolesGet
       NPU1ResponseUserSearch

@@ -54,6 +54,8 @@ public final class NPACmdWorkItemOutput
         new NPWorkItemLogRecord(
           command.identifier(),
           command.timestamp(),
+          command.eventIndex(),
+          command.eventType(),
           command.attributes(),
           command.message(),
           command.exception()

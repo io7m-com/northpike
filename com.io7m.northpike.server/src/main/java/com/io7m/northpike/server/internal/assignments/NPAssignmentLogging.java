@@ -45,6 +45,7 @@ public final class NPAssignmentLogging
    * Record the text of an exception.
    *
    * @param transaction The transaction
+   * @param eventIndex  The event index
    * @param executionId The execution ID
    * @param e           The exception
    *
@@ -54,6 +55,7 @@ public final class NPAssignmentLogging
   public static void recordException(
     final NPDatabaseTransactionType transaction,
     final NPAssignmentExecutionID executionId,
+    final long eventIndex,
     final Throwable e)
     throws NPDatabaseException
   {
@@ -68,6 +70,7 @@ public final class NPAssignmentLogging
       .execute(
         new Parameters(
           executionId,
+          eventIndex,
           "EXCEPTION",
           requireNonNullElse(e.getMessage(), e.getClass().getCanonicalName()),
           attributes,
@@ -80,6 +83,7 @@ public final class NPAssignmentLogging
    * Record the given text.
    *
    * @param transaction The transaction
+   * @param eventIndex  The event index
    * @param executionId The execution ID
    * @param text        The text
    *
@@ -89,12 +93,14 @@ public final class NPAssignmentLogging
   public static void recordInfoText(
     final NPDatabaseTransactionType transaction,
     final NPAssignmentExecutionID executionId,
+    final long eventIndex,
     final String text)
     throws NPDatabaseException
   {
     transaction.queries(ExecutionLogAddType.class)
       .execute(new Parameters(
         executionId,
+        eventIndex,
         "INFO",
         text,
         Map.of(),
@@ -106,6 +112,7 @@ public final class NPAssignmentLogging
    * Record the given text.
    *
    * @param transaction The transaction
+   * @param eventIndex  The event index
    * @param executionId The execution ID
    * @param text        The text
    *
@@ -115,12 +122,14 @@ public final class NPAssignmentLogging
   public static void recordErrorText(
     final NPDatabaseTransactionType transaction,
     final NPAssignmentExecutionID executionId,
+    final long eventIndex,
     final String text)
     throws NPDatabaseException
   {
     transaction.queries(ExecutionLogAddType.class)
       .execute(new Parameters(
         executionId,
+        eventIndex,
         "ERROR",
         text,
         Map.of(),

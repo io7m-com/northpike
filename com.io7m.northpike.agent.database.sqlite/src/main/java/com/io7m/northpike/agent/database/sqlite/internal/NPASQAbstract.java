@@ -50,6 +50,28 @@ abstract class NPASQAbstract<P, R>
       new TreeMap<String, String>();
   }
 
+  private static void recordQueryText(
+    final String queryText)
+  {
+    Span.current().setAttribute(DB_STATEMENT, queryText);
+  }
+
+  protected static void recordQuery(
+    final Query query)
+  {
+    recordQueryText(query.toString());
+  }
+
+  protected static void recordQuery(
+    final Collection<Query> queries)
+  {
+    recordQueryText(
+      queries.stream()
+        .map(Object::toString)
+        .collect(Collectors.joining(";\n\n"))
+    );
+  }
+
   protected final Span transactionSpan()
   {
     return this.transaction.span();
@@ -117,28 +139,6 @@ abstract class NPASQAbstract<P, R>
   protected final Map<String, String> attributes()
   {
     return this.attributes;
-  }
-
-  private static void recordQueryText(
-    final String queryText)
-  {
-    Span.current().setAttribute(DB_STATEMENT, queryText);
-  }
-
-  protected static void recordQuery(
-    final Query query)
-  {
-    recordQueryText(query.toString());
-  }
-
-  protected static void recordQuery(
-    final Collection<Query> queries)
-  {
-    recordQueryText(
-      queries.stream()
-        .map(Object::toString)
-        .collect(Collectors.joining(";\n\n"))
-    );
   }
 
   protected final OffsetDateTime timeNow()

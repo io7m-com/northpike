@@ -584,6 +584,7 @@ To confirm this operation, please enter:
     <xi:include href="scmd-logout.xml"/>
     <xi:include href="scmd-plan-delete.xml"/>
     <xi:include href="scmd-plan-delete-confirm.xml"/>
+    <xi:include href="scmd-plan-formats-supported.xml"/>
     <xi:include href="scmd-plan-get.xml"/>
     <xi:include href="scmd-plan-put.xml"/>
     <xi:include href="scmd-plan-search-begin.xml"/>
@@ -613,6 +614,10 @@ To confirm this operation, please enter:
     <xi:include href="scmd-tool-execution-search-next.xml"/>
     <xi:include href="scmd-tool-execution-search-previous.xml"/>
     <xi:include href="scmd-tool-execution-validate.xml"/>
+    <xi:include href="scmd-tool-get.xml"/>
+    <xi:include href="scmd-tool-search-begin.xml"/>
+    <xi:include href="scmd-tool-search-next.xml"/>
+    <xi:include href="scmd-tool-search-previous.xml"/>
     <xi:include href="scmd-user-search-begin.xml"/>
     <xi:include href="scmd-user-search-next.xml"/>
     <xi:include href="scmd-user-search-previous.xml"/>

@@ -23,7 +23,9 @@ import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanName;
 import com.io7m.northpike.model.plans.NPPlanSummary;
+import com.io7m.northpike.plans.parsers.NPPlanParsers;
 import com.io7m.northpike.protocol.user.NPUCommandPlanDelete;
+import com.io7m.northpike.protocol.user.NPUCommandPlanFormatsSupported;
 import com.io7m.northpike.protocol.user.NPUCommandPlanGet;
 import com.io7m.northpike.protocol.user.NPUCommandPlanPut;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchBegin;
@@ -31,6 +33,7 @@ import com.io7m.northpike.protocol.user.NPUCommandPlanSearchNext;
 import com.io7m.northpike.protocol.user.NPUCommandPlanSearchPrevious;
 import com.io7m.northpike.protocol.user.NPUCommandPlanValidate;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
+import com.io7m.northpike.protocol.user.NPUResponsePlanFormatsSupported;
 import com.io7m.northpike.protocol.user.NPUResponsePlanGet;
 import com.io7m.northpike.protocol.user.NPUResponsePlanSearch;
 import com.io7m.northpike.protocol.user.NPUResponsePlanValidate;
@@ -482,5 +485,33 @@ public final class NPShellPlansTest
 
     Mockito.verify(this.userClient, new AtLeast(1))
       .execute(isA(NPUCommandPlanDelete.class));
+  }
+
+  @Test
+  public void testPlanFormatsSupported()
+    throws Exception
+  {
+    Mockito.when(
+      this.userClient.execute(isA(NPUCommandPlanFormatsSupported.class))
+    ).thenReturn(new NPUResponsePlanFormatsSupported(
+      UUID.randomUUID(),
+      UUID.randomUUID(),
+      new NPPlanParsers().formats()
+    ));
+
+    final var w = this.terminal.sendInputToTerminalWriter();
+    w.println("set --terminate-on-errors true");
+    w.println("plan-formats-supported");
+    w.println("set --formatter RAW");
+    w.println("plan-formats-supported");
+
+    w.flush();
+    w.close();
+
+    this.waitForShell();
+    assertEquals(0, this.exitCode);
+
+    Mockito.verify(this.userClient, new AtLeast(1))
+      .execute(isA(NPUCommandPlanFormatsSupported.class));
   }
 }

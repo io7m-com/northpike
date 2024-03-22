@@ -94,7 +94,7 @@ public final class NPAgentWorkerTaskExecutor implements NPAgentTaskType,
     if (s != null) {
       this.worker.workUpdated(s.workItem, event);
     } else {
-      LOG.warn("Received event with no execution statue.");
+      LOG.warn("Received event with no execution state.");
     }
   }
 
@@ -288,6 +288,7 @@ public final class NPAgentWorkerTaskExecutor implements NPAgentTaskType,
     return new NPAWorkEvent(
       NPAWorkEvent.Severity.INFO,
       OffsetDateTime.now(),
+      0L,
       "Started...",
       Map.of(),
       Optional.empty()

@@ -78,24 +78,21 @@ public final class NPUCmdPlanValidate
         command.plan().text()
       );
 
-    if (result instanceof NPPlanCompilationResultType.Failure f) {
-      return new NPUResponsePlanValidate(
-        UUID.randomUUID(),
-        command.messageID(),
-        List.copyOf(f.messages())
-      );
-    }
-
-    if (result instanceof NPPlanCompilationResultType.Success) {
-      return new NPUResponsePlanValidate(
-        UUID.randomUUID(),
-        command.messageID(),
-        List.of()
-      );
-    }
-
-    throw new IllegalStateException(
-      "Unrecognized result: %s".formatted(result)
-    );
+    return switch (result) {
+      case final NPPlanCompilationResultType.Failure f -> {
+        yield new NPUResponsePlanValidate(
+          UUID.randomUUID(),
+          command.messageID(),
+          List.copyOf(f.messages())
+        );
+      }
+      case final NPPlanCompilationResultType.Success success -> {
+        yield new NPUResponsePlanValidate(
+          UUID.randomUUID(),
+          command.messageID(),
+          List.of()
+        );
+      }
+    };
   }
 }

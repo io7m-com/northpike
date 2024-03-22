@@ -196,6 +196,15 @@ public final class NPASDatabase implements NPAgentDatabaseType
     return time;
   }
 
+  private static void setWALMode(
+    final Connection connection)
+    throws SQLException
+  {
+    try (var st = connection.createStatement()) {
+      st.execute("PRAGMA journal_mode=WAL;");
+    }
+  }
+
   LongCounter counterTransactions()
   {
     return this.transactions;
@@ -261,15 +270,6 @@ public final class NPASDatabase implements NPAgentDatabaseType
         Map.of(),
         Optional.empty()
       );
-    }
-  }
-
-  private static void setWALMode(
-    final Connection connection)
-    throws SQLException
-  {
-    try (var st = connection.createStatement()) {
-      st.execute("PRAGMA journal_mode=WAL;");
     }
   }
 

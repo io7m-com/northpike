@@ -81,4 +81,15 @@ public interface NPServerType extends AutoCloseable
   @Override
   void close()
     throws NPServerException;
+
+  /**
+   * Self-check the server instance. This essentially starts the server and
+   * then shuts it down, without performing any kind of potentially destructive
+   * database operations.
+   *
+   * @throws NPServerException On errors
+   */
+
+  void selfCheck()
+    throws NPServerException;
 }

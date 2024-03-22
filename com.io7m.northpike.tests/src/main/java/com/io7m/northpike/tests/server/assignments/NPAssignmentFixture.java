@@ -30,7 +30,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPArchive;
-import com.io7m.northpike.model.NPAuditUserOrAgentType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
@@ -277,7 +277,7 @@ public final class NPAssignmentFixture implements AutoCloseable
       closeables.addPerTestResource(this.connection.openTransaction());
 
     this.transaction.setOwner(
-      new NPAuditUserOrAgentType.User(this.idstoreFixture.userWithLoginId())
+      new NPAuditOwnerType.User(this.idstoreFixture.userWithLoginId())
     );
     this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class)
       .execute(new NPUser(
@@ -448,8 +448,8 @@ public final class NPAssignmentFixture implements AutoCloseable
     final NPPlanType plan)
     throws Exception
   {
-    this.transaction.queries(NPDatabaseQueriesPlansType.PutType.class)
-      .execute(new NPDatabaseQueriesPlansType.PutType.Parameters(
+    this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class)
+      .execute(new NPDatabaseQueriesPlansType.PlanPutType.Parameters(
         plan,
         new NPPlanSerializers()
       ));

@@ -27,6 +27,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.UpdateUs
 import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.server.internal.archives.NPArchiveServiceType;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
@@ -237,6 +238,8 @@ public final class NPMaintenanceService
              this.database.openConnection(NPDatabaseRole.NORTHPIKE)) {
         try (var transaction =
                connection.openTransaction()) {
+
+          transaction.setOwner(new NPAuditOwnerType.Server());
 
           try {
             updateUserRoles(transaction);
