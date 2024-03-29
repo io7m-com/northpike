@@ -439,4 +439,76 @@ public final class NPAgentDatabaseTest
       );
     }
   }
+
+  @Test
+  public void testAgentDeleteIntegrity0()
+    throws Exception
+  {
+    final var agentPut =
+      this.transaction.queries(AgentPutType.class);
+    final var agentGet =
+      this.transaction.queries(AgentGetType.class);
+    final var agentDelete =
+      this.transaction.queries(AgentDeleteType.class);
+
+    final var x =
+      new NPAgentLocalDescription(
+        NPAgentLocalName.of("x"),
+        new NPAgentKeyPairFactoryEd448().generateKeyPair()
+      );
+
+    agentPut.execute(x);
+    this.transaction.commit();
+
+    final var logPut =
+      this.transaction.queries(AssignmentLogPutType.class);
+
+    final var work =
+      new ArrayList<NPWorkItemLogRecordOnAgent>();
+
+    final var identifier =
+      new NPWorkItemIdentifier(
+        NPAssignmentExecutionID.of("efe4e9f9-b056-40f4-918d-d1a06ef36d8a"),
+        new RDottedName("task")
+      );
+
+    for (int index = 1; index <= 1000; ++index) {
+      work.add(
+        new NPWorkItemLogRecordOnAgent(
+          x.name(),
+          new NPWorkItemLogRecord(
+            identifier,
+            OffsetDateTime.now(),
+            (long) index,
+            "Exception",
+            Map.ofEntries(
+              Map.entry("Index", Integer.toUnsignedString(index))
+            ),
+            "Output %d".formatted(Integer.valueOf(index)),
+            Optional.of(
+              new NPStoredException(
+                "java.io.IOException",
+                "I/O error",
+                Map.of(),
+                Optional.empty(),
+                List.of(),
+                List.of()
+              )
+            )
+          )
+        )
+      );
+    }
+
+    for (final var item : work) {
+      logPut.execute(item);
+    }
+    this.transaction.commit();
+
+    agentGet.execute(x.name()).orElseThrow();
+    agentDelete.execute(x.name());
+    this.transaction.commit();
+
+    assertEquals(Optional.empty(), agentGet.execute(x.name()));
+  }
 }

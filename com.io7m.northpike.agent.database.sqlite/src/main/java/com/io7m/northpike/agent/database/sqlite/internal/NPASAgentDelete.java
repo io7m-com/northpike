@@ -28,6 +28,7 @@ import java.util.ArrayList;
 
 import static com.io7m.northpike.agent.database.api.NPAgentDatabaseUnit.UNIT;
 import static com.io7m.northpike.agent.database.sqlite.internal.Tables.AGENT_SERVERS;
+import static com.io7m.northpike.agent.database.sqlite.internal.Tables.ASSIGNMENT_EXECUTION_LOGS;
 import static com.io7m.northpike.agent.database.sqlite.internal.tables.Agents.AGENTS;
 import static com.io7m.northpike.strings.NPStringConstants.AGENT;
 
@@ -75,6 +76,15 @@ public final class NPASAgentDelete
     batch.add(
       context.deleteFrom(AGENT_SERVERS)
         .where(AGENT_SERVERS.AS_AGENT.eq(
+          context.select(AGENTS.A_ID)
+            .from(AGENTS)
+            .where(AGENTS.A_NAME.eq(agent.toString()))
+        ))
+    );
+
+    batch.add(
+      context.deleteFrom(ASSIGNMENT_EXECUTION_LOGS)
+        .where(ASSIGNMENT_EXECUTION_LOGS.AEL_AGENT.eq(
           context.select(AGENTS.A_ID)
             .from(AGENTS)
             .where(AGENTS.A_NAME.eq(agent.toString()))
