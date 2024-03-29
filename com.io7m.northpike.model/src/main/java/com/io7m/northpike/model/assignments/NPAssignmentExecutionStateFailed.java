@@ -73,7 +73,7 @@ public record NPAssignmentExecutionStateFailed(
       entry("CommitID", this.request().commit().toString()),
       entry("PlanID", plan.name().toString()),
       entry("PlanVersion", Long.toUnsignedString(plan.version())),
-      entry("Status", this.name()),
+      entry("Status", this.stateName()),
       entry("TimeCreated", this.timeCreated.toString()),
       entry("TimeEnded", this.timeEnded.toString()),
       entry("TimeStarted", this.timeStarted.toString())
@@ -81,7 +81,7 @@ public record NPAssignmentExecutionStateFailed(
   }
 
   @Override
-  public NPAssignmentExecutionStateKind kind()
+  public NPAssignmentExecutionStateKind state()
   {
     return NPAssignmentExecutionStateKind.FAILED;
   }

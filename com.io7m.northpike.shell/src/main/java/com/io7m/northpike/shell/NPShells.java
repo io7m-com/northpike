@@ -48,6 +48,10 @@ import com.io7m.northpike.shell.internal.NPShellCmdAgentSearchNext;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentWorkItems;
 import com.io7m.northpike.shell.internal.NPShellCmdAgentsConnected;
+import com.io7m.northpike.shell.internal.NPShellCmdAssignmentExecute;
+import com.io7m.northpike.shell.internal.NPShellCmdAssignmentExecutionSearchBegin;
+import com.io7m.northpike.shell.internal.NPShellCmdAssignmentExecutionSearchNext;
+import com.io7m.northpike.shell.internal.NPShellCmdAssignmentExecutionSearchPrevious;
 import com.io7m.northpike.shell.internal.NPShellCmdAssignmentGet;
 import com.io7m.northpike.shell.internal.NPShellCmdAssignmentPut;
 import com.io7m.northpike.shell.internal.NPShellCmdAssignmentSearchBegin;
@@ -225,6 +229,10 @@ public final class NPShells implements NPShellFactoryType
         new NPShellCmdAgentSearchPrevious(services),
         new NPShellCmdAgentWorkItems(services),
         new NPShellCmdAgentsConnected(services),
+        new NPShellCmdAssignmentExecute(services),
+        new NPShellCmdAssignmentExecutionSearchBegin(services),
+        new NPShellCmdAssignmentExecutionSearchNext(services),
+        new NPShellCmdAssignmentExecutionSearchPrevious(services),
         new NPShellCmdAssignmentGet(services),
         new NPShellCmdAssignmentPut(services),
         new NPShellCmdAssignmentSearchBegin(services),

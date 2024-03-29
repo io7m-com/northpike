@@ -58,13 +58,13 @@ public record NPAssignmentExecutionStateCreationFailed(
     return Map.ofEntries(
       entry("Assignment", this.request.assignment().toString()),
       entry("CommitID", this.request.commit().toString()),
-      entry("Status", this.name()),
+      entry("Status", this.stateName()),
       entry("TimeCreated", this.timeCreated.toString())
     );
   }
 
   @Override
-  public NPAssignmentExecutionStateKind kind()
+  public NPAssignmentExecutionStateKind state()
   {
     return NPAssignmentExecutionStateKind.CREATION_FAILED;
   }

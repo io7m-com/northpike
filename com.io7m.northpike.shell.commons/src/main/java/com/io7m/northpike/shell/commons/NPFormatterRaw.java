@@ -45,6 +45,7 @@ import com.io7m.northpike.model.agents.NPAgentServerSummary;
 import com.io7m.northpike.model.agents.NPAgentStatus;
 import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleHourlyHashed;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleNone;
 import com.io7m.northpike.model.assignments.NPAssignmentScheduleType;
@@ -760,6 +761,28 @@ public final class NPFormatterRaw implements NPFormatterType
         "%s | %s%n",
         format.name().value(),
         format.description()
+      );
+    }
+    out.flush();
+  }
+
+  @Override
+  public void formatAssignmentExecutions(
+    final NPPage<NPAssignmentExecutionStateType> page)
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    out.println("# ID | Created | Status | Assignment | Commit");
+
+    for (final var item : page.items()) {
+      out.printf(
+        "%s | %s | %s | %s | %s%n",
+        item.id(),
+        item.timeCreated(),
+        item.stateName(),
+        item.request().assignment(),
+        item.request().commit()
       );
     }
     out.flush();

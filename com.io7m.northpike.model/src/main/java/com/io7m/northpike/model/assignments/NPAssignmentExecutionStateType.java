@@ -58,14 +58,14 @@ public sealed interface NPAssignmentExecutionStateType
    * @return The state kind as a scalar enumeration
    */
 
-  NPAssignmentExecutionStateKind kind();
+  NPAssignmentExecutionStateKind state();
 
   /**
    * @return The name of this status value
    */
 
-  default String name()
+  default String stateName()
   {
-    return this.kind().name();
+    return this.state().name();
   }
 }

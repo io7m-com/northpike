@@ -47,6 +47,7 @@ import org.slf4j.MDC;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
+import java.nio.channels.ClosedChannelException;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
@@ -221,6 +222,8 @@ public final class NPUserTask
           this.processReceivedMessageTimed(received);
         }
       }
+    } catch (final ClosedChannelException e) {
+      this.closeQuietly();
     } catch (final Exception e) {
       LOG.debug("Fatal: ", e);
       this.closeQuietly();

@@ -46,6 +46,7 @@ import com.io7m.northpike.model.agents.NPAgentServerSummary;
 import com.io7m.northpike.model.agents.NPAgentStatus;
 import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanFormatDescription;
 import com.io7m.northpike.model.plans.NPPlanSummary;
@@ -1174,6 +1175,35 @@ public final class NPFormatterPretty implements NPFormatterType
       builder.addRow()
         .addCell(format.name().toString())
         .addCell(format.description());
+    }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatAssignmentExecutions(
+    final NPPage<NPAssignmentExecutionStateType> page)
+    throws Exception
+  {
+    final var out = this.terminal.writer();
+    formatPage(page, out);
+
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(5))
+        .declareColumn("ID", atLeastContentOrHeader())
+        .declareColumn("Created", atLeastContentOrHeader())
+        .declareColumn("Status", atLeastContentOrHeader())
+        .declareColumn("Assignment", atLeastContentOrHeader())
+        .declareColumn("Commit", atLeastContentOrHeader());
+
+    for (final var format : page.items()) {
+      builder.addRow()
+        .addCell(format.id().toString())
+        .addCell(format.timeCreated().toString())
+        .addCell(format.stateName())
+        .addCell(format.request().assignment().toString())
+        .addCell(format.request().commit().value());
     }
 
     this.renderTable(builder.build());

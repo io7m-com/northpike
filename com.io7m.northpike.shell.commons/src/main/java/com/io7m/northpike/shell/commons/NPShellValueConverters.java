@@ -20,6 +20,7 @@ package com.io7m.northpike.shell.commons;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecName;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutorContainerImage;
+import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPFormatName;
 import com.io7m.northpike.model.NPRepositoryCredentialsType;
@@ -115,7 +116,10 @@ public final class NPShellValueConverters
         new NPTLSConfigurationKindConverter())
       .with(
         NPAgentLabelSet.class,
-        new NPAgentLabelSetConverter());
+        new NPAgentLabelSetConverter())
+      .with(
+        NPCommitUnqualifiedID.class,
+        new NPCommitUnqualifiedIDConverter());
 
   private NPShellValueConverters()
   {

@@ -44,6 +44,7 @@ import com.io7m.northpike.model.agents.NPAgentServerSummary;
 import com.io7m.northpike.model.agents.NPAgentStatus;
 import com.io7m.northpike.model.agents.NPAgentSummary;
 import com.io7m.northpike.model.assignments.NPAssignment;
+import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
 import com.io7m.northpike.model.plans.NPPlanDescriptionUnparsed;
 import com.io7m.northpike.model.plans.NPPlanFormatDescription;
 import com.io7m.northpike.model.plans.NPPlanSummary;
@@ -481,5 +482,17 @@ public interface NPFormatterType
 
   void formatPlanFormats(
     Set<NPPlanFormatDescription> formats)
+    throws Exception;
+
+  /**
+   * Format assignment executions.
+   *
+   * @param executions The executions
+   *
+   * @throws Exception On errors
+   */
+
+  void formatAssignmentExecutions(
+    NPPage<NPAssignmentExecutionStateType> executions)
     throws Exception;
 }

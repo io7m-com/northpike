@@ -59,13 +59,13 @@ public record NPAssignmentExecutionStateRequested(
       entry("Assignment", this.request.assignment().toString()),
       entry("AssignmentExecutionID", this.id.toString()),
       entry("CommitID", this.request.commit().toString()),
-      entry("Status", this.name()),
+      entry("Status", this.stateName()),
       entry("TimeCreated", this.timeCreated.toString())
     );
   }
 
   @Override
-  public NPAssignmentExecutionStateKind kind()
+  public NPAssignmentExecutionStateKind state()
   {
     return NPAssignmentExecutionStateKind.REQUESTED;
   }
