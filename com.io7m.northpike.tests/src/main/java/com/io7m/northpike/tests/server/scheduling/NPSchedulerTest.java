@@ -124,15 +124,6 @@ public final class NPSchedulerTest
       .thenReturn(this.commitsNotExecuted);
     Mockito.when(this.commitsNotExecuted.execute(any()))
       .thenReturn(this.commitsPaged);
-
-    this.scheduler =
-      NPScheduler.create(
-        this.clock,
-        this.events,
-        this.database,
-        this.repositories,
-        this.assignments
-      );
   }
 
   /**
@@ -147,6 +138,15 @@ public final class NPSchedulerTest
   {
     this.fakeClock.timeNow =
       Instant.parse("2001-01-01T00:00:00+00:00");
+
+    this.scheduler =
+      NPScheduler.create(
+        this.clock,
+        this.events,
+        this.database,
+        this.repositories,
+        this.assignments
+      );
 
     Mockito.when(this.assignmentsPaged.pageCurrent(any()))
       .thenReturn(new NPPage<>(
@@ -177,6 +177,15 @@ public final class NPSchedulerTest
     this.fakeClock.timeNow =
       Instant.parse("2001-01-01T00:00:00+00:00");
 
+    this.scheduler =
+      NPScheduler.create(
+        this.clock,
+        this.events,
+        this.database,
+        this.repositories,
+        this.assignments
+      );
+
     Mockito.when(this.assignmentSearch.execute(any()))
       .thenThrow(new NPDatabaseException(
         "Ouch",
@@ -205,6 +214,15 @@ public final class NPSchedulerTest
     this.fakeClock.timeNow =
       Instant.parse("2001-01-01T00:00:00+00:00");
 
+    this.scheduler =
+      NPScheduler.create(
+        this.clock,
+        this.events,
+        this.database,
+        this.repositories,
+        this.assignments
+      );
+
     Mockito.when(this.assignmentsPaged.pageCurrent(any()))
       .thenReturn(new NPPage<>(
         List.of(
@@ -229,55 +247,6 @@ public final class NPSchedulerTest
   }
 
   /**
-   * Assignments with a timed schedule are scheduled.
-   *
-   * @throws Exception On errors
-   */
-
-  @Test
-  public void testAssignmentScheduled()
-    throws Exception
-  {
-    this.fakeClock.timeNow =
-      Instant.parse("2001-01-01T00:00:00+00:00");
-
-    assertEquals(
-      120,
-      NPAssignmentName.of("x").hashCode()
-    );
-
-    Mockito.when(this.assignmentsPaged.pageCurrent(any()))
-      .thenReturn(new NPPage<>(
-        List.of(
-          new NPAssignment(
-            NPAssignmentName.of("x"),
-            new NPRepositoryID(UUID.randomUUID()),
-            NPPlanIdentifier.of("y", 23L),
-            new NPAssignmentScheduleHourlyHashed(
-              OffsetDateTime.parse("2000-01-01T00:00:00+00:00")
-            )
-          )
-        ), 0, 1, 0L
-      ));
-    Mockito.when(this.assignmentsPaged.pageNext(any()))
-      .thenReturn(new NPPage<>(
-        List.of(), 0, 1, 0L
-      ));
-
-    this.scheduler.tick();
-
-    Mockito.verify(this.events, new Times(1))
-      .emit(eq(new NPSchedulerScheduled(
-        NPAssignmentName.of("x"),
-        OffsetDateTime.parse("2001-01-01T00:02:00+00:00")
-      )));
-
-    Mockito.verifyNoMoreInteractions(this.events);
-    Mockito.verifyNoMoreInteractions(this.assignments);
-    Mockito.verifyNoMoreInteractions(this.repositories);
-  }
-
-  /**
    * Assignments that are scheduled past the point where they _would_ have
    * been executed are scheduled to happen in the next hour.
    *
@@ -289,106 +258,16 @@ public final class NPSchedulerTest
     throws Exception
   {
     this.fakeClock.timeNow =
-      Instant.parse("2001-01-01T00:59:00+00:00");
-
-    assertEquals(
-      120,
-      NPAssignmentName.of("x").hashCode()
-    );
-
-    Mockito.when(this.assignmentsPaged.pageCurrent(any()))
-      .thenReturn(new NPPage<>(
-        List.of(
-          new NPAssignment(
-            NPAssignmentName.of("x"),
-            new NPRepositoryID(UUID.randomUUID()),
-            NPPlanIdentifier.of("y", 23L),
-            new NPAssignmentScheduleHourlyHashed(
-              OffsetDateTime.parse("2000-01-01T00:00:00+00:00")
-            )
-          )
-        ), 0, 1, 0L
-      ));
-    Mockito.when(this.assignmentsPaged.pageNext(any()))
-      .thenReturn(new NPPage<>(
-        List.of(), 0, 1, 0L
-      ));
-
-    this.scheduler.tick();
-
-    Mockito.verify(this.events, new Times(1))
-      .emit(eq(new NPSchedulerScheduled(
-        NPAssignmentName.of("x"),
-        OffsetDateTime.parse("2001-01-01T01:02:00+00:00")
-      )));
-
-    Mockito.verifyNoMoreInteractions(this.events);
-    Mockito.verifyNoMoreInteractions(this.assignments);
-    Mockito.verifyNoMoreInteractions(this.repositories);
-  }
-
-  /**
-   * Assignments that are already schedules aren't scheduled again.
-   *
-   * @throws Exception On errors
-   */
-
-  @Test
-  public void testAssignmentScheduledRedundant()
-    throws Exception
-  {
-    this.fakeClock.timeNow =
       Instant.parse("2001-01-01T00:00:00+00:00");
 
-    assertEquals(
-      120,
-      NPAssignmentName.of("x").hashCode()
-    );
-
-    Mockito.when(this.assignmentsPaged.pageCurrent(any()))
-      .thenReturn(new NPPage<>(
-        List.of(
-          new NPAssignment(
-            NPAssignmentName.of("x"),
-            new NPRepositoryID(UUID.randomUUID()),
-            NPPlanIdentifier.of("y", 23L),
-            new NPAssignmentScheduleHourlyHashed(
-              OffsetDateTime.parse("2000-01-01T00:00:00+00:00")
-            )
-          )
-        ), 0, 1, 0L
-      ));
-    Mockito.when(this.assignmentsPaged.pageNext(any()))
-      .thenReturn(new NPPage<>(
-        List.of(), 0, 1, 0L
-      ));
-
-    this.scheduler.tick();
-    this.scheduler.tick();
-
-    Mockito.verify(this.events, new Times(1))
-      .emit(eq(new NPSchedulerScheduled(
-        NPAssignmentName.of("x"),
-        OffsetDateTime.parse("2001-01-01T00:02:00+00:00")
-      )));
-
-    Mockito.verifyNoMoreInteractions(this.events);
-    Mockito.verifyNoMoreInteractions(this.assignments);
-    Mockito.verifyNoMoreInteractions(this.repositories);
-  }
-
-  /**
-   * Scheduled assignments are executed.
-   *
-   * @throws Exception On errors
-   */
-
-  @Test
-  public void testAssignmentScheduledExecuted()
-    throws Exception
-  {
-    this.fakeClock.timeNow =
-      Instant.parse("2001-01-01T00:00:00+00:00");
+    this.scheduler =
+      NPScheduler.create(
+        this.clock,
+        this.events,
+        this.database,
+        this.repositories,
+        this.assignments
+      );
 
     assertEquals(
       120,
@@ -416,37 +295,10 @@ public final class NPSchedulerTest
         List.of(), 0, 1, 0L
       ));
 
-    this.scheduler.tick();
-
     this.fakeClock.timeNow =
-      Instant.parse("2001-01-01T00:02:00+00:00");
+      Instant.parse("2001-01-01T00:59:23+00:00");
 
-    Mockito.when(this.repositories.checkOne(any()))
-      .thenReturn(CompletableFuture.completedFuture(null));
-
-    Mockito.when(this.commitsPaged.pageCurrent(any()))
-      .thenReturn(new NPPage<>(
-        List.of(
-          new NPCommitSummary(
-            new NPCommitID(repositoryId, new NPCommitUnqualifiedID("a")),
-            OffsetDateTime.parse("2000-01-01T00:00:00+00:00"),
-            OffsetDateTime.parse("2000-01-01T00:00:00+00:00"),
-            "Commit 0"
-          ),
-          new NPCommitSummary(
-            new NPCommitID(repositoryId, new NPCommitUnqualifiedID("b")),
-            OffsetDateTime.parse("2000-01-01T00:00:00+00:00"),
-            OffsetDateTime.parse("2000-01-01T00:00:00+00:00"),
-            "Commit 1"
-          )
-        ), 0, 1, 0L
-      ));
-
-    Mockito.when(this.commitsPaged.pageNext(any()))
-      .thenReturn(new NPPage<>(
-        List.of(), 0, 1, 0L
-      ));
-
+    this.setupCommitsForExecution(repositoryId);
     this.scheduler.tick();
 
     Mockito.verify(this.repositories, new Times(1))
@@ -482,6 +334,216 @@ public final class NPSchedulerTest
   }
 
   /**
+   * Assignments that are already schedules aren't scheduled again.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentScheduledRedundant()
+    throws Exception
+  {
+    this.fakeClock.timeNow =
+      Instant.parse("2001-01-01T00:00:00+00:00");
+
+    this.scheduler =
+      NPScheduler.create(
+        this.clock,
+        this.events,
+        this.database,
+        this.repositories,
+        this.assignments
+      );
+
+    assertEquals(
+      120,
+      NPAssignmentName.of("x").hashCode()
+    );
+
+    final var repositoryId =
+      new NPRepositoryID(UUID.randomUUID());
+
+    Mockito.when(this.assignmentsPaged.pageCurrent(any()))
+      .thenReturn(new NPPage<>(
+        List.of(
+          new NPAssignment(
+            NPAssignmentName.of("x"),
+            repositoryId,
+            NPPlanIdentifier.of("y", 23L),
+            new NPAssignmentScheduleHourlyHashed(
+              OffsetDateTime.parse("2000-01-01T00:00:00+00:00")
+            )
+          )
+        ), 0, 1, 0L
+      ));
+    Mockito.when(this.assignmentsPaged.pageNext(any()))
+      .thenReturn(new NPPage<>(
+        List.of(), 0, 1, 0L
+      ));
+
+    this.setupCommitsForExecution(repositoryId);
+
+    this.fakeClock.timeNow =
+      Instant.parse("2001-01-01T00:02:00+00:00");
+
+    this.scheduler.tick();
+    this.scheduler.tick();
+
+    Mockito.verify(this.repositories, new Times(1))
+      .checkOne(eq(repositoryId));
+
+    Mockito.verify(this.assignments, new Times(1))
+      .requestExecution(eq(new NPAssignmentExecutionRequest(
+        NPAssignmentName.of("x"),
+        new NPCommitUnqualifiedID("a")
+      )));
+
+    Mockito.verify(this.assignments, new Times(1))
+      .requestExecution(eq(new NPAssignmentExecutionRequest(
+        NPAssignmentName.of("x"),
+        new NPCommitUnqualifiedID("b")
+      )));
+
+    Mockito.verify(this.events, new Times(1))
+      .emit(eq(new NPSchedulerScheduled(
+        NPAssignmentName.of("x"),
+        OffsetDateTime.parse("2001-01-01T00:02:00+00:00")
+      )));
+
+    Mockito.verify(this.events, new Times(1))
+      .emit(eq(new NPSchedulerExecute(
+        NPAssignmentName.of("x"),
+        OffsetDateTime.parse("2000-01-01T00:00:00+00:00")
+      )));
+
+    Mockito.verifyNoMoreInteractions(this.events);
+    Mockito.verifyNoMoreInteractions(this.assignments);
+    Mockito.verifyNoMoreInteractions(this.repositories);
+  }
+
+  /**
+   * Scheduled assignments are executed.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testAssignmentScheduledExecuted()
+    throws Exception
+  {
+    this.fakeClock.timeNow =
+      Instant.parse("2001-01-01T00:00:00+00:00");
+
+    this.scheduler =
+      NPScheduler.create(
+        this.clock,
+        this.events,
+        this.database,
+        this.repositories,
+        this.assignments
+      );
+
+    assertEquals(
+      120,
+      NPAssignmentName.of("x").hashCode()
+    );
+
+    final var repositoryId =
+      new NPRepositoryID(UUID.randomUUID());
+
+    Mockito.when(this.assignmentsPaged.pageCurrent(any()))
+      .thenReturn(new NPPage<>(
+        List.of(
+          new NPAssignment(
+            NPAssignmentName.of("x"),
+            repositoryId,
+            NPPlanIdentifier.of("y", 23L),
+            new NPAssignmentScheduleHourlyHashed(
+              OffsetDateTime.parse("2000-01-01T00:00:00+00:00")
+            )
+          )
+        ), 0, 1, 0L
+      ));
+    Mockito.when(this.assignmentsPaged.pageNext(any()))
+      .thenReturn(new NPPage<>(
+        List.of(), 0, 1, 0L
+      ));
+
+    this.scheduler.tick();
+
+    this.fakeClock.timeNow =
+      Instant.parse("2001-01-01T00:02:00+00:00");
+
+    this.setupCommitsForExecution(repositoryId);
+
+    this.scheduler.tick();
+
+    Mockito.verify(this.repositories, new Times(1))
+      .checkOne(eq(repositoryId));
+
+    Mockito.verify(this.assignments, new Times(1))
+      .requestExecution(eq(new NPAssignmentExecutionRequest(
+        NPAssignmentName.of("x"),
+        new NPCommitUnqualifiedID("a")
+      )));
+
+    Mockito.verify(this.assignments, new Times(1))
+      .requestExecution(eq(new NPAssignmentExecutionRequest(
+        NPAssignmentName.of("x"),
+        new NPCommitUnqualifiedID("b")
+      )));
+
+    Mockito.verify(this.events, new Times(1))
+      .emit(eq(new NPSchedulerScheduled(
+        NPAssignmentName.of("x"),
+        OffsetDateTime.parse("2001-01-01T00:02:00+00:00")
+      )));
+
+    Mockito.verify(this.events, new Times(1))
+      .emit(eq(new NPSchedulerExecute(
+        NPAssignmentName.of("x"),
+        OffsetDateTime.parse("2000-01-01T00:00:00+00:00")
+      )));
+
+    Mockito.verifyNoMoreInteractions(this.events);
+    Mockito.verifyNoMoreInteractions(this.assignments);
+    Mockito.verifyNoMoreInteractions(this.repositories);
+  }
+
+  private void setupCommitsForExecution(NPRepositoryID repositoryId)
+    throws NPDatabaseException
+  {
+    final var future = new CompletableFuture<Void>();
+    future.complete(null);
+
+    Mockito.when(this.repositories.checkOne(eq(repositoryId)))
+      .thenReturn(future);
+
+    Mockito.when(this.commitsPaged.pageCurrent(any()))
+      .thenReturn(new NPPage<>(
+        List.of(
+          new NPCommitSummary(
+            new NPCommitID(repositoryId, new NPCommitUnqualifiedID("a")),
+            OffsetDateTime.parse("2000-01-01T00:00:00+00:00"),
+            OffsetDateTime.parse("2000-01-01T00:00:00+00:00"),
+            "Commit 0"
+          ),
+          new NPCommitSummary(
+            new NPCommitID(repositoryId, new NPCommitUnqualifiedID("b")),
+            OffsetDateTime.parse("2000-01-01T00:00:00+00:00"),
+            OffsetDateTime.parse("2000-01-01T00:00:00+00:00"),
+            "Commit 1"
+          )
+        ), 0, 1, 0L
+      ));
+
+    Mockito.when(this.commitsPaged.pageNext(any()))
+      .thenReturn(new NPPage<>(
+        List.of(), 0, 1, 0L
+      ));
+  }
+
+  /**
    * Scheduled assignments are executed even if they miss their starting time.
    *
    * @throws Exception On errors
@@ -493,6 +555,15 @@ public final class NPSchedulerTest
   {
     this.fakeClock.timeNow =
       Instant.parse("2001-01-01T00:00:00+00:00");
+
+    this.scheduler =
+      NPScheduler.create(
+        this.clock,
+        this.events,
+        this.database,
+        this.repositories,
+        this.assignments
+      );
 
     assertEquals(
       120,
@@ -598,6 +669,15 @@ public final class NPSchedulerTest
     this.fakeClock.timeNow =
       Instant.parse("2001-01-01T00:00:00+00:00");
 
+    this.scheduler =
+      NPScheduler.create(
+        this.clock,
+        this.events,
+        this.database,
+        this.repositories,
+        this.assignments
+      );
+
     assertEquals(
       120,
       NPAssignmentName.of("x").hashCode()
@@ -625,17 +705,6 @@ public final class NPSchedulerTest
       ));
 
     this.scheduler.tick();
-
-    this.fakeClock.timeNow =
-      Instant.parse("2001-01-01T00:01:00+00:00");
-
-    this.scheduler.tick();
-
-    Mockito.verify(this.events, new Times(1))
-      .emit(eq(new NPSchedulerScheduled(
-        NPAssignmentName.of("x"),
-        OffsetDateTime.parse("2001-01-01T00:02:00+00:00")
-      )));
 
     Mockito.verifyNoMoreInteractions(this.events);
     Mockito.verifyNoMoreInteractions(this.assignments);
@@ -655,6 +724,15 @@ public final class NPSchedulerTest
     this.fakeClock.timeNow =
       Instant.parse("2001-01-01T00:00:00+00:00");
 
+    this.scheduler =
+      NPScheduler.create(
+        this.clock,
+        this.events,
+        this.database,
+        this.repositories,
+        this.assignments
+      );
+
     assertEquals(
       120,
       NPAssignmentName.of("x").hashCode()
@@ -681,20 +759,29 @@ public final class NPSchedulerTest
         List.of(), 0, 1, 0L
       ));
 
-    this.scheduler.tick();
-
     this.fakeClock.timeNow =
-      Instant.parse("2001-01-01T00:01:00+00:00");
+      Instant.parse("2001-01-01T00:02:00+00:00");
+
+    this.setupCommitsForExecution(repositoryId);
 
     Mockito.when(this.repositories.checkOne(any()))
       .thenReturn(CompletableFuture.failedFuture(new IOException("Ouch!")));
 
     this.scheduler.tick();
 
+    Mockito.verify(this.repositories, new Times(1))
+      .checkOne(eq(repositoryId));
+
     Mockito.verify(this.events, new Times(1))
       .emit(eq(new NPSchedulerScheduled(
         NPAssignmentName.of("x"),
         OffsetDateTime.parse("2001-01-01T00:02:00+00:00")
+      )));
+
+    Mockito.verify(this.events, new Times(1))
+      .emit(eq(new NPSchedulerExecute(
+        NPAssignmentName.of("x"),
+        OffsetDateTime.parse("2000-01-01T00:00:00+00:00")
       )));
 
     Mockito.verifyNoMoreInteractions(this.events);
@@ -715,6 +802,15 @@ public final class NPSchedulerTest
     this.fakeClock.timeNow =
       Instant.parse("2001-01-01T00:00:00+00:00");
 
+    this.scheduler =
+      NPScheduler.create(
+        this.clock,
+        this.events,
+        this.database,
+        this.repositories,
+        this.assignments
+      );
+
     assertEquals(
       120,
       NPAssignmentName.of("x").hashCode()
@@ -741,13 +837,11 @@ public final class NPSchedulerTest
         List.of(), 0, 1, 0L
       ));
 
-    this.scheduler.tick();
+    final var future = new CompletableFuture<Void>();
+    future.complete(null);
 
-    this.fakeClock.timeNow =
-      Instant.parse("2001-01-01T00:01:00+00:00");
-
-    Mockito.when(this.repositories.checkOne(any()))
-      .thenReturn(CompletableFuture.completedFuture(null));
+    Mockito.when(this.repositories.checkOne(eq(repositoryId)))
+      .thenReturn(future);
 
     Mockito.when(this.commitsNotExecuted.execute(any()))
       .thenThrow(new NPDatabaseException(
@@ -757,12 +851,24 @@ public final class NPSchedulerTest
         Optional.empty()
       ));
 
+    this.fakeClock.timeNow =
+      Instant.parse("2001-01-01T00:02:00+00:00");
+
     this.scheduler.tick();
+
+    Mockito.verify(this.repositories, new Times(1))
+      .checkOne(eq(repositoryId));
 
     Mockito.verify(this.events, new Times(1))
       .emit(eq(new NPSchedulerScheduled(
         NPAssignmentName.of("x"),
         OffsetDateTime.parse("2001-01-01T00:02:00+00:00")
+      )));
+
+    Mockito.verify(this.events, new Times(1))
+      .emit(eq(new NPSchedulerExecute(
+        NPAssignmentName.of("x"),
+        OffsetDateTime.parse("2000-01-01T00:00:00+00:00")
       )));
 
     Mockito.verifyNoMoreInteractions(this.events);

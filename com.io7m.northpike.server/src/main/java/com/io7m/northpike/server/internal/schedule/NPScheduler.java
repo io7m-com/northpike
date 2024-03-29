@@ -58,13 +58,16 @@ public final class NPScheduler implements NPSchedulerType
   private static final Logger LOG =
     LoggerFactory.getLogger(NPScheduler.class);
 
-  private final NPClockServiceType clock;
-  private final HashMap<NPAssignmentName, AssignmentScheduled> assignmentsScheduled;
-  private final NPEventServiceType events;
-  private final NPDatabaseType database;
-  private final NPRepositoryServiceType repositoryService;
-  private final NPAssignmentServiceType assignmentService;
   private OffsetDateTime timeNow;
+  private OffsetDateTime timeThen;
+  private final HashMap<NPAssignmentName, AssignmentScheduled> assignmentsThisHour;
+  private final HashMap<NPAssignmentName, AssignmentScheduled> assignmentsThisMinute;
+  private final HashMap<NPAssignmentName, AssignmentScheduled> assignmentsToExecuteNow;
+  private final NPAssignmentServiceType assignmentService;
+  private final NPClockServiceType clock;
+  private final NPDatabaseType database;
+  private final NPEventServiceType events;
+  private final NPRepositoryServiceType repositoryService;
 
   private NPScheduler(
     final NPClockServiceType inClock,
@@ -84,10 +87,17 @@ public final class NPScheduler implements NPSchedulerType
     this.assignmentService =
       Objects.requireNonNull(inAssignments, "assignments");
 
-    this.assignmentsScheduled =
+    this.assignmentsThisHour =
       new HashMap<>();
-    this.timeNow =
-      this.clock.now();
+    this.assignmentsThisMinute =
+      new HashMap<>();
+    this.assignmentsToExecuteNow =
+      new HashMap<>();
+
+    this.timeThen =
+      this.clock.now()
+        .minusMinutes(1L)
+        .minusHours(1L);
   }
 
   /**
@@ -135,66 +145,85 @@ public final class NPScheduler implements NPSchedulerType
   public void tick()
   {
     this.timeNow = this.clock.now();
-    if (this.timeNow.getSecond() == 0) {
-      this.scheduleAssignments();
-    }
+    try {
+      if (this.startingNewHour()) {
+        this.assignmentsThisHour.clear();
+      }
+      if (this.startingNewMinute()) {
+        this.assignmentsThisMinute.clear();
+        this.assignmentsToExecuteNow.clear();
+      }
 
-    this.executeAssignments();
+      this.scheduleAssignments();
+      this.executeAssignments();
+    } finally {
+      this.timeThen = this.timeNow;
+    }
+  }
+
+  private boolean startingNewMinute()
+  {
+    return this.timeNow.getMinute() != this.timeThen.getMinute();
+  }
+
+  private boolean startingNewHour()
+  {
+    return this.timeNow.getHour() != this.timeThen.getHour();
   }
 
   private void executeAssignments()
   {
     final var scheduled =
-      Set.copyOf(this.assignmentsScheduled.values());
+      Set.copyOf(this.assignmentsToExecuteNow.values());
 
     for (final var assignment : scheduled) {
-      if (!this.timeNow.isBefore(assignment.time)) {
-        this.executeAssignment(assignment);
-      }
+      this.executeAssignment(assignment);
     }
   }
 
   private void executeAssignment(
     final AssignmentScheduled assignment)
   {
-    this.assignmentsScheduled.remove(assignment.assignment.name());
-
-    this.events.emit(new NPSchedulerExecute(
-      assignment.assignment.name(),
-      assignment.commitAgeCutoff
-    ));
-
     try {
-      this.repositoryService.checkOne(assignment.assignment().repositoryId())
-        .get(1L, TimeUnit.MINUTES);
-    } catch (final Exception e) {
-      NPTelemetryServiceType.recordSpanException(e);
-      LOG.error("Failed to update repository: ", e);
-      return;
-    }
+      this.events.emit(new NPSchedulerExecute(
+        assignment.assignment.name(),
+        assignment.commitAgeCutoff
+      ));
 
-    final Set<NPCommitUnqualifiedID> commits;
-    try {
-      commits = this.onRetrieveUnbuiltCommitsFor(
-        assignment.assignment,
-        new NPTimeRange(
-          assignment.commitAgeCutoff,
-          this.timeNow.plusDays(1L)
-        )
-      );
-    } catch (final Exception e) {
-      NPTelemetryServiceType.recordSpanException(e);
-      LOG.error("Failed to retrieve commits: ", e);
-      return;
-    }
+      try {
+        this.repositoryService.checkOne(assignment.assignment().repositoryId())
+          .get(1L, TimeUnit.MINUTES);
+      } catch (final Exception e) {
+        NPTelemetryServiceType.recordSpanException(e);
+        LOG.error("Failed to update repository: ", e);
+        return;
+      }
 
-    for (final var commit : commits) {
-      this.assignmentService.requestExecution(
-        new NPAssignmentExecutionRequest(
-          assignment.assignment().name(),
-          commit
-        )
-      );
+      final Set<NPCommitUnqualifiedID> commits;
+      try {
+        commits = this.onRetrieveUnbuiltCommitsFor(
+          assignment.assignment,
+          new NPTimeRange(
+            assignment.commitAgeCutoff,
+            this.timeNow.plusDays(1L)
+          )
+        );
+      } catch (final Exception e) {
+        NPTelemetryServiceType.recordSpanException(e);
+        LOG.error("Failed to retrieve commits: ", e);
+        return;
+      }
+
+      for (final var commit : commits) {
+        this.assignmentService.requestExecution(
+          new NPAssignmentExecutionRequest(
+            assignment.assignment().name(),
+            commit
+          )
+        );
+      }
+    } finally {
+      this.assignmentsToExecuteNow.remove(assignment.assignment.name());
     }
   }
 
@@ -232,23 +261,18 @@ public final class NPScheduler implements NPSchedulerType
     final NPAssignment assignment,
     final NPAssignmentScheduleHourlyHashed hashed)
   {
-    if (this.assignmentsScheduled.containsKey(assignment.name())) {
+    if (this.haveAlreadyScheduled(assignment.name())) {
       return;
     }
 
     /*
-     * Get the time at the start of the current hour, and the time at the
-     * start of the next hour. The assignment will be scheduled based whichever
-     * one results in a time that is in the future.
+     * Find the time at the start of the current hour.
      */
 
     final var timeHourStart =
       this.timeNow.withMinute(0)
         .withSecond(0)
         .withNano(0);
-
-    final var timeHourNext =
-      timeHourStart.plusHours(1L);
 
     /*
      * The offset from the start of the hour is the hash of the assignment
@@ -258,30 +282,55 @@ public final class NPScheduler implements NPSchedulerType
     final var seconds =
       (long) (assignment.name().toString().hashCode()) % 3600L;
 
-    final var time0 =
+    final var timeTarget =
       timeHourStart.plusSeconds(seconds);
-    final var time1 =
-      timeHourNext.plusSeconds(seconds);
 
-    final OffsetDateTime timeTarget;
-    if (time0.isBefore(this.timeNow)) {
-      timeTarget = time1;
-    } else {
-      timeTarget = time0;
+    /*
+     * If the current time is after (or equal to) the target time, then
+     * schedule an assignment. We are already protected from scheduling
+     * assignments multiple times in the same hour or minute by the check above.
+     */
+
+    if (!this.timeNow.isBefore(timeTarget)) {
+      final var task =
+        new AssignmentScheduled(
+          assignment,
+          timeTarget,
+          hashed.commitAgeCutoff()
+        );
+
+      this.scheduleNow(task, timeTarget);
     }
+  }
 
-    final var task =
-      new AssignmentScheduled(
-        assignment,
-        timeTarget,
-        hashed.commitAgeCutoff()
-      );
+  private void scheduleNow(
+    final AssignmentScheduled task,
+    final OffsetDateTime time)
+  {
+    this.assignmentsThisHour.put(task.assignment.name(), task);
+    this.assignmentsThisMinute.put(task.assignment.name(), task);
+    this.assignmentsToExecuteNow.put(task.assignment.name(), task);
+    this.events.emit(new NPSchedulerScheduled(task.assignment.name(), time));
+  }
 
-    this.assignmentsScheduled.put(task.assignment.name(), task);
+  private boolean haveAlreadyScheduled(
+    final NPAssignmentName name)
+  {
+    return this.haveAlreadyScheduledThisHour(name)
+      || this.haveAlreadyScheduledThisMinute(name)
+      || this.assignmentsToExecuteNow.containsKey(name);
+  }
 
-    this.events.emit(
-      new NPSchedulerScheduled(task.assignment.name(), timeTarget)
-    );
+  private boolean haveAlreadyScheduledThisMinute(
+    final NPAssignmentName name)
+  {
+    return this.assignmentsThisHour.containsKey(name);
+  }
+
+  private boolean haveAlreadyScheduledThisHour(
+    final NPAssignmentName name)
+  {
+    return this.assignmentsThisMinute.containsKey(name);
   }
 
   private Set<NPAssignment> onRetrieveCurrentAssignments()

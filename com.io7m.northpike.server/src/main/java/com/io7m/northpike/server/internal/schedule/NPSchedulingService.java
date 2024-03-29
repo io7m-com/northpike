@@ -138,7 +138,7 @@ public final class NPSchedulingService
   private void runScheduleTask()
   {
     final var scheduleInterval =
-      Duration.ofSeconds(15L);
+      Duration.ofSeconds(10L);
 
     while (!this.closed.get()) {
       try {
