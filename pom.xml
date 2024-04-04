@@ -139,6 +139,7 @@
     <org.graalvm.version>24.0.0</org.graalvm.version>
     <org.jline.version>3.25.1</org.jline.version>
     <org.mockito.version>5.10.0</org.mockito.version>
+    <org.ow2.asm.version>9.6</org.ow2.asm.version>
     <slf4j.version>2.0.11</slf4j.version>
   </properties>
 
@@ -806,12 +807,12 @@
       <dependency>
         <groupId>org.ow2.asm</groupId>
         <artifactId>asm</artifactId>
-        <version>9.6</version>
+        <version>${org.ow2.asm.version}</version>
       </dependency>
       <dependency>
         <groupId>org.ow2.asm</groupId>
         <artifactId>asm-util</artifactId>
-        <version>9.6</version>
+        <version>${org.ow2.asm.version}</version>
       </dependency>
       <dependency>
         <groupId>org.graalvm.polyglot</groupId>
