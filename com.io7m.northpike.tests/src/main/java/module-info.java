@@ -127,6 +127,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.quarrel.core;
   requires com.io7m.quarrel.ext.xstructural;
   requires com.io7m.quixote.core;
+  requires com.io7m.quixote.xml;
   requires com.io7m.repetoir.core;
   requires com.io7m.verdant.core.cb;
   requires com.io7m.verdant.core;

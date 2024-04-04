@@ -77,7 +77,7 @@ public final class NPDatabaseArchivesTest
     final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE = NPFixtures.database(containers);
+    DATABASE_FIXTURE = NPFixtures.database(NPFixtures.pod(containers));
   }
 
   @BeforeEach
@@ -96,7 +96,8 @@ public final class NPDatabaseArchivesTest
       closeables.addPerTestResource(this.connection.openTransaction());
 
     this.transaction.setOwner(
-      DATABASE_FIXTURE.userSetup(NPFixtures.idstore(containers).userWithLogin())
+      DATABASE_FIXTURE.userSetup(
+        NPFixtures.idstore(NPFixtures.pod(containers)).userWithLogin())
     );
   }
 

@@ -29,6 +29,7 @@ public final class NPAWorkExecutorConfiguration
 {
   private final NPAWorkExecName type;
   private final Optional<NPAWorkExecutorContainerImage> containerImage;
+  private final Optional<String> podName;
   private final Path workDirectory;
   private final Optional<Path> workExecDistributionDirectory;
   private final Path temporaryDirectory;
@@ -36,6 +37,7 @@ public final class NPAWorkExecutorConfiguration
   private NPAWorkExecutorConfiguration(
     final NPAWorkExecName inType,
     final Optional<NPAWorkExecutorContainerImage> inContainerImage,
+    final Optional<String> inPodName,
     final Path inWorkspaceDirectory,
     final Path inTmpDirectory,
     final Optional<Path> inWorkExecDistributionDirectory)
@@ -44,6 +46,8 @@ public final class NPAWorkExecutorConfiguration
       Objects.requireNonNull(inType, "type");
     this.containerImage =
       Objects.requireNonNull(inContainerImage, "containerImage");
+    this.podName =
+      Objects.requireNonNull(inPodName, "podName");
     this.workDirectory =
       Objects.requireNonNull(inWorkspaceDirectory, "workDirectory");
     this.temporaryDirectory =
@@ -89,6 +93,15 @@ public final class NPAWorkExecutorConfiguration
   public Optional<NPAWorkExecutorContainerImage> containerImage()
   {
     return this.containerImage;
+  }
+
+  /**
+   * @return The container pod name
+   */
+
+  public Optional<String> containerPodName()
+  {
+    return this.podName;
   }
 
   /**
@@ -153,12 +166,15 @@ public final class NPAWorkExecutorConfiguration
     private Optional<NPAWorkExecutorContainerImage> containerImage;
     private Path workDirectory;
     private Path temporaryDirectory;
+    private Optional<String> podName;
 
     Builder()
     {
       this.containerImage =
         Optional.empty();
       this.workExecDistributionDirectory =
+        Optional.empty();
+      this.podName =
         Optional.empty();
     }
 
@@ -201,6 +217,7 @@ public final class NPAWorkExecutorConfiguration
       return new NPAWorkExecutorConfiguration(
         this.type,
         this.containerImage,
+        this.podName,
         this.workDirectory,
         this.temporaryDirectory,
         this.workExecDistributionDirectory
@@ -251,6 +268,19 @@ public final class NPAWorkExecutorConfiguration
       final Path directory)
     {
       this.workExecDistributionDirectory = Optional.of(directory);
+      return this;
+    }
+
+    /**
+     * Set the podman pod within which containers will be created.
+     * @param name The pod name
+     * @return this
+     */
+
+    public Builder setContainerPod(
+      final String name)
+    {
+      this.podName = Optional.of(name);
       return this;
     }
   }

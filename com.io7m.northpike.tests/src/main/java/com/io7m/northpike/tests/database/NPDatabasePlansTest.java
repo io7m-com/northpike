@@ -119,7 +119,7 @@ public final class NPDatabasePlansTest
     final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE = NPFixtures.database(containers);
+    DATABASE_FIXTURE = NPFixtures.database(NPFixtures.pod(containers));
   }
 
   private static List<NPPlanType> createPlans(
@@ -188,7 +188,8 @@ public final class NPDatabasePlansTest
       .parse(any(), any());
 
     this.transaction.setOwner(
-      DATABASE_FIXTURE.userSetup(NPFixtures.idstore(containers).userWithLogin())
+      DATABASE_FIXTURE.userSetup(
+        NPFixtures.idstore(NPFixtures.pod(containers)).userWithLogin())
     );
   }
 

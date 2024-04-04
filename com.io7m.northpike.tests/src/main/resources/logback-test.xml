@@ -40,6 +40,21 @@
   <logger name="org.eclipse.jgit"
           level="INFO"/>
 
+  <logger name="com.io7m.northpike.database.postgres.internal.NPDatabase"
+          level="INFO"/>
+
+  <logger name="com.io7m.northpike.tests.containers.NPDatabaseFixture"
+          level="ERROR"/>
+
+  <logger name="com.io7m.northpike.database.postgres.NPPGDatabases"
+          level="DEBUG"/>
+
+  <logger name="org.sqlite.core.NativeDB"
+          level="INFO"/>
+
+  <logger name="com.io7m.repetoir.core.RPServiceDirectory"
+          level="INFO"/>
+
   <root level="TRACE">
     <appender-ref ref="STDERR"/>
   </root>

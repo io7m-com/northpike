@@ -59,6 +59,7 @@ import java.util.UUID;
 import java.util.concurrent.Flow;
 
 import static com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult.SUCCESS;
+import static com.io7m.northpike.tests.containers.NPFixtures.webServerPort;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -93,7 +94,7 @@ public final class NPWorkExecutorsLocalTest
     );
 
     this.executors = new NPWorkExecutorsLocal();
-    this.server = QWebServers.createServer(20000);
+    this.server = QWebServers.createServer(webServerPort() + 1);
   }
 
   @AfterEach

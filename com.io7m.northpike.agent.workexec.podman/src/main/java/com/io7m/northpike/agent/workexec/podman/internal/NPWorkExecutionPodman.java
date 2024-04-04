@@ -121,6 +121,7 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
   private final NPAgentResourceLockServiceType locks;
   private final NPAgentLocalName agentName;
   private final AtomicLong eventIndex;
+  private final Optional<String> podName;
 
   NPWorkExecutionPodman(
     final NPStrings inStrings,
@@ -130,6 +131,7 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
     final PodmanExecutableType inPodman,
     final PodmanImage inPodmanImage,
     final PodmanVolumeMount inWorkExecVolume,
+    final Optional<String> inPodName,
     final NPAgentWorkItem inWorkItem)
   {
     Objects.requireNonNull(inConfiguration, "configuration");
@@ -148,6 +150,8 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
       Objects.requireNonNull(inStrings, "strings");
     this.locks =
       Objects.requireNonNull(inLocks, "locks");
+    this.podName =
+      Objects.requireNonNull(inPodName, "podName");
 
     this.eventIndex =
       new AtomicLong(1L);
@@ -288,6 +292,8 @@ final class NPWorkExecutionPodman implements NPAWorkExecutionType
           .setImage(this.podmanImage)
           .setRootReadOnly(true)
           .setRemoveAfterExit(true);
+
+      this.podName.ifPresent(runBuilder::setPod);
 
       final var environment =
         this.workItem.toolExecution().environment();

@@ -125,7 +125,7 @@ public final class NPRepositoryServiceTest
     final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE = NPFixtures.database(containers);
+    DATABASE_FIXTURE = NPFixtures.database(NPFixtures.pod(containers));
   }
 
   @BeforeEach
@@ -145,7 +145,8 @@ public final class NPRepositoryServiceTest
     this.transaction =
       closeables.addPerTestResource(this.connection.openTransaction());
 
-    final var user = NPFixtures.idstore(containers).userWithLogin();
+    final var user =
+      NPFixtures.idstore(NPFixtures.pod(containers)).userWithLogin();
     this.transaction.setOwner(new NPAuditOwnerType.User(user.id()));
     this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class)
       .execute(new NPUser(user.id(), user.idName(), new MSubject(Set.of())));

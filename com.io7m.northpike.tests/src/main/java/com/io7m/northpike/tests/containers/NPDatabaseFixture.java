@@ -17,7 +17,6 @@
 
 package com.io7m.northpike.tests.containers;
 
-import com.io7m.ervilla.api.EContainerSupervisorType;
 import com.io7m.idstore.model.IdUser;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConfiguration;
@@ -70,7 +69,6 @@ public final class NPDatabaseFixture
   }
 
   public static NPDatabaseFixture create(
-    final EContainerSupervisorType supervisor,
     final NPPostgresFixture postgres)
     throws Exception
   {
@@ -80,7 +78,7 @@ public final class NPDatabaseFixture
         "12345678",
         "12345678",
         Optional.of("12345678"),
-        postgres.primaryIP(),
+        "::",
         postgres.port(),
         "northpike",
         NPDatabaseCreate.CREATE_DATABASE,

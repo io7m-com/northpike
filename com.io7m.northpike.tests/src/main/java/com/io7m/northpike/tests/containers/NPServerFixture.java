@@ -98,7 +98,6 @@ public final class NPServerFixture
     final NPIdstoreFixture idstoreFixture,
     final NPDatabaseFixture databaseFixture,
     final Path baseDirectory,
-    final String address,
     final int agentApiPort,
     final int userApiPort,
     final int archivePort)
@@ -106,13 +105,13 @@ public final class NPServerFixture
   {
     final var userAPIURI =
       "http://%s:%d/".formatted(
-        idstoreFixture.address(),
+        "[::]",
         Integer.valueOf(idstoreFixture.userAPIPort())
       );
 
     final var userViewURI =
       "http://%s:%d/".formatted(
-        idstoreFixture.address(),
+        "[::]",
         Integer.valueOf(idstoreFixture.userViewPort())
       );
 
@@ -132,19 +131,19 @@ public final class NPServerFixture
           URI.create(userViewURI)
         ),
         new NPServerAgentConfiguration(
-          InetAddress.getByName(address),
+          InetAddress.getByName("[::]"),
           agentApiPort,
           TLS_DISABLED,
           1_000_000
         ),
         new NPServerArchiveConfiguration(
-          InetAddress.getByName(address),
+          InetAddress.getByName("[::]"),
           archivePort,
           TLS_DISABLED,
           URI.create("https://archives.example.com/")
         ),
         new NPServerUserConfiguration(
-          InetAddress.getByName(address),
+          InetAddress.getByName("[::]"),
           userApiPort,
           TLS_DISABLED,
           1_000_000
@@ -163,7 +162,7 @@ public final class NPServerFixture
         idstoreFixture,
         databaseFixture,
         SERVERS.createServer(configuration),
-        address,
+        "[::]",
         userApiPort
       );
 

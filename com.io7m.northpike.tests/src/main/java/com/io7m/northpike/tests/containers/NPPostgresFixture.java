@@ -17,15 +17,15 @@
 
 package com.io7m.northpike.tests.containers;
 
-import com.io7m.ervilla.api.EContainerSupervisorType;
+import com.io7m.ervilla.api.EContainerFactoryType;
 import com.io7m.ervilla.api.EContainerType;
+import com.io7m.ervilla.api.EPortAddressType;
 import com.io7m.ervilla.postgres.EPgSpecs;
 import com.io7m.northpike.tests.NPTestProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * A PostgreSQL fixture.
@@ -38,39 +38,34 @@ public final class NPPostgresFixture
 
   private final EContainerType container;
   private final String databaseOwner;
-  private final String primaryIp;
   private final int port;
 
   private NPPostgresFixture(
     final EContainerType inContainer,
     final String inDatabaseOwner,
-    final String inPrimaryIp,
     final int inPort)
   {
     this.container =
       Objects.requireNonNull(inContainer, "container");
     this.databaseOwner =
       Objects.requireNonNull(inDatabaseOwner, "databaseOwner");
-    this.primaryIp =
-      Objects.requireNonNull(inPrimaryIp, "primaryIp");
     this.port =
       inPort;
   }
 
   public static NPPostgresFixture create(
-    final EContainerSupervisorType supervisor,
-    final String primaryIp,
+    final EContainerFactoryType supervisor,
     final int port)
     throws Exception
   {
     LOG.info(
-      "Creating postgres database on {}:{}", primaryIp, Integer.valueOf(port));
+      "Creating postgres database on {}:{}", Integer.valueOf(port));
 
     return new NPPostgresFixture(
       supervisor.start(
         EPgSpecs.builderFromDockerIO(
           NPTestProperties.POSTGRESQL_VERSION,
-          Optional.of(primaryIp),
+          new EPortAddressType.All(),
           port,
           "postgres",
           "postgres",
@@ -78,14 +73,8 @@ public final class NPPostgresFixture
         ).build()
       ),
       "postgres",
-      primaryIp,
       port
     );
-  }
-
-  public String primaryIP()
-  {
-    return this.primaryIp;
   }
 
   public EContainerType container()

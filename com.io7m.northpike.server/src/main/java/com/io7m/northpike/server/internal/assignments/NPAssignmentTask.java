@@ -24,7 +24,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.GetType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitGetType;
@@ -287,7 +287,9 @@ public final class NPAssignmentTask
 
     try (var ignored = span.makeCurrent()) {
       try {
-        this.assignmentInitialize();
+        this.assignmentCreateInitialState();
+        this.assignmentInitializeRepository();
+        this.assignmentCreateExecution();
         this.assignmentCheckAllowed();
         this.assignmentCreateArchive();
         this.assignmentCompilePlan();
@@ -484,12 +486,12 @@ public final class NPAssignmentTask
     try (var connection = this.database.openConnection(NORTHPIKE)) {
       try (var transaction = connection.openTransaction()) {
         final var planGet =
-          transaction.queries(NPDatabaseQueriesPlansType.PlanGetType.class);
+          transaction.queries(PlanGetType.class);
         final var toolGet =
           transaction.queries(GetExecutionDescriptionType.class);
 
         final var planOpt =
-          planGet.execute(new NPDatabaseQueriesPlansType.PlanGetType.Parameters(
+          planGet.execute(new PlanGetType.Parameters(
             this.assignment.plan(),
             this.planParsers
           ));
@@ -1058,12 +1060,12 @@ public final class NPAssignmentTask
     }
   }
 
-  private void assignmentInitialize()
+  private void assignmentCreateInitialState()
     throws NPException
   {
     /*
-     * Setting up the initial assignment state might fail if either of the
-     * assignment or commit do not actually exist.
+     * Setting up the initial assignment state might fail if the assignment
+     * does not actually exist.
      */
 
     try {
@@ -1071,9 +1073,52 @@ public final class NPAssignmentTask
         try (var transaction = connection.openTransaction()) {
           this.setStateInTransaction(transaction, this.executionState);
           transaction.commit();
+          this.assignment = this.findAssignment(transaction);
+        }
+      }
+    } catch (final NPException e) {
+      this.setState(
+        new NPAssignmentExecutionStateCreationFailed(
+          this.executionId,
+          this.assignmentRequest,
+          this.timeCalculateCreated()
+        )
+      );
+      throw e;
+    }
+  }
 
-          this.assignment =
-            this.findAssignment(transaction);
+  /**
+   * Check the repository used for the assignment. This ensures that the
+   * repository exists.
+   *
+   * @throws Exception On errors
+   */
+
+  private void assignmentInitializeRepository()
+    throws Exception
+  {
+    try {
+      this.repositories.checkOne(this.assignment.repositoryId())
+        .get(5L, TimeUnit.MINUTES);
+    } catch (final Exception e) {
+      this.setState(
+        new NPAssignmentExecutionStateCreationFailed(
+          this.executionId,
+          this.assignmentRequest,
+          this.timeCalculateCreated()
+        )
+      );
+      throw e;
+    }
+  }
+
+  private void assignmentCreateExecution()
+    throws NPException
+  {
+    try {
+      try (var connection = this.database.openConnection(NORTHPIKE)) {
+        try (var transaction = connection.openTransaction()) {
           this.commit =
             this.findCommit(transaction);
           this.assignmentExecution =

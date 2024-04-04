@@ -116,7 +116,7 @@ public final class NPSchedulingService
     final var executor =
       Executors.newThreadPerTaskExecutor(
         Thread.ofVirtual()
-          .name("com.io7m.northpike.repository-", 0L)
+          .name("com.io7m.northpike.scheduling-", 0L)
           .factory()
       );
 

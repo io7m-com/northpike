@@ -68,7 +68,7 @@ public final class NPDatabaseAuditTest
     final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE = NPFixtures.database(containers);
+    DATABASE_FIXTURE = NPFixtures.database(NPFixtures.pod(containers));
   }
 
   @BeforeEach

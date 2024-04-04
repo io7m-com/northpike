@@ -212,7 +212,7 @@ public final class NPAgentTaskTest
     final @ErvillaCloseAfterSuite EContainerSupervisorType containers)
     throws Exception
   {
-    DATABASE_FIXTURE = NPFixtures.database(containers);
+    DATABASE_FIXTURE = NPFixtures.database(NPFixtures.pod(containers));
 
     final var ed448 = new NPAgentKeyPairFactoryEd448();
     KEY_PAIR_0 = ed448.generateKeyPair();
@@ -238,7 +238,8 @@ public final class NPAgentTaskTest
     this.transaction =
       closeables.addPerTestResource(this.connection.openTransaction());
 
-    final var user = NPFixtures.idstore(containers).userWithLogin();
+    final var user =
+      NPFixtures.idstore(NPFixtures.pod(containers)).userWithLogin();
     this.transaction.setOwner(new NPAuditOwnerType.User(user.id()));
 
     this.executor =

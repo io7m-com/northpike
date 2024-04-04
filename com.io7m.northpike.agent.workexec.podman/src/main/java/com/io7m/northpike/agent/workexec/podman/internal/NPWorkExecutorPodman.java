@@ -152,19 +152,21 @@ public final class NPWorkExecutorPodman implements NPAWorkExecutorType
     throws NPException
   {
     try {
-      final var process =
+      final var processBuilder =
         this.podman.run()
-          .setInteractive(true)
-          .setImage(this.podmanImage)
-          .setRemoveAfterExit(true)
-          .addEnvironmentVariable(
-            "NORTHPIKE_WORKEXEC_HOME",
-            "/northpike-workexec")
-          .addEnvironmentVariable("HOSTNAME", "northpike")
-          .addVolume(this.workExecVolume)
-          .addArgument("/northpike-workexec/bin/northpike-workexec")
-          .addArgument(command)
-          .build()
+        .setInteractive(true)
+        .setImage(this.podmanImage)
+        .setRemoveAfterExit(true)
+        .addEnvironmentVariable(
+          "NORTHPIKE_WORKEXEC_HOME",
+          "/northpike-workexec")
+        .addEnvironmentVariable("HOSTNAME", "northpike")
+        .addVolume(this.workExecVolume)
+        .addArgument("/northpike-workexec/bin/northpike-workexec")
+        .addArgument(command);
+
+      final var process =
+        processBuilder.build()
           .start();
 
       final var outputLines =
@@ -266,6 +268,7 @@ public final class NPWorkExecutorPodman implements NPAWorkExecutorType
       this.podman,
       this.podmanImage,
       this.workExecVolume,
+      this.configuration.containerPodName(),
       workItem
     );
   }

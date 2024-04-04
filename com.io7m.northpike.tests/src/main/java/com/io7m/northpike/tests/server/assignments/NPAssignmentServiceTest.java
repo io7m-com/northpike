@@ -109,9 +109,9 @@ public final class NPAssignmentServiceTest
     throws Exception
   {
     DATABASE_FIXTURE =
-      NPFixtures.database(containers);
+      NPFixtures.database(NPFixtures.pod(containers));
     ASSIGNMENT_FIXTURE =
-      NPFixtures.assignment(containers);
+      NPFixtures.assignment(NPFixtures.pod(containers));
   }
 
   @BeforeEach
@@ -285,6 +285,9 @@ public final class NPAssignmentServiceTest
         URI.create("http://example.com/sources"),
         URI.create("http://example.com/checksum")
       ));
+
+    Mockito.when(this.repositories.checkOne(any()))
+      .thenReturn(CompletableFuture.completedFuture(null));
 
     Mockito.when(this.repositories.createArchiveFor(any()))
       .thenReturn(CompletableFuture.completedFuture(archive));

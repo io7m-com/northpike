@@ -17,6 +17,7 @@
 
 package com.io7m.northpike.tests.containers;
 
+import com.io7m.ervilla.api.EPortAddressType;
 import com.io7m.ervilla.api.EReadyCheckType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,16 +27,16 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public final class NPIdstoreHealthcheck implements EReadyCheckType
+public final class NPIdstoreReadyCheck implements EReadyCheckType
 {
   private static final Logger LOG =
-    LoggerFactory.getLogger(NPIdstoreHealthcheck.class);
+    LoggerFactory.getLogger(NPIdstoreReadyCheck.class);
 
-  private final String address;
+  private final EPortAddressType address;
   private final int port;
 
-  public NPIdstoreHealthcheck(
-    final String inAddress,
+  public NPIdstoreReadyCheck(
+    final EPortAddressType inAddress,
     final int inPort)
   {
     this.address = inAddress;
@@ -46,37 +47,42 @@ public final class NPIdstoreHealthcheck implements EReadyCheckType
   public boolean isReady()
     throws Exception
   {
-    final var client =
-      HttpClient.newHttpClient();
+    try {
+      final var client =
+        HttpClient.newHttpClient();
 
-    final var endpoint =
-      URI.create(
-        String.format(
-          "http://%s:%d/health",
-          this.address,
-          Integer.valueOf(this.port)
-        )
+      final var endpoint =
+        URI.create(
+          String.format(
+            "http://%s:%d/health",
+            this.address.targetAddress(),
+            Integer.valueOf(this.port)
+          )
+        );
+
+      LOG.debug("Checking {}", endpoint);
+
+      final var request =
+        HttpRequest.newBuilder(endpoint)
+          .build();
+
+      final var response =
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+      final var body =
+        response.body()
+          .trim();
+
+      LOG.debug(
+        "Server said: {} {}",
+        Integer.valueOf(response.statusCode()),
+        body
       );
 
-    LOG.debug("Checking {}", endpoint);
-
-    final var request =
-      HttpRequest.newBuilder(endpoint)
-        .build();
-
-    final var response =
-      client.send(request, HttpResponse.BodyHandlers.ofString());
-
-    final var body =
-      response.body()
-        .trim();
-
-    LOG.debug(
-      "Server said: {} {}",
-      Integer.valueOf(response.statusCode()),
-      body
-    );
-
-    return response.statusCode() == 200 && "OK".equals(body);
+      return response.statusCode() == 200 && "OK".equals(body);
+    } catch (final Exception e) {
+      LOG.debug("Ready check failed: ", e);
+      throw e;
+    }
   }
 }

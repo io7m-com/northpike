@@ -137,7 +137,7 @@ public final class NPUserClientTest
     throws Exception
   {
     SERVER_FIXTURE =
-      NPFixtures.server(containers);
+      NPFixtures.server(NPFixtures.pod(containers));
     IDSTORE_FIXTURE =
       SERVER_FIXTURE.idstore();
   }

@@ -17,6 +17,14 @@
 
 package com.io7m.northpike.tests.agent.workexec;
 
+import com.io7m.ervilla.api.EContainerSpec;
+import com.io7m.ervilla.api.EContainerSupervisorType;
+import com.io7m.ervilla.api.EContainerType;
+import com.io7m.ervilla.api.EReadyCheckTCPSocket;
+import com.io7m.ervilla.api.EVolumeMount;
+import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
+import com.io7m.ervilla.test_extension.ErvillaConfiguration;
+import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.agent.locks.NPAgentResourceLockService;
 import com.io7m.northpike.agent.locks.NPAgentResourceLockServiceType;
@@ -36,21 +44,27 @@ import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.agents.NPAgentLocalName;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
+import com.io7m.northpike.tests.NPTestProperties;
 import com.io7m.northpike.tools.maven.NPTMFactory3;
-import com.io7m.quixote.core.QWebServerAddresses;
-import com.io7m.quixote.core.QWebServerType;
-import com.io7m.quixote.core.QWebServers;
+import com.io7m.quixote.core.QWebConfiguration;
+import com.io7m.quixote.core.QWebResponseRecorded;
+import com.io7m.quixote.core.QWebServerConfiguration;
+import com.io7m.quixote.xml.QWebConfigurationXML;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.verona.core.Version;
-import org.junit.jupiter.api.AfterEach;
+import com.io7m.zelador.test_extension.ZeladorExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -59,14 +73,20 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Flow;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.Pattern;
 
 import static com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult.FAILURE;
 import static com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult.SUCCESS;
 import static com.io7m.northpike.tests.NPTestProperties.WORKEXEC_DISTRIBUTION;
+import static com.io7m.northpike.tests.containers.NPFixtures.pod;
+import static com.io7m.northpike.tests.containers.NPFixtures.webServerPort;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+@ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
+@ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
 public final class NPWorkExecutorsPodmanTest
   implements Flow.Subscriber<NPAWorkEvent>
 {
@@ -75,13 +95,17 @@ public final class NPWorkExecutorsPodmanTest
 
   private NPWorkExecutorsPodman executors;
   private RPServiceDirectory services;
-  private QWebServerType server;
   private LinkedBlockingQueue<NPAWorkEvent> events;
+  private Path directory;
 
   @BeforeEach
-  public void setup()
+  public void setup(
+    final @TempDir Path dataDirectory)
     throws Exception
   {
+    this.directory =
+      dataDirectory.toAbsolutePath();
+
     this.services =
       new RPServiceDirectory();
     this.executors =
@@ -93,25 +117,11 @@ public final class NPWorkExecutorsPodmanTest
       NPAgentResourceLockServiceType.class,
       NPAgentResourceLockService.create()
     );
-
-    final var publicIp =
-      QWebServerAddresses.findPublicIP();
-
-    assumeTrue(publicIp.isPresent());
-
-    this.server =
-      QWebServers.createServerForSpecific(publicIp.orElseThrow(), 20000);
-  }
-
-  @AfterEach
-  public void tearDown()
-    throws Exception
-  {
-    this.server.close();
   }
 
   @Test
   public void testEnvironment(
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers,
     final @TempDir Path workDirectory,
     final @TempDir Path tmpDirectory)
     throws Exception
@@ -122,7 +132,7 @@ public final class NPWorkExecutorsPodmanTest
            this.executors.createExecutor(
              this.services,
              NPAgentLocalName.of("agent"),
-             standardConfiguration(workDirectory, tmpDirectory))) {
+             standardConfiguration(containers, workDirectory, tmpDirectory))) {
       final var env = executor.environment();
       assertEquals("northpike", env.get("HOSTNAME"));
       env.forEach((key, val) -> LOG.debug("Environment: {} {}", key, val));
@@ -131,6 +141,7 @@ public final class NPWorkExecutorsPodmanTest
 
   @Test
   public void testProperties(
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers,
     final @TempDir Path workDirectory,
     final @TempDir Path tmpDirectory)
     throws Exception
@@ -141,7 +152,7 @@ public final class NPWorkExecutorsPodmanTest
            this.executors.createExecutor(
              this.services,
              NPAgentLocalName.of("agent"),
-             standardConfiguration(workDirectory, tmpDirectory))) {
+             standardConfiguration(containers, workDirectory, tmpDirectory))) {
       final var env = executor.systemProperties();
       assertEquals("65.0", env.get("java.class.version"));
       env.forEach((key, val) -> LOG.debug("Property: {} {}", key, val));
@@ -150,143 +161,231 @@ public final class NPWorkExecutorsPodmanTest
 
   @Test
   public void testExecuteArchive404(
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers,
     final @TempDir Path workDirectory,
     final @TempDir Path tmpDirectory)
     throws Exception
   {
     assumeTrue(this.executors.isSupported());
 
-    this.server.addResponse()
-      .forPath("/archive.tar.gz")
-      .withStatus(404);
-
-    this.server.addResponse()
-      .forPath("/archive.tar.gz.sha512")
-      .withStatus(404);
-
-    try (var executor =
-           this.executors.createExecutor(
-             this.services,
-             NPAgentLocalName.of("agent"),
-             standardConfiguration(workDirectory, tmpDirectory))) {
-
-      final var workItem =
-        new NPAgentWorkItem(
-          new NPWorkItemIdentifier(
-            new NPAssignmentExecutionID(UUID.randomUUID()),
-            new RDottedName("x")
+    final var serverConfiguration =
+      new QWebConfiguration(
+        new QWebServerConfiguration(
+          "::",
+          webServerPort(),
+          false
+        ),
+        List.of(
+          new QWebResponseRecorded(
+            Pattern.compile(".*", CASE_INSENSITIVE),
+            Pattern.compile("/archive\\.tar\\.gz", CASE_INSENSITIVE),
+            404,
+            Map.of(),
+            new byte[0]
           ),
-          Map.of(),
-          Set.of(),
-          new NPToolExecutionEvaluated(
-            new NPToolReference(
-              NPToolReferenceName.of("t"),
-              NPToolName.of("u"),
-              Version.of(1, 0, 0)
+          new QWebResponseRecorded(
+            Pattern.compile(".*", CASE_INSENSITIVE),
+            Pattern.compile("/archive\\.tar\\.gz.sha512", CASE_INSENSITIVE),
+            404,
+            Map.of(),
+            new byte[0]
+          )
+        )
+      );
+
+    try (var ignored =
+           this.quixote(containers, serverConfiguration)) {
+
+      try (var executor =
+             this.executors.createExecutor(
+               this.services,
+               NPAgentLocalName.of("agent"),
+               standardConfiguration(containers, workDirectory, tmpDirectory))) {
+
+        final var workItem =
+          new NPAgentWorkItem(
+            new NPWorkItemIdentifier(
+              new NPAssignmentExecutionID(UUID.randomUUID()),
+              new RDottedName("x")
             ),
             Map.of(),
-            List.of()
-          ),
-          new NPArchiveLinks(
-            this.server.uri().resolve("archive.tar.gz"),
-            this.server.uri().resolve("archive.tar.gz.sha512")
-          ),
-          Set.of(),
-          NPFailureIgnore.IGNORE_FAILURE,
-          NPCleanImmediately.CLEAN_IMMEDIATELY
-        );
+            Set.of(),
+            new NPToolExecutionEvaluated(
+              new NPToolReference(
+                NPToolReferenceName.of("t"),
+                NPToolName.of("u"),
+                Version.of(1, 0, 0)
+              ),
+              Map.of(),
+              List.of()
+            ),
+            new NPArchiveLinks(
+              URI.create(
+                "http://localhost:%d/archive.tar.gz"
+                  .formatted(Integer.valueOf(webServerPort()))),
+              URI.create(
+                "http://localhost:%d/archive.tar.gz.sha512"
+                  .formatted(Integer.valueOf(webServerPort())))
+            ),
+            Set.of(),
+            NPFailureIgnore.IGNORE_FAILURE,
+            NPCleanImmediately.CLEAN_IMMEDIATELY
+          );
 
-      try (var execution = executor.createExecution(workItem)) {
-        execution.events().subscribe(this);
-        final var result = execution.execute();
-        assertEquals(FAILURE, result);
+        try (var execution = executor.createExecution(workItem)) {
+          execution.events().subscribe(this);
+          final var result = execution.execute();
+          assertEquals(FAILURE, result);
+        }
       }
+
+      /*
+       * A 404 error was logged.
+       */
+
+      assertTrue(
+        this.events.stream()
+          .anyMatch(event -> {
+            return Objects.equals(event.attributes().get("Status"), "404");
+          })
+      );
     }
+  }
 
-    /*
-     * A 404 error was logged.
-     */
+  private EContainerType quixote(
+    final EContainerSupervisorType containers,
+    final QWebConfiguration configuration)
+    throws Exception
+  {
+    final var volumeMount =
+      new EVolumeMount(this.directory, "/quixote/data");
 
-    assertTrue(
-      this.events.stream()
-        .anyMatch(event -> {
-          return Objects.equals(event.attributes().get("Status"), "404");
-        })
+    final var configFile =
+      this.directory.resolve("config.xml");
+
+    QWebConfigurationXML.serialize(configFile, configuration);
+
+    LOG.info("Configuration file: {}", configFile);
+
+    final var spec =
+      new EContainerSpec(
+      "quay.io",
+      "io7mcom/quixote",
+      NPTestProperties.QUIXOTE_VERSION,
+      Optional.empty(),
+      List.of(),
+      Map.of(),
+      List.of(
+        "/quixote/data/config.xml",
+        "/quixote/data/output.bin"
+      ),
+      List.of(volumeMount),
+      new EReadyCheckTCPSocket("::", webServerPort()),
+      Duration.of(250L, ChronoUnit.MILLIS)
     );
+
+    return pod(containers).start(spec);
   }
 
   @Test
   public void testExecuteTrivial(
+    final @ErvillaCloseAfterSuite EContainerSupervisorType containers,
     final @TempDir Path workDirectory,
     final @TempDir Path tmpDirectory)
     throws Exception
   {
     assumeTrue(this.executors.isSupported());
 
-    this.server.addResponse()
-      .forPath("/archive.tar.gz")
-      .withStatus(200)
-      .withFixedData(resource("trivial.tar.gz"));
-
-    this.server.addResponse()
-      .forPath("/archive.tar.gz.sha512")
-      .withStatus(200)
-      .withFixedData(resource("trivial.tar.gz.sha512"));
-
-    try (var executor =
-           this.executors.createExecutor(
-             this.services,
-             NPAgentLocalName.of("agent"),
-             standardConfiguration(workDirectory, tmpDirectory))) {
-
-      final var toolReference =
-        new NPToolReference(
-          NPToolReferenceName.of("maven"),
-          new NPTMFactory3().toolName(),
-          new NPTMFactory3().toolVersions().lower()
-        );
-
-      final var workItem =
-        new NPAgentWorkItem(
-          new NPWorkItemIdentifier(
-            new NPAssignmentExecutionID(UUID.randomUUID()),
-            new RDottedName("x")
+    final var serverConfiguration =
+      new QWebConfiguration(
+        new QWebServerConfiguration(
+          "::",
+          webServerPort(),
+          false
+        ),
+        List.of(
+          new QWebResponseRecorded(
+            Pattern.compile(".*", CASE_INSENSITIVE),
+            Pattern.compile("/archive\\.tar\\.gz", CASE_INSENSITIVE),
+            200,
+            Map.of(),
+            resource("trivial.tar.gz")
           ),
-          Map.of(),
-          Set.of(toolReference),
-          new NPToolExecutionEvaluated(
-            toolReference,
-            Map.of(
-              "JAVA_HOME", "/opt/java/openjdk"
+          new QWebResponseRecorded(
+            Pattern.compile(".*", CASE_INSENSITIVE),
+            Pattern.compile("/archive\\.tar\\.gz.sha512", CASE_INSENSITIVE),
+            200,
+            Map.of(),
+            resource("trivial.tar.gz.sha512")
+          )
+        )
+      );
+
+    try (var ignored =
+           this.quixote(containers, serverConfiguration)) {
+
+      try (var executor =
+             this.executors.createExecutor(
+               this.services,
+               NPAgentLocalName.of("agent"),
+               standardConfiguration(containers, workDirectory, tmpDirectory))) {
+
+        final var toolReference =
+          new NPToolReference(
+            NPToolReferenceName.of("maven"),
+            new NPTMFactory3().toolName(),
+            new NPTMFactory3().toolVersions().lower()
+          );
+
+        final var workItem =
+          new NPAgentWorkItem(
+            new NPWorkItemIdentifier(
+              new NPAssignmentExecutionID(UUID.randomUUID()),
+              new RDottedName("x")
             ),
-            List.of("clean")
-          ),
-          new NPArchiveLinks(
-            this.server.uri().resolve("archive.tar.gz"),
-            this.server.uri().resolve("archive.tar.gz.sha512")
-          ),
-          Set.of(),
-          NPFailureIgnore.IGNORE_FAILURE,
-          NPCleanImmediately.CLEAN_IMMEDIATELY
-        );
+            Map.of(),
+            Set.of(toolReference),
+            new NPToolExecutionEvaluated(
+              toolReference,
+              Map.of(
+                "JAVA_HOME", "/opt/java/openjdk"
+              ),
+              List.of("clean")
+            ),
+            new NPArchiveLinks(
+              URI.create(
+                "http://localhost:%d/archive.tar.gz"
+                  .formatted(Integer.valueOf(webServerPort()))),
+              URI.create(
+                "http://localhost:%d/archive.tar.gz.sha512"
+                  .formatted(Integer.valueOf(webServerPort())))
+            ),
+            Set.of(),
+            NPFailureIgnore.IGNORE_FAILURE,
+            NPCleanImmediately.CLEAN_IMMEDIATELY
+          );
 
-      try (var execution = executor.createExecution(workItem)) {
-        execution.events().subscribe(this);
-        final var result = execution.execute();
-        assertEquals(SUCCESS, result);
+        try (var execution = executor.createExecution(workItem)) {
+          execution.events().subscribe(this);
+          final var result = execution.execute();
+          assertEquals(SUCCESS, result);
+        }
       }
     }
   }
 
   private static NPAWorkExecutorConfiguration standardConfiguration(
+    final EContainerSupervisorType supervisor,
     final Path workDirectory,
     final Path tmpDirectory)
+    throws Exception
   {
     return NPAWorkExecutorConfiguration.builder()
       .setWorkDirectory(workDirectory)
       .setTemporaryDirectory(tmpDirectory)
       .setWorkExecDistributionDirectory(WORKEXEC_DISTRIBUTION)
       .setExecutorType(NPAWorkExecName.of("workexec.podman"))
+      .setContainerPod(pod(supervisor).name())
       .setContainerImage(new NPAWorkExecutorContainerImage(
         "docker.io",
         "eclipse-temurin",

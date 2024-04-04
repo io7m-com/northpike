@@ -17,11 +17,10 @@
 
 package com.io7m.northpike.tests.containers;
 
+import com.io7m.ervilla.api.EContainerFactoryType;
 import com.io7m.ervilla.api.EContainerSpec;
-import com.io7m.ervilla.api.EContainerSupervisorType;
 import com.io7m.ervilla.api.EContainerType;
-import com.io7m.ervilla.api.EPortProtocol;
-import com.io7m.ervilla.api.EPortPublish;
+import com.io7m.ervilla.api.EPortAddressType;
 import com.io7m.ervilla.api.EVolumeMount;
 import com.io7m.idstore.admin_client.IdAClients;
 import com.io7m.idstore.admin_client.api.IdAClientConfiguration;
@@ -72,6 +71,7 @@ public final class NPIdstoreFixture
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(NPIdstoreFixture.class);
+
   public static final String PASSWORD = "12345678";
 
   private final EContainerType serverContainer;
@@ -79,7 +79,6 @@ public final class NPIdstoreFixture
   private final IdUser userWithLogin;
   private final IdUser userWithoutLogin;
   private final NPPostgresFixture postgres;
-  private final String address;
   private final int adminAPIPort;
   private final int userAPIPort;
   private final int userViewPort;
@@ -90,7 +89,6 @@ public final class NPIdstoreFixture
     final IdUser inUserWithAdmin,
     final IdUser inUserWithLogin,
     final IdUser inUserWithoutLogin,
-    final String inAddress,
     final int inAdminAPIPort,
     final int inUserAPIPort,
     final int inUserViewPort)
@@ -106,8 +104,6 @@ public final class NPIdstoreFixture
       Objects.requireNonNull(inUserWithLogin, "user");
     this.userWithoutLogin =
       Objects.requireNonNull(inUserWithoutLogin, "inUserWithoutLogin");
-    this.address =
-      Objects.requireNonNull(inAddress, "primaryIp");
 
     this.adminAPIPort = inAdminAPIPort;
     this.userAPIPort = inUserAPIPort;
@@ -120,10 +116,9 @@ public final class NPIdstoreFixture
   }
 
   public static NPIdstoreFixture create(
-    final EContainerSupervisorType supervisor,
+    final EContainerFactoryType supervisor,
     final NPPostgresFixture postgres,
     final Path baseDirectory,
-    final String primaryIp,
     final int adminAPIPort,
     final int userAPIPort,
     final int userViewPort)
@@ -140,9 +135,9 @@ public final class NPIdstoreFixture
       );
 
     LOG.info("Creating idstore");
-    LOG.info("  Admin API:      {}:{}", primaryIp, adminAPIPort);
-    LOG.info("  User API:       {}:{}", primaryIp, userAPIPort);
-    LOG.info("  User View:      {}:{}", primaryIp, userViewPort);
+    LOG.info("  Admin API:      {}:{}", "[::]", adminAPIPort);
+    LOG.info("  User API:       {}:{}", "[::]", userAPIPort);
+    LOG.info("  User View:      {}:{}", "[::]", userViewPort);
     LOG.info("  Admin name:     {}", adminName);
     LOG.info("  Admin password: {}", PASSWORD);
 
@@ -154,7 +149,6 @@ public final class NPIdstoreFixture
     final var idstoreConfiguration =
       createServerConfiguration(
         postgres,
-        primaryIp,
         adminAPIPort,
         userAPIPort,
         userViewPort
@@ -170,6 +164,24 @@ public final class NPIdstoreFixture
         idstoreDirectory.resolve("server.xml"),
         idstoreConfiguration
       );
+
+    {
+      final var r =
+        postgres.container()
+          .executeAndWait(
+            List.of(
+              "dropdb",
+              "--if-exists",
+              "-f",
+              "-w",
+              "-U",
+              postgres.databaseOwner(),
+              "idstore"
+            ),
+            10L,
+            TimeUnit.SECONDS
+          );
+    }
 
     final var r =
       postgres.container()
@@ -196,30 +208,12 @@ public final class NPIdstoreFixture
           .addVolumeMount(
             new EVolumeMount(idstoreDirectory, "/idstore/etc")
           )
-          .addPublishPort(new EPortPublish(
-            Optional.of("[::]"),
-            userAPIPort,
-            userAPIPort,
-            EPortProtocol.TCP
-          ))
-          .addPublishPort(new EPortPublish(
-            Optional.of("[::]"),
-            userViewPort,
-            userViewPort,
-            EPortProtocol.TCP
-          ))
-          .addPublishPort(new EPortPublish(
-            Optional.of("[::]"),
-            adminAPIPort,
-            adminAPIPort,
-            EPortProtocol.TCP
-          ))
           .addArgument("server")
           .addArgument("--verbose")
           .addArgument("debug")
           .addArgument("--configuration")
           .addArgument("/idstore/etc/server.xml")
-          .setReadyCheck(new NPIdstoreHealthcheck("[::]", adminAPIPort))
+          .setReadyCheck(new NPIdstoreReadyCheck(new EPortAddressType.All(), adminAPIPort))
           .build()
       );
 
@@ -227,7 +221,6 @@ public final class NPIdstoreFixture
 
     final var userWithAdmin =
       createUser(
-        primaryIp,
         adminName,
         PASSWORD,
         adminAPIPort,
@@ -237,7 +230,6 @@ public final class NPIdstoreFixture
 
     final var userWithLogin =
       createUser(
-        primaryIp,
         adminName,
         PASSWORD,
         adminAPIPort,
@@ -247,7 +239,6 @@ public final class NPIdstoreFixture
 
     final var userWithoutLogin =
       createUser(
-        primaryIp,
         adminName,
         PASSWORD,
         adminAPIPort,
@@ -261,7 +252,6 @@ public final class NPIdstoreFixture
       userWithAdmin,
       userWithLogin,
       userWithoutLogin,
-      primaryIp,
       adminAPIPort,
       userAPIPort,
       userViewPort
@@ -305,7 +295,6 @@ public final class NPIdstoreFixture
 
   private static IdServerConfigurationFile createServerConfiguration(
     final NPPostgresFixture postgres,
-    final String primaryIp,
     final int adminAPIPort,
     final int userAPIPort,
     final int userViewPort)
@@ -344,7 +333,7 @@ public final class NPIdstoreFixture
         PASSWORD,
         PASSWORD,
         empty(),
-        primaryIp,
+        "[::]",
         postgres.port(),
         "idstore",
         true,
@@ -372,7 +361,6 @@ public final class NPIdstoreFixture
   }
 
   private static IdUser createUser(
-    final String primaryIp,
     final String adminName,
     final String adminPassword,
     final int adminAPIPort,
@@ -386,7 +374,7 @@ public final class NPIdstoreFixture
              new IdAClientConfiguration(Locale.ROOT))) {
 
       final var address =
-        "http://%s:%d/".formatted(primaryIp, Integer.valueOf(adminAPIPort));
+        "http://%s:%d/".formatted("[::]", Integer.valueOf(adminAPIPort));
 
       client.loginOrElseThrow(
         new IdAClientCredentials(
@@ -412,11 +400,6 @@ public final class NPIdstoreFixture
         IdAClientException::ofError
       )).user();
     }
-  }
-
-  public String address()
-  {
-    return this.address;
   }
 
   public int adminAPIPort()

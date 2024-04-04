@@ -86,16 +86,16 @@
   </modules>
 
   <properties>
-    <!-- Configuration -->
+    <!-- Configuration. -->
     <io7m.api.previousVersion>0.0.1-SNAPSHOT</io7m.api.previousVersion>
     <io7m.java.targetJavaVersion>21</io7m.java.targetJavaVersion>
 
-    <!-- io7m Dependencies -->
+    <!-- io7m dependencies. -->
     <com.io7m.anethum.version>1.1.0</com.io7m.anethum.version>
     <com.io7m.blackthorne.version>2.0.0</com.io7m.blackthorne.version>
     <com.io7m.canonmill.version>2.0.1</com.io7m.canonmill.version>
     <com.io7m.cedarbridge.version>1.2.0</com.io7m.cedarbridge.version>
-    <com.io7m.ervilla.version>0.0.5</com.io7m.ervilla.version>
+    <com.io7m.ervilla.version>1.0.0-beta0002</com.io7m.ervilla.version>
     <com.io7m.hibiscus.version>0.0.8</com.io7m.hibiscus.version>
     <com.io7m.idstore.version>1.1.0</com.io7m.idstore.version>
     <com.io7m.jade.version>1.0.2</com.io7m.jade.version>
@@ -109,18 +109,18 @@
     <com.io7m.medrina.version>1.0.0-beta0003</com.io7m.medrina.version>
     <com.io7m.percentpass.version>0.0.3</com.io7m.percentpass.version>
     <com.io7m.quarrel.version>1.6.0</com.io7m.quarrel.version>
-    <com.io7m.quixote.version>1.1.0</com.io7m.quixote.version>
+    <com.io7m.quixote.version>1.2.0</com.io7m.quixote.version>
     <com.io7m.seltzer.version>1.0.0</com.io7m.seltzer.version>
     <com.io7m.streamtime.version>0.0.1</com.io7m.streamtime.version>
     <com.io7m.tabla.version>0.0.2</com.io7m.tabla.version>
-    <com.io7m.tavella.version>0.0.1</com.io7m.tavella.version>
+    <com.io7m.tavella.version>0.0.2</com.io7m.tavella.version>
     <com.io7m.trasco.version>1.1.0</com.io7m.trasco.version>
     <com.io7m.verdant.version>1.0.0</com.io7m.verdant.version>
     <com.io7m.verona.version>1.0.0</com.io7m.verona.version>
     <com.io7m.xstructural.version>1.8.0</com.io7m.xstructural.version>
     <com.io7m.zelador.version>0.0.1</com.io7m.zelador.version>
 
-    <!-- Third party dependencies -->
+    <!-- Third-party dependencies. -->
     <containers.idstore.version>${com.io7m.idstore.version}</containers.idstore.version>
     <containers.postgresql.version>15.2</containers.postgresql.version>
     <helidon.version>4.0.4</helidon.version>
@@ -720,6 +720,11 @@
       <dependency>
         <groupId>com.io7m.quixote</groupId>
         <artifactId>com.io7m.quixote.core</artifactId>
+        <version>${com.io7m.quixote.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.quixote</groupId>
+        <artifactId>com.io7m.quixote.xml</artifactId>
         <version>${com.io7m.quixote.version}</version>
       </dependency>
       <dependency>

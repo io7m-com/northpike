@@ -26,6 +26,7 @@ public final class NPTestProperties
   public static final Path WORKEXEC_DISTRIBUTION;
   public static final String POSTGRESQL_VERSION;
   public static final String IDSTORE_VERSION;
+  public static final String QUIXOTE_VERSION;
 
   static  {
     final var properties = new Properties();
@@ -45,6 +46,8 @@ public final class NPTestProperties
       properties.getProperty("containers.postgresql.version");
     IDSTORE_VERSION =
       properties.getProperty("containers.idstore.version");
+    QUIXOTE_VERSION =
+      properties.getProperty("com.io7m.quixote.version");
   }
 
   private NPTestProperties()

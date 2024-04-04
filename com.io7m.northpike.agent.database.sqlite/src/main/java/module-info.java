@@ -15,7 +15,6 @@
  */
 
 import com.io7m.northpike.agent.database.api.NPAgentDatabaseFactoryType;
-import com.io7m.northpike.agent.database.sqlite.internal.NPASAssignmentLogList;
 import com.io7m.northpike.agent.database.sqlite.internal.NPASQueryProviderType;
 
 /**

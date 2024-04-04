@@ -86,6 +86,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -108,6 +109,7 @@ import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @Timeout(value = 10L, unit = TimeUnit.SECONDS)
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
@@ -157,10 +159,10 @@ public final class NPAssignmentTaskTest
     throws Exception
   {
     DATABASE_FIXTURE =
-      NPFixtures.database(containers);
+      NPFixtures.database(NPFixtures.pod(containers));
     ASSIGNMENT_FIXTURE =
       NPAssignmentFixture.create(
-        NPFixtures.idstore(containers),
+        NPFixtures.idstore(NPFixtures.pod(containers)),
         DATABASE_FIXTURE,
         reposDirectory
       );
@@ -309,7 +311,7 @@ public final class NPAssignmentTaskTest
     final NPAgentID agent,
     final Class<? extends NPAssignmentExecutionStateType> expected)
   {
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
         .linksForArchive(any())
     ).thenReturn(
@@ -319,7 +321,7 @@ public final class NPAssignmentTaskTest
       )
     );
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
@@ -329,14 +331,14 @@ public final class NPAssignmentTaskTest
       )
     );
 
-    Mockito.when(
+    when(
       Boolean.valueOf(
         ASSIGNMENT_FIXTURE.mockAgentService()
           .offerWorkItem(any(), any())
       )
     ).thenReturn(TRUE);
 
-    Mockito.when(
+    when(
       Boolean.valueOf(
         ASSIGNMENT_FIXTURE.mockAgentService()
           .sendWorkItem(any(), any())
@@ -401,6 +403,10 @@ public final class NPAssignmentTaskTest
     throws Exception
   {
     ASSIGNMENT_FIXTURE.reset(closeables);
+
+    when(ASSIGNMENT_FIXTURE.mockRepositoryService().checkOne(any()))
+      .thenReturn(CompletableFuture.completedFuture(null));
+
     this.running = new AtomicBoolean(true);
     this.executor = Executors.newScheduledThreadPool(1);
   }
@@ -426,7 +432,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
         ALLOW_UNSIGNED_COMMITS, createPlanEmptyTask());
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
         .linksForArchive(any())
     ).thenReturn(
@@ -447,22 +453,54 @@ public final class NPAssignmentTaskTest
       task.run();
     }
 
-    assertInstanceOf(
+    assertEventStatuses(
       NPAssignmentExecutionStateRequested.class,
-      assertEventStatusChanged()
-    );
-    assertInstanceOf(
       NPAssignmentExecutionStateCreated.class,
-      assertEventStatusChanged()
-    );
-    assertInstanceOf(
       NPAssignmentExecutionStateRunning.class,
-      assertEventStatusChanged()
+      NPAssignmentExecutionStateSucceeded.class
     );
-    assertInstanceOf(
-      NPAssignmentExecutionStateSucceeded.class,
-      assertEventStatusChanged()
-    );
+  }
+
+  @SafeVarargs
+  private static void assertEventStatuses(
+    final Class<? extends NPAssignmentExecutionStateType>... expectedStates)
+  {
+    final var actualStates =
+      List.copyOf(ASSIGNMENT_FIXTURE.events())
+        .stream()
+        .map(NPAssignmentExecutionStatusChanged.class::cast)
+        .map(NPAssignmentExecutionStatusChanged::execution)
+        .map(NPAssignmentExecutionStateType::getClass)
+        .toList();
+
+    final var expectedStateList =
+      List.of(expectedStates);
+
+    final var count =
+      Math.max(actualStates.size(), expectedStateList.size());
+
+    for (int index = 0; index < count; ++index) {
+      Class<?> actual = null;
+      Class<?> expected = null;
+      if (index < actualStates.size()) {
+        actual = actualStates.get(index);
+      }
+      if (index < expectedStateList.size()) {
+        expected = expectedStateList.get(index);
+      }
+
+      final var line =
+        String.format(
+          "[%d] %-48s = %-48s",
+          Integer.valueOf(index),
+          expected.getSimpleName(),
+          actual.getSimpleName()
+        );
+
+      LOG.debug("{}", line);
+    }
+
+    assertEquals(List.of(expectedStates), actualStates);
   }
 
   /**
@@ -496,7 +534,7 @@ public final class NPAssignmentTaskTest
     ASSIGNMENT_FIXTURE.transaction()
       .commit();
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
         .linksForArchive(any())
     ).thenReturn(
@@ -506,7 +544,7 @@ public final class NPAssignmentTaskTest
       )
     );
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
@@ -642,7 +680,7 @@ public final class NPAssignmentTaskTest
     ASSIGNMENT_FIXTURE.transaction()
       .commit();
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
         .linksForArchive(any())
     ).thenReturn(
@@ -652,7 +690,7 @@ public final class NPAssignmentTaskTest
       )
     );
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
@@ -790,7 +828,7 @@ public final class NPAssignmentTaskTest
     ASSIGNMENT_FIXTURE.transaction()
       .commit();
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
         .linksForArchive(any())
     ).thenReturn(
@@ -800,7 +838,7 @@ public final class NPAssignmentTaskTest
       )
     );
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
@@ -875,7 +913,7 @@ public final class NPAssignmentTaskTest
     ASSIGNMENT_FIXTURE.transaction()
       .commit();
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
         .linksForArchive(any())
     ).thenReturn(
@@ -885,7 +923,7 @@ public final class NPAssignmentTaskTest
       )
     );
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
@@ -960,7 +998,7 @@ public final class NPAssignmentTaskTest
     ASSIGNMENT_FIXTURE.transaction()
       .commit();
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
         .linksForArchive(any())
     ).thenReturn(
@@ -970,7 +1008,7 @@ public final class NPAssignmentTaskTest
       )
     );
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
@@ -980,14 +1018,14 @@ public final class NPAssignmentTaskTest
       )
     );
 
-    Mockito.when(
+    when(
       Boolean.valueOf(
         ASSIGNMENT_FIXTURE.mockAgentService()
           .offerWorkItem(any(), any())
       )
     ).thenReturn(TRUE);
 
-    Mockito.when(
+    when(
       Boolean.valueOf(
         ASSIGNMENT_FIXTURE.mockAgentService()
           .sendWorkItem(any(), any())
@@ -1052,7 +1090,7 @@ public final class NPAssignmentTaskTest
     ASSIGNMENT_FIXTURE.transaction()
       .commit();
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
         .linksForArchive(any())
     ).thenReturn(
@@ -1062,7 +1100,7 @@ public final class NPAssignmentTaskTest
       )
     );
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
@@ -1072,14 +1110,14 @@ public final class NPAssignmentTaskTest
       )
     );
 
-    Mockito.when(
+    when(
       Boolean.valueOf(
         ASSIGNMENT_FIXTURE.mockAgentService()
           .offerWorkItem(any(), any())
       )
     ).thenReturn(TRUE);
 
-    Mockito.when(
+    when(
       Boolean.valueOf(
         ASSIGNMENT_FIXTURE.mockAgentService()
           .sendWorkItem(any(), any())
@@ -1143,7 +1181,7 @@ public final class NPAssignmentTaskTest
     ASSIGNMENT_FIXTURE.transaction()
       .commit();
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
         .linksForArchive(any())
     ).thenReturn(
@@ -1153,7 +1191,7 @@ public final class NPAssignmentTaskTest
       )
     );
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
@@ -1163,7 +1201,7 @@ public final class NPAssignmentTaskTest
       )
     );
 
-    Mockito.when(
+    when(
       Boolean.valueOf(
         ASSIGNMENT_FIXTURE.mockAgentService()
           .offerWorkItem(any(), any())
@@ -1471,7 +1509,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
         REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY, createPlanEmptyTask());
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockRepositoryService()
         .verifyCommitSignature(any(), any())
     ).thenReturn(CompletableFuture.failedFuture(
@@ -1515,7 +1553,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
         REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS, createPlanEmptyTask());
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockRepositoryService()
         .verifyCommitSignature(any(), any())
     ).thenReturn(CompletableFuture.failedFuture(
@@ -1559,7 +1597,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
         REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS, createPlanEmptyTask());
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockRepositoryService()
         .verifyCommitSignature(any(), any())
     ).thenReturn(CompletableFuture.completedFuture(
@@ -1601,14 +1639,14 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
         REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY, createPlanEmptyTask());
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockRepositoryService()
         .verifyCommitSignature(any(), any())
     ).thenReturn(CompletableFuture.completedFuture(
       new NPFingerprint("a438a737c771787195cfc166f84351f72c918476")
     ));
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
         .linksForArchive(any())
     ).thenReturn(
@@ -1629,21 +1667,11 @@ public final class NPAssignmentTaskTest
       task.run();
     }
 
-    assertInstanceOf(
+    assertEventStatuses(
       NPAssignmentExecutionStateRequested.class,
-      assertEventStatusChanged()
-    );
-    assertInstanceOf(
       NPAssignmentExecutionStateCreated.class,
-      assertEventStatusChanged()
-    );
-    assertInstanceOf(
       NPAssignmentExecutionStateRunning.class,
-      assertEventStatusChanged()
-    );
-    assertInstanceOf(
-      NPAssignmentExecutionStateSucceeded.class,
-      assertEventStatusChanged()
+      NPAssignmentExecutionStateSucceeded.class
     );
   }
 
@@ -1678,14 +1706,14 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
         REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS, createPlanEmptyTask());
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockRepositoryService()
         .verifyCommitSignature(any(), any())
     ).thenReturn(CompletableFuture.completedFuture(
       new NPFingerprint("a438a737c771787195cfc166f84351f72c918476")
     ));
 
-    Mockito.when(
+    when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
         .linksForArchive(any())
     ).thenReturn(
@@ -1706,21 +1734,11 @@ public final class NPAssignmentTaskTest
       task.run();
     }
 
-    assertInstanceOf(
+    assertEventStatuses(
       NPAssignmentExecutionStateRequested.class,
-      assertEventStatusChanged()
-    );
-    assertInstanceOf(
       NPAssignmentExecutionStateCreated.class,
-      assertEventStatusChanged()
-    );
-    assertInstanceOf(
       NPAssignmentExecutionStateRunning.class,
-      assertEventStatusChanged()
-    );
-    assertInstanceOf(
-      NPAssignmentExecutionStateSucceeded.class,
-      assertEventStatusChanged()
+      NPAssignmentExecutionStateSucceeded.class
     );
   }
 

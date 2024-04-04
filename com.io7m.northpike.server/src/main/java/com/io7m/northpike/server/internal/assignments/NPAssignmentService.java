@@ -19,7 +19,7 @@ package com.io7m.northpike.server.internal.assignments;
 
 import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionsCancelAllType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.model.NPException;
@@ -271,7 +271,7 @@ public final class NPAssignmentService implements NPAssignmentServiceType
     try (var conn = this.database.openConnection(NORTHPIKE)) {
       try (var transaction = conn.openTransaction()) {
         final var updated =
-          transaction.queries(NPDatabaseQueriesAssignmentsType.ExecutionsCancelAllType.class)
+          transaction.queries(ExecutionsCancelAllType.class)
             .execute(NPDatabaseUnit.UNIT);
         LOG.info("Cancelled {} old assignment executions.", updated);
       }

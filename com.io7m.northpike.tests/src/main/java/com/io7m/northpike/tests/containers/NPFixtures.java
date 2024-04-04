@@ -17,16 +17,19 @@
 
 package com.io7m.northpike.tests.containers;
 
+import com.io7m.ervilla.api.EContainerPodType;
 import com.io7m.ervilla.api.EContainerSupervisorType;
+import com.io7m.ervilla.api.EPortAddressType;
+import com.io7m.ervilla.api.EPortProtocol;
+import com.io7m.ervilla.api.EPortPublish;
 import com.io7m.northpike.tests.server.assignments.NPAssignmentFixture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 public final class NPFixtures
 {
@@ -34,6 +37,8 @@ public final class NPFixtures
     LoggerFactory.getLogger(NPFixtures.class);
 
   private static final Path BASE_DIRECTORY;
+  private static final List<EPortPublish> PUBLICATION_PORTS;
+  private static EContainerPodType POD;
   private static NPAssignmentFixture ASSIGNMENT_FIXTURE;
   private static NPServerFixture SERVER_FIXTURE;
   private static NPDatabaseFixture DATABASE_FIXTURE;
@@ -46,6 +51,40 @@ public final class NPFixtures
     } catch (final IOException e) {
       throw new IllegalStateException(e);
     }
+
+    PUBLICATION_PORTS =
+      List.of(
+        new EPortPublish(
+          new EPortAddressType.All(),
+          webServerPort(),
+          webServerPort(),
+          EPortProtocol.TCP
+        ),
+        new EPortPublish(
+          new EPortAddressType.All(),
+          postgresPort(),
+          postgresPort(),
+          EPortProtocol.TCP
+        ),
+        new EPortPublish(
+          new EPortAddressType.All(),
+          idstoreAdminPort(),
+          idstoreAdminPort(),
+          EPortProtocol.TCP
+        ),
+        new EPortPublish(
+          new EPortAddressType.All(),
+          idstoreUserPort(),
+          idstoreUserPort(),
+          EPortProtocol.TCP
+        ),
+        new EPortPublish(
+          new EPortAddressType.All(),
+          idstoreUserViewPort(),
+          idstoreUserViewPort(),
+          EPortProtocol.TCP
+        )
+      );
   }
 
   private NPFixtures()
@@ -53,9 +92,14 @@ public final class NPFixtures
 
   }
 
+  public static int webServerPort()
+  {
+    return 20000;
+  }
+
   public static int postgresPort()
   {
-    return 15432;
+    return 5432;
   }
 
   public static int idstoreAdminPort()
@@ -73,26 +117,41 @@ public final class NPFixtures
     return 50002;
   }
 
-  public static String primaryIP()
+  public static int northpikeArchivePort()
   {
-    final var socket = new Socket();
-    try {
-      socket.connect(new InetSocketAddress("www.example.com", 80));
-    } catch (final IOException e) {
-      // Don't care
+    return 40002;
+  }
+
+  public static int northpikeUserPort()
+  {
+    return 40001;
+  }
+
+  public static int northpikeAgentAPIPort()
+  {
+    return 40000;
+  }
+
+  public static EContainerPodType pod(
+    final EContainerSupervisorType supervisor)
+    throws Exception
+  {
+    if (POD == null) {
+      POD = supervisor.createPod(PUBLICATION_PORTS);
+    } else {
+      LOG.info("Reusing pod {}.", POD.name());
     }
-    return socket.getLocalAddress().getHostAddress();
+    return POD;
   }
 
   public static NPDatabaseFixture database(
-    final EContainerSupervisorType supervisor)
+    final EContainerPodType containerFactory)
     throws Exception
   {
     if (DATABASE_FIXTURE == null) {
       DATABASE_FIXTURE =
         NPDatabaseFixture.create(
-          supervisor,
-          postgres(supervisor)
+          postgres(containerFactory)
         );
     } else {
       LOG.info("Reusing northpike database fixture.");
@@ -101,14 +160,13 @@ public final class NPFixtures
   }
 
   public static NPPostgresFixture postgres(
-    final EContainerSupervisorType supervisor)
+    final EContainerPodType containerFactory)
     throws Exception
   {
     if (POSTGRES_FIXTURE == null) {
       POSTGRES_FIXTURE =
         NPPostgresFixture.create(
-          supervisor,
-          primaryIP(),
+          containerFactory,
           postgresPort()
         );
     } else {
@@ -118,16 +176,15 @@ public final class NPFixtures
   }
 
   public static NPIdstoreFixture idstore(
-    final EContainerSupervisorType supervisor)
+    final EContainerPodType containerFactory)
     throws Exception
   {
     if (IDSTORE_FIXTURE == null) {
       IDSTORE_FIXTURE =
         NPIdstoreFixture.create(
-          supervisor,
-          postgres(supervisor),
+          containerFactory,
+          postgres(containerFactory),
           BASE_DIRECTORY,
-          primaryIP(),
           idstoreAdminPort(),
           idstoreUserPort(),
           idstoreUserViewPort()
@@ -139,16 +196,15 @@ public final class NPFixtures
   }
 
   public static NPServerFixture server(
-    final EContainerSupervisorType supervisor)
+    final EContainerPodType containerFactory)
     throws Exception
   {
     if (SERVER_FIXTURE == null) {
       SERVER_FIXTURE =
         NPServerFixture.create(
-          idstore(supervisor),
-          database(supervisor),
+          idstore(containerFactory),
+          database(containerFactory),
           BASE_DIRECTORY,
-          primaryIP(),
           northpikeAgentAPIPort(),
           northpikeUserPort(),
           northpikeArchivePort()
@@ -159,30 +215,15 @@ public final class NPFixtures
     return SERVER_FIXTURE;
   }
 
-  private static int northpikeArchivePort()
-  {
-    return 40002;
-  }
-
-  private static int northpikeUserPort()
-  {
-    return 40001;
-  }
-
-  private static int northpikeAgentAPIPort()
-  {
-    return 40000;
-  }
-
   public static NPAssignmentFixture assignment(
-    final EContainerSupervisorType containers)
+    final EContainerPodType containerFactory)
     throws Exception
   {
     if (ASSIGNMENT_FIXTURE == null) {
       ASSIGNMENT_FIXTURE =
         NPAssignmentFixture.create(
-          idstore(containers),
-          database(containers),
+          idstore(containerFactory),
+          database(containerFactory),
           BASE_DIRECTORY.resolve("repositories")
         );
     }
