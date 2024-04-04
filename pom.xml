@@ -124,22 +124,23 @@
     <containers.idstore.version>${com.io7m.idstore.version}</containers.idstore.version>
     <containers.postgresql.version>15.2</containers.postgresql.version>
     <helidon.version>4.0.4</helidon.version>
+    <io.github.classgraph.version>4.8.170</io.github.classgraph.version>
     <jackson.version>2.14.2</jackson.version>
     <javafx.version>20.0.1</javafx.version>
     <jaxb.version>4.0.0</jaxb.version>
     <jetty.version>12.0.1</jetty.version>
     <jgit.version>6.6.1.202309021850-r</jgit.version>
     <jooq.version>3.19.3</jooq.version>
-    <jqwik.version>1.8.2</jqwik.version>
-    <junit.version>5.10.1</junit.version>
-    <net.bytebuddy.version>1.14.11</net.bytebuddy.version>
+    <jqwik.version>1.8.4</jqwik.version>
+    <junit.version>5.10.2</junit.version>
+    <net.bytebuddy.version>1.14.13</net.bytebuddy.version>
     <opentelemetry.version>1.34.1</opentelemetry.version>
     <org.apache.tika.version>2.8.0</org.apache.tika.version>
     <org.bouncycastle.version>1.77</org.bouncycastle.version>
     <org.graalvm.version>24.0.0</org.graalvm.version>
     <org.jline.version>3.25.1</org.jline.version>
     <org.mockito.version>5.10.0</org.mockito.version>
-    <org.ow2.asm.version>9.6</org.ow2.asm.version>
+    <org.ow2.asm.version>9.7</org.ow2.asm.version>
     <slf4j.version>2.0.11</slf4j.version>
   </properties>
 
@@ -738,7 +739,7 @@
       <dependency>
         <groupId>io.github.classgraph</groupId>
         <artifactId>classgraph</artifactId>
-        <version>4.8.161</version>
+        <version>${io.github.classgraph.version}</version>
       </dependency>
 
       <!-- Mockito -->
