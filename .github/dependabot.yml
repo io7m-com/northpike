@@ -1,0 +1,18 @@
+version: 2
+
+updates:
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+    target-branch: "develop"
+
+    # Update all dependencies, but don't try to do any major updates.
+    groups:
+      all:
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major" ]
