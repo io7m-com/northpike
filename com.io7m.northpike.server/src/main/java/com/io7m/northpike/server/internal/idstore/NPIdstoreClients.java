@@ -20,11 +20,12 @@ import com.io7m.idstore.user_client.IdUClients;
 import com.io7m.idstore.user_client.api.IdUClientConfiguration;
 import com.io7m.idstore.user_client.api.IdUClientException;
 import com.io7m.idstore.user_client.api.IdUClientFactoryType;
-import com.io7m.idstore.user_client.api.IdUClientSynchronousType;
+import com.io7m.idstore.user_client.api.IdUClientType;
 import com.io7m.northpike.server.api.NPServerIdstoreConfiguration;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 
 import java.net.URI;
+import java.time.Clock;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -38,14 +39,18 @@ public final class NPIdstoreClients
   private final NPServerIdstoreConfiguration idstore;
   private final NPTelemetryServiceType telemetry;
   private final IdUClientFactoryType clients;
+  private final Clock clock;
   private final Locale locale;
 
   private NPIdstoreClients(
+    final Clock inClock,
     final Locale inLocale,
     final NPServerIdstoreConfiguration inIdstore,
     final NPTelemetryServiceType inTelemetry,
     final IdUClientFactoryType inClients)
   {
+    this.clock =
+      Objects.requireNonNull(inClock, "inClock");
     this.locale =
       Objects.requireNonNull(inLocale, "locale");
     this.idstore =
@@ -59,6 +64,7 @@ public final class NPIdstoreClients
   /**
    * Create an idstore client service.
    *
+   * @param inClock The clock
    * @param inLocale The locale
    * @param telemetry The telemetry service
    * @param idstore  The idstore server configuration
@@ -67,14 +73,17 @@ public final class NPIdstoreClients
    */
 
   public static NPIdstoreClientsType create(
+    final Clock inClock,
     final Locale inLocale,
     final NPTelemetryServiceType telemetry,
     final NPServerIdstoreConfiguration idstore)
   {
+    Objects.requireNonNull(inClock, "inClock");
     Objects.requireNonNull(inLocale, "inLocale");
     Objects.requireNonNull(idstore, "idstore");
 
     return new NPIdstoreClients(
+      inClock,
       inLocale,
       idstore,
       telemetry,
@@ -83,13 +92,15 @@ public final class NPIdstoreClients
   }
 
   @Override
-  public IdUClientSynchronousType createClient()
+  public IdUClientType createClient()
     throws IdUClientException
   {
-    return this.clients.openSynchronousClient(
+    return this.clients.create(
       new IdUClientConfiguration(
         this.telemetry.openTelemetry(),
-        this.locale)
+        this.clock,
+        this.locale
+      )
     );
   }
 

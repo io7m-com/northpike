@@ -113,6 +113,7 @@ open module com.io7m.northpike.tests
   requires com.io7m.ervilla.test_extension;
   requires com.io7m.idstore.admin_client.api;
   requires com.io7m.idstore.admin_client;
+  requires com.io7m.idstore.protocol.admin;
   requires com.io7m.idstore.server.api;
   requires com.io7m.idstore.server.service.configuration;
   requires com.io7m.idstore.tls;

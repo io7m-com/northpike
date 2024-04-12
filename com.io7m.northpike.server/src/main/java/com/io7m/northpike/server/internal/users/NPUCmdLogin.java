@@ -18,10 +18,10 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.idstore.protocol.user.IdUResponseLogin;
-import com.io7m.idstore.user_client.api.IdUClientCredentials;
-import com.io7m.idstore.user_client.api.IdUClientException;
+import com.io7m.idstore.user_client.api.IdUClientConnectionParameters;
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.model.NPException;
+import com.io7m.northpike.model.NPVersion;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
 import com.io7m.northpike.protocol.user.NPUCommandLogin;
@@ -29,6 +29,7 @@ import com.io7m.northpike.protocol.user.NPUResponseOK;
 import com.io7m.northpike.server.internal.NPServerResources;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 
+import java.time.Duration;
 import java.util.Map;
 
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
@@ -67,14 +68,24 @@ public final class NPUCmdLogin
         resources.add(connection.openTransaction());
 
       final IdUResponseLogin response =
-        (IdUResponseLogin) client.loginOrElseThrow(
-          new IdUClientCredentials(
+        (IdUResponseLogin) client.connectOrThrow(
+          new IdUClientConnectionParameters(
             command.name().value(),
             command.password(),
             context.idstoreLoginURI(),
-            Map.of()
-          ),
-          IdUClientException::ofError
+            Map.ofEntries(
+              Map.entry(
+                "Application",
+                "com.io7m.northpike " + NPVersion.MAIN_VERSION
+              ),
+              Map.entry(
+                "ApplicationCommit",
+                NPVersion.MAIN_BUILD
+              )
+            ),
+            Duration.ofSeconds(30L),
+            Duration.ofSeconds(30L)
+          )
         );
 
       final var user =

@@ -18,7 +18,7 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.idstore.user_client.api.IdUClientException;
-import com.io7m.idstore.user_client.api.IdUClientSynchronousType;
+import com.io7m.idstore.user_client.api.IdUClientType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
@@ -43,7 +43,7 @@ public interface NPUserCommandContextType
    * @return The client
    */
 
-  IdUClientSynchronousType createIdstoreClient()
+  IdUClientType createIdstoreClient()
     throws IdUClientException, InterruptedException;
 
   /**

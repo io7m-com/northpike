@@ -24,7 +24,7 @@ import com.io7m.idstore.model.IdPasswordAlgorithmRedacted;
 import com.io7m.idstore.model.IdRealName;
 import com.io7m.idstore.model.IdUser;
 import com.io7m.idstore.protocol.user.IdUResponseLogin;
-import com.io7m.idstore.user_client.api.IdUClientSynchronousType;
+import com.io7m.idstore.user_client.api.IdUClientType;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
@@ -65,7 +65,7 @@ public final class NPUCmdLoginTest
   private NPUserCommandContextType context;
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
-  private IdUClientSynchronousType idstore;
+  private IdUClientType idstore;
   private NPDatabaseQueriesUsersType.GetType userGet;
 
   @BeforeEach
@@ -91,7 +91,7 @@ public final class NPUCmdLoginTest
       .thenReturn(this.userGet);
 
     this.idstore =
-      Mockito.mock(IdUClientSynchronousType.class);
+      Mockito.mock(IdUClientType.class);
 
     Mockito.when(this.context.createIdstoreClient())
       .thenReturn(this.idstore);
@@ -175,7 +175,7 @@ public final class NPUCmdLoginTest
           .createHashed("x")
       );
 
-    Mockito.when(this.idstore.loginOrElseThrow(any(), any()))
+    Mockito.when(this.idstore.connectOrThrow(any()))
       .thenReturn(new IdUResponseLogin(
         UUID.randomUUID(),
         user
@@ -224,7 +224,7 @@ public final class NPUCmdLoginTest
           .createHashed("x")
       );
 
-    Mockito.when(this.idstore.loginOrElseThrow(any(), any()))
+    Mockito.when(this.idstore.connectOrThrow(any()))
       .thenReturn(new IdUResponseLogin(
         UUID.randomUUID(),
         user
@@ -279,7 +279,7 @@ public final class NPUCmdLoginTest
           .createHashed("x")
       );
 
-    Mockito.when(this.idstore.loginOrElseThrow(any(), any()))
+    Mockito.when(this.idstore.connectOrThrow(any()))
       .thenReturn(new IdUResponseLogin(
         UUID.randomUUID(),
         user

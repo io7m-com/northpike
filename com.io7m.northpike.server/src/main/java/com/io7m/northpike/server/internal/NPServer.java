@@ -341,6 +341,7 @@ public final class NPServer implements NPServerType
 
     final var idstoreClients =
       NPIdstoreClients.create(
+        this.configuration.clock(),
         this.configuration.locale(),
         this.telemetry,
         this.configuration.idstoreConfiguration()

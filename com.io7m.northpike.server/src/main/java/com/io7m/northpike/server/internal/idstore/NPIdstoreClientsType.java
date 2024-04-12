@@ -17,7 +17,7 @@
 package com.io7m.northpike.server.internal.idstore;
 
 import com.io7m.idstore.user_client.api.IdUClientException;
-import com.io7m.idstore.user_client.api.IdUClientSynchronousType;
+import com.io7m.idstore.user_client.api.IdUClientType;
 import com.io7m.repetoir.core.RPServiceType;
 
 import java.net.URI;
@@ -37,7 +37,7 @@ public interface NPIdstoreClientsType extends RPServiceType
    * @throws InterruptedException On interruption
    */
 
-  IdUClientSynchronousType createClient()
+  IdUClientType createClient()
     throws IdUClientException, InterruptedException;
 
   /**

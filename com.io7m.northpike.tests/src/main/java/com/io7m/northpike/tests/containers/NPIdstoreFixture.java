@@ -24,7 +24,7 @@ import com.io7m.ervilla.api.EPortAddressType;
 import com.io7m.ervilla.api.EVolumeMount;
 import com.io7m.idstore.admin_client.IdAClients;
 import com.io7m.idstore.admin_client.api.IdAClientConfiguration;
-import com.io7m.idstore.admin_client.api.IdAClientCredentials;
+import com.io7m.idstore.admin_client.api.IdAClientConnectionParameters;
 import com.io7m.idstore.admin_client.api.IdAClientException;
 import com.io7m.idstore.model.IdEmail;
 import com.io7m.idstore.model.IdName;
@@ -56,6 +56,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
@@ -370,25 +371,26 @@ public final class NPIdstoreFixture
   {
     final var clients = new IdAClients();
     try (var client =
-           clients.openSynchronousClient(
-             new IdAClientConfiguration(Locale.ROOT))) {
+           clients.create(
+             new IdAClientConfiguration(Clock.systemUTC(), Locale.ROOT))) {
 
       final var address =
         "http://%s:%d/".formatted("[::]", Integer.valueOf(adminAPIPort));
 
-      client.loginOrElseThrow(
-        new IdAClientCredentials(
+      client.connectOrThrow(
+        new IdAClientConnectionParameters(
           adminName,
           adminPassword,
           URI.create(
             address
           ),
-          Map.of()
-        ),
-        IdAClientException::ofError
+          Map.of(),
+          Duration.ofSeconds(30L),
+          Duration.ofSeconds(30L)
+        )
       );
 
-      return ((IdAResponseUserCreate) client.executeOrElseThrow(
+      return client.sendAndWaitOrThrow(
         new IdACommandUserCreate(
           Optional.of(userId),
           new IdName(userName),
@@ -397,8 +399,8 @@ public final class NPIdstoreFixture
           IdPasswordAlgorithmPBKDF2HmacSHA256.create()
             .createHashed(PASSWORD)
         ),
-        IdAClientException::ofError
-      )).user();
+        Duration.ofSeconds(30L)
+      ).user();
     }
   }
 

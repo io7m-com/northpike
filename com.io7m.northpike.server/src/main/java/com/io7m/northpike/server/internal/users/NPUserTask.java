@@ -18,7 +18,7 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.idstore.user_client.api.IdUClientException;
-import com.io7m.idstore.user_client.api.IdUClientSynchronousType;
+import com.io7m.idstore.user_client.api.IdUClientType;
 import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
@@ -299,7 +299,7 @@ public final class NPUserTask
   }
 
   @Override
-  public IdUClientSynchronousType createIdstoreClient()
+  public IdUClientType createIdstoreClient()
     throws IdUClientException, InterruptedException
   {
     return this.idstore.createClient();
