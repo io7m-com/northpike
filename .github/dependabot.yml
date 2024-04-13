@@ -8,11 +8,6 @@ updates:
 
     target-branch: "develop"
 
-    # Update all dependencies, but don't try to do any major updates.
-    groups:
-      all:
-        patterns:
-          - "*"
     ignore:
       - dependency-name: "*"
         update-types: [ "version-update:semver-major" ]
