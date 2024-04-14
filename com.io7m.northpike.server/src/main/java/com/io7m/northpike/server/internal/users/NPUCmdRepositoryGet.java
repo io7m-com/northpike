@@ -17,12 +17,12 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryGet;
 import com.io7m.northpike.protocol.user.NPUResponseRepositoryGet;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 
 /**
@@ -55,14 +55,13 @@ public final class NPUCmdRepositoryGet
       NPSecAction.READ.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        return NPUResponseRepositoryGet.createCorrelated(
-          command,
-          transaction.queries(NPDatabaseQueriesRepositoriesType.GetType.class)
-            .execute(command.repository())
-        );
-      }
-    }
+    final var repositories =
+      context.services()
+        .requireService(NPRepositoryServiceType.class);
+
+    return NPUResponseRepositoryGet.createCorrelated(
+      command,
+      repositories.repositoryGet(command.repository())
+    );
   }
 }

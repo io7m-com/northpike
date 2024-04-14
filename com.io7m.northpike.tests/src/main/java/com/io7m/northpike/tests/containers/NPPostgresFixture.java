@@ -61,17 +61,18 @@ public final class NPPostgresFixture
     LOG.info(
       "Creating postgres database on {}:{}", Integer.valueOf(port));
 
+    final var builder =
+      EPgSpecs.builderFromDockerIO(
+        NPTestProperties.POSTGRESQL_VERSION,
+        new EPortAddressType.All(),
+        port,
+        "postgres",
+        "postgres",
+        "12345678"
+      );
+
     return new NPPostgresFixture(
-      supervisor.start(
-        EPgSpecs.builderFromDockerIO(
-          NPTestProperties.POSTGRESQL_VERSION,
-          new EPortAddressType.All(),
-          port,
-          "postgres",
-          "postgres",
-          "12345678"
-        ).build()
-      ),
+      supervisor.start(builder.build()),
       "postgres",
       port
     );

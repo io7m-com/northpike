@@ -18,7 +18,7 @@
 package com.io7m.northpike.database.postgres.internal;
 
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionDeleteType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
@@ -37,12 +37,12 @@ import static com.io7m.northpike.database.postgres.internal.Tables.WORK_ITEM_LOG
  */
 
 public final class NPDBQAssignmentExecutionDelete
-  extends NPDBQAbstract<ExecutionDeleteType.Parameters, NPDatabaseUnit>
-  implements ExecutionDeleteType
+  extends NPDBQAbstract<AssignmentExecutionDeleteType.Parameters, NPDatabaseUnit>
+  implements AssignmentExecutionDeleteType
 {
-  private static final Service<Parameters, NPDatabaseUnit, ExecutionDeleteType> SERVICE =
+  private static final Service<Parameters, NPDatabaseUnit, AssignmentExecutionDeleteType> SERVICE =
     new Service<>(
-      ExecutionDeleteType.class,
+      AssignmentExecutionDeleteType.class,
       NPDBQAssignmentExecutionDelete::new);
 
   /**

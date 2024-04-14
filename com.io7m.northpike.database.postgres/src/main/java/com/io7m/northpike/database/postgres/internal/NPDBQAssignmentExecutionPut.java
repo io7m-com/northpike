@@ -54,10 +54,10 @@ import static com.io7m.northpike.database.postgres.internal.enums.AssignmentExec
 
 public final class NPDBQAssignmentExecutionPut
   extends NPDBQAbstract<NPAssignmentExecutionStateType, NPDatabaseUnit>
-  implements NPDatabaseQueriesAssignmentsType.ExecutionPutType
+  implements NPDatabaseQueriesAssignmentsType.AssignmentExecutionPutType
 {
-  private static final Service<NPAssignmentExecutionStateType, NPDatabaseUnit, ExecutionPutType> SERVICE =
-    new Service<>(ExecutionPutType.class, NPDBQAssignmentExecutionPut::new);
+  private static final Service<NPAssignmentExecutionStateType, NPDatabaseUnit, AssignmentExecutionPutType> SERVICE =
+    new Service<>(AssignmentExecutionPutType.class, NPDBQAssignmentExecutionPut::new);
 
   /**
    * Construct a query.

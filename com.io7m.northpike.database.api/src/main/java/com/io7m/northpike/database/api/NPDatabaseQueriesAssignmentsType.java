@@ -47,7 +47,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Update the given assignments.
    */
 
-  non-sealed interface PutType
+  non-sealed interface AssignmentPutType
     extends NPDatabaseQueryType<NPAssignment, NPDatabaseUnit>,
     NPDatabaseQueriesAssignmentsType
   {
@@ -58,7 +58,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Retrieve an assignment.
    */
 
-  non-sealed interface GetType
+  non-sealed interface AssignmentGetType
     extends NPDatabaseQueryType<NPAssignmentName, Optional<NPAssignment>>,
     NPDatabaseQueriesAssignmentsType
   {
@@ -69,7 +69,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Search assignments.
    */
 
-  non-sealed interface SearchType
+  non-sealed interface AssignmentSearchType
     extends NPDatabaseQueryType<NPAssignmentSearchParameters, NPAssignmentsPagedType>,
     NPDatabaseQueriesAssignmentsType
   {
@@ -80,8 +80,8 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Search assignments.
    */
 
-  non-sealed interface CommitsNotExecutedType
-    extends NPDatabaseQueryType<CommitsNotExecutedType.Parameters, NPCommitSummaryPagedType>,
+  non-sealed interface AssignmentCommitsNotExecutedType
+    extends NPDatabaseQueryType<AssignmentCommitsNotExecutedType.Parameters, NPCommitSummaryPagedType>,
     NPDatabaseQueriesAssignmentsType
   {
     /**
@@ -114,7 +114,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Update the given assignment execution.
    */
 
-  non-sealed interface ExecutionPutType
+  non-sealed interface AssignmentExecutionPutType
     extends NPDatabaseQueryType<NPAssignmentExecutionStateType, NPDatabaseUnit>,
     NPDatabaseQueriesAssignmentsType
   {
@@ -125,7 +125,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Retrieve an assignment execution.
    */
 
-  non-sealed interface ExecutionGetType
+  non-sealed interface AssignmentExecutionGetType
     extends NPDatabaseQueryType<NPAssignmentExecutionID, Optional<NPAssignmentExecutionStateType>>,
     NPDatabaseQueriesAssignmentsType
   {
@@ -136,8 +136,8 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Delete the given assignment execution.
    */
 
-  non-sealed interface ExecutionDeleteType
-    extends NPDatabaseQueryType<ExecutionDeleteType.Parameters, NPDatabaseUnit>,
+  non-sealed interface AssignmentExecutionDeleteType
+    extends NPDatabaseQueryType<AssignmentExecutionDeleteType.Parameters, NPDatabaseUnit>,
     NPDatabaseQueriesAssignmentsType
   {
     /**
@@ -187,7 +187,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Search assignment executions.
    */
 
-  non-sealed interface ExecutionSearchType
+  non-sealed interface AssignmentExecutionSearchType
     extends NPDatabaseQueryType<
     NPAssignmentExecutionSearchParameters, NPAssignmentExecutionsPagedType>,
     NPDatabaseQueriesAssignmentsType
@@ -199,8 +199,8 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Add a log message to the assignment execution.
    */
 
-  non-sealed interface ExecutionLogAddType
-    extends NPDatabaseQueryType<ExecutionLogAddType.Parameters, NPDatabaseUnit>,
+  non-sealed interface AssignmentExecutionLogAddType
+    extends NPDatabaseQueryType<AssignmentExecutionLogAddType.Parameters, NPDatabaseUnit>,
     NPDatabaseQueriesAssignmentsType
   {
     /**
@@ -241,8 +241,8 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Search execution logs.
    */
 
-  non-sealed interface ExecutionLogListType
-    extends NPDatabaseQueryType<ExecutionLogListType.Parameters, NPAssignmentExecutionLogPagedType>,
+  non-sealed interface AssignmentExecutionLogListType
+    extends NPDatabaseQueryType<AssignmentExecutionLogListType.Parameters, NPAssignmentExecutionLogPagedType>,
     NPDatabaseQueriesAssignmentsType
   {
     /**
@@ -275,7 +275,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Mark all non-completed executions as being cancelled.
    */
 
-  non-sealed interface ExecutionsCancelAllType
+  non-sealed interface AssignmentExecutionsCancelAllType
     extends NPDatabaseQueryType<NPDatabaseUnit, Long>,
     NPDatabaseQueriesAssignmentsType
   {
@@ -286,7 +286,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Obtain the work items in the given execution.
    */
 
-  non-sealed interface ExecutionWorkItemsType
+  non-sealed interface AssignmentExecutionWorkItemsType
     extends NPDatabaseQueryType<NPAssignmentExecutionID, Set<NPWorkItem>>,
     NPDatabaseQueriesAssignmentsType
   {
@@ -297,7 +297,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Update the given work item.
    */
 
-  non-sealed interface WorkItemPutType
+  non-sealed interface AssignmentWorkItemPutType
     extends NPDatabaseQueryType<NPWorkItem, NPDatabaseUnit>,
     NPDatabaseQueriesAssignmentsType
   {
@@ -308,7 +308,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Retrieve a work item.
    */
 
-  non-sealed interface WorkItemGetType
+  non-sealed interface AssignmentWorkItemGetType
     extends NPDatabaseQueryType<NPWorkItemIdentifier, Optional<NPWorkItem>>,
     NPDatabaseQueriesAssignmentsType
   {
@@ -319,7 +319,7 @@ public sealed interface NPDatabaseQueriesAssignmentsType
    * Add a line of output to the given work item.
    */
 
-  non-sealed interface WorkItemLogAddType
+  non-sealed interface AssignmentWorkItemLogAddType
     extends NPDatabaseQueryType<NPWorkItemLogRecord, NPDatabaseUnit>,
     NPDatabaseQueriesAssignmentsType
   {

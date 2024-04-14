@@ -24,16 +24,18 @@ import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsGetMostRecentlyReceivedType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryCommitsGetMostRecentlyReceivedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPCommit;
+import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPHash;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
@@ -78,7 +80,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
@@ -88,6 +89,7 @@ import static com.io7m.northpike.model.security.NPSecRole.LOGIN;
 import static com.io7m.northpike.tests.scm_repository.NPSCMRepositoriesJGitTest.unpack;
 import static java.util.UUID.randomUUID;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public final class NPAssignmentFixture implements AutoCloseable
 {
@@ -316,28 +318,36 @@ public final class NPAssignmentFixture implements AutoCloseable
     this.createRepositories();
     this.transaction.commit();
 
-    Mockito.when(this.mockRepositoryService.createArchiveFor(any()))
-      .thenReturn(CompletableFuture.completedFuture(
-        new NPArchive(
-          NPToken.generate(),
-          this.commitHeadUnsigned.id(),
-          new NPHash(
-            "SHA-256",
-            "a939645e193074c683dd7132c65a5571e8fdb59d67cbe1c17ff7c29b5289647c"
-          ),
-          OffsetDateTime.now()
-        )
+    Mockito.when(this.mockRepositoryService.commitCreateArchiveFor(any()))
+      .thenReturn(new NPArchive(
+        NPToken.generate(),
+        this.commitHeadUnsigned.id(),
+        new NPHash(
+          "SHA-256",
+          "a939645e193074c683dd7132c65a5571e8fdb59d67cbe1c17ff7c29b5289647c"
+        ),
+        OffsetDateTime.now()
       ));
+
+    Mockito.when(
+      this.mockRepositoryService.commitGet(this.commitUnsigned()))
+      .thenReturn(this.commitUnsignedValue());
+    Mockito.when(
+      this.mockRepositoryService.commitGet(this.commitSigned()))
+      .thenReturn(this.commitSignedValue());
+    Mockito.when(
+      this.mockRepositoryService.commitGet(this.commitSignedSpecific()))
+      .thenReturn(this.commitSignedSpecificValue());
   }
 
   private void createRepositories()
     throws Exception
   {
-    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
+    this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class)
       .execute(this.repositoryRequireSignedSpecific.description());
-    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
+    this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class)
       .execute(this.repositoryRequireSigned.description());
-    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
+    this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class)
       .execute(this.repositoryUnsigned.description());
     this.transaction.commit();
 
@@ -351,7 +361,7 @@ public final class NPAssignmentFixture implements AutoCloseable
     throws Exception
   {
     final var since =
-      this.transaction.queries(CommitsGetMostRecentlyReceivedType.class)
+      this.transaction.queries(RepositoryCommitsGetMostRecentlyReceivedType.class)
         .execute(this.repositoryRequireSignedSpecific.description().id())
         .map(NPCommitSummary::timeReceived);
 
@@ -364,8 +374,8 @@ public final class NPAssignmentFixture implements AutoCloseable
         .max(Comparator.comparing(NPCommit::timeCreated))
         .orElseThrow();
 
-    this.transaction.queries(CommitsPutType.class)
-      .execute(new CommitsPutType.Parameters(
+    this.transaction.queries(RepositoryCommitsPutType.class)
+      .execute(new RepositoryCommitsPutType.Parameters(
         commits.commits(),
         commits.commitGraph()
       ));
@@ -375,7 +385,7 @@ public final class NPAssignmentFixture implements AutoCloseable
     throws Exception
   {
     final var since =
-      this.transaction.queries(CommitsGetMostRecentlyReceivedType.class)
+      this.transaction.queries(RepositoryCommitsGetMostRecentlyReceivedType.class)
         .execute(this.repositoryRequireSigned.description().id())
         .map(NPCommitSummary::timeReceived);
 
@@ -388,8 +398,8 @@ public final class NPAssignmentFixture implements AutoCloseable
         .max(Comparator.comparing(NPCommit::timeCreated))
         .orElseThrow();
 
-    this.transaction.queries(CommitsPutType.class)
-      .execute(new CommitsPutType.Parameters(
+    this.transaction.queries(RepositoryCommitsPutType.class)
+      .execute(new RepositoryCommitsPutType.Parameters(
         commits.commits(),
         commits.commitGraph()
       ));
@@ -399,7 +409,7 @@ public final class NPAssignmentFixture implements AutoCloseable
     throws Exception
   {
     final var since =
-      this.transaction.queries(CommitsGetMostRecentlyReceivedType.class)
+      this.transaction.queries(RepositoryCommitsGetMostRecentlyReceivedType.class)
         .execute(this.repositoryUnsigned.description().id())
         .map(NPCommitSummary::timeReceived);
 
@@ -412,8 +422,8 @@ public final class NPAssignmentFixture implements AutoCloseable
         .max(Comparator.comparing(NPCommit::timeCreated))
         .orElseThrow();
 
-    this.transaction.queries(CommitsPutType.class)
-      .execute(new CommitsPutType.Parameters(
+    this.transaction.queries(RepositoryCommitsPutType.class)
+      .execute(new RepositoryCommitsPutType.Parameters(
         commits.commits(),
         commits.commitGraph()
       ));
@@ -482,7 +492,7 @@ public final class NPAssignmentFixture implements AutoCloseable
         }
       };
 
-    this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class)
+    this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentPutType.class)
       .execute(assignment);
 
     this.transaction.commit();
@@ -499,6 +509,20 @@ public final class NPAssignmentFixture implements AutoCloseable
     return this.commitHeadUnsigned.id();
   }
 
+  public NPCommit commitUnsignedValue()
+  {
+    return new NPCommit(
+      this.commitUnsigned(),
+      OffsetDateTime.now(),
+      OffsetDateTime.now(),
+      new NPCommitAuthor("Someone", "someone@example.com"),
+      "Unsigned",
+      "Body",
+      Set.of(),
+      Set.of()
+    );
+  }
+
   public Queue<NPEventType> events()
   {
     return this.events.eventQueue();
@@ -509,8 +533,44 @@ public final class NPAssignmentFixture implements AutoCloseable
     return this.commitHeadSigned.id();
   }
 
+  public NPCommit commitSignedValue()
+  {
+    return new NPCommit(
+      this.commitSigned(),
+      OffsetDateTime.now(),
+      OffsetDateTime.now(),
+      new NPCommitAuthor("Someone", "someone@example.com"),
+      "Signed",
+      "Body",
+      Set.of(),
+      Set.of()
+    );
+  }
+
   public NPCommitID commitSignedSpecific()
   {
     return this.commitHeadSignedSpecific.id();
+  }
+
+  public NPCommit commitSignedSpecificValue()
+  {
+    return new NPCommit(
+      this.commitSignedSpecific(),
+      OffsetDateTime.now(),
+      OffsetDateTime.now(),
+      new NPCommitAuthor("Someone", "someone@example.com"),
+      "Signed with specific key",
+      "Body",
+      Set.of(),
+      Set.of()
+    );
+  }
+
+  public void setRepositorySigningPolicy(
+    final NPRepositorySigningPolicy policy)
+    throws InterruptedException, NPException
+  {
+    when(this.mockRepositoryService().repositorySigningPolicyFor(any()))
+      .thenReturn(policy);
   }
 }

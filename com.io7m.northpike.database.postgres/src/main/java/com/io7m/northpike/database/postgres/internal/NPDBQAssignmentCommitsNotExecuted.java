@@ -25,7 +25,7 @@ import com.io7m.jqpage.core.JQKeysetRandomAccessPaginationParameters;
 import com.io7m.jqpage.core.JQSelectDistinct;
 import com.io7m.northpike.database.api.NPCommitSummaryPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.CommitsNotExecutedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentCommitsNotExecutedType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
@@ -51,12 +51,12 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_ST
  */
 
 public final class NPDBQAssignmentCommitsNotExecuted
-  extends NPDBQAbstract<CommitsNotExecutedType.Parameters, NPCommitSummaryPagedType>
-  implements CommitsNotExecutedType
+  extends NPDBQAbstract<AssignmentCommitsNotExecutedType.Parameters, NPCommitSummaryPagedType>
+  implements AssignmentCommitsNotExecutedType
 {
-  private static final Service<Parameters, NPCommitSummaryPagedType, CommitsNotExecutedType> SERVICE =
+  private static final Service<Parameters, NPCommitSummaryPagedType, AssignmentCommitsNotExecutedType> SERVICE =
     new Service<>(
-      CommitsNotExecutedType.class,
+      AssignmentCommitsNotExecutedType.class,
       NPDBQAssignmentCommitsNotExecuted::new);
 
   /**

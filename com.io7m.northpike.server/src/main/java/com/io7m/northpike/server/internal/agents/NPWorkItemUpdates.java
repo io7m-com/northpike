@@ -18,9 +18,9 @@
 package com.io7m.northpike.server.internal.agents;
 
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemGetType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemLogAddType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentWorkItemGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentWorkItemLogAddType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentWorkItemPutType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPWorkItem;
@@ -71,9 +71,9 @@ public final class NPWorkItemUpdates
   {
     try (var transaction = connection.openTransaction()) {
       final var get =
-        transaction.queries(WorkItemGetType.class);
+        transaction.queries(AssignmentWorkItemGetType.class);
       final var put =
-        transaction.queries(WorkItemPutType.class);
+        transaction.queries(AssignmentWorkItemPutType.class);
 
       /*
        * The work item doesn't necessarily exist.
@@ -122,9 +122,9 @@ public final class NPWorkItemUpdates
   {
     try (var transaction = connection.openTransaction()) {
       final var get =
-        transaction.queries(WorkItemGetType.class);
+        transaction.queries(AssignmentWorkItemGetType.class);
       final var add =
-        transaction.queries(WorkItemLogAddType.class);
+        transaction.queries(AssignmentWorkItemLogAddType.class);
 
       /*
        * The work item doesn't necessarily exist.

@@ -122,7 +122,7 @@ public final class NPArchiveHandler implements Handler
       try (var transaction =
              connection.openTransaction()) {
         final var get =
-          transaction.queries(NPDatabaseQueriesArchivesType.GetType.class);
+          transaction.queries(NPDatabaseQueriesArchivesType.ArchiveGetType.class);
         return get.execute(token);
       }
     }

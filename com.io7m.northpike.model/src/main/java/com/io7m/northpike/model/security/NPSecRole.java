@@ -21,6 +21,8 @@ import com.io7m.medrina.api.MRoleName;
 import com.io7m.northpike.model.NPDocumentation;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The roles.
@@ -438,6 +440,18 @@ public enum NPSecRole
   public static List<NPSecRole> allRoles()
   {
     return ROLES_ALL;
+  }
+
+  /**
+   * @return A read-only list of all the role names
+   */
+
+  public static Set<MRoleName> allRoleNames()
+  {
+    return allRoles()
+      .stream()
+      .map(NPSecRole::role)
+      .collect(Collectors.toSet());
   }
 
   /**

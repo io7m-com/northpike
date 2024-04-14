@@ -41,7 +41,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    * Update the given repository.
    */
 
-  non-sealed interface PutType
+  non-sealed interface RepositoryPutType
     extends NPDatabaseQueryType<NPRepositoryDescription, NPDatabaseUnit>,
     NPDatabaseQueriesRepositoriesType
   {
@@ -52,7 +52,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    * Retrieve a repository.
    */
 
-  non-sealed interface GetType
+  non-sealed interface RepositoryGetType
     extends NPDatabaseQueryType<NPRepositoryID, Optional<NPRepositoryDescription>>,
     NPDatabaseQueriesRepositoriesType
   {
@@ -63,7 +63,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    * List repositories.
    */
 
-  non-sealed interface ListType
+  non-sealed interface RepositoryListType
     extends NPDatabaseQueryType<NPDatabaseUnit, NPRepositoriesPagedType>,
     NPDatabaseQueriesRepositoriesType
   {
@@ -74,8 +74,8 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    * Add or update commits in the given repository.
    */
 
-  non-sealed interface CommitsPutType
-    extends NPDatabaseQueryType<CommitsPutType.Parameters, NPDatabaseUnit>,
+  non-sealed interface RepositoryCommitsPutType
+    extends NPDatabaseQueryType<RepositoryCommitsPutType.Parameters, NPDatabaseUnit>,
     NPDatabaseQueriesRepositoriesType
   {
     /**
@@ -105,7 +105,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    * Get a commit from a repository.
    */
 
-  non-sealed interface CommitGetType
+  non-sealed interface RepositoryCommitGetType
     extends NPDatabaseQueryType<NPCommitID, Optional<NPCommit>>,
     NPDatabaseQueriesRepositoriesType
   {
@@ -116,7 +116,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    * List commits in the repository.
    */
 
-  non-sealed interface CommitsGetType
+  non-sealed interface RepositoryCommitsGetType
     extends NPDatabaseQueryType<NPCommitSearchParameters, NPCommitSummaryLinkedPagedType>,
     NPDatabaseQueriesRepositoriesType
   {
@@ -127,7 +127,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    * Get the most recently received commit in the repository.
    */
 
-  non-sealed interface CommitsGetMostRecentlyReceivedType
+  non-sealed interface RepositoryCommitsGetMostRecentlyReceivedType
     extends NPDatabaseQueryType<NPRepositoryID, Optional<NPCommitSummary>>,
     NPDatabaseQueriesRepositoriesType
   {
@@ -138,8 +138,8 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    * Assign a key to a repository.
    */
 
-  non-sealed interface PublicKeyAssignType
-    extends NPDatabaseQueryType<PublicKeyAssignType.Parameters, NPDatabaseUnit>,
+  non-sealed interface RepositoryPublicKeyAssignType
+    extends NPDatabaseQueryType<RepositoryPublicKeyAssignType.Parameters, NPDatabaseUnit>,
     NPDatabaseQueriesRepositoriesType
   {
     /**
@@ -169,8 +169,8 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    * Unassign a key from a repository.
    */
 
-  non-sealed interface PublicKeyUnassignType
-    extends NPDatabaseQueryType<PublicKeyUnassignType.Parameters, NPDatabaseUnit>,
+  non-sealed interface RepositoryPublicKeyUnassignType
+    extends NPDatabaseQueryType<RepositoryPublicKeyUnassignType.Parameters, NPDatabaseUnit>,
     NPDatabaseQueriesRepositoriesType
   {
     /**
@@ -200,8 +200,8 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    * Check if a key is assigned to a repository.
    */
 
-  non-sealed interface PublicKeyIsAssignedType
-    extends NPDatabaseQueryType<PublicKeyIsAssignedType.Parameters, Boolean>,
+  non-sealed interface RepositoryPublicKeyIsAssignedType
+    extends NPDatabaseQueryType<RepositoryPublicKeyIsAssignedType.Parameters, Boolean>,
     NPDatabaseQueriesRepositoriesType
   {
     /**
@@ -231,7 +231,7 @@ public sealed interface NPDatabaseQueriesRepositoriesType
    * Retrieve the set of keys assigned to a repository.
    */
 
-  non-sealed interface PublicKeysAssignedType
+  non-sealed interface RepositoryPublicKeysAssignedType
     extends NPDatabaseQueryType<NPRepositoryID, Set<NPFingerprint>>,
     NPDatabaseQueriesRepositoriesType
   {

@@ -19,7 +19,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyAssignType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyAssignType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import org.jooq.DSLContext;
@@ -35,12 +35,12 @@ import static java.util.Map.entry;
  */
 
 public final class NPDBQRepositoryPublicKeyAssign
-  extends NPDBQAbstract<PublicKeyAssignType.Parameters, NPDatabaseUnit>
-  implements PublicKeyAssignType
+  extends NPDBQAbstract<RepositoryPublicKeyAssignType.Parameters, NPDatabaseUnit>
+  implements RepositoryPublicKeyAssignType
 {
-  private static final Service<Parameters, NPDatabaseUnit, PublicKeyAssignType> SERVICE =
+  private static final Service<Parameters, NPDatabaseUnit, RepositoryPublicKeyAssignType> SERVICE =
     new Service<>(
-      PublicKeyAssignType.class,
+      RepositoryPublicKeyAssignType.class,
       NPDBQRepositoryPublicKeyAssign::new);
 
   /**

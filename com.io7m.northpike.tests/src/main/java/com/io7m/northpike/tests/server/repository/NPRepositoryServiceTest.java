@@ -21,25 +21,26 @@ import com.io7m.ervilla.api.EContainerSupervisorType;
 import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
+import com.io7m.idstore.model.IdName;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.clock.NPClock;
 import com.io7m.northpike.clock.NPClockServiceType;
-import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType.SCMProviderPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
-import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.database.postgres.NPPGDatabases;
-import com.io7m.northpike.model.NPAuditOwnerType;
+import com.io7m.northpike.model.NPAuditOwnerType.User;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
 import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.repository.jgit.NPSCMRepositoriesJGit;
 import com.io7m.northpike.scm_repository.spi.NPSCMRepositoryFactoryType;
 import com.io7m.northpike.server.api.NPServerAgentConfiguration;
@@ -70,10 +71,12 @@ import com.io7m.northpike.tests.containers.NPFixtures;
 import com.io7m.repetoir.core.RPServiceDirectory;
 import com.io7m.zelador.test_extension.CloseableResourcesType;
 import com.io7m.zelador.test_extension.ZeladorExtension;
+import org.eclipse.jgit.api.Git;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
@@ -85,14 +88,17 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Duration;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
 import static com.io7m.northpike.model.tls.NPTLSDisabled.TLS_DISABLED;
+import static com.io7m.northpike.server.internal.repositories.NPRepositoryStartup.PERFORM_NO_UPDATE_ON_STARTUP;
 import static com.io7m.northpike.tests.scm_repository.NPSCMRepositoriesJGitTest.unpack;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -101,10 +107,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
 @ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
+@Timeout(value = 10L, unit = TimeUnit.SECONDS)
 public final class NPRepositoryServiceTest
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(NPRepositoryServiceTest.class);
+
+  private static NPDatabaseFixture DATABASE_FIXTURE;
 
   private RPServiceDirectory services;
   private NPClockServiceType clock;
@@ -114,11 +123,8 @@ public final class NPRepositoryServiceTest
   private NPEventInterceptingService events;
   private NPMetricsServiceType metrics;
   private NPRepositoryServiceType service;
-
-  private static NPDatabaseFixture DATABASE_FIXTURE;
-  private NPDatabaseConnectionType connection;
-  private NPDatabaseTransactionType transaction;
   private NPDatabaseType database;
+  private UUID userId;
 
   @BeforeAll
   public static void setupOnce(
@@ -140,16 +146,22 @@ public final class NPRepositoryServiceTest
 
     this.database =
       closeables.addPerTestResource(DATABASE_FIXTURE.createDatabase());
-    this.connection =
-      closeables.addPerTestResource(this.database.openConnection(NORTHPIKE));
-    this.transaction =
-      closeables.addPerTestResource(this.connection.openTransaction());
 
-    final var user =
-      NPFixtures.idstore(NPFixtures.pod(containers)).userWithLogin();
-    this.transaction.setOwner(new NPAuditOwnerType.User(user.id()));
-    this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class)
-      .execute(new NPUser(user.id(), user.idName(), new MSubject(Set.of())));
+    this.userId =
+      randomUUID();
+
+    try (var connection =
+           this.database.openConnection(NORTHPIKE);
+         var transaction =
+           connection.openTransaction()) {
+      transaction.queries(NPDatabaseQueriesUsersType.PutType.class)
+        .execute(new NPUser(
+          this.userId,
+          new IdName("nobody"),
+          new MSubject(NPSecRole.allRoleNames())
+        ));
+      transaction.commit();
+    }
 
     this.services =
       new RPServiceDirectory();
@@ -252,8 +264,11 @@ public final class NPRepositoryServiceTest
   public void testNoRepositories()
     throws Exception
   {
-    this.service.start().get(1L, TimeUnit.SECONDS);
-    this.service.check().get(1L, TimeUnit.SECONDS);
+    this.service.start(PERFORM_NO_UPDATE_ON_STARTUP)
+      .get(1L, TimeUnit.SECONDS);
+
+    this.service.update()
+      .get(1L, TimeUnit.SECONDS);
   }
 
   /**
@@ -270,29 +285,34 @@ public final class NPRepositoryServiceTest
     final var reposSource =
       unpack("example.git.tar", reposDirectory);
 
-    this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class)
-      .execute(new NPSCMProviderDescription(
-        NPSCMRepositoriesJGit.providerNameGet(),
-        "SCM",
-        URI.create("http://www.example.com")
-      ));
+    try (var connection =
+           this.database.openConnection(NORTHPIKE);
+         var transaction =
+           connection.openTransaction()) {
+      transaction.setOwner(new User(this.userId));
+      transaction.queries(SCMProviderPutType.class)
+        .execute(new NPSCMProviderDescription(
+          NPSCMRepositoriesJGit.providerNameGet(),
+          "SCM",
+          URI.create("http://www.example.com")
+        ));
+      transaction.queries(RepositoryPutType.class)
+        .execute(new NPRepositoryDescription(
+          NPSCMRepositoriesJGit.providerNameGet(),
+          new NPRepositoryID(randomUUID()),
+          reposSource,
+          NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+          ALLOW_UNSIGNED_COMMITS
+        ));
+      transaction.commit();
+    }
 
-    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
-      .execute(new NPRepositoryDescription(
-        NPSCMRepositoriesJGit.providerNameGet(),
-        new NPRepositoryID(randomUUID()),
-        reposSource,
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
-        ALLOW_UNSIGNED_COMMITS
-      ));
-
-    this.transaction.commit();
-
-    this.service.start().get(1L, TimeUnit.SECONDS);
-    this.service.check().get(10L, TimeUnit.SECONDS);
+    this.service.start(PERFORM_NO_UPDATE_ON_STARTUP)
+      .get(1L, TimeUnit.SECONDS);
+    this.service.update()
+      .get(10L, TimeUnit.SECONDS);
 
     final var eventQueue = this.events.eventQueue();
-
     assertInstanceOf(NPRepositoryServiceStarted.class, eventQueue.poll());
     assertInstanceOf(NPRepositoryConfigured.class, eventQueue.poll());
 
@@ -314,29 +334,34 @@ public final class NPRepositoryServiceTest
     final @TempDir Path reposDirectory)
     throws Exception
   {
-    this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class)
-      .execute(new NPSCMProviderDescription(
-        NPSCMRepositoriesJGit.providerNameGet(),
-        "SCM",
-        URI.create("http://www.example.com")
-      ));
+    try (var connection =
+           this.database.openConnection(NORTHPIKE);
+         var transaction =
+           connection.openTransaction()) {
+      transaction.setOwner(new User(this.userId));
+      transaction.queries(SCMProviderPutType.class)
+        .execute(new NPSCMProviderDescription(
+          NPSCMRepositoriesJGit.providerNameGet(),
+          "SCM",
+          URI.create("http://www.example.com")
+        ));
+      transaction.queries(RepositoryPutType.class)
+        .execute(new NPRepositoryDescription(
+          NPSCMRepositoriesJGit.providerNameGet(),
+          new NPRepositoryID(randomUUID()),
+          reposDirectory.toUri(),
+          NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+          ALLOW_UNSIGNED_COMMITS
+        ));
+      transaction.commit();
+    }
 
-    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
-      .execute(new NPRepositoryDescription(
-        NPSCMRepositoriesJGit.providerNameGet(),
-        new NPRepositoryID(randomUUID()),
-        reposDirectory.toUri(),
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
-        ALLOW_UNSIGNED_COMMITS
-      ));
-
-    this.transaction.commit();
-
-    this.service.start().get(1L, TimeUnit.SECONDS);
-    this.service.check().get(10L, TimeUnit.SECONDS);
+    this.service.start(PERFORM_NO_UPDATE_ON_STARTUP)
+      .get(1L, TimeUnit.SECONDS);
+    this.service.update()
+      .get(10L, TimeUnit.SECONDS);
 
     final var eventQueue = this.events.eventQueue();
-
     assertInstanceOf(NPRepositoryServiceStarted.class, eventQueue.poll());
     assertInstanceOf(NPRepositoryConfigured.class, eventQueue.poll());
     assertInstanceOf(NPRepositoryUpdateFailed.class, eventQueue.poll());
@@ -353,29 +378,34 @@ public final class NPRepositoryServiceTest
     final @TempDir Path reposDirectory)
     throws Exception
   {
-    this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class)
-      .execute(new NPSCMProviderDescription(
-        new RDottedName("com.io7m.unsupported"),
-        "SCM",
-        URI.create("http://www.example.com")
-      ));
+    try (var connection =
+           this.database.openConnection(NORTHPIKE);
+         var transaction =
+           connection.openTransaction()) {
+      transaction.setOwner(new User(this.userId));
+      transaction.queries(SCMProviderPutType.class)
+        .execute(new NPSCMProviderDescription(
+          new RDottedName("com.io7m.unsupported"),
+          "SCM",
+          URI.create("http://www.example.com")
+        ));
+      transaction.queries(RepositoryPutType.class)
+        .execute(new NPRepositoryDescription(
+          new RDottedName("com.io7m.unsupported"),
+          new NPRepositoryID(randomUUID()),
+          reposDirectory.toUri(),
+          NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+          ALLOW_UNSIGNED_COMMITS
+        ));
+      transaction.commit();
+    }
 
-    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
-      .execute(new NPRepositoryDescription(
-        new RDottedName("com.io7m.unsupported"),
-        new NPRepositoryID(randomUUID()),
-        reposDirectory.toUri(),
-        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
-        ALLOW_UNSIGNED_COMMITS
-      ));
-
-    this.transaction.commit();
-
-    this.service.start().get(1L, TimeUnit.SECONDS);
-    this.service.check().get(10L, TimeUnit.SECONDS);
+    this.service.start(PERFORM_NO_UPDATE_ON_STARTUP)
+      .get(1L, TimeUnit.SECONDS);
+    this.service.update()
+      .get(10L, TimeUnit.SECONDS);
 
     final var eventQueue = this.events.eventQueue();
-
     assertInstanceOf(NPRepositoryServiceStarted.class, eventQueue.poll());
     assertInstanceOf(NPRepositoryConfigureFailed.class, eventQueue.poll());
   }
@@ -394,13 +424,6 @@ public final class NPRepositoryServiceTest
     final var reposSource =
       unpack("example.git.tar", reposDirectory);
 
-    this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class)
-      .execute(new NPSCMProviderDescription(
-        NPSCMRepositoriesJGit.providerNameGet(),
-        "SCM",
-        URI.create("http://www.example.com")
-      ));
-
     final var repositoryDescription =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
@@ -410,12 +433,24 @@ public final class NPRepositoryServiceTest
         ALLOW_UNSIGNED_COMMITS
       );
 
-    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
-      .execute(repositoryDescription);
+    try (var connection =
+           this.database.openConnection(NORTHPIKE);
+         var transaction =
+           connection.openTransaction()) {
+      transaction.setOwner(new User(this.userId));
+      transaction.queries(SCMProviderPutType.class)
+        .execute(new NPSCMProviderDescription(
+          NPSCMRepositoriesJGit.providerNameGet(),
+          "SCM",
+          URI.create("http://www.example.com")
+        ));
+      transaction.queries(RepositoryPutType.class)
+        .execute(repositoryDescription);
+      transaction.commit();
+    }
 
-    this.transaction.commit();
-
-    this.service.start().get(1L, TimeUnit.SECONDS);
+    this.service.start(PERFORM_NO_UPDATE_ON_STARTUP)
+      .get(1L, TimeUnit.SECONDS);
 
     final var commit =
       new NPCommitID(
@@ -424,13 +459,11 @@ public final class NPRepositoryServiceTest
       );
 
     final var archive =
-      this.service.createArchiveFor(commit)
-        .get(10L, TimeUnit.SECONDS);
+      this.service.commitCreateArchiveFor(commit);
 
     assertEquals(commit, archive.commit());
 
     final var eventQueue = this.events.eventQueue();
-
     assertInstanceOf(NPRepositoryServiceStarted.class, eventQueue.poll());
     assertInstanceOf(NPRepositoryConfigured.class, eventQueue.poll());
 
@@ -457,13 +490,6 @@ public final class NPRepositoryServiceTest
     final var reposSource =
       unpack("example.git.tar", reposDirectory);
 
-    this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class)
-      .execute(new NPSCMProviderDescription(
-        NPSCMRepositoriesJGit.providerNameGet(),
-        "SCM",
-        URI.create("http://www.example.com")
-      ));
-
     final var repositoryDescription =
       new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
@@ -473,12 +499,25 @@ public final class NPRepositoryServiceTest
         ALLOW_UNSIGNED_COMMITS
       );
 
-    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
-      .execute(repositoryDescription);
+    try (var connection =
+           this.database.openConnection(NORTHPIKE);
+         var transaction =
+           connection.openTransaction()) {
+      transaction.setOwner(new User(this.userId));
+      transaction.queries(SCMProviderPutType.class)
+        .execute(new NPSCMProviderDescription(
+          NPSCMRepositoriesJGit.providerNameGet(),
+          "SCM",
+          URI.create("http://www.example.com")
+        ));
 
-    this.transaction.commit();
+      transaction.queries(RepositoryPutType.class)
+        .execute(repositoryDescription);
+      transaction.commit();
+    }
 
-    this.service.start().get(1L, TimeUnit.SECONDS);
+    this.service.start(PERFORM_NO_UPDATE_ON_STARTUP)
+      .get(1L, TimeUnit.SECONDS);
 
     final var commit =
       new NPCommitID(
@@ -487,13 +526,12 @@ public final class NPRepositoryServiceTest
       );
 
     assertThrows(Exception.class, () -> {
-      this.service.createArchiveFor(commit)
-        .get(10L, TimeUnit.SECONDS);
+      this.service.commitCreateArchiveFor(commit);
     });
   }
 
   /**
-   * Creating an archive of a nonexistent repository works.
+   * Creating an archive of a nonexistent repository fails correctly.
    *
    * @throws Exception On errors
    */
@@ -506,12 +544,74 @@ public final class NPRepositoryServiceTest
     final var reposSource =
       unpack("example.git.tar", reposDirectory);
 
-    this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class)
-      .execute(new NPSCMProviderDescription(
+    final var repositoryDescription =
+      new NPRepositoryDescription(
         NPSCMRepositoriesJGit.providerNameGet(),
-        "SCM",
-        URI.create("http://www.example.com")
-      ));
+        new NPRepositoryID(randomUUID()),
+        reposSource,
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
+      );
+
+    try (var connection =
+           this.database.openConnection(NORTHPIKE);
+         var transaction =
+           connection.openTransaction()) {
+      transaction.setOwner(new User(this.userId));
+      transaction.queries(SCMProviderPutType.class)
+        .execute(new NPSCMProviderDescription(
+          NPSCMRepositoriesJGit.providerNameGet(),
+          "SCM",
+          URI.create("http://www.example.com")
+        ));
+
+      transaction.queries(RepositoryPutType.class)
+        .execute(repositoryDescription);
+
+      transaction.commit();
+    }
+
+    this.service.start(PERFORM_NO_UPDATE_ON_STARTUP)
+      .get(1L, TimeUnit.SECONDS);
+
+    final var commit =
+      new NPCommitID(
+        new NPRepositoryID(randomUUID()),
+        new NPCommitUnqualifiedID("11e4ee346c9a8708688acc4f32beac8955714b6c")
+      );
+
+    assertThrows(Exception.class, () -> {
+      this.service.commitCreateArchiveFor(commit);
+    });
+  }
+
+  /**
+   * Creating a repository works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryPut(
+    final @TempDir Path reposDirectory)
+    throws Exception
+  {
+    final var reposSource =
+      unpack("example.git.tar", reposDirectory);
+
+    try (var connection =
+           this.database.openConnection(NORTHPIKE);
+         var transaction =
+           connection.openTransaction()) {
+      transaction.queries(SCMProviderPutType.class)
+        .execute(new NPSCMProviderDescription(
+          NPSCMRepositoriesJGit.providerNameGet(),
+          "SCM",
+          URI.create("http://www.example.com")
+        ));
+
+      transaction.commit();
+    }
 
     final var repositoryDescription =
       new NPRepositoryDescription(
@@ -522,22 +622,240 @@ public final class NPRepositoryServiceTest
         ALLOW_UNSIGNED_COMMITS
       );
 
-    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
-      .execute(repositoryDescription);
+    this.service.start(PERFORM_NO_UPDATE_ON_STARTUP)
+      .get(1L, TimeUnit.SECONDS);
 
-    this.transaction.commit();
+    LOG.debug("Creating repository...");
 
-    this.service.start().get(1L, TimeUnit.SECONDS);
+    this.service.repositoryPut(
+      new User(this.userId),
+      repositoryDescription
+    );
 
-    final var commit =
-      new NPCommitID(
+    /*
+     * Creating the repository will schedule it for updates in the background.
+     * Wait until the update has finished...
+     */
+
+    final var eventQueue =
+      this.events.eventQueue();
+
+    while (true) {
+      final var e = eventQueue.poll();
+      if (e instanceof NPRepositoryUpdated) {
+        break;
+      }
+      if (e != null) {
+        LOG.debug("{}", e);
+      }
+      Thread.sleep(100L);
+    }
+
+    /*
+     * Now that the repository has been updated, commits are accessible.
+     */
+
+    {
+      final var commitID =
+        new NPCommitID(
+          repositoryDescription.id(),
+          new NPCommitUnqualifiedID("11e4ee346c9a8708688acc4f32beac8955714b6c")
+        );
+
+      final var commit =
+        this.service.commitGet(commitID);
+
+      assertEquals(
+        "Mark 0.0.2",
+        commit.messageSubject()
+      );
+    }
+
+    /*
+     * Getting a nonexistent commit fails.
+     */
+
+    final var ex =
+      assertThrows(NPException.class, () -> {
+        final var commit =
+          new NPCommitID(
+            new NPRepositoryID(randomUUID()),
+            new NPCommitUnqualifiedID("11e4ee346c9a8708688acc4f32beac8955714b6c")
+          );
+        this.service.commitGet(commit);
+      });
+
+    assertEquals(errorNonexistent(), ex.errorCode());
+
+    /*
+     * Getting the repository succeeds.
+     */
+
+    assertEquals(
+      Optional.of(repositoryDescription),
+      this.service.repositoryGet(repositoryDescription.id())
+    );
+
+    /*
+     * Getting the repository succeeds.
+     */
+
+    assertEquals(
+      ALLOW_UNSIGNED_COMMITS,
+      this.service.repositorySigningPolicyFor(repositoryDescription.id())
+    );
+  }
+
+  /**
+   * New commits in a repository are found.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testRepositoryCommitsUpdate(
+    final @TempDir Path reposDirectory)
+    throws Exception
+  {
+    final var reposSource =
+      unpack("example.git.tar", reposDirectory);
+
+    try (var connection =
+           this.database.openConnection(NORTHPIKE);
+         var transaction =
+           connection.openTransaction()) {
+      transaction.queries(SCMProviderPutType.class)
+        .execute(new NPSCMProviderDescription(
+          NPSCMRepositoriesJGit.providerNameGet(),
+          "SCM",
+          URI.create("http://www.example.com")
+        ));
+
+      transaction.commit();
+    }
+
+    final var repositoryDescription =
+      new NPRepositoryDescription(
+        NPSCMRepositoriesJGit.providerNameGet(),
         new NPRepositoryID(randomUUID()),
-        new NPCommitUnqualifiedID("11e4ee346c9a8708688acc4f32beac8955714b6c")
+        reposSource,
+        NPRepositoryCredentialsNone.CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
       );
 
-    assertThrows(Exception.class, () -> {
-      this.service.createArchiveFor(commit)
-        .get(10L, TimeUnit.SECONDS);
-    });
+    this.service.start(PERFORM_NO_UPDATE_ON_STARTUP)
+      .get(1L, TimeUnit.SECONDS);
+
+    LOG.debug("Creating repository...");
+
+    this.service.repositoryPut(
+      new User(this.userId),
+      repositoryDescription
+    );
+
+    /*
+     * Creating the repository will schedule it for updates in the background.
+     * Wait until the update has finished...
+     */
+
+    final var eventQueue =
+      this.events.eventQueue();
+
+    while (true) {
+      final var e = eventQueue.poll();
+      if (e instanceof NPRepositoryUpdated) {
+        break;
+      }
+      if (e != null) {
+        LOG.debug("{}", e);
+      }
+      Thread.sleep(100L);
+    }
+
+    final var allCommits =
+      List.of(
+        "f6d27f77259522f10f7062efca687978531456a4",
+        "30dfe62404b3f4338297432d95e17b0630d0960c",
+        "11e4ee346c9a8708688acc4f32beac8955714b6c",
+        "e4b4a304374886824d94b8cdf49d44c76081eeaf",
+        "a6f4b51d85271d34e6cd79424416afaf0554d826",
+        "b155d186fce6d0525b8348cc48dd778fda6c6a85",
+        "5634fee48558be958830b324dd283bbde568aeb4",
+        "27b00e3adce185f2b00096894e0b6bf34e9a157f",
+        "9141a3dc3b8f0444b61aae7d4f26afcd9b6d7dbd",
+        "f512486ea90cab4a8f00bc01f2ba2083f65aa0ab",
+        "db164a1037656bfe0f4253bf9ea882ab28696b77",
+        "293d2389c729ff9574f55fcb211d4594f14193f2",
+        "6cf9c3deec2e9663a204a8ca2c30717ff4366e5d"
+      );
+
+    /*
+     * Now that the repository has been updated, commits are accessible.
+     */
+
+    for (final var commitID : allCommits) {
+      final var qId =
+        new NPCommitID(
+          repositoryDescription.id(),
+          new NPCommitUnqualifiedID(commitID)
+        );
+
+      final var commit =
+        this.service.commitGet(qId);
+
+      assertEquals(qId, commit.id());
+    }
+
+    /*
+     * Make new commits.
+     */
+
+    final String newCommitId;
+    try (var git = Git.cloneRepository()
+      .setBare(false)
+      .setDirectory(reposDirectory.resolve("clone").toFile())
+      .setURI(reposSource.toString())
+      .call()) {
+
+      final var commitCmd =
+        git.commit();
+      final var commit =
+        commitCmd.setMessage("A new never-seen-before commit.")
+          .setSign(Boolean.FALSE)
+          .call();
+
+      newCommitId = commit.name();
+      git.push().call();
+    }
+
+    /*
+     * Update the original repository.
+     */
+
+    this.service.repositoryUpdate(repositoryDescription.id())
+      .get();
+
+    /*
+     * The newly-created commit should now be visible.
+     */
+
+    {
+      final var newCommit =
+        this.service.commitGet(
+        new NPCommitID(
+          repositoryDescription.id(),
+          new NPCommitUnqualifiedID(newCommitId)
+        )
+      );
+
+      assertEquals(
+        "A new never-seen-before commit.",
+        newCommit.messageSubject()
+      );
+      assertEquals(
+        newCommitId,
+        newCommit.id().commitId().value()
+      );
+    }
   }
 }

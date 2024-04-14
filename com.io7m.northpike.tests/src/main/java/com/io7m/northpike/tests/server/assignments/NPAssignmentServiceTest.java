@@ -24,13 +24,16 @@ import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.northpike.clock.NPClock;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionGetType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogListType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionLogListType;
 import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPArchiveLinks;
+import com.io7m.northpike.model.NPCommit;
+import com.io7m.northpike.model.NPCommitAuthor;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPHash;
 import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
@@ -79,10 +82,14 @@ import java.net.URI;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
+import static com.io7m.northpike.model.NPStandardErrorCodes.errorIo;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -265,7 +272,9 @@ public final class NPAssignmentServiceTest
   {
     final var assignment =
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
-        ALLOW_UNSIGNED_COMMITS, createPlanEmptyTask());
+        ALLOW_UNSIGNED_COMMITS,
+        createPlanEmptyTask()
+      );
 
     final var assignmentService =
       NPAssignmentService.create(this.services);
@@ -286,11 +295,28 @@ public final class NPAssignmentServiceTest
         URI.create("http://example.com/checksum")
       ));
 
-    Mockito.when(this.repositories.checkOne(any()))
+    Mockito.when(this.repositories.commitGet(any()))
+      .thenReturn(
+        new NPCommit(
+          ASSIGNMENT_FIXTURE.commitUnsigned(),
+          OffsetDateTime.now(),
+          OffsetDateTime.now(),
+          new NPCommitAuthor("Author", "someone@example.com"),
+          "Subject",
+          "Body",
+          Set.of(),
+          Set.of()
+        )
+      );
+
+    Mockito.when(this.repositories.repositorySigningPolicyFor(any()))
+      .thenReturn(ALLOW_UNSIGNED_COMMITS);
+
+    Mockito.when(this.repositories.repositoryUpdate(any()))
       .thenReturn(CompletableFuture.completedFuture(null));
 
-    Mockito.when(this.repositories.createArchiveFor(any()))
-      .thenReturn(CompletableFuture.completedFuture(archive));
+    Mockito.when(this.repositories.commitCreateArchiveFor(any()))
+      .thenReturn(archive);
 
     final var inProgress =
       assignmentService.requestExecution(
@@ -328,8 +354,8 @@ public final class NPAssignmentServiceTest
     final var assignmentService =
       NPAssignmentService.create(this.services);
 
-    Mockito.when(this.repositories.createArchiveFor(any()))
-      .thenReturn(CompletableFuture.failedFuture(new IOException()));
+    Mockito.when(this.repositories.commitCreateArchiveFor(any()))
+      .thenThrow(new NPException("Ouch!", errorIo(), Map.of(), Optional.empty()));
 
     final var inProgress =
       assignmentService.requestExecution(
@@ -356,9 +382,9 @@ public final class NPAssignmentServiceTest
     try (var connection = this.database.openConnection(NPDatabaseRole.NORTHPIKE)) {
       try (var transaction = connection.openTransaction()) {
         final var paged =
-          transaction.queries(ExecutionLogListType.class)
+          transaction.queries(AssignmentExecutionLogListType.class)
             .execute(
-              new ExecutionLogListType.Parameters(
+              new AssignmentExecutionLogListType.Parameters(
                 execution,
                 true,
                 1000L
@@ -387,7 +413,7 @@ public final class NPAssignmentServiceTest
   {
     try (var connection = this.database.openConnection(NPDatabaseRole.NORTHPIKE)) {
       try (var transaction = connection.openTransaction()) {
-        return transaction.queries(ExecutionGetType.class)
+        return transaction.queries(AssignmentExecutionGetType.class)
           .execute(inProgress.executionId())
           .orElseThrow();
       }

@@ -33,7 +33,7 @@ public sealed interface NPDatabaseQueriesSCMProvidersType
    * Update the given SCM provider.
    */
 
-  non-sealed interface PutType
+  non-sealed interface SCMProviderPutType
     extends NPDatabaseQueryType<NPSCMProviderDescription, NPDatabaseUnit>,
     NPDatabaseQueriesSCMProvidersType
   {
@@ -44,7 +44,7 @@ public sealed interface NPDatabaseQueriesSCMProvidersType
    * Retrieve an SCM provider.
    */
 
-  non-sealed interface GetType
+  non-sealed interface SCMProviderGetType
     extends NPDatabaseQueryType<RDottedName, Optional<NPSCMProviderDescription>>,
     NPDatabaseQueriesSCMProvidersType
   {

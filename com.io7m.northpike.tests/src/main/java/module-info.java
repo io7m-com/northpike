@@ -148,6 +148,7 @@ open module com.io7m.northpike.tests
   requires org.apache.commons.lang3;
   requires org.apache.commons.text;
   requires org.bouncycastle.pg;
+  requires org.eclipse.jgit;
   requires org.graalvm.js;
   requires org.graalvm.polyglot;
   requires org.graalvm.truffle.compiler;

@@ -217,9 +217,9 @@ public final class NPUCmdAssignmentPutTest
       .thenReturn(user);
 
     final var reposPut =
-      Mockito.mock(NPDatabaseQueriesAssignmentsType.PutType.class);
+      Mockito.mock(NPDatabaseQueriesAssignmentsType.AssignmentPutType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentPutType.class))
       .thenReturn(reposPut);
 
     final var r = handler.execute(this.context, command);

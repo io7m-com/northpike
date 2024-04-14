@@ -24,8 +24,8 @@ import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyAssignType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyIsAssignedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyAssignType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyIsAssignedType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPFingerprint;
@@ -191,11 +191,11 @@ public final class NPDatabasePublicKeysTest
       this.transaction.queries(NPDatabaseQueriesPublicKeysType.DeleteType.class);
 
     final var reposPut =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var reposKeyAssign =
-      this.transaction.queries(PublicKeyAssignType.class);
+      this.transaction.queries(RepositoryPublicKeyAssignType.class);
     final var reposKeyAssigned =
-      this.transaction.queries(PublicKeyIsAssignedType.class);
+      this.transaction.queries(RepositoryPublicKeyIsAssignedType.class);
 
     final var description =
       new NPPublicKey(
@@ -218,13 +218,13 @@ public final class NPDatabasePublicKeysTest
     reposPut.execute(repositoryDescription);
     put.execute(description);
 
-    reposKeyAssign.execute(new PublicKeyAssignType.Parameters(
+    reposKeyAssign.execute(new RepositoryPublicKeyAssignType.Parameters(
       repositoryDescription.id(),
       description.fingerprint()
     ));
 
     assertTrue(
-      reposKeyAssigned.execute(new PublicKeyIsAssignedType.Parameters(
+      reposKeyAssigned.execute(new RepositoryPublicKeyIsAssignedType.Parameters(
         repositoryDescription.id(),
         description.fingerprint()
       )).booleanValue()
@@ -233,7 +233,7 @@ public final class NPDatabasePublicKeysTest
     delete.execute(description.fingerprint());
 
     assertFalse(
-      reposKeyAssigned.execute(new PublicKeyIsAssignedType.Parameters(
+      reposKeyAssigned.execute(new RepositoryPublicKeyIsAssignedType.Parameters(
         repositoryDescription.id(),
         description.fingerprint()
       )).booleanValue()

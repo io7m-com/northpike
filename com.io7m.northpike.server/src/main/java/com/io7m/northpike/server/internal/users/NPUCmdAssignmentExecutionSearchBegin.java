@@ -18,7 +18,7 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.database.api.NPAssignmentExecutionsPagedType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionSearchType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
@@ -62,7 +62,7 @@ public final class NPUCmdAssignmentExecutionSearchBegin
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         final var paged =
-          transaction.queries(ExecutionSearchType.class)
+          transaction.queries(AssignmentExecutionSearchType.class)
             .execute(command.parameters());
 
         context.setProperty(NPAssignmentExecutionsPagedType.class, paged);

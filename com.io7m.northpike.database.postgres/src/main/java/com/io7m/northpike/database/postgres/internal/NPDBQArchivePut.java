@@ -37,10 +37,10 @@ import static com.io7m.northpike.strings.NPStringConstants.COMMIT;
 
 public final class NPDBQArchivePut
   extends NPDBQAbstract<NPArchive, NPDatabaseUnit>
-  implements NPDatabaseQueriesArchivesType.PutType
+  implements NPDatabaseQueriesArchivesType.ArchivePutType
 {
-  private static final Service<NPArchive, NPDatabaseUnit, PutType> SERVICE =
-    new Service<>(PutType.class, NPDBQArchivePut::new);
+  private static final Service<NPArchive, NPDatabaseUnit, ArchivePutType> SERVICE =
+    new Service<>(ArchivePutType.class, NPDBQArchivePut::new);
 
   /**
    * Construct a query.

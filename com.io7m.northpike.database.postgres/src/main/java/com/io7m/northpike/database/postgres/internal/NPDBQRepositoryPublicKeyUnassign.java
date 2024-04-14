@@ -19,7 +19,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyUnassignType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyUnassignType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import org.jooq.DSLContext;
@@ -35,12 +35,16 @@ import static java.util.Map.entry;
  */
 
 public final class NPDBQRepositoryPublicKeyUnassign
-  extends NPDBQAbstract<PublicKeyUnassignType.Parameters, NPDatabaseUnit>
-  implements PublicKeyUnassignType
+  extends NPDBQAbstract<RepositoryPublicKeyUnassignType.Parameters, NPDatabaseUnit>
+  implements RepositoryPublicKeyUnassignType
 {
-  private static final Service<PublicKeyUnassignType.Parameters, NPDatabaseUnit, PublicKeyUnassignType> SERVICE =
+  private static final Service<
+    RepositoryPublicKeyUnassignType.Parameters,
+    NPDatabaseUnit,
+    RepositoryPublicKeyUnassignType>
+    SERVICE =
     new Service<>(
-      PublicKeyUnassignType.class,
+      RepositoryPublicKeyUnassignType.class,
       NPDBQRepositoryPublicKeyUnassign::new
     );
 
@@ -59,7 +63,7 @@ public final class NPDBQRepositoryPublicKeyUnassign
   @Override
   protected NPDatabaseUnit onExecute(
     final DSLContext context,
-    final PublicKeyUnassignType.Parameters parameters)
+    final RepositoryPublicKeyUnassignType.Parameters parameters)
     throws NPDatabaseException
   {
     this.setAttribute(REPOSITORY, parameters.repositoryId().toString());

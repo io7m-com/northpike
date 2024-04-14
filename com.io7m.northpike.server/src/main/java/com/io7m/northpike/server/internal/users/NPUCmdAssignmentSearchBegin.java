@@ -61,7 +61,7 @@ public final class NPUCmdAssignmentSearchBegin
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         final var paged =
-          transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class)
+          transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentSearchType.class)
             .execute(command.parameters());
 
         context.setProperty(NPAssignmentsPagedType.class, paged);

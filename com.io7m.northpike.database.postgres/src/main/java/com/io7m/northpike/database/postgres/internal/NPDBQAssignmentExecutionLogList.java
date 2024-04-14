@@ -25,7 +25,7 @@ import com.io7m.jqpage.core.JQKeysetRandomAccessPaginationParameters;
 import com.io7m.jqpage.core.JQOrder;
 import com.io7m.northpike.database.api.NPAssignmentExecutionLogPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogListType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionLogListType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
@@ -48,13 +48,13 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_ST
  */
 
 public final class NPDBQAssignmentExecutionLogList
-  extends NPDBQAbstract<ExecutionLogListType.Parameters, NPAssignmentExecutionLogPagedType>
-  implements ExecutionLogListType
+  extends NPDBQAbstract<AssignmentExecutionLogListType.Parameters, NPAssignmentExecutionLogPagedType>
+  implements AssignmentExecutionLogListType
 {
   private static final Service<
-    Parameters, NPAssignmentExecutionLogPagedType, ExecutionLogListType> SERVICE =
+    Parameters, NPAssignmentExecutionLogPagedType, AssignmentExecutionLogListType> SERVICE =
     new Service<>(
-      ExecutionLogListType.class,
+      AssignmentExecutionLogListType.class,
       NPDBQAssignmentExecutionLogList::new
     );
 

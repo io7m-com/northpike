@@ -21,8 +21,7 @@ import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPAssignmentExecutionsPagedType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionSearchType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPErrorCode;
@@ -253,9 +252,9 @@ public final class NPUCmdAssignmentExecutionSearchBeginTest
       );
 
     final var list =
-      Mockito.mock(ExecutionSearchType.class);
+      Mockito.mock(AssignmentExecutionSearchType.class);
 
-    Mockito.when(this.transaction.queries(ExecutionSearchType.class))
+    Mockito.when(this.transaction.queries(AssignmentExecutionSearchType.class))
       .thenReturn(list);
 
     final var paged =
@@ -274,7 +273,7 @@ public final class NPUCmdAssignmentExecutionSearchBeginTest
     Mockito.verify(this.context, new Times(1))
       .setProperty(NPAssignmentExecutionsPagedType.class, paged);
     Mockito.verify(this.transaction, new Times(1))
-      .queries(NPDatabaseQueriesAssignmentsType.ExecutionSearchType.class);
+      .queries(AssignmentExecutionSearchType.class);
     Mockito.verify(this.transaction, new Times(1))
       .close();
     Mockito.verifyNoMoreInteractions(this.transaction);

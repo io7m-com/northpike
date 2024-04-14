@@ -20,8 +20,8 @@ package com.io7m.northpike.tests.server.users;
 import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionDeleteType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPErrorCode;
@@ -47,7 +47,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType.DeletionScope.DELETE_EVERYTHING;
+import static com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionDeleteType.DeletionScope.DELETE_EVERYTHING;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorAuthentication;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorSecurityPolicyDenied;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
@@ -218,9 +218,9 @@ public final class NPUCmdAssignmentExecutionDeleteTest
       .thenReturn(user);
 
     final var execDelete =
-      Mockito.mock(ExecutionDeleteType.class);
+      Mockito.mock(AssignmentExecutionDeleteType.class);
 
-    Mockito.when(this.transaction.queries(ExecutionDeleteType.class))
+    Mockito.when(this.transaction.queries(AssignmentExecutionDeleteType.class))
       .thenReturn(execDelete);
 
     final var r = handler.execute(this.context, command);
@@ -234,7 +234,7 @@ public final class NPUCmdAssignmentExecutionDeleteTest
     Mockito.verify(this.transaction, new Times(1))
       .setOwner(new NPAuditOwnerType.User(user.userId()));
     Mockito.verify(this.transaction, new Times(1))
-      .queries(ExecutionDeleteType.class);
+      .queries(AssignmentExecutionDeleteType.class);
     Mockito.verify(this.transaction, new Times(1))
       .commit();
     Mockito.verify(this.transaction, new Times(1))

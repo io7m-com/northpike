@@ -45,10 +45,10 @@ import static java.util.Map.entry;
 
 public final class NPDBQRepositoryPut
   extends NPDBQAbstract<NPRepositoryDescription, NPDatabaseUnit>
-  implements NPDatabaseQueriesRepositoriesType.PutType
+  implements NPDatabaseQueriesRepositoriesType.RepositoryPutType
 {
-  private static final Service<NPRepositoryDescription, NPDatabaseUnit, PutType> SERVICE =
-    new Service<>(PutType.class, NPDBQRepositoryPut::new);
+  private static final Service<NPRepositoryDescription, NPDatabaseUnit, RepositoryPutType> SERVICE =
+    new Service<>(RepositoryPutType.class, NPDBQRepositoryPut::new);
 
   /**
    * Construct a query.

@@ -18,8 +18,8 @@
 package com.io7m.northpike.server.internal.assignments;
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogAddType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogAddType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionLogAddType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionLogAddType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPStoredException;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionID;
@@ -66,7 +66,7 @@ public final class NPAssignmentLogging
       attributes = Map.of();
     }
 
-    transaction.queries(ExecutionLogAddType.class)
+    transaction.queries(AssignmentExecutionLogAddType.class)
       .execute(
         new Parameters(
           executionId,
@@ -97,7 +97,7 @@ public final class NPAssignmentLogging
     final String text)
     throws NPDatabaseException
   {
-    transaction.queries(ExecutionLogAddType.class)
+    transaction.queries(AssignmentExecutionLogAddType.class)
       .execute(new Parameters(
         executionId,
         eventIndex,
@@ -126,7 +126,7 @@ public final class NPAssignmentLogging
     final String text)
     throws NPDatabaseException
   {
-    transaction.queries(ExecutionLogAddType.class)
+    transaction.queries(AssignmentExecutionLogAddType.class)
       .execute(new Parameters(
         executionId,
         eventIndex,

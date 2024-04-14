@@ -255,9 +255,9 @@ public final class NPUCmdRepositorySearchBeginTest
       );
 
     final var list =
-      Mockito.mock(NPDatabaseQueriesRepositoriesType.ListType.class);
+      Mockito.mock(NPDatabaseQueriesRepositoriesType.RepositoryListType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesRepositoriesType.ListType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryListType.class))
       .thenReturn(list);
 
     final var paged =
@@ -276,7 +276,7 @@ public final class NPUCmdRepositorySearchBeginTest
     Mockito.verify(this.context, new Times(1))
       .setProperty(NPRepositoriesPagedType.class, paged);
     Mockito.verify(this.transaction, new Times(1))
-      .queries(NPDatabaseQueriesRepositoriesType.ListType.class);
+      .queries(NPDatabaseQueriesRepositoriesType.RepositoryListType.class);
     Mockito.verify(this.transaction, new Times(1))
       .close();
     Mockito.verifyNoMoreInteractions(this.transaction);

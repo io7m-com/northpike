@@ -37,11 +37,11 @@ import static com.io7m.northpike.database.postgres.internal.enums.AssignmentExec
 
 public final class NPDBQAssignmentExecutionsCancelAll
   extends NPDBQAbstract<NPDatabaseUnit, Long>
-  implements NPDatabaseQueriesAssignmentsType.ExecutionsCancelAllType
+  implements NPDatabaseQueriesAssignmentsType.AssignmentExecutionsCancelAllType
 {
-  private static final Service<NPDatabaseUnit, Long, ExecutionsCancelAllType> SERVICE =
+  private static final Service<NPDatabaseUnit, Long, AssignmentExecutionsCancelAllType> SERVICE =
     new Service<>(
-      ExecutionsCancelAllType.class,
+      AssignmentExecutionsCancelAllType.class,
       NPDBQAssignmentExecutionsCancelAll::new);
 
   /**

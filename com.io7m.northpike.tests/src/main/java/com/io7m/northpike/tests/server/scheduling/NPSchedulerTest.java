@@ -23,8 +23,8 @@ import com.io7m.northpike.database.api.NPAssignmentsPagedType;
 import com.io7m.northpike.database.api.NPCommitSummaryPagedType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.CommitsNotExecutedType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.SearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentCommitsNotExecutedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentSearchType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPCommitID;
@@ -76,9 +76,9 @@ public final class NPSchedulerTest
   private NPSchedulerType scheduler;
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
-  private SearchType assignmentSearch;
+  private AssignmentSearchType assignmentSearch;
   private NPAssignmentsPagedType assignmentsPaged;
-  private CommitsNotExecutedType commitsNotExecuted;
+  private AssignmentCommitsNotExecutedType commitsNotExecuted;
   private NPCommitSummaryPagedType commitsPaged;
 
   @BeforeEach
@@ -110,17 +110,17 @@ public final class NPSchedulerTest
     this.assignmentsPaged =
       Mockito.mock(NPAssignmentsPagedType.class);
     this.assignmentSearch =
-      Mockito.mock(SearchType.class);
+      Mockito.mock(AssignmentSearchType.class);
     this.commitsNotExecuted =
-      Mockito.mock(CommitsNotExecutedType.class);
+      Mockito.mock(AssignmentCommitsNotExecutedType.class);
     this.commitsPaged =
       Mockito.mock(NPCommitSummaryPagedType.class);
 
     Mockito.when(this.assignmentSearch.execute(any()))
       .thenReturn(this.assignmentsPaged);
-    Mockito.when(this.transaction.queries(SearchType.class))
+    Mockito.when(this.transaction.queries(AssignmentSearchType.class))
       .thenReturn(this.assignmentSearch);
-    Mockito.when(this.transaction.queries(CommitsNotExecutedType.class))
+    Mockito.when(this.transaction.queries(AssignmentCommitsNotExecutedType.class))
       .thenReturn(this.commitsNotExecuted);
     Mockito.when(this.commitsNotExecuted.execute(any()))
       .thenReturn(this.commitsPaged);
@@ -302,7 +302,7 @@ public final class NPSchedulerTest
     this.scheduler.tick();
 
     Mockito.verify(this.repositories, new Times(1))
-      .checkOne(eq(repositoryId));
+      .repositoryUpdate(eq(repositoryId));
 
     Mockito.verify(this.assignments, new Times(1))
       .requestExecution(eq(new NPAssignmentExecutionRequest(
@@ -390,7 +390,7 @@ public final class NPSchedulerTest
     this.scheduler.tick();
 
     Mockito.verify(this.repositories, new Times(1))
-      .checkOne(eq(repositoryId));
+      .repositoryUpdate(eq(repositoryId));
 
     Mockito.verify(this.assignments, new Times(1))
       .requestExecution(eq(new NPAssignmentExecutionRequest(
@@ -479,7 +479,7 @@ public final class NPSchedulerTest
     this.scheduler.tick();
 
     Mockito.verify(this.repositories, new Times(1))
-      .checkOne(eq(repositoryId));
+      .repositoryUpdate(eq(repositoryId));
 
     Mockito.verify(this.assignments, new Times(1))
       .requestExecution(eq(new NPAssignmentExecutionRequest(
@@ -516,7 +516,7 @@ public final class NPSchedulerTest
     final var future = new CompletableFuture<Void>();
     future.complete(null);
 
-    Mockito.when(this.repositories.checkOne(eq(repositoryId)))
+    Mockito.when(this.repositories.repositoryUpdate(eq(repositoryId)))
       .thenReturn(future);
 
     Mockito.when(this.commitsPaged.pageCurrent(any()))
@@ -596,7 +596,7 @@ public final class NPSchedulerTest
     this.fakeClock.timeNow =
       Instant.parse("2001-01-01T00:03:00+00:00");
 
-    Mockito.when(this.repositories.checkOne(any()))
+    Mockito.when(this.repositories.repositoryUpdate(any()))
       .thenReturn(CompletableFuture.completedFuture(null));
 
     Mockito.when(this.commitsPaged.pageCurrent(any()))
@@ -625,7 +625,7 @@ public final class NPSchedulerTest
     this.scheduler.tick();
 
     Mockito.verify(this.repositories, new Times(1))
-      .checkOne(eq(repositoryId));
+      .repositoryUpdate(eq(repositoryId));
 
     Mockito.verify(this.assignments, new Times(1))
       .requestExecution(eq(new NPAssignmentExecutionRequest(
@@ -764,13 +764,13 @@ public final class NPSchedulerTest
 
     this.setupCommitsForExecution(repositoryId);
 
-    Mockito.when(this.repositories.checkOne(any()))
+    Mockito.when(this.repositories.repositoryUpdate(any()))
       .thenReturn(CompletableFuture.failedFuture(new IOException("Ouch!")));
 
     this.scheduler.tick();
 
     Mockito.verify(this.repositories, new Times(1))
-      .checkOne(eq(repositoryId));
+      .repositoryUpdate(eq(repositoryId));
 
     Mockito.verify(this.events, new Times(1))
       .emit(eq(new NPSchedulerScheduled(
@@ -840,7 +840,7 @@ public final class NPSchedulerTest
     final var future = new CompletableFuture<Void>();
     future.complete(null);
 
-    Mockito.when(this.repositories.checkOne(eq(repositoryId)))
+    Mockito.when(this.repositories.repositoryUpdate(eq(repositoryId)))
       .thenReturn(future);
 
     Mockito.when(this.commitsNotExecuted.execute(any()))
@@ -857,7 +857,7 @@ public final class NPSchedulerTest
     this.scheduler.tick();
 
     Mockito.verify(this.repositories, new Times(1))
-      .checkOne(eq(repositoryId));
+      .repositoryUpdate(eq(repositoryId));
 
     Mockito.verify(this.events, new Times(1))
       .emit(eq(new NPSchedulerScheduled(

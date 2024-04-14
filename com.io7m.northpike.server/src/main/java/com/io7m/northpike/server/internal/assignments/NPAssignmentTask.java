@@ -22,13 +22,10 @@ import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType.Parameters;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionPutType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.GetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitGetType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyIsAssignedType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.GetExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
@@ -112,10 +109,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -288,7 +283,6 @@ public final class NPAssignmentTask
     try (var ignored = span.makeCurrent()) {
       try {
         this.assignmentCreateInitialState();
-        this.assignmentInitializeRepository();
         this.assignmentCreateExecution();
         this.assignmentCheckAllowed();
         this.assignmentCreateArchive();
@@ -310,7 +304,7 @@ public final class NPAssignmentTask
   }
 
   private void assignmentCheckAllowed()
-    throws Exception
+    throws InterruptedException, NPException
   {
     this.logInfo("Checking commit signature against signing policy.");
 
@@ -335,15 +329,14 @@ public final class NPAssignmentTask
 
         try {
           final var fingerprint =
-            this.repositories.verifyCommitSignature(
+            this.repositories.commitSignatureVerify(
                 this.commit.id(),
-                this::findKey)
-              .get(5L, TimeUnit.MINUTES);
+                this::findKey);
 
           this.logInfo("Commit has valid signature from key %s.", fingerprint);
-        } catch (final ExecutionException e) {
+        } catch (final Exception e) {
           this.assignmentFailed();
-          throw (Exception) e.getCause();
+          throw e;
         }
       }
 
@@ -358,10 +351,9 @@ public final class NPAssignmentTask
 
         try {
           final var fingerprint =
-            this.repositories.verifyCommitSignature(
+            this.repositories.commitSignatureVerify(
                 this.commit.id(),
-                this::findKey)
-              .get(5L, TimeUnit.MINUTES);
+                this::findKey);
 
           final var isKeyAssigned =
             this.keyIsAssignedToCurrentRepository(fingerprint);
@@ -371,9 +363,9 @@ public final class NPAssignmentTask
           }
 
           this.logInfo("Commit has valid signature from key %s.", fingerprint);
-        } catch (final ExecutionException e) {
+        } catch (final Exception e) {
           this.assignmentFailed();
-          throw (Exception) e.getCause();
+          throw e;
         }
       }
     }
@@ -409,16 +401,10 @@ public final class NPAssignmentTask
   }
 
   private NPRepositorySigningPolicy assignmentGetSigningPolicy()
-    throws NPDatabaseException, NPServerException
+    throws NPException, InterruptedException
   {
-    try (var connection = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
-      try (var transaction = connection.openTransaction()) {
-        return transaction.queries(NPDatabaseQueriesRepositoriesType.GetType.class)
-          .execute(this.assignment.repositoryId())
-          .orElseThrow(this::errorNonexistentRepository)
-          .signingPolicy();
-      }
-    }
+    return this.repositories.repositorySigningPolicyFor(this.assignment.repositoryId());
+
   }
 
   private NPServerException errorKeyNotAssignedToRepository(
@@ -447,17 +433,12 @@ public final class NPAssignmentTask
 
   private boolean keyIsAssignedToCurrentRepository(
     final NPFingerprint fingerprint)
-    throws NPDatabaseException
+    throws NPException, InterruptedException
   {
-    try (var connection = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
-      try (var transaction = connection.openTransaction()) {
-        return transaction.queries(PublicKeyIsAssignedType.class)
-          .execute(new PublicKeyIsAssignedType.Parameters(
-            this.commit.id().repository(),
-            fingerprint
-          )).booleanValue();
-      }
-    }
+    return this.repositories.repositoryHasPublicKeyAssigned(
+      this.commit.id().repository(),
+      fingerprint
+    );
   }
 
   private void recordExceptionText(
@@ -588,39 +569,6 @@ public final class NPAssignmentTask
     return this.eventIndex.getAndIncrement();
   }
 
-  private NPServerException errorNonexistentRepository()
-  {
-    return new NPServerException(
-      this.strings.format(ERROR_NONEXISTENT),
-      errorNonexistent(),
-      Map.ofEntries(
-        Map.entry(
-          this.strings.format(REPOSITORY),
-          this.assignment.repositoryId().toString()
-        )
-      ),
-      Optional.empty()
-    );
-  }
-
-  private NPServerException errorNonexistentCommit()
-  {
-    return new NPServerException(
-      this.strings.format(ERROR_NONEXISTENT),
-      errorNonexistent(),
-      Map.ofEntries(
-        Map.entry(
-          this.strings.format(COMMIT),
-          this.assignmentRequest.commit().value()
-        ),
-        Map.entry(
-          this.strings.format(REPOSITORY),
-          this.assignment.repositoryId().toString()
-        )
-      ),
-      Optional.empty()
-    );
-  }
 
   private NPServerException errorNonexistentPlan(
     final NPPlanIdentifier planId)
@@ -662,12 +610,10 @@ public final class NPAssignmentTask
     throws Exception
   {
     try {
-      this.archive =
-        this.repositories.createArchiveFor(this.commit.id())
-          .get(5L, TimeUnit.MINUTES);
-    } catch (final ExecutionException e) {
+      this.archive = this.repositories.commitCreateArchiveFor(this.commit.id());
+    } catch (final Exception e) {
       this.assignmentFailed();
-      throw (Exception) e.getCause();
+      throw e;
     }
   }
 
@@ -1088,47 +1034,23 @@ public final class NPAssignmentTask
     }
   }
 
-  /**
-   * Check the repository used for the assignment. This ensures that the
-   * repository exists.
-   *
-   * @throws Exception On errors
-   */
-
-  private void assignmentInitializeRepository()
-    throws Exception
-  {
-    try {
-      this.repositories.checkOne(this.assignment.repositoryId())
-        .get(5L, TimeUnit.MINUTES);
-    } catch (final Exception e) {
-      this.setState(
-        new NPAssignmentExecutionStateCreationFailed(
-          this.executionId,
-          this.assignmentRequest,
-          this.timeCalculateCreated()
-        )
-      );
-      throw e;
-    }
-  }
-
   private void assignmentCreateExecution()
-    throws NPException
+    throws NPException, InterruptedException
   {
     try {
-      try (var connection = this.database.openConnection(NORTHPIKE)) {
-        try (var transaction = connection.openTransaction()) {
-          this.commit =
-            this.findCommit(transaction);
-          this.assignmentExecution =
-            new NPAssignmentExecution(
-              this.executionId,
-              this.assignment,
-              this.commit.id().commitId()
-            );
-        }
-      }
+      this.commit =
+        this.repositories.commitGet(
+          new NPCommitID(
+            this.assignment.repositoryId(),
+            this.assignmentRequest.commit()
+          )
+        );
+      this.assignmentExecution =
+        new NPAssignmentExecution(
+          this.executionId,
+          this.assignment,
+          this.commit.id().commitId()
+        );
     } catch (final NPException e) {
       this.setState(
         new NPAssignmentExecutionStateCreationFailed(
@@ -1141,26 +1063,11 @@ public final class NPAssignmentTask
     }
   }
 
-  private NPCommit findCommit(
-    final NPDatabaseTransactionType transaction)
-    throws NPDatabaseException, NPServerException
-  {
-    final var commitID =
-      new NPCommitID(
-        this.assignment.repositoryId(),
-        this.assignmentRequest.commit()
-      );
-
-    return transaction.queries(CommitGetType.class)
-      .execute(commitID)
-      .orElseThrow(this::errorNonexistentCommit);
-  }
-
   private NPAssignment findAssignment(
     final NPDatabaseTransactionType transaction)
     throws NPDatabaseException, NPServerException
   {
-    return transaction.queries(GetType.class)
+    return transaction.queries(AssignmentGetType.class)
       .execute(this.assignmentRequest.assignment())
       .orElseThrow(this::errorNonexistentAssignment);
   }
@@ -1346,7 +1253,7 @@ public final class NPAssignmentTask
     );
 
     try {
-      transaction.queries(ExecutionPutType.class)
+      transaction.queries(AssignmentExecutionPutType.class)
         .execute(this.executionState);
     } catch (final NPDatabaseException e) {
       recordSpanException(e);

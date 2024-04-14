@@ -19,7 +19,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPCommit;
@@ -44,11 +44,11 @@ import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_CO
  */
 
 public final class NPDBQRepositoryCommitsPut
-  extends NPDBQAbstract<CommitsPutType.Parameters, NPDatabaseUnit>
-  implements CommitsPutType
+  extends NPDBQAbstract<RepositoryCommitsPutType.Parameters, NPDatabaseUnit>
+  implements RepositoryCommitsPutType
 {
-  private static final Service<CommitsPutType.Parameters, NPDatabaseUnit, CommitsPutType> SERVICE =
-    new Service<>(CommitsPutType.class, NPDBQRepositoryCommitsPut::new);
+  private static final Service<RepositoryCommitsPutType.Parameters, NPDatabaseUnit, RepositoryCommitsPutType> SERVICE =
+    new Service<>(RepositoryCommitsPutType.class, NPDBQRepositoryCommitsPut::new);
 
   /**
    * Construct a query.
@@ -74,7 +74,7 @@ public final class NPDBQRepositoryCommitsPut
   @Override
   protected NPDatabaseUnit onExecute(
     final DSLContext context,
-    final CommitsPutType.Parameters description)
+    final RepositoryCommitsPutType.Parameters description)
     throws NPDatabaseException
   {
     final var commitGraph =

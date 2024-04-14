@@ -21,7 +21,7 @@ import com.io7m.idstore.model.IdName;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionWorkItemsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionWorkItemsType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
@@ -215,12 +215,12 @@ public final class NPUCmdAssignmentExecutionWorkItemsTest
         )).collect(Collectors.toUnmodifiableSet());
 
     final var workItemsGet =
-      Mockito.mock(ExecutionWorkItemsType.class);
+      Mockito.mock(AssignmentExecutionWorkItemsType.class);
 
     Mockito.when(workItemsGet.execute(any()))
       .thenReturn(workItems);
 
-    Mockito.when(this.transaction.queries(ExecutionWorkItemsType.class))
+    Mockito.when(this.transaction.queries(AssignmentExecutionWorkItemsType.class))
       .thenReturn(workItemsGet);
 
     Mockito.when(this.context.onAuthenticationRequire())

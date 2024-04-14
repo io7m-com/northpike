@@ -23,7 +23,7 @@ import com.io7m.jqpage.core.JQKeysetRandomAccessPagination;
 import com.io7m.jqpage.core.JQKeysetRandomAccessPaginationParameters;
 import com.io7m.northpike.database.api.NPCommitSummaryLinkedPagedType;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryCommitsGetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.database.postgres.internal.tables.RepositoryCommits;
 import com.io7m.northpike.model.NPCommitID;
@@ -55,10 +55,16 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_ST
 
 public final class NPDBQRepositoryCommitsGet
   extends NPDBQAbstract<NPCommitSearchParameters, NPCommitSummaryLinkedPagedType>
-  implements CommitsGetType
+  implements RepositoryCommitsGetType
 {
-  private static final Service<NPCommitSearchParameters, NPCommitSummaryLinkedPagedType, CommitsGetType> SERVICE =
-    new Service<>(CommitsGetType.class, NPDBQRepositoryCommitsGet::new);
+  private static final Service<
+    NPCommitSearchParameters,
+    NPCommitSummaryLinkedPagedType,
+    RepositoryCommitsGetType>
+    SERVICE =
+    new Service<>(
+      RepositoryCommitsGetType.class,
+      NPDBQRepositoryCommitsGet::new);
 
   private static final JQField COMMIT_TIME_SORT =
     new JQField(REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED, ASCENDING);

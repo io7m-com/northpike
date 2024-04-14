@@ -17,7 +17,7 @@
 package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsGetMostRecentlyReceivedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryCommitsGetMostRecentlyReceivedType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPCommitID;
 import com.io7m.northpike.model.NPCommitSummary;
@@ -36,11 +36,15 @@ import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_CO
 
 public final class NPDBQRepositoryCommitsGetMostRecentlyReceived
   extends NPDBQAbstract<NPRepositoryID, Optional<NPCommitSummary>>
-  implements CommitsGetMostRecentlyReceivedType
+  implements RepositoryCommitsGetMostRecentlyReceivedType
 {
-  private static final Service<NPRepositoryID, Optional<NPCommitSummary>, CommitsGetMostRecentlyReceivedType> SERVICE =
+  private static final Service<
+    NPRepositoryID,
+    Optional<NPCommitSummary>,
+    RepositoryCommitsGetMostRecentlyReceivedType>
+    SERVICE =
     new Service<>(
-      CommitsGetMostRecentlyReceivedType.class,
+      RepositoryCommitsGetMostRecentlyReceivedType.class,
       NPDBQRepositoryCommitsGetMostRecentlyReceived::new);
 
   /**
@@ -63,7 +67,8 @@ public final class NPDBQRepositoryCommitsGetMostRecentlyReceived
   {
     final var query =
       context.select(
-          DSL.max(REPOSITORY_COMMITS.RC_COMMIT_TIME_RECEIVED),
+          DSL.max(REPOSITORY_COMMITS.RC_COMMIT_TIME_RECEIVED)
+            .as(REPOSITORY_COMMITS.RC_COMMIT_TIME_RECEIVED),
           REPOSITORY_COMMITS.RC_COMMIT_ID,
           REPOSITORY_COMMITS.RC_COMMIT_MESSAGE_SUBJECT,
           REPOSITORY_COMMITS.RC_COMMIT_TIME_CREATED,

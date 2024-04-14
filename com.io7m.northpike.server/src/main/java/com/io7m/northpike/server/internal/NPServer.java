@@ -54,6 +54,7 @@ import com.io7m.northpike.server.internal.metrics.NPMetricsService;
 import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryService;
 import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryStartup;
 import com.io7m.northpike.server.internal.schedule.NPSchedulingService;
 import com.io7m.northpike.server.internal.schedule.NPSchedulingServiceType;
 import com.io7m.northpike.server.internal.security.NPSecurity;
@@ -196,7 +197,7 @@ public final class NPServer implements NPServerType
         CompletableFuture.allOf(
           agents.start(),
           archive.start(),
-          repository.start(),
+          repository.start(NPRepositoryStartup.PERFORM_UPDATE_ALL_ON_STARTUP),
           users.start(),
           tools.start()
         );
@@ -236,7 +237,7 @@ public final class NPServer implements NPServerType
       }
 
       throw new NPServerException(
-        e.getMessage(),
+        Objects.requireNonNullElse(e.getMessage(), e.getClass().getName()),
         e,
         new NPErrorCode("startup"),
         Map.of(),

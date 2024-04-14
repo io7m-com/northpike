@@ -17,7 +17,7 @@
 package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.GetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryGetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.database.postgres.internal.enums.RepositorySigningPolicyT;
 import com.io7m.northpike.model.NPRepositoryCredentialsNone;
@@ -39,10 +39,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.SCM_PROVIDERS
 
 public final class NPDBQRepositoryGet
   extends NPDBQAbstract<NPRepositoryID, Optional<NPRepositoryDescription>>
-  implements GetType
+  implements RepositoryGetType
 {
-  private static final Service<NPRepositoryID, Optional<NPRepositoryDescription>, GetType> SERVICE =
-    new Service<>(GetType.class, NPDBQRepositoryGet::new);
+  private static final Service<NPRepositoryID, Optional<NPRepositoryDescription>, RepositoryGetType> SERVICE =
+    new Service<>(RepositoryGetType.class, NPDBQRepositoryGet::new);
 
   /**
    * Construct a query.

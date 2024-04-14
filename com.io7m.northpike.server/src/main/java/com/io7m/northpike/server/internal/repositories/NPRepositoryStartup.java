@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,40 +14,26 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.database.api;
 
-
-import com.io7m.northpike.model.NPArchive;
-import com.io7m.northpike.model.NPToken;
-
-import java.util.Optional;
+package com.io7m.northpike.server.internal.repositories;
 
 /**
- * The database queries involving archives.
+ * The startup behaviour for the repository service.
  */
 
-public sealed interface NPDatabaseQueriesArchivesType
-  extends NPDatabaseQueriesType
+public enum NPRepositoryStartup
 {
   /**
-   * Update the given archive.
+   * Update all repositories on service startup. This is the recommended
+   * setting for production use.
    */
 
-  non-sealed interface ArchivePutType
-    extends NPDatabaseQueryType<NPArchive, NPDatabaseUnit>,
-    NPDatabaseQueriesArchivesType
-  {
-
-  }
+  PERFORM_UPDATE_ALL_ON_STARTUP,
 
   /**
-   * Retrieve an archive.
+   * Do not update any repositories on service startup. This is primarily
+   * intended to reduce noise in unit tests.
    */
 
-  non-sealed interface ArchiveGetType
-    extends NPDatabaseQueryType<NPToken, Optional<NPArchive>>,
-    NPDatabaseQueriesArchivesType
-  {
-
-  }
+  PERFORM_NO_UPDATE_ON_STARTUP
 }

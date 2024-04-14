@@ -112,15 +112,15 @@ public final class NPDatabaseArchivesTest
     throws Exception
   {
     final var putSCM =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
     final var putRepos =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var putCommit =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesArchivesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesArchivesType.ArchivePutType.class);
     final var get =
-      this.transaction.queries(NPDatabaseQueriesArchivesType.GetType.class);
+      this.transaction.queries(NPDatabaseQueriesArchivesType.ArchiveGetType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -156,7 +156,7 @@ public final class NPDatabaseArchivesTest
     putSCM.execute(scm);
     putRepos.execute(description);
     putCommit.execute(
-      new NPDatabaseQueriesRepositoriesType.CommitsPutType.Parameters(
+      new NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType.Parameters(
         Set.of(commit),
         NPCommitGraph.create(Set.of())
       )
@@ -194,7 +194,7 @@ public final class NPDatabaseArchivesTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesArchivesType.GetType.class);
+      this.transaction.queries(NPDatabaseQueriesArchivesType.ArchiveGetType.class);
 
     assertEquals(
       Optional.empty(),

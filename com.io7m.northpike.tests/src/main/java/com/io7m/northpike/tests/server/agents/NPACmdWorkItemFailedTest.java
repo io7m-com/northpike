@@ -19,8 +19,8 @@ package com.io7m.northpike.tests.server.agents;
 
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemGetType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentWorkItemGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentWorkItemPutType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPErrorCode;
@@ -159,9 +159,9 @@ public final class NPACmdWorkItemFailedTest
       .thenReturn(this.connection);
 
     final var get =
-      mock(WorkItemGetType.class);
+      mock(AssignmentWorkItemGetType.class);
 
-    when(this.transaction.queries(WorkItemGetType.class))
+    when(this.transaction.queries(AssignmentWorkItemGetType.class))
       .thenReturn(get);
     when(get.execute(any()))
       .thenReturn(Optional.empty());
@@ -207,9 +207,9 @@ public final class NPACmdWorkItemFailedTest
       .thenReturn(this.connection);
 
     final var get =
-      mock(WorkItemGetType.class);
+      mock(AssignmentWorkItemGetType.class);
 
-    when(this.transaction.queries(WorkItemGetType.class))
+    when(this.transaction.queries(AssignmentWorkItemGetType.class))
       .thenReturn(get);
     when(get.execute(any()))
       .thenReturn(Optional.of(
@@ -271,13 +271,13 @@ public final class NPACmdWorkItemFailedTest
       .thenReturn(this.connection);
 
     final var get =
-      mock(WorkItemGetType.class);
+      mock(AssignmentWorkItemGetType.class);
     final var put =
-      mock(WorkItemPutType.class);
+      mock(AssignmentWorkItemPutType.class);
 
-    when(this.transaction.queries(WorkItemGetType.class))
+    when(this.transaction.queries(AssignmentWorkItemGetType.class))
       .thenReturn(get);
-    when(this.transaction.queries(WorkItemPutType.class))
+    when(this.transaction.queries(AssignmentWorkItemPutType.class))
       .thenReturn(put);
 
     when(get.execute(any()))

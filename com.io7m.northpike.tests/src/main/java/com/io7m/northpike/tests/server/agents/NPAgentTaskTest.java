@@ -329,14 +329,14 @@ public final class NPAgentTaskTest
         ALLOW_UNSIGNED_COMMITS
       );
 
-    this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class)
+    this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class)
       .execute(new NPSCMProviderDescription(
         this.repository.provider(),
         "SCM",
         URI.create("https://www.example.com/scm")
       ));
 
-    this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class)
+    this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class)
       .execute(this.repository);
 
     this.commit =
@@ -354,8 +354,8 @@ public final class NPAgentTaskTest
         Set.of()
       );
 
-    this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class)
-      .execute(new NPDatabaseQueriesRepositoriesType.CommitsPutType.Parameters(
+    this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType.class)
+      .execute(new NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType.Parameters(
         Set.of(this.commit),
         NPCommitGraph.create(Set.of())
       ));
@@ -378,7 +378,7 @@ public final class NPAgentTaskTest
         NPAssignmentScheduleNone.SCHEDULE_NONE
       );
 
-    this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class)
+    this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentPutType.class)
       .execute(this.assignment);
 
     this.assignmentExecution =
@@ -391,7 +391,7 @@ public final class NPAgentTaskTest
         )
       );
 
-    this.transaction.queries(NPDatabaseQueriesAssignmentsType.ExecutionPutType.class)
+    this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentExecutionPutType.class)
       .execute(this.assignmentExecution);
 
     this.workItem0Id =
@@ -430,7 +430,7 @@ public final class NPAgentTaskTest
         NPWorkItemStatus.WORK_ITEM_CREATED
       );
 
-    this.transaction.queries(NPDatabaseQueriesAssignmentsType.WorkItemPutType.class)
+    this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentWorkItemPutType.class)
       .execute(this.workItem0);
 
     this.transaction.commit();
@@ -941,7 +941,7 @@ public final class NPAgentTaskTest
     while (true) {
       try (var t = this.connection.openTransaction()) {
         final var workItem =
-          t.queries(NPDatabaseQueriesAssignmentsType.WorkItemGetType.class)
+          t.queries(NPDatabaseQueriesAssignmentsType.AssignmentWorkItemGetType.class)
             .execute(this.workItem0.identifier())
             .orElseThrow();
 
@@ -959,7 +959,7 @@ public final class NPAgentTaskTest
      */
 
     try (var t = this.connection.openTransaction()) {
-      t.queries(NPDatabaseQueriesAssignmentsType.WorkItemPutType.class)
+      t.queries(NPDatabaseQueriesAssignmentsType.AssignmentWorkItemPutType.class)
         .execute(
           new NPWorkItem(
             this.workItem0.identifier(),

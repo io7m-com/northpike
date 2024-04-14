@@ -201,9 +201,9 @@ public final class NPUCmdAssignmentGetTest
       .thenReturn(userId);
 
     final var assignGet =
-      Mockito.mock(NPDatabaseQueriesAssignmentsType.GetType.class);
+      Mockito.mock(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAssignmentsType.GetType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class))
       .thenReturn(assignGet);
 
     Mockito.when(assignGet.execute(any()))
@@ -244,9 +244,9 @@ public final class NPUCmdAssignmentGetTest
       .thenReturn(userId);
 
     final var assignGet =
-      Mockito.mock(NPDatabaseQueriesAssignmentsType.GetType.class);
+      Mockito.mock(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAssignmentsType.GetType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class))
       .thenReturn(assignGet);
 
     final var assignment =

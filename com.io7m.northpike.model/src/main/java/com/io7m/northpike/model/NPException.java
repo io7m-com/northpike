@@ -110,4 +110,44 @@ public class NPException extends Exception
   {
     return Optional.of(this);
   }
+
+  /**
+   * Construct an exception from an existing exception.
+   *
+   * @param ex The cause
+   *
+   * @return The new exception
+   */
+
+  public static NPException ofException(
+    final Throwable ex)
+  {
+    return switch (ex) {
+      case final NPException e -> {
+        yield e;
+      }
+
+      case final SStructuredErrorExceptionType<?> e -> {
+        yield new NPException(
+          e.getMessage(),
+          ex,
+          new NPErrorCode(e.errorCode().toString()),
+          e.attributes(),
+          e.remediatingAction()
+        );
+      }
+
+      default -> {
+        yield new NPException(
+          Objects.requireNonNullElse(
+            ex.getMessage(),
+            ex.getClass().getSimpleName()),
+          ex,
+          NPStandardErrorCodes.errorIo(),
+          Map.of(),
+          Optional.empty()
+        );
+      }
+    };
+  }
 }

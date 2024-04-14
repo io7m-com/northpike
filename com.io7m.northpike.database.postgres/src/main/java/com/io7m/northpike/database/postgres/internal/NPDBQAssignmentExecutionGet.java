@@ -19,7 +19,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionGetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPRepositoryID;
@@ -53,13 +53,13 @@ import static com.io7m.northpike.database.postgres.internal.Tables.PLANS;
 
 public final class NPDBQAssignmentExecutionGet
   extends NPDBQAbstract<NPAssignmentExecutionID, Optional<NPAssignmentExecutionStateType>>
-  implements ExecutionGetType
+  implements AssignmentExecutionGetType
 {
   private static final Service<
     NPAssignmentExecutionID,
     Optional<NPAssignmentExecutionStateType>,
-    ExecutionGetType> SERVICE =
-    new Service<>(ExecutionGetType.class, NPDBQAssignmentExecutionGet::new);
+    AssignmentExecutionGetType> SERVICE =
+    new Service<>(AssignmentExecutionGetType.class, NPDBQAssignmentExecutionGet::new);
 
   /**
    * Construct a query.

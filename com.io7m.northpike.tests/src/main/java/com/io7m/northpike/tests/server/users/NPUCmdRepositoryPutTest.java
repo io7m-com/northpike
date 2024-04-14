@@ -21,9 +21,8 @@ import com.io7m.idstore.model.IdName;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
-import com.io7m.northpike.model.NPAuditOwnerType;
+import com.io7m.northpike.model.NPAuditOwnerType.User;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPRepositoryCredentialsUsernamePassword;
@@ -33,11 +32,13 @@ import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.security.NPSecRole;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPut;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 import com.io7m.northpike.server.internal.security.NPSecurityPolicy;
 import com.io7m.northpike.server.internal.users.NPUCmdRepositoryPut;
 import com.io7m.northpike.server.internal.users.NPUserCommandContextType;
 import com.io7m.northpike.strings.NPStringConstantType;
+import com.io7m.repetoir.core.RPServiceDirectory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -67,6 +68,8 @@ public final class NPUCmdRepositoryPutTest
   private NPUserCommandContextType context;
   private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
+  private RPServiceDirectory services;
+  private NPRepositoryServiceType repositories;
 
   @BeforeEach
   public void setup()
@@ -76,16 +79,27 @@ public final class NPUCmdRepositoryPutTest
 
     this.context =
       Mockito.mock(NPUserCommandContextType.class);
+    this.services =
+      new RPServiceDirectory();
 
     this.connection =
       Mockito.mock(NPDatabaseConnectionType.class);
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
+    this.repositories =
+      Mockito.mock(NPRepositoryServiceType.class);
+
+    this.services.register(
+      NPRepositoryServiceType.class,
+      this.repositories
+    );
 
     Mockito.when(this.context.databaseConnection())
       .thenReturn(this.connection);
     Mockito.when(this.connection.openTransaction())
       .thenReturn(this.transaction);
+    Mockito.when(this.context.services())
+      .thenReturn(this.services);
 
     Mockito.doAnswer(invocationOnMock -> {
       final var message =
@@ -229,18 +243,10 @@ public final class NPUCmdRepositoryPutTest
     Mockito.when(this.context.onAuthenticationRequire())
       .thenReturn(user);
 
-    final var reposPut =
-      Mockito.mock(NPDatabaseQueriesRepositoriesType.PutType.class);
-
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class))
-      .thenReturn(reposPut);
-
     final var r = handler.execute(this.context, command);
     assertEquals(r.correlationID(), command.messageID());
 
-    Mockito.verify(this.transaction, new Times(1))
-      .setOwner(new NPAuditOwnerType.User(user.userId()));
-    Mockito.verify(this.transaction, new Times(1))
-      .commit();
+    Mockito.verify(this.repositories, new Times(1))
+      .repositoryPut(new User(user.userId()), command.repository());
   }
 }

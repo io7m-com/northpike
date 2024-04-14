@@ -17,13 +17,13 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyAssignType;
 import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
 import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeyAssign;
 import com.io7m.northpike.protocol.user.NPUResponseOK;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceType;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 
 /**
@@ -56,19 +56,16 @@ public final class NPUCmdRepositoryPublicKeyAssign
       NPSecAction.KEY_ASSIGN.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+    final var repositories =
+      context.services()
+        .requireService(NPRepositoryServiceType.class);
 
-        transaction.queries(PublicKeyAssignType.class)
-          .execute(new PublicKeyAssignType.Parameters(
-            command.repository(),
-            command.key()
-          ));
+    repositories.repositoryPublicKeyAssign(
+      new NPAuditOwnerType.User(user.userId()),
+      command.repository(),
+      command.key()
+    );
 
-        transaction.commit();
-        return NPUResponseOK.createCorrelated(command);
-      }
-    }
+    return NPUResponseOK.createCorrelated(command);
   }
 }

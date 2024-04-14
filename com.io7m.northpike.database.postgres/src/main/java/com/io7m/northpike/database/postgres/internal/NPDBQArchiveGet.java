@@ -19,7 +19,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesArchivesType.GetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesArchivesType.ArchiveGetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPCommitID;
@@ -43,10 +43,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_CO
 
 public final class NPDBQArchiveGet
   extends NPDBQAbstract<NPToken, Optional<NPArchive>>
-  implements GetType
+  implements ArchiveGetType
 {
-  private static final Service<NPToken, Optional<NPArchive>, GetType> SERVICE =
-    new Service<>(GetType.class, NPDBQArchiveGet::new);
+  private static final Service<NPToken, Optional<NPArchive>, ArchiveGetType> SERVICE =
+    new Service<>(ArchiveGetType.class, NPDBQArchiveGet::new);
 
   /**
    * Construct a query.

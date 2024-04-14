@@ -84,9 +84,9 @@ public final class NPDatabaseSCMProvidersTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.GetType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderGetType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
 
     final var description =
       new NPSCMProviderDescription(
@@ -110,7 +110,7 @@ public final class NPDatabaseSCMProvidersTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.GetType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderGetType.class);
 
     assertEquals(Optional.empty(), get.execute(new RDottedName("x")));
   }

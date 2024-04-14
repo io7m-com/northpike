@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeysAssignedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeysAssignedType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
@@ -66,7 +66,7 @@ public final class NPUCmdRepositoryPublicKeysAssigned
       try (var transaction = connection.openTransaction()) {
         return NPUResponseRepositoryPublicKeysAssigned.createCorrelated(
           command,
-          transaction.queries(PublicKeysAssignedType.class)
+          transaction.queries(RepositoryPublicKeysAssignedType.class)
             .execute(command.repository())
         );
       }

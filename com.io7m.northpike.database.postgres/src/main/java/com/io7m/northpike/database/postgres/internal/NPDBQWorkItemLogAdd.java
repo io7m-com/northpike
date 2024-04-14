@@ -18,7 +18,7 @@
 package com.io7m.northpike.database.postgres.internal;
 
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemLogAddType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentWorkItemLogAddType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPWorkItemLogRecord;
@@ -39,10 +39,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.WORK_ITEM_LOG
 
 public final class NPDBQWorkItemLogAdd
   extends NPDBQAbstract<NPWorkItemLogRecord, NPDatabaseUnit>
-  implements WorkItemLogAddType
+  implements AssignmentWorkItemLogAddType
 {
-  private static final Service<NPWorkItemLogRecord, NPDatabaseUnit, WorkItemLogAddType> SERVICE =
-    new Service<>(WorkItemLogAddType.class, NPDBQWorkItemLogAdd::new);
+  private static final Service<NPWorkItemLogRecord, NPDatabaseUnit, AssignmentWorkItemLogAddType> SERVICE =
+    new Service<>(AssignmentWorkItemLogAddType.class, NPDBQWorkItemLogAdd::new);
 
   /**
    * Construct a query.

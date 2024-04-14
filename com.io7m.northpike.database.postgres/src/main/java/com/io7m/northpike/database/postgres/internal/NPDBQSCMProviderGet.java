@@ -19,7 +19,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType.GetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType.SCMProviderGetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPSCMProviderDescription;
 import org.jooq.DSLContext;
@@ -36,10 +36,10 @@ import static com.io7m.northpike.database.postgres.internal.tables.ScmProviders.
 
 public final class NPDBQSCMProviderGet
   extends NPDBQAbstract<RDottedName, Optional<NPSCMProviderDescription>>
-  implements GetType
+  implements SCMProviderGetType
 {
-  private static final Service<RDottedName, Optional<NPSCMProviderDescription>, GetType> SERVICE =
-    new Service<>(GetType.class, NPDBQSCMProviderGet::new);
+  private static final Service<RDottedName, Optional<NPSCMProviderDescription>, SCMProviderGetType> SERVICE =
+    new Service<>(SCMProviderGetType.class, NPDBQSCMProviderGet::new);
 
   /**
    * Construct a query.

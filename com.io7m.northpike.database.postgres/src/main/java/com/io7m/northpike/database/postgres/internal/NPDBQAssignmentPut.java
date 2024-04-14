@@ -45,10 +45,10 @@ import static java.util.Map.entry;
 
 public final class NPDBQAssignmentPut
   extends NPDBQAbstract<NPAssignment, NPDatabaseUnit>
-  implements NPDatabaseQueriesAssignmentsType.PutType
+  implements NPDatabaseQueriesAssignmentsType.AssignmentPutType
 {
-  private static final Service<NPAssignment, NPDatabaseUnit, PutType> SERVICE =
-    new Service<>(PutType.class, NPDBQAssignmentPut::new);
+  private static final Service<NPAssignment, NPDatabaseUnit, AssignmentPutType> SERVICE =
+    new Service<>(AssignmentPutType.class, NPDBQAssignmentPut::new);
 
   /**
    * Construct a query.

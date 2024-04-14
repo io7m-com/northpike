@@ -26,11 +26,11 @@ import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsPutType.Parameters;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyAssignType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyIsAssignedType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyUnassignType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeysAssignedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyAssignType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyIsAssignedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyUnassignType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeysAssignedType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
@@ -132,11 +132,11 @@ public final class NPDatabaseRepositoriesTest
     throws Exception
   {
     final var putSCM =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
     final var get =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.GetType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryGetType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -170,9 +170,9 @@ public final class NPDatabaseRepositoriesTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.GetType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryGetType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
 
     final var description =
       new NPRepositoryDescription(
@@ -201,7 +201,7 @@ public final class NPDatabaseRepositoriesTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.GetType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryGetType.class);
 
     assertEquals(
       Optional.empty(),
@@ -220,15 +220,15 @@ public final class NPDatabaseRepositoriesTest
     throws Exception
   {
     final var putSCM =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var putCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType.class);
     final var getCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitsGetType.class);
     final var getCommit =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitGetType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitGetType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -299,13 +299,13 @@ public final class NPDatabaseRepositoriesTest
     throws Exception
   {
     final var putSCM =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var putCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType.class);
     final var getCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitsGetType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -375,13 +375,13 @@ public final class NPDatabaseRepositoriesTest
     throws Exception
   {
     final var putSCM =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var putCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType.class);
     final var getCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitsGetType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -451,13 +451,13 @@ public final class NPDatabaseRepositoriesTest
     throws Exception
   {
     final var putSCM =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var putCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType.class);
     final var getCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitsGetType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -524,13 +524,13 @@ public final class NPDatabaseRepositoriesTest
     throws Exception
   {
     final var putSCM =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var putCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType.class);
     final var getCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsGetType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitsGetType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -597,7 +597,7 @@ public final class NPDatabaseRepositoriesTest
     throws Exception
   {
     final var putCommits =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.CommitsPutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType.class);
 
     final var commit =
       new NPCommit(
@@ -641,11 +641,11 @@ public final class NPDatabaseRepositoriesTest
     throws Exception
   {
     final var putSCM =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
     final var list =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.ListType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryListType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -815,22 +815,22 @@ public final class NPDatabaseRepositoriesTest
     throws Exception
   {
     final var putSCM =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
     final var get =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.GetType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryGetType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var keyPut =
       this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
 
     final var keysAssigned =
-      this.transaction.queries(PublicKeysAssignedType.class);
+      this.transaction.queries(RepositoryPublicKeysAssignedType.class);
     final var keyAssign =
-      this.transaction.queries(PublicKeyAssignType.class);
+      this.transaction.queries(RepositoryPublicKeyAssignType.class);
     final var keyUnassign =
-      this.transaction.queries(PublicKeyUnassignType.class);
+      this.transaction.queries(RepositoryPublicKeyUnassignType.class);
     final var keyIsAssigned =
-      this.transaction.queries(PublicKeyIsAssignedType.class);
+      this.transaction.queries(RepositoryPublicKeyIsAssignedType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -882,27 +882,27 @@ public final class NPDatabaseRepositoriesTest
       );
 
       assertFalse(keyIsAssigned.execute(
-        new PublicKeyIsAssignedType.Parameters(description.id(), keyId)
+        new RepositoryPublicKeyIsAssignedType.Parameters(description.id(), keyId)
       ).booleanValue());
 
       keyAssign.execute(
-        new PublicKeyAssignType.Parameters(description.id(), keyId)
+        new RepositoryPublicKeyAssignType.Parameters(description.id(), keyId)
       );
 
       assertTrue(keyIsAssigned.execute(
-        new PublicKeyIsAssignedType.Parameters(description.id(), keyId)
+        new RepositoryPublicKeyIsAssignedType.Parameters(description.id(), keyId)
       ).booleanValue());
 
       keyUnassign.execute(
-        new PublicKeyUnassignType.Parameters(description.id(), keyId)
+        new RepositoryPublicKeyUnassignType.Parameters(description.id(), keyId)
       );
 
       assertFalse(keyIsAssigned.execute(
-        new PublicKeyIsAssignedType.Parameters(description.id(), keyId)
+        new RepositoryPublicKeyIsAssignedType.Parameters(description.id(), keyId)
       ).booleanValue());
 
       keyAssign.execute(
-        new PublicKeyAssignType.Parameters(description.id(), keyId)
+        new RepositoryPublicKeyAssignType.Parameters(description.id(), keyId)
       );
     }
 

@@ -54,10 +54,10 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_ST
 
 public final class NPDBQRepositoryList
   extends NPDBQAbstract<NPDatabaseUnit, NPRepositoriesPagedType>
-  implements NPDatabaseQueriesRepositoriesType.ListType
+  implements NPDatabaseQueriesRepositoriesType.RepositoryListType
 {
-  private static final Service<NPDatabaseUnit, NPRepositoriesPagedType, ListType> SERVICE =
-    new Service<>(ListType.class, NPDBQRepositoryList::new);
+  private static final Service<NPDatabaseUnit, NPRepositoriesPagedType, RepositoryListType> SERVICE =
+    new Service<>(RepositoryListType.class, NPDBQRepositoryList::new);
 
   /**
    * Construct a query.

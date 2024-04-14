@@ -19,7 +19,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeysAssignedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeysAssignedType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPRepositoryID;
@@ -38,11 +38,11 @@ import static com.io7m.northpike.strings.NPStringConstants.REPOSITORY;
 
 public final class NPDBQRepositoryPublicKeysAssigned
   extends NPDBQAbstract<NPRepositoryID, Set<NPFingerprint>>
-  implements PublicKeysAssignedType
+  implements RepositoryPublicKeysAssignedType
 {
-  private static final Service<NPRepositoryID, Set<NPFingerprint>, PublicKeysAssignedType> SERVICE =
+  private static final Service<NPRepositoryID, Set<NPFingerprint>, RepositoryPublicKeysAssignedType> SERVICE =
     new Service<>(
-      PublicKeysAssignedType.class,
+      RepositoryPublicKeysAssignedType.class,
       NPDBQRepositoryPublicKeysAssigned::new);
 
   /**

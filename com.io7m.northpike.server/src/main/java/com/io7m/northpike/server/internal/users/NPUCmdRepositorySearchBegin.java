@@ -63,7 +63,7 @@ public final class NPUCmdRepositorySearchBegin
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         final var paged =
-          transaction.queries(NPDatabaseQueriesRepositoriesType.ListType.class)
+          transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryListType.class)
             .execute(NPDatabaseUnit.UNIT);
 
         context.setProperty(NPRepositoriesPagedType.class, paged);

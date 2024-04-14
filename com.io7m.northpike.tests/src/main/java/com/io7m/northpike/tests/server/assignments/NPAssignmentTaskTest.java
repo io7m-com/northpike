@@ -21,15 +21,18 @@ import com.io7m.ervilla.test_extension.ErvillaCloseAfterSuite;
 import com.io7m.ervilla.test_extension.ErvillaConfiguration;
 import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyAssignType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType.PutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyAssignType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyAssignType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
 import com.io7m.northpike.keys.NPPublicKeys;
 import com.io7m.northpike.model.NPArchiveLinks;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPFormatName;
+import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.model.NPToolExecutionDescription;
 import com.io7m.northpike.model.NPToolExecutionIdentifier;
 import com.io7m.northpike.model.NPToolName;
@@ -57,7 +60,7 @@ import com.io7m.northpike.model.plans.NPPlanTimeouts;
 import com.io7m.northpike.model.plans.NPPlanToolExecution;
 import com.io7m.northpike.model.plans.NPPlanType;
 import com.io7m.northpike.plans.NPPlans;
-import com.io7m.northpike.server.internal.agents.NPAgentServiceType;
+import com.io7m.northpike.server.internal.agents.NPAgentServiceType.NPSuitableAgents;
 import com.io7m.northpike.server.internal.agents.NPAgentWorkItemAccepted;
 import com.io7m.northpike.server.internal.agents.NPAgentWorkItemStatusChanged;
 import com.io7m.northpike.server.internal.assignments.NPAssignmentExecutionStatusChanged;
@@ -80,7 +83,6 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Path;
@@ -89,9 +91,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -180,7 +182,7 @@ public final class NPAssignmentTaskTest
     final var transaction =
       ASSIGNMENT_FIXTURE.transaction();
 
-    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+    transaction.queries(PutExecutionDescriptionType.class)
       .execute(TOOL_EXECUTION_DESCRIPTION);
 
     transaction.commit();
@@ -208,7 +210,7 @@ public final class NPAssignmentTaskTest
     final var transaction =
       ASSIGNMENT_FIXTURE.transaction();
 
-    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+    transaction.queries(PutExecutionDescriptionType.class)
       .execute(TOOL_EXECUTION_DESCRIPTION);
 
     transaction.commit();
@@ -230,7 +232,7 @@ public final class NPAssignmentTaskTest
     final var transaction =
       ASSIGNMENT_FIXTURE.transaction();
 
-    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+    transaction.queries(PutExecutionDescriptionType.class)
       .execute(TOOL_EXECUTION_DESCRIPTION);
 
     transaction.commit();
@@ -258,7 +260,7 @@ public final class NPAssignmentTaskTest
     final var transaction =
       ASSIGNMENT_FIXTURE.transaction();
 
-    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+    transaction.queries(PutExecutionDescriptionType.class)
       .execute(TOOL_EXECUTION_DESCRIPTION);
 
     transaction.commit();
@@ -280,7 +282,7 @@ public final class NPAssignmentTaskTest
     final var transaction =
       ASSIGNMENT_FIXTURE.transaction();
 
-    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+    transaction.queries(PutExecutionDescriptionType.class)
       .execute(TOOL_EXECUTION_DESCRIPTION);
 
     transaction.commit();
@@ -325,7 +327,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
-      new NPAgentServiceType.NPSuitableAgents(
+      new NPSuitableAgents(
         Set.of(agent),
         Set.of(agent)
       )
@@ -373,7 +375,7 @@ public final class NPAssignmentTaskTest
     final var transaction =
       ASSIGNMENT_FIXTURE.transaction();
 
-    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+    transaction.queries(PutExecutionDescriptionType.class)
       .execute(TOOL_EXECUTION_DESCRIPTION);
 
     transaction.commit();
@@ -404,9 +406,6 @@ public final class NPAssignmentTaskTest
   {
     ASSIGNMENT_FIXTURE.reset(closeables);
 
-    when(ASSIGNMENT_FIXTURE.mockRepositoryService().checkOne(any()))
-      .thenReturn(CompletableFuture.completedFuture(null));
-
     this.running = new AtomicBoolean(true);
     this.executor = Executors.newScheduledThreadPool(1);
   }
@@ -430,7 +429,9 @@ public final class NPAssignmentTaskTest
   {
     final var assignment =
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
-        ALLOW_UNSIGNED_COMMITS, createPlanEmptyTask());
+        ALLOW_UNSIGNED_COMMITS,
+        createPlanEmptyTask()
+      );
 
     when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
@@ -441,6 +442,8 @@ public final class NPAssignmentTaskTest
         URI.create("https://www.example.com/file.tgz.sha256")
       )
     );
+
+    ASSIGNMENT_FIXTURE.setRepositorySigningPolicy(ALLOW_UNSIGNED_COMMITS);
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
@@ -521,7 +524,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
+      .queries(AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -548,11 +551,13 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
-      new NPAgentServiceType.NPSuitableAgents(
+      new NPSuitableAgents(
         Set.of(agent),
         Set.of(agent)
       )
     );
+
+    ASSIGNMENT_FIXTURE.setRepositorySigningPolicy(ALLOW_UNSIGNED_COMMITS);
 
     final var offerAcceptLatch =
       new CountDownLatch(1);
@@ -661,13 +666,15 @@ public final class NPAssignmentTaskTest
   {
     final var assignment =
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
-        ALLOW_UNSIGNED_COMMITS, createPlanOneTask());
+        ALLOW_UNSIGNED_COMMITS,
+        createPlanOneTask()
+      );
 
     final var agent =
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
+      .queries(AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -694,11 +701,13 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
-      new NPAgentServiceType.NPSuitableAgents(
+      new NPSuitableAgents(
         Set.of(agent),
         Set.of(agent)
       )
     );
+
+    ASSIGNMENT_FIXTURE.setRepositorySigningPolicy(ALLOW_UNSIGNED_COMMITS);
 
     final var offerAcceptLatch =
       new CountDownLatch(1);
@@ -815,7 +824,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
+      .queries(AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -842,7 +851,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
-      new NPAgentServiceType.NPSuitableAgents(
+      new NPSuitableAgents(
         Set.of(agent),
         Set.of(agent)
       )
@@ -854,6 +863,8 @@ public final class NPAssignmentTaskTest
       })
       .when(ASSIGNMENT_FIXTURE.mockAgentService())
       .offerWorkItem(any(), any());
+
+    ASSIGNMENT_FIXTURE.setRepositorySigningPolicy(ALLOW_UNSIGNED_COMMITS);
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
@@ -900,7 +911,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
+      .queries(AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -927,7 +938,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
-      new NPAgentServiceType.NPSuitableAgents(
+      new NPSuitableAgents(
         Set.of(agent),
         Set.of(agent)
       )
@@ -939,6 +950,8 @@ public final class NPAssignmentTaskTest
       })
       .when(ASSIGNMENT_FIXTURE.mockAgentService())
       .offerWorkItem(any(), any());
+
+    ASSIGNMENT_FIXTURE.setRepositorySigningPolicy(ALLOW_UNSIGNED_COMMITS);
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
@@ -985,7 +998,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
+      .queries(AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -1012,7 +1025,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
-      new NPAgentServiceType.NPSuitableAgents(
+      new NPSuitableAgents(
         Set.of(agent),
         Set.of(agent)
       )
@@ -1031,6 +1044,8 @@ public final class NPAssignmentTaskTest
           .sendWorkItem(any(), any())
       )
     ).thenReturn(TRUE);
+
+    ASSIGNMENT_FIXTURE.setRepositorySigningPolicy(ALLOW_UNSIGNED_COMMITS);
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
@@ -1077,7 +1092,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
+      .queries(AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -1104,7 +1119,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
-      new NPAgentServiceType.NPSuitableAgents(
+      new NPSuitableAgents(
         Set.of(agent),
         Set.of(agent)
       )
@@ -1123,6 +1138,8 @@ public final class NPAssignmentTaskTest
           .sendWorkItem(any(), any())
       )
     ).thenReturn(TRUE);
+
+    ASSIGNMENT_FIXTURE.setRepositorySigningPolicy(ALLOW_UNSIGNED_COMMITS);
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
@@ -1168,7 +1185,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     ASSIGNMENT_FIXTURE.transaction()
-      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
+      .queries(AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -1195,7 +1212,7 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.mockAgentService()
         .findSuitableAgentsFor(any(), any())
     ).thenReturn(
-      new NPAgentServiceType.NPSuitableAgents(
+      new NPSuitableAgents(
         Set.of(agent),
         Set.of(agent)
       )
@@ -1207,6 +1224,8 @@ public final class NPAssignmentTaskTest
           .offerWorkItem(any(), any())
       )
     ).thenReturn(TRUE);
+
+    ASSIGNMENT_FIXTURE.setRepositorySigningPolicy(ALLOW_UNSIGNED_COMMITS);
 
     /*
      * Every time a work item is sent to the agent, put the work item
@@ -1303,8 +1322,8 @@ public final class NPAssignmentTaskTest
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(ALLOW_UNSIGNED_COMMITS, plan);
 
     final var transaction = ASSIGNMENT_FIXTURE.transaction();
-    transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class)
-      .execute(new NPDatabaseQueriesPlansType.PlanPutType.Parameters(
+    transaction.queries(PlanPutType.class)
+      .execute(new PlanPutType.Parameters(
         plan,
         new NPGarbageSerializers()
       ));
@@ -1312,7 +1331,7 @@ public final class NPAssignmentTaskTest
     final var agent =
       NPAgentID.of(UUID.randomUUID().toString());
 
-    transaction.queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
+    transaction.queries(AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -1342,10 +1361,14 @@ public final class NPAssignmentTaskTest
   {
     final var assignment =
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
-        ALLOW_UNSIGNED_COMMITS, createPlanOneTask());
+        ALLOW_UNSIGNED_COMMITS,
+        createPlanOneTask()
+      );
 
-    final var transaction = ASSIGNMENT_FIXTURE.transaction();
-    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+    final var transaction =
+      ASSIGNMENT_FIXTURE.transaction();
+
+    transaction.queries(PutExecutionDescriptionType.class)
       .execute(new NPToolExecutionDescription(
         TOOL_EXECUTION_DESCRIPTION.identifier(),
         TOOL_EXECUTION_DESCRIPTION.tool(),
@@ -1366,7 +1389,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     transaction
-      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
+      .queries(AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -1399,7 +1422,7 @@ public final class NPAssignmentTaskTest
         ALLOW_UNSIGNED_COMMITS, createPlanOneTask());
 
     final var transaction = ASSIGNMENT_FIXTURE.transaction();
-    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+    transaction.queries(PutExecutionDescriptionType.class)
       .execute(new NPToolExecutionDescription(
         TOOL_EXECUTION_DESCRIPTION.identifier(),
         TOOL_EXECUTION_DESCRIPTION.tool(),
@@ -1429,7 +1452,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     transaction
-      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
+      .queries(AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -1462,7 +1485,7 @@ public final class NPAssignmentTaskTest
         ALLOW_UNSIGNED_COMMITS, createPlanOneTask());
 
     final var transaction = ASSIGNMENT_FIXTURE.transaction();
-    transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class)
+    transaction.queries(PutExecutionDescriptionType.class)
       .execute(new NPToolExecutionDescription(
         TOOL_EXECUTION_DESCRIPTION.identifier(),
         TOOL_EXECUTION_DESCRIPTION.tool(),
@@ -1475,7 +1498,7 @@ public final class NPAssignmentTaskTest
       NPAgentID.of(UUID.randomUUID().toString());
 
     transaction
-      .queries(NPDatabaseQueriesAgentsType.AgentPutType.class)
+      .queries(AgentPutType.class)
       .execute(new NPAgentDescription(
         agent,
         "Agent",
@@ -1507,14 +1530,24 @@ public final class NPAssignmentTaskTest
   {
     final var assignment =
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
-        REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY, createPlanEmptyTask());
+        REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY,
+        createPlanEmptyTask()
+      );
 
     when(
       ASSIGNMENT_FIXTURE.mockRepositoryService()
-        .verifyCommitSignature(any(), any())
-    ).thenReturn(CompletableFuture.failedFuture(
-      new IOException("Wrong signature.")
-    ));
+        .commitSignatureVerify(any(), any())
+    ).thenThrow(
+      new NPException(
+        "Nope!",
+        NPStandardErrorCodes.errorIo(),
+        Map.of(),
+        Optional.empty()
+      )
+    );
+
+    ASSIGNMENT_FIXTURE.setRepositorySigningPolicy(
+      REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY);
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
@@ -1534,7 +1567,9 @@ public final class NPAssignmentTaskTest
     final var e =
       assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertEquals(0, eQ.size());
-    assertInstanceOf(NPAssignmentExecutionStateCreationFailed.class, e.execution());
+    assertInstanceOf(
+      NPAssignmentExecutionStateCreationFailed.class,
+      e.execution());
   }
 
   /**
@@ -1555,10 +1590,17 @@ public final class NPAssignmentTaskTest
 
     when(
       ASSIGNMENT_FIXTURE.mockRepositoryService()
-        .verifyCommitSignature(any(), any())
-    ).thenReturn(CompletableFuture.failedFuture(
-      new IOException("Wrong signature.")
-    ));
+        .commitSignatureVerify(any(), any())
+    ).thenThrow(
+      new NPException(
+        "Nope!",
+        NPStandardErrorCodes.errorIo(),
+        Map.of(),
+        Optional.empty())
+    );
+
+    ASSIGNMENT_FIXTURE.setRepositorySigningPolicy(
+      REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS);
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
@@ -1578,7 +1620,9 @@ public final class NPAssignmentTaskTest
     final var e =
       assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertEquals(0, eQ.size());
-    assertInstanceOf(NPAssignmentExecutionStateCreationFailed.class, e.execution());
+    assertInstanceOf(
+      NPAssignmentExecutionStateCreationFailed.class,
+      e.execution());
   }
 
   /**
@@ -1595,14 +1639,14 @@ public final class NPAssignmentTaskTest
   {
     final var assignment =
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
-        REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS, createPlanEmptyTask());
+        REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS,
+        createPlanEmptyTask()
+      );
 
     when(
       ASSIGNMENT_FIXTURE.mockRepositoryService()
-        .verifyCommitSignature(any(), any())
-    ).thenReturn(CompletableFuture.completedFuture(
-      new NPFingerprint("a438a737c771787195cfc166f84351f72c918476")
-    ));
+        .commitSignatureVerify(any(), any())
+    ).thenReturn(new NPFingerprint("a438a737c771787195cfc166f84351f72c918476"));
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
@@ -1621,7 +1665,9 @@ public final class NPAssignmentTaskTest
     final var e =
       assertInstanceOf(NPAssignmentExecutionStatusChanged.class, eQ.poll());
     assertEquals(0, eQ.size());
-    assertInstanceOf(NPAssignmentExecutionStateCreationFailed.class, e.execution());
+    assertInstanceOf(
+      NPAssignmentExecutionStateCreationFailed.class,
+      e.execution());
   }
 
   /**
@@ -1641,10 +1687,8 @@ public final class NPAssignmentTaskTest
 
     when(
       ASSIGNMENT_FIXTURE.mockRepositoryService()
-        .verifyCommitSignature(any(), any())
-    ).thenReturn(CompletableFuture.completedFuture(
-      new NPFingerprint("a438a737c771787195cfc166f84351f72c918476")
-    ));
+        .commitSignatureVerify(any(), any())
+    ).thenReturn(new NPFingerprint("a438a737c771787195cfc166f84351f72c918476"));
 
     when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
@@ -1655,6 +1699,9 @@ public final class NPAssignmentTaskTest
         URI.create("https://www.example.com/file.tgz.sha256")
       )
     );
+
+    ASSIGNMENT_FIXTURE.setRepositorySigningPolicy(
+      REQUIRE_COMMITS_SIGNED_WITH_KNOWN_KEY);
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),
@@ -1689,13 +1736,13 @@ public final class NPAssignmentTaskTest
     final var transaction =
       ASSIGNMENT_FIXTURE.transaction();
 
-    transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class)
+    transaction.queries(PutType.class)
       .execute(
         NPPublicKeys.decode(resource("key-pub-0.asc")).get(0)
       );
 
-    transaction.queries(PublicKeyAssignType.class)
-      .execute(new PublicKeyAssignType.Parameters(
+    transaction.queries(RepositoryPublicKeyAssignType.class)
+      .execute(new Parameters(
         ASSIGNMENT_FIXTURE.commitSignedSpecific().repository(),
         new NPFingerprint("a438a737c771787195cfc166f84351f72c918476")
       ));
@@ -1704,14 +1751,14 @@ public final class NPAssignmentTaskTest
 
     final var assignment =
       ASSIGNMENT_FIXTURE.createAssignmentWithPlan(
-        REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS, createPlanEmptyTask());
+        REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS,
+        createPlanEmptyTask()
+      );
 
     when(
       ASSIGNMENT_FIXTURE.mockRepositoryService()
-        .verifyCommitSignature(any(), any())
-    ).thenReturn(CompletableFuture.completedFuture(
-      new NPFingerprint("a438a737c771787195cfc166f84351f72c918476")
-    ));
+        .commitSignatureVerify(any(), any())
+    ).thenReturn(new NPFingerprint("a438a737c771787195cfc166f84351f72c918476"));
 
     when(
       ASSIGNMENT_FIXTURE.mockArchiveService()
@@ -1722,6 +1769,14 @@ public final class NPAssignmentTaskTest
         URI.create("https://www.example.com/file.tgz.sha256")
       )
     );
+
+    ASSIGNMENT_FIXTURE.setRepositorySigningPolicy(
+      REQUIRE_COMMITS_SIGNED_WITH_SPECIFIC_KEYS);
+
+    when(
+      ASSIGNMENT_FIXTURE.mockRepositoryService()
+        .repositoryHasPublicKeyAssigned(any(), any())
+    ).thenReturn(TRUE);
 
     try (var task = NPAssignmentTask.create(
       ASSIGNMENT_FIXTURE.services(),

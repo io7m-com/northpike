@@ -19,7 +19,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.GetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentGetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.model.assignments.NPAssignment;
@@ -42,10 +42,10 @@ import static com.io7m.northpike.model.assignments.NPAssignmentScheduleNone.SCHE
 
 public final class NPDBQAssignmentGet
   extends NPDBQAbstract<NPAssignmentName, Optional<NPAssignment>>
-  implements GetType
+  implements AssignmentGetType
 {
-  private static final Service<NPAssignmentName, Optional<NPAssignment>, GetType> SERVICE =
-    new Service<>(GetType.class, NPDBQAssignmentGet::new);
+  private static final Service<NPAssignmentName, Optional<NPAssignment>, AssignmentGetType> SERVICE =
+    new Service<>(AssignmentGetType.class, NPDBQAssignmentGet::new);
 
   /**
    * Construct a query.

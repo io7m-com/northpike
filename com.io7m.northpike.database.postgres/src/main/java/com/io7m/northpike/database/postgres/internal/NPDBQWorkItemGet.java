@@ -18,7 +18,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentWorkItemGetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.database.postgres.internal.enums.WorkItemStatusT;
 import com.io7m.northpike.model.NPWorkItem;
@@ -40,10 +40,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.WORK_ITEMS;
 
 public final class NPDBQWorkItemGet
   extends NPDBQAbstract<NPWorkItemIdentifier, Optional<NPWorkItem>>
-  implements WorkItemGetType
+  implements AssignmentWorkItemGetType
 {
-  private static final Service<NPWorkItemIdentifier, Optional<NPWorkItem>, WorkItemGetType> SERVICE =
-    new Service<>(WorkItemGetType.class, NPDBQWorkItemGet::new);
+  private static final Service<NPWorkItemIdentifier, Optional<NPWorkItem>, AssignmentWorkItemGetType> SERVICE =
+    new Service<>(AssignmentWorkItemGetType.class, NPDBQWorkItemGet::new);
 
   /**
    * Construct a query.

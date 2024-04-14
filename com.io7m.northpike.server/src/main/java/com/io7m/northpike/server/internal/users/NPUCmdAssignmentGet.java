@@ -59,7 +59,7 @@ public final class NPUCmdAssignmentGet
       try (var transaction = connection.openTransaction()) {
         return NPUResponseAssignmentGet.createCorrelated(
           command,
-          transaction.queries(NPDatabaseQueriesAssignmentsType.GetType.class)
+          transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class)
             .execute(command.assignment())
         );
       }

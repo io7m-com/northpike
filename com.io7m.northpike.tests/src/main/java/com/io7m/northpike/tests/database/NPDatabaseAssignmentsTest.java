@@ -24,20 +24,20 @@ import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType.Parameters;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionGetType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogAddType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogListType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionPutType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionSearchType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionWorkItemsType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemGetType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemLogAddType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.WorkItemPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionDeleteType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionDeleteType.Parameters;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionLogAddType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionLogListType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionSearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionWorkItemsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentWorkItemGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentWorkItemLogAddType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentWorkItemPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitsPutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryCommitsPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesSCMProvidersType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
@@ -103,7 +103,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType.DeletionScope.DELETE_EVERYTHING;
+import static com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionDeleteType.DeletionScope.DELETE_EVERYTHING;
 import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.model.NPRepositorySigningPolicy.ALLOW_UNSIGNED_COMMITS;
 import static java.util.UUID.randomUUID;
@@ -166,16 +166,16 @@ public final class NPDatabaseAssignmentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.GetType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentPutType.class);
 
     final var planPut =
       this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class);
     final var reposPut =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var scmPut =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -228,7 +228,7 @@ public final class NPDatabaseAssignmentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.GetType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class);
 
     assertEquals(Optional.empty(), get.execute(NPAssignmentName.of("x.y")));
   }
@@ -244,25 +244,25 @@ public final class NPDatabaseAssignmentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.GetType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentPutType.class);
 
     final var execGet =
       this.transaction.queries(
-        ExecutionGetType.class);
+        AssignmentExecutionGetType.class);
     final var execPut =
       this.transaction.queries(
-        ExecutionPutType.class);
+        AssignmentExecutionPutType.class);
 
     final var planPut =
       this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class);
     final var reposPut =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var scmPut =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
     final var commitPut =
-      this.transaction.queries(CommitsPutType.class);
+      this.transaction.queries(RepositoryCommitsPutType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -301,7 +301,7 @@ public final class NPDatabaseAssignmentsTest
       NPCommitGraph.create(Set.of());
 
     commitPut.execute(
-      new CommitsPutType.Parameters(Set.of(commit), commitGraph));
+      new RepositoryCommitsPutType.Parameters(Set.of(commit), commitGraph));
 
     final var plan =
       NPPlans.builder(NPStrings.create(Locale.ROOT), "x", 1L)
@@ -427,7 +427,7 @@ public final class NPDatabaseAssignmentsTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(ExecutionGetType.class);
+      this.transaction.queries(AssignmentExecutionGetType.class);
 
     assertEquals(Optional.empty(), get.execute(new NPAssignmentExecutionID(
       randomUUID())));
@@ -447,26 +447,26 @@ public final class NPDatabaseAssignmentsTest
       this.transaction.queries(NPDatabaseQueriesAgentsType.AgentPutType.class);
 
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentPutType.class);
 
     final var execPut =
-      this.transaction.queries(ExecutionPutType.class);
+      this.transaction.queries(AssignmentExecutionPutType.class);
 
     final var planPut =
       this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class);
     final var reposPut =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var scmPut =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
     final var commitPut =
-      this.transaction.queries(CommitsPutType.class);
+      this.transaction.queries(RepositoryCommitsPutType.class);
 
     final var workPut =
-      this.transaction.queries(WorkItemPutType.class);
+      this.transaction.queries(AssignmentWorkItemPutType.class);
     final var workGet =
-      this.transaction.queries(WorkItemGetType.class);
+      this.transaction.queries(AssignmentWorkItemGetType.class);
     final var workItemsGet =
-      this.transaction.queries(ExecutionWorkItemsType.class);
+      this.transaction.queries(AssignmentExecutionWorkItemsType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -505,7 +505,7 @@ public final class NPDatabaseAssignmentsTest
       NPCommitGraph.create(Set.of());
 
     commitPut.execute(
-      new CommitsPutType.Parameters(
+      new RepositoryCommitsPutType.Parameters(
         Set.of(commit),
         commitGraph
       ));
@@ -591,7 +591,7 @@ public final class NPDatabaseAssignmentsTest
       this.createSampleAssignments();
 
     final var search =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentSearchType.class);
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
@@ -622,7 +622,7 @@ public final class NPDatabaseAssignmentsTest
       this.createSampleAssignments();
 
     final var search =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentSearchType.class);
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
@@ -655,7 +655,7 @@ public final class NPDatabaseAssignmentsTest
       this.createSampleAssignments();
 
     final var search =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentSearchType.class);
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
@@ -686,7 +686,7 @@ public final class NPDatabaseAssignmentsTest
       this.createSampleAssignments();
 
     final var search =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentSearchType.class);
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
@@ -717,7 +717,7 @@ public final class NPDatabaseAssignmentsTest
       this.createSampleAssignments();
 
     final var search =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentSearchType.class);
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
@@ -748,7 +748,7 @@ public final class NPDatabaseAssignmentsTest
       this.createSampleAssignments();
 
     final var search =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentSearchType.class);
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
@@ -779,7 +779,7 @@ public final class NPDatabaseAssignmentsTest
       this.createSampleAssignments();
 
     final var search =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentSearchType.class);
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
@@ -810,7 +810,7 @@ public final class NPDatabaseAssignmentsTest
       this.createSampleAssignments();
 
     final var search =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.SearchType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentSearchType.class);
 
     final var paged =
       search.execute(new NPAssignmentSearchParameters(
@@ -857,11 +857,11 @@ public final class NPDatabaseAssignmentsTest
         )
       );
 
-    this.transaction.queries(ExecutionPutType.class)
+    this.transaction.queries(AssignmentExecutionPutType.class)
       .execute(execution);
 
-    this.transaction.queries(ExecutionLogAddType.class)
-      .execute(new ExecutionLogAddType.Parameters(
+    this.transaction.queries(AssignmentExecutionLogAddType.class)
+      .execute(new AssignmentExecutionLogAddType.Parameters(
         execution.id(),
         23L,
         "INFO",
@@ -875,8 +875,8 @@ public final class NPDatabaseAssignmentsTest
       ));
 
     final var paged =
-      this.transaction.queries(ExecutionLogListType.class)
-        .execute(new ExecutionLogListType.Parameters(
+      this.transaction.queries(AssignmentExecutionLogListType.class)
+        .execute(new AssignmentExecutionLogListType.Parameters(
           execution.id(),
           true,
           1000L
@@ -994,14 +994,14 @@ public final class NPDatabaseAssignmentsTest
       );
 
     for (final var r : executionRecords) {
-      this.transaction.queries(ExecutionPutType.class)
+      this.transaction.queries(AssignmentExecutionPutType.class)
         .execute(r);
     }
 
     this.transaction.commit();
 
     final var paged =
-      this.transaction.queries(ExecutionSearchType.class)
+      this.transaction.queries(AssignmentExecutionSearchType.class)
         .execute(new NPAssignmentExecutionSearchParameters(
           new NPComparisonExactType.Anything<>(),
           new NPComparisonExactType.Anything<>(),
@@ -1120,7 +1120,7 @@ public final class NPDatabaseAssignmentsTest
       );
 
     for (final var r : executionRecords) {
-      this.transaction.queries(ExecutionPutType.class)
+      this.transaction.queries(AssignmentExecutionPutType.class)
         .execute(r);
     }
 
@@ -1128,7 +1128,7 @@ public final class NPDatabaseAssignmentsTest
 
     for (final var status : NPAssignmentExecutionStateKind.values()) {
       final var paged =
-        this.transaction.queries(ExecutionSearchType.class)
+        this.transaction.queries(AssignmentExecutionSearchType.class)
           .execute(new NPAssignmentExecutionSearchParameters(
             new NPComparisonExactType.Anything<>(),
             new NPComparisonExactType.Anything<>(),
@@ -1241,7 +1241,7 @@ public final class NPDatabaseAssignmentsTest
       );
 
     for (final var r : executionRecords) {
-      this.transaction.queries(ExecutionPutType.class)
+      this.transaction.queries(AssignmentExecutionPutType.class)
         .execute(r);
     }
 
@@ -1249,7 +1249,7 @@ public final class NPDatabaseAssignmentsTest
 
     for (final var status : NPAssignmentExecutionStateKind.values()) {
       final var paged =
-        this.transaction.queries(ExecutionSearchType.class)
+        this.transaction.queries(AssignmentExecutionSearchType.class)
           .execute(new NPAssignmentExecutionSearchParameters(
             new NPComparisonExactType.Anything<>(),
             new NPComparisonExactType.Anything<>(),
@@ -1362,14 +1362,14 @@ public final class NPDatabaseAssignmentsTest
       );
 
     for (final var r : executionRecords) {
-      this.transaction.queries(ExecutionPutType.class)
+      this.transaction.queries(AssignmentExecutionPutType.class)
         .execute(r);
     }
 
     this.transaction.commit();
 
     final var paged =
-      this.transaction.queries(ExecutionSearchType.class)
+      this.transaction.queries(AssignmentExecutionSearchType.class)
         .execute(new NPAssignmentExecutionSearchParameters(
           new NPComparisonExactType.Anything<>(),
           new NPComparisonExactType.IsEqualTo<>(
@@ -1398,15 +1398,15 @@ public final class NPDatabaseAssignmentsTest
     throws NPException
   {
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentPutType.class);
     final var planPut =
       this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class);
     final var reposPut =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var commitPut =
-      this.transaction.queries(CommitsPutType.class);
+      this.transaction.queries(RepositoryCommitsPutType.class);
     final var scmPut =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -1442,7 +1442,7 @@ public final class NPDatabaseAssignmentsTest
       );
 
     commitPut.execute(
-      new CommitsPutType.Parameters(
+      new RepositoryCommitsPutType.Parameters(
         Set.of(commit),
         NPCommitGraph.create(Set.of())
       )
@@ -1518,27 +1518,27 @@ public final class NPDatabaseAssignmentsTest
     final var agentPut =
       this.transaction.queries(NPDatabaseQueriesAgentsType.AgentPutType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentPutType.class);
     final var execGet =
-      this.transaction.queries(ExecutionGetType.class);
+      this.transaction.queries(AssignmentExecutionGetType.class);
     final var execPut =
-      this.transaction.queries(ExecutionPutType.class);
+      this.transaction.queries(AssignmentExecutionPutType.class);
     final var execLogAdd =
-      this.transaction.queries(ExecutionLogAddType.class);
+      this.transaction.queries(AssignmentExecutionLogAddType.class);
     final var execDelete =
-      this.transaction.queries(ExecutionDeleteType.class);
+      this.transaction.queries(AssignmentExecutionDeleteType.class);
     final var planPut =
       this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class);
     final var reposPut =
-      this.transaction.queries(NPDatabaseQueriesRepositoriesType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var scmPut =
-      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesSCMProvidersType.SCMProviderPutType.class);
     final var commitPut =
-      this.transaction.queries(CommitsPutType.class);
+      this.transaction.queries(RepositoryCommitsPutType.class);
     final var workPut =
-      this.transaction.queries(WorkItemPutType.class);
+      this.transaction.queries(AssignmentWorkItemPutType.class);
     final var workLogAdd =
-      this.transaction.queries(WorkItemLogAddType.class);
+      this.transaction.queries(AssignmentWorkItemLogAddType.class);
 
     final var scm =
       new NPSCMProviderDescription(
@@ -1577,7 +1577,7 @@ public final class NPDatabaseAssignmentsTest
       NPCommitGraph.create(Set.of());
 
     commitPut.execute(
-      new CommitsPutType.Parameters(
+      new RepositoryCommitsPutType.Parameters(
         Set.of(commit),
         commitGraph
       ));
@@ -1651,7 +1651,7 @@ public final class NPDatabaseAssignmentsTest
     }
 
     for (int index = 0; index < 100; ++index) {
-      execLogAdd.execute(new ExecutionLogAddType.Parameters(
+      execLogAdd.execute(new AssignmentExecutionLogAddType.Parameters(
         execution.id(),
         index,
         "TEST",

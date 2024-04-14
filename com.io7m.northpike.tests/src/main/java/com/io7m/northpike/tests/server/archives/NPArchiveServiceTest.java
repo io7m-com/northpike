@@ -251,13 +251,13 @@ public final class NPArchiveServiceTest
     throws Exception
   {
     final var get =
-      Mockito.mock(NPDatabaseQueriesArchivesType.GetType.class);
+      Mockito.mock(NPDatabaseQueriesArchivesType.ArchiveGetType.class);
 
     Mockito.when(get.execute(any()))
       .thenReturn(Optional.empty());
 
     Mockito.when(
-        this.transaction.queries(NPDatabaseQueriesArchivesType.GetType.class))
+        this.transaction.queries(NPDatabaseQueriesArchivesType.ArchiveGetType.class))
       .thenReturn(get);
 
     this.service.start().get(1L, TimeUnit.SECONDS);
@@ -287,7 +287,7 @@ public final class NPArchiveServiceTest
     throws Exception
   {
     final var get =
-      Mockito.mock(NPDatabaseQueriesArchivesType.GetType.class);
+      Mockito.mock(NPDatabaseQueriesArchivesType.ArchiveGetType.class);
 
     final var archive =
       new NPArchive(
@@ -308,7 +308,7 @@ public final class NPArchiveServiceTest
       .thenReturn(Optional.of(archive));
 
     Mockito.when(
-        this.transaction.queries(NPDatabaseQueriesArchivesType.GetType.class))
+        this.transaction.queries(NPDatabaseQueriesArchivesType.ArchiveGetType.class))
       .thenReturn(get);
 
     this.service.start().get(1L, TimeUnit.SECONDS);
@@ -351,7 +351,7 @@ public final class NPArchiveServiceTest
     );
 
     final var get =
-      Mockito.mock(NPDatabaseQueriesArchivesType.GetType.class);
+      Mockito.mock(NPDatabaseQueriesArchivesType.ArchiveGetType.class);
 
     final var archive =
       new NPArchive(
@@ -372,7 +372,7 @@ public final class NPArchiveServiceTest
       .thenReturn(Optional.of(archive));
 
     Mockito.when(
-        this.transaction.queries(NPDatabaseQueriesArchivesType.GetType.class))
+        this.transaction.queries(NPDatabaseQueriesArchivesType.ArchiveGetType.class))
       .thenReturn(get);
 
     this.service.start().get(1L, TimeUnit.SECONDS);

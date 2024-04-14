@@ -59,7 +59,7 @@ public final class NPUCmdAssignmentPut
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
-        transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class)
+        transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentPutType.class)
           .execute(command.assignment());
         transaction.commit();
       }

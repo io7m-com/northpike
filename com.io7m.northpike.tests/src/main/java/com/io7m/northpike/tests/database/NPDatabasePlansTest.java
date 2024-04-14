@@ -31,7 +31,7 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanGetUnparse
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanPutType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanSearchType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
@@ -858,9 +858,9 @@ public final class NPDatabasePlansTest
     final var get =
       this.transaction.queries(PlanGetUnparsedType.class);
     final var assignPut =
-      this.transaction.queries(NPDatabaseQueriesAssignmentsType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentPutType.class);
     final var reposPut =
-      this.transaction.queries(PutType.class);
+      this.transaction.queries(RepositoryPutType.class);
 
     final var strings =
       NPStrings.create(Locale.ROOT);

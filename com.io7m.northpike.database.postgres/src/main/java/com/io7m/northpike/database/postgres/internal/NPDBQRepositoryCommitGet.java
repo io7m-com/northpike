@@ -18,7 +18,7 @@
 package com.io7m.northpike.database.postgres.internal;
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.CommitGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryCommitGetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitAuthor;
@@ -42,10 +42,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.REPOSITORY_CO
 
 public final class NPDBQRepositoryCommitGet
   extends NPDBQAbstract<NPCommitID, Optional<NPCommit>>
-  implements CommitGetType
+  implements RepositoryCommitGetType
 {
-  private static final Service<NPCommitID, Optional<NPCommit>, CommitGetType> SERVICE =
-    new Service<>(CommitGetType.class, NPDBQRepositoryCommitGet::new);
+  private static final Service<NPCommitID, Optional<NPCommit>, RepositoryCommitGetType> SERVICE =
+    new Service<>(RepositoryCommitGetType.class, NPDBQRepositoryCommitGet::new);
 
   /**
    * Construct a query.

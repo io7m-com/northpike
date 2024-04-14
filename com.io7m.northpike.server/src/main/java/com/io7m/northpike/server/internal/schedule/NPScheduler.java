@@ -18,8 +18,8 @@
 package com.io7m.northpike.server.internal.schedule;
 
 import com.io7m.northpike.clock.NPClockServiceType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.CommitsNotExecutedType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.SearchType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentCommitsNotExecutedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentSearchType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPCommitUnqualifiedID;
 import com.io7m.northpike.model.NPException;
@@ -191,7 +191,7 @@ public final class NPScheduler implements NPSchedulerType
       ));
 
       try {
-        this.repositoryService.checkOne(assignment.assignment().repositoryId())
+        this.repositoryService.repositoryUpdate(assignment.assignment().repositoryId())
           .get(1L, TimeUnit.MINUTES);
       } catch (final Exception e) {
         NPTelemetryServiceType.recordSpanException(e);
@@ -340,7 +340,7 @@ public final class NPScheduler implements NPSchedulerType
     try (var connection = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
       try (var transaction = connection.openTransaction()) {
         final var paged =
-          transaction.queries(SearchType.class)
+          transaction.queries(AssignmentSearchType.class)
             .execute(
               new NPAssignmentSearchParameters(
                 new NPComparisonExactType.Anything<>(),
@@ -369,9 +369,9 @@ public final class NPScheduler implements NPSchedulerType
     try (var connection = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
       try (var transaction = connection.openTransaction()) {
         final var paged =
-          transaction.queries(CommitsNotExecutedType.class)
+          transaction.queries(AssignmentCommitsNotExecutedType.class)
             .execute(
-              new CommitsNotExecutedType.Parameters(
+              new AssignmentCommitsNotExecutedType.Parameters(
                 assignment.name(),
                 timeRange,
                 1000L

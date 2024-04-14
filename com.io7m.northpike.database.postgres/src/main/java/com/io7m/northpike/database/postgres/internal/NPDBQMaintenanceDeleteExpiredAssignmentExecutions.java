@@ -26,7 +26,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionDeleteType.DeletionScope.DELETE_LOGS;
+import static com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionDeleteType.DeletionScope.DELETE_LOGS;
 import static com.io7m.northpike.database.postgres.internal.NPDBQAssignmentExecutionDelete.deletionStatements;
 import static com.io7m.northpike.database.postgres.internal.tables.AssignmentExecutions.ASSIGNMENT_EXECUTIONS;
 

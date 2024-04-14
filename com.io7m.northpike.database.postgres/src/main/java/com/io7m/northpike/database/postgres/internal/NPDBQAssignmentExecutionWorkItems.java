@@ -42,10 +42,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.WORK_ITEMS;
 
 public final class NPDBQAssignmentExecutionWorkItems
   extends NPDBQAbstract<NPAssignmentExecutionID, Set<NPWorkItem>>
-  implements NPDatabaseQueriesAssignmentsType.ExecutionWorkItemsType
+  implements NPDatabaseQueriesAssignmentsType.AssignmentExecutionWorkItemsType
 {
-  private static final Service<NPAssignmentExecutionID, Set<NPWorkItem>, ExecutionWorkItemsType> SERVICE =
-    new Service<>(ExecutionWorkItemsType.class, NPDBQAssignmentExecutionWorkItems::new);
+  private static final Service<NPAssignmentExecutionID, Set<NPWorkItem>, AssignmentExecutionWorkItemsType> SERVICE =
+    new Service<>(AssignmentExecutionWorkItemsType.class, NPDBQAssignmentExecutionWorkItems::new);
 
   /**
    * Construct a query.

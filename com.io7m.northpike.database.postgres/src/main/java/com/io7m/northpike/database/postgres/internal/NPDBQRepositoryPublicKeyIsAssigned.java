@@ -19,7 +19,7 @@ package com.io7m.northpike.database.postgres.internal;
 
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyIsAssignedType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyIsAssignedType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -34,12 +34,12 @@ import static com.io7m.northpike.strings.NPStringConstants.REPOSITORY;
  */
 
 public final class NPDBQRepositoryPublicKeyIsAssigned
-  extends NPDBQAbstract<PublicKeyIsAssignedType.Parameters, Boolean>
-  implements PublicKeyIsAssignedType
+  extends NPDBQAbstract<RepositoryPublicKeyIsAssignedType.Parameters, Boolean>
+  implements RepositoryPublicKeyIsAssignedType
 {
-  private static final Service<Parameters, Boolean, PublicKeyIsAssignedType> SERVICE =
+  private static final Service<Parameters, Boolean, RepositoryPublicKeyIsAssignedType> SERVICE =
     new Service<>(
-      PublicKeyIsAssignedType.class,
+      RepositoryPublicKeyIsAssignedType.class,
       NPDBQRepositoryPublicKeyIsAssigned::new
     );
 

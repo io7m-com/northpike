@@ -22,13 +22,12 @@ import com.io7m.northpike.telemetry.api.NPEventServiceType;
 import com.io7m.northpike.telemetry.api.NPEventType;
 
 import java.util.Objects;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Flow;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public final class NPEventInterceptingService implements NPEventServiceType
 {
-  private final ConcurrentLinkedQueue<NPEventType> events;
+  private final LinkedBlockingQueue<NPEventType> events;
   private NPEventServiceType delegate;
 
   public NPEventInterceptingService(
@@ -37,7 +36,7 @@ public final class NPEventInterceptingService implements NPEventServiceType
     this.delegate =
       Objects.requireNonNull(inDelegate, "delegate");
     this.events =
-      new ConcurrentLinkedQueue<NPEventType>();
+      new LinkedBlockingQueue<>();
   }
 
   @Override
@@ -67,7 +66,7 @@ public final class NPEventInterceptingService implements NPEventServiceType
     return this.delegate.description();
   }
 
-  public Queue<NPEventType> eventQueue()
+  public LinkedBlockingQueue<NPEventType> eventQueue()
   {
     return this.events;
   }

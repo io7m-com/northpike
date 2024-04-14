@@ -18,7 +18,7 @@
 package com.io7m.northpike.database.postgres.internal;
 
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionLogAddType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionLogAddType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import org.jooq.DSLContext;
@@ -38,12 +38,16 @@ import static com.io7m.northpike.database.postgres.internal.Tables.ASSIGNMENT_EX
  */
 
 public final class NPDBQAssignmentExecutionLogAdd
-  extends NPDBQAbstract<ExecutionLogAddType.Parameters, NPDatabaseUnit>
-  implements ExecutionLogAddType
+  extends NPDBQAbstract<AssignmentExecutionLogAddType.Parameters, NPDatabaseUnit>
+  implements AssignmentExecutionLogAddType
 {
-  private static final Service<ExecutionLogAddType.Parameters, NPDatabaseUnit, ExecutionLogAddType> SERVICE =
+  private static final Service<
+    AssignmentExecutionLogAddType.Parameters,
+    NPDatabaseUnit,
+    AssignmentExecutionLogAddType>
+    SERVICE =
     new Service<>(
-      ExecutionLogAddType.class,
+      AssignmentExecutionLogAddType.class,
       NPDBQAssignmentExecutionLogAdd::new);
 
   /**
@@ -91,8 +95,9 @@ public final class NPDBQAssignmentExecutionLogAdd
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_TIME, time)
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_INDEX, parameters.index())
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_TYPE, parameters.type())
-      .set(ASSIGNMENT_EXECUTION_LOGS.AEL_EXCEPTION_DATA,
-           serializeExceptionOptional(parameters.exception()))
+      .set(
+        ASSIGNMENT_EXECUTION_LOGS.AEL_EXCEPTION_DATA,
+        serializeExceptionOptional(parameters.exception()))
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_EXCEPTION_FORMAT, "CEDARBRIDGE")
       .set(ASSIGNMENT_EXECUTION_LOGS.AEL_EXCEPTION_VERSION, Integer.valueOf(1))
       .set(attributesField, Hstore.valueOf(parameters.attributes()))

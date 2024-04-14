@@ -20,7 +20,7 @@ package com.io7m.northpike.tests.server.users;
 import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyUnassignType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyUnassignType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseUnit;
 import com.io7m.northpike.model.NPAuditOwnerType;
@@ -206,9 +206,9 @@ public final class NPUCmdRepositoryPublicKeyUnassignTest
       .thenReturn(userId);
 
     final var keyUnassign =
-      Mockito.mock(PublicKeyUnassignType.class);
+      Mockito.mock(RepositoryPublicKeyUnassignType.class);
 
-    Mockito.when(this.transaction.queries(PublicKeyUnassignType.class))
+    Mockito.when(this.transaction.queries(RepositoryPublicKeyUnassignType.class))
       .thenReturn(keyUnassign);
 
     Mockito.when(keyUnassign.execute(any()))
@@ -251,9 +251,9 @@ public final class NPUCmdRepositoryPublicKeyUnassignTest
       .thenReturn(user);
 
     final var keyUnassign =
-      Mockito.mock(PublicKeyUnassignType.class);
+      Mockito.mock(RepositoryPublicKeyUnassignType.class);
 
-    Mockito.when(this.transaction.queries(PublicKeyUnassignType.class))
+    Mockito.when(this.transaction.queries(RepositoryPublicKeyUnassignType.class))
       .thenReturn(keyUnassign);
 
     Mockito.when(keyUnassign.execute(any()))

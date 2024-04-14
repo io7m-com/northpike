@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.PublicKeyUnassignType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyUnassignType;
 import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
@@ -60,8 +60,8 @@ public final class NPUCmdRepositoryPublicKeyUnassign
       try (var transaction = connection.openTransaction()) {
         transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
 
-        transaction.queries(PublicKeyUnassignType.class)
-          .execute(new PublicKeyUnassignType.Parameters(
+        transaction.queries(RepositoryPublicKeyUnassignType.class)
+          .execute(new RepositoryPublicKeyUnassignType.Parameters(
             command.repository(),
             command.key()
           ));

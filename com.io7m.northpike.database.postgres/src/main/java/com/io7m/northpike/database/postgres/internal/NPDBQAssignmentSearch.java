@@ -55,15 +55,15 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_ST
 
 public final class NPDBQAssignmentSearch
   extends NPDBQAbstract<NPAssignmentSearchParameters, NPAssignmentsPagedType>
-  implements NPDatabaseQueriesAssignmentsType.SearchType
+  implements NPDatabaseQueriesAssignmentsType.AssignmentSearchType
 {
   private static final Service<
     NPAssignmentSearchParameters,
     NPAssignmentsPagedType,
-    SearchType
+    AssignmentSearchType
     > SERVICE =
     new Service<>(
-      SearchType.class,
+      AssignmentSearchType.class,
       NPDBQAssignmentSearch::new
     );
 

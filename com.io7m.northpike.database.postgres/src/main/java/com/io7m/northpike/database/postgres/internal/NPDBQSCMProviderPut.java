@@ -33,10 +33,10 @@ import static com.io7m.northpike.strings.NPStringConstants.SCM_PROVIDER;
 
 public final class NPDBQSCMProviderPut
   extends NPDBQAbstract<NPSCMProviderDescription, NPDatabaseUnit>
-  implements NPDatabaseQueriesSCMProvidersType.PutType
+  implements NPDatabaseQueriesSCMProvidersType.SCMProviderPutType
 {
-  private static final Service<NPSCMProviderDescription, NPDatabaseUnit, PutType> SERVICE =
-    new Service<>(PutType.class, NPDBQSCMProviderPut::new);
+  private static final Service<NPSCMProviderDescription, NPDatabaseUnit, SCMProviderPutType> SERVICE =
+    new Service<>(SCMProviderPutType.class, NPDBQSCMProviderPut::new);
 
   /**
    * Construct a query.

@@ -35,7 +35,7 @@
           level="INFO"/>
 
   <logger name="com.io7m.ervilla.native_exec"
-          level="DEBUG"/>
+          level="TRACE"/>
 
   <logger name="org.eclipse.jgit"
           level="INFO"/>

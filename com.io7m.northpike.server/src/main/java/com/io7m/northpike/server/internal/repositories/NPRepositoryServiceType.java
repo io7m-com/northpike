@@ -20,11 +20,17 @@ package com.io7m.northpike.server.internal.repositories;
 import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.keys.NPSignatureKeyLookupType;
 import com.io7m.northpike.model.NPArchive;
+import com.io7m.northpike.model.NPAuditOwnerType;
+import com.io7m.northpike.model.NPCommit;
 import com.io7m.northpike.model.NPCommitID;
+import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPFingerprint;
+import com.io7m.northpike.model.NPRepositoryDescription;
 import com.io7m.northpike.model.NPRepositoryID;
+import com.io7m.northpike.model.NPRepositorySigningPolicy;
 import com.io7m.repetoir.core.RPServiceType;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -37,18 +43,21 @@ public interface NPRepositoryServiceType
   /**
    * Start the service running.
    *
+   * @param startup The startup behaviour
+   *
    * @return A future representing the service startup
    */
 
-  CompletableFuture<Void> start();
+  CompletableFuture<Void> start(
+    NPRepositoryStartup startup);
 
   /**
-   * Check all repositories.
+   * Update all repositories.
    *
    * @return A future representing the operation in progress
    */
 
-  CompletableFuture<Void> check();
+  CompletableFuture<Void> update();
 
   /**
    * Check/update the given repository.
@@ -58,7 +67,7 @@ public interface NPRepositoryServiceType
    * @return A future representing the operation in progress
    */
 
-  CompletableFuture<Void> checkOne(
+  CompletableFuture<Void> repositoryUpdate(
     NPRepositoryID id);
 
   /**
@@ -66,11 +75,15 @@ public interface NPRepositoryServiceType
    *
    * @param commit The commit
    *
-   * @return A future representing the operation in progress
+   * @return The archive
+   *
+   * @throws InterruptedException On interruption
+   * @throws NPException          On errors
    */
 
-  CompletableFuture<NPArchive> createArchiveFor(
-    NPCommitID commit);
+  NPArchive commitCreateArchiveFor(
+    NPCommitID commit)
+    throws InterruptedException, NPException;
 
   /**
    * Verify the signature for the given commit.
@@ -78,10 +91,105 @@ public interface NPRepositoryServiceType
    * @param commit    The commit
    * @param keyLookup The key lookup
    *
-   * @return A future representing the operation in progress
+   * @return The verified signature
+   *
+   * @throws InterruptedException On interruption
+   * @throws NPException          On errors
    */
 
-  CompletableFuture<NPFingerprint> verifyCommitSignature(
+  NPFingerprint commitSignatureVerify(
     NPCommitID commit,
-    NPSignatureKeyLookupType keyLookup);
+    NPSignatureKeyLookupType keyLookup)
+    throws InterruptedException, NPException;
+
+  /**
+   * Determine if the given public key is assigned to the given repository.
+   *
+   * @param repository  The repository
+   * @param fingerprint The public key
+   *
+   * @return {@code true} if the key is assigned to the repository
+   *
+   * @throws InterruptedException On interruption
+   * @throws NPException          On errors
+   */
+
+  boolean repositoryHasPublicKeyAssigned(
+    NPRepositoryID repository,
+    NPFingerprint fingerprint)
+    throws InterruptedException, NPException;
+
+  /**
+   * Get the signing policy for the given repository.
+   *
+   * @param repository The repository
+   *
+   * @return The signing policy
+   *
+   * @throws InterruptedException On interruption
+   * @throws NPException          On errors
+   */
+
+  NPRepositorySigningPolicy repositorySigningPolicyFor(
+    NPRepositoryID repository)
+    throws InterruptedException, NPException;
+
+  /**
+   * Get the commit with the given ID.
+   *
+   * @param commitID The commit ID
+   *
+   * @return The commit
+   *
+   * @throws InterruptedException On interruption
+   * @throws NPException          On errors and nonexistent commits
+   */
+
+  NPCommit commitGet(
+    NPCommitID commitID)
+    throws InterruptedException, NPException;
+
+  /**
+   * Retrieve a repository.
+   *
+   * @param repository The repository ID
+   *
+   * @return A repository description
+   *
+   * @throws NPException On errors
+   */
+
+  Optional<NPRepositoryDescription> repositoryGet(
+    NPRepositoryID repository)
+    throws NPException;
+
+  /**
+   * Create or update a repository.
+   *
+   * @param owner      The owner of the update
+   * @param repository The repository
+   *
+   * @throws NPException On errors
+   */
+
+  void repositoryPut(
+    NPAuditOwnerType owner,
+    NPRepositoryDescription repository)
+    throws NPException;
+
+  /**
+   * Assign a public key to a repository.
+   *
+   * @param owner      The owner of the update
+   * @param repository The repository
+   * @param key        The key
+   *
+   * @throws NPException On errors
+   */
+
+  void repositoryPublicKeyAssign(
+    NPAuditOwnerType owner,
+    NPRepositoryID repository,
+    NPFingerprint key)
+    throws NPException;
 }

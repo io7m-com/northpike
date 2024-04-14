@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.ExecutionWorkItemsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionWorkItemsType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
@@ -63,7 +63,7 @@ public final class NPUCmdAssignmentExecutionWorkItems
         return new NPUResponseAssignmentExecutionWorkItems(
           UUID.randomUUID(),
           command.messageID(),
-          transaction.queries(ExecutionWorkItemsType.class)
+          transaction.queries(AssignmentExecutionWorkItemsType.class)
             .execute(command.execution())
         );
       }
