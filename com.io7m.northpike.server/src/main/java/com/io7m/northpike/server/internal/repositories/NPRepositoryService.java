@@ -59,6 +59,7 @@ import io.opentelemetry.api.trace.Span;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -582,7 +583,7 @@ public final class NPRepositoryService
   private NPArchive archiveCreateFile(
     final CommandCreateArchive createArchive,
     final NPSCMRepositoryType repository)
-    throws NoSuchAlgorithmException, NPSCMRepositoryException
+    throws NoSuchAlgorithmException, NPSCMRepositoryException, IOException
   {
     final var token =
       NPToken.generate();
@@ -643,7 +644,7 @@ public final class NPRepositoryService
     final var repository =
       this.repositoryOpen(repositoryDescription);
 
-    this.repositoryUpdate(repository);
+    this.repositoryDoUpdateOne(repository);
     return repository;
   }
 
@@ -682,7 +683,7 @@ public final class NPRepositoryService
       Span.current()
         .setAttribute("RepositoryURI", existing.description().url().toString());
 
-      this.repositoryUpdate(existing);
+      this.repositoryDoUpdateOne(existing);
     } catch (final Throwable e) {
       command.future.completeExceptionally(e);
     } finally {
@@ -695,7 +696,7 @@ public final class NPRepositoryService
   {
     try {
       this.repositoriesReloadConfigurations();
-      this.repositoriesUpdateAll();
+      this.repositoryDoUpdateAll();
 
     } catch (final Throwable e) {
       check.future.completeExceptionally(e);
@@ -714,14 +715,14 @@ public final class NPRepositoryService
     this.repositoriesRemoveUnused(repositoryDescriptions);
   }
 
-  private void repositoriesUpdateAll()
+  private void repositoryDoUpdateAll()
   {
     for (final var existing : this.repositories.values()) {
-      this.repositoryUpdate(existing);
+      this.repositoryDoUpdateOne(existing);
     }
   }
 
-  private void repositoryUpdate(
+  private void repositoryDoUpdateOne(
     final NPSCMRepositoryType repository)
   {
     final var description =

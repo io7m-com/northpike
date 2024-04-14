@@ -307,6 +307,11 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
       final var task = new NPSCMJTask(this.events, ARCHIVE);
 
       try {
+        Files.createDirectories(outputFile.getParent());
+        Files.createDirectories(outputFileTmp.getParent());
+        Files.createDirectories(checksumOutputFile.getParent());
+        Files.createDirectories(checksumOutputFileTmp.getParent());
+
         try (var output =
                Files.newOutputStream(outputFileTmp, TEMPORARY_FILE_OPTIONS)) {
 
@@ -478,23 +483,8 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     final var ident =
       source.getAuthorIdent();
 
-    final var commitObjectId =
-      ObjectId.fromString(source.name());
-
-    //    final var branches =
-    //      Set.copyOf(
-    //        this.git.nameRev()
-    //          .addPrefix("refs/heads")
-    //          .add(commitObjectId)
-    //          .call()
-    //          .values()
-    //          .stream()
-    //          .map(s -> s.replace("refs/heads/", ""))
-    //          .collect(Collectors.toSet())
-    //      );
-
     final var branches =
-      transformGetBranchesForCommit(source);
+      this.transformGetBranchesForCommit(source);
 
     final var timeCreated =
       OffsetDateTime.ofInstant(

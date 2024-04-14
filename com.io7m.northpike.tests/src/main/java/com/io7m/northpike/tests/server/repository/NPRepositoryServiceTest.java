@@ -477,7 +477,7 @@ public final class NPRepositoryServiceTest
   }
 
   /**
-   * Creating an archive of a nonexistent commit works.
+   * Creating an archive of a nonexistent commit fails in the expected way.
    *
    * @throws Exception On errors
    */

@@ -525,6 +525,77 @@ public final class NPSCMRepositoriesJGitTest
   }
 
   /**
+   * Producing an archive works.
+   *
+   * @param directory      The directory
+   * @param reposDirectory The repos directory
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testArchive1(
+    final @TempDir Path directory,
+    final @TempDir Path outputDirectory,
+    final @TempDir Path expandDirectory,
+    final @TempDir Path reposDirectory)
+    throws Exception
+  {
+    final var reposSource =
+      unpack("example.git.tar", reposDirectory);
+
+    final var repositoryDescription =
+      new NPRepositoryDescription(
+        new RDottedName("com.io7m.northpike.repository.jgit"),
+        new NPRepositoryID(randomUUID()),
+        reposSource,
+        CREDENTIALS_NONE,
+        ALLOW_UNSIGNED_COMMITS
+      );
+
+    final var fileTmp =
+      outputDirectory.resolve("archive.tgz.tmp");
+    final var file =
+      outputDirectory.resolve("archive.tgz");
+    final var checksumTmp =
+      outputDirectory.resolve("archive.tgz.sha256.tmp");
+    final var checksum =
+      outputDirectory.resolve("archive.tgz.sha256");
+
+    /*
+     * Explicitly delete the output directory.
+     */
+
+    Files.delete(outputDirectory);
+
+    try (var repository =
+           this.repositories.createRepository(
+             this.services, directory, repositoryDescription)) {
+      repository.events().subscribe(new EventLogger());
+      repository.commitArchive(
+        new NPCommitID(
+          repositoryDescription.id(),
+          new NPCommitUnqualifiedID("b155d186fce6d0525b8348cc48dd778fda6c6a85")
+        ),
+        new NPToken(
+          "0000000000000000000000000000000000000000000000000000000000000000"),
+        file,
+        fileTmp,
+        checksum,
+        checksumTmp
+      );
+
+      assertTrue(Files.isRegularFile(file));
+      assertFalse(Files.isRegularFile(fileTmp));
+
+      expandArchive(expandDirectory, file);
+      assertTrue(Files.isRegularFile(expandDirectory.resolve(".gitmodules")));
+      assertTrue(Files.isDirectory(expandDirectory.resolve(".jenkins")));
+      assertTrue(Files.isRegularFile(expandDirectory.resolve("pom.xml")));
+    }
+  }
+
+  /**
    * Verifying commit signatures works.
    *
    * @param directory      The directory
