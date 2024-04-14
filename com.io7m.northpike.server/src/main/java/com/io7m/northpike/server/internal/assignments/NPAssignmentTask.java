@@ -537,6 +537,7 @@ public final class NPAssignmentTask
           this.eventIndexNext(),
           formatted
         );
+        transaction.commit();
       }
     } catch (final NPDatabaseException e) {
       recordSpanException(e);
@@ -558,6 +559,7 @@ public final class NPAssignmentTask
           this.eventIndexNext(),
           formatted
         );
+        transaction.commit();
       }
     } catch (final NPDatabaseException e) {
       recordSpanException(e);
@@ -568,7 +570,6 @@ public final class NPAssignmentTask
   {
     return this.eventIndex.getAndIncrement();
   }
-
 
   private NPServerException errorNonexistentPlan(
     final NPPlanIdentifier planId)
