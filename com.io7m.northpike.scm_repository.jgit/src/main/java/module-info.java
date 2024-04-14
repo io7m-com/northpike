@@ -33,6 +33,7 @@ module com.io7m.northpike.scm_repository.jgit
   requires com.io7m.northpike.keys;
   requires com.io7m.northpike.telemetry.api;
 
+  requires com.googlecode.javaewah;
   requires com.io7m.jmulticlose.core;
   requires com.io7m.lanark.core;
   requires io.opentelemetry.api;

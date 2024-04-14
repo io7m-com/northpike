@@ -311,7 +311,7 @@ public final class NPAgentTask
   private void processCommandLatencyCheck()
     throws InterruptedException, NPException, IOException
   {
-    LOG.debug("Latency: Performing check.");
+    LOG.trace("Latency: Performing check.");
 
     final var command =
       new NPACommandSLatencyCheck(
@@ -328,7 +328,7 @@ public final class NPAgentTask
       final var duration =
         Duration.between(command.timeCurrent(), timeNow);
 
-      LOG.debug("Latency: RTT {}", duration);
+      LOG.trace("Latency: RTT {}", duration);
       this.metrics.setAgentLatency(this.agentId, duration);
     }
   }

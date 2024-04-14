@@ -457,7 +457,7 @@ public final class NPRepositoryService
   {
     final var span =
       this.telemetry.tracer()
-        .spanBuilder("Command")
+        .spanBuilder("RepositoryCommand")
         .setAttribute("Command", command.getClass().getSimpleName())
         .startSpan();
 

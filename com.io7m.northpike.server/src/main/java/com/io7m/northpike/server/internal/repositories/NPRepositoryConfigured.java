@@ -56,7 +56,7 @@ public record NPRepositoryConfigured(
   @Override
   public String message()
   {
-    return "Configured";
+    return "RepositoryConfigured";
   }
 
   @Override

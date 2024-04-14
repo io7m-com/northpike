@@ -49,6 +49,7 @@ import com.io7m.repetoir.core.RPServiceDirectoryType;
 import io.opentelemetry.api.trace.Span;
 import org.eclipse.jgit.api.ArchiveCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.VerifySignatureCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.archive.TgzFormat;
@@ -62,6 +63,8 @@ import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.TagOpt;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -108,6 +111,9 @@ import static org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode.YE
 
 public final class NPSCMJGRepository implements NPSCMRepositoryType
 {
+  private static final Logger LOG =
+    LoggerFactory.getLogger(NPSCMJGRepository.class);
+
   private static final OpenOption[] TEMPORARY_FILE_OPTIONS =
     {TRUNCATE_EXISTING, CREATE, WRITE};
 
@@ -346,6 +352,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
         );
       } catch (final Exception e) {
         recordSpanException(e);
+        LOG.error("commitArchive: ", e);
         final var ex = this.handleException(e);
         task.onFailed(ex);
         throw ex;
@@ -435,6 +442,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
         );
       } catch (final Exception e) {
         recordSpanException(e);
+        LOG.error("executeCalculateSince: ", e);
         final var ex = this.handleException(e);
         task.onFailed(ex);
         throw ex;
@@ -473,14 +481,20 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     final var commitObjectId =
       ObjectId.fromString(source.name());
 
+    //    final var branches =
+    //      Set.copyOf(
+    //        this.git.nameRev()
+    //          .addPrefix("refs/heads")
+    //          .add(commitObjectId)
+    //          .call()
+    //          .values()
+    //          .stream()
+    //          .map(s -> s.replace("refs/heads/", ""))
+    //          .collect(Collectors.toSet())
+    //      );
+
     final var branches =
-      Set.copyOf(
-        this.git.nameRev()
-          .addPrefix("refs/heads")
-          .add(commitObjectId)
-          .call()
-          .values()
-      );
+      transformGetBranchesForCommit(source);
 
     final var timeCreated =
       OffsetDateTime.ofInstant(
@@ -495,15 +509,8 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
     final var timeReceived =
       OffsetDateTime.now(UTC);
 
-    final var tagList =
-      this.git.tagList()
-        .setContains(commitObjectId)
-        .call();
-
     final var tags =
-      tagList.stream()
-        .map(Ref::getName)
-        .collect(Collectors.toUnmodifiableSet());
+      this.transformGetTagsForCommit(source);
 
     final var author =
       new NPCommitAuthor(
@@ -524,6 +531,39 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
       branches,
       tags
     );
+  }
+
+  private Set<String> transformGetBranchesForCommit(
+    final RevCommit source)
+    throws GitAPIException
+  {
+    return this.git.branchList()
+      .setContains(source.name())
+      .setListMode(ListBranchCommand.ListMode.ALL)
+      .call()
+      .stream()
+      .map(Ref::getName)
+      .map(s -> s.replace("refs/heads/", ""))
+      .collect(Collectors.toSet());
+  }
+
+  private Set<String> transformGetTagsForCommit(
+    final RevCommit source)
+    throws GitAPIException
+  {
+    final var tagList =
+      this.git.tagList()
+        .call();
+
+    final var tagNames = new HashSet<String>();
+    for (final var ref : tagList) {
+      final var peeledRef = ref.getPeeledObjectId();
+      if (Objects.equals(peeledRef, source.toObjectId())) {
+        tagNames.add(ref.getName().replace("refs/tags/", ""));
+      }
+    }
+
+    return Set.copyOf(tagNames);
   }
 
   private void executeUpdate()
@@ -560,6 +600,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
         task.onCompleted();
       } catch (final Exception e) {
         recordSpanException(e);
+        LOG.error("executeUpdateGC: ", e);
         final var ex = this.handleException(e);
         task.onFailed(ex);
         throw ex;
@@ -589,6 +630,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
         task.onCompleted();
       } catch (final Exception e) {
         recordSpanException(e);
+        LOG.error("executeUpdatePull: ", e);
         final var ex = this.handleException(e);
         task.onFailed(ex);
         throw ex;
@@ -643,19 +685,20 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
             Git.cloneRepository()
               .setBare(true)
               .setCloneAllBranches(true)
-              .setTagOption(TagOpt.FETCH_TAGS)
+              .setCloneSubmodules(true)
+              .setCredentialsProvider(this.createCredentialsProvider())
               .setGitDir(this.repoPath.toFile())
               .setMirror(true)
-              .setURI(this.repositoryDescription.url().normalize().toString())
-              .setCredentialsProvider(this.createCredentialsProvider())
               .setProgressMonitor(task)
-              .setCloneSubmodules(true)
+              .setTagOption(TagOpt.FETCH_TAGS)
+              .setURI(this.repositoryDescription.url().normalize().toString())
               .call()
           );
 
         task.onCompleted();
       } catch (final Exception e) {
         recordSpanException(e);
+        LOG.error("executeClone: ", e);
         final var ex = this.handleException(e);
         task.onFailed(ex);
         throw ex;
@@ -756,6 +799,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
         return verifier.keyUsed().fingerprint();
       } catch (final Exception e) {
         recordSpanException(e);
+        LOG.error("commitVerifySignature: ", e);
         final var ex = this.handleException(e);
         task.onFailed(ex);
         throw ex;
@@ -811,6 +855,7 @@ public final class NPSCMJGRepository implements NPSCMRepositoryType
         );
       } catch (final Exception e) {
         recordSpanException(e);
+        LOG.error("executeCalculateSinceTime: ", e);
         final var ex = this.handleException(e);
         task.onFailed(ex);
         throw ex;

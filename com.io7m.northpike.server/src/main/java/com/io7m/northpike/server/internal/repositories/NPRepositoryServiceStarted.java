@@ -45,7 +45,7 @@ public record NPRepositoryServiceStarted()
   @Override
   public String message()
   {
-    return "Started";
+    return "RepositoryServiceStarted";
   }
 
   @Override

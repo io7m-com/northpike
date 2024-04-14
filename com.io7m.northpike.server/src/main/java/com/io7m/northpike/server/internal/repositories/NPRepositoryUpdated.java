@@ -58,7 +58,7 @@ public record NPRepositoryUpdated(
   @Override
   public String message()
   {
-    return "Updated";
+    return "RepositoryUpdated";
   }
 
   @Override

@@ -60,7 +60,7 @@ public record NPRepositoryUpdateFailed(
   @Override
   public String message()
   {
-    return "UpdateFailed";
+    return "RepositoryUpdateFailed";
   }
 
   @Override

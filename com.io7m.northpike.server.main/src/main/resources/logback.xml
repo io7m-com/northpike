@@ -10,14 +10,6 @@
     <target>System.err</target>
   </appender>
 
-  <logger name="org.eclipse.jetty.server"
-          level="ERROR"/>
-  <logger name="org.eclipse.jetty.util.ssl.SslContextFactory"
-          level="ERROR"/>
-  <logger name="org.eclipse.jetty.server.AbstractConnector"
-          level="ERROR"/>
-  <logger name="org.eclipse.jetty" level="INFO"/>
-
   <logger name="com.github.dockerjava"
           level="ERROR"/>
   <logger name="org.testcontainers"
@@ -25,6 +17,12 @@
   <logger name="com.zaxxer.hikari"
           level="ERROR"/>
   <logger name="com.io7m.blackthorne"
+          level="INFO"/>
+
+  <logger name="org.jooq"
+          level="INFO"/>
+
+  <logger name="org.eclipse.jgit.internal.storage.file"
           level="INFO"/>
 
   <root level="TRACE">

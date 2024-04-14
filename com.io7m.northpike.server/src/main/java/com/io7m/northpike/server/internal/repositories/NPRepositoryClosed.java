@@ -56,7 +56,7 @@ public record NPRepositoryClosed(
   @Override
   public String message()
   {
-    return "Closed";
+    return "RepositoryClosed";
   }
 
   @Override

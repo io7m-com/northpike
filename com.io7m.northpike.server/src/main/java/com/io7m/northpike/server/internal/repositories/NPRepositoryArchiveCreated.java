@@ -53,13 +53,13 @@ public record NPRepositoryArchiveCreated(
   @Override
   public String name()
   {
-    return "ArchiveCreated";
+    return "RepositoryArchiveCreated";
   }
 
   @Override
   public String message()
   {
-    return "Created";
+    return "RepositoryArchiveCreated";
   }
 
   @Override

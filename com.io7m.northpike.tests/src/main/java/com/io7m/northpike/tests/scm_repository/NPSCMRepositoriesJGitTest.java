@@ -189,6 +189,81 @@ public final class NPSCMRepositoriesJGitTest
           .map(NPCommitUnqualifiedID::value)
           .collect(Collectors.toUnmodifiableSet())
       );
+
+      for (final var commit : commits) {
+        final var commitId = commit.id().commitId().value();
+
+        switch (commitId) {
+          case "30dfe62404b3f4338297432d95e17b0630d0960c" -> {
+            assertEquals(
+              Set.of("com.io7m.example-0.0.2"),
+              commit.tags()
+            );
+          }
+          case "b155d186fce6d0525b8348cc48dd778fda6c6a85" -> {
+            assertEquals(
+              Set.of("com.io7m.example-0.0.1"),
+              commit.tags()
+            );
+          }
+          default -> {
+            assertEquals(
+              Set.of(),
+              commit.tags()
+            );
+          }
+        }
+      }
+
+      for (final var commit : commits) {
+        final var commitId = commit.id().commitId().value();
+
+        switch (commitId) {
+          case "f6d27f77259522f10f7062efca687978531456a4" -> {
+            final var branches = Set.of("develop");
+            assertEquals(
+              branches,
+              commit.branches(),
+              "Commit %s must have branches %s".formatted(commitId, branches)
+            );
+          }
+          case "x" -> {
+            final var branches = Set.of("master");
+            assertEquals(
+              branches,
+              commit.branches(),
+              "Commit %s must have branches %s".formatted(commitId, branches)
+            );
+          }
+          case "b155d186fce6d0525b8348cc48dd778fda6c6a85",
+            "27b00e3adce185f2b00096894e0b6bf34e9a157f",
+            "293d2389c729ff9574f55fcb211d4594f14193f2",
+            "11e4ee346c9a8708688acc4f32beac8955714b6c",
+            "f512486ea90cab4a8f00bc01f2ba2083f65aa0ab",
+            "9141a3dc3b8f0444b61aae7d4f26afcd9b6d7dbd",
+            "a6f4b51d85271d34e6cd79424416afaf0554d826",
+            "30dfe62404b3f4338297432d95e17b0630d0960c",
+            "5634fee48558be958830b324dd283bbde568aeb4",
+            "6cf9c3deec2e9663a204a8ca2c30717ff4366e5d",
+            "db164a1037656bfe0f4253bf9ea882ab28696b77",
+            "e4b4a304374886824d94b8cdf49d44c76081eeaf" -> {
+            final var branches = Set.of("develop", "master");
+            assertEquals(
+              branches,
+              commit.branches(),
+              "Commit %s must have branches %s".formatted(commitId, branches)
+            );
+          }
+          default -> {
+            final var branches = Set.of();
+            assertEquals(
+              branches,
+              commit.branches(),
+              "Commit %s must have branches %s".formatted(commitId, branches)
+            );
+          }
+        }
+      }
     }
   }
 
@@ -608,17 +683,17 @@ public final class NPSCMRepositoriesJGitTest
       OffsetDateTime.now(),
       Optional.empty(),
       """
------BEGIN PGP PUBLIC KEY BLOCK-----
+        -----BEGIN PGP PUBLIC KEY BLOCK-----
 
-mDMEZQ4TaBYJKwYBBAHaRw8BAQdAMNgv7poctgUe5VlVqPF832sXIZdqV139e/IP
-ds8SwFa0QU5vcnRocGlrZSAoTm9ydGhwaWtlIEV4YW1wbGUgS2V5IEFsdGVybmF0
-aXZlKSA8bm9vbmVAZXhhbXBsZS5jb20+iJAEExYIADgWIQQPmqLJNwNrpjTRhr0T
-vixRSDmHRQUCZQ4TaAIbAwULCQgHAwUVCgkICwUWAgMBAAIeAQIXgAAKCRATvixR
-SDmHRZGoAQChIyLkA4TIQ6ROdJWrCgSYj0r63zu3y47wqI5U8dXjiAD/WQ3E+FA7
-WDQ4AgI9+C5Ommu8ftVPDj7dctHMEl5xEAM=
-=zTld
------END PGP PUBLIC KEY BLOCK-----
-              """
+        mDMEZQ4TaBYJKwYBBAHaRw8BAQdAMNgv7poctgUe5VlVqPF832sXIZdqV139e/IP
+        ds8SwFa0QU5vcnRocGlrZSAoTm9ydGhwaWtlIEV4YW1wbGUgS2V5IEFsdGVybmF0
+        aXZlKSA8bm9vbmVAZXhhbXBsZS5jb20+iJAEExYIADgWIQQPmqLJNwNrpjTRhr0T
+        vixRSDmHRQUCZQ4TaAIbAwULCQgHAwUVCgkICwUWAgMBAAIeAQIXgAAKCRATvixR
+        SDmHRZGoAQChIyLkA4TIQ6ROdJWrCgSYj0r63zu3y47wqI5U8dXjiAD/WQ3E+FA7
+        WDQ4AgI9+C5Ommu8ftVPDj7dctHMEl5xEAM=
+        =zTld
+        -----END PGP PUBLIC KEY BLOCK-----
+                      """
     );
 
   private static void expandArchive(

@@ -60,7 +60,7 @@ public record NPRepositoryCloseFailed(
   @Override
   public String message()
   {
-    return "CloseFailed";
+    return "RepositoryCloseFailed";
   }
 
   @Override
