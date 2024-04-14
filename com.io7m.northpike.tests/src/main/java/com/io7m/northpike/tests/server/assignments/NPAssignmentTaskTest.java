@@ -23,7 +23,7 @@ import com.io7m.ervilla.test_extension.ErvillaExtension;
 import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanPutType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType.PutType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType.PublicKeyPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyAssignType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesRepositoriesType.RepositoryPublicKeyAssignType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.PutExecutionDescriptionType;
@@ -1736,7 +1736,7 @@ public final class NPAssignmentTaskTest
     final var transaction =
       ASSIGNMENT_FIXTURE.transaction();
 
-    transaction.queries(PutType.class)
+    transaction.queries(PublicKeyPutType.class)
       .execute(
         NPPublicKeys.decode(resource("key-pub-0.asc")).get(0)
       );

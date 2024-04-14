@@ -51,24 +51,17 @@ public enum NPUVWorkItemStatus
   public NPWorkItemStatus convertFromWire(
     final NPU1WorkItemStatus message)
   {
-    if (message instanceof NPU1WorkItemStatus.Accepted) {
-      return NPWorkItemStatus.WORK_ITEM_ACCEPTED;
-    }
-    if (message instanceof NPU1WorkItemStatus.Created) {
-      return NPWorkItemStatus.WORK_ITEM_CREATED;
-    }
-    if (message instanceof NPU1WorkItemStatus.Failed) {
-      return NPWorkItemStatus.WORK_ITEM_FAILED;
-    }
-    if (message instanceof NPU1WorkItemStatus.Running) {
-      return NPWorkItemStatus.WORK_ITEM_RUNNING;
-    }
-    if (message instanceof NPU1WorkItemStatus.Succeeded) {
-      return NPWorkItemStatus.WORK_ITEM_SUCCEEDED;
-    }
-
-    throw new IllegalStateException(
-      "Unrecognized message: %s".formatted(message)
-    );
+    return switch (message) {
+      case final NPU1WorkItemStatus.Accepted accepted ->
+        NPWorkItemStatus.WORK_ITEM_ACCEPTED;
+      case final NPU1WorkItemStatus.Created created ->
+        NPWorkItemStatus.WORK_ITEM_CREATED;
+      case final NPU1WorkItemStatus.Failed failed ->
+        NPWorkItemStatus.WORK_ITEM_FAILED;
+      case final NPU1WorkItemStatus.Running running ->
+        NPWorkItemStatus.WORK_ITEM_RUNNING;
+      case final NPU1WorkItemStatus.Succeeded succeeded ->
+        NPWorkItemStatus.WORK_ITEM_SUCCEEDED;
+    };
   }
 }

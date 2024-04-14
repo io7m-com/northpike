@@ -26,7 +26,10 @@ import com.io7m.northpike.model.agents.NPAgentID;
  */
 
 @NPDocumentation("The subset of agent events that are work item events.")
-public interface NPAgentWorkItemEventType extends NPAgentEventType
+public sealed interface NPAgentWorkItemEventType
+  extends NPAgentEventType
+  permits NPAgentWorkItemAccepted,
+  NPAgentWorkItemStatusChanged
 {
   /**
    * @return The agent ID

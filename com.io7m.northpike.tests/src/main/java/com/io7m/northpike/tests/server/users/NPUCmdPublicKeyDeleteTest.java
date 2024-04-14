@@ -197,9 +197,9 @@ public final class NPUCmdPublicKeyDeleteTest
       .thenReturn(user);
 
     final var keyDelete =
-      Mockito.mock(NPDatabaseQueriesPublicKeysType.DeleteType.class);
+      Mockito.mock(NPDatabaseQueriesPublicKeysType.PublicKeyDeleteType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesPublicKeysType.DeleteType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyDeleteType.class))
       .thenReturn(keyDelete);
 
     final var r = handler.execute(this.context, command);

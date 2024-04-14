@@ -60,7 +60,7 @@ public final class NPUCmdPublicKeyGet
       try (var transaction = connection.openTransaction()) {
         return NPUResponsePublicKeyGet.createCorrelated(
           command,
-          transaction.queries(NPDatabaseQueriesPublicKeysType.GetType.class)
+          transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyGetType.class)
             .execute(command.fingerprint())
             .map(NPPublicKey::encodedForm)
         );

@@ -821,7 +821,7 @@ public final class NPDatabaseRepositoriesTest
     final var put =
       this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
     final var keyPut =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyPutType.class);
 
     final var keysAssigned =
       this.transaction.queries(RepositoryPublicKeysAssignedType.class);

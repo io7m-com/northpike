@@ -65,7 +65,7 @@ public final class NPUCmdPublicKeyPut
         transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
 
         for (final var key : keys) {
-          transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class)
+          transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyPutType.class)
             .execute(key);
         }
         transaction.commit();

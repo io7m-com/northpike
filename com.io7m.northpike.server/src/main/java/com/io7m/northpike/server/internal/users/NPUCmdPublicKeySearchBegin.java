@@ -62,7 +62,7 @@ public final class NPUCmdPublicKeySearchBegin
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         final var paged =
-          transaction.queries(NPDatabaseQueriesPublicKeysType.SearchType.class)
+          transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeySearchType.class)
             .execute(command.parameters());
 
         context.setProperty(NPPublicKeysPagedType.class, paged);

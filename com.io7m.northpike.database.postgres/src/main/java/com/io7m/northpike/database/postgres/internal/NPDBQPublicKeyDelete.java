@@ -37,10 +37,10 @@ import static java.util.Map.entry;
 
 public final class NPDBQPublicKeyDelete
   extends NPDBQAbstract<NPFingerprint, NPDatabaseUnit>
-  implements NPDatabaseQueriesPublicKeysType.DeleteType
+  implements NPDatabaseQueriesPublicKeysType.PublicKeyDeleteType
 {
-  private static final Service<NPFingerprint, NPDatabaseUnit, DeleteType> SERVICE =
-    new Service<>(DeleteType.class, NPDBQPublicKeyDelete::new);
+  private static final Service<NPFingerprint, NPDatabaseUnit, PublicKeyDeleteType> SERVICE =
+    new Service<>(PublicKeyDeleteType.class, NPDBQPublicKeyDelete::new);
 
   /**
    * Construct a query.

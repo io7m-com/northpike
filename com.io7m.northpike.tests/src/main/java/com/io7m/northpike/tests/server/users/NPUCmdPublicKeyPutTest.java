@@ -207,9 +207,9 @@ zA1rFJcI
       .thenReturn(user);
 
     final var keyPut =
-      Mockito.mock(NPDatabaseQueriesPublicKeysType.PutType.class);
+      Mockito.mock(NPDatabaseQueriesPublicKeysType.PublicKeyPutType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyPutType.class))
       .thenReturn(keyPut);
 
     final var r = handler.execute(this.context, command);

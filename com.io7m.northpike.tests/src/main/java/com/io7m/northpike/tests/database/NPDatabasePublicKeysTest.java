@@ -131,11 +131,11 @@ public final class NPDatabasePublicKeysTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.GetType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyGetType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyPutType.class);
     final var delete =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.DeleteType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyDeleteType.class);
 
     final var description =
       new NPPublicKey(
@@ -167,7 +167,7 @@ public final class NPDatabasePublicKeysTest
     throws Exception
   {
     final var get =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.GetType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyGetType.class);
 
     assertEquals(
       Optional.empty(),
@@ -186,9 +186,9 @@ public final class NPDatabasePublicKeysTest
     throws Exception
   {
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyPutType.class);
     final var delete =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.DeleteType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyDeleteType.class);
 
     final var reposPut =
       this.transaction.queries(NPDatabaseQueriesRepositoriesType.RepositoryPutType.class);
@@ -251,9 +251,9 @@ public final class NPDatabasePublicKeysTest
     throws Exception
   {
     final var list =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.SearchType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeySearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyPutType.class);
 
     for (var index = 0; index < 1000; ++index) {
       final var data =
@@ -314,9 +314,9 @@ public final class NPDatabasePublicKeysTest
     throws Exception
   {
     final var list =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.SearchType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeySearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyPutType.class);
 
     final var words =
       save1000SampleKeys(put);
@@ -356,9 +356,9 @@ public final class NPDatabasePublicKeysTest
     throws Exception
   {
     final var list =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.SearchType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeySearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyPutType.class);
 
     final var words =
       save1000SampleKeys(put);
@@ -416,9 +416,9 @@ public final class NPDatabasePublicKeysTest
     throws Exception
   {
     final var list =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.SearchType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeySearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyPutType.class);
 
     final var words =
       save1000SampleKeys(put);
@@ -458,9 +458,9 @@ public final class NPDatabasePublicKeysTest
     throws Exception
   {
     final var list =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.SearchType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeySearchType.class);
     final var put =
-      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PutType.class);
+      this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyPutType.class);
 
     final var words =
       save1000SampleKeys(put);
@@ -508,7 +508,7 @@ public final class NPDatabasePublicKeysTest
   }
 
   private static Properties save1000SampleKeys(
-    final NPDatabaseQueriesPublicKeysType.PutType put)
+    final NPDatabaseQueriesPublicKeysType.PublicKeyPutType put)
     throws IOException, NoSuchAlgorithmException, NPDatabaseException
   {
     final var words = openWords();

@@ -34,7 +34,7 @@ public sealed interface NPDatabaseQueriesPublicKeysType
    * Update the given public key.
    */
 
-  non-sealed interface PutType
+  non-sealed interface PublicKeyPutType
     extends NPDatabaseQueryType<NPPublicKey, NPDatabaseUnit>,
     NPDatabaseQueriesPublicKeysType
   {
@@ -45,7 +45,7 @@ public sealed interface NPDatabaseQueriesPublicKeysType
    * Retrieve a public key.
    */
 
-  non-sealed interface GetType
+  non-sealed interface PublicKeyGetType
     extends NPDatabaseQueryType<NPFingerprint, Optional<NPPublicKey>>,
     NPDatabaseQueriesPublicKeysType
   {
@@ -56,7 +56,7 @@ public sealed interface NPDatabaseQueriesPublicKeysType
    * Search public keys.
    */
 
-  non-sealed interface SearchType
+  non-sealed interface PublicKeySearchType
     extends NPDatabaseQueryType<NPPublicKeySearchParameters, NPPublicKeysPagedType>,
     NPDatabaseQueriesPublicKeysType
   {
@@ -67,7 +67,7 @@ public sealed interface NPDatabaseQueriesPublicKeysType
    * Delete the given public key.
    */
 
-  non-sealed interface DeleteType
+  non-sealed interface PublicKeyDeleteType
     extends NPDatabaseQueryType<NPFingerprint, NPDatabaseUnit>,
     NPDatabaseQueriesPublicKeysType
   {

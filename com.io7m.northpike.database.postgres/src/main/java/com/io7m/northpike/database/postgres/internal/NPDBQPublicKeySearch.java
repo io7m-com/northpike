@@ -49,10 +49,10 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_ST
 
 public final class NPDBQPublicKeySearch
   extends NPDBQAbstract<NPPublicKeySearchParameters, NPPublicKeysPagedType>
-  implements NPDatabaseQueriesPublicKeysType.SearchType
+  implements NPDatabaseQueriesPublicKeysType.PublicKeySearchType
 {
-  private static final Service<NPPublicKeySearchParameters, NPPublicKeysPagedType, SearchType> SERVICE =
-    new Service<>(SearchType.class, NPDBQPublicKeySearch::new);
+  private static final Service<NPPublicKeySearchParameters, NPPublicKeysPagedType, PublicKeySearchType> SERVICE =
+    new Service<>(PublicKeySearchType.class, NPDBQPublicKeySearch::new);
 
   /**
    * List public keys.

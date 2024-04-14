@@ -24,8 +24,9 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentExecutionPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentGetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentWorkItemPutType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesPlansType.PlanGetType;
-import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType.PublicKeyGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesToolsType.GetExecutionDescriptionType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
@@ -41,7 +42,9 @@ import com.io7m.northpike.model.NPRepositorySigningPolicy;
 import com.io7m.northpike.model.NPToolExecutionEvaluated;
 import com.io7m.northpike.model.NPToolReference;
 import com.io7m.northpike.model.NPToolReferenceName;
+import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
+import com.io7m.northpike.model.NPWorkItemStatus;
 import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
@@ -57,6 +60,7 @@ import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRequested;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateRunning;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateSucceeded;
 import com.io7m.northpike.model.assignments.NPAssignmentExecutionStateType;
+import com.io7m.northpike.model.plans.NPPlanBarrierType;
 import com.io7m.northpike.model.plans.NPPlanElementName;
 import com.io7m.northpike.model.plans.NPPlanIdentifier;
 import com.io7m.northpike.model.plans.NPPlanTaskType;
@@ -361,7 +365,8 @@ public final class NPAssignmentTask
           final var fingerprint =
             this.repositories.commitSignatureVerify(
               this.commit.id(),
-              this::findKey);
+              this::findKey
+            );
 
           final var isKeyAssigned =
             this.keyIsAssignedToCurrentRepository(fingerprint);
@@ -387,7 +392,7 @@ public final class NPAssignmentTask
   {
     try (var connection = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
       try (var transaction = connection.openTransaction()) {
-        return transaction.queries(NPDatabaseQueriesPublicKeysType.GetType.class)
+        return transaction.queries(PublicKeyGetType.class)
           .execute(fingerprint)
           .orElseThrow(() -> this.errorNonexistentPublicKey(fingerprint));
       }
@@ -526,6 +531,7 @@ public final class NPAssignmentTask
           )
         );
 
+        this.createInitialWorkItems(transaction);
         transaction.commit();
       }
     }
@@ -533,6 +539,35 @@ public final class NPAssignmentTask
     this.logAttributes.clear();
     this.logAttributes.put("Plan", this.plan.identifier().toString());
     this.logInfo("Compiled plan %s", this.plan.identifier().toString());
+  }
+
+  private void createInitialWorkItems(
+    final NPDatabaseTransactionType transaction)
+    throws NPDatabaseException
+  {
+    for (final var planElement : this.plan.elements().values()) {
+      switch (planElement) {
+        case final NPPlanBarrierType ignored -> {
+          // Barriers do not get recorded as work items.
+        }
+        case final NPPlanTaskType task -> {
+          final var workItemIdentifier =
+            new NPWorkItemIdentifier(
+              this.assignmentExecution.id(),
+              task.name().name()
+            );
+          final var workItem =
+            new NPWorkItem(
+              workItemIdentifier,
+              Optional.empty(),
+              NPWorkItemStatus.WORK_ITEM_CREATED
+            );
+
+          transaction.queries(AssignmentWorkItemPutType.class)
+            .execute(workItem);
+        }
+      }
+    }
   }
 
   private void logInfo(
@@ -1033,15 +1068,15 @@ public final class NPAssignmentTask
     this.logAttributes.clear();
     this.logError("Assignment failed.");
 
-    if (this.executionState instanceof NPAssignmentExecutionStateCreatedType) {
-      this.setState(new NPAssignmentExecutionStateFailed(
-        this.timeCalculateCreated(),
-        this.assignmentExecution,
-        this.timeCalculateStarted(),
-        this.timeCalculateEnded()
-      ));
-    } else {
-      this.setState(new NPAssignmentExecutionStateCreationFailed(
+    switch (this.executionState) {
+      case final NPAssignmentExecutionStateCreatedType ignored ->
+        this.setState(new NPAssignmentExecutionStateFailed(
+          this.timeCalculateCreated(),
+          this.assignmentExecution,
+          this.timeCalculateStarted(),
+          this.timeCalculateEnded()
+        ));
+      default -> this.setState(new NPAssignmentExecutionStateCreationFailed(
         this.executionId,
         this.assignmentRequest,
         this.timeCalculateCreated()
@@ -1170,14 +1205,15 @@ public final class NPAssignmentTask
       return;
     }
 
-    if (agentEvent instanceof final NPAgentWorkItemAccepted accepted) {
-      this.onAgentEventWorkItemAccepted(accepted);
-      return;
-    }
-
-    if (agentEvent instanceof final NPAgentWorkItemStatusChanged status) {
-      this.onAgentEventWorkItemStatusChanged(status);
-      return;
+    switch (agentEvent) {
+      case final NPAgentWorkItemAccepted accepted -> {
+        this.onAgentEventWorkItemAccepted(accepted);
+        return;
+      }
+      case final NPAgentWorkItemStatusChanged status -> {
+        this.onAgentEventWorkItemStatusChanged(status);
+        return;
+      }
     }
   }
 

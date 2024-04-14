@@ -59,7 +59,7 @@ public final class NPUCmdPublicKeyDelete
     try (var connection = context.databaseConnection()) {
       try (var transaction = connection.openTransaction()) {
         transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
-        transaction.queries(NPDatabaseQueriesPublicKeysType.DeleteType.class)
+        transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyDeleteType.class)
           .execute(command.fingerprint());
         transaction.commit();
         return NPUResponseOK.createCorrelated(command);

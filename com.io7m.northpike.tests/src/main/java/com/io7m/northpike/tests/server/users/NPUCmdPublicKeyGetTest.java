@@ -197,9 +197,9 @@ public final class NPUCmdPublicKeyGetTest
       .thenReturn(userId);
 
     final var reposGet =
-      Mockito.mock(NPDatabaseQueriesPublicKeysType.GetType.class);
+      Mockito.mock(NPDatabaseQueriesPublicKeysType.PublicKeyGetType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesPublicKeysType.GetType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyGetType.class))
       .thenReturn(reposGet);
 
     Mockito.when(reposGet.execute(any()))
@@ -240,9 +240,9 @@ public final class NPUCmdPublicKeyGetTest
       .thenReturn(userId);
 
     final var reposGet =
-      Mockito.mock(NPDatabaseQueriesPublicKeysType.GetType.class);
+      Mockito.mock(NPDatabaseQueriesPublicKeysType.PublicKeyGetType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesPublicKeysType.GetType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyGetType.class))
       .thenReturn(reposGet);
 
     final var publicKey =

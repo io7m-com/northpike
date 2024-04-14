@@ -246,9 +246,9 @@ public final class NPUCmdPublicKeySearchBeginTest
       pageMain.map(NPPublicKey::summary);
 
     final var list =
-      Mockito.mock(NPDatabaseQueriesPublicKeysType.SearchType.class);
+      Mockito.mock(NPDatabaseQueriesPublicKeysType.PublicKeySearchType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesPublicKeysType.SearchType.class))
+    Mockito.when(this.transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeySearchType.class))
       .thenReturn(list);
 
     final var paged =
@@ -267,7 +267,7 @@ public final class NPUCmdPublicKeySearchBeginTest
     Mockito.verify(this.context, new Times(1))
       .setProperty(NPPublicKeysPagedType.class, paged);
     Mockito.verify(this.transaction, new Times(1))
-      .queries(NPDatabaseQueriesPublicKeysType.SearchType.class);
+      .queries(NPDatabaseQueriesPublicKeysType.PublicKeySearchType.class);
     Mockito.verify(this.transaction, new Times(1))
       .close();
     Mockito.verifyNoMoreInteractions(this.transaction);

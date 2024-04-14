@@ -33,10 +33,10 @@ import static java.util.Map.entry;
 
 public final class NPDBQPublicKeyPut
   extends NPDBQAbstract<NPPublicKey, NPDatabaseUnit>
-  implements NPDatabaseQueriesPublicKeysType.PutType
+  implements NPDatabaseQueriesPublicKeysType.PublicKeyPutType
 {
-  private static final Service<NPPublicKey, NPDatabaseUnit, PutType> SERVICE =
-    new Service<>(PutType.class, NPDBQPublicKeyPut::new);
+  private static final Service<NPPublicKey, NPDatabaseUnit, PublicKeyPutType> SERVICE =
+    new Service<>(PublicKeyPutType.class, NPDBQPublicKeyPut::new);
 
   /**
    * Construct a query.

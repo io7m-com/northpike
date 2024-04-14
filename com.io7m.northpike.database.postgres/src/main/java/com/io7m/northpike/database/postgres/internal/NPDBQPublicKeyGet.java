@@ -18,7 +18,7 @@
 package com.io7m.northpike.database.postgres.internal;
 
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType.GetType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesPublicKeysType.PublicKeyGetType;
 import com.io7m.northpike.database.postgres.internal.NPDBQueryProviderType.Service;
 import com.io7m.northpike.model.NPFingerprint;
 import com.io7m.northpike.model.NPPublicKey;
@@ -35,10 +35,10 @@ import static com.io7m.northpike.database.postgres.internal.Tables.PUBLIC_KEYS;
 
 public final class NPDBQPublicKeyGet
   extends NPDBQAbstract<NPFingerprint, Optional<NPPublicKey>>
-  implements GetType
+  implements PublicKeyGetType
 {
-  private static final Service<NPFingerprint, Optional<NPPublicKey>, GetType> SERVICE =
-    new Service<>(GetType.class, NPDBQPublicKeyGet::new);
+  private static final Service<NPFingerprint, Optional<NPPublicKey>, PublicKeyGetType> SERVICE =
+    new Service<>(PublicKeyGetType.class, NPDBQPublicKeyGet::new);
 
   /**
    * Construct a query.
