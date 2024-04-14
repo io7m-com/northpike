@@ -496,6 +496,8 @@ public final class NPAgentTask
     final NPAgentID id)
     throws NPDatabaseException
   {
+    Objects.requireNonNull(id, "id");
+
     try (var dbConn = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
       try (var transaction = dbConn.openTransaction()) {
         final var get = transaction.queries(AgentGetType.class);
@@ -509,6 +511,8 @@ public final class NPAgentTask
     final NPAgentKeyPublicType key)
     throws NPDatabaseException
   {
+    Objects.requireNonNull(key, "key");
+
     try (var dbConn = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
       try (var transaction = dbConn.openTransaction()) {
         final var get = transaction.queries(AgentGetByKeyType.class);
@@ -522,6 +526,8 @@ public final class NPAgentTask
     final NPAgentDescription agent)
     throws NPDatabaseException
   {
+    Objects.requireNonNull(agent, "agent");
+
     try (var dbConn = this.database.openConnection(NORTHPIKE)) {
       try (var transaction = dbConn.openTransaction()) {
         transaction.setOwner(new NPAuditOwnerType.Agent(this.agentId));
@@ -538,6 +544,8 @@ public final class NPAgentTask
     final NPWorkItemIdentifier identifier)
     throws NPException
   {
+    Objects.requireNonNull(identifier, "identifier");
+
     this.workItemNow =
       new NPWorkItem(identifier, Optional.of(this.agentId), WORK_ITEM_ACCEPTED);
 
@@ -587,9 +595,12 @@ public final class NPAgentTask
     Objects.requireNonNull(match, "match");
 
     try {
-      final var descriptionOpt =
-        this.agentFindForId(this.agentId);
+      final var agentNow = this.agentId;
+      if (agentNow == null) {
+        return false;
+      }
 
+      final var descriptionOpt = this.agentFindForId(agentNow);
       if (descriptionOpt.isPresent()) {
         final var description = descriptionOpt.get();
         return match.matches(
@@ -609,12 +620,15 @@ public final class NPAgentTask
   }
 
   /**
+   * Determine the agent ID for this task. Only available if the agent has
+   * authenticated.
+   *
    * @return The agent ID for this task
    */
 
-  public NPAgentID agentId()
+  public Optional<NPAgentID> agentId()
   {
-    return this.agentId;
+    return Optional.ofNullable(this.agentId);
   }
 
   /**

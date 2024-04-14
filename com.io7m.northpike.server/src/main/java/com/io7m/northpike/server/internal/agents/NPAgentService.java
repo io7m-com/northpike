@@ -203,10 +203,14 @@ public final class NPAgentService implements NPAgentServiceType
       new HashSet<NPAgentID>();
 
     for (final var task : this.agentTasks) {
-      if (task.matches(require)) {
-        available.add(task.agentId());
-        if (task.matches(prefer)) {
-          preferred.add(task.agentId());
+      final var idOpt = task.agentId();
+      if (idOpt.isPresent()) {
+        final var id = idOpt.get();
+        if (task.matches(require)) {
+          available.add(id);
+          if (task.matches(prefer)) {
+            preferred.add(id);
+          }
         }
       }
     }
@@ -263,6 +267,7 @@ public final class NPAgentService implements NPAgentServiceType
   {
     return this.agentTasks.stream()
       .map(NPAgentTask::agentId)
+      .flatMap(Optional::stream)
       .collect(Collectors.toUnmodifiableSet());
   }
 
