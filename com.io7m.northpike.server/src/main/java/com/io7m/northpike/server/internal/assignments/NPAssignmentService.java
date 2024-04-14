@@ -209,18 +209,15 @@ public final class NPAssignmentService implements NPAssignmentServiceType
     final NPAssignmentExecutionID executionId,
     final Throwable e)
   {
-    try (var connection =
-           this.database.openConnection(NORTHPIKE)) {
-      try (var transaction =
-             connection.openTransaction()) {
-        NPAssignmentLogging.recordException(
-          transaction,
-          executionId,
-          Long.MIN_VALUE,
-          e
-        );
-        transaction.commit();
-      }
+    try (var connection = this.database.openConnection(NORTHPIKE);
+         var transaction = connection.openTransaction()) {
+      NPAssignmentLogging.recordException(
+        transaction,
+        executionId,
+        Long.MIN_VALUE,
+        e
+      );
+      transaction.commit();
     } catch (final NPDatabaseException ex) {
       NPTelemetryServiceType.recordSpanException(ex);
     }
@@ -268,13 +265,12 @@ public final class NPAssignmentService implements NPAssignmentServiceType
 
   private void cancelOldAssignmentsInSpan()
   {
-    try (var conn = this.database.openConnection(NORTHPIKE)) {
-      try (var transaction = conn.openTransaction()) {
-        final var updated =
-          transaction.queries(AssignmentExecutionsCancelAllType.class)
-            .execute(NPDatabaseUnit.UNIT);
-        LOG.info("Cancelled {} old assignment executions.", updated);
-      }
+    try (var conn = this.database.openConnection(NORTHPIKE);
+         var transaction = conn.openTransaction()) {
+      final var updated =
+        transaction.queries(AssignmentExecutionsCancelAllType.class)
+          .execute(NPDatabaseUnit.UNIT);
+      LOG.info("Cancelled {} old assignment executions.", updated);
     } catch (final NPDatabaseException e) {
       NPTelemetryServiceType.recordSpanException(e);
     }
