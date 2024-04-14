@@ -42,6 +42,15 @@ public record NPPlanIdentifier(
     Objects.requireNonNull(name, "name");
   }
 
+  @Override
+  public String toString()
+  {
+    return "%s:%s".formatted(
+      this.name.toString(),
+      Long.toUnsignedString(this.version)
+    );
+  }
+
   /**
    * Parse an identifier.
    *

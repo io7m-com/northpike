@@ -532,7 +532,7 @@ public final class NPAssignmentTask
 
     this.logAttributes.clear();
     this.logAttributes.put("Plan", this.plan.identifier().toString());
-    this.logInfo("Compiled plan %s", this.plan);
+    this.logInfo("Compiled plan %s", this.plan.identifier().toString());
   }
 
   private void logInfo(
