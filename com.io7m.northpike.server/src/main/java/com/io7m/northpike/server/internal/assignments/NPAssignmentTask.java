@@ -144,17 +144,6 @@ public final class NPAssignmentTask
     LoggerFactory.getLogger(NPAssignmentTask.class);
 
   private final AtomicLong eventIndex;
-  private NPArchive archive;
-  private NPAssignment assignment;
-  private NPAssignmentExecution assignmentExecution;
-  private NPAssignmentExecutionStateType executionState;
-  private NPCommit commit;
-  private NPPlanEvaluationType planEvaluator;
-  private NPPlanPreparationType planPreparation;
-  private NPPlanType plan;
-  private OffsetDateTime timeCreated;
-  private OffsetDateTime timeEnded;
-  private OffsetDateTime timeStarted;
   private final AtomicBoolean closed;
   private final ConcurrentLinkedQueue<NPPlanEvaluationUpdateType> planUpdates;
   private final NPAgentServiceType agents;
@@ -169,6 +158,19 @@ public final class NPAssignmentTask
   private final Set<NPPlanParserFactoryType> planParsers;
   private final NPTEvaluationServiceType toolExecEvaluation;
   private final NPAssignmentExecutionID executionId;
+  private final Map<String, String> logAttributes;
+
+  private NPArchive archive;
+  private NPAssignment assignment;
+  private NPAssignmentExecution assignmentExecution;
+  private NPAssignmentExecutionStateType executionState;
+  private NPCommit commit;
+  private NPPlanEvaluationType planEvaluator;
+  private NPPlanPreparationType planPreparation;
+  private NPPlanType plan;
+  private OffsetDateTime timeCreated;
+  private OffsetDateTime timeEnded;
+  private OffsetDateTime timeStarted;
   private NPArchiveLinks archiveLinks;
 
   private NPAssignmentTask(
@@ -210,6 +212,8 @@ public final class NPAssignmentTask
     this.executionId =
       Objects.requireNonNull(inExecutionId, "inExecutionId");
 
+    this.logAttributes =
+      new HashMap<>();
     this.eventIndex =
       new AtomicLong(Long.MIN_VALUE);
 
@@ -316,6 +320,7 @@ public final class NPAssignmentTask
        */
 
       case ALLOW_UNSIGNED_COMMITS -> {
+        this.logAttributes.clear();
         this.logInfo("Unsigned commits are allowed; ignoring signature.");
       }
 
@@ -330,9 +335,12 @@ public final class NPAssignmentTask
         try {
           final var fingerprint =
             this.repositories.commitSignatureVerify(
-                this.commit.id(),
-                this::findKey);
+              this.commit.id(),
+              this::findKey
+            );
 
+          this.logAttributes.clear();
+          this.logAttributes.put("Key", fingerprint.value());
           this.logInfo("Commit has valid signature from key %s.", fingerprint);
         } catch (final Exception e) {
           this.assignmentFailed();
@@ -352,8 +360,8 @@ public final class NPAssignmentTask
         try {
           final var fingerprint =
             this.repositories.commitSignatureVerify(
-                this.commit.id(),
-                this::findKey);
+              this.commit.id(),
+              this::findKey);
 
           final var isKeyAssigned =
             this.keyIsAssignedToCurrentRepository(fingerprint);
@@ -362,6 +370,8 @@ public final class NPAssignmentTask
             throw this.errorKeyNotAssignedToRepository(fingerprint);
           }
 
+          this.logAttributes.clear();
+          this.logAttributes.put("Key", fingerprint.value());
           this.logInfo("Commit has valid signature from key %s.", fingerprint);
         } catch (final Exception e) {
           this.assignmentFailed();
@@ -517,9 +527,12 @@ public final class NPAssignmentTask
         );
 
         transaction.commit();
-        this.logInfo("Compiled plan %s", this.plan);
       }
     }
+
+    this.logAttributes.clear();
+    this.logAttributes.put("Plan", this.plan.identifier().toString());
+    this.logInfo("Compiled plan %s", this.plan);
   }
 
   private void logInfo(
@@ -534,6 +547,7 @@ public final class NPAssignmentTask
         recordInfoText(
           transaction,
           this.executionId,
+          Map.copyOf(this.logAttributes),
           this.eventIndexNext(),
           formatted
         );
@@ -556,6 +570,7 @@ public final class NPAssignmentTask
         recordErrorText(
           transaction,
           this.executionId,
+          Map.copyOf(this.logAttributes),
           this.eventIndexNext(),
           formatted
         );
@@ -661,26 +676,47 @@ public final class NPAssignmentTask
 
     switch (event) {
       case final ElementBecameReady e -> {
+        this.logAttributes.clear();
+        this.logAttributes.put("Element", e.element().name().toString());
+        this.logInfo("Element became ready.");
         return;
       }
+
       case final ElementFailed e -> {
+        this.logAttributes.clear();
+        this.logAttributes.put("Element", e.element().name().toString());
+        this.logError("Element failed.");
         return;
       }
+
       case final ElementSucceeded e -> {
+        this.logAttributes.clear();
+        this.logAttributes.put("Element", e.element().name().toString());
+        this.logInfo("Element succeeded.");
         return;
       }
+
       case final TaskRequiresSpecificAgent specific -> {
         this.onPlanEventTaskRequiresSpecificAgent(specific);
         return;
       }
+
       case final TaskRequiresMatchingAgent matching -> {
         this.onPlanEventTaskRequiresMatchingAgent(matching.task());
         return;
       }
+
       case final TaskAgentSelectionTimedOut e -> {
+        this.logAttributes.clear();
+        this.logAttributes.put("Task", e.task().name().toString());
+        this.logError("Task agent selection timed out.");
         return;
       }
+
       case final TaskExecutionTimedOut e -> {
+        this.logAttributes.clear();
+        this.logAttributes.put("Task", e.task().name().toString());
+        this.logError("Task execution timed out.");
         return;
       }
     }
@@ -940,6 +976,9 @@ public final class NPAssignmentTask
   {
     LOG.debug("Assignment succeeded.");
 
+    this.logAttributes.clear();
+    this.logInfo("Assignment completed successfully.");
+
     this.setState(new NPAssignmentExecutionStateSucceeded(
       this.timeCalculateCreated(),
       this.assignmentExecution,
@@ -990,6 +1029,9 @@ public final class NPAssignmentTask
   private void assignmentFailed()
   {
     LOG.debug("Assignment failed.");
+
+    this.logAttributes.clear();
+    this.logError("Assignment failed.");
 
     if (this.executionState instanceof NPAssignmentExecutionStateCreatedType) {
       this.setState(new NPAssignmentExecutionStateFailed(
@@ -1151,8 +1193,26 @@ public final class NPAssignmentTask
   private void onAgentEventWorkItemStatusChanged(
     final NPAgentWorkItemStatusChanged event)
   {
+    this.logAttributes.clear();
+    this.logAttributes.putAll(event.asAttributes());
+
     switch (event.status()) {
-      case WORK_ITEM_CREATED, WORK_ITEM_ACCEPTED, WORK_ITEM_RUNNING -> {
+      case WORK_ITEM_ACCEPTED -> {
+        this.logInfo(
+          "Agent %s accepted work item %s.",
+          event.agentID(),
+          event.identifier().planElementName()
+        );
+      }
+
+      case WORK_ITEM_CREATED -> {
+        this.logInfo(
+          "Work item %s was created.",
+          event.identifier().planElementName()
+        );
+      }
+
+      case WORK_ITEM_RUNNING -> {
 
       }
 

@@ -84,6 +84,7 @@ public final class NPAssignmentLogging
    *
    * @param transaction The transaction
    * @param eventIndex  The event index
+   * @param attributes  The attributes
    * @param executionId The execution ID
    * @param text        The text
    *
@@ -93,6 +94,7 @@ public final class NPAssignmentLogging
   public static void recordInfoText(
     final NPDatabaseTransactionType transaction,
     final NPAssignmentExecutionID executionId,
+    final Map<String, String> attributes,
     final long eventIndex,
     final String text)
     throws NPDatabaseException
@@ -103,7 +105,7 @@ public final class NPAssignmentLogging
         eventIndex,
         "INFO",
         text,
-        Map.of(),
+        attributes,
         Optional.empty())
       );
   }
@@ -113,6 +115,7 @@ public final class NPAssignmentLogging
    *
    * @param transaction The transaction
    * @param eventIndex  The event index
+   * @param attributes  The attributes
    * @param executionId The execution ID
    * @param text        The text
    *
@@ -122,6 +125,7 @@ public final class NPAssignmentLogging
   public static void recordErrorText(
     final NPDatabaseTransactionType transaction,
     final NPAssignmentExecutionID executionId,
+    final Map<String, String> attributes,
     final long eventIndex,
     final String text)
     throws NPDatabaseException
@@ -132,7 +136,7 @@ public final class NPAssignmentLogging
         eventIndex,
         "ERROR",
         text,
-        Map.of(),
+        attributes,
         Optional.empty())
       );
   }
