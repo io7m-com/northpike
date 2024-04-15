@@ -23,11 +23,14 @@ import com.io7m.jmulticlose.core.ClosingResourceFailedException;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.metrics.LongCounter;
+import io.opentelemetry.api.metrics.ObservableLongGauge;
 import io.opentelemetry.api.metrics.ObservableLongMeasurement;
 
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 
 import static io.opentelemetry.api.common.AttributeKey.stringKey;
 
@@ -39,10 +42,14 @@ public final class NPMetricsService implements NPMetricsServiceType
 {
   private final CloseableCollectionType<ClosingResourceFailedException> resources;
   private final boolean isNoOp;
-  private volatile int assignmentsEnqueued;
-  private volatile int agentsConnected;
-  private volatile int usersConnected;
-  private volatile int assignmentsExecuting;
+  private final LongCounter archive4xx;
+  private final LongCounter archive5xx;
+  private final LongCounter archive2xx;
+  private volatile long assignmentsEnqueued;
+  private volatile long agentsConnected;
+  private volatile long usersConnected;
+  private volatile long assignmentsExecuting;
+  private volatile long archiveRequestsInProgress;
   private final ConcurrentLinkedQueue<AgentLatencyMeasurement> agentLatencyMeasurements;
 
   private record AgentLatencyMeasurement(
@@ -72,58 +79,75 @@ public final class NPMetricsService implements NPMetricsServiceType
       CloseableCollection.create();
 
     this.resources.add(
-      telemetry.meter()
-        .gaugeBuilder("northpike_up")
-        .setDescription(
-          "A gauge that produces a constant value while the server is up.")
-        .ofLongs()
-        .buildWithCallback(measurement -> {
-          measurement.record(1L);
-        })
+      createLongGauge(
+        telemetry,
+        "northpike_up",
+        "A gauge that produces a constant value while the server is up.",
+        m -> m.record(1L)
+      )
     );
 
     this.resources.add(
-      telemetry.meter()
-        .gaugeBuilder("northpike_agents_connected")
-        .setDescription(
-          "The number of connected agents.")
-        .ofLongs()
-        .buildWithCallback(measurement -> {
-          measurement.record(Integer.toUnsignedLong(this.agentsConnected));
-        })
+      createLongGauge(
+        telemetry,
+        "northpike_agents_connected",
+        "The number of connected agents.",
+        m -> m.record(this.agentsConnected)
+      )
     );
 
     this.resources.add(
-      telemetry.meter()
-        .gaugeBuilder("northpike_users_connected")
-        .setDescription(
-          "The number of connected users.")
-        .ofLongs()
-        .buildWithCallback(measurement -> {
-          measurement.record(Integer.toUnsignedLong(this.usersConnected));
-        })
+      createLongGauge(
+        telemetry,
+        "northpike_users_connected",
+        "The number of connected users.",
+        m -> m.record(this.usersConnected)
+      )
     );
 
     this.resources.add(
-      telemetry.meter()
-        .gaugeBuilder("northpike_assignments_executing")
-        .setDescription(
-          "The number of assignments currently executing.")
-        .ofLongs()
-        .buildWithCallback(measurement -> {
-          measurement.record(Integer.toUnsignedLong(this.assignmentsExecuting));
-        })
+      createLongGauge(
+        telemetry,
+        "northpike_assignments_executing",
+        "The number of assignments currently executing.",
+        m -> m.record(this.assignmentsExecuting)
+      )
     );
 
     this.resources.add(
+      createLongGauge(
+        telemetry,
+        "northpike_assignments_enqueued",
+        "The number of assignments currently enqueued.",
+        m -> m.record(this.assignmentsEnqueued)
+      )
+    );
+
+    this.archive4xx =
       telemetry.meter()
-        .gaugeBuilder("northpike_assignments_enqueued")
-        .setDescription(
-          "The number of assignments currently enqueued.")
-        .ofLongs()
-        .buildWithCallback(measurement -> {
-          measurement.record(Integer.toUnsignedLong(this.assignmentsEnqueued));
-        })
+        .counterBuilder("northpike_archive_http_responses_4xx")
+        .setDescription("The number of archive service HTTP requests that resulted in 4xx failures.")
+        .build();
+
+    this.archive5xx =
+      telemetry.meter()
+        .counterBuilder("northpike_archive_http_responses_5xx")
+        .setDescription("The number of archive service HTTP requests that resulted in 5xx failures.")
+        .build();
+
+    this.archive2xx =
+      telemetry.meter()
+        .counterBuilder("northpike_archive_http_responses_2xx")
+        .setDescription("The number of archive service HTTP requests that resulted in 2xx status codes.")
+        .build();
+
+    this.resources.add(
+      createLongGauge(
+        telemetry,
+        "northpike_archive_requests_in_progress",
+        "The number of archive service requests in progress.",
+        m -> m.record(this.archiveRequestsInProgress)
+      )
     );
 
     this.resources.add(
@@ -133,6 +157,19 @@ public final class NPMetricsService implements NPMetricsServiceType
         .ofLongs()
         .buildWithCallback(this::consumeAgentLatencyMeasurements)
     );
+  }
+
+  private static ObservableLongGauge createLongGauge(
+    final NPTelemetryServiceType telemetry,
+    final String name,
+    final String description,
+    final Consumer<ObservableLongMeasurement> onMeasurement)
+  {
+    return telemetry.meter()
+      .gaugeBuilder(name)
+      .setDescription(description)
+      .ofLongs()
+      .buildWithCallback(onMeasurement);
   }
 
   private void consumeAgentLatencyMeasurements(
@@ -207,5 +244,56 @@ public final class NPMetricsService implements NPMetricsServiceType
     this.agentLatencyMeasurements.add(
       new AgentLatencyMeasurement(agentId, duration.toNanos())
     );
+  }
+
+  @Override
+  public void onArchive4xx()
+  {
+    if (this.isNoOp) {
+      return;
+    }
+
+    this.archive4xx.add(1L);
+  }
+
+  @Override
+  public void onArchive2xx()
+  {
+    if (this.isNoOp) {
+      return;
+    }
+
+    this.archive2xx.add(1L);
+  }
+
+  @Override
+  public void onArchiveRequestStart()
+  {
+    if (this.isNoOp) {
+      return;
+    }
+
+    ++this.archiveRequestsInProgress;
+  }
+
+  @Override
+  public void onArchiveRequestStop()
+  {
+    if (this.isNoOp) {
+      return;
+    }
+
+    this.archiveRequestsInProgress =
+      Math.max(0L, this.archiveRequestsInProgress - 1L);
+  }
+
+  @Override
+  public void onArchive5xx()
+  {
+    if (this.isNoOp) {
+      return;
+    }
+
+    this.archive5xx.add(1L);
   }
 }

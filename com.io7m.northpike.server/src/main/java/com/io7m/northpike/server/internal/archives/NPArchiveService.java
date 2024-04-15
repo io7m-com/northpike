@@ -27,6 +27,7 @@ import com.io7m.northpike.server.api.NPServerConfiguration;
 import com.io7m.northpike.server.api.NPServerException;
 import com.io7m.northpike.server.internal.NPServerResources;
 import com.io7m.northpike.server.internal.configuration.NPConfigurationServiceType;
+import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
 import com.io7m.northpike.tls.NPTLSContextServiceType;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 import io.helidon.common.tls.TlsConfig;
@@ -63,6 +64,7 @@ public final class NPArchiveService implements NPArchiveServiceType
   private final ExecutorService executor;
   private final NPDatabaseType database;
   private final NPTLSContextServiceType tlsService;
+  private final NPMetricsServiceType metrics;
   private CompletableFuture<Void> future;
   private NPServerConfiguration configuration;
   private final CloseableCollectionType<NPServerException> resources;
@@ -73,7 +75,8 @@ public final class NPArchiveService implements NPArchiveServiceType
     final CloseableCollectionType<NPServerException> inResources,
     final ExecutorService inMainExecutor,
     final NPDatabaseType inDatabase,
-    final NPTLSContextServiceType inTlsService)
+    final NPTLSContextServiceType inTlsService,
+    final NPMetricsServiceType inMetrics)
   {
     this.configuration =
       Objects.requireNonNull(inConfiguration, "configuration");
@@ -85,6 +88,8 @@ public final class NPArchiveService implements NPArchiveServiceType
       Objects.requireNonNull(inDatabase, "database");
     this.tlsService =
       Objects.requireNonNull(inTlsService, "tlsService");
+    this.metrics =
+      Objects.requireNonNull(inMetrics, "metrics");
     this.closed =
       new AtomicBoolean(true);
     this.future =
@@ -108,6 +113,8 @@ public final class NPArchiveService implements NPArchiveServiceType
       services.requireService(NPTLSContextServiceType.class);
     final var database =
       services.requireService(NPDatabaseType.class);
+    final var metrics =
+      services.requireService(NPMetricsServiceType.class);
 
     final var resources =
       NPServerResources.createResources();
@@ -126,7 +133,8 @@ public final class NPArchiveService implements NPArchiveServiceType
       resources,
       mainExecutor,
       database,
-      tlsService
+      tlsService,
+      metrics
     );
   }
 
@@ -207,7 +215,11 @@ public final class NPArchiveService implements NPArchiveServiceType
       );
 
     final var handler =
-      new NPArchiveHandler(this.database, this.configuration.directories());
+      new NPArchiveHandler(
+        this.metrics,
+        this.database,
+        this.configuration.directories()
+      );
 
     final var routing = HttpRouting.builder();
     routing.get("/", handler);

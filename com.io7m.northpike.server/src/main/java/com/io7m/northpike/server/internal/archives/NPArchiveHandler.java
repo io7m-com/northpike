@@ -23,6 +23,7 @@ import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPToken;
 import com.io7m.northpike.server.api.NPServerDirectoryConfiguration;
+import com.io7m.northpike.server.internal.metrics.NPMetricsServiceType;
 import io.helidon.webserver.http.Handler;
 import io.helidon.webserver.http.ServerRequest;
 import io.helidon.webserver.http.ServerResponse;
@@ -46,20 +47,25 @@ public final class NPArchiveHandler implements Handler
   private static final Pattern LEADING_SLASHES =
     Pattern.compile("^/+");
 
+  private final NPMetricsServiceType metrics;
   private final NPDatabaseType database;
   private final NPServerDirectoryConfiguration directories;
 
   /**
    * A handler that serves archives by ID.
    *
+   * @param inMetrics     The metrics service
    * @param inDatabase    The database
    * @param inDirectories The directories
    */
 
   public NPArchiveHandler(
+    final NPMetricsServiceType inMetrics,
     final NPDatabaseType inDatabase,
     final NPServerDirectoryConfiguration inDirectories)
   {
+    this.metrics =
+      Objects.requireNonNull(inMetrics, "inMetrics");
     this.database =
       Objects.requireNonNull(inDatabase, "database");
     this.directories =
@@ -72,15 +78,26 @@ public final class NPArchiveHandler implements Handler
     final ServerResponse response)
     throws Exception
   {
-    final var archiveOpt = this.findArchive(request);
-    if (archiveOpt.isEmpty()) {
-      response.status(404);
-      response.header(CONTENT_TYPE, "text/plain");
-      response.send("Not found.\r\n".getBytes(UTF_8));
-      return;
-    }
+    try {
+      this.metrics.onArchiveRequestStart();
 
-    this.copyFileOut(response, archiveOpt.get());
+      final var archiveOpt = this.findArchive(request);
+      if (archiveOpt.isEmpty()) {
+        response.status(404);
+        response.header(CONTENT_TYPE, "text/plain");
+        response.send("Not found.\r\n".getBytes(UTF_8));
+        this.metrics.onArchive4xx();
+        return;
+      }
+
+      this.copyFileOut(response, archiveOpt.get());
+    } catch (final Exception e) {
+      response.status(500);
+      this.metrics.onArchive5xx();
+      throw e;
+    } finally {
+      this.metrics.onArchiveRequestStop();
+    }
   }
 
   private void copyFileOut(
@@ -102,6 +119,8 @@ public final class NPArchiveHandler implements Handler
       input.transferTo(output);
       output.flush();
     }
+
+    this.metrics.onArchive2xx();
   }
 
   private Optional<NPArchive> findArchive(
@@ -117,14 +136,11 @@ public final class NPArchiveHandler implements Handler
     final var token =
       new NPToken(withoutLeading);
 
-    try (var connection =
-           this.database.openConnection(NORTHPIKE_READ_ONLY)) {
-      try (var transaction =
-             connection.openTransaction()) {
-        final var get =
-          transaction.queries(NPDatabaseQueriesArchivesType.ArchiveGetType.class);
-        return get.execute(token);
-      }
+    try (var connection = this.database.openConnection(NORTHPIKE_READ_ONLY);
+         var transaction = connection.openTransaction()) {
+      final var get =
+        transaction.queries(NPDatabaseQueriesArchivesType.ArchiveGetType.class);
+      return get.execute(token);
     }
   }
 }

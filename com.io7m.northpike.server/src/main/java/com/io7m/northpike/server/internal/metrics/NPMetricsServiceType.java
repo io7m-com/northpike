@@ -69,4 +69,34 @@ public interface NPMetricsServiceType extends AutoCloseable, RPServiceType
   void setAgentLatency(
     NPAgentID agentId,
     Duration duration);
+
+  /**
+   * The archive service produced a 4xx status code.
+   */
+
+  void onArchive4xx();
+
+  /**
+   * The archive service produced a 2xx status code.
+   */
+
+  void onArchive2xx();
+
+  /**
+   * A request started to the archive service.
+   */
+
+  void onArchiveRequestStart();
+
+  /**
+   * A request finished on the archive service.
+   */
+
+  void onArchiveRequestStop();
+
+  /**
+   * The archive service produced a 5xx status code.
+   */
+
+  void onArchive5xx();
 }
