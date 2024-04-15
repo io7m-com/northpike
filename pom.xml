@@ -141,7 +141,7 @@
     <org.jline.version>3.25.1</org.jline.version>
     <org.mockito.version>5.10.0</org.mockito.version>
     <org.ow2.asm.version>9.7</org.ow2.asm.version>
-    <slf4j.version>2.0.11</slf4j.version>
+    <slf4j.version>2.0.13</slf4j.version>
   </properties>
 
   <licenses>
