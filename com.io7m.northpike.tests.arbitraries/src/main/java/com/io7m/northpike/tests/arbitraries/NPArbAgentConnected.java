@@ -20,7 +20,6 @@ package com.io7m.northpike.tests.arbitraries;
 import com.io7m.northpike.model.agents.NPAgentConnected;
 import com.io7m.northpike.model.agents.NPAgentID;
 import net.jqwik.api.Arbitraries;
-import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
 
 import java.net.InetSocketAddress;

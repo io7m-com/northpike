@@ -26,7 +26,6 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.Locale;
 
 public final class NPArbInetSocketAddress extends NPArbAbstract<InetSocketAddress>
 {

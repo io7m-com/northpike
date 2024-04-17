@@ -21,7 +21,6 @@ import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
-import com.io7m.northpike.database.postgres.internal.NPDatabaseTransaction.CloseBehavior;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.context.Context;

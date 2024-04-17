@@ -19,7 +19,6 @@ package com.io7m.northpike.tests.server.users;
 
 import com.io7m.idstore.model.IdName;
 import com.io7m.medrina.api.MSubject;
-import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPAuditOwnerType;

@@ -18,11 +18,9 @@
 package com.io7m.northpike.tests.server.agents;
 
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentWorkItemGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentWorkItemPutType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
-import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPWorkItem;

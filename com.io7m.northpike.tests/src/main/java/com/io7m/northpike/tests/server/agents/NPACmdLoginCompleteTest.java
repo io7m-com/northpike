@@ -19,7 +19,6 @@ package com.io7m.northpike.tests.server.agents;
 
 import com.io7m.northpike.clock.NPClock;
 import com.io7m.northpike.clock.NPClockServiceType;
-import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeDeleteType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentLoginChallengeGetType;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
