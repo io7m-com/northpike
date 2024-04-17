@@ -60,16 +60,14 @@ public final class NPUCmdPublicKeyPut
     final var keys =
       NPPublicKeys.decodeString(command.key());
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
 
-        for (final var key : keys) {
-          transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyPutType.class)
-            .execute(key);
-        }
-        transaction.commit();
+      for (final var key : keys) {
+        transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyPutType.class)
+          .execute(key);
       }
+      transaction.commit();
     }
 
     return NPUResponseOK.createCorrelated(command);

@@ -60,7 +60,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -106,6 +109,8 @@ public final class NPRepositoryService
   private final List<? extends NPSCMRepositoryFactoryType> scmFactories;
   private final NPStrings strings;
   private final ConcurrentHashMap<NPRepositoryID, NPSCMRepositoryType> repositories;
+  private final ConcurrentHashMap<NPRepositoryID, Duration> repositoryOpenDuration;
+  private final ConcurrentHashMap<NPRepositoryID, Duration> repositoryUpdateDuration;
   private final NPServerDirectoryConfiguration directories;
 
   private NPRepositoryService(
@@ -144,6 +149,10 @@ public final class NPRepositoryService
     this.commands =
       new LinkedBlockingQueue<>();
     this.repositories =
+      new ConcurrentHashMap<>();
+    this.repositoryOpenDuration =
+      new ConcurrentHashMap<>();
+    this.repositoryUpdateDuration =
       new ConcurrentHashMap<>();
   }
 
@@ -284,18 +293,14 @@ public final class NPRepositoryService
     Objects.requireNonNull(fingerprint, "fingerprint");
 
     return this.timed("RepositoryHasPublicKeyAssigned", () -> {
-      try (var connection =
-             this.database.openConnection(NORTHPIKE)) {
-        try (var transaction =
-               connection.openTransaction()) {
-          return transaction.queries(RepositoryPublicKeyIsAssignedType.class)
-            .execute(
-              new RepositoryPublicKeyIsAssignedType.Parameters(
-                repository,
-                fingerprint
-              )
-            );
-        }
+      try (var transaction = this.database.transaction(NORTHPIKE)) {
+        return transaction.queries(RepositoryPublicKeyIsAssignedType.class)
+          .execute(
+            new RepositoryPublicKeyIsAssignedType.Parameters(
+              repository,
+              fingerprint
+            )
+          );
       }
     }).booleanValue();
   }
@@ -322,14 +327,10 @@ public final class NPRepositoryService
     Objects.requireNonNull(commitID, "commitID");
 
     return this.timed("CommitGet", () -> {
-      try (var connection =
-             this.database.openConnection(NORTHPIKE_READ_ONLY)) {
-        try (var transaction =
-               connection.openTransaction()) {
-          return transaction.queries(RepositoryCommitGetType.class)
-            .execute(commitID)
-            .orElseThrow(() -> this.errorNonexistentCommit(commitID));
-        }
+      try (var transaction = this.database.transaction(NORTHPIKE_READ_ONLY)) {
+        return transaction.queries(RepositoryCommitGetType.class)
+          .execute(commitID)
+          .orElseThrow(() -> this.errorNonexistentCommit(commitID));
       }
     });
   }
@@ -342,13 +343,9 @@ public final class NPRepositoryService
     Objects.requireNonNull(repository, "repository");
 
     return this.timed("RepositoryGet", () -> {
-      try (var connection =
-             this.database.openConnection(NORTHPIKE_READ_ONLY)) {
-        try (var transaction =
-               connection.openTransaction()) {
-          return transaction.queries(RepositoryGetType.class)
-            .execute(repository);
-        }
+      try (var transaction = this.database.transaction(NORTHPIKE_READ_ONLY)) {
+        return transaction.queries(RepositoryGetType.class)
+          .execute(repository);
       }
     });
   }
@@ -363,14 +360,10 @@ public final class NPRepositoryService
     Objects.requireNonNull(repository, "repository");
 
     this.timed("RepositoryCreate", () -> {
-      try (var connection =
-             this.database.openConnection(NORTHPIKE)) {
-        try (var transaction =
-               connection.openTransaction()) {
-          transaction.setOwner(user);
-          transaction.queries(RepositoryPutType.class).execute(repository);
-          transaction.commit();
-        }
+      try (var transaction = this.database.transaction(NORTHPIKE)) {
+        transaction.setOwner(user);
+        transaction.queries(RepositoryPutType.class).execute(repository);
+        transaction.commit();
       }
 
       this.commands.add(
@@ -392,17 +385,13 @@ public final class NPRepositoryService
     Objects.requireNonNull(key, "key");
 
     this.timed("RepositoryPublicKeyAssign", () -> {
-      try (var connection =
-             this.database.openConnection(NORTHPIKE)) {
-        try (var transaction =
-               connection.openTransaction()) {
-          transaction.setOwner(user);
-          transaction.queries(RepositoryPublicKeyAssignType.class)
-            .execute(
-              new RepositoryPublicKeyAssignType.Parameters(repository, key)
-            );
-          transaction.commit();
-        }
+      try (var transaction = this.database.transaction(NORTHPIKE)) {
+        transaction.setOwner(user);
+        transaction.queries(RepositoryPublicKeyAssignType.class)
+          .execute(
+            new RepositoryPublicKeyAssignType.Parameters(repository, key)
+          );
+        transaction.commit();
       }
       return Void.class;
     });
@@ -430,7 +419,8 @@ public final class NPRepositoryService
 
   private interface PartialProcedureType<T, E extends Exception>
   {
-    T execute() throws E;
+    T execute()
+      throws E;
   }
 
   private <T, E extends Exception> T timed(
@@ -571,12 +561,9 @@ public final class NPRepositoryService
     final NPArchive archive)
     throws NPDatabaseException
   {
-    try (var connection = this.database.openConnection(NORTHPIKE)) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.queries(ArchivePutType.class)
-          .execute(archive);
-        transaction.commit();
-      }
+    try (var transaction = this.database.transaction(NORTHPIKE)) {
+      transaction.queries(ArchivePutType.class).execute(archive);
+      transaction.commit();
     }
   }
 
@@ -611,12 +598,17 @@ public final class NPRepositoryService
         checksumOutputFileTmp
       );
 
-    final var description = repository.description();
+    final var size =
+      Files.size(outputFile);
+    final var description =
+      repository.description();
+
     this.events.emit(new NPRepositoryArchiveCreated(
       description.id(),
       description.url(),
       description.provider(),
-      outputFile
+      outputFile,
+      size
     ));
     return archive;
   }
@@ -729,6 +721,7 @@ public final class NPRepositoryService
       repository.description();
 
     final long commitCount;
+    final var timeThen = Instant.now();
 
     try {
 
@@ -738,29 +731,32 @@ public final class NPRepositoryService
        * commits to the database.
        */
 
-      try (var connection = this.database.openConnection(NORTHPIKE)) {
-        try (var transaction = connection.openTransaction()) {
-          final var since =
-            transaction.queries(RepositoryCommitsGetMostRecentlyReceivedType.class)
-              .execute(repository.description().id())
-              .map(NPCommitSummary::timeReceived);
+      try (var transaction = this.database.transaction(NORTHPIKE)) {
+        final var since =
+          transaction.queries(RepositoryCommitsGetMostRecentlyReceivedType.class)
+            .execute(repository.description().id())
+            .map(NPCommitSummary::timeReceived);
 
-          final var commits =
-            repository.commitsSinceTime(since);
+        final var commits =
+          repository.commitsSinceTime(since);
 
-          commitCount =
-            Integer.toUnsignedLong(commits.commits().size());
+        commitCount =
+          Integer.toUnsignedLong(commits.commits().size());
 
-          transaction.queries(RepositoryCommitsPutType.class)
-            .execute(new Parameters(
-              commits.commits(),
-              commits.commitGraph()
-            ));
+        transaction.queries(RepositoryCommitsPutType.class)
+          .execute(new Parameters(
+            commits.commits(),
+            commits.commitGraph()
+          ));
 
-          transaction.commit();
-        }
+        transaction.commit();
       }
 
+      final var timeNow = Instant.now();
+      this.repositoryUpdateDuration.put(
+        description.id(),
+        Duration.between(timeThen, timeNow)
+      );
     } catch (final NPException e) {
       recordSpanException(e);
       this.events.emit(new NPRepositoryUpdateFailed(
@@ -772,11 +768,21 @@ public final class NPRepositoryService
       return;
     }
 
+    final var openDuration =
+      Optional.ofNullable(this.repositoryOpenDuration.get(description.id()))
+        .orElse(Duration.ZERO);
+    final var updateDuration =
+      Optional.ofNullable(this.repositoryUpdateDuration.get(description.id()))
+        .orElse(Duration.ZERO);
+    final var duration =
+      openDuration.plus(updateDuration);
+
     this.events.emit(new NPRepositoryUpdated(
       description.id(),
       description.url(),
       description.provider(),
-      commitCount
+      commitCount,
+      duration
     ));
   }
 
@@ -802,8 +808,10 @@ public final class NPRepositoryService
   {
     LOG.debug("Deleting repository {}", id);
 
-    final var existing =
-      this.repositories.remove(id);
+    final var existing = this.repositories.remove(id);
+    this.repositoryUpdateDuration.remove(id);
+    this.repositoryOpenDuration.remove(id);
+
     final var description =
       existing.description();
 
@@ -819,6 +827,7 @@ public final class NPRepositoryService
       ));
       return;
     }
+
 
     this.events.emit(new NPRepositoryClosed(
       description.id(),
@@ -847,6 +856,7 @@ public final class NPRepositoryService
       this.repositories.get(description.id());
 
     if (existing != null) {
+      this.repositoryOpenDuration.put(description.id(), Duration.ZERO);
       return existing;
     }
 
@@ -855,6 +865,8 @@ public final class NPRepositoryService
       description.id(),
       description.url()
     );
+
+    final var timeThen = Instant.now();
 
     try {
       final var scmFactoryOpt =
@@ -894,6 +906,12 @@ public final class NPRepositoryService
         description.url(),
         description.provider()
       ));
+
+      final var timeNow = Instant.now();
+      this.repositoryOpenDuration.put(
+        description.id(),
+        Duration.between(timeThen, timeNow)
+      );
       return scm;
     } catch (final NPServerException e) {
       recordSpanException(e);
@@ -913,25 +931,23 @@ public final class NPRepositoryService
     final var descriptions =
       new HashMap<NPRepositoryID, NPRepositoryDescription>();
 
-    try (var connection = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
-      try (var transaction = connection.openTransaction()) {
-        final var list =
-          transaction.queries(RepositoryListType.class);
-        final var paged =
-          list.execute(NPDatabaseUnit.UNIT);
-        final var pageInitial =
+    try (var transaction = this.database.transaction(NORTHPIKE_READ_ONLY)) {
+      final var list =
+        transaction.queries(RepositoryListType.class);
+      final var paged =
+        list.execute(NPDatabaseUnit.UNIT);
+      final var pageInitial =
+        paged.pageCurrent(transaction);
+
+      final var pageCount = pageInitial.pageCount();
+      for (var pageIndex = pageInitial.pageIndex(); pageIndex <= pageCount; ++pageIndex) {
+        final var page =
           paged.pageCurrent(transaction);
 
-        final var pageCount = pageInitial.pageCount();
-        for (var pageIndex = pageInitial.pageIndex(); pageIndex <= pageCount; ++pageIndex) {
-          final var page =
-            paged.pageCurrent(transaction);
-
-          for (final var item : page.items()) {
-            descriptions.put(item.id(), item);
-          }
-          paged.pageNext(transaction);
+        for (final var item : page.items()) {
+          descriptions.put(item.id(), item);
         }
+        paged.pageNext(transaction);
       }
     }
     return descriptions;

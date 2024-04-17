@@ -65,7 +65,6 @@ import static org.mockito.ArgumentMatchers.any;
 public final class NPUCmdUserSearchBeginTest
 {
   private NPUserCommandContextType context;
-  private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
 
   @BeforeEach
@@ -77,14 +76,12 @@ public final class NPUCmdUserSearchBeginTest
     this.context =
       Mockito.mock(NPUserCommandContextType.class);
 
-    this.connection =
-      Mockito.mock(NPDatabaseConnectionType.class);
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
 
-    Mockito.when(this.context.databaseConnection())
-      .thenReturn(this.connection);
-    Mockito.when(this.connection.openTransaction())
+    Mockito.when(this.context.transaction())
+      .thenReturn(this.transaction);
+    Mockito.when(this.context.transaction(any()))
       .thenReturn(this.transaction);
 
     Mockito.doAnswer(invocationOnMock -> {

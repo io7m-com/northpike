@@ -29,6 +29,8 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
 
 import java.util.UUID;
 
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
+
 /**
  * @see NPUCommandPublicKeySearchBegin
  */
@@ -59,24 +61,22 @@ public final class NPUCmdPublicKeySearchBegin
       NPSecAction.READ.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        final var paged =
-          transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeySearchType.class)
-            .execute(command.parameters());
+    try (var transaction = context.transaction(NORTHPIKE_READ_ONLY)) {
+      final var paged =
+        transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeySearchType.class)
+          .execute(command.parameters());
 
-        context.setProperty(NPPublicKeysPagedType.class, paged);
+      context.setProperty(NPPublicKeysPagedType.class, paged);
 
-        final var page =
-          paged.pageCurrent(transaction)
-            .map(NPPublicKey::summary);
+      final var page =
+        paged.pageCurrent(transaction)
+          .map(NPPublicKey::summary);
 
-        return new NPUResponsePublicKeySearch(
-          UUID.randomUUID(),
-          command.messageID(),
-          page
-        );
-      }
+      return new NPUResponsePublicKeySearch(
+        UUID.randomUUID(),
+        command.messageID(),
+        page
+      );
     }
   }
 }

@@ -68,58 +68,56 @@ public final class NPACmdLoginComplete
      */
 
     final NPAgentDescription agent;
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        final var record =
-          transaction.queries(AgentLoginChallengeGetType.class)
-            .execute(completion.id())
-            .orElseThrow(() -> {
-              context.onAuthenticationFailed(
-                Optional.empty(),
-                AGENT_AUTHENTICATION_ERROR_NO_SUCH_CHALLENGE
-              );
-              return context.fail(ERROR_AUTHENTICATION, errorAuthentication());
-            });
-
-        agent = context.agentFindForKey(record.key())
+    try (var transaction = context.transaction()) {
+      final var record =
+        transaction.queries(AgentLoginChallengeGetType.class)
+          .execute(completion.id())
           .orElseThrow(() -> {
             context.onAuthenticationFailed(
-              Optional.of(record.key().id()),
-              AGENT_AUTHENTICATION_ERROR_NO_SUCH_AGENT
+              Optional.empty(),
+              AGENT_AUTHENTICATION_ERROR_NO_SUCH_CHALLENGE
             );
             return context.fail(ERROR_AUTHENTICATION, errorAuthentication());
           });
 
-        final var signedData =
-          new NPSignedData(
-            record.challenge().data(),
-            command.completion().signature()
-          );
-
-        final boolean verified;
-        try {
-          verified = record.key().verifyData(signedData);
-        } catch (final NPException e) {
-          NPTelemetryServiceType.recordSpanException(e);
+      agent = context.agentFindForKey(record.key())
+        .orElseThrow(() -> {
           context.onAuthenticationFailed(
             Optional.of(record.key().id()),
-            AGENT_AUTHENTICATION_ERROR_SIGNATURE_INVALID
+            AGENT_AUTHENTICATION_ERROR_NO_SUCH_AGENT
           );
-          throw context.fail(ERROR_AUTHENTICATION, errorAuthentication());
-        }
+          return context.fail(ERROR_AUTHENTICATION, errorAuthentication());
+        });
 
-        if (!verified) {
-          context.onAuthenticationFailed(
-            Optional.of(record.key().id()),
-            AGENT_AUTHENTICATION_ERROR_SIGNATURE_INVALID
-          );
-          throw context.fail(ERROR_AUTHENTICATION, errorAuthentication());
-        }
+      final var signedData =
+        new NPSignedData(
+          record.challenge().data(),
+          command.completion().signature()
+        );
 
-        transaction.queries(AgentLoginChallengeDeleteType.class)
-          .execute(completion.id());
-        transaction.commit();
+      final boolean verified;
+      try {
+        verified = record.key().verifyData(signedData);
+      } catch (final NPException e) {
+        NPTelemetryServiceType.recordSpanException(e);
+        context.onAuthenticationFailed(
+          Optional.of(record.key().id()),
+          AGENT_AUTHENTICATION_ERROR_SIGNATURE_INVALID
+        );
+        throw context.fail(ERROR_AUTHENTICATION, errorAuthentication());
       }
+
+      if (!verified) {
+        context.onAuthenticationFailed(
+          Optional.of(record.key().id()),
+          AGENT_AUTHENTICATION_ERROR_SIGNATURE_INVALID
+        );
+        throw context.fail(ERROR_AUTHENTICATION, errorAuthentication());
+      }
+
+      transaction.queries(AgentLoginChallengeDeleteType.class)
+        .execute(completion.id());
+      transaction.commit();
     }
 
     context.onAuthenticationComplete(agent);

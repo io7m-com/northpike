@@ -44,14 +44,23 @@ import static org.jooq.SQLDialect.POSTGRES;
 final class NPDatabaseTransaction
   implements NPDatabaseTransactionType
 {
+  private final CloseBehavior closeBehavior;
   private final NPDatabaseConnection connection;
   private final Span transactionSpan;
   private NPAuditOwnerType owner;
 
+  enum CloseBehavior {
+    ON_CLOSE_CLOSE_CONNECTION,
+    ON_CLOSE_DO_NOTHING
+  }
+
   NPDatabaseTransaction(
+    final CloseBehavior inCloseBehavior,
     final NPDatabaseConnection inConnection,
     final Span inTransactionScope)
   {
+    this.closeBehavior =
+      Objects.requireNonNull(inCloseBehavior, "inCloseBehavior");
     this.connection =
       Objects.requireNonNull(inConnection, "connection");
     this.transactionSpan =
@@ -201,6 +210,15 @@ final class NPDatabaseTransaction
       throw e;
     } finally {
       this.transactionSpan.end();
+
+      switch (this.closeBehavior) {
+        case ON_CLOSE_CLOSE_CONNECTION -> {
+          this.connection.close();
+        }
+        case ON_CLOSE_DO_NOTHING -> {
+
+        }
+      }
     }
   }
 

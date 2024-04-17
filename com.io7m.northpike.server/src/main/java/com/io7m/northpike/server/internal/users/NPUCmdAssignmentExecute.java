@@ -57,23 +57,21 @@ public final class NPUCmdAssignmentExecute
     final NPClockServiceType clock)
     throws NPException
   {
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        final var owner = new NPAuditOwnerType.User(user.userId());
-        transaction.setOwner(owner);
-        transaction.queries(NPDatabaseQueriesAuditType.EventAddType.class)
-          .execute(new NPAuditEvent(
-            0L,
-            clock.now(),
-            owner,
-            "ASSIGNMENT_EXECUTE_REQUESTED",
-            ofEntries(
-              entry("ASSIGNMENT", command.assignment().toString()),
-              entry("COMMIT", command.commit().value())
-            )
-          ));
-        transaction.commit();
-      }
+    try (var transaction = context.transaction()) {
+      final var owner = new NPAuditOwnerType.User(user.userId());
+      transaction.setOwner(owner);
+      transaction.queries(NPDatabaseQueriesAuditType.EventAddType.class)
+        .execute(new NPAuditEvent(
+          0L,
+          clock.now(),
+          owner,
+          "ASSIGNMENT_EXECUTE_REQUESTED",
+          ofEntries(
+            entry("ASSIGNMENT", command.assignment().toString()),
+            entry("COMMIT", command.commit().value())
+          )
+        ));
+      transaction.commit();
     }
   }
 

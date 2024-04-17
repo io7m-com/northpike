@@ -272,11 +272,13 @@ public final class NPServer implements NPServerType
       services.requireService(clazz);
     }
 
-    final var metrics = new NPMetricsService(this.telemetry);
-    services.register(NPMetricsServiceType.class, metrics);
-
-    final var events = NPEventService.create(this.telemetry);
+    final var events =
+      NPEventService.create(this.telemetry);
     services.register(NPEventServiceType.class, events);
+
+    final var metrics =
+      NPMetricsService.create(this.telemetry, events);
+    services.register(NPMetricsServiceType.class, metrics);
 
     final var clock = new NPClock(Clock.systemUTC());
     services.register(NPClockServiceType.class, clock);

@@ -19,6 +19,7 @@
   <url>https://www.io7m.com/software/northpike</url>
 
   <properties>
+    <com.io7m.oci.registry>quay.io/io7mcom</com.io7m.oci.registry>
     <com.io7m.oci.versionAlpine>3.18.2</com.io7m.oci.versionAlpine>
     <com.io7m.oci.versionTemurin>21_35-jre-alpine</com.io7m.oci.versionTemurin>
     <spotbugs.skip>true</spotbugs.skip>
@@ -124,7 +125,7 @@
                     <argument>--timestamp</argument>
                     <argument>1577836800</argument>
                     <argument>-t</argument>
-                    <argument>quay.io/io7mcom/northpike:${project.version}</argument>
+                    <argument>${com.io7m.oci.registry}/northpike:${project.version}</argument>
                     <argument>${project.build.directory}/oci</argument>
                   </arguments>
                 </configuration>
@@ -145,7 +146,7 @@
                     <argument>${project.basedir}/src/test/resources:/northpike/etc:ro</argument>
                     <argument>--rm</argument>
                     <argument>--read-only</argument>
-                    <argument>quay.io/io7mcom/northpike:${project.version}</argument>
+                    <argument>${com.io7m.oci.registry}/northpike:${project.version}</argument>
                     <argument>self-check</argument>
                     <argument>--configuration</argument>
                     <argument>/northpike/etc/config.xml</argument>
@@ -164,7 +165,7 @@
                   <executable>podman</executable>
                   <arguments>
                     <argument>push</argument>
-                    <argument>quay.io/io7mcom/northpike:${project.version}</argument>
+                    <argument>${com.io7m.oci.registry}/northpike:${project.version}</argument>
                   </arguments>
                 </configuration>
               </execution>

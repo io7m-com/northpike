@@ -58,7 +58,6 @@ public final class NPACmdLoginTest
   private RPServiceDirectory services;
   private NPFakeClock clock;
   private NPClock clockService;
-  private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private AgentLoginChallengePutType challengePut;
   private AgentLoginChallengeGetForKeyType challengeGetForKey;
@@ -75,8 +74,6 @@ public final class NPACmdLoginTest
       new NPFakeClock();
     this.clockService =
       new NPClock(this.clock);
-    this.connection =
-      Mockito.mock(NPDatabaseConnectionType.class);
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
     this.challengePut =
@@ -86,14 +83,14 @@ public final class NPACmdLoginTest
 
     this.services.register(NPClockServiceType.class, this.clockService);
 
-    Mockito.when(this.connection.openTransaction())
-      .thenReturn(this.transaction);
     Mockito.when(this.context.services())
       .thenReturn(this.services);
     Mockito.when(this.context.sourceAddress())
       .thenReturn("www.example.com");
-    Mockito.when(this.context.databaseConnection())
-      .thenReturn(this.connection);
+    Mockito.when(this.context.transaction())
+      .thenReturn(this.transaction);
+    Mockito.when(this.context.transaction(any()))
+      .thenReturn(this.transaction);
     Mockito.when(this.transaction.queries(AgentLoginChallengePutType.class))
       .thenReturn(this.challengePut);
     Mockito.when(this.transaction.queries(AgentLoginChallengeGetForKeyType.class))

@@ -20,6 +20,8 @@ package com.io7m.northpike.server.internal.users;
 import com.io7m.idstore.user_client.api.IdUClientException;
 import com.io7m.idstore.user_client.api.IdUClientType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
+import com.io7m.northpike.database.api.NPDatabaseRole;
+import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
@@ -124,6 +126,31 @@ public interface NPUserCommandContextType
 
   NPDatabaseConnectionType databaseConnection()
     throws NPException;
+
+  /**
+   * @param role The database role
+   *
+   * @return A new database transaction
+   *
+   * @throws NPException On errors
+   * @see com.io7m.northpike.database.api.NPDatabaseType#transaction(NPDatabaseRole)
+   */
+
+  NPDatabaseTransactionType transaction(NPDatabaseRole role)
+    throws NPException;
+
+  /**
+   * @return A new database transaction
+   *
+   * @throws NPException On errors
+   * @see com.io7m.northpike.database.api.NPDatabaseType#transaction(NPDatabaseRole)
+   */
+
+  default NPDatabaseTransactionType transaction()
+    throws NPException
+  {
+    return this.transaction(NPDatabaseRole.NORTHPIKE);
+  }
 
   /**
    * @return The configured idstore login URI

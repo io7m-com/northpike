@@ -22,7 +22,6 @@ import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
-import com.io7m.northpike.telemetry.api.NPEventType;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -43,7 +42,7 @@ public record NPRepositoryCloseFailed(
   URI url,
   RDottedName provider,
   NPException exception)
-  implements NPEventType
+  implements NPRepositoryEventType
 {
   @Override
   public NPEventSeverity severity()

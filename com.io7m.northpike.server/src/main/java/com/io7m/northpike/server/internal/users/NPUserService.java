@@ -34,12 +34,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * The main agent service.
@@ -249,7 +251,13 @@ public final class NPUserService implements NPUserServiceType
   private void onUserTaskClosed()
   {
     this.userTasks.removeIf(NPUserTask::isClosed);
-    this.metrics.setUsersConnected(this.userTasks.size());
+
+    this.metrics.setUsersConnected(
+      this.userTasks.stream()
+        .map(NPUserTask::user)
+        .flatMap(Optional::stream)
+        .collect(Collectors.toList())
+    );
   }
 
   private void onUserTaskCreated(
@@ -257,7 +265,13 @@ public final class NPUserService implements NPUserServiceType
   {
     this.userTasks.add(task);
     this.userTasks.removeIf(NPUserTask::isClosed);
-    this.metrics.setUsersConnected(this.userTasks.size());
+
+    this.metrics.setUsersConnected(
+      this.userTasks.stream()
+        .map(NPUserTask::user)
+        .flatMap(Optional::stream)
+        .collect(Collectors.toList())
+    );
   }
 
   private ServerSocket openSocket()

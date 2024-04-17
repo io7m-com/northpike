@@ -263,10 +263,10 @@ public final class NPAgentService implements NPAgentServiceType
   }
 
   @Override
-  public Set<NPAgentID> findAgentsConnected()
+  public Set<com.io7m.northpike.model.agents.NPAgentConnected> findAgentsConnected()
   {
     return this.agentTasks.stream()
-      .map(NPAgentTask::agentId)
+      .map(NPAgentTask::agentConnected)
       .flatMap(Optional::stream)
       .collect(Collectors.toUnmodifiableSet());
   }
@@ -292,8 +292,6 @@ public final class NPAgentService implements NPAgentServiceType
      * Schedule a task that will instruct all connected agents to perform a
      * latency check periodically.
      */
-
-    this.metrics.setAgentsConnected(0);
 
     this.agentTicker.execute(() -> {
       while (!this.closed.get()) {
@@ -353,6 +351,7 @@ public final class NPAgentService implements NPAgentServiceType
         task.runLatencyCheck();
       }
     });
+    this.publishAgentLatencyMetrics();
   }
 
   private void createAndRunAgentTask(
@@ -371,7 +370,17 @@ public final class NPAgentService implements NPAgentServiceType
   private void onAgentTaskClosed()
   {
     this.agentTasks.removeIf(NPAgentTask::isClosed);
-    this.metrics.setAgentsConnected(this.agentTasks.size());
+    this.publishAgentLatencyMetrics();
+  }
+
+  private void publishAgentLatencyMetrics()
+  {
+    this.metrics.setAgentsConnected(
+      this.agentTasks.stream()
+        .map(NPAgentTask::agentConnected)
+        .flatMap(Optional::stream)
+        .collect(Collectors.toList())
+    );
   }
 
   private void onAgentTaskCreated(
@@ -379,7 +388,7 @@ public final class NPAgentService implements NPAgentServiceType
   {
     this.agentTasks.add(task);
     this.agentTasks.removeIf(NPAgentTask::isClosed);
-    this.metrics.setAgentsConnected(this.agentTasks.size());
+    this.publishAgentLatencyMetrics();
   }
 
   private ServerSocket openSocket()

@@ -46,9 +46,9 @@ public final class NPACmdWorkItemOutput
   {
     final var agentId = context.onAuthenticationRequire();
 
-    try (var connection = context.databaseConnection()) {
+    try (var transaction = context.transaction()) {
       NPWorkItemUpdates.addWorkItemLogLine(
-        connection,
+        transaction,
         context::fail,
         agentId,
         new NPWorkItemLogRecord(

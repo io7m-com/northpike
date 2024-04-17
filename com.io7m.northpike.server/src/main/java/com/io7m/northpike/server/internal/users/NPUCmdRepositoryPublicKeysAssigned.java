@@ -25,6 +25,8 @@ import com.io7m.northpike.protocol.user.NPUCommandRepositoryPublicKeysAssigned;
 import com.io7m.northpike.protocol.user.NPUResponseRepositoryPublicKeysAssigned;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
+
 /**
  * @see NPUCommandRepositoryPublicKeysAssigned
  */
@@ -62,14 +64,12 @@ public final class NPUCmdRepositoryPublicKeysAssigned
       NPSecAction.READ.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        return NPUResponseRepositoryPublicKeysAssigned.createCorrelated(
-          command,
-          transaction.queries(RepositoryPublicKeysAssignedType.class)
-            .execute(command.repository())
-        );
-      }
+    try (var transaction = context.transaction(NORTHPIKE_READ_ONLY)) {
+      return NPUResponseRepositoryPublicKeysAssigned.createCorrelated(
+        command,
+        transaction.queries(RepositoryPublicKeysAssignedType.class)
+          .execute(command.repository())
+      );
     }
   }
 }

@@ -18,9 +18,14 @@
 package com.io7m.northpike.tests.arbitraries;
 
 import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.Locale;
 
 public final class NPArbInetSocketAddress extends NPArbAbstract<InetSocketAddress>
@@ -30,18 +35,37 @@ public final class NPArbInetSocketAddress extends NPArbAbstract<InetSocketAddres
     super(
       InetSocketAddress.class,
       () -> Combinators.combine(
-        Arbitraries.strings()
-          .alpha()
-          .ofMinLength(1)
-          .ofMaxLength(8)
-          .map(x -> x.toLowerCase(Locale.ROOT)),
+        Arbitraries.oneOf(ipv4(), ipv6()),
         Arbitraries.integers().between(1, 65535)
-      ).as((addr, port) -> {
-        return InetSocketAddress.createUnresolved(
-          addr + ".example.com",
-          port.intValue()
-        );
-      })
+      ).as(InetSocketAddress::new)
     );
+  }
+
+  private static Arbitrary<InetAddress> ipv4()
+  {
+    return Arbitraries.bytes()
+      .array(byte[].class)
+      .ofSize(4)
+      .map(x -> {
+        try {
+          return Inet4Address.getByAddress(x);
+        } catch (final UnknownHostException e) {
+          throw new RuntimeException(e);
+        }
+      });
+  }
+
+  private static Arbitrary<InetAddress> ipv6()
+  {
+    return Arbitraries.bytes()
+      .array(byte[].class)
+      .ofSize(16)
+      .map(x -> {
+        try {
+          return Inet6Address.getByAddress(x);
+        } catch (final UnknownHostException e) {
+          throw new RuntimeException(e);
+        }
+      });
   }
 }

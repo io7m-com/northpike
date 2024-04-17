@@ -24,7 +24,6 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.DeleteEx
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.DeleteExpiredAssignmentExecutionsType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.DeleteExpiredLoginChallengesType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesMaintenanceType.UpdateUserRolesType;
-import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPAuditOwnerType;
@@ -46,6 +45,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE;
 import static com.io7m.northpike.database.api.NPDatabaseUnit.UNIT;
 
 /**
@@ -234,39 +234,34 @@ public final class NPMaintenanceService
         .startSpan();
 
     try (var ignored = span.makeCurrent()) {
-      try (var connection =
-             this.database.openConnection(NPDatabaseRole.NORTHPIKE)) {
-        try (var transaction =
-               connection.openTransaction()) {
+      try (var transaction = this.database.transaction(NORTHPIKE)) {
+        transaction.setOwner(new NPAuditOwnerType.Server());
 
-          transaction.setOwner(new NPAuditOwnerType.Server());
-
-          try {
-            updateUserRoles(transaction);
-          } catch (final Exception e) {
-            span.recordException(e);
-          }
-
-          try {
-            this.deleteExpiredArchives(transaction);
-          } catch (final Exception e) {
-            span.recordException(e);
-          }
-
-          try {
-            this.deleteExpiredAssignmentExecutions(transaction);
-          } catch (final Exception e) {
-            span.recordException(e);
-          }
-
-          try {
-            this.deleteExpiredLoginChallenges(transaction);
-          } catch (final Exception e) {
-            span.recordException(e);
-          }
-
-          LOG.info("Maintenance task completed.");
+        try {
+          updateUserRoles(transaction);
+        } catch (final Exception e) {
+          span.recordException(e);
         }
+
+        try {
+          this.deleteExpiredArchives(transaction);
+        } catch (final Exception e) {
+          span.recordException(e);
+        }
+
+        try {
+          this.deleteExpiredAssignmentExecutions(transaction);
+        } catch (final Exception e) {
+          span.recordException(e);
+        }
+
+        try {
+          this.deleteExpiredLoginChallenges(transaction);
+        } catch (final Exception e) {
+          span.recordException(e);
+        }
+
+        LOG.info("Maintenance task completed.");
       }
     } catch (final Exception e) {
       LOG.error("Maintenance task failed: ", e);

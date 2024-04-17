@@ -21,6 +21,28 @@
 [import com.io7m.cedarbridge cb]
 [import com.io7m.cedarbridge.time ct]
 
+[documentation NPU1IPAddress "An IP address."]
+[variant NPU1IPAddress
+  [documentation IPv6 "An IPv6 address."]
+  [case IPv6
+    [field s0 cb:IntegerUnsigned16]
+    [field s1 cb:IntegerUnsigned16]
+    [field s2 cb:IntegerUnsigned16]
+    [field s3 cb:IntegerUnsigned16]
+    [field s4 cb:IntegerUnsigned16]
+    [field s5 cb:IntegerUnsigned16]
+    [field s6 cb:IntegerUnsigned16]
+    [field s7 cb:IntegerUnsigned16]
+  ]
+  [documentation IPv4 "An IPv6 address."]
+  [case IPv4
+    [field s0 cb:IntegerUnsigned8]
+    [field s1 cb:IntegerUnsigned8]
+    [field s2 cb:IntegerUnsigned8]
+    [field s3 cb:IntegerUnsigned8]
+  ]
+]
+
 [documentation NPU1Version "A version."]
 [record NPU1Version
   [field major      cb:IntegerUnsigned32]
@@ -528,10 +550,10 @@
   [field id cb:UUID]
   [documentation name "The user name."]
   [field name cb:String]
-  [documentation address "The user's remote address."]
-  [field address cb:String]
-  [documentation port "The user's remote port."]
-  [field port cb:IntegerUnsigned16]
+  [documentation remoteAddress "The user's remote address."]
+  [field remoteAddress NPU1IPAddress]
+  [documentation remotePort "The user's remote port."]
+  [field remotePort cb:IntegerUnsigned16]
 ]
 
 [documentation NPU1User "A user."]
@@ -594,6 +616,14 @@
   [field versions NPU1VersionRange]
   [documentation executions "The default provided tool executions."]
   [field executions [cb:Map cb:String [cb:List cb:String]]]
+]
+
+[documentation NPU1AgentConnected "Information about a connected agent."]
+[record NPU1AgentConnected
+  [field id                  cb:UUID]
+  [field remoteAddress       NPU1IPAddress]
+  [field remotePort          cb:IntegerUnsigned16]
+  [field latencyMilliseconds cb:IntegerUnsigned64]
 ]
 
 ;
@@ -1476,17 +1506,17 @@
   [field results [NPU1Page NPU1AuditEvent]]
 ]
 
-[documentation NPU1ResponseAgentsConnected "A response to NPU1CommandAgentsConnectedBegin."]
+[documentation NPU1ResponseAgentsConnected "A response to NPU1CommandAgentsConnected."]
 [record NPU1ResponseAgentsConnected
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]
   [documentation correlationId "The message correlation ID"]
   [field correlationId cb:UUID]
   [documentation results "The results"]
-  [field results [cb:List cb:UUID]]
+  [field results [cb:List NPU1AgentConnected]]
 ]
 
-[documentation NPU1ResponseUsersConnected "A response to NPU1CommandUsersConnectedBegin."]
+[documentation NPU1ResponseUsersConnected "A response to NPU1CommandUsersConnected."]
 [record NPU1ResponseUsersConnected
   [documentation messageId "The message ID"]
   [field messageId cb:UUID]

@@ -56,6 +56,7 @@ import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for a command.
@@ -64,7 +65,6 @@ import static org.mockito.ArgumentMatchers.any;
 public final class NPUCmdAssignmentPutTest
 {
   private NPUserCommandContextType context;
-  private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
 
   @BeforeEach
@@ -75,15 +75,12 @@ public final class NPUCmdAssignmentPutTest
 
     this.context =
       Mockito.mock(NPUserCommandContextType.class);
-
-    this.connection =
-      Mockito.mock(NPDatabaseConnectionType.class);
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
 
-    Mockito.when(this.context.databaseConnection())
-      .thenReturn(this.connection);
-    Mockito.when(this.connection.openTransaction())
+    when(this.context.transaction())
+      .thenReturn(this.transaction);
+    when(this.context.transaction(any()))
       .thenReturn(this.transaction);
 
     Mockito.doAnswer(invocationOnMock -> {

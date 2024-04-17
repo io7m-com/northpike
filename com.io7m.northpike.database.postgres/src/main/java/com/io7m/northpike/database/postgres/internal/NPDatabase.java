@@ -20,10 +20,14 @@ package com.io7m.northpike.database.postgres.internal;
 import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
+import com.io7m.northpike.database.api.NPDatabaseQueriesType;
 import com.io7m.northpike.database.api.NPDatabaseQueryType;
 import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseTelemetry;
+import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
+import com.io7m.northpike.database.postgres.internal.NPDatabaseTransaction.CloseBehavior;
+import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import com.io7m.northpike.strings.NPStrings;
 import com.zaxxer.hikari.HikariDataSource;
@@ -46,6 +50,7 @@ import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Function;
 
+import static com.io7m.northpike.database.postgres.internal.NPDatabaseTransaction.CloseBehavior.ON_CLOSE_CLOSE_CONNECTION;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DB_SYSTEM;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.DbSystemValues.POSTGRESQL;
 import static java.lang.Math.max;
@@ -304,6 +309,18 @@ public final class NPDatabase implements NPDatabaseType
         Optional.empty()
       );
     }
+  }
+
+  @Override
+  public NPDatabaseTransactionType transaction(
+    final NPDatabaseRole role)
+    throws NPDatabaseException
+  {
+    final NPDatabaseConnection connection =
+      (NPDatabaseConnection) this.openConnection(role);
+    return connection.openTransactionWithCloseBehavior(
+      ON_CLOSE_CLOSE_CONNECTION
+    );
   }
 
   /**

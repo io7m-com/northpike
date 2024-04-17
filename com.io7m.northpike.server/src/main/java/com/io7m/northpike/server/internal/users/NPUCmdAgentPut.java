@@ -61,47 +61,45 @@ public final class NPUCmdAgentPut
       NPSecAction.WRITE.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new User(user.userId()));
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new User(user.userId()));
 
-        final var givenAgent =
-          command.agent();
-        final var existing =
-          transaction.queries(AgentGetType.class)
-            .execute(new Parameters(givenAgent.id(), false));
+      final var givenAgent =
+        command.agent();
+      final var existing =
+        transaction.queries(AgentGetType.class)
+          .execute(new Parameters(givenAgent.id(), false));
 
-        /*
-         * The environment variables and system properties are
-         * ignored for the incoming agent. The environment and system properties
-         * are set via agents upon authenticating.
-         */
+      /*
+       * The environment variables and system properties are
+       * ignored for the incoming agent. The environment and system properties
+       * are set via agents upon authenticating.
+       */
 
-        final NPAgentDescription savedAgent;
-        if (existing.isPresent()) {
-          final var existingAgent = existing.get();
-          savedAgent = new NPAgentDescription(
-            givenAgent.id(),
-            givenAgent.name(),
-            givenAgent.publicKey(),
-            existingAgent.environmentVariables(),
-            existingAgent.systemProperties(),
-            givenAgent.labels()
-          );
-        } else {
-          savedAgent = new NPAgentDescription(
-            givenAgent.id(),
-            givenAgent.name(),
-            givenAgent.publicKey(),
-            Map.of(),
-            Map.of(),
-            givenAgent.labels()
-          );
-        }
-
-        transaction.queries(AgentPutType.class).execute(savedAgent);
-        transaction.commit();
+      final NPAgentDescription savedAgent;
+      if (existing.isPresent()) {
+        final var existingAgent = existing.get();
+        savedAgent = new NPAgentDescription(
+          givenAgent.id(),
+          givenAgent.name(),
+          givenAgent.publicKey(),
+          existingAgent.environmentVariables(),
+          existingAgent.systemProperties(),
+          givenAgent.labels()
+        );
+      } else {
+        savedAgent = new NPAgentDescription(
+          givenAgent.id(),
+          givenAgent.name(),
+          givenAgent.publicKey(),
+          Map.of(),
+          Map.of(),
+          givenAgent.labels()
+        );
       }
+
+      transaction.queries(AgentPutType.class).execute(savedAgent);
+      transaction.commit();
     }
 
     return NPUResponseOK.createCorrelated(command);

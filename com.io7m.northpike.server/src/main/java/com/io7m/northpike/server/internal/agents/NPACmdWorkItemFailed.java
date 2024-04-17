@@ -47,9 +47,9 @@ public final class NPACmdWorkItemFailed
   {
     final var agentId = context.onAuthenticationRequire();
 
-    try (var connection = context.databaseConnection()) {
+    try (var transaction = context.transaction()) {
       NPWorkItemUpdates.setWorkItemStatus(
-        connection,
+        transaction,
         context::fail,
         agentId,
         command.identifier(),

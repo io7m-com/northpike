@@ -23,6 +23,8 @@ import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.clock.NPClockServiceType;
 import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesUsersType;
+import com.io7m.northpike.database.api.NPDatabaseRole;
+import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
@@ -48,6 +50,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
 import java.nio.channels.ClosedChannelException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
@@ -248,6 +252,7 @@ public final class NPUserTask
         .spanBuilder("UserProcessMessage")
         .startSpan();
 
+    final var timeThen = Instant.now();
     try (var ignored = span.makeCurrent()) {
       span.setAttribute("Message", message.getClass().getSimpleName());
       span.setAttribute("MessageID", message.messageID().toString());
@@ -257,6 +262,11 @@ public final class NPUserTask
       recordSpanException(e);
       throw e;
     } finally {
+      final var timeNow = Instant.now();
+      this.events.emit(new NPUserMessageProcessed(
+        message.getClass().getSimpleName(),
+        Duration.between(timeThen, timeNow)
+      ));
       span.end();
     }
   }
@@ -425,6 +435,14 @@ public final class NPUserTask
     throws NPException
   {
     return this.database.openConnection(NORTHPIKE);
+  }
+
+  @Override
+  public NPDatabaseTransactionType transaction(
+    final NPDatabaseRole role)
+    throws NPException
+  {
+    return this.database.transaction(role);
   }
 
   @Override

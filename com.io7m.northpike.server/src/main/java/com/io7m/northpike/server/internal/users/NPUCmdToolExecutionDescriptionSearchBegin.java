@@ -28,6 +28,8 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
 
 import java.util.UUID;
 
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
+
 /**
  * @see NPUCommandToolExecutionDescriptionSearchBegin
  */
@@ -60,23 +62,21 @@ public final class NPUCmdToolExecutionDescriptionSearchBegin
       NPSecAction.READ.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        final var paged =
-          transaction.queries(NPDatabaseQueriesToolsType.SearchExecutionDescriptionType.class)
-            .execute(command.parameters());
+    try (var transaction = context.transaction(NORTHPIKE_READ_ONLY)) {
+      final var paged =
+        transaction.queries(NPDatabaseQueriesToolsType.SearchExecutionDescriptionType.class)
+          .execute(command.parameters());
 
-        context.setProperty(NPToolExecutionDescriptionsPagedType.class, paged);
+      context.setProperty(NPToolExecutionDescriptionsPagedType.class, paged);
 
-        final var page =
-          paged.pageCurrent(transaction);
+      final var page =
+        paged.pageCurrent(transaction);
 
-        return new NPUResponseToolExecutionDescriptionSearch(
-          UUID.randomUUID(),
-          command.messageID(),
-          page
-        );
-      }
+      return new NPUResponseToolExecutionDescriptionSearch(
+        UUID.randomUUID(),
+        command.messageID(),
+        page
+      );
     }
   }
 }

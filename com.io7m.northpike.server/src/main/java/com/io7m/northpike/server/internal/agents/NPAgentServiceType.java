@@ -20,6 +20,7 @@ package com.io7m.northpike.server.internal.agents;
 import com.io7m.jaffirm.core.Preconditions;
 import com.io7m.jmulticlose.core.CloseableType;
 import com.io7m.northpike.model.NPWorkItem;
+import com.io7m.northpike.model.agents.NPAgentConnected;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentLabelName;
 import com.io7m.northpike.model.agents.NPAgentWorkItem;
@@ -92,7 +93,7 @@ public interface NPAgentServiceType
    * @return The set of connected agents
    */
 
-  Set<NPAgentID> findAgentsConnected();
+  Set<NPAgentConnected> findAgentsConnected();
 
   /**
    * @return The set of currently executing work items

@@ -34,6 +34,7 @@ import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPToolSummary;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPWorkItem;
+import com.io7m.northpike.model.agents.NPAgentConnected;
 import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
@@ -58,6 +59,7 @@ import com.io7m.northpike.preferences.api.NPPreferenceServerBookmark;
 import com.io7m.northpike.preferences.api.NPPreferenceServerCredentialsType;
 import com.io7m.northpike.preferences.api.NPPreferenceServerUsernamePassword;
 import com.io7m.tabla.core.TColumnWidthConstraint;
+import com.io7m.tabla.core.TException;
 import com.io7m.tabla.core.TTableRendererType;
 import com.io7m.tabla.core.TTableType;
 import com.io7m.tabla.core.TTableWidthConstraintRange;
@@ -1204,6 +1206,33 @@ public final class NPFormatterPretty implements NPFormatterType
         .addCell(format.stateName())
         .addCell(format.request().assignment().toString())
         .addCell(format.request().commit().value());
+    }
+
+    this.renderTable(builder.build());
+  }
+
+  @Override
+  public void formatAgentsConnected(
+    final Set<NPAgentConnected> agents)
+    throws TException
+  {
+    final var agentList =
+      agents.stream()
+        .sorted(Comparator.comparing(o -> o.agentID().value()))
+        .toList();
+
+    final var builder =
+      Tabla.builder()
+        .setWidthConstraint(this.softTableWidth(3))
+        .declareColumn("ID", atLeastContentOrHeader())
+        .declareColumn("Address", atLeastContentOrHeader())
+        .declareColumn("Latency", atLeastContentOrHeader());
+
+    for (final var agent : agentList) {
+      builder.addRow()
+        .addCell(agent.agentID().toString())
+        .addCell(agent.address().toString())
+        .addCell(agent.latency().toString());
     }
 
     this.renderTable(builder.build());

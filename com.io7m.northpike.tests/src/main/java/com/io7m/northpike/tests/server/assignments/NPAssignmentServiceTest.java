@@ -129,6 +129,10 @@ public final class NPAssignmentServiceTest
     ASSIGNMENT_FIXTURE.reset(closeables);
 
     this.services = new RPServiceDirectory();
+    this.events =
+      new NPEventInterceptingService(
+        NPEventService.create(NPTelemetryNoOp.noop())
+      );
     this.services.register(
       NPStrings.class, STRINGS);
     this.database =
@@ -138,7 +142,9 @@ public final class NPAssignmentServiceTest
     this.services.register(
       NPTelemetryServiceType.class, NPTelemetryNoOp.noop());
     this.services.register(
-      NPMetricsServiceType.class, new NPMetricsService(NPTelemetryNoOp.noop()));
+      NPMetricsServiceType.class,
+      NPMetricsService.create(NPTelemetryNoOp.noop(), this.events)
+    );
     this.services.register(
       NPClockServiceType.class, new NPClock(Clock.systemUTC()));
     this.services.register(
@@ -159,10 +165,6 @@ public final class NPAssignmentServiceTest
     this.services.register(
       NPAgentServiceType.class, this.agents);
 
-    this.events =
-      new NPEventInterceptingService(
-        NPEventService.create(NPTelemetryNoOp.noop())
-      );
     this.services.register(NPEventServiceType.class, this.events);
     this.services.register(
       NPTEvaluationServiceType.class,

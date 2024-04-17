@@ -15,23 +15,33 @@
  */
 
 
-package com.io7m.northpike.server.internal.users;
+package com.io7m.northpike.tests.arbitraries;
 
-import com.io7m.northpike.model.NPDocumentation;
-import com.io7m.northpike.telemetry.api.NPEventType;
+import com.io7m.northpike.model.agents.NPAgentConnected;
+import com.io7m.northpike.model.agents.NPAgentID;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Arbitrary;
+import net.jqwik.api.Combinators;
 
-/**
- * The type of user service events.
- */
+import java.net.InetSocketAddress;
+import java.time.Duration;
 
-@NPDocumentation("The type of user service events.")
-public sealed interface NPUserEventType
-  extends NPEventType
-  permits NPUserAuthenticated,
-  NPUserConnected,
-  NPUserDisconnected,
-  NPUserMessageProcessed,
-  NPUserServiceStarted
+public final class NPArbAgentConnected
+  extends NPArbAbstract<NPAgentConnected>
 {
-
+  public NPArbAgentConnected()
+  {
+    super(
+      NPAgentConnected.class,
+      () -> {
+        return Combinators.combine(
+          Arbitraries.defaultFor(NPAgentID.class),
+          Arbitraries.defaultFor(InetSocketAddress.class),
+          Arbitraries.longs()
+            .greaterOrEqual(1L)
+            .map(Duration::ofMillis)
+        ).as(NPAgentConnected::new);
+      }
+    );
+  }
 }

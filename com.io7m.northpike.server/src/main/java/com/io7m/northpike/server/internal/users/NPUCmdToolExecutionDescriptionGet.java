@@ -27,6 +27,8 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
 
 import java.util.UUID;
 
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
+
 /**
  * @see NPUCommandToolExecutionDescriptionGet
  */
@@ -59,18 +61,16 @@ public final class NPUCmdToolExecutionDescriptionGet
       NPSecAction.READ.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        final var description =
-          transaction.queries(GetExecutionDescriptionType.class)
-            .execute(command.identifier());
+    try (var transaction = context.transaction(NORTHPIKE_READ_ONLY)) {
+      final var description =
+        transaction.queries(GetExecutionDescriptionType.class)
+          .execute(command.identifier());
 
-        return new NPUResponseToolExecutionDescriptionGet(
-          UUID.randomUUID(),
-          command.messageID(),
-          description
-        );
-      }
+      return new NPUResponseToolExecutionDescriptionGet(
+        UUID.randomUUID(),
+        command.messageID(),
+        description
+      );
     }
   }
 }

@@ -41,4 +41,20 @@ public interface NPDatabaseType extends AutoCloseable, RPServiceType
   NPDatabaseConnectionType openConnection(
     NPDatabaseRole role)
     throws NPDatabaseException;
+
+  /**
+   * Open a database connection using the given role, and create a new
+   * transaction. When the transaction is closed, the connection is also
+   * closed.
+   *
+   * @param role The role
+   *
+   * @return A database transaction
+   *
+   * @throws NPDatabaseException On errors
+   */
+
+  NPDatabaseTransactionType transaction(
+    NPDatabaseRole role)
+    throws NPDatabaseException;
 }

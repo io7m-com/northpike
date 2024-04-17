@@ -20,19 +20,36 @@ package com.io7m.northpike.server.internal.metrics;
 import com.io7m.jmulticlose.core.CloseableCollection;
 import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.jmulticlose.core.ClosingResourceFailedException;
-import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.NPVersion;
+import com.io7m.northpike.model.agents.NPAgentConnected;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryArchiveCreated;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryCloseFailed;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryClosed;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryConfigureFailed;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryConfigured;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryEventType;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryServiceStarted;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryUpdateFailed;
+import com.io7m.northpike.server.internal.repositories.NPRepositoryUpdated;
+import com.io7m.northpike.server.internal.users.NPUserAuthenticated;
+import com.io7m.northpike.server.internal.users.NPUserConnected;
+import com.io7m.northpike.server.internal.users.NPUserDisconnected;
+import com.io7m.northpike.server.internal.users.NPUserEventType;
+import com.io7m.northpike.server.internal.users.NPUserMessageProcessed;
+import com.io7m.northpike.server.internal.users.NPUserServiceStarted;
+import com.io7m.northpike.telemetry.api.NPEventServiceType;
+import com.io7m.northpike.telemetry.api.NPEventType;
 import com.io7m.northpike.telemetry.api.NPTelemetryServiceType;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.LongCounter;
+import io.opentelemetry.api.metrics.LongHistogram;
 import io.opentelemetry.api.metrics.ObservableLongGauge;
 import io.opentelemetry.api.metrics.ObservableLongMeasurement;
 
-import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Flow;
 import java.util.function.Consumer;
-
-import static io.opentelemetry.api.common.AttributeKey.stringKey;
 
 /**
  * The metrics service.
@@ -45,18 +62,188 @@ public final class NPMetricsService implements NPMetricsServiceType
   private final LongCounter archive4xx;
   private final LongCounter archive5xx;
   private final LongCounter archive2xx;
+  private final LongCounter repositoryCommitsAdded;
+  private final LongCounter repositoryArchivesCreated;
+  private final LongCounter repositoryUpdateFailures;
+  private final LongHistogram repositoryUpdateTime;
+  private final LongHistogram userMessageTime;
   private volatile long assignmentsEnqueued;
-  private volatile long agentsConnected;
-  private volatile long usersConnected;
   private volatile long assignmentsExecuting;
   private volatile long archiveRequestsInProgress;
-  private final ConcurrentLinkedQueue<AgentLatencyMeasurement> agentLatencyMeasurements;
+  private List<NPAgentConnected> agentsConnected = List.of();
+  private List<com.io7m.northpike.model.NPUserConnected> usersConnected = List.of();
 
-  private record AgentLatencyMeasurement(
-    NPAgentID agent,
-    long nanos)
+  /**
+   * The metrics service.
+   *
+   * @param telemetry The underlying telemetry system
+   * @param events    The event service
+   *
+   * @return The metrics service
+   */
+
+  public static NPMetricsServiceType create(
+    final NPTelemetryServiceType telemetry,
+    final NPEventServiceType events)
   {
+    final var service = new NPMetricsService(telemetry);
+    events.events().subscribe(new EventSubscriber(service));
+    return service;
+  }
 
+  private static final class EventSubscriber
+    implements Flow.Subscriber<NPEventType>
+  {
+    private final NPMetricsService service;
+
+    EventSubscriber(
+      final NPMetricsService inService)
+    {
+      this.service =
+        Objects.requireNonNull(inService, "service");
+    }
+
+    @Override
+    public void onSubscribe(
+      final Flow.Subscription subscription)
+    {
+      subscription.request(Long.MAX_VALUE);
+    }
+
+    @Override
+    public void onNext(
+      final NPEventType item)
+    {
+      this.service.onEvent(item);
+    }
+
+    @Override
+    public void onError(
+      final Throwable throwable)
+    {
+
+    }
+
+    @Override
+    public void onComplete()
+    {
+
+    }
+  }
+
+  private void onEvent(
+    final NPEventType item)
+  {
+    switch (item) {
+      case final NPRepositoryEventType repositoryEvent -> {
+        this.onRepositoryEvent(repositoryEvent);
+      }
+      case final NPUserEventType userEvent -> {
+        this.onUserEvent(userEvent);
+      }
+      default -> {
+        // Nothing to do.
+      }
+    }
+  }
+
+  private void onUserEvent(
+    final NPUserEventType event)
+  {
+    switch (event) {
+      case final NPUserAuthenticated ignored -> {
+        // Nothing to do
+      }
+
+      case final NPUserConnected ignored -> {
+        // Nothing to do
+      }
+
+      case final NPUserDisconnected ignored -> {
+        // Nothing to do
+      }
+
+      case final NPUserMessageProcessed r -> {
+        this.userMessageTime.record(
+          r.timeTaken().toMillis(),
+          Attributes.builder()
+            .put("MessageType", r.messageType())
+            .build()
+        );
+      }
+
+      case final NPUserServiceStarted ignored -> {
+        // Nothing to do
+      }
+    }
+  }
+
+  private void onRepositoryEvent(
+    final NPRepositoryEventType event)
+  {
+    switch (event) {
+      case final NPRepositoryArchiveCreated r -> {
+        this.repositoryArchivesCreated.add(
+          1L,
+          Attributes.builder()
+            .put("RepositoryID", r.id().toString())
+            .put("RepositoryURL", r.url().toString())
+            .put("RepositoryProvider", r.provider().toString())
+            .build()
+        );
+      }
+
+      case final NPRepositoryCloseFailed ignored -> {
+        // Nothing to do
+      }
+
+      case final NPRepositoryClosed ignored -> {
+        // Nothing to do
+      }
+
+      case final NPRepositoryConfigureFailed ignored -> {
+        // Nothing to do
+      }
+
+      case final NPRepositoryConfigured ignored -> {
+        // Nothing to do
+      }
+
+      case final NPRepositoryServiceStarted ignored -> {
+        // Nothing to do
+      }
+
+      case final NPRepositoryUpdateFailed r -> {
+        this.repositoryUpdateFailures.add(
+          1L,
+          Attributes.builder()
+            .put("RepositoryID", r.id().toString())
+            .put("RepositoryURL", r.url().toString())
+            .put("RepositoryProvider", r.provider().toString())
+            .build()
+        );
+      }
+
+      case final NPRepositoryUpdated r -> {
+        this.repositoryCommitsAdded.add(
+          r.commits(),
+          Attributes.builder()
+            .put("RepositoryID", r.id().toString())
+            .put("RepositoryURL", r.url().toString())
+            .put("RepositoryProvider", r.provider().toString())
+            .build()
+        );
+
+        this.repositoryUpdateTime.record(
+          r.timeTaken().toMillis(),
+          Attributes.builder()
+            .put("RepositoryID", r.id().toString())
+            .put("RepositoryURL", r.url().toString())
+            .put("RepositoryProvider", r.provider().toString())
+            .build()
+        );
+      }
+    }
   }
 
   /**
@@ -65,16 +252,13 @@ public final class NPMetricsService implements NPMetricsServiceType
    * @param telemetry The underlying telemetry system
    */
 
-  public NPMetricsService(
+  private NPMetricsService(
     final NPTelemetryServiceType telemetry)
   {
     Objects.requireNonNull(telemetry, "telemetry");
 
     this.isNoOp =
       telemetry.isNoOp();
-    this.agentLatencyMeasurements =
-      new ConcurrentLinkedQueue<>();
-
     this.resources =
       CloseableCollection.create();
 
@@ -90,9 +274,26 @@ public final class NPMetricsService implements NPMetricsServiceType
     this.resources.add(
       createLongGauge(
         telemetry,
-        "northpike_agents_connected",
-        "The number of connected agents.",
-        m -> m.record(this.agentsConnected)
+        "northpike_version",
+        "A gauge that produces a constant version value.",
+        m -> {
+          m.record(
+            1L,
+            Attributes.builder()
+              .put("Version", NPVersion.MAIN_VERSION)
+              .put("Build", NPVersion.MAIN_BUILD)
+              .build()
+            );
+        }
+      )
+    );
+
+    this.resources.add(
+      createLongGauge(
+        telemetry,
+        "northpike_agents_latency",
+        "The latency of the connected agents.",
+        this::recordAgentsLatency
       )
     );
 
@@ -101,7 +302,7 @@ public final class NPMetricsService implements NPMetricsServiceType
         telemetry,
         "northpike_users_connected",
         "The number of connected users.",
-        m -> m.record(this.usersConnected)
+        this::recordUsersConnected
       )
     );
 
@@ -126,19 +327,22 @@ public final class NPMetricsService implements NPMetricsServiceType
     this.archive4xx =
       telemetry.meter()
         .counterBuilder("northpike_archive_http_responses_4xx")
-        .setDescription("The number of archive service HTTP requests that resulted in 4xx failures.")
+        .setDescription(
+          "The number of archive service HTTP requests that resulted in 4xx failures.")
         .build();
 
     this.archive5xx =
       telemetry.meter()
         .counterBuilder("northpike_archive_http_responses_5xx")
-        .setDescription("The number of archive service HTTP requests that resulted in 5xx failures.")
+        .setDescription(
+          "The number of archive service HTTP requests that resulted in 5xx failures.")
         .build();
 
     this.archive2xx =
       telemetry.meter()
         .counterBuilder("northpike_archive_http_responses_2xx")
-        .setDescription("The number of archive service HTTP requests that resulted in 2xx status codes.")
+        .setDescription(
+          "The number of archive service HTTP requests that resulted in 2xx status codes.")
         .build();
 
     this.resources.add(
@@ -150,13 +354,63 @@ public final class NPMetricsService implements NPMetricsServiceType
       )
     );
 
-    this.resources.add(
+    this.repositoryCommitsAdded =
       telemetry.meter()
-        .gaugeBuilder("northpike_agent_latency")
-        .setDescription("The latency for a given agent.")
+        .counterBuilder("northpike_repository_commits_added")
+        .setDescription(
+          "The number of commits added to the database by the repository service.")
+        .build();
+
+    this.repositoryArchivesCreated =
+      telemetry.meter()
+        .counterBuilder("northpike_repository_archives_created")
+        .setDescription(
+          "The number of archives created by the repository service.")
+        .build();
+
+    this.repositoryUpdateFailures =
+      telemetry.meter()
+        .counterBuilder("northpike_repository_update_failures")
+        .setDescription(
+          "The number of repository update failures.")
+        .build();
+
+    this.repositoryUpdateTime =
+      telemetry.meter()
+        .histogramBuilder("northpike_repository_update_time")
+        .setUnit("milliseconds")
+        .setDescription("The time repositories are taking to update.")
         .ofLongs()
-        .buildWithCallback(this::consumeAgentLatencyMeasurements)
-    );
+        .build();
+
+    this.userMessageTime =
+      telemetry.meter()
+        .histogramBuilder("northpike_user_message_processing_time")
+        .setUnit("milliseconds")
+        .setDescription(
+          "The time user protocol messages are taking to be processed.")
+        .ofLongs()
+        .build();
+  }
+
+  private void recordUsersConnected(
+    final ObservableLongMeasurement m)
+  {
+    m.record((long) this.usersConnected.size());
+  }
+
+  private void recordAgentsLatency(
+    final ObservableLongMeasurement m)
+  {
+    final var agentsNow = this.agentsConnected;
+    for (final var agent : agentsNow) {
+      m.record(
+        agent.latency().toMillis(),
+        Attributes.builder()
+          .put("AgentID", agent.agentID().toString())
+          .build()
+      );
+    }
   }
 
   private static ObservableLongGauge createLongGauge(
@@ -170,18 +424,6 @@ public final class NPMetricsService implements NPMetricsServiceType
       .setDescription(description)
       .ofLongs()
       .buildWithCallback(onMeasurement);
-  }
-
-  private void consumeAgentLatencyMeasurements(
-    final ObservableLongMeasurement measurement)
-  {
-    while (!this.agentLatencyMeasurements.isEmpty()) {
-      final var latency = this.agentLatencyMeasurements.poll();
-      measurement.record(
-        latency.nanos,
-        Attributes.of(stringKey("agent"), latency.agent.toString())
-      );
-    }
   }
 
   @Override
@@ -206,16 +448,16 @@ public final class NPMetricsService implements NPMetricsServiceType
 
   @Override
   public void setAgentsConnected(
-    final int count)
+    final List<NPAgentConnected> agents)
   {
-    this.agentsConnected = count;
+    this.agentsConnected = List.copyOf(agents);
   }
 
   @Override
   public void setUsersConnected(
-    final int count)
+    final List<com.io7m.northpike.model.NPUserConnected> users)
   {
-    this.usersConnected = count;
+    this.usersConnected = List.copyOf(users);
   }
 
   @Override
@@ -230,20 +472,6 @@ public final class NPMetricsService implements NPMetricsServiceType
     final int count)
   {
     this.assignmentsEnqueued = count;
-  }
-
-  @Override
-  public void setAgentLatency(
-    final NPAgentID agentId,
-    final Duration duration)
-  {
-    if (this.isNoOp) {
-      return;
-    }
-
-    this.agentLatencyMeasurements.add(
-      new AgentLatencyMeasurement(agentId, duration.toNanos())
-    );
   }
 
   @Override

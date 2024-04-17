@@ -28,6 +28,7 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
 
 import java.util.UUID;
 
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorApiMisuse;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_SEARCH_NOT_STARTED;
 
@@ -61,20 +62,18 @@ public final class NPUCmdRepositorySearchPrevious
       NPSecAction.READ.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        final var paged =
-          context.property(NPRepositoriesPagedType.class)
-            .orElseThrow(() -> {
-              return context.fail(ERROR_SEARCH_NOT_STARTED, errorApiMisuse());
-            });
+    try (var transaction = context.transaction(NORTHPIKE_READ_ONLY)) {
+      final var paged =
+        context.property(NPRepositoriesPagedType.class)
+          .orElseThrow(() -> {
+            return context.fail(ERROR_SEARCH_NOT_STARTED, errorApiMisuse());
+          });
 
-        return new NPUResponseRepositorySearch(
-          UUID.randomUUID(),
-          command.messageID(),
-          paged.pagePrevious(transaction).map(NPRepositoryDescription::summary)
-        );
-      }
+      return new NPUResponseRepositorySearch(
+        UUID.randomUUID(),
+        command.messageID(),
+        paged.pagePrevious(transaction).map(NPRepositoryDescription::summary)
+      );
     }
   }
 }

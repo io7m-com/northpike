@@ -56,18 +56,16 @@ public final class NPUCmdAgentLoginChallengeDelete
       NPSecAction.DELETE.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
 
-        for (final var id : command.loginChallenges()) {
-          transaction.queries(AgentLoginChallengeDeleteType.class)
-            .execute(id);
-        }
-
-        transaction.commit();
-        return NPUResponseOK.createCorrelated(command);
+      for (final var id : command.loginChallenges()) {
+        transaction.queries(AgentLoginChallengeDeleteType.class)
+          .execute(id);
       }
+
+      transaction.commit();
+      return NPUResponseOK.createCorrelated(command);
     }
   }
 }

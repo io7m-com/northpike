@@ -56,12 +56,10 @@ public final class NPUCmdAgentDelete
       NPSecAction.WRITE.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new User(user.userId()));
-        transaction.queries(AgentDeleteType.class).execute(command.agent());
-        transaction.commit();
-      }
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new User(user.userId()));
+      transaction.queries(AgentDeleteType.class).execute(command.agent());
+      transaction.commit();
     }
 
     return NPUResponseOK.createCorrelated(command);

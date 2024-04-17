@@ -32,6 +32,7 @@ import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPToolSummary;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPWorkItem;
+import com.io7m.northpike.model.agents.NPAgentConnected;
 import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
@@ -494,5 +495,17 @@ public interface NPFormatterType
 
   void formatAssignmentExecutions(
     NPPage<NPAssignmentExecutionStateType> executions)
+    throws Exception;
+
+  /**
+   * Format connected agents.
+   *
+   * @param agents The agents
+   *
+   * @throws Exception On errors
+   */
+
+  void formatAgentsConnected(
+    Set<NPAgentConnected> agents)
     throws Exception;
 }

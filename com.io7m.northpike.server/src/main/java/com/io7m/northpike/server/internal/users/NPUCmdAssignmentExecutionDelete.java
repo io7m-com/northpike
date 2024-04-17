@@ -60,20 +60,18 @@ public final class NPUCmdAssignmentExecutionDelete
       NPSecAction.DELETE.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
 
-        final var execDelete =
-          transaction.queries(AssignmentExecutionDeleteType.class);
+      final var execDelete =
+        transaction.queries(AssignmentExecutionDeleteType.class);
 
-        for (final var id : command.executions()) {
-          execDelete.execute(new Parameters(id, DELETE_EVERYTHING));
-        }
-
-        transaction.commit();
-        return NPUResponseOK.createCorrelated(command);
+      for (final var id : command.executions()) {
+        execDelete.execute(new Parameters(id, DELETE_EVERYTHING));
       }
+
+      transaction.commit();
+      return NPUResponseOK.createCorrelated(command);
     }
   }
 }

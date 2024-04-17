@@ -16,10 +16,11 @@
 
 package com.io7m.northpike.server.internal.metrics;
 
-import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.NPUserConnected;
+import com.io7m.northpike.model.agents.NPAgentConnected;
 import com.io7m.repetoir.core.RPServiceType;
 
-import java.time.Duration;
+import java.util.List;
 
 /**
  * The interface exposed by the metrics service.
@@ -28,20 +29,22 @@ import java.time.Duration;
 public interface NPMetricsServiceType extends AutoCloseable, RPServiceType
 {
   /**
-   * Set the number of connected agents.
+   * Report that the given agents are connected.
    *
-   * @param count The number of connected agents
+   * @param agents The agents
    */
 
-  void setAgentsConnected(int count);
+  void setAgentsConnected(
+    List<NPAgentConnected> agents);
 
   /**
-   * Set the number of connected users.
+   * Report that the given users are connected.
    *
-   * @param count The number of connected users
+   * @param users The users
    */
 
-  void setUsersConnected(int count);
+  void setUsersConnected(
+    List<NPUserConnected> users);
 
   /**
    * Set the number of assignments currently executing.
@@ -49,7 +52,8 @@ public interface NPMetricsServiceType extends AutoCloseable, RPServiceType
    * @param count The number of assignments executing
    */
 
-  void setAssignmentsExecuting(int count);
+  void setAssignmentsExecuting(
+    int count);
 
   /**
    * Set the number of requests currently enqueued.
@@ -57,18 +61,8 @@ public interface NPMetricsServiceType extends AutoCloseable, RPServiceType
    * @param count The number of assignments requests in the queue
    */
 
-  void setAssignmentsQueueSize(int count);
-
-  /**
-   * Report that the given agent is connected with the given latency.
-   *
-   * @param agentId  The agent ID
-   * @param duration The latency
-   */
-
-  void setAgentLatency(
-    NPAgentID agentId,
-    Duration duration);
+  void setAssignmentsQueueSize(
+    int count);
 
   /**
    * The archive service produced a 4xx status code.

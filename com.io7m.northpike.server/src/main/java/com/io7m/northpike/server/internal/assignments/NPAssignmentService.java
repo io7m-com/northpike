@@ -209,8 +209,7 @@ public final class NPAssignmentService implements NPAssignmentServiceType
     final NPAssignmentExecutionID executionId,
     final Throwable e)
   {
-    try (var connection = this.database.openConnection(NORTHPIKE);
-         var transaction = connection.openTransaction()) {
+    try (var transaction = this.database.transaction(NORTHPIKE)) {
       NPAssignmentLogging.recordException(
         transaction,
         executionId,
@@ -265,8 +264,7 @@ public final class NPAssignmentService implements NPAssignmentServiceType
 
   private void cancelOldAssignmentsInSpan()
   {
-    try (var conn = this.database.openConnection(NORTHPIKE);
-         var transaction = conn.openTransaction()) {
+    try (var transaction = this.database.transaction(NORTHPIKE)) {
       final var updated =
         transaction.queries(AssignmentExecutionsCancelAllType.class)
           .execute(NPDatabaseUnit.UNIT);

@@ -7,6 +7,7 @@ then
 fi
 
 exec /usr/bin/env java \
+${NORTHPIKE_JAVA_OPTIONS} \
 -p "${NORTHPIKE_HOME}/lib" \
 -m com.io7m.northpike.server.main/com.io7m.northpike.server.main.NPServerMain \
 "$@"

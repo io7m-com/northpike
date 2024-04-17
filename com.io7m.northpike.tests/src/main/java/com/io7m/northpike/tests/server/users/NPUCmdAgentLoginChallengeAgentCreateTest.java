@@ -68,6 +68,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for a command.
@@ -76,7 +77,6 @@ import static org.mockito.ArgumentMatchers.eq;
 public final class NPUCmdAgentLoginChallengeAgentCreateTest
 {
   private NPUserCommandContextType context;
-  private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private NPAgentKeyPublicEd448Type key;
   private NPStrings strings;
@@ -102,17 +102,15 @@ public final class NPUCmdAgentLoginChallengeAgentCreateTest
     this.context =
       Mockito.mock(NPUserCommandContextType.class);
 
-    Mockito.when(this.context.services())
+    when(this.context.services())
       .thenReturn(this.services);
 
-    this.connection =
-      Mockito.mock(NPDatabaseConnectionType.class);
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
 
-    Mockito.when(this.context.databaseConnection())
-      .thenReturn(this.connection);
-    Mockito.when(this.connection.openTransaction())
+    when(this.context.transaction())
+      .thenReturn(this.transaction);
+    when(this.context.transaction(any()))
       .thenReturn(this.transaction);
 
     Mockito.doAnswer(invocationOnMock -> {
@@ -142,7 +140,7 @@ public final class NPUCmdAgentLoginChallengeAgentCreateTest
   {
     final var handler = new NPUCmdAgentLoginChallengeAgentCreate();
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenThrow(new NPPlanException(
         ERROR_AUTHENTICATION.name(),
         errorAuthentication(),
@@ -194,7 +192,7 @@ public final class NPUCmdAgentLoginChallengeAgentCreateTest
         new MSubject(Set.of())
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
 
     final var ex =
@@ -237,18 +235,18 @@ public final class NPUCmdAgentLoginChallengeAgentCreateTest
         ))
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(user);
 
     final var agentGet =
       Mockito.mock(AgentGetType.class);
-    Mockito.when(this.transaction.queries(AgentGetType.class))
+    when(this.transaction.queries(AgentGetType.class))
       .thenReturn(agentGet);
 
     final var parameters =
       new AgentGetType.Parameters(command.agent(), true);
 
-    Mockito.when(agentGet.execute(eq(parameters)))
+    when(agentGet.execute(eq(parameters)))
       .thenReturn(Optional.of(
         new NPAgentDescription(
           command.agent(),
@@ -300,7 +298,7 @@ public final class NPUCmdAgentLoginChallengeAgentCreateTest
         ))
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(user);
 
     final var agentGet =
@@ -312,22 +310,22 @@ public final class NPUCmdAgentLoginChallengeAgentCreateTest
     final var loginChallengeDelete =
       Mockito.mock(AgentLoginChallengeDeleteType.class);
 
-    Mockito.when(this.transaction.queries(AgentPutType.class))
+    when(this.transaction.queries(AgentPutType.class))
       .thenReturn(agentPut);
-    Mockito.when(this.transaction.queries(AgentLoginChallengeDeleteType.class))
+    when(this.transaction.queries(AgentLoginChallengeDeleteType.class))
       .thenReturn(loginChallengeDelete);
-    Mockito.when(this.transaction.queries(AgentGetType.class))
+    when(this.transaction.queries(AgentGetType.class))
       .thenReturn(agentGet);
-    Mockito.when(this.transaction.queries(AgentLoginChallengeGetType.class))
+    when(this.transaction.queries(AgentLoginChallengeGetType.class))
       .thenReturn(loginChallengeGet);
 
     final var parameters =
       new AgentGetType.Parameters(command.agent(), true);
 
-    Mockito.when(agentGet.execute(eq(parameters)))
+    when(agentGet.execute(eq(parameters)))
       .thenReturn(Optional.empty());
 
-    Mockito.when(loginChallengeGet.execute(eq(command.loginChallenge())))
+    when(loginChallengeGet.execute(eq(command.loginChallenge())))
       .thenReturn(Optional.empty());
 
     final var ex =
@@ -370,7 +368,7 @@ public final class NPUCmdAgentLoginChallengeAgentCreateTest
         ))
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(user);
 
     final var agentGet =
@@ -382,22 +380,22 @@ public final class NPUCmdAgentLoginChallengeAgentCreateTest
     final var loginChallengeDelete =
       Mockito.mock(AgentLoginChallengeDeleteType.class);
 
-    Mockito.when(this.transaction.queries(AgentPutType.class))
+    when(this.transaction.queries(AgentPutType.class))
       .thenReturn(agentPut);
-    Mockito.when(this.transaction.queries(AgentLoginChallengeDeleteType.class))
+    when(this.transaction.queries(AgentLoginChallengeDeleteType.class))
       .thenReturn(loginChallengeDelete);
-    Mockito.when(this.transaction.queries(AgentGetType.class))
+    when(this.transaction.queries(AgentGetType.class))
       .thenReturn(agentGet);
-    Mockito.when(this.transaction.queries(AgentLoginChallengeGetType.class))
+    when(this.transaction.queries(AgentLoginChallengeGetType.class))
       .thenReturn(loginChallengeGet);
 
     final var parameters =
       new AgentGetType.Parameters(command.agent(), true);
 
-    Mockito.when(agentGet.execute(eq(parameters)))
+    when(agentGet.execute(eq(parameters)))
       .thenReturn(Optional.empty());
 
-    Mockito.when(loginChallengeGet.execute(eq(command.loginChallenge())))
+    when(loginChallengeGet.execute(eq(command.loginChallenge())))
       .thenReturn(Optional.of(
         new NPAgentLoginChallengeRecord(
           OffsetDateTime.now(),

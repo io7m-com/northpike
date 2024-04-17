@@ -21,9 +21,9 @@ import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
-import com.io7m.northpike.telemetry.api.NPEventType;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Map;
 
 /**
@@ -33,6 +33,7 @@ import java.util.Map;
  * @param url      The URL
  * @param provider The provider
  * @param commits The number of new commits
+ * @param timeTaken The time taken for the update
  */
 
 @NPDocumentation("A repository was updated.")
@@ -40,8 +41,9 @@ public record NPRepositoryUpdated(
   NPRepositoryID id,
   URI url,
   RDottedName provider,
-  long commits)
-  implements NPEventType
+  long commits,
+  Duration timeTaken)
+  implements NPRepositoryEventType
 {
   @Override
   public NPEventSeverity severity()
@@ -68,7 +70,8 @@ public record NPRepositoryUpdated(
       Map.entry("RepositoryID", this.id.toString()),
       Map.entry("RepositoryProvider", this.provider.value()),
       Map.entry("RepositoryURL", this.url.toString()),
-      Map.entry("RepositoryCommitsNew", Long.toUnsignedString(this.commits))
+      Map.entry("RepositoryCommitsNew", Long.toUnsignedString(this.commits)),
+      Map.entry("RepositoryUpdateDuration", this.timeTaken.toString())
     );
   }
 }

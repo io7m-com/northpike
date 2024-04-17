@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -15,23 +15,26 @@
  */
 
 
-package com.io7m.northpike.server.internal.users;
+package com.io7m.northpike.server.internal.repositories;
 
 import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.telemetry.api.NPEventType;
 
 /**
- * The type of user service events.
+ * The type of repository events.
  */
 
-@NPDocumentation("The type of user service events.")
-public sealed interface NPUserEventType
+@NPDocumentation("The type of repository service events.")
+public sealed interface NPRepositoryEventType
   extends NPEventType
-  permits NPUserAuthenticated,
-  NPUserConnected,
-  NPUserDisconnected,
-  NPUserMessageProcessed,
-  NPUserServiceStarted
+  permits NPRepositoryArchiveCreated,
+  NPRepositoryCloseFailed,
+  NPRepositoryClosed,
+  NPRepositoryConfigureFailed,
+  NPRepositoryConfigured,
+  NPRepositoryServiceStarted,
+  NPRepositoryUpdateFailed,
+  NPRepositoryUpdated
 {
 
 }

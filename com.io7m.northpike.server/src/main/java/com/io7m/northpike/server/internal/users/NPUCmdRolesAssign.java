@@ -57,38 +57,36 @@ public final class NPUCmdRolesAssign
     final Set<MRoleName> rolesGiven)
     throws NPException
   {
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
 
-        final var put =
-          transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
-        final var get =
-          transaction.queries(NPDatabaseQueriesUsersType.GetType.class);
+      final var put =
+        transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
+      final var get =
+        transaction.queries(NPDatabaseQueriesUsersType.GetType.class);
 
-        final var targetUser =
-          get.execute(command.user())
-            .orElseGet(() -> {
-              return new NPUser(
-                command.user(),
-                new IdName("X-%s".formatted(command.user())),
-                new MSubject(rolesGiven)
-              );
-            });
+      final var targetUser =
+        get.execute(command.user())
+          .orElseGet(() -> {
+            return new NPUser(
+              command.user(),
+              new IdName("X-%s".formatted(command.user())),
+              new MSubject(rolesGiven)
+            );
+          });
 
-        final var newRoles = new HashSet<>(targetUser.subject().roles());
-        newRoles.addAll(rolesGiven);
-        put.execute(
-          new NPUser(
-            targetUser.userId(),
-            targetUser.name(),
-            new MSubject(newRoles)
-          )
-        );
+      final var newRoles = new HashSet<>(targetUser.subject().roles());
+      newRoles.addAll(rolesGiven);
+      put.execute(
+        new NPUser(
+          targetUser.userId(),
+          targetUser.name(),
+          new MSubject(newRoles)
+        )
+      );
 
-        transaction.commit();
-        return NPUResponseOK.createCorrelated(command);
-      }
+      transaction.commit();
+      return NPUResponseOK.createCorrelated(command);
     }
   }
 

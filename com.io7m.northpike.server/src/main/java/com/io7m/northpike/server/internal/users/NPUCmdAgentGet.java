@@ -56,15 +56,13 @@ public final class NPUCmdAgentGet
       NPSecAction.READ.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        final var query =
-          transaction.queries(NPDatabaseQueriesAgentsType.AgentGetType.class);
-        final var agent =
-          query.execute(new Parameters(command.agent(), false));
+    try (var transaction = context.transaction()) {
+      final var query =
+        transaction.queries(NPDatabaseQueriesAgentsType.AgentGetType.class);
+      final var agent =
+        query.execute(new Parameters(command.agent(), false));
 
-        return NPUResponseAgentGet.createCorrelated(command, agent);
-      }
+      return NPUResponseAgentGet.createCorrelated(command, agent);
     }
   }
 }

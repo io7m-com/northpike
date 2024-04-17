@@ -56,19 +56,17 @@ public final class NPUCmdRepositoryPublicKeyUnassign
       NPSecAction.KEY_UNASSIGN.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
 
-        transaction.queries(RepositoryPublicKeyUnassignType.class)
-          .execute(new RepositoryPublicKeyUnassignType.Parameters(
-            command.repository(),
-            command.key()
-          ));
+      transaction.queries(RepositoryPublicKeyUnassignType.class)
+        .execute(new RepositoryPublicKeyUnassignType.Parameters(
+          command.repository(),
+          command.key()
+        ));
 
-        transaction.commit();
-        return NPUResponseOK.createCorrelated(command);
-      }
+      transaction.commit();
+      return NPUResponseOK.createCorrelated(command);
     }
   }
 }

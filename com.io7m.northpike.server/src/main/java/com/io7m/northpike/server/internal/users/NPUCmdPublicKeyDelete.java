@@ -56,14 +56,12 @@ public final class NPUCmdPublicKeyDelete
       NPSecAction.WRITE.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
-        transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyDeleteType.class)
-          .execute(command.fingerprint());
-        transaction.commit();
-        return NPUResponseOK.createCorrelated(command);
-      }
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+      transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyDeleteType.class)
+        .execute(command.fingerprint());
+      transaction.commit();
+      return NPUResponseOK.createCorrelated(command);
     }
   }
 }

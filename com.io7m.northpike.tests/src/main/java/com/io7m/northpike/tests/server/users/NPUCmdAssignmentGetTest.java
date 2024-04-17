@@ -55,6 +55,7 @@ import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for a command.
@@ -63,7 +64,6 @@ import static org.mockito.ArgumentMatchers.any;
 public final class NPUCmdAssignmentGetTest
 {
   private NPUserCommandContextType context;
-  private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
 
   @BeforeEach
@@ -75,14 +75,12 @@ public final class NPUCmdAssignmentGetTest
     this.context =
       Mockito.mock(NPUserCommandContextType.class);
 
-    this.connection =
-      Mockito.mock(NPDatabaseConnectionType.class);
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
 
-    Mockito.when(this.context.databaseConnection())
-      .thenReturn(this.connection);
-    Mockito.when(this.connection.openTransaction())
+    when(this.context.transaction())
+      .thenReturn(this.transaction);
+    when(this.context.transaction(any()))
       .thenReturn(this.transaction);
 
     Mockito.doAnswer(invocationOnMock -> {
@@ -112,7 +110,7 @@ public final class NPUCmdAssignmentGetTest
   {
     final var handler = new NPUCmdAssignmentGet();
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenThrow(new NPPlanException(
         ERROR_AUTHENTICATION.name(),
         errorAuthentication(),
@@ -122,7 +120,7 @@ public final class NPUCmdAssignmentGetTest
 
     final var command =
       new NPUCommandAssignmentGet(
-        UUID.randomUUID(),
+        randomUUID(),
         NPAssignmentName.of("a.x.y")
       );
 
@@ -149,7 +147,7 @@ public final class NPUCmdAssignmentGetTest
 
     final var command =
       new NPUCommandAssignmentGet(
-        UUID.randomUUID(),
+        randomUUID(),
         NPAssignmentName.of("a.x.y")
       );
 
@@ -160,7 +158,7 @@ public final class NPUCmdAssignmentGetTest
         new MSubject(Set.of())
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
 
     final var ex =
@@ -186,7 +184,7 @@ public final class NPUCmdAssignmentGetTest
 
     final var command =
       new NPUCommandAssignmentGet(
-        UUID.randomUUID(),
+        randomUUID(),
         NPAssignmentName.of("a.x.y")
       );
 
@@ -197,16 +195,16 @@ public final class NPUCmdAssignmentGetTest
         new MSubject(Set.of(NPSecRole.ASSIGNMENTS_READER.role()))
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
 
     final var assignGet =
       Mockito.mock(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class))
+    when(this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class))
       .thenReturn(assignGet);
 
-    Mockito.when(assignGet.execute(any()))
+    when(assignGet.execute(any()))
       .thenReturn(Optional.empty());
 
     final var r = handler.execute(this.context, command);
@@ -229,7 +227,7 @@ public final class NPUCmdAssignmentGetTest
 
     final var command =
       new NPUCommandAssignmentGet(
-        UUID.randomUUID(),
+        randomUUID(),
         NPAssignmentName.of("a.x.y")
       );
 
@@ -240,13 +238,13 @@ public final class NPUCmdAssignmentGetTest
         new MSubject(Set.of(NPSecRole.ASSIGNMENTS_READER.role()))
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
 
     final var assignGet =
       Mockito.mock(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class))
+    when(this.transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class))
       .thenReturn(assignGet);
 
     final var assignment =
@@ -257,7 +255,7 @@ public final class NPUCmdAssignmentGetTest
         NPAssignmentScheduleNone.SCHEDULE_NONE
       );
 
-    Mockito.when(assignGet.execute(any()))
+    when(assignGet.execute(any()))
       .thenReturn(Optional.of(assignment));
 
     final var r = handler.execute(this.context, command);

@@ -60,75 +60,6 @@ public final class NPUCmdAgentLoginChallengeAgentCreate
     super(NPUCommandAgentLoginChallengeAgentCreate.class);
   }
 
-  @Override
-  public NPUResponseOK execute(
-    final NPUserCommandContextType context,
-    final NPUCommandAgentLoginChallengeAgentCreate command)
-    throws NPException
-  {
-    final var user = context.onAuthenticationRequire();
-    NPSecurity.check(
-      user.userId(),
-      user.subject(),
-      NPSecObject.AGENT_LOGIN_CHALLENGES.object(),
-      NPSecAction.READ.action()
-    );
-    NPSecurity.check(
-      user.userId(),
-      user.subject(),
-      NPSecObject.AGENT_LOGIN_CHALLENGES.object(),
-      NPSecAction.DELETE.action()
-    );
-    NPSecurity.check(
-      user.userId(),
-      user.subject(),
-      NPSecObject.AGENTS.object(),
-      NPSecAction.WRITE.action()
-    );
-
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
-
-        /*
-         * We want to include deleted agents so that we don't try to create
-         * a "new" agent with the same ID.
-         */
-
-        final var existingAgent =
-          transaction.queries(AgentGetType.class)
-            .execute(new AgentGetType.Parameters(command.agent(), true));
-
-        if (existingAgent.isPresent()) {
-          throw errorAgentAlreadyExists(context, command.agent());
-        }
-
-        final var existingChallenge =
-          transaction.queries(AgentLoginChallengeGetType.class)
-            .execute(command.loginChallenge())
-            .orElseThrow(() -> {
-              return errorNoSuchChallenge(context, command.loginChallenge());
-            });
-
-        transaction.queries(AgentPutType.class)
-          .execute(new NPAgentDescription(
-            command.agent(),
-            command.name(),
-            existingChallenge.key(),
-            Map.of(),
-            Map.of(),
-            Map.of()
-          ));
-
-        transaction.queries(AgentLoginChallengeDeleteType.class)
-          .execute(command.loginChallenge());
-
-        transaction.commit();
-        return NPUResponseOK.createCorrelated(command);
-      }
-    }
-  }
-
   private static NPException errorNoSuchChallenge(
     final NPUserCommandContextType context,
     final UUID challenge)
@@ -163,5 +94,72 @@ public final class NPUCmdAgentLoginChallengeAgentCreate
       ),
       Optional.empty()
     );
+  }
+
+  @Override
+  public NPUResponseOK execute(
+    final NPUserCommandContextType context,
+    final NPUCommandAgentLoginChallengeAgentCreate command)
+    throws NPException
+  {
+    final var user = context.onAuthenticationRequire();
+    NPSecurity.check(
+      user.userId(),
+      user.subject(),
+      NPSecObject.AGENT_LOGIN_CHALLENGES.object(),
+      NPSecAction.READ.action()
+    );
+    NPSecurity.check(
+      user.userId(),
+      user.subject(),
+      NPSecObject.AGENT_LOGIN_CHALLENGES.object(),
+      NPSecAction.DELETE.action()
+    );
+    NPSecurity.check(
+      user.userId(),
+      user.subject(),
+      NPSecObject.AGENTS.object(),
+      NPSecAction.WRITE.action()
+    );
+
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+
+      /*
+       * We want to include deleted agents so that we don't try to create
+       * a "new" agent with the same ID.
+       */
+
+      final var existingAgent =
+        transaction.queries(AgentGetType.class)
+          .execute(new AgentGetType.Parameters(command.agent(), true));
+
+      if (existingAgent.isPresent()) {
+        throw errorAgentAlreadyExists(context, command.agent());
+      }
+
+      final var existingChallenge =
+        transaction.queries(AgentLoginChallengeGetType.class)
+          .execute(command.loginChallenge())
+          .orElseThrow(() -> {
+            return errorNoSuchChallenge(context, command.loginChallenge());
+          });
+
+      transaction.queries(AgentPutType.class)
+        .execute(new NPAgentDescription(
+          command.agent(),
+          command.name(),
+          existingChallenge.key(),
+          Map.of(),
+          Map.of(),
+          Map.of()
+        ));
+
+      transaction.queries(AgentLoginChallengeDeleteType.class)
+        .execute(command.loginChallenge());
+
+      transaction.commit();
+      return NPUResponseOK.createCorrelated(command);
+    }
   }
 }

@@ -67,24 +67,22 @@ public final class NPACmdLogin
      */
 
     final NPAgentLoginChallengeRecord challenge;
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        final var existingChallenge =
-          transaction.queries(AgentLoginChallengeGetForKeyType.class)
-            .execute(command.key());
+    try (var transaction = context.transaction()) {
+      final var existingChallenge =
+        transaction.queries(AgentLoginChallengeGetForKeyType.class)
+          .execute(command.key());
 
-        challenge = existingChallenge.orElseGet(() -> {
-          return new NPAgentLoginChallengeRecord(
-            clock.now(),
-            context.sourceAddress(),
-            command.key(),
-            NPAgentLoginChallenge.generate()
-          );
-        });
+      challenge = existingChallenge.orElseGet(() -> {
+        return new NPAgentLoginChallengeRecord(
+          clock.now(),
+          context.sourceAddress(),
+          command.key(),
+          NPAgentLoginChallenge.generate()
+        );
+      });
 
-        transaction.queries(AgentLoginChallengePutType.class).execute(challenge);
-        transaction.commit();
-      }
+      transaction.queries(AgentLoginChallengePutType.class).execute(challenge);
+      transaction.commit();
     }
 
     if (agentOpt.isEmpty()) {

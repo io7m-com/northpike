@@ -24,6 +24,7 @@ import com.io7m.northpike.protocol.user.NPUResponseUserRolesGet;
 
 import java.util.UUID;
 
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
 import static com.io7m.northpike.model.NPStandardErrorCodes.errorNonexistent;
 import static com.io7m.northpike.strings.NPStringConstants.ERROR_NONEXISTENT;
 
@@ -52,23 +53,21 @@ public final class NPUCmdRolesGet
   {
     context.onAuthenticationRequire();
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        final var get =
-          transaction.queries(NPDatabaseQueriesUsersType.GetType.class);
+    try (var transaction = context.transaction(NORTHPIKE_READ_ONLY)) {
+      final var get =
+        transaction.queries(NPDatabaseQueriesUsersType.GetType.class);
 
-        final var targetUser =
-          get.execute(command.user())
-            .orElseThrow(() -> {
-              return context.fail(ERROR_NONEXISTENT, errorNonexistent());
-            });
+      final var targetUser =
+        get.execute(command.user())
+          .orElseThrow(() -> {
+            return context.fail(ERROR_NONEXISTENT, errorNonexistent());
+          });
 
-        return new NPUResponseUserRolesGet(
-          UUID.randomUUID(),
-          command.messageID(),
-          targetUser.subject().roles()
-        );
-      }
+      return new NPUResponseUserRolesGet(
+        UUID.randomUUID(),
+        command.messageID(),
+        targetUser.subject().roles()
+      );
     }
   }
 }

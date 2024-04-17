@@ -56,15 +56,13 @@ public final class NPUCmdAgentLabelDelete
       NPSecAction.DELETE.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
-        transaction.queries(NPDatabaseQueriesAgentsType.AgentLabelDeleteType.class)
-          .execute(command.labels());
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+      transaction.queries(NPDatabaseQueriesAgentsType.AgentLabelDeleteType.class)
+        .execute(command.labels());
 
-        transaction.commit();
-        return NPUResponseOK.createCorrelated(command);
-      }
+      transaction.commit();
+      return NPUResponseOK.createCorrelated(command);
     }
   }
 }

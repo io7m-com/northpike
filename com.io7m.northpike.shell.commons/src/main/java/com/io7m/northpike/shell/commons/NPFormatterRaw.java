@@ -33,6 +33,7 @@ import com.io7m.northpike.model.NPToolExecutionDescriptionSummary;
 import com.io7m.northpike.model.NPToolSummary;
 import com.io7m.northpike.model.NPUser;
 import com.io7m.northpike.model.NPWorkItem;
+import com.io7m.northpike.model.agents.NPAgentConnected;
 import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentKeyPublicType;
@@ -783,6 +784,30 @@ public final class NPFormatterRaw implements NPFormatterType
         item.stateName(),
         item.request().assignment(),
         item.request().commit()
+      );
+    }
+    out.flush();
+  }
+
+  @Override
+  public void formatAgentsConnected(
+    final Set<NPAgentConnected> agents)
+  {
+    final var out = this.terminal.writer();
+    out.println("# ID | Remote Address | Remote Port | Latency");
+
+    final var agentList =
+      agents.stream()
+        .sorted(Comparator.comparing(o -> o.agentID().value()))
+        .toList();
+
+    for (final var agent : agentList) {
+      out.printf(
+        "%s | %s | %d | %s%n",
+        agent.agentID().toString(),
+        agent.address().getHostString(),
+        Integer.valueOf(agent.address().getPort()),
+        agent.latency().toString()
       );
     }
     out.flush();

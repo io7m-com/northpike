@@ -21,6 +21,7 @@ import com.io7m.northpike.database.api.NPDatabaseConnectionType;
 import com.io7m.northpike.database.api.NPDatabaseException;
 import com.io7m.northpike.database.api.NPDatabaseRole;
 import com.io7m.northpike.database.api.NPDatabaseTransactionType;
+import com.io7m.northpike.database.postgres.internal.NPDatabaseTransaction.CloseBehavior;
 import com.io7m.northpike.model.NPStandardErrorCodes;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.context.Context;
@@ -32,6 +33,7 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.io7m.northpike.database.postgres.internal.NPDatabaseTransaction.CloseBehavior.ON_CLOSE_DO_NOTHING;
 import static java.util.Objects.requireNonNullElse;
 
 record NPDatabaseConnection(
@@ -46,6 +48,13 @@ record NPDatabaseConnection(
   public NPDatabaseTransactionType openTransaction()
     throws NPDatabaseException
   {
+    return this.openTransactionWithCloseBehavior(ON_CLOSE_DO_NOTHING);
+  }
+
+  NPDatabaseTransaction openTransactionWithCloseBehavior(
+    final NPDatabaseTransaction.CloseBehavior closeBehavior)
+    throws NPDatabaseException
+  {
     final var transactionSpan =
       this.database.tracer()
         .spanBuilder("NPDatabaseTransaction")
@@ -55,6 +64,7 @@ record NPDatabaseConnection(
     try {
       final var t =
         new NPDatabaseTransaction(
+          closeBehavior,
           this,
           transactionSpan
         );

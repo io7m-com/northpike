@@ -60,7 +60,6 @@ import static org.mockito.ArgumentMatchers.any;
 public final class NPUCmdRolesRevokeTest
 {
   private NPUserCommandContextType context;
-  private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private NPDatabaseQueriesUsersType.GetType userGet;
   private NPDatabaseQueriesUsersType.PutType userPut;
@@ -74,8 +73,6 @@ public final class NPUCmdRolesRevokeTest
     this.context =
       Mockito.mock(NPUserCommandContextType.class);
 
-    this.connection =
-      Mockito.mock(NPDatabaseConnectionType.class);
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
     this.userGet =
@@ -83,9 +80,9 @@ public final class NPUCmdRolesRevokeTest
     this.userPut =
       Mockito.mock(NPDatabaseQueriesUsersType.PutType.class);
 
-    Mockito.when(this.context.databaseConnection())
-      .thenReturn(this.connection);
-    Mockito.when(this.connection.openTransaction())
+    Mockito.when(this.context.transaction())
+      .thenReturn(this.transaction);
+    Mockito.when(this.context.transaction(any()))
       .thenReturn(this.transaction);
 
     Mockito.when(this.transaction.queries(NPDatabaseQueriesUsersType.GetType.class))

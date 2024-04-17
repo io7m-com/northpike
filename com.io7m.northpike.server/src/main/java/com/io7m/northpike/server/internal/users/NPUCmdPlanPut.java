@@ -105,14 +105,12 @@ public final class NPUCmdPlanPut
     }
 
     if (result instanceof final NPPlanCompilationResultType.Success s) {
-      try (var connection = context.databaseConnection()) {
-        try (var transaction = connection.openTransaction()) {
-          transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
-          transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class)
-            .execute(new Parameters(s.plan(), serializer));
-          transaction.commit();
-          return NPUResponseOK.createCorrelated(command);
-        }
+      try (var transaction = context.transaction()) {
+        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+        transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class)
+          .execute(new Parameters(s.plan(), serializer));
+        transaction.commit();
+        return NPUResponseOK.createCorrelated(command);
       }
     }
 

@@ -25,6 +25,8 @@ import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetByKey
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetByKeyType.Parameters;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentGetType;
 import com.io7m.northpike.database.api.NPDatabaseQueriesAgentsType.AgentPutType;
+import com.io7m.northpike.database.api.NPDatabaseRole;
+import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPAuditOwnerType;
 import com.io7m.northpike.model.NPErrorCode;
@@ -32,6 +34,7 @@ import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.agents.NPAgentConnected;
 import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentKeyID;
@@ -102,9 +105,10 @@ public final class NPAgentTask
   private final ConcurrentLinkedQueue<InternalCommandType> enqueuedCommands;
   private final HashMap<String, String> attributes;
   private final RPServiceDirectoryType services;
-  private NPAgentID agentId;
-  private NPAMessageType messageCurrent;
+  private volatile NPAgentID agentId;
+  private volatile NPAMessageType messageCurrent;
   private volatile NPWorkItem workItemNow;
+  private volatile Duration latency = Duration.ZERO;
 
   private NPAgentTask(
     final NPAgentServerConnectionType inConnection,
@@ -324,12 +328,12 @@ public final class NPAgentTask
     final var timeNow =
       OffsetDateTime.now(this.clock.clock());
 
-    if (response instanceof final NPAResponseLatencyCheck latency) {
+    if (response instanceof NPAResponseLatencyCheck) {
       final var duration =
         Duration.between(command.timeCurrent(), timeNow);
 
       LOG.trace("Latency: RTT {}", duration);
-      this.metrics.setAgentLatency(this.agentId, duration);
+      this.latency = duration;
     }
   }
 
@@ -476,6 +480,14 @@ public final class NPAgentTask
   }
 
   @Override
+  public NPDatabaseTransactionType transaction(
+    final NPDatabaseRole role)
+    throws NPException
+  {
+    return this.database.transaction(role);
+  }
+
+  @Override
   public void onWorkItemStatusChanged(
     final NPWorkItemIdentifier identifier,
     final NPWorkItemStatus status)
@@ -498,11 +510,9 @@ public final class NPAgentTask
   {
     Objects.requireNonNull(id, "id");
 
-    try (var dbConn = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
-      try (var transaction = dbConn.openTransaction()) {
-        final var get = transaction.queries(AgentGetType.class);
-        return get.execute(new AgentGetType.Parameters(id, false));
-      }
+    try (var transaction = this.database.transaction(NORTHPIKE_READ_ONLY)) {
+      return transaction.queries(AgentGetType.class)
+        .execute(new AgentGetType.Parameters(id, false));
     }
   }
 
@@ -513,11 +523,9 @@ public final class NPAgentTask
   {
     Objects.requireNonNull(key, "key");
 
-    try (var dbConn = this.database.openConnection(NORTHPIKE_READ_ONLY)) {
-      try (var transaction = dbConn.openTransaction()) {
-        final var get = transaction.queries(AgentGetByKeyType.class);
-        return get.execute(new Parameters(key, false));
-      }
+    try (var transaction = this.database.transaction(NORTHPIKE_READ_ONLY)) {
+      return transaction.queries(AgentGetByKeyType.class)
+        .execute(new Parameters(key, false));
     }
   }
 
@@ -528,14 +536,13 @@ public final class NPAgentTask
   {
     Objects.requireNonNull(agent, "agent");
 
-    try (var dbConn = this.database.openConnection(NORTHPIKE)) {
-      try (var transaction = dbConn.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.Agent(this.agentId));
+    try (var transaction = this.database.transaction(NORTHPIKE)) {
+      transaction.setOwner(new NPAuditOwnerType.Agent(this.agentId));
 
-        final var put = transaction.queries(AgentPutType.class);
-        put.execute(agent);
-        transaction.commit();
-      }
+      final var put =
+        transaction.queries(AgentPutType.class);
+      put.execute(agent);
+      transaction.commit();
     }
   }
 
@@ -549,9 +556,9 @@ public final class NPAgentTask
     this.workItemNow =
       new NPWorkItem(identifier, Optional.of(this.agentId), WORK_ITEM_ACCEPTED);
 
-    try (var dbConn = this.database.openConnection(NORTHPIKE)) {
+    try (var transaction = this.database.transaction(NORTHPIKE)) {
       NPWorkItemUpdates.setWorkItemStatus(
-        dbConn,
+        transaction,
         this::fail,
         this.agentId,
         identifier,
@@ -682,6 +689,22 @@ public final class NPAgentTask
   public Optional<NPWorkItem> workItemExecutingNow()
   {
     return Optional.ofNullable(this.workItemNow);
+  }
+
+  /**
+   * @return Information about the connected agent
+   */
+
+  public Optional<NPAgentConnected> agentConnected()
+  {
+    return this.agentId()
+      .map(id -> {
+        return new NPAgentConnected(
+          id,
+          this.connection.remoteAddress(),
+          this.latency
+        );
+      });
   }
 
   /**

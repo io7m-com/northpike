@@ -17,7 +17,6 @@
 package com.io7m.northpike.server.internal.users;
 
 import com.io7m.northpike.model.NPDocumentation;
-import com.io7m.northpike.server.internal.agents.NPAgentEventType;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
 import java.net.InetAddress;
@@ -34,7 +33,7 @@ import java.util.Map;
 public record NPUserConnected(
   InetAddress address,
   int port)
-  implements NPAgentEventType
+  implements NPUserEventType
 {
   @Override
   public NPEventSeverity severity()

@@ -28,6 +28,8 @@ import com.io7m.northpike.server.internal.security.NPSecurity;
 
 import java.util.UUID;
 
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
+
 /**
  * @see NPUCommandAgentSearchBegin
  */
@@ -58,20 +60,18 @@ public final class NPUCmdAgentSearchBegin
       NPSecAction.READ.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        final var paged =
-          transaction.queries(NPDatabaseQueriesAgentsType.AgentListType.class)
-            .execute(command.parameters());
+    try (var transaction = context.transaction(NORTHPIKE_READ_ONLY)) {
+      final var paged =
+        transaction.queries(NPDatabaseQueriesAgentsType.AgentListType.class)
+          .execute(command.parameters());
 
-        context.setProperty(NPAgentPagedType.class, paged);
+      context.setProperty(NPAgentPagedType.class, paged);
 
-        return new NPUResponseAgentSearch(
-          UUID.randomUUID(),
-          command.messageID(),
-          paged.pageCurrent(transaction)
-        );
-      }
+      return new NPUResponseAgentSearch(
+        UUID.randomUUID(),
+        command.messageID(),
+        paged.pageCurrent(transaction)
+      );
     }
   }
 }

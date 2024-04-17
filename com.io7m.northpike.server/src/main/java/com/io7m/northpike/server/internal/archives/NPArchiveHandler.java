@@ -18,7 +18,7 @@
 package com.io7m.northpike.server.internal.archives;
 
 import com.io7m.northpike.database.api.NPDatabaseException;
-import com.io7m.northpike.database.api.NPDatabaseQueriesArchivesType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesArchivesType.ArchiveGetType;
 import com.io7m.northpike.database.api.NPDatabaseType;
 import com.io7m.northpike.model.NPArchive;
 import com.io7m.northpike.model.NPToken;
@@ -136,11 +136,9 @@ public final class NPArchiveHandler implements Handler
     final var token =
       new NPToken(withoutLeading);
 
-    try (var connection = this.database.openConnection(NORTHPIKE_READ_ONLY);
-         var transaction = connection.openTransaction()) {
-      final var get =
-        transaction.queries(NPDatabaseQueriesArchivesType.ArchiveGetType.class);
-      return get.execute(token);
+    try (var transaction = this.database.transaction(NORTHPIKE_READ_ONLY)) {
+      return transaction.queries(ArchiveGetType.class)
+        .execute(token);
     }
   }
 }

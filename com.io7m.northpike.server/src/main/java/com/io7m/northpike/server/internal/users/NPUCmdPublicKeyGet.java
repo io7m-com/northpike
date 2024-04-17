@@ -26,6 +26,8 @@ import com.io7m.northpike.protocol.user.NPUCommandPublicKeyGet;
 import com.io7m.northpike.protocol.user.NPUResponsePublicKeyGet;
 import com.io7m.northpike.server.internal.security.NPSecurity;
 
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
+
 /**
  * @see NPUCommandPublicKeyGet
  */
@@ -56,15 +58,13 @@ public final class NPUCmdPublicKeyGet
       NPSecAction.READ.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        return NPUResponsePublicKeyGet.createCorrelated(
-          command,
-          transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyGetType.class)
-            .execute(command.fingerprint())
-            .map(NPPublicKey::encodedForm)
-        );
-      }
+    try (var transaction = context.transaction(NORTHPIKE_READ_ONLY)) {
+      return NPUResponsePublicKeyGet.createCorrelated(
+        command,
+        transaction.queries(NPDatabaseQueriesPublicKeysType.PublicKeyGetType.class)
+          .execute(command.fingerprint())
+          .map(NPPublicKey::encodedForm)
+      );
     }
   }
 }

@@ -20,10 +20,11 @@ package com.io7m.northpike.protocol.user.cb.internal;
 import com.io7m.cedarbridge.runtime.api.CBUUID;
 import com.io7m.cedarbridge.runtime.convenience.CBLists;
 import com.io7m.cedarbridge.runtime.convenience.CBSets;
-import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
 import com.io7m.northpike.protocol.user.NPUResponseAgentsConnected;
 import com.io7m.northpike.protocol.user.cb.NPU1ResponseAgentsConnected;
+
+import static com.io7m.northpike.protocol.user.cb.internal.NPUVAgentConnected.AGENT_CONNECTED;
 
 /**
  * A validator.
@@ -48,7 +49,7 @@ public enum NPUVResponseAgentsConnected
       new CBUUID(message.correlationID()),
       CBLists.ofCollection(
         message.agents(),
-        x -> new CBUUID(x.value())
+        AGENT_CONNECTED::convertToWire
       )
     );
   }
@@ -62,7 +63,7 @@ public enum NPUVResponseAgentsConnected
       message.fieldCorrelationId().value(),
       CBSets.toSet(
         message.fieldResults(),
-        x -> new NPAgentID(x.value())
+        AGENT_CONNECTED::convertFromWire
       )
     );
   }

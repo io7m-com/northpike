@@ -63,6 +63,7 @@ import static com.io7m.northpike.tests.server.users.NPUCmdPlanGetTest.PLAN_DESCR
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for a command.
@@ -71,7 +72,6 @@ import static org.mockito.ArgumentMatchers.any;
 public final class NPUCmdPlanPutTest
 {
   private NPUserCommandContextType context;
-  private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private RPServiceDirectory services;
   private NPPlanCompilerFactoryType compilers;
@@ -101,19 +101,17 @@ public final class NPUCmdPlanPutTest
     this.services.register(NPPlanCompilerFactoryType.class, this.compilers);
     this.services.register(NPPlanSerializerFactoryType.class, this.serializers);
 
-    Mockito.when(this.context.services())
+    when(this.context.services())
       .thenReturn(this.services);
-    Mockito.when(this.compilers.create(any()))
+    when(this.compilers.create(any()))
       .thenReturn(this.compiler);
 
-    this.connection =
-      Mockito.mock(NPDatabaseConnectionType.class);
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
 
-    Mockito.when(this.context.databaseConnection())
-      .thenReturn(this.connection);
-    Mockito.when(this.connection.openTransaction())
+    when(this.context.transaction())
+      .thenReturn(this.transaction);
+    when(this.context.transaction(any()))
       .thenReturn(this.transaction);
 
     Mockito.doAnswer(invocationOnMock -> {
@@ -159,7 +157,7 @@ public final class NPUCmdPlanPutTest
   {
     final var handler = new NPUCmdPlanPut();
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenThrow(new NPPlanException(
         ERROR_AUTHENTICATION.name(),
         errorAuthentication(),
@@ -207,7 +205,7 @@ public final class NPUCmdPlanPutTest
         new MSubject(Set.of())
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
 
     final var ex =
@@ -244,7 +242,7 @@ public final class NPUCmdPlanPutTest
         new MSubject(Set.of(NPSecRole.PLANS_WRITER.role()))
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
 
     final var failure =
@@ -260,7 +258,7 @@ public final class NPUCmdPlanPutTest
         )
       );
 
-    Mockito.when(this.compiler.execute(any(), any()))
+    when(this.compiler.execute(any(), any()))
       .thenReturn(failure);
 
     final var ex =
@@ -297,10 +295,10 @@ public final class NPUCmdPlanPutTest
         new MSubject(Set.of(NPSecRole.PLANS_WRITER.role()))
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(user);
 
-    Mockito.when(this.compiler.execute(any(), any()))
+    when(this.compiler.execute(any(), any()))
       .thenReturn(new NPPlanCompilationResultType.Success(
         Mockito.mock(NPPlanType.class)
       ));
@@ -308,7 +306,7 @@ public final class NPUCmdPlanPutTest
     final var put =
       Mockito.mock(NPDatabaseQueriesPlansType.PlanPutType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class))
+    when(this.transaction.queries(NPDatabaseQueriesPlansType.PlanPutType.class))
       .thenReturn(put);
 
     final var r =

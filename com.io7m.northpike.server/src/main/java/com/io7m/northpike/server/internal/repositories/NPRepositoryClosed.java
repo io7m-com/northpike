@@ -21,7 +21,6 @@ import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
-import com.io7m.northpike.telemetry.api.NPEventType;
 
 import java.net.URI;
 import java.util.Map;
@@ -39,7 +38,7 @@ public record NPRepositoryClosed(
   NPRepositoryID id,
   URI url,
   RDottedName provider)
-  implements NPEventType
+  implements NPRepositoryEventType
 {
   @Override
   public NPEventSeverity severity()

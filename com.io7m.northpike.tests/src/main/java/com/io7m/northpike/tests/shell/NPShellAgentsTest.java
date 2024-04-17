@@ -22,6 +22,7 @@ import com.io7m.northpike.model.NPPage;
 import com.io7m.northpike.model.NPWorkItem;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemStatus;
+import com.io7m.northpike.model.agents.NPAgentConnected;
 import com.io7m.northpike.model.agents.NPAgentDescription;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.agents.NPAgentKeyPairFactoryEd448;
@@ -76,7 +77,9 @@ import org.mockito.internal.verification.Times;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Locale;
@@ -680,11 +683,26 @@ public final class NPShellAgentsTest
       UUID.randomUUID(),
       UUID.randomUUID(),
       Set.of(
-        new NPAgentID(UUID.randomUUID()),
-        new NPAgentID(UUID.randomUUID()),
-        new NPAgentID(UUID.randomUUID()),
-        new NPAgentID(UUID.randomUUID()),
-        new NPAgentID(UUID.randomUUID())
+        new NPAgentConnected(
+          new NPAgentID(UUID.randomUUID()),
+          new InetSocketAddress("localhost", 1000),
+          Duration.ofMillis(23L)
+        ),
+        new NPAgentConnected(
+          new NPAgentID(UUID.randomUUID()),
+          new InetSocketAddress("localhost", 1001),
+          Duration.ofMillis(245L)
+        ),
+        new NPAgentConnected(
+          new NPAgentID(UUID.randomUUID()),
+          new InetSocketAddress("localhost", 1002),
+          Duration.ofMillis(2000L)
+        ),
+        new NPAgentConnected(
+          new NPAgentID(UUID.randomUUID()),
+          new InetSocketAddress("localhost", 1003),
+          Duration.ofMillis(22L)
+        )
       )
     ));
 

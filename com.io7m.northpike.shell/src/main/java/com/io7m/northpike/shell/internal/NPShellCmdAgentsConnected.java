@@ -75,6 +75,6 @@ public final class NPShellCmdAgentsConnected
     final NPUResponseAgentsConnected response)
     throws Exception
   {
-    this.formatter().formatAgentIDs(response.agents());
+    this.formatter().formatAgentsConnected(response.agents());
   }
 }

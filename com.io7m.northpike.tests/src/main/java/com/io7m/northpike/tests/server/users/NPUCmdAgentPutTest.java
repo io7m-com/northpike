@@ -53,6 +53,7 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for a command.
@@ -61,7 +62,6 @@ import static org.mockito.ArgumentMatchers.any;
 public final class NPUCmdAgentPutTest
 {
   private NPUserCommandContextType context;
-  private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
 
   @BeforeEach
@@ -73,14 +73,12 @@ public final class NPUCmdAgentPutTest
     this.context =
       Mockito.mock(NPUserCommandContextType.class);
 
-    this.connection =
-      Mockito.mock(NPDatabaseConnectionType.class);
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
 
-    Mockito.when(this.context.databaseConnection())
-      .thenReturn(this.connection);
-    Mockito.when(this.connection.openTransaction())
+    when(this.context.transaction())
+      .thenReturn(this.transaction);
+    when(this.context.transaction(any()))
       .thenReturn(this.transaction);
 
     Mockito.doAnswer(invocationOnMock -> {
@@ -110,7 +108,7 @@ public final class NPUCmdAgentPutTest
   {
     final var handler = new NPUCmdAgentPut();
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenThrow(new NPPlanException(
         ERROR_AUTHENTICATION.name(),
         errorAuthentication(),
@@ -172,7 +170,7 @@ public final class NPUCmdAgentPutTest
         new MSubject(Set.of())
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
 
     final var ex =
@@ -216,7 +214,7 @@ public final class NPUCmdAgentPutTest
         new MSubject(Set.of(NPSecRole.AGENTS_WRITER.role()))
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(user);
 
     final var put =
@@ -224,11 +222,11 @@ public final class NPUCmdAgentPutTest
     final var get =
       Mockito.mock(NPDatabaseQueriesAgentsType.AgentGetType.class);
 
-    Mockito.when(get.execute(any()))
+    when(get.execute(any()))
       .thenReturn(Optional.of(command.agent()));
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentPutType.class))
+    when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentPutType.class))
       .thenReturn(put);
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentGetType.class))
+    when(this.transaction.queries(NPDatabaseQueriesAgentsType.AgentGetType.class))
       .thenReturn(get);
 
     final var r = handler.execute(this.context, command);

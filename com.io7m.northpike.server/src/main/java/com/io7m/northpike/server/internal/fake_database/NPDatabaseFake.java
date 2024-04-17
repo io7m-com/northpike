@@ -56,6 +56,15 @@ public final class NPDatabaseFake implements NPDatabaseType
   }
 
   @Override
+  public NPDatabaseTransactionType transaction(
+    final NPDatabaseRole role)
+    throws NPDatabaseException
+  {
+    return new NPDatabaseFakeConnection()
+      .openTransaction();
+  }
+
+  @Override
   public String description()
   {
     return "A fake database.";

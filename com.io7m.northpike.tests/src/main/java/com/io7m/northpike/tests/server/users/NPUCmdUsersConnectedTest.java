@@ -207,17 +207,17 @@ public final class NPUCmdUsersConnectedTest
         new NPUserConnected(
           UUID.randomUUID(),
           new IdName("user0"),
-          InetSocketAddress.createUnresolved("localhost", 10000)
+          new InetSocketAddress("localhost", 10000)
         ),
         new NPUserConnected(
           UUID.randomUUID(),
           new IdName("user1"),
-          InetSocketAddress.createUnresolved("localhost", 10001)
+          new InetSocketAddress("localhost", 10001)
         ),
         new NPUserConnected(
           UUID.randomUUID(),
           new IdName("user2"),
-          InetSocketAddress.createUnresolved("localhost", 10002)
+          new InetSocketAddress("localhost", 10002)
         )
       );
 

@@ -17,13 +17,15 @@
 
 package com.io7m.northpike.server.internal.users;
 
-import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType;
+import com.io7m.northpike.database.api.NPDatabaseQueriesAssignmentsType.AssignmentGetType;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.security.NPSecAction;
 import com.io7m.northpike.model.security.NPSecObject;
 import com.io7m.northpike.protocol.user.NPUCommandAssignmentGet;
 import com.io7m.northpike.protocol.user.NPUResponseAssignmentGet;
 import com.io7m.northpike.server.internal.security.NPSecurity;
+
+import static com.io7m.northpike.database.api.NPDatabaseRole.NORTHPIKE_READ_ONLY;
 
 /**
  * @see NPUCommandAssignmentGet
@@ -55,14 +57,12 @@ public final class NPUCmdAssignmentGet
       NPSecAction.READ.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        return NPUResponseAssignmentGet.createCorrelated(
-          command,
-          transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentGetType.class)
-            .execute(command.assignment())
-        );
-      }
+    try (var transaction = context.transaction(NORTHPIKE_READ_ONLY)) {
+      return NPUResponseAssignmentGet.createCorrelated(
+        command,
+        transaction.queries(AssignmentGetType.class)
+          .execute(command.assignment())
+      );
     }
   }
 }

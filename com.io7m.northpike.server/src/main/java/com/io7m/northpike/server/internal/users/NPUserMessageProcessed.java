@@ -14,61 +14,51 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.northpike.server.internal.users;
 
-package com.io7m.northpike.server.internal.repositories;
-
-import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPDocumentation;
-import com.io7m.northpike.model.NPException;
-import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
 
-import java.net.URI;
-import java.util.HashMap;
+import java.time.Duration;
 import java.util.Map;
 
 /**
- * A repository could not be updated.
+ * A user protocol message was processed.
  *
- * @param id        The ID
- * @param url       The URL
- * @param provider  The provider
- * @param exception The exception
+ * @param messageType The message type
+ * @param timeTaken   The time taken
  */
 
-@NPDocumentation("A repository could not be updated.")
-public record NPRepositoryUpdateFailed(
-  NPRepositoryID id,
-  URI url,
-  RDottedName provider,
-  NPException exception)
-  implements NPRepositoryEventType
+@NPDocumentation("A user message was processed.")
+public record NPUserMessageProcessed(
+  String messageType,
+  Duration timeTaken)
+  implements NPUserEventType
 {
   @Override
   public NPEventSeverity severity()
   {
-    return NPEventSeverity.ERROR;
+    return NPEventSeverity.INFO;
   }
 
   @Override
   public String name()
   {
-    return "RepositoryUpdateFailed";
+    return "UserMessageProcessed";
   }
 
   @Override
   public String message()
   {
-    return "RepositoryUpdateFailed";
+    return "UserMessageProcessed";
   }
 
   @Override
   public Map<String, String> asAttributes()
   {
-    final var attributes = new HashMap<>(this.exception.attributes());
-    attributes.put("RepositoryID", this.id.toString());
-    attributes.put("RepositoryProvider", this.provider.value());
-    attributes.put("RepositoryURL", this.url.toString());
-    return Map.copyOf(attributes);
+    return Map.ofEntries(
+      Map.entry("MessageType", this.messageType),
+      Map.entry("MessageDuration", this.timeTaken.toString())
+    );
   }
 }

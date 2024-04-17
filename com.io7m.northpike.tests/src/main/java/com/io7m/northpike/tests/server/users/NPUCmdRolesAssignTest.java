@@ -51,6 +51,7 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for a command.
@@ -59,7 +60,6 @@ import static org.mockito.ArgumentMatchers.any;
 public final class NPUCmdRolesAssignTest
 {
   private NPUserCommandContextType context;
-  private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private NPDatabaseQueriesUsersType.GetType userGet;
   private NPDatabaseQueriesUsersType.PutType userPut;
@@ -72,9 +72,6 @@ public final class NPUCmdRolesAssignTest
 
     this.context =
       Mockito.mock(NPUserCommandContextType.class);
-
-    this.connection =
-      Mockito.mock(NPDatabaseConnectionType.class);
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
     this.userGet =
@@ -82,14 +79,14 @@ public final class NPUCmdRolesAssignTest
     this.userPut =
       Mockito.mock(NPDatabaseQueriesUsersType.PutType.class);
 
-    Mockito.when(this.context.databaseConnection())
-      .thenReturn(this.connection);
-    Mockito.when(this.connection.openTransaction())
+    when(this.context.transaction())
+      .thenReturn(this.transaction);
+    when(this.context.transaction(any()))
       .thenReturn(this.transaction);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesUsersType.GetType.class))
+    when(this.transaction.queries(NPDatabaseQueriesUsersType.GetType.class))
         .thenReturn(this.userGet);
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class))
+    when(this.transaction.queries(NPDatabaseQueriesUsersType.PutType.class))
       .thenReturn(this.userPut);
 
     Mockito.doAnswer(invocationOnMock -> {
@@ -119,7 +116,7 @@ public final class NPUCmdRolesAssignTest
   {
     final var handler = new NPUCmdRolesAssign();
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenThrow(new NPPlanException(
         ERROR_AUTHENTICATION.name(),
         errorAuthentication(),
@@ -178,10 +175,10 @@ public final class NPUCmdRolesAssignTest
         )
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(user0);
 
-    Mockito.when(this.userGet.execute(user1.userId()))
+    when(this.userGet.execute(user1.userId()))
       .thenReturn(Optional.of(user1));
 
     final var ex =
@@ -230,10 +227,10 @@ public final class NPUCmdRolesAssignTest
         )
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(user0);
 
-    Mockito.when(this.userGet.execute(user1.userId()))
+    when(this.userGet.execute(user1.userId()))
       .thenReturn(Optional.of(user1));
 
     final var r = handler.execute(this.context, command);
@@ -280,10 +277,10 @@ public final class NPUCmdRolesAssignTest
         )
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(user0);
 
-    Mockito.when(this.userGet.execute(user1.userId()))
+    when(this.userGet.execute(user1.userId()))
       .thenReturn(Optional.of(user1));
 
     final var r = handler.execute(this.context, command);

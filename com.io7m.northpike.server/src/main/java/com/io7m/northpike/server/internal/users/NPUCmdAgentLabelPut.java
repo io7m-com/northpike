@@ -56,13 +56,11 @@ public final class NPUCmdAgentLabelPut
       NPSecAction.WRITE.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
-        transaction.queries(NPDatabaseQueriesAgentsType.AgentLabelPutType.class)
-          .execute(command.label());
-        transaction.commit();
-      }
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+      transaction.queries(NPDatabaseQueriesAgentsType.AgentLabelPutType.class)
+        .execute(command.label());
+      transaction.commit();
     }
 
     return NPUResponseOK.createCorrelated(command);

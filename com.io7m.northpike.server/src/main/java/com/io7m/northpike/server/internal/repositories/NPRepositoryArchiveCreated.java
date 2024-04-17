@@ -21,7 +21,6 @@ import com.io7m.lanark.core.RDottedName;
 import com.io7m.northpike.model.NPDocumentation;
 import com.io7m.northpike.model.NPRepositoryID;
 import com.io7m.northpike.telemetry.api.NPEventSeverity;
-import com.io7m.northpike.telemetry.api.NPEventType;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -34,6 +33,7 @@ import java.util.Map;
  * @param url      The URL
  * @param provider The provider
  * @param file     The created file
+ * @param size     The file size
  */
 
 @NPDocumentation("An archive was created by the repository service.")
@@ -41,8 +41,9 @@ public record NPRepositoryArchiveCreated(
   NPRepositoryID id,
   URI url,
   RDottedName provider,
-  Path file)
-  implements NPEventType
+  Path file,
+  long size)
+  implements NPRepositoryEventType
 {
   @Override
   public NPEventSeverity severity()
@@ -69,7 +70,8 @@ public record NPRepositoryArchiveCreated(
       Map.entry("RepositoryID", this.id.toString()),
       Map.entry("RepositoryProvider", this.provider.value()),
       Map.entry("RepositoryURL", this.url.toString()),
-      Map.entry("RepositoryArchiveFile", this.file.toString())
+      Map.entry("RepositoryArchiveFile", this.file.toString()),
+      Map.entry("RepositoryArchiveFileSize", Long.toUnsignedString(this.size))
     );
   }
 }

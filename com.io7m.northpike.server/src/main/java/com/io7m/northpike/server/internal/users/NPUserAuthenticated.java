@@ -28,7 +28,7 @@ import java.util.UUID;
  *
  * @param address The remote address
  * @param port    The remote port
- * @param userID The user ID
+ * @param userID  The user ID
  */
 
 @NPDocumentation("A user authenticated successfully.")

@@ -18,53 +18,54 @@
 package com.io7m.northpike.protocol.user.cb.internal;
 
 import com.io7m.cedarbridge.runtime.api.CBUUID;
-import com.io7m.idstore.model.IdName;
-import com.io7m.northpike.model.NPUserConnected;
+import com.io7m.northpike.model.agents.NPAgentConnected;
+import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.protocol.api.NPProtocolMessageValidatorType;
-import com.io7m.northpike.protocol.user.cb.NPU1UserConnected;
+import com.io7m.northpike.protocol.user.cb.NPU1AgentConnected;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 
-import static com.io7m.cedarbridge.runtime.api.CBCore.string;
 import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned16;
+import static com.io7m.cedarbridge.runtime.api.CBCore.unsigned64;
 import static com.io7m.northpike.protocol.user.cb.internal.NPUVIPAddress.IP_ADDRESS;
 
 /**
  * A validator.
  */
 
-public enum NPUVUserConnected
-  implements NPProtocolMessageValidatorType<NPUserConnected, NPU1UserConnected>
+public enum NPUVAgentConnected
+  implements NPProtocolMessageValidatorType<NPAgentConnected, NPU1AgentConnected>
 {
   /**
    * A validator.
    */
 
-  USER_CONNECTED;
+  AGENT_CONNECTED;
 
   @Override
-  public NPU1UserConnected convertToWire(
-    final NPUserConnected message)
+  public NPU1AgentConnected convertToWire(
+    final NPAgentConnected message)
   {
-    return new NPU1UserConnected(
-      new CBUUID(message.userId()),
-      string(message.name().value()),
+    return new NPU1AgentConnected(
+      new CBUUID(message.agentID().value()),
       IP_ADDRESS.convertToWire(message.address().getAddress()),
-      unsigned16(message.address().getPort())
+      unsigned16(message.address().getPort()),
+      unsigned64(message.latency().toMillis())
     );
   }
 
   @Override
-  public NPUserConnected convertFromWire(
-    final NPU1UserConnected message)
+  public NPAgentConnected convertFromWire(
+    final NPU1AgentConnected message)
   {
-    return new NPUserConnected(
-      message.fieldId().value(),
-      new IdName(message.fieldName().value()),
+    return new NPAgentConnected(
+      new NPAgentID(message.fieldId().value()),
       new InetSocketAddress(
         IP_ADDRESS.convertFromWire(message.fieldRemoteAddress()),
         message.fieldRemotePort().value()
-      )
+      ),
+      Duration.ofMillis(message.fieldLatencyMilliseconds().value())
     );
   }
 }

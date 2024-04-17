@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,43 +14,42 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.northpike.model;
 
-import com.io7m.idstore.model.IdName;
+package com.io7m.northpike.model.agents;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
- * A snapshot of a connected user.
+ * Information about an agent connection.
  *
- * @param userId  The user ID
- * @param name    The user name
- * @param address The address from which the user is connecting
+ * @param agentID The agent ID
+ * @param address The remote agent address
+ * @param latency The remote agent latency
  */
 
-public record NPUserConnected(
-  UUID userId,
-  IdName name,
-  InetSocketAddress address)
+public record NPAgentConnected(
+  NPAgentID agentID,
+  InetSocketAddress address,
+  Duration latency)
 {
   /**
-   * A snapshot of a user.
+   * Information about an agent connection.
    *
-   * @param userId  The user ID
-   * @param name    The user name
-   * @param address The address from which the user is connecting
+   * @param agentID The agent ID
+   * @param address The remote agent address
+   * @param latency The remote agent latency
    */
 
-  public NPUserConnected
+  public NPAgentConnected
   {
-    Objects.requireNonNull(userId, "userId");
-    Objects.requireNonNull(name, "name");
+    Objects.requireNonNull(agentID, "agentID");
     Objects.requireNonNull(address, "address");
+    Objects.requireNonNull(latency, "latency");
 
     if (address.isUnresolved()) {
-      throw new IllegalArgumentException("User addresses must be resolved.");
+      throw new IllegalArgumentException("Agent addresses must be resolved.");
     }
   }
 }

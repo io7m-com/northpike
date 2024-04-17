@@ -64,6 +64,7 @@ import static com.io7m.northpike.strings.NPStringConstants.ERROR_AUTHENTICATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for a command.
@@ -84,7 +85,6 @@ public final class NPUCmdToolExecutionDescriptionPutTest
     );
 
   private NPUserCommandContextType context;
-  private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
   private RPServiceDirectory services;
   private NPTEvaluationServiceType compilers;
@@ -107,19 +107,17 @@ public final class NPUCmdToolExecutionDescriptionPutTest
     this.services.register(NPStrings.class, NPStrings.create(Locale.ROOT));
     this.services.register(NPTEvaluationServiceType.class, this.compilers);
 
-    Mockito.when(this.context.services())
+    when(this.context.services())
       .thenReturn(this.services);
-    Mockito.when(this.compilers.create(any(), any(), any()))
+    when(this.compilers.create(any(), any(), any()))
       .thenReturn(this.evaluable);
 
-    this.connection =
-      Mockito.mock(NPDatabaseConnectionType.class);
     this.transaction =
       Mockito.mock(NPDatabaseTransactionType.class);
 
-    Mockito.when(this.context.databaseConnection())
-      .thenReturn(this.connection);
-    Mockito.when(this.connection.openTransaction())
+    when(this.context.transaction())
+      .thenReturn(this.transaction);
+    when(this.context.transaction(any()))
       .thenReturn(this.transaction);
 
     Mockito.doAnswer(invocationOnMock -> {
@@ -165,7 +163,7 @@ public final class NPUCmdToolExecutionDescriptionPutTest
   {
     final var handler = new NPUCmdToolExecutionDescriptionPut();
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenThrow(new NPPlanException(
         ERROR_AUTHENTICATION.name(),
         errorAuthentication(),
@@ -213,7 +211,7 @@ public final class NPUCmdToolExecutionDescriptionPutTest
         new MSubject(Set.of())
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
 
     final var ex =
@@ -250,10 +248,10 @@ public final class NPUCmdToolExecutionDescriptionPutTest
         new MSubject(Set.of(NPSecRole.TOOLS_WRITER.role()))
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(userId);
 
-    Mockito.when(this.evaluable.execute())
+    when(this.evaluable.execute())
       .thenThrow(new NPTException(
         "ERROR_COMPILATION_FAILED",
         errorCompilationFailed(),
@@ -296,16 +294,16 @@ public final class NPUCmdToolExecutionDescriptionPutTest
         new MSubject(Set.of(NPSecRole.TOOLS_WRITER.role()))
       );
 
-    Mockito.when(this.context.onAuthenticationRequire())
+    when(this.context.onAuthenticationRequire())
       .thenReturn(user);
 
-    Mockito.when(this.evaluable.execute())
+    when(this.evaluable.execute())
       .thenReturn(new NPTEvaluationResult(List.of(), List.of(), List.of()));
 
     final var put =
       Mockito.mock(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class);
 
-    Mockito.when(this.transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class))
+    when(this.transaction.queries(NPDatabaseQueriesToolsType.PutExecutionDescriptionType.class))
       .thenReturn(put);
 
     final var r =

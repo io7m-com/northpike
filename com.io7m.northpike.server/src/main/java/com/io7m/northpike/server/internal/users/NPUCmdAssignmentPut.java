@@ -56,13 +56,11 @@ public final class NPUCmdAssignmentPut
       NPSecAction.WRITE.action()
     );
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
-        transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentPutType.class)
-          .execute(command.assignment());
-        transaction.commit();
-      }
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+      transaction.queries(NPDatabaseQueriesAssignmentsType.AssignmentPutType.class)
+        .execute(command.assignment());
+      transaction.commit();
     }
 
     return NPUResponseOK.createCorrelated(command);

@@ -65,8 +65,6 @@ import static org.mockito.Mockito.when;
 public final class NPACmdWorkItemOutputTest
 {
   private NPAgentCommandContextType context;
-  private NPDatabaseType database;
-  private NPDatabaseConnectionType connection;
   private NPDatabaseTransactionType transaction;
 
   @BeforeEach
@@ -90,16 +88,12 @@ public final class NPACmdWorkItemOutputTest
       );
     }).when(this.context).fail(any(), any());
 
-    this.database =
-      mock(NPDatabaseType.class);
-    this.connection =
-      mock(NPDatabaseConnectionType.class);
     this.transaction =
       mock(NPDatabaseTransactionType.class);
 
-    when(this.database.openConnection(any()))
-      .thenReturn(this.connection);
-    when(this.connection.openTransaction())
+    when(this.context.transaction())
+      .thenReturn(this.transaction);
+    when(this.context.transaction(any()))
       .thenReturn(this.transaction);
   }
 
@@ -164,8 +158,10 @@ public final class NPACmdWorkItemOutputTest
 
     when(this.context.onAuthenticationRequire())
       .thenReturn(agentId);
-    when(this.context.databaseConnection())
-      .thenReturn(this.connection);
+    when(this.context.transaction())
+      .thenReturn(this.transaction);
+    when(this.context.transaction(any()))
+      .thenReturn(this.transaction);
 
     final var get =
       mock(AssignmentWorkItemGetType.class);
@@ -218,8 +214,10 @@ public final class NPACmdWorkItemOutputTest
 
     when(this.context.onAuthenticationRequire())
       .thenReturn(agentId);
-    when(this.context.databaseConnection())
-      .thenReturn(this.connection);
+    when(this.context.transaction())
+      .thenReturn(this.transaction);
+    when(this.context.transaction(any()))
+      .thenReturn(this.transaction);
 
     final var get =
       mock(AssignmentWorkItemGetType.class);
@@ -301,8 +299,10 @@ public final class NPACmdWorkItemOutputTest
 
     when(this.context.onAuthenticationRequire())
       .thenReturn(agentId);
-    when(this.context.databaseConnection())
-      .thenReturn(this.connection);
+    when(this.context.transaction())
+      .thenReturn(this.transaction);
+    when(this.context.transaction(any()))
+      .thenReturn(this.transaction);
 
     final var get =
       mock(AssignmentWorkItemGetType.class);

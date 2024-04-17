@@ -24,6 +24,7 @@ import com.io7m.northpike.database.api.NPDatabaseTransactionType;
 import com.io7m.northpike.model.NPErrorCode;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPUser;
+import com.io7m.northpike.model.agents.NPAgentConnected;
 import com.io7m.northpike.model.agents.NPAgentID;
 import com.io7m.northpike.model.plans.NPPlanException;
 import com.io7m.northpike.model.security.NPSecRole;
@@ -39,6 +40,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -203,11 +206,26 @@ public final class NPUCmdAgentsConnectedTest
 
     final var agentSet =
       Set.of(
-        new NPAgentID(UUID.randomUUID()),
-        new NPAgentID(UUID.randomUUID()),
-        new NPAgentID(UUID.randomUUID()),
-        new NPAgentID(UUID.randomUUID()),
-        new NPAgentID(UUID.randomUUID())
+        new NPAgentConnected(
+          new NPAgentID(UUID.randomUUID()),
+          new InetSocketAddress("localhost", 1000),
+          Duration.ofMillis(23L)
+        ),
+        new NPAgentConnected(
+          new NPAgentID(UUID.randomUUID()),
+          new InetSocketAddress("localhost", 1001),
+          Duration.ofMillis(245L)
+        ),
+        new NPAgentConnected(
+          new NPAgentID(UUID.randomUUID()),
+          new InetSocketAddress("localhost", 1002),
+          Duration.ofMillis(2000L)
+        ),
+        new NPAgentConnected(
+          new NPAgentID(UUID.randomUUID()),
+          new InetSocketAddress("localhost", 1003),
+          Duration.ofMillis(22L)
+        )
       );
 
     Mockito.when(agents.findAgentsConnected())

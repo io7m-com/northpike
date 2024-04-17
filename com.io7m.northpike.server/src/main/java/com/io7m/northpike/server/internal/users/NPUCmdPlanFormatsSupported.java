@@ -56,7 +56,7 @@ public final class NPUCmdPlanFormatsSupported
     return NPUResponsePlanFormatsSupported.createCorrelated(
       command,
       available.stream()
-        .flatMap(x -> x .formats().stream())
+        .flatMap(x -> x.formats().stream())
         .collect(Collectors.toUnmodifiableSet())
     );
   }

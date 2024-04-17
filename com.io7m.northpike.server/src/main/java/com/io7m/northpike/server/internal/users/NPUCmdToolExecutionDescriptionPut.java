@@ -81,14 +81,12 @@ public final class NPUCmdToolExecutionDescriptionPut
 
     evaluable.execute();
 
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
-        transaction.queries(PutExecutionDescriptionType.class)
-          .execute(description);
-        transaction.commit();
-        return NPUResponseOK.createCorrelated(command);
-      }
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+      transaction.queries(PutExecutionDescriptionType.class)
+        .execute(description);
+      transaction.commit();
+      return NPUResponseOK.createCorrelated(command);
     }
   }
 }

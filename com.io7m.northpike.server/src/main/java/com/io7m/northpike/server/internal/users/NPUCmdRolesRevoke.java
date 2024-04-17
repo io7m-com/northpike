@@ -54,34 +54,34 @@ public final class NPUCmdRolesRevoke
     final Set<MRoleName> rolesTaken)
     throws NPException
   {
-    try (var connection = context.databaseConnection()) {
-      try (var transaction = connection.openTransaction()) {
-        transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
+    try (var transaction = context.transaction()) {
+      transaction.setOwner(new NPAuditOwnerType.User(user.userId()));
 
-        final var put =
-          transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
-        final var get =
-          transaction.queries(NPDatabaseQueriesUsersType.GetType.class);
+      final var put =
+        transaction.queries(NPDatabaseQueriesUsersType.PutType.class);
+      final var get =
+        transaction.queries(NPDatabaseQueriesUsersType.GetType.class);
 
-        final var targetUser =
-          get.execute(command.user())
-            .orElseThrow(() -> {
-              return context.fail(NPStringConstants.ERROR_NONEXISTENT, NPStandardErrorCodes.errorNonexistent());
-            });
+      final var targetUser =
+        get.execute(command.user())
+          .orElseThrow(() -> {
+            return context.fail(
+              NPStringConstants.ERROR_NONEXISTENT,
+              NPStandardErrorCodes.errorNonexistent());
+          });
 
-        final var newRoles = new HashSet<>(targetUser.subject().roles());
-        newRoles.removeAll(rolesTaken);
-        put.execute(
-          new NPUser(
-            targetUser.userId(),
-            targetUser.name(),
-            new MSubject(newRoles)
-          )
-        );
+      final var newRoles = new HashSet<>(targetUser.subject().roles());
+      newRoles.removeAll(rolesTaken);
+      put.execute(
+        new NPUser(
+          targetUser.userId(),
+          targetUser.name(),
+          new MSubject(newRoles)
+        )
+      );
 
-        transaction.commit();
-        return NPUResponseOK.createCorrelated(command);
-      }
+      transaction.commit();
+      return NPUResponseOK.createCorrelated(command);
     }
   }
 

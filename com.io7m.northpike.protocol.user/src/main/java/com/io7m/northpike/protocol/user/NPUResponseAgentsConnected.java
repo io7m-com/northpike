@@ -17,7 +17,7 @@
 
 package com.io7m.northpike.protocol.user;
 
-import com.io7m.northpike.model.agents.NPAgentID;
+import com.io7m.northpike.model.agents.NPAgentConnected;
 
 import java.util.Objects;
 import java.util.Set;
@@ -34,7 +34,7 @@ import java.util.UUID;
 public record NPUResponseAgentsConnected(
   UUID messageID,
   UUID correlationID,
-  Set<NPAgentID> agents)
+  Set<NPAgentConnected> agents)
   implements NPUResponseType
 {
   /**
@@ -64,7 +64,7 @@ public record NPUResponseAgentsConnected(
 
   public static NPUResponseAgentsConnected createCorrelated(
     final NPUCommandType<?> command,
-    final Set<NPAgentID> agents)
+    final Set<NPAgentConnected> agents)
   {
     return new NPUResponseAgentsConnected(
       UUID.randomUUID(),

@@ -87,6 +87,7 @@ import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith({ErvillaExtension.class, ZeladorExtension.class})
 @ErvillaConfiguration(projectName = "com.io7m.northpike", disabledIfUnsupported = true)
@@ -149,9 +150,11 @@ public final class NPArchiveServiceTest
     this.tls =
       Mockito.mock(NPTLSContextServiceType.class);
 
-    Mockito.when(this.database.openConnection(any()))
+    when(this.database.transaction(any()))
+      .thenReturn(this.transaction);
+    when(this.database.openConnection(any()))
       .thenReturn(this.connection);
-    Mockito.when(this.connection.openTransaction())
+    when(this.connection.openTransaction())
       .thenReturn(this.transaction);
 
     this.services.register(
@@ -171,7 +174,7 @@ public final class NPArchiveServiceTest
     this.services.register(
       NPTLSContextServiceType.class, this.tls);
 
-    Mockito.when(this.configuration.configuration())
+    when(this.configuration.configuration())
       .thenReturn(
         new NPServerConfiguration(
           Locale.ROOT,
@@ -253,10 +256,10 @@ public final class NPArchiveServiceTest
     final var get =
       Mockito.mock(NPDatabaseQueriesArchivesType.ArchiveGetType.class);
 
-    Mockito.when(get.execute(any()))
+    when(get.execute(any()))
       .thenReturn(Optional.empty());
 
-    Mockito.when(
+    when(
         this.transaction.queries(NPDatabaseQueriesArchivesType.ArchiveGetType.class))
       .thenReturn(get);
 
@@ -304,10 +307,10 @@ public final class NPArchiveServiceTest
         OffsetDateTime.now().withNano(0)
       );
 
-    Mockito.when(get.execute(any()))
+    when(get.execute(any()))
       .thenReturn(Optional.of(archive));
 
-    Mockito.when(
+    when(
         this.transaction.queries(NPDatabaseQueriesArchivesType.ArchiveGetType.class))
       .thenReturn(get);
 
@@ -368,10 +371,10 @@ public final class NPArchiveServiceTest
         OffsetDateTime.now().withNano(0)
       );
 
-    Mockito.when(get.execute(any()))
+    when(get.execute(any()))
       .thenReturn(Optional.of(archive));
 
-    Mockito.when(
+    when(
         this.transaction.queries(NPDatabaseQueriesArchivesType.ArchiveGetType.class))
       .thenReturn(get);
 
