@@ -159,6 +159,7 @@ open module com.io7m.northpike.tests
   requires org.mockito;
   requires org.postgresql.jdbc;
   requires org.slf4j;
+  requires org.xerial.sqlitejdbc;
 
   requires transitive org.junit.jupiter.api;
   requires transitive org.junit.jupiter.engine;
