@@ -30,6 +30,7 @@ import com.io7m.quarrel.core.QStringType.QConstant;
 import com.io7m.repetoir.core.RPServiceDirectoryType;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -108,7 +109,8 @@ public final class NPShellCmdBookmarkLogin
         InetSocketAddress.createUnresolved(bookmark.host(), bookmark.port()),
         bookmark.tlsConfiguration(),
         userNameOf(bookmark),
-        passwordOf(bookmark)
+        passwordOf(bookmark),
+        Duration.ofSeconds(60L)
       );
 
     return SUCCESS;

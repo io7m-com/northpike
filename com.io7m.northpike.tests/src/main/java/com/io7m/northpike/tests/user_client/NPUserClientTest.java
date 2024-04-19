@@ -80,6 +80,7 @@ import javax.net.ServerSocketFactory;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.URI;
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -284,7 +285,8 @@ public final class NPUserClientTest
           ),
           TLS_DISABLED,
           new IdName("unused"),
-          "unused"
+          "unused",
+          Duration.ofSeconds(60L)
         );
       });
     assertEquals("GO AWAY!", ex.getMessage());
@@ -306,7 +308,8 @@ public final class NPUserClientTest
           this.serverAddress,
           TLS_DISABLED,
           new IdName("nonexistent"),
-          "123"
+          "123",
+          Duration.ofSeconds(60L)
         );
       });
 
@@ -343,7 +346,8 @@ public final class NPUserClientTest
           this.serverAddress,
           TLS_DISABLED,
           IDSTORE_FIXTURE.userWithoutLoginName(),
-          IDSTORE_FIXTURE.password()
+          IDSTORE_FIXTURE.password(),
+          Duration.ofSeconds(60L)
         );
       });
 
@@ -370,7 +374,8 @@ public final class NPUserClientTest
       this.serverAddress,
       TLS_DISABLED,
       IDSTORE_FIXTURE.userWithLoginName(),
-      IDSTORE_FIXTURE.password()
+      IDSTORE_FIXTURE.password(),
+      Duration.ofSeconds(60L)
     );
 
     this.userClient.execute(NPUCommandDisconnect.of());
@@ -396,7 +401,8 @@ public final class NPUserClientTest
       this.serverAddress,
       TLS_DISABLED,
       IDSTORE_FIXTURE.userWithLoginName(),
-      IDSTORE_FIXTURE.password()
+      IDSTORE_FIXTURE.password(),
+      Duration.ofSeconds(60L)
     );
 
     final var repository =
@@ -445,7 +451,8 @@ public final class NPUserClientTest
       this.serverAddress,
       TLS_DISABLED,
       IDSTORE_FIXTURE.userWithLoginName(),
-      IDSTORE_FIXTURE.password()
+      IDSTORE_FIXTURE.password(),
+      Duration.ofSeconds(60L)
     );
 
     final var repository0 =
@@ -532,7 +539,8 @@ public final class NPUserClientTest
       this.serverAddress,
       TLS_DISABLED,
       IDSTORE_FIXTURE.userWithLoginName(),
-      IDSTORE_FIXTURE.password()
+      IDSTORE_FIXTURE.password(),
+      Duration.ofSeconds(60L)
     );
 
     final var identifier =
@@ -613,7 +621,8 @@ public final class NPUserClientTest
       this.serverAddress,
       TLS_DISABLED,
       IDSTORE_FIXTURE.userWithLoginName(),
-      IDSTORE_FIXTURE.password()
+      IDSTORE_FIXTURE.password(),
+      Duration.ofSeconds(60L)
     );
 
     final var r =
@@ -642,7 +651,8 @@ public final class NPUserClientTest
       this.serverAddress,
       TLS_DISABLED,
       IDSTORE_FIXTURE.userWithLoginName(),
-      IDSTORE_FIXTURE.password()
+      IDSTORE_FIXTURE.password(),
+      Duration.ofSeconds(60L)
     );
 
     final var r =

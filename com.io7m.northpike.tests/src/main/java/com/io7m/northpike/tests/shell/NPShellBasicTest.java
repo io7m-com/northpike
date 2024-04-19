@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -202,7 +203,8 @@ public final class NPShellBasicTest
         eq(InetSocketAddress.createUnresolved("localhost", 30000)),
         any(),
         eq(new IdName("nobody")),
-        eq("1234")
+        eq("1234"),
+        eq(Duration.ofSeconds(60L))
       );
   }
 
@@ -213,7 +215,7 @@ public final class NPShellBasicTest
     Mockito.doThrow(
         new NPUserClientException("x", errorIo(), Map.of(), Optional.empty())
       ).when(this.userClient)
-      .login(any(), any(), any(), any());
+      .login(any(), any(), any(), any(), any());
 
     final var w = this.terminal.sendInputToTerminalWriter();
     w.println("set --terminate-on-errors true");

@@ -18,6 +18,7 @@
 package com.io7m.northpike.user_client.internal;
 
 import com.io7m.idstore.model.IdName;
+import com.io7m.northpike.connections.NPTimeout;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.tls.NPTLSConfigurationType;
 import com.io7m.northpike.protocol.user.NPUCommandDisconnect;
@@ -30,6 +31,7 @@ import com.io7m.northpike.user_client.api.NPUserClientType;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.Objects;
 
 /**
@@ -59,9 +61,13 @@ public final class NPUserClient implements NPUserClientType
     final InetSocketAddress address,
     final NPTLSConfigurationType tls,
     final IdName name,
-    final String password)
+    final String password,
+    final Duration timeoutDuration)
     throws NPUserClientException, InterruptedException
   {
+    final var timeout =
+      NPTimeout.create(Thread.currentThread(), timeoutDuration);
+
     try {
       this.connection =
         NPUserConnection.open(
@@ -77,6 +83,8 @@ public final class NPUserClient implements NPUserClientType
       throw NPUserExceptions.wrap(e);
     } catch (final IOException e) {
       throw NPUserExceptions.errorIO(this.configuration.strings(), e);
+    } finally {
+      timeout.cancel();
     }
   }
 

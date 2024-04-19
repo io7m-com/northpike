@@ -24,6 +24,7 @@ import com.io7m.northpike.protocol.user.NPUResponseType;
 import com.io7m.repetoir.core.RPServiceType;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 
 /**
  * A user client.
@@ -38,6 +39,7 @@ public interface NPUserClientType extends CloseableType, RPServiceType
    * @param tls      The TLS configuration
    * @param name     The username
    * @param password The password
+   * @param timeout  The timeout duration
    *
    * @throws NPUserClientException On errors
    * @throws InterruptedException  On interruption
@@ -47,7 +49,8 @@ public interface NPUserClientType extends CloseableType, RPServiceType
     InetSocketAddress address,
     NPTLSConfigurationType tls,
     IdName name,
-    String password)
+    String password,
+    Duration timeout)
     throws NPUserClientException, InterruptedException;
 
   @Override

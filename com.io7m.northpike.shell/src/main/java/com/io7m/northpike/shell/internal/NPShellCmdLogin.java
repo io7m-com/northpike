@@ -33,6 +33,7 @@ import com.io7m.repetoir.core.RPServiceDirectoryType;
 
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -268,7 +269,8 @@ public final class NPShellCmdLogin extends NPShellCmdAbstractU
         InetSocketAddress.createUnresolved(server, port.intValue()),
         tlsConfig,
         new IdName(userName),
-        password
+        password,
+        Duration.ofSeconds(60L)
       );
 
     return SUCCESS;

@@ -194,7 +194,8 @@ public final class NPServerFixture
         new InetSocketAddress(address, port),
         TLS_DISABLED,
         admin.idName(),
-        PASSWORD
+        PASSWORD,
+        Duration.ofSeconds(60L)
       );
 
       LOG.info(
@@ -225,7 +226,8 @@ public final class NPServerFixture
         new InetSocketAddress(address, port),
         TLS_DISABLED,
         user.idName(),
-        PASSWORD
+        PASSWORD,
+        Duration.ofSeconds(60L)
       );
     }
   }

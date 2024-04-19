@@ -29,6 +29,7 @@ import com.io7m.northpike.agent.internal.status.NPAgentConnectionStatusConnectio
 import com.io7m.northpike.agent.internal.status.NPAgentConnectionStatusType;
 import com.io7m.northpike.agent.workexec.api.NPAWorkEvent;
 import com.io7m.northpike.agent.workexec.api.NPAWorkExecutionResult;
+import com.io7m.northpike.connections.NPTimeout;
 import com.io7m.northpike.model.NPException;
 import com.io7m.northpike.model.NPWorkItemIdentifier;
 import com.io7m.northpike.model.NPWorkItemLogRecord;
@@ -289,13 +290,20 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
           new NPAgentConnectionStatusConnecting(this.configuration.hostname())
         );
 
-        this.connection =
-          NPAgentConnection.open(
-            this.strings,
-            this.tlsContexts,
-            this.keyPair,
-            this.configuration
-          );
+        final var timeout =
+          NPTimeout.create(Thread.currentThread(), Duration.ofSeconds(30L));
+
+        try {
+          this.connection =
+            NPAgentConnection.open(
+              this.strings,
+              this.tlsContexts,
+              this.keyPair,
+              this.configuration
+            );
+        } finally {
+          timeout.cancel();
+        }
 
         final var env = this.environment;
         if (env != null) {
