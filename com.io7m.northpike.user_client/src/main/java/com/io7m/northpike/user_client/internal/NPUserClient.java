@@ -65,26 +65,24 @@ public final class NPUserClient implements NPUserClientType
     final Duration timeoutDuration)
     throws NPUserClientException, InterruptedException
   {
-    final var timeout =
-      NPTimeout.create(Thread.currentThread(), timeoutDuration);
-
-    try {
-      this.connection =
-        NPUserConnection.open(
-          new NPUserConnectionParameters(
-            this.configuration,
-            name,
-            password,
-            address,
-            tls
-          )
-        );
-    } catch (final NPException e) {
-      throw NPUserExceptions.wrap(e);
-    } catch (final IOException e) {
-      throw NPUserExceptions.errorIO(this.configuration.strings(), e);
-    } finally {
-      timeout.cancel();
+    try (var ignored =
+           NPTimeout.create(Thread.currentThread(), timeoutDuration)) {
+      try {
+        this.connection =
+          NPUserConnection.open(
+            new NPUserConnectionParameters(
+              this.configuration,
+              name,
+              password,
+              address,
+              tls
+            )
+          );
+      } catch (final NPException e) {
+        throw NPUserExceptions.wrap(e);
+      } catch (final IOException e) {
+        throw NPUserExceptions.errorIO(this.configuration.strings(), e);
+      }
     }
   }
 

@@ -43,6 +43,6 @@ public final class NPTimeoutTest
       NPTimeout.create(Thread.currentThread(), Duration.ofSeconds(5L));
 
     Thread.sleep(1_000L);
-    timeout.cancel();
+    timeout.close();
   }
 }

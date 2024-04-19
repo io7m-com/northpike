@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * not been cancelled before a given duration elapses.
  */
 
-public final class NPTimeout
+public final class NPTimeout implements AutoCloseable
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(NPTimeout.class);
@@ -93,8 +93,14 @@ public final class NPTimeout
    * Cancel the watchdog.
    */
 
-  public void cancel()
+  private void cancel()
   {
     this.queue.add(Integer.valueOf(0));
+  }
+
+  @Override
+  public void close()
+  {
+    this.cancel();
   }
 }

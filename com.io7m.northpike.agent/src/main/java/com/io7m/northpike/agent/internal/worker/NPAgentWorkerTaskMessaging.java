@@ -290,10 +290,8 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
           new NPAgentConnectionStatusConnecting(this.configuration.hostname())
         );
 
-        final var timeout =
-          NPTimeout.create(Thread.currentThread(), Duration.ofSeconds(30L));
-
-        try {
+        try (var ignored =
+               NPTimeout.create(Thread.currentThread(), Duration.ofSeconds(30L))) {
           this.connection =
             NPAgentConnection.open(
               this.strings,
@@ -301,8 +299,6 @@ public final class NPAgentWorkerTaskMessaging implements NPAgentTaskType
               this.keyPair,
               this.configuration
             );
-        } finally {
-          timeout.cancel();
         }
 
         final var env = this.environment;
