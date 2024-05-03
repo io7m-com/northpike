@@ -9,7 +9,7 @@ COPY northpike /northpike
 LABEL "org.opencontainers.image.authors"="Mark Raynsford"
 LABEL "org.opencontainers.image.description"="Continuous integration server"
 LABEL "org.opencontainers.image.licenses"="ISC"
-LABEL "org.opencontainers.image.source"="https://www.github.com/io7m/northpike"
+LABEL "org.opencontainers.image.source"="https://www.github.com/io7m-com/northpike"
 LABEL "org.opencontainers.image.title"="Northpike"
 LABEL "org.opencontainers.image.url"="https://www.io7m.com/software/northpike"
 LABEL "org.opencontainers.image.version"="${project.version}"

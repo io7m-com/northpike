@@ -147,14 +147,14 @@
   <licenses>
     <license>
       <name>ISC</name>
-      <url>https://io7m.com/license/isc.txt</url>
+      <url>https://www.io7m.com/license/isc.txt</url>
     </license>
   </licenses>
 
   <scm>
-    <url>https://github.com/io7m/northpike</url>
-    <connection>scm:git:https://github.com/io7m/northpike</connection>
-    <developerConnection>scm:git:https://github.com/io7m/northpike</developerConnection>
+    <url>https://www.github.com/io7m-com/northpike</url>
+    <connection>scm:git:https://www.github.com/io7m-com/northpike</connection>
+    <developerConnection>scm:git:https://www.github.com/io7m-com/northpike</developerConnection>
   </scm>
 
   <developers>
@@ -167,7 +167,7 @@
   </developers>
 
   <issueManagement>
-    <url>https://github.com/io7m/northpike/issues</url>
+    <url>https://www.github.com/io7m-com/northpike/issues</url>
     <system>GitHub Issues</system>
   </issueManagement>
 
@@ -189,7 +189,7 @@
 
   <ciManagement>
     <system>GitHub Actions</system>
-    <url>https://github.com/northpike/actions</url>
+    <url>https://www.github.com/io7m-com/northpike/actions</url>
   </ciManagement>
 
   <dependencyManagement>

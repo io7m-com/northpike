@@ -986,7 +986,7 @@ Environment Variables
     <Subsection title="Repositories">
       <Paragraph>
         In order to do useful work such as building code, we'll need to tell the server how to actually get that code.
-        We'll add the <LinkExternal target="https://www.github.com/io7m/abstand">abstand</LinkExternal> repository to
+        We'll add the <LinkExternal target="https://www.github.com/io7m-com/abstand">abstand</LinkExternal> repository to
         the server as it's a fairly small and self-contained project that builds quickly. The repository is a
         <LinkExternal target="https://www.git-scm.com">Git</LinkExternal>
         repository, so we'll need to use an appropriate <Term type="term">SCM provider</Term> to access the repository.
@@ -1014,14 +1014,14 @@ Environment Variables
 [northpike]$ repository-put
 --id 591ec9f7-5afb-4416-8258-22f388be40ff
 --provider com.io7m.northpike.repository.jgit
---uri https://www.github.com/io7m/abstand
+--uri https://www.github.com/io7m-com/abstand
 
 [northpike]$ repository-search-begin
  Page 1 of 1, offset 0
 ┌──────────────────────────────────────┬────────────────────────────────────┬─────────────────────────────────────────┐
 │ ID                                   │ Provider                           │ URI                                     │
 ├──────────────────────────────────────┼────────────────────────────────────┼─────────────────────────────────────────┤
-│ 591ec9f7-5afb-4416-8258-22f388be40ff │ com.io7m.northpike.repository.jgit │ https://www.github.com/io7m/abstand     │
+│ 591ec9f7-5afb-4416-8258-22f388be40ff │ com.io7m.northpike.repository.jgit │ https://www.github.com/io7m-com/abstand     │
 └──────────────────────────────────────┴────────────────────────────────────┴─────────────────────────────────────────┘
 ]]></Verbatim>
       </FormalItem>
@@ -1106,7 +1106,7 @@ E362BB4F16A9981DE7812F6E10E4AAD0B00D6CDD.asc: PGP public key block
 ├───────────────────────────────────────────────┼───────────────────────────────────────────┤
 │ SCM Provider                                  │ com.io7m.northpike.repository.jgit        │
 ├───────────────────────────────────────────────┼───────────────────────────────────────────┤
-│ URI                                           │ https://www.github.com/io7m/abstand       │
+│ URI                                           │ https://www.github.com/io7m-com/abstand       │
 ├───────────────────────────────────────────────┼───────────────────────────────────────────┤
 │ Credentials                                   │ CREDENTIALS_NONE                          │
 ├───────────────────────────────────────────────┼───────────────────────────────────────────┤
@@ -1142,7 +1142,7 @@ E362BB4F16A9981DE7812F6E10E4AAD0B00D6CDD.asc: PGP public key block
         <Link target="7b6d8296-cba1-448b-96e0-10e89b61bec0">Plans</Link>
         describe the series of tasks that have to be performed in order to achieve a desired goal. In our case, we have
         a fairly simple goal: Build the
-        <LinkExternal target="https://www.github.com/io7m/abstand">abstand</LinkExternal>
+        <LinkExternal target="https://www.github.com/io7m-com/abstand">abstand</LinkExternal>
         project and run its test suite.
       </Paragraph>
       <Paragraph>
