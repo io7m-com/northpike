@@ -130,7 +130,7 @@
     <jaxb.version>4.0.0</jaxb.version>
     <jetty.version>12.0.1</jetty.version>
     <jgit.version>6.6.1.202309021850-r</jgit.version>
-    <jooq.version>3.19.7</jooq.version>
+    <jooq.version>3.19.8</jooq.version>
     <jqwik.version>1.8.4</jqwik.version>
     <junit.version>5.10.2</junit.version>
     <net.bytebuddy.version>1.14.13</net.bytebuddy.version>
