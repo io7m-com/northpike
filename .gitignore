@@ -21,3 +21,5 @@ out
 pom.xml.versionsBackup
 target
 com.io7m.northpike.tests/src/main/java/com/io7m/northpike/tests/examples/*
+.jqwik-database
+dependency-reduced-pom.xml
