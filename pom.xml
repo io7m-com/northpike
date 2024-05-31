@@ -136,7 +136,7 @@
     <net.bytebuddy.version>1.14.15</net.bytebuddy.version>
     <opentelemetry.version>1.37.0</opentelemetry.version>
     <org.apache.tika.version>2.8.0</org.apache.tika.version>
-    <org.bouncycastle.version>1.78</org.bouncycastle.version>
+    <org.bouncycastle.version>1.78.1</org.bouncycastle.version>
     <org.graalvm.version>24.0.1</org.graalvm.version>
     <org.jline.version>3.25.1</org.jline.version>
     <org.mockito.version>5.11.0</org.mockito.version>
