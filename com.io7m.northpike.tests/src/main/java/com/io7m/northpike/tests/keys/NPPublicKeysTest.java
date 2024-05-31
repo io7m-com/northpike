@@ -38,7 +38,7 @@ public final class NPPublicKeysTest
 {
   public static final String KEY_TEXT = """
     -----BEGIN PGP PUBLIC KEY BLOCK-----
-    Version: BCPG v1.78
+    Version: BCPG v1.78.1
 
     mDMEY7F/wRYJKwYBBAHaRw8BAQdA5iaeazlPKvs/ThTquJ4lYrjTwI9ALsyTu3/V
     mWUYSfm0Lk1hcmsgUmF5bnNmb3JkICgyMDIzIHBlcnNvbmFsKSA8bWFya0Bpbzdt
