@@ -131,7 +131,7 @@
     <jetty.version>12.0.1</jetty.version>
     <jgit.version>6.6.1.202309021850-r</jgit.version>
     <jooq.version>3.19.8</jooq.version>
-    <jqwik.version>1.8.4</jqwik.version>
+    <jqwik.version>1.8.5</jqwik.version>
     <org.junit.version>5.10.2</org.junit.version>
     <net.bytebuddy.version>1.14.15</net.bytebuddy.version>
     <opentelemetry.version>1.39.0</opentelemetry.version>
