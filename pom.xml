@@ -124,7 +124,7 @@
     <containers.idstore.version>${com.io7m.idstore.version}</containers.idstore.version>
     <containers.postgresql.version>15.6-alpine3.19</containers.postgresql.version>
     <helidon.version>4.0.8</helidon.version>
-    <io.github.classgraph.version>4.8.172</io.github.classgraph.version>
+    <io.github.classgraph.version>4.8.173</io.github.classgraph.version>
     <jackson.version>2.14.2</jackson.version>
     <javafx.version>20.0.1</javafx.version>
     <jaxb.version>4.0.0</jaxb.version>
