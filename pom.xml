@@ -93,7 +93,7 @@
     <!-- io7m dependencies. -->
     <com.io7m.anethum.version>1.1.1</com.io7m.anethum.version>
     <com.io7m.blackthorne.version>2.0.1</com.io7m.blackthorne.version>
-    <com.io7m.canonmill.version>2.0.1</com.io7m.canonmill.version>
+    <com.io7m.canonmill.version>2.1.0</com.io7m.canonmill.version>
     <com.io7m.cedarbridge.version>1.2.0</com.io7m.cedarbridge.version>
     <com.io7m.ervilla.version>1.0.0</com.io7m.ervilla.version>
     <com.io7m.hibiscus.version>1.0.0-beta0001</com.io7m.hibiscus.version>
