@@ -117,7 +117,7 @@
     <com.io7m.trasco.version>1.1.0</com.io7m.trasco.version>
     <com.io7m.verdant.version>1.0.1</com.io7m.verdant.version>
     <com.io7m.verona.version>1.0.1</com.io7m.verona.version>
-    <com.io7m.xstructural.version>1.8.1</com.io7m.xstructural.version>
+    <com.io7m.xstructural.version>1.9.0</com.io7m.xstructural.version>
     <com.io7m.zelador.version>0.0.1</com.io7m.zelador.version>
 
     <!-- Third-party dependencies. -->
