@@ -16,13 +16,14 @@
 
 .brandingContainer
 {
-  margin: 1em;
+  margin-top:    1em;
+  margin-bottom: 2em;
+  font-size:     80%;
 }
 
 .branding
 {
   font-family: monospace;
-  font-size:   80%;
 }
 
 .address,
